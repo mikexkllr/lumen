@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different round trips are there through just 10 cities?"
+    params:
+      min: 10
+      max: 100000000
+      scale: log
+    answer:
+      value: 181440
+      within: 80
+    explanation: Exactly 181,440. With each further city the number explodes.
+
+
   - kind: explain
+    id: s1
     body: |
       A salesperson wants to visit all cities exactly once and return, by the shortest route. With n cities, there are $\frac{(n-1)!}{2}$ different round trips.
 
@@ -42,6 +57,37 @@ steps:
     hints:
       - Does it always have to be the very best solution?
     explanation: Heuristics deliver routes only a few percent above the optimum.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The strategy “always to the nearest unvisited city” is fast. How many distances must be compared at most for 100 cities – roughly 100² divided by 2?
+    answer:
+      value: 5000
+      tolerance: 100
+    hints:
+      - 99 + 98 + … + 1.
+    explanation: About 5000 comparisons instead of 10¹⁵⁵ round trips. The tour is usually about 25% longer than the best.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A method guarantees a round trip at most 50% longer than the best – and runs fast. What is this called?
+    params:
+      options:
+        - label: An approximation algorithm
+          correct: true
+        - label: An exact algorithm
+          feedback: Only the best tour itself would be exact.
+        - label: A randomised algorithm
+          feedback: The guarantee always holds, not just with luck.
+    hints:
+      - Not perfect, but with a guarantee.
+    explanation: The Christofides algorithm of 1976 achieves exactly that. Instead of giving up you negotiate with the difficulty.
+    difficulty: 3
 
 srs:
   cards_from: [fuenf, praxis]

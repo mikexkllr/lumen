@@ -9,6 +9,19 @@ skills: [prob.chance]
 estimated_minutes: 7
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many people must be in a room so that two of them share a birthday with more than a 50% chance?"
+    params:
+      min: 2
+      max: 366
+    answer:
+      value: 23
+      tolerance: 6
+    explanation: Only 23. Our gut feeling for probabilities is often off – that is why calculating pays off.
+
+
+  - kind: problem
     id: sechs-oder-eins
     widget: choice
     prompt: When rolling a die, which is more likely, a 6 or a 1?
@@ -22,6 +35,7 @@ steps:
     explanation: Each side of a fair die has a chance of 1/6.
 
   - kind: explain
+    id: s2
     body: |
       Try it out. Roll the die 10 or 100 times.
       The counts vary, but every number has the chance $\frac{1}{6}$.
@@ -43,6 +57,7 @@ steps:
     explanation: 3 of 6 outcomes are even. 3/6 = 1/2.
 
   - kind: explain
+    id: s4
     body: |
       **Laplace rule:** if all outcomes are equally likely,
       $P = \frac{\text{favorable outcomes}}{\text{possible outcomes}}$.
@@ -79,5 +94,39 @@ steps:
       - Does the coin know what happened before?
     explanation: Every toss is independent. Heads and tails each have 1/2.
 
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: You draw one card from a deck of 52. What is the probability of an ace **or** a heart? As a fraction.
+    answer:
+      value: 16/52
+    feedback:
+      - when: approx(numval(state.input), 17 / 52)
+        misconception: double-count
+        text: You counted the ace of hearts twice.
+    hints:
+      - 4 aces plus 13 hearts – but count the ace of hearts only once.
+    explanation: 4 + 13 − 1 = 16. What satisfies both conditions must not be counted twice.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: What does “probability 30%” actually mean? There are two main interpretations. Which fits a weather forecast?
+    params:
+      options:
+        - label: On 30 of 100 days with exactly this weather situation it rains
+          correct: true
+        - label: It rains over 30% of the area
+          feedback: A common misunderstanding.
+        - label: It rains for 30% of the day
+          feedback: That is not what is meant either.
+    hints:
+      - Imagine many days with the same starting conditions.
+    explanation: "The **frequentist interpretation**. Besides it there is the Bayesian one: probability as degree of belief."
+    difficulty: 3
+
 srs:
-  cards_from: ["steps[4]"]
+  cards_from: ["kugeln"]

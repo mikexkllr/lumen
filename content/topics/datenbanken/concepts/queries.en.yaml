@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many searches does Google answer per second?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 60
+    explanation: About 100,000 – each one is a query to huge databases.
+
+
   - kind: explain
+    id: s1
     body: |
       You ask a database questions in the language **SQL**. `SELECT name FROM customers WHERE age > 30` means: give me the names of all customers over 30.
 
@@ -51,6 +66,54 @@ steps:
     hints:
       - COUNT means to count.
     explanation: The database computes such summaries itself, in a flash.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: What does the SQL part do?
+    params:
+      pairs:
+        - left: SELECT
+          right: picks columns
+        - left: FROM
+          right: names the table
+        - left: WHERE
+          right: filters rows
+        - left: ORDER BY
+          right: sorts the result
+    hints:
+      - Read a query like an English sentence.
+    explanation: SQL describes **what** you want – not how the database finds it.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "A table has 200 customers: 80 from Berlin, 30 of them over 40. How many rows does WHERE city = “Berlin” AND age > 40 return?"
+    answer:
+      value: 30
+    hints:
+      - "AND means: both conditions must hold."
+    explanation: 30 – only those who satisfy both.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: What does SELECT city, COUNT(*) FROM customers GROUP BY city return?
+    params:
+      options:
+        - label: One row per city with the number of its customers
+          correct: true
+        - label: All customers, sorted by city
+          feedback: Sorting would be ORDER BY. Here rows are aggregated.
+        - label: Just the total number of all customers
+          feedback: Without GROUP BY it would be.
+    hints:
+      - GROUP BY forms groups, COUNT counts within each.
+    explanation: Grouping and aggregating – the heart of every analysis and dashboard.
+    difficulty: 3
 
 srs:
   cards_from: [zaehlen, reihenfolge]

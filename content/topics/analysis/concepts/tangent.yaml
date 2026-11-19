@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Ein Ball fällt eine Sekunde lang. Wie schnell ist er dann – in km/h?"
+    params:
+      min: 0
+      max: 100
+      unit: km/h
+    answer:
+      value: 35
+      tolerance: 8
+    explanation: Rund 35 km/h. Sein Tempo ändert sich in jedem Augenblick – genau darum geht es hier.
+
+
   - kind: explain
+    id: s1
     body: |
       Der Tacho zeigt das Tempo **jetzt**, nicht im Schnitt. Dafür rückt der zweite Punkt immer näher – bis die Gerade die Kurve nur noch berührt. Diese Gerade heißt **Tangente**.
 
@@ -58,6 +73,58 @@ steps:
     variants:
       params: { a: "int[3,9]" }
       defaults: { a: 5 }
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: Die orange Sekante geht durch zwei Punkte der Parabel. Mach den Abstand h winzig (höchstens 0,05), bei x = 1.
+    params:
+      scene: tangent
+      expr: x^2
+    answer:
+      x: 1
+      h:
+        - 0.01
+        - 0.05
+    explanation: Die Sekantensteigung nähert sich 2 – sie wird zur Tangente. Genau das ist die Ableitung.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: An welcher Stelle ist die Tangente der Parabel **waagerecht**?
+    params:
+      scene: tangent
+      expr: x^2
+      controls:
+        h:
+          value: 0.5
+      show:
+        - slope
+    answer:
+      slope: 0
+    explanation: Bei x = 0, im Scheitel. Dort ist die Steigung null.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: "Neue Kurve: $y = x^3 - 3x$. Finde eine Stelle mit Steigung **genau 9**."
+    params:
+      scene: tangent
+      expr: x^3 - 3*x
+      controls:
+        h:
+          value: 0.5
+        x:
+          value: 0
+      show:
+        - slope
+    answer:
+      slope: 9
+    explanation: "Bei x = 2 oder x = −2: f′(x) = 3x² − 3 = 9."
+    difficulty: 3
 
 srs:
   cards_from: [muster, steil]

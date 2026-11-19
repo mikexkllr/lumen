@@ -25,6 +25,11 @@ import { hanoiWidget } from './hanoi.ts';
 import { angleWidget } from './angle.ts';
 import { rectWidget } from './rect.ts';
 import { swapWidget } from './swap.ts';
+import { estimateWidget } from './estimate.ts';
+import { swipeWidget } from './swipe.ts';
+import { clozeWidget } from './cloze.ts';
+import { teachWidget } from './teach.ts';
+import { simWidget } from './sim.ts';
 
 const registry = new Map<string, WidgetDefinition>();
 
@@ -40,7 +45,7 @@ export function listWidgets(): WidgetDefinition[] {
   return [...registry.values()];
 }
 
-for (const w of [choiceWidget, numericWidget, expressionWidget, orderWidget, tilesWidget, graphWidget, sliderWidget, balanceWidget, fractionWidget, numberLineWidget, logicGridWidget, robotWidget, chartWidget, distributionWidget, bucketsWidget, matchWidget, pixelsWidget, bitsWidget, gatesWidget, vennWidget, networkWidget, nimWidget, hanoiWidget, angleWidget, rectWidget, swapWidget]) {
+for (const w of [choiceWidget, numericWidget, expressionWidget, orderWidget, tilesWidget, graphWidget, sliderWidget, balanceWidget, fractionWidget, numberLineWidget, logicGridWidget, robotWidget, chartWidget, distributionWidget, bucketsWidget, matchWidget, pixelsWidget, bitsWidget, gatesWidget, vennWidget, networkWidget, nimWidget, hanoiWidget, angleWidget, rectWidget, swapWidget, estimateWidget, swipeWidget, clozeWidget, teachWidget, simWidget]) {
   registerWidget(w as WidgetDefinition);
 }
 

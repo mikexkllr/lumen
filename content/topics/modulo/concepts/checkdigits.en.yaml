@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: The till beeps when it has misread a barcode. How does it know?
+    params:
+      options:
+        - label: The last digit must fit the others
+          correct: true
+        - label: It knows every barcode in the world
+          feedback: That would be far too many.
+        - label: It guesses
+          feedback: Then it would often be wrong.
+    hints:
+      - One digit carries no information about the product.
+    explanation: The check digit is computed from the others.
+
+
   - kind: explain
+    id: s1
     body: |
       In barcodes, the digits are weighted alternately by 1 and 3, then added. The **check digit** tops the sum up to the next multiple of 10. Because of the weights, swapped neighboring digits show up too.
 
@@ -27,14 +45,14 @@ steps:
   - kind: problem
     id: dreher
     widget: choice
-    prompt: Someone swaps two neighboring digits, 2 and 7. Does the weighted check catch it?
+    prompt: Someone swaps two neighboring digits, 2 and 4. Does the weighted check catch it?
     params:
       options:
         - { label: "Yes – the weights 1 and 3 change the sum.", correct: true }
         - { label: "No – the sum stays the same.", feedback: "Without weights it would. With the weights 1 and 3, the sum changes." }
     hints:
-      - Compare 2 · 1 + 7 · 3 with 7 · 1 + 2 · 3.
-    explanation: 23 versus 13 – the sum changes, so the error shows.
+      - Compare 2 · 1 + 4 · 3 with 4 · 1 + 2 · 3.
+    explanation: 14 versus 10 – the sum changes by 4, so the error shows.
 
   - kind: problem
     id: wo
@@ -50,6 +68,36 @@ steps:
     hints:
       - Where would a typo be costly?
     explanation: Everywhere numbers are typed in and errors cost money.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An ISBN starts 978-3-16-14841. The weighted sum (alternately ·1 and ·3) of these 12 digits is 100. What is the check digit?
+    answer:
+      value: 0
+    hints:
+      - Which digit completes 100 to the next multiple of 10?
+    explanation: 100 is already a multiple of 10 – the check digit is 0.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Which error does the check with weights 1 and 3 **not** detect?
+    params:
+      options:
+        - label: Swapping two neighbouring digits that differ by 5
+          correct: true
+        - label: A single wrong digit
+          feedback: That always shows – 1 and 3 are coprime to 10.
+        - label: Swapping 3 and 4
+          feedback: That changes the sum by 2 and is detected.
+    hints:
+      - Swapping a and b changes the sum by 2 · (a − b).
+    explanation: 2 · 5 = 10 – the sum changes by a multiple of 10 and goes unnoticed.
+    difficulty: 3
 
 srs:
   cards_from: [ergaenzen, dreher]

@@ -29,6 +29,8 @@ export interface WidgetDefinition<P = any, S = any, A = any, Ans = any> {
   answer?: z.ZodType<Ans>;
   /** Whether the widget can be used as a problem (false = display only). */
   interactive: boolean;
+  /** The widget's own diagnosis guides the next try, so authored hints are optional. */
+  autoHints?: boolean;
   init(params: P, ctx: WidgetContext): S;
   applyAction(state: S, action: A, params: P): S;
   /** Enumerates actions that are currently possible (used for fuzzing and search). */

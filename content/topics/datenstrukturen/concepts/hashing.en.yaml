@@ -5,9 +5,27 @@ summary: Calculate the slot directly.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: In the cloakroom your coat hangs on the hook with the number of your tag. How long does the search take?
+    params:
+      options:
+        - label: Not at all – the number leads straight there
+          correct: true
+        - label: Every coat is checked
+          feedback: Then no tags would be needed.
+        - label: About half
+          feedback: The tag names the exact hook.
+    hints:
+      - What is written on the tag?
+    explanation: Compute the place from the key – that is the idea.
+
+
   - kind: explain
+    id: s1
     body: |
       A **hash table** calculates from the key which slot an entry belongs in, for example the remainder when dividing by the number of slots. No searching needed.
 
@@ -48,6 +66,36 @@ steps:
     hints:
       - How long does finding take with 10 or 10 million entries?
     explanation: Whether it is a password check or a dictionary, it takes one calculation instead of a long search.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A hash table has 100 buckets and 1000 entries, evenly distributed. How many entries are in a bucket on average?
+    answer:
+      value: 10
+    hints:
+      - 1000 ÷ 100.
+    explanation: 10 per bucket – then searching gets slow. Good tables grow before it gets that full.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Websites do not store passwords in plain text but as hashes. Why?
+    params:
+      options:
+        - label: The password cannot be computed back from the hash – not even after a data theft
+          correct: true
+        - label: Hashes need less storage
+          feedback: Often they are even longer than the password.
+        - label: So that logging in is faster
+          feedback: It is about security, not speed.
+    hints:
+      - A good hash function is a one-way street.
+    explanation: At login the input is hashed and compared. The server never knows the password itself.
+    difficulty: 3
 
 srs:
   cards_from: [fach, warum]

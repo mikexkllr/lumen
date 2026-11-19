@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Schach: Du kannst sofort einen Bauern schlagen. Oder du machst einen Zug, der in drei Zügen die Dame gewinnt. Was ist besser?"
+    params:
+      options:
+        - label: Der Zug zur Dame
+          correct: true
+        - label: Der Bauer – sicher ist sicher
+          feedback: Die Dame ist viel mehr wert.
+        - label: Egal
+          feedback: Die Züge führen zu sehr verschiedenen Lagen.
+    hints:
+      - Zählt nur, was sofort passiert?
+    explanation: Eine gute Lage ist mehr wert als ein schneller Gewinn.
+
+
   - kind: explain
+    id: s1
     body: |
       Ein Agent lernt für jede Situation einen **Wert**: wie viel Belohnung er von dort aus noch erwarten kann. Spätere Belohnungen zählen etwas weniger – jeder Schritt **diskontiert** sie, zum Beispiel um 10 %.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - "0,9^10 ist etwa 0,35."
     explanation: Geduld lohnt sich nur, wenn die spätere Belohnung groß genug ist.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Agent bekommt in jedem Schritt für immer die Belohnung 1. Jeder weitere Schritt zählt 10 % weniger (Faktor 0,9). Wie viel ist das insgesamt wert?
+    answer:
+      value: 10
+    hints:
+      - "Geometrische Reihe: 1 : (1 − 0,9)."
+    explanation: 1 + 0,9 + 0,81 + … = 10. Durch das Abzinsen bleibt selbst eine unendliche Zukunft endlich viel wert.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Die **Bellman-Gleichung** sagt: Der Wert einer Lage ist …?"
+    params:
+      options:
+        - label: … die sofortige Belohnung plus der abgezinste Wert der besten Folgelage
+          correct: true
+        - label: … die Summe aller Belohnungen, die es je gab
+          feedback: Es zählt die Zukunft, nicht die Vergangenheit.
+        - label: … immer null
+          feedback: Nur in einer Lage ohne jede Aussicht.
+    hints:
+      - Der Wert von heute hängt vom Wert von morgen ab.
+    explanation: "Eine rekursive Definition: So lässt sich ein riesiges Planungsproblem in lauter Ein-Schritt-Probleme zerlegen."
+    difficulty: 3
 
 srs:
   cards_from: [abzug, vergleich]

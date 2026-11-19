@@ -5,8 +5,21 @@ summary: Länge schlägt Sonderzeichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Sekunden braucht ein Angreifer mit 10 Milliarden Versuchen pro Sekunde für alle 6-stelligen Passwörter aus Kleinbuchstaben?"
+    params:
+      min: 0
+      max: 100
+      unit: s
+    answer:
+      value: 0.03
+      tolerance: 2
+    explanation: 26⁶ ≈ 309 Millionen – in 0,03 Sekunden durchprobiert. Kurze Passwörter schützen nicht.
+
   - kind: problem
     id: pin
     widget: numeric
@@ -25,6 +38,7 @@ steps:
       defaults: { n: 4 }
 
   - kind: explain
+    id: s2
     body: |
       Jedes zusätzliche Zeichen **multipliziert** die Möglichkeiten.
       Mit 26 Kleinbuchstaben und 8 Stellen gibt es $26^8$ – rund 209 Milliarden Passwörter.
@@ -53,6 +67,7 @@ steps:
     explanation: Gut 20 Sekunden. Acht Kleinbuchstaben sind also viel zu kurz.
 
   - kind: explain
+    id: s5
     body: |
       Heute nutzt man **zwei** Schlüssel. Den öffentlichen darf jeder kennen – damit verschließt man.
       Öffnen kann nur, wer den privaten hat. Wie bei einem Briefkasten.
@@ -69,6 +84,36 @@ steps:
     hints:
       - Der Briefschlitz ist für alle da, der Schlüssel zum Leeren nicht.
     explanation: Der öffentliche Schlüssel verschließt nur. Öffnen kann allein der private.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Vier zufällige Wörter aus einer Liste mit 2000 Wörtern. Wie viele Kombinationen gibt es? Gib den Exponenten an: 1,6 · 10 hoch …"
+    answer:
+      value: 13
+    hints:
+      - 2000⁴ = 2⁴ · 1000⁴.
+    explanation: 16 · 10¹² = 1,6 · 10¹³ – mehr als ein achtstelliges Passwort aus Kleinbuchstaben, und viel leichter zu merken.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Stärke eines Passworts misst man in **Bits Entropie**. Was bedeutet ein Bit mehr?
+    params:
+      options:
+        - label: Doppelt so viele Möglichkeiten für den Angreifer
+          correct: true
+        - label: Ein Zeichen mehr
+          feedback: Ein Kleinbuchstabe bringt etwa 4,7 Bits.
+        - label: Eine Möglichkeit mehr
+          feedback: Bits zählen Verdopplungen, nicht einzelne Möglichkeiten.
+    hints:
+      - Entropie ist log₂ der Zahl der Möglichkeiten.
+    explanation: "80 Bits gelten heute als sicher: 2⁸⁰ Versuche sind für niemanden machbar."
+    difficulty: 3
 
 srs:
   cards_from: [pin, briefkasten]

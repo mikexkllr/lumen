@@ -33,6 +33,7 @@ steps:
       defaults: { n: 5000, p: 4 }
 
   - kind: explain
+    id: s3
     body: |
       Ein Modell ist nur so gut wie seine Daten. Fehlen Situationen, Orte oder Menschengruppen, macht es dort mehr Fehler. Darum prüft man Fehlerraten **für jede Gruppe einzeln**.
 
@@ -47,6 +48,52 @@ steps:
     hints:
       - Kann ein Durchschnitt etwas verbergen?
     explanation: 99 % bei Tag und 60 % bei Nacht ergeben im Mittel auch einen guten Wert.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Gesichtserkenner macht bei Gruppe A 1 % Fehler und bei Gruppe B 20 %. Der Datensatz besteht zu 90 % aus Gruppe A. Wie hoch ist die Fehlerrate insgesamt in Prozent?
+    params:
+      unit: "%"
+    answer:
+      value: 2.9
+      tolerance: 0.05
+    hints:
+      - 0,9 · 1 + 0,1 · 20.
+    explanation: 2,9 % – klingt gut und verbirgt, dass jede fünfte Person aus Gruppe B falsch erkannt wird.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum kann eine Bild-KI etwas Falsches lernen, obwohl sie im Test gut abschneidet?"
+    params:
+      keywords:
+        - - muster
+          - merkmal
+          - pattern
+          - feature
+          - hintergrund
+          - background
+          - abkürzung
+          - shortcut
+        - - daten
+          - trainingsbilder
+          - data
+          - training
+        - - zufall
+          - zusammen
+          - gleichzeitig
+          - coincid
+          - correlat
+          - immer
+          - always
+          - vielfalt
+          - divers
+      sample: Sie lernt jedes Muster, das in den Trainingsdaten zufällig mit der Antwort zusammen auftritt, etwa Schnee im Hintergrund von Wolfsfotos. Enthält der Test dieselbe Abkürzung, fällt der Fehler nicht auf.
+    difficulty: 3
 
 srs:
   cards_from: [kuh, pruefen]

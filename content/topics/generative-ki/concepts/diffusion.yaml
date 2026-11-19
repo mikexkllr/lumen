@@ -5,9 +5,27 @@ summary: Wie Text das Rauschen lenkt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Ein Bildhauer sagt: »Die Figur steckt schon im Stein. Ich nehme nur weg, was nicht dazugehört.« Womit beginnt eine Bild-KI?"
+    params:
+      options:
+        - label: Mit reinem Rauschen
+          correct: true
+        - label: Mit einem fertigen Foto
+          feedback: Dann müsste sie nichts erzeugen.
+        - label: Mit einem weißen Blatt
+          feedback: Sie nimmt weg – sie malt nicht auf.
+    hints:
+      - Woraus kann man etwas herausarbeiten?
+    explanation: Aus Rauschen wird Schritt für Schritt ein Bild.
+
+
   - kind: explain
+    id: s1
     body: |
       Beim Erzeugen entfernt das Modell in jedem Schritt ein wenig Rauschen. Der **Text** lenkt dabei, in welche Richtung: Aus dem Grau wird mal eine Katze, mal ein Leuchtturm.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - Ist es leichter, ein ganzes Bild zu erraten oder nur eine kleine Verbesserung?
     explanation: Viele kleine, gut gelernte Schritte ergeben zusammen ein großes Ergebnis.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Ein Regler namens »Guidance« bestimmt, wie stark sich das Modell an den Text hält. Was passiert bei sehr hohem Wert?
+    params:
+      options:
+        - label: Das Bild passt genauer zum Text, wirkt aber oft übersättigt und unnatürlich
+          correct: true
+        - label: Das Bild wird zufälliger
+          feedback: "Im Gegenteil: Es wird enger an den Text gebunden."
+        - label: Nichts
+          feedback: Der Regler hat großen Einfluss.
+    hints:
+      - Zu viel von etwas Gutem.
+    explanation: "Wie bei der Temperatur: ein Regler zwischen Treue und Vielfalt."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Bild mit 512 × 512 Pixeln wird im latenten Raum als 64 × 64 Raster mit 4 Kanälen dargestellt. Um welchen Faktor ist das kleiner als die 512 × 512 × 3 Pixelwerte?
+    answer:
+      value: 48
+    hints:
+      - 786 432 geteilt durch 16 384.
+    explanation: 48-mal weniger Zahlen – bei fast gleicher Bildqualität.
+    difficulty: 3
 
 srs:
   cards_from: [seed, klein]

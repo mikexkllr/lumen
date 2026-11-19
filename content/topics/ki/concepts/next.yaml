@@ -9,6 +9,20 @@ skills: [ai.next]
 estimated_minutes: 7
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Aus wie vielen verschiedenen Tokens wählt ein großes Sprachmodell bei jedem Schritt ungefähr?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 70
+    explanation: Etwa 100 000. Für jedes einzelne berechnet es eine Wahrscheinlichkeit – bei jedem Wort neu.
+
+
+  - kind: problem
     id: lueckensatz
     widget: choice
     body: Ein Satz bricht ab – »Zum Frühstück trinke ich gern eine Tasse …«
@@ -25,11 +39,13 @@ steps:
     explanation: In Texten folgt auf »eine Tasse« sehr oft ein Getränk.
 
   - kind: explain
+    id: s2
     body: |
       Ein Sprachmodell tut im Kern genau das. Es schätzt für jedes mögliche nächste Wort eine **Wahrscheinlichkeit**.
       Gelernt hat es das aus riesigen Mengen Text.
 
   - kind: explain
+    id: s3
     body: |
       Probier es aus – ziehe ein paar Wörter. Meist kommt »Kaffee«, aber nicht immer.
     visual:
@@ -76,3 +92,35 @@ steps:
     hints:
       - Am Ende beginnt alles wieder von vorn – mit einem Token mehr.
     explanation: Zerlegen, Wahrscheinlichkeiten, Auswahl, anhängen – Wort für Wort.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Modell gibt »sonnig« 60 %, »regnerisch« 30 % und »neblig« 10 %. Wie wahrscheinlich kommt bei **zwei** unabhängigen Ziehungen zweimal »sonnig«? In Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: 36
+    hints:
+      - 0,6 · 0,6.
+    explanation: 36 %. Je länger ein Text, desto unwahrscheinlicher ist genau diese eine Fassung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ein Sprachmodell hat nur gelernt, das nächste Wort vorherzusagen. Warum kann es trotzdem Matheaufgaben lösen und Gedichte schreiben?
+    params:
+      options:
+        - label: Um das nächste Wort gut zu treffen, muss es Zusammenhänge der Welt abbilden
+          correct: true
+        - label: Es hat alle Antworten auswendig gelernt
+          feedback: Es löst auch Aufgaben, die nie irgendwo standen.
+        - label: Menschen tippen die Antworten heimlich
+          feedback: Die Antworten erzeugt das Modell.
+    hints:
+      - Wie sagt man das Ende eines Krimis vorher, ohne die Handlung zu verstehen?
+    explanation: Ein einfaches Ziel, in riesigem Maßstab verfolgt, erzwingt erstaunlich viel Struktur. Wie tief dieses »Verstehen« reicht, wird noch erforscht.
+    difficulty: 3

@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Mit wie vielen Zahlen beschreibt ein großes Sprachmodell ein einzelnes Token?"
+    params:
+      min: 2
+      max: 100000
+      scale: log
+    answer:
+      value: 4000
+      within: 75
+    explanation: Mehrere Tausend. In so vielen Dimensionen ist Platz für unzählige feine Bedeutungsunterschiede.
+
+
   - kind: explain
+    id: s1
     body: |
       Ein Sprachmodell verwandelt jedes Token in einen langen Zahlenvektor, ein **Embedding**. Wörter mit ähnlicher Bedeutung zeigen in ähnliche Richtungen – »Hund« liegt nah bei »Katze«, weit weg von »Steuererklärung«.
 
@@ -46,6 +61,36 @@ steps:
     hints:
       - 3 + 8.
     explanation: 11. Großes Skalarprodukt bedeutet – die Vektoren zeigen in ähnliche Richtung.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Die Kosinus-Ähnlichkeit ist das Skalarprodukt geteilt durch beide Längen. Wie groß ist sie für (3, 4) und (4, 3)?
+    answer:
+      value: 0.96
+    hints:
+      - Skalarprodukt 24, beide Längen 5.
+    explanation: "24 : 25 = 0,96 – fast gleiche Richtung. 1 hieße identisch, 0 hieße unverwandt."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Niemand hat den Embeddings beigebracht, was »weiblich« oder »Hauptstadt« bedeutet. Wie entstehen solche Richtungen?
+    params:
+      options:
+        - label: Wörter, die in ähnlichen Umgebungen stehen, bekommen ähnliche Vektoren – die Struktur ergibt sich von selbst
+          correct: true
+        - label: Aus einem eingebauten Wörterbuch
+          feedback: Es gibt keins – nur Text.
+        - label: Entwickler legen jede Richtung fest
+          feedback: Bei Tausenden Dimensionen wäre das unmöglich.
+    hints:
+      - »Du erkennst ein Wort an der Gesellschaft, in der es sich befindet.«
+    explanation: Die **Verteilungshypothese** der Linguistik von 1957 – heute das Fundament aller Sprachmodelle.
+    difficulty: 3
 
 srs:
   cards_from: [nah, rechnen]

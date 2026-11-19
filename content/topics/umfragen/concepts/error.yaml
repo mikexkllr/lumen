@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Menschen muss man zufällig befragen, um die Meinung von 80 Millionen auf etwa ± 3 Prozentpunkte genau zu kennen?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 1000
+      within: 60
+    explanation: Rund 1000 genügen. Entscheidend ist die Größe der Stichprobe – nicht die des Landes.
+
+
   - kind: explain
+    id: s1
     body: |
       Auch zufällige Stichproben schwanken. Faustregel für die **Fehlerspanne** in Prozentpunkten: etwa 100 geteilt durch die Wurzel aus der Zahl der Befragten.
 
@@ -51,9 +66,40 @@ steps:
     explanation: Bei so wenig Abstand ist ein Kopf-an-Kopf-Rennen die ehrliche Aussage.
 
   - kind: explain
+    id: s5
     body: Warum reichen 1000 Befragte für 80 Millionen Menschen?
     reveal:
       body: Die Genauigkeit hängt fast nur von der Stichprobe ab, kaum von der Größe des Landes. Eine Löffelprobe sagt dir auch, wie die ganze Suppe schmeckt – wenn sie gut umgerührt ist.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Umfrage soll auf ± 1 Prozentpunkt genau sein. Wie viele Befragte braucht man nach der Faustregel?
+    answer:
+      value: 10000
+    hints:
+      - 100 geteilt durch die Wurzel aus n soll 1 ergeben.
+    explanation: √n = 100, also n = 10 000. Zehnmal mehr Befragte als für ± 3 – darum macht das kaum jemand.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Fehlerspanne ± 3 gilt mit 95 % Sicherheit. Was heißt das genau?
+    params:
+      options:
+        - label: Bei 95 von 100 solchen Umfragen liegt der wahre Wert innerhalb der Spanne
+          correct: true
+        - label: Der wahre Wert liegt sicher in der Spanne
+          feedback: In einer von 20 Umfragen liegt er außerhalb.
+        - label: 95 % der Befragten haben ehrlich geantwortet
+          feedback: Über Ehrlichkeit sagt die Spanne nichts.
+    hints:
+      - Stell dir vor, dieselbe Umfrage würde 100-mal wiederholt.
+    explanation: Das ist ein **Konfidenzintervall**. Es erfasst nur den Zufallsfehler – nicht schiefe Stichproben oder Suggestivfragen.
+    difficulty: 3
 
 srs:
   cards_from: [spanne, knapp]

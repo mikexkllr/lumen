@@ -5,9 +5,23 @@ summary: One mole of gas, about 24 liters.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many litres of air do you breathe in during one day?"
+    params:
+      min: 100
+      max: 50000
+      unit: l
+    answer:
+      value: 11000
+      tolerance: 3000
+    explanation: About 11,000 litres. Gases take up a lot of space – and all of them the same amount.
+
   - kind: explain
+    id: s1
     body: |
       At room temperature, one mole of **any** gas takes up about **24 liters** – whether helium or carbon dioxide. The particles are tiny, and the distances between them are what count.
 
@@ -45,6 +59,52 @@ steps:
     hints:
       - 48 divided by 24.
     explanation: 2 mol of helium – that weighs only 8 g.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: The piston holds 0.2 mol of gas at 300 K. Compress it until the pressure **doubles** (about 200 kPa).
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+    answer:
+      pressure:
+        - 195
+        - 205
+    explanation: "Half the volume, double the pressure: p · V stays constant."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Now you can change the amount too. Find a setting with **more than 0.5 mol** of gas and still about 100 kPa of pressure.
+    params:
+      scene: gas
+      controls:
+        amount:
+          fixed: false
+    check:
+      predicate: amount > 0.5 && pressure >= 95 && pressure <= 105
+    explanation: More particles need more room or less heat. It is all in $p \cdot V = n \cdot R \cdot T$.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "The ideal gas law: $pV = nRT$ with R = 8.314. What volume in litres does 1 mol of gas have at 100 kPa and 300 K? To whole litres."
+    params:
+      unit: l
+    answer:
+      value: 25
+      tolerance: 0.5
+    hints:
+      - V = nRT ÷ p = 8.314 · 300 ÷ 100.
+    explanation: 24.9 litres – hence the rule of thumb “about 24 litres per mole”.
+    difficulty: 3
 
 srs:
   cards_from: [liter, gleich]

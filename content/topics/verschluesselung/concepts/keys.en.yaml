@@ -5,8 +5,21 @@ summary: Length beats special characters.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many seconds does an attacker with 10 billion tries per second need for all 6-character passwords of lower-case letters?"
+    params:
+      min: 0
+      max: 100
+      unit: s
+    answer:
+      value: 0.03
+      tolerance: 2
+    explanation: 26⁶ ≈ 309 million – tried in 0.03 seconds. Short passwords offer no protection.
+
   - kind: problem
     id: pin
     widget: numeric
@@ -25,6 +38,7 @@ steps:
       defaults: { n: 4 }
 
   - kind: explain
+    id: s2
     body: |
       Each extra character **multiplies** the options.
       26 letters in 8 places give $26^8$ – about 209 billion passwords.
@@ -53,6 +67,7 @@ steps:
     explanation: A little over 20 seconds. Eight lowercase letters are far too short.
 
   - kind: explain
+    id: s5
     body: |
       Today, people use **two** keys. Anyone may know the public one – you lock with it.
       Only the holder of the private one can open. Like a mailbox.
@@ -69,6 +84,36 @@ steps:
     hints:
       - The mail slot is for everyone, the key to empty it is not.
     explanation: The public key only locks. Only the private key can open.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Four random words from a list of 2000 words. How many combinations are there? Give the exponent: 1.6 · 10 to the …"
+    answer:
+      value: 13
+    hints:
+      - 2000⁴ = 2⁴ · 1000⁴.
+    explanation: 16 · 10¹² = 1.6 · 10¹³ – more than an eight-character lower-case password, and far easier to remember.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The strength of a password is measured in **bits of entropy**. What does one more bit mean?
+    params:
+      options:
+        - label: Twice as many possibilities for the attacker
+          correct: true
+        - label: One more character
+          feedback: A lower-case letter adds about 4.7 bits.
+        - label: One more possibility
+          feedback: Bits count doublings, not single possibilities.
+    hints:
+      - Entropy is log₂ of the number of possibilities.
+    explanation: "80 bits count as secure today: 2⁸⁰ tries are feasible for no one."
+    difficulty: 3
 
 srs:
   cards_from: [pin, briefkasten]

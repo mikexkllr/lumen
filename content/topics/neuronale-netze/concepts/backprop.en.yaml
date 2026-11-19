@@ -1,0 +1,158 @@
+id: ai.neural.backprop
+type: concept
+title: "Backpropagation"
+summary: "How a network finds out which weight is to blame for the error."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: A team loses a game. The coach wants it to improve. What is smartest?
+    params:
+      options:
+        - label: See who added how much to the error
+          correct: true
+        - label: Change everyone equally
+          feedback: Then you also change what went well.
+        - label: Swap players at random
+          feedback: That only helps with a lot of luck.
+    hints:
+      - Not everyone is equally to blame.
+    explanation: That is exactly what a network does when learning – for millions of weights at once.
+
+  - kind: explain
+    id: c2
+    body: "**Backpropagation** passes the error backwards through the network: from the output back layer by layer. So each weight learns its share of the error."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Order the steps of one learning step.
+    params:
+      items:
+        - label: Send the input forwards through the net
+        - label: Compare the output with the solution
+        - label: Pass the error backwards
+        - label: Adjust each weight a little
+    hints:
+      - First compute, then check, then assign the blame.
+    explanation: Forward, error, backward, adjust – repeated billions of times.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "A tiny net computes: output = weight · input. The input is 3, the weight 2. The right output would be 9. By how much must the weight rise?"
+    answer:
+      value: 1
+    hints:
+      - Which weight times 3 gives 9?
+    explanation: With weight 3 it fits. The error of 3 is spread over the input 3.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Another input of the neuron was 0. How much blame does **its** weight carry for the error?
+    params:
+      options:
+        - label: None – 0 times a weight adds nothing
+          correct: true
+        - label: The most
+          feedback: What adds nothing cannot be to blame.
+        - label: Exactly half
+          feedback: The blame depends on the input.
+    hints:
+      - What changes in the output if you change this weight?
+    explanation: The share of a weight is error times input. With input 0 it stays as it is.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "A chain: x is first multiplied by 2, then by 5. You change x by 1. By how much does the output change?"
+    answer:
+      value: 10
+    hints:
+      - The effects multiply.
+    explanation: 2 · 5 = 10. That is the **chain rule** – the core of backpropagation.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A weight is at 0.8. Its gradient is 0.5, the learning rate 0.1. New weight = old − learning rate · gradient. What is it?
+    answer:
+      value: 0.75
+    hints:
+      - 0.1 · 0.5 = 0.05.
+    explanation: 0.8 − 0.05 = 0.75. A small step downhill on the error landscape.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In a deep network the error is multiplied by about 0.5 in each layer. What happens after 20 layers backwards?
+    params:
+      options:
+        - label: Only about a millionth is left
+          correct: true
+        - label: The error is half as large
+          feedback: Halving happens 20 times in a row.
+        - label: It becomes huge
+          feedback: That happens with factors above 1.
+    hints:
+      - 0.5 to the power 20.
+    explanation: "The **vanishing gradient problem**: the front layers learn almost nothing any more."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: What made very deep networks possible anyway?
+    params:
+      options:
+        - label: Shortcuts that carry the signal past layers
+          correct: true
+        - label: Just train longer
+          feedback: A millionth stays a millionth.
+        - label: Less data
+          feedback: That does not solve the problem.
+    hints:
+      - The error needs a path on which it does not shrink.
+    explanation: "**Residual connections** from 2015. Without them there would be no transformers with a hundred layers."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what backpropagation does.
+    params:
+      keywords:
+        - - fehler
+          - error
+          - loss
+        - - rückwärts
+          - zurück
+          - backward
+          - back
+        - - gewicht
+          - weight
+        - - anteil
+          - schuld
+          - beitrag
+          - gradient
+          - share
+          - blame
+      min: 3
+      sample: The network compares its output with the right answer. It passes the error backward through the layers. So each weight learns its share and is adjusted a little.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d1", "d2"]

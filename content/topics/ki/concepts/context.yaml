@@ -5,9 +5,27 @@ summary: Training, Kontextfenster und Wissenslücken.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Du fragst eine KI: »Wie heißt mein Hund?« Sie kennt dich nicht. Wann kann sie es trotzdem wissen?"
+    params:
+      options:
+        - label: Wenn es weiter oben im Gespräch steht
+          correct: true
+        - label: Immer – sie weiß alles
+          feedback: Über deinen Hund stand nichts im Training.
+        - label: Nie
+          feedback: Im Gespräch kannst du es ihr sagen.
+    hints:
+      - Was kann die KI gerade lesen?
+    explanation: Was im Gespräch steht, sieht sie. Den Rest kennt sie nur aus dem Training.
+
+
   - kind: explain
+    id: s1
     body: |
       Ein Modell weiß zweierlei: was es im **Training** gelernt hat und was im **Kontextfenster** steht – also im aktuellen Gespräch. Alles andere kennt es nicht.
 
@@ -50,6 +68,51 @@ steps:
     hints:
       - Wann wurde das Modell trainiert?
     explanation: Jedes Modell hat einen Wissensstand. Neues kommt nur über das Gespräch oder eine Suche hinzu.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Ein Chatbot beantwortet Fragen zu den internen Dokumenten einer Firma, die nie im Training waren. Wie geht das?
+    params:
+      options:
+        - label: Passende Textstellen werden gesucht und mit in den Prompt gelegt
+          correct: true
+        - label: Das Modell rät
+          feedback: Dann würde es halluzinieren.
+        - label: Es wurde heimlich nachtrainiert
+          feedback: Meist genügt das Einfügen in den Kontext.
+    hints:
+      - Was im Kontextfenster steht, »weiß« das Modell.
+    explanation: Das heißt **RAG** – Retrieval-Augmented Generation. Suchen plus Sprachmodell.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux in einfachen Worten, wie ein Sprachmodell einen Text schreibt.
+    params:
+      keywords:
+        - - nächste
+          - next
+        - - wort
+          - token
+          - word
+        - - wahrscheinlich
+          - probab
+          - likely
+        - - wiederhol
+          - schritt
+          - immer wieder
+          - repeat
+          - step
+          - again
+          - anhäng
+          - append
+      min: 3
+      sample: Es berechnet für jedes mögliche nächste Wort eine Wahrscheinlichkeit und zieht eines davon. Das hängt es an den Text an und wiederholt den Schritt – Wort für Wort, bis die Antwort fertig ist.
+    difficulty: 3
 
 srs:
   cards_from: [woher, neu]

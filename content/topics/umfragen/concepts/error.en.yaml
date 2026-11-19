@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many people must be polled at random to know the opinion of 80 million to within about ± 3 percentage points?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 1000
+      within: 60
+    explanation: About 1000 suffice. What matters is the size of the sample – not of the country.
+
+
   - kind: explain
+    id: s1
     body: |
       Even random samples fluctuate. A rule of thumb for the **margin of error** in percentage points: about 100 divided by the square root of the number of respondents.
 
@@ -51,9 +66,40 @@ steps:
     explanation: With so small a gap, the honest statement is a neck-and-neck race.
 
   - kind: explain
+    id: s5
     body: Why are 1000 respondents enough for 80 million people?
     reveal:
       body: Accuracy depends almost only on the sample, hardly on the size of the country. A spoonful tells you how the whole pot of soup tastes – if it is well stirred.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A poll should be accurate to ± 1 percentage point. How many respondents are needed by the rule of thumb?
+    answer:
+      value: 10000
+    hints:
+      - 100 divided by the square root of n should be 1.
+    explanation: √n = 100, so n = 10,000. Ten times more respondents than for ± 3 – that is why hardly anyone does it.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The margin of error ± 3 holds with 95% confidence. What exactly does that mean?
+    params:
+      options:
+        - label: In 95 of 100 such polls the true value lies within the margin
+          correct: true
+        - label: The true value certainly lies in the margin
+          feedback: In one of 20 polls it lies outside.
+        - label: 95% of respondents answered honestly
+          feedback: The margin says nothing about honesty.
+    hints:
+      - Imagine the same poll were repeated 100 times.
+    explanation: This is a **confidence interval**. It covers only random error – not biased samples or leading questions.
+    difficulty: 3
 
 srs:
   cards_from: [spanne, knapp]

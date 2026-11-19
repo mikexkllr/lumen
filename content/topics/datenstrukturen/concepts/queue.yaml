@@ -5,9 +5,27 @@ summary: Wer zuerst kommt, ist zuerst dran.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "An der Kasse: Erst kommt Ana, dann Ben, dann Cem. Wer wird zuerst bedient?"
+    params:
+      options:
+        - label: Ana
+          correct: true
+        - label: Cem
+          feedback: Er kam zuletzt.
+        - label: Ben
+          feedback: Vor ihm steht noch jemand.
+    hints:
+      - Wer wartet am längsten?
+    explanation: Zuerst da, zuerst dran.
+
+
   - kind: explain
+    id: s1
     body: |
       Eine **Warteschlange** (Queue) ist fair: Wer zuerst kommt, ist zuerst dran. Neue stellen sich hinten an, bedient wird vorne.
 
@@ -52,6 +70,39 @@ steps:
     variants:
       params: { n: "int[3,12]", t: "int[5,30]" }
       defaults: { n: 6, t: 20 }
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: In einer Notaufnahme kommt nicht der Erste zuerst dran, sondern der dringendste Fall. Welche Datenstruktur passt?
+    params:
+      options:
+        - label: Eine Prioritätswarteschlange
+          correct: true
+        - label: Ein Stapel
+          feedback: Dann käme immer der zuletzt Eingetroffene dran.
+        - label: Eine normale Warteschlange
+          feedback: Die achtet nur auf die Reihenfolge der Ankunft.
+    hints:
+      - Jeder Eintrag trägt eine Dringlichkeit.
+    explanation: Eine **Prioritätswarteschlange** gibt immer das wichtigste Element heraus. Navis nutzen sie für kürzeste Wege.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An einer Kasse kommen pro Minute 2 Kunden an, bedient werden 3 pro Minute. Welcher Anteil der Zeit ist die Kasse beschäftigt? In Prozent, gerundet.
+    params:
+      unit: "%"
+    answer:
+      value: 67
+      tolerance: 1
+    hints:
+      - Ankunftsrate geteilt durch Bedienrate.
+    explanation: 2/3 ≈ 67 %. Steigt die Auslastung Richtung 100 %, explodieren die Wartezeiten – das zeigt die **Warteschlangentheorie**.
+    difficulty: 3
 
 srs:
   cards_from: [kasse, welche]

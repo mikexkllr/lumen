@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: How do you measure the area of a curvy lake on a map?
+    params:
+      options:
+        - label: Count squares – the smaller, the more exact
+          correct: true
+        - label: Length times width
+          feedback: The lake is no rectangle.
+        - label: It cannot be done
+          feedback: With squares it works as exactly as you like.
+    hints:
+      - Put a grid over the map.
+    explanation: Many small simple pieces add up to the curvy area.
+
+
   - kind: explain
+    id: s1
     body: |
       You can estimate the area under a curve with **rectangular strips**: width times height, all added up. The narrower the strips, the more accurate the result. In the limit of infinitely narrow strips, you get the **integral** $\int f(x)\,dx$.
 
@@ -42,6 +60,55 @@ steps:
     hints:
       - How much does a very narrow strip stick out above the curve?
     explanation: With ever narrower strips, the error vanishes. That is the integral.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: Double the rectangles under $y = x$ (0 to 4) until the sum is at most 0.5 off the true area.
+    params:
+      scene: riemann
+      expr: x
+      interval:
+        - 0
+        - 4
+      controls:
+        n:
+          value: 4
+    answer:
+      error:
+        - 0
+        - 0.5
+    explanation: From 16 rectangles. The error halves when the number of strips doubles.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Left rectangles underestimate a rising curve, right ones overestimate it. Under f(x) = x from 0 to 4, 4 left strips give 6 and 4 right give 10. What is their mean?
+    answer:
+      value: 8
+    hints:
+      - (6 + 10) ÷ 2.
+    explanation: 8 – here even exact. This is the **trapezoid rule**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How is the integral defined rigorously?
+    params:
+      options:
+        - label: As the common limit of lower and upper sums
+          correct: true
+        - label: As a sum of infinitely many zeros
+          feedback: Infinity times zero is undefined – that is why the limit is needed.
+        - label: As an area you measure
+          feedback: Measuring is never exact. The definition needs no drawing.
+    hints:
+      - The area always lies between two computable sums.
+    explanation: If both sums come arbitrarily close, the function is called **Riemann integrable**.
+    difficulty: 3
 
 srs:
   cards_from: [genau, schmaler]

@@ -5,9 +5,24 @@ summary: Was typisch ist und was selten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Prozent der Erwachsenen sind größer als zwei Standardabweichungen über dem Durchschnitt?"
+    params:
+      min: 0
+      max: 50
+      unit: "%"
+    answer:
+      value: 2.5
+      tolerance: 2
+    explanation: Nur etwa 2,5 %. Die Ränder der Glocke sind sehr dünn.
+
+
   - kind: explain
+    id: s1
     body: |
       Bei einer Normalverteilung gilt die Faustregel: **68 %** liegen innerhalb von 1 σ um den Mittelwert, **95 %** innerhalb von 2 σ und **99,7 %** innerhalb von 3 σ.
 
@@ -53,6 +68,38 @@ steps:
     hints:
       - Wie viele σ ist der Wert vom Mittelwert entfernt?
     explanation: 149 und 52 liegen mehr als 3 σ entfernt – das passiert seltener als 3 von 1000 Mal.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Die Glocke steht bei μ = 100. Finde die Streuung, bei der ziemlich genau **68 %** zwischen 85 und 115 liegen.
+    params:
+      scene: normal
+      controls:
+        mean:
+          value: 100
+          fixed: true
+        sd:
+          value: 28
+    answer:
+      share:
+        - 67.5
+        - 69
+    explanation: Bei σ = 15. Dann sind 85 und 115 genau eine Standardabweichung vom Mittelwert entfernt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Hersteller arbeitet nach »Six Sigma«: Fehler liegen erst jenseits von 6 Standardabweichungen. Bei 3 σ sind es noch 0,3 % Ausschuss. Wie viele fehlerhafte Teile pro **Million** sind 0,3 %?"
+    answer:
+      value: 3000
+    hints:
+      - 0,3 % von 1 000 000.
+    explanation: 3000 pro Million. Bei 6 σ sind es nur noch 3,4 – die Ränder fallen extrem schnell ab.
+    difficulty: 3
 
 srs:
   cards_from: [iq, oben]

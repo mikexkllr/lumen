@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: 1 in 100 people is ill. A test spots 9 of 10 ill people but also flags 9 of 100 healthy ones. You test positive. How likely are you ill?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 9
+      tolerance: 6
+    explanation: Only about 9%. Most people guess far higher.
+
+
   - kind: explain
+    id: s1
     body: |
       Bayes is easiest with **natural frequencies**. Picture 1000 people. 1 % are sick, so 10. The test catches 9 of them. Among the 990 healthy people, it falsely shows positive for 9 %.
 
@@ -46,6 +61,47 @@ steps:
     hints:
       - After the first test, the new base rate is much higher.
     explanation: The first positive raises the prior from 1 % to 9 %. A second test boosts it a lot more.
+
+  - kind: problem
+    id: c1
+    widget: order
+    prompt: Bayes with natural frequencies. Order the steps.
+    params:
+      items:
+        - label: Imagine 1000 people.
+        - label: Split them by the base rate into sick and healthy.
+        - label: Count the positive tests in both groups.
+        - label: Divide the sick positives by all positives.
+    hints:
+      - First split the people, then test.
+    explanation: With whole people instead of percentages even doctors solve the task three times as often.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "A drawer holds 3 coins: 2 fair and 1 with two heads. You draw one and toss heads. How likely is it the two-headed one? As a fraction."
+    answer:
+      value: 1/2
+    hints:
+      - "Count head faces: the fair ones have one each, the special one two."
+    explanation: Of 4 possible head faces 2 belong to the double coin. One toss turns 1/3 into 1/2.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Bayes’ formula in odds: new odds = old odds · likelihood ratio. The odds are 1 to 99. A test is positive 10 times as often in the sick as in the healthy. What percent is it afterwards? Rounded."
+    params:
+      unit: "%"
+    answer:
+      value: 9
+      tolerance: 0.5
+    hints:
+      - "New odds: 10 to 99. That is 10 out of 109."
+    explanation: 10/109 ≈ 9%. Calculated in odds, Bayes is a single multiplication.
+    difficulty: 3
 
 srs:
   cards_from: [anteil, zweiter]

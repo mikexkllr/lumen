@@ -5,9 +5,23 @@ summary: Ein Mol Gas, rund 24 Liter.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Liter Luft atmest du an einem Tag ein?"
+    params:
+      min: 100
+      max: 50000
+      unit: l
+    answer:
+      value: 11000
+      tolerance: 3000
+    explanation: Rund 11 000 Liter. Gase brauchen viel Platz – und zwar alle gleich viel.
+
   - kind: explain
+    id: s1
     body: |
       Bei Raumtemperatur nimmt ein Mol **jedes** Gases rund **24 Liter** ein – egal ob Helium oder Kohlendioxid. Die Teilchen sind winzig, entscheidend sind die Abstände zwischen ihnen.
 
@@ -45,6 +59,52 @@ steps:
     hints:
       - 48 geteilt durch 24.
     explanation: 2 mol Helium – das wiegt nur 8 g.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: Im Kolben sind 0,2 mol Gas bei 300 K. Drück den Kolben zusammen, bis sich der Druck **verdoppelt** (etwa 200 kPa).
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+    answer:
+      pressure:
+        - 195
+        - 205
+    explanation: "Halbes Volumen, doppelter Druck: p · V bleibt gleich."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Jetzt kannst du auch die Stoffmenge ändern. Finde eine Einstellung mit **mehr als 0,5 mol** Gas und trotzdem etwa 100 kPa Druck.
+    params:
+      scene: gas
+      controls:
+        amount:
+          fixed: false
+    check:
+      predicate: amount > 0.5 && pressure >= 95 && pressure <= 105
+    explanation: Mehr Teilchen brauchen mehr Platz oder weniger Wärme. Alles steckt in $p \cdot V = n \cdot R \cdot T$.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Die ideale Gasgleichung: $pV = nRT$ mit R = 8,314. Welches Volumen in Litern hat 1 mol Gas bei 100 kPa und 300 K? Auf ganze Liter."
+    params:
+      unit: l
+    answer:
+      value: 25
+      tolerance: 0.5
+    hints:
+      - "V = nRT : p = 8,314 · 300 : 100."
+    explanation: 24,9 Liter – daher die Faustregel »rund 24 Liter pro Mol«.
+    difficulty: 3
 
 srs:
   cards_from: [liter, gleich]

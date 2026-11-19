@@ -5,9 +5,23 @@ summary: Predict the next word, trillions of times.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many years would a person have to read without a break to get through as much text as a large language model sees in training?"
+    params:
+      min: 1
+      max: 10000000
+      scale: log
+    answer:
+      value: 50000
+      within: 90
+    explanation: Roughly 50,000 years. The model learns from this amount – word by word.
+
   - kind: explain
+    id: s1
     body: |
       In **pretraining**, the model sees huge amounts of text and keeps guessing the next token. Each error nudges billions of weights a tiny bit. From this simple task, grammar, knowledge, and reasoning emerge.
 
@@ -48,6 +62,38 @@ steps:
     hints:
       - First the broad base, then the behavior.
     explanation: This turns a text completer into a helpful assistant.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A model has 100 billion weights, each stored in 2 bytes. How many gigabytes does it need?
+    params:
+      unit: GB
+    answer:
+      value: 200
+    hints:
+      - 100 billion times 2 bytes.
+    explanation: 200 GB. That is why large models run in data centres and not on a phone.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: After pre-training a model can continue text but does not behave like a helpful assistant. What is missing?
+    params:
+      options:
+        - label: Fine-tuning on dialogues and human ratings – only that shapes the behaviour
+          correct: true
+        - label: More computing power
+          feedback: What is missing is not power but direction.
+        - label: Internet access
+          feedback: That is a tool, not a training step.
+    hints:
+      - The internet does not consist only of helpful answers.
+    explanation: "Pre-training supplies knowledge, **fine-tuning** the character: helpful, honest, careful."
+    difficulty: 3
 
 srs:
   cards_from: [erfinden, phasen]

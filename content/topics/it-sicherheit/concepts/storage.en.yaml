@@ -5,9 +5,27 @@ summary: Hash, salt and password managers.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A hacker steals a service’s database. When is your password protected anyway?
+    params:
+      options:
+        - label: If only a fingerprint of the password is stored there
+          correct: true
+        - label: If it is stored in plain text
+          feedback: Then he can simply read it.
+        - label: If the service is well known
+          feedback: Big services get hacked too.
+    hints:
+      - What is not stored cannot be stolen.
+    explanation: Good services do not know your password themselves.
+
+
   - kind: explain
+    id: s1
     body: |
       Good services never store the password itself. They store a **hash** made with a **salt**: a random addition for each person. At login, your input is processed the same way and compared.
 
@@ -46,6 +64,42 @@ steps:
     hints:
       - How many passwords do you still have to remember?
     explanation: One strong master password protects the whole vault.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Attackers use ready-made lists with billions of hashes of common passwords. How does salt make these lists worthless?
+    params:
+      options:
+        - label: Each password is hashed with its own random number – precomputed hashes no longer match
+          correct: true
+        - label: Salt additionally encrypts the hash
+          feedback: The salt is not secret. It only makes every hash unique.
+        - label: Salt makes the password longer
+          feedback: The password itself stays the same.
+    hints:
+      - The list was computed without your salt.
+    explanation: The attacker must start from scratch for each person instead of once for all.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: For passwords deliberately **slow** hash functions such as bcrypt or Argon2 are used. Why?
+    params:
+      options:
+        - label: A login takes imperceptibly longer – an attacker with billions of tries is slowed a millionfold
+          correct: true
+        - label: Slow hashes are shorter
+          feedback: Length plays no role.
+        - label: Fast hashes are faulty
+          feedback: They are correct – just too fast for this purpose.
+    hints:
+      - Who suffers more from 0.1 seconds per try – you or the attacker?
+    explanation: "Asymmetry: once for you, billions of times for the attacker."
+    difficulty: 3
 
 srs:
   cards_from: [salz, vergessen]

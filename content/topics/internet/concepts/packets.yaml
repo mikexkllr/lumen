@@ -5,8 +5,21 @@ summary: Alles wird in kleine Stücke zerlegt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Über wie viele Zwischenstationen (Router) läuft ein Datenpaket typischerweise bis zu einer Webseite?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 15
+      tolerance: 8
+    explanation: Meist 10 bis 20 – und das in wenigen Hundertstelsekunden.
+
+
   - kind: problem
     id: wie-viele
     widget: numeric
@@ -19,6 +32,7 @@ steps:
     explanation: 3 000 000 / 1500 = 2000 Pakete.
 
   - kind: explain
+    id: s2
     body: |
       Im Internet reist nichts am Stück. Alles wird in **Pakete** zerlegt. Jedes trägt Absender, Ziel und eine Nummer.
       Am Ziel werden sie wieder zusammengesetzt.
@@ -50,6 +64,42 @@ steps:
     hints:
       - Wozu dienen die Nummern?
     explanation: Fehlt eine Nummer, wird genau dieses Paket noch einmal geschickt.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Die Pakete einer Nachricht kommen in falscher Reihenfolge an. Was nun?
+    params:
+      options:
+        - label: Der Empfänger sortiert sie anhand ihrer Nummern
+          correct: true
+        - label: Die Nachricht ist verloren
+          feedback: Genau dafür trägt jedes Paket eine Nummer.
+        - label: Die Router sortieren sie unterwegs
+          feedback: Router leiten nur weiter – sortiert wird am Ziel.
+    hints:
+      - Was steht außer Absender und Ziel noch auf jedem Paket?
+    explanation: Das Protokoll **TCP** nummeriert, bestätigt und fordert Verlorenes neu an.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Videoanrufe nutzen oft UDP statt TCP – ohne Bestätigung und ohne Neusenden. Warum?
+    params:
+      options:
+        - label: Ein verspätetes Paket ist nutzlos – lieber ein kurzer Aussetzer als eine Verzögerung
+          correct: true
+        - label: UDP ist sicherer
+          feedback: Es ist sogar weniger zuverlässig.
+        - label: TCP kann keine Videos übertragen
+          feedback: Streaming-Dienste nutzen TCP – dort darf gepuffert werden.
+    hints:
+      - Was bringt dir ein Wort, das zwei Sekunden zu spät ankommt?
+    explanation: Zuverlässig oder schnell – jedes Protokoll ist ein Kompromiss für seinen Zweck.
+    difficulty: 3
 
 srs:
   cards_from: [wie-viele, verloren]

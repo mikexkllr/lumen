@@ -5,7 +5,7 @@ summary: Recommending from the behavior of others.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: empfehlen
@@ -22,6 +22,7 @@ steps:
     explanation: This is called **collaborative filtering** – similar people help each other without knowing it.
 
   - kind: explain
+    id: s2
     body: |
       There are two basic ideas. **Content-based** – you liked crime shows, here is another one.
       **Collaborative** – people like you also liked this.
@@ -52,6 +53,59 @@ steps:
     hints:
       - What do you know about a film without viewers?
     explanation: This is the **cold-start problem**. Features like genre help until ratings arrive.
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: “Customers who bought this also bought …”
+          right: true
+        - text: "“Because you watched a crime show: another crime show.”"
+          right: false
+        - text: “People with similar taste are listening to this now.”
+          right: true
+        - text: “Similar ingredients to your last recipe.”
+          right: false
+      left: Content-based
+      right: Collaborative
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: A new user signs up and has not rated anything yet. What is the problem?
+    params:
+      options:
+        - label: Without data the system finds no similar users – the cold start
+          correct: true
+        - label: The account is locked
+          feedback: Only data are missing.
+        - label: There is none
+          feedback: Without behaviour there is nothing to compare.
+    hints:
+      - Whom does someone resemble about whom nothing is known?
+    explanation: The **cold start problem**. That is why apps ask for favourite genres at the start.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A table of 1 million users and 100,000 films is almost empty. How are the gaps filled?
+    params:
+      options:
+        - label: Each user and each film is described by a few hidden features and these are multiplied
+          correct: true
+        - label: The average is entered everywhere
+          feedback: Then everyone would get the same recommendations.
+        - label: Everyone is asked to rate everything
+          feedback: Nobody watches 100,000 films.
+    hints:
+      - Perhaps 50 numbers suffice to describe a taste.
+    explanation: "**Matrix factorisation**: the system learns the features itself – such as “how much action”, “how serious”."
+    difficulty: 3
 
 srs:
   cards_from: [art, kaltstart]

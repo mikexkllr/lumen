@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a ball falls for one second. How fast is it then – in km/h?"
+    params:
+      min: 0
+      max: 100
+      unit: km/h
+    answer:
+      value: 35
+      tolerance: 8
+    explanation: About 35 km/h. Its speed changes at every instant – that is what this is about.
+
+
   - kind: explain
+    id: s1
     body: |
       A speedometer shows your speed **right now**, not the average. To get that, the second point moves closer and closer, until the line just touches the curve. This line is called a **tangent**.
 
@@ -58,6 +73,58 @@ steps:
     variants:
       params: { a: "int[3,9]" }
       defaults: { a: 5 }
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: The orange secant passes through two points of the parabola. Make the gap h tiny (at most 0.05), at x = 1.
+    params:
+      scene: tangent
+      expr: x^2
+    answer:
+      x: 1
+      h:
+        - 0.01
+        - 0.05
+    explanation: The secant slope approaches 2 – it becomes the tangent. That is exactly the derivative.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: At which point is the tangent of the parabola **horizontal**?
+    params:
+      scene: tangent
+      expr: x^2
+      controls:
+        h:
+          value: 0.5
+      show:
+        - slope
+    answer:
+      slope: 0
+    explanation: At x = 0, the vertex. There the slope is zero.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: "New curve: $y = x^3 - 3x$. Find a point with slope **exactly 9**."
+    params:
+      scene: tangent
+      expr: x^3 - 3*x
+      controls:
+        h:
+          value: 0.5
+        x:
+          value: 0
+      show:
+        - slope
+    answer:
+      slope: 9
+    explanation: "At x = 2 or x = −2: f′(x) = 3x² − 3 = 9."
+    difficulty: 3
 
 srs:
   cards_from: [muster, steil]

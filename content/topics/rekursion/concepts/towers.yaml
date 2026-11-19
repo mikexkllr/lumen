@@ -7,7 +7,21 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 7
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Züge braucht der Turm von Hanoi mit 10 Scheiben mindestens?"
+    params:
+      min: 10
+      max: 5000
+    answer:
+      value: 1023
+      tolerance: 200
+    explanation: 1023 – also 2¹⁰ − 1. Jede weitere Scheibe verdoppelt den Aufwand.
+
+
   - kind: explain
+    id: s1
     body: |
       Rekursiv gedacht ist Hanoi einfach: Bewege den Turm aus n − 1 Scheiben zur Seite. Dann die größte ans Ziel. Dann den kleinen Turm obendrauf.
 
@@ -53,9 +67,40 @@ steps:
     explanation: Die größte Scheibe zieht genau einmal um – wenn alle anderen auf dem Hilfsstab liegen.
 
   - kind: explain
+    id: s5
     body: Rekursion klingt nach Trick. Wo steckt sie im Alltag?
     reveal:
       body: In Ordnern mit Unterordnern, in Sätzen mit Nebensätzen, in Spiegeln, die sich spiegeln. Programme durchsuchen Ordner fast immer rekursiv.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Der Legende nach versetzen Mönche einen Turm mit 64 Scheiben, eine pro Sekunde. Wie viele Stellen hat die Zahl der nötigen Sekunden (2⁶⁴ − 1)?
+    answer:
+      value: 20
+    hints:
+      - 2¹⁰ ≈ 10³, also 2⁶⁴ ≈ 16 · 10¹⁸.
+    explanation: 1,8 · 10¹⁹ Sekunden – rund 585 Milliarden Jahre, das 40-Fache des Alters des Universums.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum geht es **nicht** schneller als 2ⁿ − 1 Züge?
+    params:
+      options:
+        - label: Um die größte Scheibe zu bewegen, müssen alle anderen vorher woanders gestapelt sein – und danach wieder drauf
+          correct: true
+        - label: Es geht schneller, man hat es nur noch nicht gefunden
+          feedback: Die Mindestzahl ist bewiesen.
+        - label: Weil man nur eine Hand hat
+          feedback: Die Regel »eine Scheibe pro Zug« gehört zum Rätsel.
+    hints:
+      - T(n) = 2 · T(n − 1) + 1. Warum **zweimal**?
+    explanation: Zweimal der kleine Turm plus ein Zug für die große Scheibe. Die Rekursion **ist** der Beweis.
+    difficulty: 3
 
 srs:
   cards_from: [formel, wie-oft]

@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Wie misst du die Fläche eines krummen Sees auf einer Karte?
+    params:
+      options:
+        - label: Kästchen zählen – je kleiner, desto genauer
+          correct: true
+        - label: Länge mal Breite
+          feedback: Der See ist kein Rechteck.
+        - label: Das geht nicht
+          feedback: Mit Kästchen geht es beliebig genau.
+    hints:
+      - Leg ein Gitter über die Karte.
+    explanation: Viele kleine einfache Stücke ergeben die krumme Fläche.
+
+
   - kind: explain
+    id: s1
     body: |
       Die Fläche unter einer Kurve schätzt man mit **Rechteckstreifen**: Breite mal Höhe, alles addiert. Je schmaler die Streifen, desto genauer. Im Grenzfall unendlich schmaler Streifen erhält man das **Integral** $\int f(x)\,dx$.
 
@@ -42,6 +60,55 @@ steps:
     hints:
       - Wie viel ragt ein sehr schmaler Streifen über die Kurve?
     explanation: Mit immer schmaleren Streifen verschwindet der Fehler – das ist das Integral.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: Verdopple die Rechtecke unter $y = x$ (0 bis 4), bis die Summe höchstens 0,5 von der echten Fläche abweicht.
+    params:
+      scene: riemann
+      expr: x
+      interval:
+        - 0
+        - 4
+      controls:
+        n:
+          value: 4
+    answer:
+      error:
+        - 0
+        - 0.5
+    explanation: Ab 16 Rechtecken. Der Fehler halbiert sich, wenn sich die Zahl der Streifen verdoppelt.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Linke Rechtecke unterschätzen eine steigende Kurve, rechte überschätzen sie. Unter f(x) = x von 0 bis 4 ergeben 4 linke Streifen 6 und 4 rechte 10. Was ist ihr Mittelwert?
+    answer:
+      value: 8
+    hints:
+      - "(6 + 10) : 2."
+    explanation: 8 – hier sogar exakt. Das ist die **Trapezregel**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie definiert man das Integral streng?
+    params:
+      options:
+        - label: Als gemeinsamen Grenzwert von Unter- und Obersummen
+          correct: true
+        - label: Als Summe von unendlich vielen Nullen
+          feedback: Unendlich mal null ist unbestimmt – darum braucht es den Grenzwert.
+        - label: Als Fläche, die man ausmisst
+          feedback: Messen ist nie exakt. Die Definition kommt ohne Zeichnung aus.
+    hints:
+      - Die Fläche liegt immer zwischen zwei berechenbaren Summen.
+    explanation: Rücken beide Summen beliebig nah zusammen, heißt die Funktion **Riemann-integrierbar**.
+    difficulty: 3
 
 srs:
   cards_from: [genau, schmaler]

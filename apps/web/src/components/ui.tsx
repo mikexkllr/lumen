@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, ChartColumn, Check, ChevronDown, ChevronRight, CircleCheck, Clock, Code, Compass, Cpu, Dices, Download, Eye, Flag, Flame,
   House, Info, Layers, Lightbulb, Lock, Percent, Play, Puzzle, RefreshCw, Repeat, RotateCcw, Scale, Search, Settings, Shapes, Snowflake, Sparkles, Star, Target,
-  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, type LucideIcon,
+  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, Volume2, type LucideIcon,
 } from 'lucide-react';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -11,7 +11,7 @@ const ICONS: Record<string, LucideIcon> = {
   trash: Trash2, robot: Bot, chart: ChartColumn, ai: Brain, geometry: Shapes, dice: Dices, percent: Percent, code: Code, fraction: Divide, balance: Scale,
   puzzle: Puzzle, play: Play, clock: Clock, book: BookOpen, target: Target, sparkles: Sparkles, arrow: ArrowRight, back: ArrowLeft, settings: Settings, eye: Eye,
   info: Info, done: CircleCheck, snow: Snowflake, layers: Layers, trophy: Trophy, undo: Undo2, cpu: Cpu,
-  compass: Compass, sunrise: Sunrise, moon: Moon, gift: Gift, medal: Medal, crown: Crown, calendar: CalendarCheck, send: SendHorizontal, chat: MessageCircle,
+  compass: Compass, sunrise: Sunrise, moon: Moon, gift: Gift, medal: Medal, crown: Crown, calendar: CalendarCheck, send: SendHorizontal, chat: MessageCircle, volume: Volume2,
 };
 
 export function Icon({ name, size = 20, label, strokeWidth = 1.9, className }: { name: string; size?: number; label?: string; strokeWidth?: number; className?: string }) {

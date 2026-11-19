@@ -5,9 +5,23 @@ summary: How text fits into bits.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different characters can 8 bits tell apart?"
+    params:
+      min: 8
+      max: 1000
+    answer:
+      value: 256
+      tolerance: 60
+    explanation: 2⁸ = 256. Enough for all letters, digits and punctuation.
+
+
   - kind: explain
+    id: s1
     body: |
       Computers only know numbers. So every character has a number – A is 65, B is 66, and so on. This table is called **ASCII**.
 
@@ -50,6 +64,62 @@ steps:
     hints:
       - One byte is only enough for the old ASCII characters.
     explanation: Umlauts, symbols, and emojis need 2 to 4 bytes.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The gap between “A” (65) and “a” (97) in ASCII is exactly one bit. What is the value of that bit?
+    answer:
+      value: 32
+    hints:
+      - 97 − 65.
+    explanation: 32 = 2⁵. Upper and lower case are switched by flipping a single bit.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Unicode has over 140,000 signs. Why not just use 4 bytes for each one?
+    params:
+      options:
+        - label: UTF-8 gives common characters few bytes – that saves a lot of space in most texts
+          correct: true
+        - label: 4 bytes are not enough for all characters
+          feedback: They suffice for 4 billion.
+        - label: Computers can read only 1 byte at a time
+          feedback: They usually read 8 bytes at once.
+    hints:
+      - An English text would become four times as large.
+    explanation: "Variable length: frequent = short. The same idea is behind all data compression."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: how can a computer store text, images and music with only 0 and 1?"
+    params:
+      keywords:
+        - - zahl
+          - number
+          - nummer
+        - - code
+          - tabelle
+          - vereinbar
+          - table
+          - agree
+          - standard
+          - bedeut
+          - mean
+        - - bit
+          - binär
+          - binary
+          - 0 und 1
+          - 0 and 1
+      sample: "Everything is translated into numbers: each letter has a number in a table, each pixel three colour values. The computer writes these numbers in binary with bits."
+    difficulty: 3
 
 srs:
   cards_from: [nummer, bytes]

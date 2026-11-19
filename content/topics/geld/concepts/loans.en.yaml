@@ -5,7 +5,7 @@ summary: Seeing the true price.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
   - kind: problem
     id: raten
@@ -26,6 +26,7 @@ steps:
       defaults: { p: 600, n: 24 }
 
   - kind: explain
+    id: s2
     body: |
       The **effective annual rate** shows the true cost of a loan – including all fees.
       Only it makes offers comparable.
@@ -44,6 +45,7 @@ steps:
     explanation: B costs about €60, A costs €99.
 
   - kind: explain
+    id: s4
     body: |
       **Discount trap:** First add 25%, then “20% off.” The price is exactly the same again.
       The percentages refer to different base values.
@@ -77,6 +79,49 @@ steps:
     variants:
       params: { s: "choice[900,1200,1500,1800]", r: "choice[50,75,100]" }
       defaults: { s: 1200, r: 75 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: The effective annual rate includes fees too.
+          right: true
+        - text: “0% financing” is always free.
+          right: false
+          why: Fees, insurance or a higher price often hide behind it.
+        - text: +25% and then −25% gives the old price.
+          right: false
+          why: 1.25 · 0.75 = 0.9375 – cheaper than before.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: You overdraw your account by €600 for one month at 12% interest per year. How much interest do you pay?
+    params:
+      unit: €
+    answer:
+      value: 6
+    hints:
+      - 12% a year is 1% a month.
+    explanation: 1% of €600 is €6.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "A €1000 loan at 10% is repaid in 2 years: each year you pay €500 plus the interest on the remaining debt. How much interest in total?"
+    params:
+      unit: €
+    answer:
+      value: 150
+    hints:
+      - In year one you owe €1000, in year two only €500.
+    explanation: €100 + €50 = €150. Repaying faster means paying less interest.
+    difficulty: 3
 
 srs:
   cards_from: [raten, rabatt]

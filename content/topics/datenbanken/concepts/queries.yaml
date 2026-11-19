@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Suchanfragen beantwortet Google pro Sekunde?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 60
+    explanation: Rund 100 000 – jede ist eine Abfrage an riesige Datenbanken.
+
+
   - kind: explain
+    id: s1
     body: |
       Mit der Sprache **SQL** stellt man Fragen an eine Datenbank: `SELECT name FROM kunden WHERE alter > 30` heißt – gib mir die Namen aller Kunden über 30.
 
@@ -51,6 +66,54 @@ steps:
     hints:
       - COUNT heißt zählen.
     explanation: Solche Zusammenfassungen rechnet die Datenbank selbst – blitzschnell.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: Was macht der SQL-Teil?
+    params:
+      pairs:
+        - left: SELECT
+          right: wählt Spalten aus
+        - left: FROM
+          right: nennt die Tabelle
+        - left: WHERE
+          right: filtert Zeilen
+        - left: ORDER BY
+          right: sortiert das Ergebnis
+    hints:
+      - Lies eine Abfrage wie einen englischen Satz.
+    explanation: SQL beschreibt, **was** man will – nicht, wie die Datenbank es findet.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Tabelle hat 200 Kunden: 80 aus Berlin, davon 30 über 40 Jahre alt. Wie viele Zeilen liefert WHERE stadt = »Berlin« AND alter > 40?"
+    answer:
+      value: 30
+    hints:
+      - "AND heißt: beide Bedingungen müssen gelten."
+    explanation: 30 – nur wer beides erfüllt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Was liefert SELECT stadt, COUNT(*) FROM kunden GROUP BY stadt?
+    params:
+      options:
+        - label: Für jede Stadt eine Zeile mit der Zahl ihrer Kunden
+          correct: true
+        - label: Alle Kunden, nach Stadt sortiert
+          feedback: Sortieren wäre ORDER BY. Hier wird zusammengefasst.
+        - label: Nur die Gesamtzahl aller Kunden
+          feedback: Ohne GROUP BY wäre es so.
+    hints:
+      - GROUP BY bildet Gruppen, COUNT zählt in jeder.
+    explanation: Gruppieren und Zusammenfassen – das Herz jeder Auswertung und jedes Dashboards.
+    difficulty: 3
 
 srs:
   cards_from: [zaehlen, reihenfolge]

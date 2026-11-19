@@ -217,7 +217,8 @@ export function containsGroup(node: MathNode): boolean {
 /** True when the top level is a product that contains at least one parenthesised factor. */
 export function isFactored(node: MathNode): boolean {
   const n = node.t === 'neg' ? node.arg : node;
-  return n.t === 'op' && n.op === '*' && containsGroup(n);
+  // a product with a bracketed factor – or a bracket raised to a power, such as (x − 7)²
+  return n.t === 'op' && ((n.op === '*' && containsGroup(n)) || (n.op === '^' && n.left.t === 'group'));
 }
 
 export function evaluateMathString(input: string, env: Record<string, number> = {}): number {

@@ -5,8 +5,22 @@ summary: Wenn Zinsen selbst Zinsen bringen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Du legst 1000 € zu 7 % Zinseszins an. Wie viel ist nach 40 Jahren da?"
+    params:
+      min: 1000
+      max: 30000
+      unit: €
+    answer:
+      value: 14974
+      tolerance: 2500
+    explanation: Fast 15 000 € – das Fünfzehnfache. Ohne Zinseszins wären es nur 3800 €.
+
+
   - kind: problem
     id: ein-jahr
     widget: numeric
@@ -25,6 +39,7 @@ steps:
       defaults: { k: 1000, p: 3 }
 
   - kind: explain
+    id: s2
     body: |
       **Zinseszins** – die Zinsen bleiben auf dem Konto und werden mitverzinst.
       Nach n Jahren hat man $K \cdot (1 + p/100)^n$.
@@ -61,6 +76,7 @@ steps:
       defaults: { k: 2000, p: 5, n: 3 }
 
   - kind: explain
+    id: s5
     body: Zwei Menschen legen monatlich 100 € zu 5 % an. Eine beginnt mit 25, einer mit 35. Was haben sie mit 65?
     reveal:
       body: Die Frühstarterin hat rund 148 000 €, der Spätstarter rund 82 000 €. Sie hat nur 12 000 € mehr eingezahlt. Der Rest ist Zinseszins.
@@ -77,6 +93,53 @@ steps:
     hints:
       - Was steht beim Zinseszins im Exponenten?
     explanation: Die Zeit steht im Exponenten. Jedes Jahr mehr wirkt wie ein weiterer Faktor.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Finde einen Zinssatz und eine Laufzeit, bei denen sich das Geld ungefähr **verdoppelt** (Faktor 1,95 bis 2,05).
+    params:
+      scene: growth
+      show:
+        - value
+        - factor
+    answer:
+      factor:
+        - 1.95
+        - 2.05
+    explanation: "Zum Beispiel 7 % und 10 Jahre. Die **72er-Regel**: 72 geteilt durch den Zinssatz ergibt die Verdopplungszeit."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Nutze die 72er-Regel: In wie vielen Jahren verdoppelt sich Geld bei 6 % Zins?"
+    answer:
+      value: 12
+    hints:
+      - 72 geteilt durch den Zinssatz.
+    explanation: "72 : 6 = 12 Jahre. Genau gerechnet sind es 11,9."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Woher kommt die 72 in der 72er-Regel?
+    params:
+      options:
+        - label: Aus ln 2 ≈ 0,693 – aufgerundet auf eine Zahl mit vielen Teilern
+          correct: true
+        - label: Aus den 72 Monaten eines Kredits
+          feedback: Die Regel gilt für jede Laufzeit.
+        - label: Sie ist reiner Zufall
+          feedback: Sie folgt aus der Gleichung (1 + p/100)ⁿ = 2.
+    hints:
+      - Löse $(1 + p/100)^n = 2$ mit dem Logarithmus nach n.
+    explanation: n = ln 2 / ln(1 + p/100) ≈ 69,3 / p. Die 72 gleicht den Fehler für übliche Zinssätze aus.
+    difficulty: 3
 
 srs:
   cards_from: [ein-jahr, zwei-jahre]

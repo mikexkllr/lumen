@@ -18,6 +18,7 @@ steps:
     explanation: 100 g kosten 1,50 €, ein Kilo also 15 €.
 
   - kind: explain
+    id: s2
     body: |
       Der **Grundpreis** nennt den Preis pro Kilo oder Liter. Nur er macht Packungen vergleichbar.
       Er steht meist klein auf dem Preisschild.
@@ -46,6 +47,38 @@ steps:
     variants:
       params: { ml: "choice[250,500,200]", p: "choice[1,1.5,2]" }
       defaults: { ml: 250, p: 1.5 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Die größere Packung ist pro Kilo immer günstiger.
+          right: false
+          why: Oft, aber nicht immer. Nur der Grundpreis zeigt es.
+        - text: 250 g für 2 € sind 8 € pro Kilo.
+          right: true
+        - text: »3 zum Preis von 2« ist ein Drittel Rabatt.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Packung wird bei gleichem Preis von 500 g auf 400 g verkleinert. Um wie viel Prozent steigt der Grundpreis?
+    params:
+      unit: "%"
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: wrong-base
+        text: 20 % weniger Inhalt heißt nicht 20 % teurer. Bezieh die Änderung auf den neuen Inhalt.
+    hints:
+      - Früher gab es 5 Teile fürs Geld, jetzt 4. Vergleich 1/4 mit 1/5.
+    explanation: "500 : 400 = 1,25. Die Menge sinkt um 20 %, der Preis pro Gramm steigt um 25 %."
+    difficulty: 2
 
 srs:
   cards_from: [kilo, grundpreis]

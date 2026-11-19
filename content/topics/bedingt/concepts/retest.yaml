@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Test war positiv. Du machst ihn noch einmal – wieder positiv. Bist du jetzt sicherer?
+    params:
+      options:
+        - label: Ja – zwei Treffer sind viel stärker als einer
+          correct: true
+        - label: Nein, das ändert nichts
+          feedback: Jeder Test bringt neue Information.
+        - label: Ich bin jetzt weniger sicher
+          feedback: Ein zweiter Treffer bestätigt den ersten.
+    hints:
+      - Wie wahrscheinlich ist zweimal Fehlalarm hintereinander?
+    explanation: Wie viel sicherer genau, rechnen wir jetzt aus.
+
+
   - kind: explain
+    id: s1
     body: |
       Erinnerung: Bei 1000 Menschen sind 10 krank. 9 davon testen positiv, dazu 89 Gesunde. Von 98 Positiven sind nur 9 krank.
 
@@ -36,9 +54,40 @@ steps:
     explanation: Etwa 8 zu 8 – also rund 50 %. Jeder Test verschiebt die Chancen.
 
   - kind: explain
+    id: s4
     body: Was lernt man daraus?
     reveal:
       body: Ein einzelner Befund bei einer seltenen Krankheit ist oft ein Fehlalarm. Ärzte bestätigen darum mit einem zweiten, unabhängigen Test.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Nach einem positiven Test liegt die Chance bei etwa 9 %. Von 1000 solchen Menschen sind also 90 krank. Der Test erkennt 90 % der Kranken. Wie viele der 90 testen erneut positiv?
+    answer:
+      value: 81
+    hints:
+      - 90 % von 90.
+    explanation: 81 Kranke und rund 82 der 910 Gesunden – etwa 50 %. Jeder Test **aktualisiert** die Wahrscheinlichkeit.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Der zweite Test nutzt dasselbe Messprinzip und reagiert auf denselben Störstoff im Blut. Was bedeutet das?
+    params:
+      options:
+        - label: Die Tests sind nicht unabhängig – ein zweites positives Ergebnis sagt viel weniger aus
+          correct: true
+        - label: Der zweite Test ist doppelt so zuverlässig
+          feedback: Er wiederholt nur denselben Fehler.
+        - label: Das ändert nichts
+          feedback: Die Rechnung setzt Unabhängigkeit voraus.
+    hints:
+      - Wer beim ersten Test falsch-positiv war, ist es beim zweiten vermutlich wieder.
+    explanation: Bestätigungstests sollten auf einem **anderen** Prinzip beruhen.
+    difficulty: 3
 
 srs:
   cards_from: [anteil, zweiter]

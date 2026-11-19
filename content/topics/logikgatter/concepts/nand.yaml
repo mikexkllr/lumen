@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Transistoren stecken im Chip eines aktuellen Handys?"
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 15000000000
+      within: 85
+    explanation: Über 15 Milliarden. Und fast alles daraus ließe sich mit einer einzigen Gatter-Sorte bauen.
+
+
   - kind: explain
+    id: s1
     body: |
       **NAND** heißt »nicht und«. Es gibt nur dann 0 aus, wenn beide Eingänge 1 sind. Das Besondere – aus NAND allein lässt sich jedes andere Gatter bauen.
 
@@ -55,6 +70,36 @@ steps:
     hints:
       - Erst beide Eingänge umkehren.
     explanation: NAND aus »nicht A« und »nicht B« ist »A oder B« – De Morgan in Hardware.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein UND aus NAND-Gattern braucht 2 Gatter, ein ODER 3. Wie viele NAND-Gatter braucht ein XOR mindestens?
+    answer:
+      value: 4
+    hints:
+      - Es geht mit einem gemeinsamen ersten NAND, das zweimal weiterverwendet wird.
+    explanation: Vier. Chipdesigner sparen Gatter, wo sie können – jedes kostet Platz und Strom.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Zwei NAND-Gatter werden über Kreuz verbunden: Der Ausgang des einen ist Eingang des anderen. Was entsteht?"
+    params:
+      options:
+        - label: Ein Speicher für ein Bit – die Schaltung merkt sich ihren Zustand
+          correct: true
+        - label: Ein Kurzschluss
+          feedback: Die Schaltung ist stabil und hat zwei mögliche Zustände.
+        - label: Ein schnelleres NAND
+          feedback: "Es entsteht etwas völlig Neues: Gedächtnis."
+    hints:
+      - Durch die Rückkopplung hängt der Ausgang von der Vergangenheit ab.
+    explanation: Ein **Flipflop**. Aus Gattern ohne Gedächtnis wird durch Rückkopplung Speicher – der zweite Grundbaustein jedes Computers.
+    difficulty: 3
 
 srs:
   cards_from: [nicht, oder]

@@ -5,9 +5,27 @@ summary: Every record unique.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A school has two children called Mia Miller. How does the school tell them apart for sure?
+    params:
+      options:
+        - label: By a unique pupil number
+          correct: true
+        - label: By the name
+          feedback: That is the same.
+        - label: By hair colour
+          feedback: That can change – or be the same.
+    hints:
+      - What does each child have only once?
+    explanation: In databases such a number is called a key.
+
+
   - kind: explain
+    id: s1
     body: |
       A **primary key** makes each row unique, usually a running number. Other tables point to it with a **foreign key**. That way nothing needs to be copied.
 
@@ -48,6 +66,52 @@ steps:
     hints:
       - What happens after a move if the address is stored a hundred times?
     explanation: Store data only once. This is called **normalization**.
+
+  - kind: problem
+    id: c1
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: The [[primary key]] makes every row unique. A [[foreign key]] points to a row in another [[table]].
+      distractors:
+        - index
+        - column
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Why is the name unsuitable as a primary key for people?
+    params:
+      options:
+        - label: Names are not unique and can change
+          correct: true
+        - label: Names are too long
+          feedback: Length is not the problem.
+        - label: Names contain letters
+          feedback: Keys may be text.
+    hints:
+      - How many people are called Anna Müller?
+    explanation: A good key is unique and stays the same forever.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Someone deletes a customer who still has orders. What should a good database do?
+    params:
+      options:
+        - label: Refuse the deletion or handle the orders too – dangling references are forbidden
+          correct: true
+        - label: Simply delete
+          feedback: Then orders point to a customer who no longer exists.
+        - label: Lock the whole database
+          feedback: That would be excessive.
+    hints:
+      - What does the order’s foreign key point to afterwards?
+    explanation: "**Referential integrity**: the database guarantees that every reference has a target."
+    difficulty: 3
 
 srs:
   cards_from: [gut, doppelt]

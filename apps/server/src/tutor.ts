@@ -36,7 +36,7 @@ export function tutorConfigFromEnv(env: NodeJS.ProcessEnv = process.env): TutorC
   };
 }
 
-const INTENTS = new Set<TutorIntent>(['why-wrong', 'hint', 'rephrase', 'explain-task', 'why-right', 'explain-step', 'chat', 'reasoning']);
+const INTENTS = new Set<TutorIntent>(['why-wrong', 'hint', 'rephrase', 'explain-task', 'why-right', 'explain-step', 'simpler', 'example', 'deeper', 'quiz', 'teach-feedback', 'chat', 'reasoning']);
 const STATUSES = new Set(['unanswered', 'wrong', 'correct', 'revealed', 'explain']);
 
 export interface TutorRequest {

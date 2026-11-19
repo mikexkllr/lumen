@@ -5,8 +5,22 @@ summary: Why the house always wins.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: what percent of lottery stakes is paid out again as winnings?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 50
+      tolerance: 8
+    explanation: Only about 50%. Of every euro staked half comes back on average.
+
+
   - kind: problem
     id: lotto
     widget: numeric
@@ -18,6 +32,7 @@ steps:
     explanation: About 14 million · 1.20 € ≈ 16.8 million €.
 
   - kind: explain
+    id: s2
     body: |
       A game is **fair** if the expected gain is zero.
       Casinos and lotteries are never fair. On average, they keep part of all stakes.
@@ -47,6 +62,7 @@ steps:
     explanation: 1/37 ≈ 2.7%.
 
   - kind: explain
+    id: s5
     body: Why do so many people play lotto anyway?
     reveal:
       body: The small stake feels harmless, and the jackpot feels huge. Our gut turns "1 in 14 million" into "maybe".
@@ -63,6 +79,39 @@ steps:
     hints:
       - How much does the flip pay on average?
     explanation: 1/2 · 120 € = 60 € – more than 50 €. Many people still choose the sure thing. That is risk aversion, not a math error.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: At roulette you bet €1 on a single number (37 pockets). On a hit you get €36 back. What is the expected loss in cents, rounded?
+    params:
+      unit: ct
+    answer:
+      value: 2.7
+      tolerance: 0.1
+    hints:
+      - "Expected payback: €36/37."
+    explanation: 1 − 36/37 ≈ 2.7 cents. Whatever you bet on – the house edge stays the same.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "The martingale strategy: double the stake after every loss. Eventually you win, after all. Where is the catch?"
+    params:
+      options:
+        - label: A long losing streak demands huge stakes – money and table limits are finite
+          correct: true
+        - label: There is none – that is how you beat the bank
+          feedback: The expected value stays negative.
+        - label: You win too rarely
+          feedback: You actually win often – but small amounts.
+    hints:
+      - After 10 losses the stake is 1024-fold.
+    explanation: Many small wins, rarely a total loss. No staking strategy turns a negative expected value into a positive one.
+    difficulty: 3
 
 srs:
   cards_from: [roulette, sicher-oder-wurf]

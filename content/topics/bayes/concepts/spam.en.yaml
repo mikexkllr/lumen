@@ -5,9 +5,24 @@ summary: Words as evidence.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: what percentage of all e-mails worldwide is spam?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 45
+      tolerance: 12
+    explanation: Almost half. Without filters your inbox would be useless.
+
+
   - kind: explain
+    id: s1
     body: |
       A Bayesian filter asks: how often does a word appear in spam, and how often in regular emails? Say 500 of 1000 emails are spam. The word "Prize" appears in 40 % of spam emails, but only 1 % of regular ones.
 
@@ -42,6 +57,36 @@ steps:
     hints:
       - 200 out of 205 emails with this word.
     explanation: 200 out of 205 ≈ 98 %. Real filters combine hundreds of words this way.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A mail contains two words. “Free” is 20 times as frequent in spam as in normal mail, “meeting” only 1/5 as frequent in spam. By what factor do both together change the odds of spam?
+    answer:
+      value: 4
+    hints:
+      - "Multiply the ratios: 20 · 1/5."
+    explanation: Factor 4. Every word is a piece of evidence – for or against.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The filter is called “naive” Bayes. What is naive about it?
+    params:
+      options:
+        - label: It assumes that all words occur independently of each other
+          correct: true
+        - label: It was programmed by beginners
+          feedback: The name describes a mathematical simplification.
+        - label: It believes every mail
+          feedback: It rates by probabilities.
+    hints:
+      - “Free” and “prize” often occur together.
+    explanation: The assumption is false – and works surprisingly well anyway. A simple robust model often beats a complicated one.
+    difficulty: 3
 
 srs:
   cards_from: [normal, schluss]

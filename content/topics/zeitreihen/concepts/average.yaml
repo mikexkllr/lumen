@@ -5,9 +5,22 @@ summary: Zacken glätten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: Du läufst an drei Tagen 4, 6 und 8 km. Wie viele Kilometer sind das im Schnitt pro Tag?
+    params:
+      unit: km
+    answer:
+      value: 6
+    hints:
+      - Alles addieren und durch 3 teilen.
+    explanation: Der Schnitt glättet einzelne Tage. Das nutzt man auch für lange Zeitreihen.
+
   - kind: explain
+    id: s1
     body: |
       Ein **gleitender Durchschnitt** mittelt immer die letzten paar Werte. Er glättet zufällige Zacken und macht den Verlauf sichtbar – so werden etwa Infektionszahlen über 7 Tage gemittelt.
 
@@ -53,6 +66,36 @@ steps:
     hints:
       - Was passiert, wenn plötzlich alles hochschießt?
     explanation: Weil alte Werte mitzählen, zeigt sich eine Wende erst nach einigen Tagen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Werte: 4, 10, 4, 10, 4, 10. Wie groß ist jeder gleitende Durchschnitt über **zwei** Werte?"
+    answer:
+      value: 7
+    hints:
+      - "(4 + 10) : 2."
+    explanation: Immer 7 – die Zacken verschwinden völlig. Die Fensterbreite sollte zur Periode des Musters passen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Beim **exponentiellen Glätten** zählt der neueste Wert am meisten, ältere immer weniger. Was ist der Vorteil gegenüber dem einfachen gleitenden Durchschnitt?
+    params:
+      options:
+        - label: Es reagiert schneller auf echte Änderungen und braucht nur den letzten geglätteten Wert
+          correct: true
+        - label: Es glättet gar nicht
+          feedback: Es glättet – nur mit abnehmenden Gewichten.
+        - label: Es sagt die Zukunft exakt vorher
+          feedback: Kein Verfahren kann das.
+    hints:
+      - Soll ein Wert von vor 30 Tagen so viel zählen wie der von gestern?
+    explanation: Neuer Wert = α · Messung + (1 − α) · alter Wert. Dieselbe Formel steckt in vielen Sensoren und Lernverfahren.
+    difficulty: 3
 
 srs:
   cards_from: [drei, verzoegerung]

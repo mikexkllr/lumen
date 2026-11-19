@@ -5,7 +5,7 @@ summary: Fehler sofort erkennen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: endziffer
@@ -20,6 +20,7 @@ steps:
     explanation: 7 · 8 = 56 – das Ergebnis muss auf 6 enden.
 
   - kind: explain
+    id: s2
     body: |
       **Schnelle Proben:** Die letzte Ziffer prüfen. Die Größenordnung überschlagen. Gerade mal gerade ist immer gerade.
 
@@ -51,6 +52,53 @@ steps:
     variants:
       params: { a: "int[12,19]", b: "int[21,29]" }
       defaults: { a: 14, b: 23 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Ungerade mal ungerade kann gerade sein.
+          right: false
+          why: Ungerade mal ungerade ist immer ungerade.
+        - text: 23 · 47 muss auf 1 enden.
+          right: true
+        - text: Endet ein Faktor auf 5 und der andere ist gerade, endet das Produkt auf 0.
+          right: true
+        - text: 312 · 29 kann 904 sein.
+          right: false
+          why: 300 · 30 = 9000 – die Größenordnung passt nicht.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Die Quersumme verrät den Rest beim Teilen durch 9. Welchen Rest lässt 4732?
+    answer:
+      value: 7
+    hints:
+      - 4 + 7 + 3 + 2 = 16. Und 16 lässt welchen Rest?
+    explanation: 16 = 9 + 7, also Rest 7. Das ist die Grundlage der **Neunerprobe**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Neunerprobe für 34 · 52 = 1768 geht auf. Was beweist das?
+    params:
+      options:
+        - label: Nichts sicher – aber die meisten Fehler wären aufgefallen
+          correct: true
+        - label: Das Ergebnis stimmt sicher
+          feedback: 1786 hat dieselbe Quersumme und wäre auch durchgekommen.
+        - label: Das Ergebnis ist durch 9 teilbar
+          feedback: Die Probe vergleicht nur Reste, sie sagt nichts über Teilbarkeit.
+    hints:
+      - Was passiert bei einem Zahlendreher mit der Quersumme?
+    explanation: Eine Probe kann Fehler finden, aber Richtigkeit nicht beweisen. Zahlendreher übersieht sie.
+    difficulty: 3
 
 srs:
   cards_from: [plausibel, rechnen]

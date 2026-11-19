@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many transistors are in the chip of a current phone?"
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 15000000000
+      within: 85
+    explanation: Over 15 billion. And almost all of it could be built from a single kind of gate.
+
+
   - kind: explain
+    id: s1
     body: |
       **NAND** means “not and”. It outputs 0 only when both inputs are 1. The special thing – from NAND alone, you can build every other gate.
 
@@ -55,6 +70,36 @@ steps:
     hints:
       - First invert both inputs.
     explanation: NAND of “not A” and “not B” is “A or B” – De Morgan in hardware.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An AND made of NAND gates needs 2 gates, an OR needs 3. How many NAND gates does an XOR need at least?
+    answer:
+      value: 4
+    hints:
+      - It works with one shared first NAND that is reused twice.
+    explanation: Four. Chip designers save gates wherever they can – each costs space and power.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Two NAND gates are cross-connected: the output of one is an input of the other. What results?"
+    params:
+      options:
+        - label: A memory for one bit – the circuit remembers its state
+          correct: true
+        - label: A short circuit
+          feedback: The circuit is stable and has two possible states.
+        - label: A faster NAND
+          feedback: "Something entirely new arises: memory."
+    hints:
+      - Through the feedback the output depends on the past.
+    explanation: A **flip-flop**. Feedback turns gates without memory into storage – the second basic building block of every computer.
+    difficulty: 3
 
 srs:
   cards_from: [nicht, oder]

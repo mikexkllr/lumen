@@ -5,9 +5,22 @@ summary: Smoothing out the spikes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: You run 4, 6 and 8 km on three days. How many kilometres is that on average per day?
+    params:
+      unit: km
+    answer:
+      value: 6
+    hints:
+      - Add everything and divide by 3.
+    explanation: The average smooths out single days. That is used for long time series too.
+
   - kind: explain
+    id: s1
     body: |
       A **moving average** always averages the last few values. It smooths random spikes and makes the course visible – this is how infection numbers are averaged over 7 days, for example.
 
@@ -53,6 +66,36 @@ steps:
     hints:
       - What happens when everything suddenly shoots up?
     explanation: Because old values count too, a turning point shows up only after a few days.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Values: 4, 10, 4, 10, 4, 10. What is every moving average over **two** values?"
+    answer:
+      value: 7
+    hints:
+      - (4 + 10) ÷ 2.
+    explanation: Always 7 – the zigzags vanish completely. The window width should match the period of the pattern.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In **exponential smoothing** the newest value counts most, older ones less and less. What is the advantage over the simple moving average?
+    params:
+      options:
+        - label: It reacts faster to real changes and needs only the last smoothed value
+          correct: true
+        - label: It does not smooth at all
+          feedback: It smooths – just with decreasing weights.
+        - label: It predicts the future exactly
+          feedback: No method can do that.
+    hints:
+      - Should a value from 30 days ago count as much as yesterday’s?
+    explanation: New value = α · measurement + (1 − α) · old value. The same formula is found in many sensors and learning methods.
+    difficulty: 3
 
 srs:
   cards_from: [drei, verzoegerung]

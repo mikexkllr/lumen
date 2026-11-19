@@ -34,6 +34,7 @@ steps:
     explanation: Darum gewichten echte Prüfziffern wie bei IBAN oder ISBN jede Stelle anders.
 
   - kind: explain
+    id: s3
     body: |
       Ein **Hash** ist eine Art Super-Prüfziffer. Aus beliebigen Daten wird ein kurzer Fingerabdruck. Ändert sich ein Zeichen, ändert sich der ganze Hash – und zurückrechnen geht nicht.
 
@@ -51,6 +52,50 @@ steps:
     hints:
       - Was passiert, wenn die Datenbank gestohlen wird?
     explanation: Ein gesalzener, langsamer Hash lässt sich kaum zurückrechnen. Klartext und Caesar sind sofort geknackt.
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Derselbe Text ergibt immer denselben Hash.
+          right: true
+        - text: Aus einem Hash kann man den Text zurückrechnen.
+          right: false
+          why: Ein Hash ist eine Einbahnstraße.
+        - text: Ändert man ein einziges Zeichen, sieht der Hash völlig anders aus.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Du lädst ein Programm herunter. Auf der Webseite steht sein Hash. Wozu?
+    params:
+      options:
+        - label: Du kannst prüfen, ob die Datei unterwegs verändert oder ausgetauscht wurde
+          correct: true
+        - label: Um die Datei zu entpacken
+          feedback: Der Hash enthält die Datei nicht.
+        - label: Als Passwort für die Installation
+          feedback: Er dient nur dem Vergleich.
+    hints:
+      - "Gleicher Hash heißt praktisch sicher: gleiche Datei."
+    explanation: Stimmt der selbst berechnete Hash überein, ist die Datei unverändert.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Hash hat 256 Bit. Nach dem Geburtstagsparadox findet man zwei Texte mit **gleichem** Hash nach etwa 2 hoch wie vielen Versuchen?
+    answer:
+      value: 128
+    hints:
+      - "Die Wurzel aus der Zahl der Möglichkeiten: halber Exponent."
+    explanation: 2¹²⁸ – immer noch unerreichbar. Darum braucht ein Hash doppelt so viele Bits wie die gewünschte Sicherheit.
+    difficulty: 3
 
 srs:
   cards_from: [dreher, passwort]

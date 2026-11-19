@@ -1,0 +1,158 @@
+id: ai.neural.backprop
+type: concept
+title: "Backpropagation"
+summary: "Wie ein Netz herausfindet, welches Gewicht am Fehler schuld ist."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Ein Team verliert ein Spiel. Der Trainer will, dass es besser wird. Was ist am klügsten?
+    params:
+      options:
+        - label: Schauen, wer wie viel zum Fehler beitrug
+          correct: true
+        - label: Alle gleich stark ändern
+          feedback: Dann ändert man auch, was gut lief.
+        - label: Zufällig Spieler tauschen
+          feedback: Das hilft nur mit viel Glück.
+    hints:
+      - Nicht jeder trägt gleich viel Schuld.
+    explanation: Genau das tut ein Netz beim Lernen – für Millionen von Gewichten zugleich.
+
+  - kind: explain
+    id: c2
+    body: "**Backpropagation** reicht den Fehler rückwärts durch das Netz: von der Ausgabe Schicht für Schicht zurück. So erfährt jedes Gewicht seinen Anteil am Fehler."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Ordne die Schritte eines Lernschritts.
+    params:
+      items:
+        - label: Eingabe vorwärts durchs Netz schicken
+        - label: Ausgabe mit der Lösung vergleichen
+        - label: Fehler rückwärts verteilen
+        - label: Jedes Gewicht ein Stück anpassen
+    hints:
+      - Erst rechnen, dann prüfen, dann die Schuld verteilen.
+    explanation: Vorwärts, Fehler, rückwärts, anpassen – milliardenfach wiederholt.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Ein winziges Netz rechnet: Ausgabe = Gewicht · Eingabe. Die Eingabe ist 3, das Gewicht 2. Richtig wäre die Ausgabe 9. Um wie viel muss das Gewicht steigen?"
+    answer:
+      value: 1
+    hints:
+      - Welches Gewicht mal 3 ergibt 9?
+    explanation: Mit Gewicht 3 stimmt es. Der Fehler von 3 verteilt sich auf die Eingabe 3.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Eine andere Eingabe des Neurons war 0. Wie viel Schuld trägt **ihr** Gewicht am Fehler?
+    params:
+      options:
+        - label: Keine – 0 mal Gewicht trägt nichts bei
+          correct: true
+        - label: Die meiste
+          feedback: Was nichts beiträgt, kann nicht schuld sein.
+        - label: Genau die Hälfte
+          feedback: Die Schuld hängt von der Eingabe ab.
+    hints:
+      - Was ändert sich an der Ausgabe, wenn du dieses Gewicht änderst?
+    explanation: Der Anteil eines Gewichts ist Fehler mal Eingabe. Bei Eingabe 0 bleibt es, wie es ist.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Kette: x wird erst mal 2 genommen, dann mal 5. Du änderst x um 1. Um wie viel ändert sich die Ausgabe?"
+    answer:
+      value: 10
+    hints:
+      - Die Wirkungen multiplizieren sich.
+    explanation: 2 · 5 = 10. Das ist die **Kettenregel** – der Kern von Backpropagation.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Gewicht steht bei 0,8. Sein Gradient ist 0,5, die Lernrate 0,1. Neues Gewicht = altes − Lernrate · Gradient. Wie lautet es?
+    answer:
+      value: 0.75
+    hints:
+      - 0,1 · 0,5 = 0,05.
+    explanation: 0,8 − 0,05 = 0,75. Ein kleiner Schritt bergab auf der Fehlerlandschaft.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In einem tiefen Netz wird der Fehler in jeder Schicht mit etwa 0,5 malgenommen. Was passiert nach 20 Schichten rückwärts?
+    params:
+      options:
+        - label: Es bleibt nur etwa ein Millionstel übrig
+          correct: true
+        - label: Der Fehler ist halb so groß
+          feedback: Halbieren passiert 20-mal hintereinander.
+        - label: Er wird riesig
+          feedback: Das passiert bei Faktoren über 1.
+    hints:
+      - 0,5 hoch 20.
+    explanation: "Das **Problem der verschwindenden Gradienten**: Die vorderen Schichten lernen fast nichts mehr."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Was hat sehr tiefe Netze trotzdem möglich gemacht?
+    params:
+      options:
+        - label: Abkürzungen, die das Signal an Schichten vorbeileiten
+          correct: true
+        - label: Einfach länger trainieren
+          feedback: Ein Millionstel bleibt ein Millionstel.
+        - label: Weniger Daten
+          feedback: Das löst das Problem nicht.
+    hints:
+      - Der Fehler braucht einen Weg, auf dem er nicht schrumpft.
+    explanation: "**Residual-Verbindungen** von 2015. Ohne sie gäbe es keine Transformer mit hundert Schichten."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Backpropagation macht.
+    params:
+      keywords:
+        - - fehler
+          - error
+          - loss
+        - - rückwärts
+          - zurück
+          - backward
+          - back
+        - - gewicht
+          - weight
+        - - anteil
+          - schuld
+          - beitrag
+          - gradient
+          - share
+          - blame
+      min: 3
+      sample: Das Netz vergleicht seine Ausgabe mit der richtigen Antwort. Den Fehler reicht es rückwärts durch die Schichten. So erfährt jedes Gewicht seinen Anteil und wird ein Stück angepasst.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d1", "d2"]

@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: 1 von 100 Menschen ist krank. Ein Test erkennt 9 von 10 Kranken, schlägt aber auch bei 9 von 100 Gesunden an. Du testest positiv. Wie wahrscheinlich bist du krank?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 9
+      tolerance: 6
+    explanation: Nur etwa 9 %. Die meisten schätzen viel höher.
+
+
   - kind: explain
+    id: s1
     body: |
       Bayes geht am einfachsten mit **natürlichen Häufigkeiten**: Stell dir 1000 Menschen vor. 1 % ist krank, also 10. Der Test erkennt 9 davon. Von den 990 Gesunden zeigt er bei 9 % fälschlich positiv.
 
@@ -46,6 +61,47 @@ steps:
     hints:
       - Nach dem ersten Test ist die neue Basisrate viel höher.
     explanation: Der erste Treffer hebt das Vorwissen von 1 % auf 9 % – ein zweiter Test steigert es stark.
+
+  - kind: problem
+    id: c1
+    widget: order
+    prompt: Bayes mit natürlichen Häufigkeiten. Ordne die Schritte.
+    params:
+      items:
+        - label: Stell dir 1000 Menschen vor.
+        - label: Teile sie nach der Basisrate in Kranke und Gesunde.
+        - label: Zähle in beiden Gruppen die positiven Tests.
+        - label: Teile die kranken Positiven durch alle Positiven.
+    hints:
+      - Erst die Menschen aufteilen, dann testen.
+    explanation: Mit ganzen Menschen statt Prozenten lösen selbst Ärzte die Aufgabe dreimal so oft richtig.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "In einer Schublade sind 3 Münzen: 2 faire und 1 mit zwei Köpfen. Du ziehst eine und wirfst Kopf. Wie wahrscheinlich ist es die doppelköpfige? Als Bruch."
+    answer:
+      value: 1/2
+    hints:
+      - "Zähle Kopf-Seiten: Die fairen haben je eine, die besondere zwei."
+    explanation: Von 4 möglichen Kopf-Seiten gehören 2 zur Doppelmünze. Aus 1/3 wird durch einen Wurf 1/2.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Die Bayes-Formel in Chancen: neue Chance = alte Chance · Likelihood-Verhältnis. Die Chance steht 1 zu 99. Ein Test ist bei Kranken 10-mal so oft positiv wie bei Gesunden. Wie viel Prozent sind es danach? Gerundet."
+    params:
+      unit: "%"
+    answer:
+      value: 9
+      tolerance: 0.5
+    hints:
+      - "Neue Chance: 10 zu 99. Das sind 10 von 109."
+    explanation: 10/109 ≈ 9 %. In Chancen gerechnet ist Bayes eine einzige Multiplikation.
+    difficulty: 3
 
 srs:
   cards_from: [anteil, zweiter]

@@ -7,6 +7,8 @@ import { BalanceView, FractionView, LogicGridView, NumberLineView } from './Mani
 import { ChartView, DistributionView, RobotView } from './Explore.tsx';
 import { BitsView, BucketsView, GatesView, MatchView, NetworkView, PixelsView, VennView } from './Interactive.tsx';
 import { AngleView, HanoiView, NimView, RectView, SwapView } from './Games.tsx';
+import { EstimateView, SwipeView, ClozeView, TeachView } from './Micro.tsx';
+import { SimView } from './Sim.tsx';
 import { useState } from 'react';
 import type { WidgetViewProps } from './types.ts';
 
@@ -37,6 +39,11 @@ export const VIEWS: Record<string, ComponentType<WidgetViewProps>> = {
   angle: AngleView,
   rect: RectView,
   swap: SwapView,
+  estimate: EstimateView,
+  swipe: SwipeView,
+  cloze: ClozeView,
+  teach: TeachView,
+  sim: SimView,
 };
 
 /** Widgets that draw no own surface get a card behind them. */

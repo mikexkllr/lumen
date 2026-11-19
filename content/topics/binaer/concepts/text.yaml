@@ -5,9 +5,23 @@ summary: Wie Text in Bits passt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene Zeichen kann man mit 8 Bits unterscheiden?"
+    params:
+      min: 8
+      max: 1000
+    answer:
+      value: 256
+      tolerance: 60
+    explanation: 2⁸ = 256. Genug für alle Buchstaben, Ziffern und Satzzeichen.
+
+
   - kind: explain
+    id: s1
     body: |
       Computer kennen nur Zahlen. Darum hat jedes Zeichen eine Nummer – A ist 65, B ist 66 und so weiter. Diese Tabelle heißt **ASCII**.
 
@@ -50,6 +64,62 @@ steps:
     hints:
       - Ein Byte reicht nur für die alten ASCII-Zeichen.
     explanation: Umlaute, Symbole und Emojis brauchen 2 bis 4 Bytes.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Der Abstand zwischen »A« (65) und »a« (97) ist in ASCII genau ein Bit. Welchen Wert hat dieses Bit?
+    answer:
+      value: 32
+    hints:
+      - 97 − 65.
+    explanation: 32 = 2⁵. Groß- und Kleinschreibung wechselt man durch Umschalten eines einzigen Bits.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Unicode kennt über 140 000 Zeichen. Warum nutzt man nicht einfach für jedes Zeichen 4 Bytes?
+    params:
+      options:
+        - label: UTF-8 gibt häufigen Zeichen wenige Bytes – das spart bei den meisten Texten viel Platz
+          correct: true
+        - label: 4 Bytes reichen nicht für alle Zeichen
+          feedback: Sie reichen für 4 Milliarden.
+        - label: Computer können nur 1 Byte auf einmal lesen
+          feedback: Sie lesen meist 8 Bytes auf einmal.
+    hints:
+      - Ein englischer Text würde viermal so groß.
+    explanation: "Variable Länge: häufig = kurz. Dieselbe Idee steckt in jeder Datenkompression."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Wie kann ein Computer mit nur 0 und 1 Texte, Bilder und Musik speichern?"
+    params:
+      keywords:
+        - - zahl
+          - number
+          - nummer
+        - - code
+          - tabelle
+          - vereinbar
+          - table
+          - agree
+          - standard
+          - bedeut
+          - mean
+        - - bit
+          - binär
+          - binary
+          - 0 und 1
+          - 0 and 1
+      sample: "Alles wird in Zahlen übersetzt: Jeder Buchstabe hat eine Nummer in einer Tabelle, jedes Pixel drei Farbwerte. Diese Zahlen schreibt der Computer binär mit Bits."
+    difficulty: 3
 
 srs:
   cards_from: [nummer, bytes]

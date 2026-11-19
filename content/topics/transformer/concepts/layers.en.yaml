@@ -22,6 +22,7 @@ steps:
     explanation: Dozens of layers refine the understanding step by step.
 
   - kind: explain
+    id: s2
     body: |
       A **transformer** stacks many identical layers. Each layer has attention and a small neural network. Early layers tend to capture grammar, and later ones meaning and context.
 
@@ -49,6 +50,42 @@ steps:
     variants:
       params: { h: "choice[8,12,16]", l: "choice[12,24,32]" }
       defaults: { h: 12, l: 24 }
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Attention handles all tokens at once – without order. How then does the model know that “dog bites man” differs from “man bites dog”?
+    params:
+      options:
+        - label: Every token additionally gets a marker for its position
+          correct: true
+        - label: It does not know
+          feedback: Without position information both sentences would be identical – that is why it is added.
+        - label: It secretly reads left to right
+          feedback: Processing is parallel.
+    hints:
+      - A position vector is added to the word vector.
+    explanation: "**Positional encoding** – without it a text would be just an unordered bag of words to the model."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In every layer the result is **added** to the input instead of replacing it. What are these “residual connections” for?
+    params:
+      options:
+        - label: Signals and learning impulses can flow unhindered through hundreds of layers
+          correct: true
+        - label: They save memory
+          feedback: They actually need slightly more.
+        - label: They prevent hallucinations
+          feedback: They have nothing to do with that.
+    hints:
+      - Each layer only has to learn a small correction.
+    explanation: Without them the learning signal vanishes in deep networks. Only this idea made truly deep models trainable.
+    difficulty: 3
 
 srs:
   cards_from: [ablauf, parallel]

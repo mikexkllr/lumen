@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Chess: you can take a pawn right now. Or you make a move that wins the queen in three moves. Which is better?"
+    params:
+      options:
+        - label: The move towards the queen
+          correct: true
+        - label: The pawn – better safe
+          feedback: The queen is worth far more.
+        - label: It does not matter
+          feedback: The moves lead to very different positions.
+    hints:
+      - Does only what happens right away count?
+    explanation: A good position is worth more than a quick gain.
+
+
   - kind: explain
+    id: s1
     body: |
       For every situation, an agent learns a **value**: how much reward it can still expect from there. Later rewards count a little less. Each step **discounts** them, for example by 10 %.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - "0.9^10 is about 0.35."
     explanation: Patience only pays off if the later reward is big enough.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An agent receives a reward of 1 at every step forever. Each further step counts 10% less (factor 0.9). How much is that worth in total?
+    answer:
+      value: 10
+    hints:
+      - "Geometric series: 1 ÷ (1 − 0.9)."
+    explanation: 1 + 0.9 + 0.81 + … = 10. Discounting keeps even an infinite future worth a finite amount.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "The **Bellman equation** says: the value of a state is …?"
+    params:
+      options:
+        - label: … the immediate reward plus the discounted value of the best next state
+          correct: true
+        - label: … the sum of all rewards there ever were
+          feedback: The future counts, not the past.
+        - label: … always zero
+          feedback: Only in a state with no prospects at all.
+    hints:
+      - Today’s value depends on tomorrow’s value.
+    explanation: "A recursive definition: it breaks a huge planning problem into nothing but one-step problems."
+    difficulty: 3
 
 srs:
   cards_from: [abzug, vergleich]

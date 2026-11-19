@@ -34,6 +34,7 @@ steps:
     explanation: For rare events, accuracy is badly misleading.
 
   - kind: explain
+    id: s3
     body: |
       So you also measure: How many **real cases** does the model find (recall)? And how many of its **alarms** are right (precision)? A good detector needs both.
 
@@ -50,6 +51,50 @@ steps:
       params: { n: "choice[20,50]", p: "choice[40,60,80,90]" }
       derive: { k: "n * p / 100" }
       defaults: { n: 50, p: 60 }
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A model reports 50 fraud cases, 30 of them real. In total there were 40 real cases. What is the **precision** of its alarms in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 60
+    hints:
+      - How many of the 50 alarms are right?
+    explanation: 30 of 50 = 60%. The recall would be 30 of 40 = 75%.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is “99% accuracy” not enough to call a model good?"
+    params:
+      keywords:
+        - - selten
+          - rare
+          - wenige
+          - few
+          - ungleich
+          - unbalanced
+          - imbalanc
+        - - immer
+          - always
+          - einfach
+          - simply
+          - nie
+          - never
+        - - finden
+          - übersieht
+          - findet
+          - find
+          - miss
+          - detect
+          - erkennen
+      sample: If what you look for is rare, say 1% fraud, a model reaches 99% by simply always saying “no fraud”. But then it misses every real case and is useless.
+    difficulty: 3
 
 srs:
   cards_from: [falle, gefunden]

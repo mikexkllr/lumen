@@ -31,6 +31,7 @@ steps:
     explanation: y = 0.5 · x + 1. That is exactly what training does – turn the dials until the error disappears.
 
   - kind: explain
+    id: s2
     body: |
       A network learns from examples. It measures the **error** – how far off is it?
       Then it turns each weight a little so that the error gets smaller.
@@ -50,6 +51,7 @@ steps:
     explanation: (1 + 0 + 2) / 3 = 1.
 
   - kind: explain
+    id: s4
     body: |
       **Overfitting:** A model that memorizes the examples fails on new data.
       That is why you test it with data it has never seen.
@@ -83,6 +85,54 @@ steps:
     hints:
       - What should the model be able to do later?
     explanation: Good data is varied, correctly labeled, and kept apart from the test.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: The ball rolls down the error hill. Set the learning rate so that the error is below 0.01 after **at most 5 steps**.
+    params:
+      scene: descent
+    answer:
+      loss:
+        - 0
+        - 0.01
+      steps:
+        - 0
+        - 5
+    explanation: With a medium learning rate around 0.5 you are in the valley almost at once. Too small, and it takes forever.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: "Now overdo it: choose 5 steps and a learning rate at which the error **explodes** – above 100."
+    params:
+      scene: descent
+    answer:
+      steps: 5
+      loss:
+        - 100
+        - 1000000
+    explanation: Above 1.0 the ball jumps further beyond the valley each time – training **diverges**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How does a weight deep inside the network learn which way to change?
+    params:
+      options:
+        - label: The error is computed backwards layer by layer – with the chain rule
+          correct: true
+        - label: Each weight is changed at random and checked
+          feedback: With billions of weights that would be hopelessly slow.
+        - label: A human sets them
+          feedback: Nobody could set billions of numbers by hand.
+    hints:
+      - The error depends on each weight through many chained functions.
+    explanation: "**Backpropagation**: a single backward pass yields the slope for all weights at once."
+    difficulty: 3
 
 srs:
   cards_from: [fehler, auswendig]

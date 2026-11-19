@@ -24,7 +24,7 @@ export type TutorStatus = 'unanswered' | 'wrong' | 'correct' | 'revealed' | 'exp
  * What the learner asks for. `chat` and `reasoning` carry free text: `reasoning`
  * is the learner's answer to Lux asking how they got to a wrong answer.
  */
-export type TutorIntent = 'why-wrong' | 'hint' | 'rephrase' | 'explain-task' | 'why-right' | 'explain-step' | 'chat' | 'reasoning';
+export type TutorIntent = 'why-wrong' | 'hint' | 'rephrase' | 'explain-task' | 'why-right' | 'explain-step' | 'simpler' | 'example' | 'deeper' | 'quiz' | 'teach-feedback' | 'chat' | 'reasoning';
 /** Intents that are a fixed quick action (a chip) rather than typed text. */
 export type QuickIntent = Exclude<TutorIntent, 'chat' | 'reasoning'>;
 
@@ -107,6 +107,11 @@ const KIND_DE: Record<string, string> = {
   angle: 'Winkel einstellen',
   rect: 'Rechteck einstellen',
   swap: 'Balken tauschen',
+  estimate: 'Schätzen mit dem Regler',
+  swipe: 'Aussagen nach links oder rechts wischen',
+  cloze: 'Lücken im Text füllen',
+  teach: 'In eigenen Worten erklären',
+  sim: 'Im Labor an Reglern drehen',
 };
 
 const KIND_EN: Record<string, string> = {
@@ -136,6 +141,11 @@ const KIND_EN: Record<string, string> = {
   angle: 'set the angle',
   rect: 'adjust the rectangle',
   swap: 'swap bars',
+  estimate: 'estimate with the slider',
+  swipe: 'swipe statements left or right',
+  cloze: 'fill the gaps in the text',
+  teach: 'explain in your own words',
+  sim: 'turn the controls in the lab',
 };
 
 const LETTERS = 'ABCDEFGH';
@@ -273,6 +283,11 @@ const INTENT_DE: Record<QuickIntent, string> = {
   'explain-task': 'Ich verstehe die Aufgabe nicht.',
   'why-right': 'Warum ist das richtig?',
   'explain-step': 'Kannst du mir das genauer erklären?',
+  simpler: 'Erklär es mir noch einfacher.',
+  example: 'Gib mir ein Beispiel aus dem Alltag.',
+  deeper: 'Ich will tiefer einsteigen – was steckt dahinter?',
+  quiz: 'Stell mir eine Frage dazu.',
+  'teach-feedback': 'Wie war meine Erklärung?',
 };
 const INTENT_EN: Record<QuickIntent, string> = {
   'why-wrong': 'Why is my answer wrong?',
@@ -281,12 +296,33 @@ const INTENT_EN: Record<QuickIntent, string> = {
   'explain-task': "I don't understand the task.",
   'why-right': 'Why is this right?',
   'explain-step': 'Can you explain this in more detail?',
+  simpler: 'Explain it even more simply.',
+  example: 'Give me an everyday example.',
+  deeper: 'I want to go deeper – what is behind this?',
+  quiz: 'Ask me a question about it.',
+  'teach-feedback': 'How was my explanation?',
 };
 
 /** The learner-visible text of a quick action. */
 export function intentText(intent: QuickIntent, locale = 'de'): string {
   return (locale.startsWith('de') ? INTENT_DE : INTENT_EN)[intent];
 }
+
+/** Extra instruction for the quick actions that set the level of an explanation. */
+const INTENT_RULES_DE: Record<string, string> = {
+  simpler: '- Erkläre es jetzt so einfach, dass ein zehnjähriges Kind es versteht: ein Bild aus dem Alltag, kurze Wörter, kein Fachbegriff ohne Erklärung.',
+  example: '- Gib genau ein konkretes, anschauliches Beispiel aus dem Alltag, an dem man die Idee sofort sieht.',
+  deeper: '- Geh eine Stufe tiefer, wie für jemanden, der das Fach studiert: Warum gilt das, wo sind die Grenzen, womit hängt es zusammen? Bleib trotzdem klar und knapp.',
+  quiz: '- Stell genau eine kurze Verständnisfrage zum Text und nenne die Antwort nicht. Antwortet die Person, sag ehrlich, was stimmt und was fehlt.',
+  'teach-feedback': '- Die Person hat die Idee gerade in eigenen Worten erklärt (siehe STAND). Sag konkret, was an ihrer Erklärung stimmt, korrigiere höchstens eine Ungenauigkeit und ergänze einen Gedanken, der eine Stufe tiefer führt.',
+};
+const INTENT_RULES_EN: Record<string, string> = {
+  simpler: '- Now explain it so simply that a ten-year-old gets it: one everyday picture, short words, no jargon without explaining it.',
+  example: '- Give exactly one concrete, vivid everyday example that makes the idea obvious.',
+  deeper: '- Go one level deeper, as for someone studying the subject: why does it hold, where are the limits, what does it connect to? Stay clear and brief.',
+  quiz: '- Ask exactly one short comprehension question about the text and do not give the answer. When the learner answers, say honestly what is right and what is missing.',
+  'teach-feedback': '- The learner has just explained the idea in their own words (see STATE). Say specifically what is right about it, correct at most one inaccuracy and add one thought that goes a level deeper.',
+};
 
 const solved = (ctx: TutorContext) => ctx.status === 'correct' || ctx.status === 'revealed' || ctx.status === 'explain';
 
@@ -305,6 +341,7 @@ function systemPrompt(ctx: TutorContext, intent?: TutorIntent): string {
       open ? '' : '- Setze am konkreten Gedanken oder Fehler der Person an. Ende mit genau einer Frage, die zum nächsten Denkschritt führt.',
       open ? '' : '- Schlägt die Person eine Antwort vor, sag weder ja noch nein. Bitte sie, die Antwort in der Aufgabe einzugeben und zu prüfen, und frag, wie sie darauf gekommen ist.',
       ctx.status === 'explain' ? '- Erkläre mit einem neuen Beispiel oder Bild – nicht mit denselben Worten wie der Text.' : '',
+      INTENT_RULES_DE[intent as string] ?? '',
       reasoning ? '- Die Person erklärt dir gerade, wie sie auf ihre falsche Antwort gekommen ist. Geh genau auf ihre Erklärung ein: Sag kurz, was an ihrem Weg stimmt, und zeig dann den einen Schritt, an dem er abbiegt. Frag am Ende genau nach diesem Schritt.' : '',
       reasoning ? '- Hat sie geraten oder weiß sie es nicht mehr, ist das in Ordnung. Gib dann einen ersten Denkanstoß, wie man die Aufgabe angeht.' : '',
       '- Stell dich nicht vor und wiederhole nicht die Frage.',
@@ -326,6 +363,7 @@ function systemPrompt(ctx: TutorContext, intent?: TutorIntent): string {
     open ? '' : '- Build on what the learner actually did. End with exactly one question that leads to the next step.',
     open ? '' : '- If the learner proposes an answer, neither confirm nor reject it. Ask them to enter it in the task and check, and ask how they got there.',
     ctx.status === 'explain' ? '- Explain with a new example or picture – not with the same words as the text.' : '',
+    INTENT_RULES_EN[intent as string] ?? '',
     reasoning ? '- The learner is explaining how they reached their wrong answer. Respond to exactly that: briefly say what is right about their approach, then point to the one step where it goes off track. End by asking about that step.' : '',
     reasoning ? '- If they guessed or do not remember, that is fine. Then give a first nudge on how to approach the task.' : '',
     '- Do not introduce yourself and do not repeat the question.',
@@ -543,7 +581,14 @@ export function ruleReply(ctx: TutorContext, intent: TutorIntent, turn = 0, mess
         which: 'Which step of your approach does not fit?',
         start: 'Where would you start?',
       };
-  if (ctx.status === 'explain') return S.explainStep;
+  if (ctx.status === 'explain') {
+    const first = ctx.task.split(/(?<=[.!?])\s+/)[0];
+    if (intent === 'simpler') return de ? `Der Kern in einem Satz: ${first} Welches Wort darin ist dir noch unklar?` : `The core in one sentence: ${first} Which word in it is still unclear?`;
+    if (intent === 'example') return de ? 'Such dir etwas aus deinem Alltag, auf das dieser Satz passt – und schreib es mir. Ich sage dir, ob das Beispiel trägt.' : 'Pick something from your everyday life that this sentence fits – and send it to me. I will tell you whether the example holds.';
+    if (intent === 'deeper') return de ? 'Zwei Fragen führen tiefer: Warum gilt das eigentlich – und wo gilt es nicht mehr? Schreib mir deine Vermutung.' : 'Two questions lead deeper: why does this hold – and where does it stop holding? Send me your guess.';
+    if (intent === 'quiz') return de ? 'Erklär mir in einem Satz, was hier die Kernidee ist – ohne in den Text zu schauen.' : 'Tell me in one sentence what the key idea is here – without looking at the text.';
+    return S.explainStep;
+  }
   if (solved(ctx)) {
     const parts = [ctx.explanation, ctx.solution && !ctx.explanation ? ctx.solution : undefined].filter(Boolean);
     if (intent === 'rephrase' && hints.length) return `${hints[turn % hints.length]} ${ctx.explanation ?? ''}`.trim();

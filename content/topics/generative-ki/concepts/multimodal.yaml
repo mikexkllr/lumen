@@ -5,9 +5,27 @@ summary: Modelle, die mehrere Sinne verbinden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du siehst das Foto eines Hundes. Dann liest du das Wort »Hund«. Was passiert in deinem Kopf?
+    params:
+      options:
+        - label: Beides weckt dieselbe Vorstellung
+          correct: true
+        - label: Zwei völlig verschiedene Dinge
+          feedback: Du denkst beide Male an einen Hund.
+        - label: Nichts
+          feedback: Du erkennst beides sofort.
+    hints:
+      - Woran denkst du in beiden Fällen?
+    explanation: Manche KI-Modelle bringen Bild und Wort genauso zusammen.
+
+
   - kind: explain
+    id: s1
     body: |
       **Multimodale** Modelle übersetzen Text, Bilder und Ton in einen **gemeinsamen Vektorraum**. Ein Foto vom Hund und das Wort »Hund« landen dort nah beieinander.
 
@@ -49,6 +67,37 @@ steps:
     variants:
       params: { s: "int[3,20]" }
       defaults: { s: 10 }
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Wie lernt ein Modell wie CLIP, Bilder und Texte in denselben Raum zu legen?
+    params:
+      options:
+        - label: "Mit Millionen Bild-Text-Paaren: Passende Paare werden zusammengezogen, unpassende auseinandergeschoben"
+          correct: true
+        - label: Menschen ordnen jeden Vektor von Hand
+          feedback: Das wäre bei Milliarden Paaren unmöglich.
+        - label: Es übersetzt Bilder zuerst in Wörter
+          feedback: Es vergleicht direkt die Vektoren.
+    hints:
+      - Das Foto und seine Bildunterschrift sollen nah beieinander landen.
+    explanation: "**Kontrastives Lernen**. Die Bildunterschriften des Internets sind die kostenlose Beschriftung."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Videogenerator erzeugt 5 Sekunden mit 24 Bildern pro Sekunde in 512 × 512 Pixeln und 3 Farbwerten. Wie viele Millionen Zahlen sind das? Gerundet.
+    answer:
+      value: 94
+      tolerance: 1
+    hints:
+      - 120 Bilder mal 786 432 Werte.
+    explanation: Rund 94 Millionen – und alle müssen zueinander passen, sonst flackert das Video.
+    difficulty: 3
 
 srs:
   cards_from: [richtungen, suche]

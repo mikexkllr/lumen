@@ -77,7 +77,7 @@ const CHIPS: Record<TutorStatus, TutorIntent[]> = {
   wrong: ['why-wrong', 'hint', 'rephrase'],
   correct: ['why-right', 'rephrase'],
   revealed: ['why-right', 'rephrase'],
-  explain: ['explain-step'],
+  explain: ['simpler', 'example', 'deeper', 'quiz'],
 };
 
 function Typed({ text, instant, onTick }: { text: string; instant: boolean; onTick(): void }) {

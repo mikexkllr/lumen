@@ -5,8 +5,22 @@ summary: When interest earns interest.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: you invest €1000 at 7% compound interest. How much is there after 40 years?"
+    params:
+      min: 1000
+      max: 30000
+      unit: €
+    answer:
+      value: 14974
+      tolerance: 2500
+    explanation: Almost €15,000 – fifteen times as much. Without compounding it would be only €3800.
+
+
   - kind: problem
     id: ein-jahr
     widget: numeric
@@ -25,6 +39,7 @@ steps:
       defaults: { k: 1000, p: 3 }
 
   - kind: explain
+    id: s2
     body: |
       **Compound interest** – the interest stays in the account and earns interest too.
       After n years you have $K \cdot (1 + p/100)^n$.
@@ -61,6 +76,7 @@ steps:
       defaults: { k: 2000, p: 5, n: 3 }
 
   - kind: explain
+    id: s5
     body: Two people each invest €100 a month at 5%. One starts at 25, the other at 35. What do they have at 65?
     reveal:
       body: The early starter has about €148,000, the late starter about €82,000. She paid in only €12,000 more. The rest is compound interest.
@@ -77,6 +93,53 @@ steps:
     hints:
       - What is in the exponent for compound interest?
     explanation: Time is in the exponent. Each extra year acts like another factor.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Find an interest rate and a term at which the money roughly **doubles** (factor 1.95 to 2.05).
+    params:
+      scene: growth
+      show:
+        - value
+        - factor
+    answer:
+      factor:
+        - 1.95
+        - 2.05
+    explanation: "For example 7% and 10 years. The **rule of 72**: 72 divided by the rate gives the doubling time."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Use the rule of 72: in how many years does money double at 6% interest?"
+    answer:
+      value: 12
+    hints:
+      - 72 divided by the interest rate.
+    explanation: 72 ÷ 6 = 12 years. The exact figure is 11.9.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Where does the 72 in the rule of 72 come from?
+    params:
+      options:
+        - label: From ln 2 ≈ 0.693 – rounded up to a number with many divisors
+          correct: true
+        - label: From the 72 months of a loan
+          feedback: The rule works for any term.
+        - label: It is pure coincidence
+          feedback: It follows from the equation (1 + p/100)ⁿ = 2.
+    hints:
+      - Solve $(1 + p/100)^n = 2$ for n with the logarithm.
+    explanation: n = ln 2 / ln(1 + p/100) ≈ 69.3 / p. The 72 offsets the error for typical rates.
+    difficulty: 3
 
 srs:
   cards_from: [ein-jahr, zwei-jahre]

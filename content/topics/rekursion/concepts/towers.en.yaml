@@ -7,7 +7,21 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 7
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many moves does the Tower of Hanoi with 10 discs need at least?"
+    params:
+      min: 10
+      max: 5000
+    answer:
+      value: 1023
+      tolerance: 200
+    explanation: 1023 – that is 2¹⁰ − 1. Every additional disc doubles the effort.
+
+
   - kind: explain
+    id: s1
     body: |
       Thought of recursively, Hanoi is simple: move the tower of n − 1 disks aside. Then the largest to the goal. Then the small tower on top.
 
@@ -53,9 +67,40 @@ steps:
     explanation: The largest disk moves exactly once – when all the others are on the spare peg.
 
   - kind: explain
+    id: s5
     body: This sounds like a trick. Where does it show up in daily life?
     reveal:
       body: Folders hold folders. Sentences hold clauses. Mirrors show mirrors. Programs search folders this way.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: According to legend monks move a tower of 64 discs, one per second. How many digits does the number of seconds needed (2⁶⁴ − 1) have?
+    answer:
+      value: 20
+    hints:
+      - 2¹⁰ ≈ 10³, so 2⁶⁴ ≈ 16 · 10¹⁸.
+    explanation: 1.8 · 10¹⁹ seconds – about 585 billion years, 40 times the age of the universe.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why can it **not** be done faster than 2ⁿ − 1 moves?
+    params:
+      options:
+        - label: To move the largest disc all others must first be stacked elsewhere – and afterwards put back on top
+          correct: true
+        - label: It can be faster, it just has not been found yet
+          feedback: The minimum is proven.
+        - label: Because you only have one hand
+          feedback: The rule “one disc per move” is part of the puzzle.
+    hints:
+      - T(n) = 2 · T(n − 1) + 1. Why **twice**?
+    explanation: Twice the small tower plus one move for the large disc. The recursion **is** the proof.
+    difficulty: 3
 
 srs:
   cards_from: [formel, wie-oft]

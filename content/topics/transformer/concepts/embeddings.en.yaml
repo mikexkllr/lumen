@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: with how many numbers does a large language model describe a single token?"
+    params:
+      min: 2
+      max: 100000
+      scale: log
+    answer:
+      value: 4000
+      within: 75
+    explanation: Several thousand. In that many dimensions there is room for countless fine distinctions of meaning.
+
+
   - kind: explain
+    id: s1
     body: |
       A language model turns each token into a long vector of numbers, an **embedding**. Words with similar meanings point in similar directions. "Dog" lies close to "cat" and far from "tax return."
 
@@ -46,6 +61,36 @@ steps:
     hints:
       - 3 + 8.
     explanation: 11. A large dot product means the vectors point in a similar direction.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Cosine similarity is the dot product divided by both lengths. What is it for (3, 4) and (4, 3)?
+    answer:
+      value: 0.96
+    hints:
+      - Dot product 24, both lengths 5.
+    explanation: 24 ÷ 25 = 0.96 – almost the same direction. 1 would mean identical, 0 unrelated.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Nobody taught the embeddings what “female” or “capital city” means. How do such directions arise?
+    params:
+      options:
+        - label: Words that appear in similar contexts get similar vectors – the structure emerges by itself
+          correct: true
+        - label: From a built-in dictionary
+          feedback: There is none – only text.
+        - label: Developers define every direction
+          feedback: With thousands of dimensions that would be impossible.
+    hints:
+      - “You shall know a word by the company it keeps.”
+    explanation: The **distributional hypothesis** of linguistics from 1957 – today the foundation of all language models.
+    difficulty: 3
 
 srs:
   cards_from: [nah, rechnen]

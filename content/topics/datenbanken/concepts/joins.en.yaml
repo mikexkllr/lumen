@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A shop writes the full address anew with every order. The customer moves. What is the problem?
+    params:
+      options:
+        - label: The address is in many places and must be changed everywhere
+          correct: true
+        - label: There is none
+          feedback: Old orders then show the wrong address.
+        - label: The customer is deleted
+          feedback: Nothing is deleted.
+    hints:
+      - How often is the address stored?
+    explanation: "Better: store it once and connect when needed."
+
+
   - kind: explain
+    id: s1
     body: |
       A **join** links tables through their keys. Each order gets the customer's name added, without storing it twice.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - Which order points to customer 1?
     explanation: Rows with no partner in the other table drop out of a simple join.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Table A has 100 rows, table B has 50. You join them **without** a condition – every row with every row. How many rows result?
+    answer:
+      value: 5000
+    hints:
+      - Each of the 100 with each of the 50.
+    explanation: 5000 – a **cross product**. With millions of rows a forgotten ON brings the server to its knees.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: You want to see **all** customers – including those without orders. Which join fits?
+    params:
+      options:
+        - label: LEFT JOIN – it keeps all rows of the left table
+          correct: true
+        - label: INNER JOIN
+          feedback: It only shows customers with at least one order.
+        - label: None – that is impossible
+          feedback: That is exactly what the outer join is for.
+    hints:
+      - Ana did not show up before. How do you get her back?
+    explanation: Missing partners are filled with **NULL** – the sign for “no value”.
+    difficulty: 3
 
 srs:
   cards_from: [wer, ohne]

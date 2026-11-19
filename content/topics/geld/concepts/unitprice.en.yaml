@@ -18,6 +18,7 @@ steps:
     explanation: 100 g cost €1.50, so a kilo costs €15.
 
   - kind: explain
+    id: s2
     body: |
       The **unit price** gives the price per kilo or liter. Only it makes packages comparable.
       It is usually printed small on the price tag.
@@ -46,6 +47,38 @@ steps:
     variants:
       params: { ml: "choice[250,500,200]", p: "choice[1,1.5,2]" }
       defaults: { ml: 250, p: 1.5 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: The larger pack is always cheaper per kilo.
+          right: false
+          why: Often, but not always. Only the unit price tells.
+        - text: 250 g for €2 is €8 per kilo.
+          right: true
+        - text: “3 for the price of 2” is a third off.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A pack shrinks from 500 g to 400 g at the same price. By what percent does the unit price rise?
+    params:
+      unit: "%"
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: wrong-base
+        text: 20% less content does not mean 20% dearer. Relate the change to the new content.
+    hints:
+      - You used to get 5 parts for the money, now 4. Compare 1/4 with 1/5.
+    explanation: 500 ÷ 400 = 1.25. The amount drops by 20%, the price per gram rises by 25%.
+    difficulty: 2
 
 srs:
   cards_from: [kilo, grundpreis]

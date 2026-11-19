@@ -41,9 +41,13 @@ export const ImageSchema = z.object({
   caption: z.string().optional(),
 });
 
+/** How deep a step goes: 1 = core idea, 2 = deeper, 3 = expert. Lessons climb, never descend. */
+const Depth = z.number().int().min(1).max(3).optional();
+
 export const ExplainStepSchema = z.object({
   kind: z.literal('explain'),
   id: Id.optional(),
+  depth: Depth,
   title: z.string().optional(),
   body: z.string().min(1),
   visual: VisualSchema.optional(),
@@ -60,6 +64,7 @@ export const TutorConfigSchema = z.object({
 export const ProblemStepSchema = z.object({
   kind: z.literal('problem'),
   id: Id.optional(),
+  depth: Depth,
   widget: z.string(),
   params: z.record(z.string(), z.unknown()).default({}),
   prompt: z.string().min(1),

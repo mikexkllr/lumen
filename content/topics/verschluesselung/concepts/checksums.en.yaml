@@ -34,6 +34,7 @@ steps:
     explanation: That is why real check digits, like in IBANs or ISBNs, weight each position differently.
 
   - kind: explain
+    id: s3
     body: |
       A **hash** is a kind of super check digit. Any data becomes a short fingerprint. If one character changes, the whole hash changes – and you cannot work backward.
 
@@ -51,6 +52,50 @@ steps:
     hints:
       - What happens if the database is stolen?
     explanation: A salted, slow hash is almost impossible to reverse. Plain text and Caesar are cracked instantly.
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: The same text always gives the same hash.
+          right: true
+        - text: From a hash you can compute the text back.
+          right: false
+          why: A hash is a one-way street.
+        - text: Change a single character and the hash looks completely different.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: You download a program. Its hash is shown on the website. What for?
+    params:
+      options:
+        - label: You can check whether the file was changed or swapped on the way
+          correct: true
+        - label: To unpack the file
+          feedback: The hash does not contain the file.
+        - label: As a password for installation
+          feedback: It is only for comparison.
+    hints:
+      - "Same hash means practically certainly: same file."
+    explanation: If the hash you compute matches, the file is unchanged.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A hash has 256 bits. By the birthday paradox two texts with the **same** hash are found after about 2 to the what power tries?
+    answer:
+      value: 128
+    hints:
+      - "The square root of the number of possibilities: half the exponent."
+    explanation: 2¹²⁸ – still out of reach. That is why a hash needs twice as many bits as the desired security.
+    difficulty: 3
 
 srs:
   cards_from: [dreher, passwort]

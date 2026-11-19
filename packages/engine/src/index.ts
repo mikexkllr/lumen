@@ -42,4 +42,9 @@ export { angleWidget, snapAngle, type AngleParams, type AngleState } from './wid
 export { rectWidget, type RectParams, type RectState } from './widgets/rect.ts';
 export { swapWidget, minSwaps, inversions, type SwapParams, type SwapState } from './widgets/swap.ts';
 export { lightsOutSolve } from './widgets/pixels.ts';
+export { estimateWidget, estimateSnap, estimateStep, estimateToValue, estimateToPos, estimateTolerance, type EstimateParams, type EstimateState } from './widgets/estimate.ts';
+export { swipeWidget, type SwipeParams, type SwipeState } from './widgets/swipe.ts';
+export { clozeWidget, clozeParts, clozeBank, type ClozeParams, type ClozeState } from './widgets/cloze.ts';
+export { teachWidget, teachHits, teachNeeded, TEACH_MAX, type TeachParams, type TeachState } from './widgets/teach.ts';
+export { simWidget, simControls, simOutputs, simCompute, SIM_SCENES, NEURON_POINTS, type SimParams, type SimState, type SimControl, type SimOutput } from './widgets/sim.ts';
 export * from './tutor.ts';

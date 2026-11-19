@@ -68,6 +68,7 @@ Topics haben zusätzlich `icon` (Motiv für das generierte Cover: fraction, bala
   hints: [Erster Hinweis, Zweiter Hinweis]       # der Player zeigt höchstens 2 Stufen
   explanation: Wird nach dem Lösen bzw. nach dem 2. Fehlversuch gezeigt.
   difficulty: 2                     # 1–3 = XP
+  depth: 2                          # Tiefenstufe 1–3 (Kern · Tiefer · Experte), siehe unten
   unique: true                      # Eindeutigkeit erzwingen (Choice und Logikgitter immer)
   solution: { state: {...} }        # optional: Musterzustand für den Referenzlöser
   variants:
@@ -76,6 +77,20 @@ Topics haben zusätzlich `icon` (Motiv für das generierte Cover: fraction, bala
     constraints: ["a != b"]
     defaults: { a: 5, b: 7 }        # Lektion; Wiederholungen ziehen neue Werte
 ```
+
+### Tiefenstufen
+
+Jede Lektion beginnt so einfach wie möglich und wird Schritt für Schritt schwerer. Das Feld `depth` (auch an Erklär-Screens) teilt sie in drei Stufen:
+
+| `depth` | Stufe | Inhalt |
+|---|---|---|
+| 1 (Standard) | Kern | die Idee in wenigen Minuten: Schätzfrage, Erklärung, einfache Aufgaben, kurze Wiederholung |
+| 2 | Tiefer | warum es gilt, kniffligere Aufgaben, Anwendungen |
+| 3 | Experte | Grenzfälle, Beweise, Bezüge auf Hochschulniveau, »Erklär’s Lux« |
+
+Nach jeder Stufe fragt der Player, ob es tiefer gehen soll oder für heute reicht. Wer aufhört, hat den Kern trotzdem abgeschlossen und steigt beim nächsten Mal auf der nächsten Stufe ein. Die Stufen dürfen nur steigen (`depth.order`), und eine Lektion beginnt mit Stufe 1 (`depth.start`).
+
+Auf Erklär-Screens bietet Lux vier Wege an: **einfacher**, **Beispiel**, **tiefer** und **Quiz mich**. Dazu kommt Vorlesen. Die Texte dafür muss niemand schreiben.
 
 `{{ausdruck}}` funktioniert in allen Strings von params, answer, prompt, hints, feedback und explanation. Besteht ein String nur aus einer Vorlage, bleibt der Wert eine Zahl bzw. ein Boolean.
 
@@ -114,6 +129,44 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `gates` | `inputs: [{id, value, fixed}]`, `gates: [{id, type, in, options}]` (`type: '?'` = wählbar), `outputs: [{id, from}]`, `goal` | `goal` oder Prädikat | Ausgänge per id, `table('Q')` (Wahrheitstabelle), `inputs`, `types` |
 | `venn` | `sets` (2–3), `outside`, `counts: {A: 3, AB: 1}`, `universe` | `regions: [A, AB, O]` | `shaded`, `has('AB')` |
 | `network` | `nodes: [{id, x, y}]` (0–100), `edges: [{a, b, w}]`, `mode: path\|color\|select`, `start`, `end`, `colors`, `unit` | kürzester Weg · konfliktfreie Färbung · minimaler Spannbaum – oder Prädikat | `cost`, `complete`, `conflicts`, `selectedWeight`, `isTree`, `shortest`, `mst`, `color(id)` |
+| `estimate` | `min`, `max`, `step`, `scale: linear\|log`, `unit` | `value` mit `tolerance` (absolut) oder `within` (Prozent, Standard 20) | `value` |
+| `swipe` | `cards: [{text, right, why}]` (2–8), `left`, `right` (Seitennamen) | jede Karte auf der richtigen Seite | `correct`, `picks` |
+| `cloze` | `text` mit `[[Lücke]]`, `distractors` | jedes Wort in seiner Lücke | `correct` |
+| `teach` | `keywords: [[Synonym, …], …]` (Kernideen), `min`, `sample` (Musterantwort), `placeholder` | genug Kernideen in der eigenen Erklärung; danach antwortet Lux auf den Wortlaut | `hits`, `words` |
+| `sim` | `scene`, `controls: {id: {value, min, max, step, fixed}}`, `show`, `target`, `expr`, `interval`, `points` | `{name: Zahl \| [von, bis]}` für Regler und Ergebnisse – oder Prädikat | alle Regler und Ergebnisse per id, `touched` |
+
+`estimate`, `swipe`, `cloze`, `teach` und `sim` geben selbst gezielte Rückmeldung (`autoHints`); `hints` sind dort freiwillig.
+
+**Labor-Szenen** (`sim`): Regler → Ergebnisse. Mit `*` markierte Regler sind fest und lassen sich mit `controls: {g: {fixed: false}}` freischalten.
+
+| `scene` | Regler | Ergebnisse |
+|---|---|---|
+| `projectile` | `angle`, `speed`, `g`* | `range`, `height`, `time` |
+| `pendulum` | `length`, `mass`, `g`* | `period`, `frequency` |
+| `wave` | `amplitude`, `wavelength`, `frequency` | `speed`, `period` |
+| `circuit` | `voltage`, `resistance` | `current`, `power` |
+| `gas` | `temperature`, `volume`, `amount`* | `pressure` |
+| `lever` | `m1`, `d1`, `m2`, `d2` | `left`, `right`, `tilt` |
+| `tangent` (`expr`) | `x`, `h` | `secant`, `slope`, `y` |
+| `riemann` (`expr`, `interval`) | `n` | `sum`, `exact`, `error` |
+| `unitcircle` | `angle` | `cos`, `sin` |
+| `neuron` (`points`) | `w1`, `w2`, `b` | `correct`, `total`, `errors` |
+| `descent` | `rate`, `steps` | `x`, `loss` |
+| `normal` (`interval`) | `mean`, `sd` | `share` |
+| `decay` | `halflife`, `time` | `left`, `halvings` |
+| `growth` | `rate`, `years`, `start`* | `value`, `linear`, `factor` |
+| `lens` | `object`, `focal` | `image`, `magnification` |
+| `orbit` | `radius`, `speed` | `circular`, `escape`, `ecc`, `kind` |
+
+```yaml
+- kind: problem
+  widget: sim
+  prompt: Stell das Pendel so ein, dass eine Schwingung 2 Sekunden dauert.
+  params: { scene: pendulum }
+  answer: { period: [1.95, 2.05] }
+```
+
+Eine neue Szene besteht aus zwei Teilen: Regler, Ergebnisse und `compute` in `packages/engine/src/widgets/sim.ts` und die Zeichnung in `apps/web/src/widgets/Sim.tsx`.
 
 Logikgitter-Regeln: `is: [a, b]`, `not: [a, b]`, `either: [a, b, c]`, `less: [a, b]`, `adjacent: [a, b]`, `offset: [a, b, n]`. Die drei letzten brauchen eine geordnete Kategorie (`ordered`). Der Löser beweist die Eindeutigkeit und meldet überflüssige Hinweise.
 
@@ -129,9 +182,48 @@ Logikgitter-Regeln: `is: [a, b]`, `not: [a, b]`, `either: [a, b, c]`, `less: [a,
 - **Fuzzing**: Zufällige Aktionsfolgen erzeugen keine unmöglichen Zustände; Prüfung und `describe()` werfen nie Fehler.
 - **Feedback-Regeln** sind auswertbar und treffen nicht auf die richtige Lösung zu.
 - **Layout-Lint**: Überlappungen, zu dichte Raster, zu viele Objekte
+- **Tiefenstufen**: `depth` steigt nur, die Lektion beginnt mit Stufe 1.
 - **Text**: ≤ 40 Wörter pro Screen, Lesbarkeitsindex ≥ 40 (Amstad), Hinweise vorhanden
 - **Alt-Texte**: Bilder brauchen `alt`; Visuals bekommen ihre Beschreibung aus `describe()`.
 - **Übersetzungen** (`i18n.parity`, nur bei `--locale` ≠ `de`): siehe unten.
+
+## Viele Lektionen auf einmal erweitern
+
+`scripts/extend-lessons.ts` hängt Steps aus einer kompakten, zweisprachigen Patch-Datei an bestehende Lektionen an oder legt neue Lektionen an. Deutsch und Englisch stehen in einem String, getrennt durch `||`; das Werkzeug schreibt beide Dateien und hält sie strukturgleich.
+
+```yaml
+math.fractions.compare:            # bestehende Lektion: Steps anhängen
+  - hook                           # Abschnitt: hook (ganz vorn) · core · deep · expert
+  - est: 'Schätz mal: … || Take a guess: …'
+    r: [1, 200]                    # Skala, optional drittes Element log
+    a: 39
+    tol: 8
+    why: 'Erklärung || explanation'
+  - deep
+  - mc: 'Frage || question'
+    o: ['*richtig || correct', 'falsch :: Rückmeldung || wrong :: feedback']
+    h: 'Hinweis || hint'
+    why: 'Erklärung || explanation'
+
++sci.motion.energy:                # neue Lektion
+  topic: bewegung                  # Ordner unter content/topics
+  unit: sci.motion.u2
+  after: sci.motion.fall           # oder first: true
+  title: 'Energie der Bewegung || Energy of motion'
+  summary: '… || …'
+  skills: []
+  steps: [ … ]
+  srs: [c3, c4, d1]
+```
+
+Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` und `raw` (voller Step). Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Dabei gilt: Ein Patch ersetzt in einer Lektion nur die Abschnitte, die er selbst nennt. Ein zweiter Patch mit `hook` lässt also `deep` und `expert` eines früheren Patches stehen – zwei Patches, die denselben Abschnitt derselben Lektion füllen, überschreiben sich dagegen. Die Ausgabe nennt, wie viele frühere Schritte ersetzt wurden.
+
+```bash
+node scripts/extend-lessons.ts patch.yaml --dry   # nur prüfen
+node scripts/extend-lessons.ts patch.yaml
+node scripts/digest.ts brueche kreise             # Lektionen eines Kurses in Kurzform lesen
+node scripts/audit-lessons.ts                     # Kennzahlen je Lektion: Länge, Formate, Tiefe
+```
 
 ## Übersetzungen
 

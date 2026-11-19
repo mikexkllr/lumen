@@ -5,9 +5,27 @@ summary: Hash, Salz und Passwort-Manager.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Hacker stiehlt die Datenbank eines Dienstes. Wann ist dein Passwort trotzdem geschützt?
+    params:
+      options:
+        - label: Wenn dort nur ein Fingerabdruck des Passworts liegt
+          correct: true
+        - label: Wenn es im Klartext gespeichert ist
+          feedback: Dann kann er es einfach ablesen.
+        - label: Wenn der Dienst bekannt ist
+          feedback: Auch große Dienste werden gehackt.
+    hints:
+      - Was man nicht speichert, kann niemand stehlen.
+    explanation: Gute Dienste kennen dein Passwort selbst gar nicht.
+
+
   - kind: explain
+    id: s1
     body: |
       Gute Dienste speichern nie das Passwort selbst, sondern einen **Hash** mit **Salz**: eine zufällige Beigabe pro Person. Beim Login wird die Eingabe genauso verarbeitet und verglichen.
 
@@ -46,6 +64,42 @@ steps:
     hints:
       - Wie viele Passwörter musst du dir dann noch merken?
     explanation: Ein starkes Hauptpasswort schützt den ganzen Tresor.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Angreifer nutzen fertige Listen mit Milliarden Hashes häufiger Passwörter. Wie macht Salz diese Listen wertlos?
+    params:
+      options:
+        - label: Jedes Passwort wird mit einer eigenen Zufallszahl gehasht – vorberechnete Hashes passen nicht mehr
+          correct: true
+        - label: Salz verschlüsselt den Hash zusätzlich
+          feedback: Das Salz ist nicht geheim. Es macht nur jeden Hash einzigartig.
+        - label: Salz macht das Passwort länger
+          feedback: Das Passwort selbst bleibt gleich.
+    hints:
+      - Die Liste wurde ohne dein Salz berechnet.
+    explanation: Der Angreifer muss für jede Person von vorn rechnen statt einmal für alle.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Für Passwörter nutzt man absichtlich **langsame** Hashfunktionen wie bcrypt oder Argon2. Warum?
+    params:
+      options:
+        - label: Ein Login dauert unmerklich länger – ein Angreifer mit Milliarden Versuchen wird millionenfach gebremst
+          correct: true
+        - label: Langsame Hashes sind kürzer
+          feedback: Die Länge spielt keine Rolle.
+        - label: Schnelle Hashes sind fehlerhaft
+          feedback: Sie sind korrekt – nur für diesen Zweck zu schnell.
+    hints:
+      - Wer leidet mehr unter 0,1 Sekunden pro Versuch – du oder der Angreifer?
+    explanation: "Asymmetrie: einmal für dich, Milliarden Mal für den Angreifer."
+    difficulty: 3
 
 srs:
   cards_from: [salz, vergessen]

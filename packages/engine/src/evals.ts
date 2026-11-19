@@ -91,7 +91,7 @@ export function evalProblem(step: ProblemStep, ctx: { concept?: string; file?: s
   }
   if (issues.some((i) => i.level === 'error')) return issues;
 
-  if (!ctx.assessment && !step.hints.length) push('warning', 'hints.missing', 'Aufgabe ohne Hinweise – Lernende bekommen beim ersten Fehler nur generisches Feedback.');
+  if (!ctx.assessment && !step.hints.length && !widget.autoHints) push('warning', 'hints.missing', 'Aufgabe ohne Hinweise – Lernende bekommen beim ersten Fehler nur generisches Feedback.');
   if (!ctx.assessment && !step.explanation) push('info', 'explanation.missing', 'Keine Erklärung zur Lösung (wird nach dem zweiten Fehlversuch gezeigt).');
   if (step.hints.length > 2) push('info', 'hints.many', 'Mehr als 2 Hinweise: Der Player zeigt nur 2 Stufen vor der Lösung.');
 
@@ -235,6 +235,16 @@ export function evalConcept(c: Concept, file: string | undefined, opts: EvalOpti
   }
   const problems = c.steps.filter((s) => s.kind === 'problem');
   if (!problems.length) issues.push({ level: 'error', code: 'didactic.no-problem', message: 'Concept ohne Aufgabe.', ...at });
+  let deepest = 1;
+  for (const s of c.steps) {
+    const d = s.depth ?? 1;
+    if (d < deepest) {
+      issues.push({ level: 'error', code: 'depth.order', message: `Step ${s.id}: Tiefe ${d} nach Tiefe ${deepest} – Lektionen gehen nur tiefer, nie zurück.`, ...at });
+      break;
+    }
+    deepest = d;
+  }
+  if ((c.steps[0]?.depth ?? 1) !== 1) issues.push({ level: 'error', code: 'depth.start', message: 'Eine Lektion beginnt mit Tiefe 1.', ...at });
   const minutes = c.steps.length * 0.6;
   if (c.estimated_minutes < minutes * 0.5 || c.estimated_minutes > minutes * 3) {
     issues.push({ level: 'info', code: 'duration', message: `estimated_minutes=${c.estimated_minutes} wirkt unpassend für ${c.steps.length} Steps.`, ...at });

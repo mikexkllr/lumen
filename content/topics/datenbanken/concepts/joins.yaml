@@ -7,7 +7,25 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Shop schreibt bei jeder Bestellung die volle Adresse neu dazu. Die Kundin zieht um. Was ist das Problem?
+    params:
+      options:
+        - label: Die Adresse steht an vielen Stellen und muss überall geändert werden
+          correct: true
+        - label: Es gibt keins
+          feedback: Alte Bestellungen zeigen dann die falsche Adresse.
+        - label: Die Kundin wird gelöscht
+          feedback: Nichts wird gelöscht.
+    hints:
+      - Wie oft ist die Adresse gespeichert?
+    explanation: "Besser: einmal speichern und bei Bedarf verbinden."
+
+
   - kind: explain
+    id: s1
     body: |
       Ein **Join** verbindet Tabellen über ihre Schlüssel. So bekommt jede Bestellung den Namen der Kundin dazu – ohne dass er doppelt gespeichert ist.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - Welche Bestellung zeigt auf Kunde 1?
     explanation: Wer keine Partner in der anderen Tabelle hat, fällt beim einfachen Join heraus.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Tabelle A hat 100 Zeilen, Tabelle B hat 50. Du verbindest sie **ohne** Bedingung – jede Zeile mit jeder. Wie viele Zeilen entstehen?
+    answer:
+      value: 5000
+    hints:
+      - Jede der 100 mit jeder der 50.
+    explanation: 5000 – ein **Kreuzprodukt**. Bei Millionen Zeilen legt ein vergessenes ON den Server lahm.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Du willst **alle** Kunden sehen – auch die ohne Bestellung. Welcher Join passt?
+    params:
+      options:
+        - label: LEFT JOIN – er behält alle Zeilen der linken Tabelle
+          correct: true
+        - label: INNER JOIN
+          feedback: Der zeigt nur Kunden, die mindestens eine Bestellung haben.
+        - label: Gar keiner – das geht nicht
+          feedback: Genau dafür gibt es den äußeren Join.
+    hints:
+      - Ana tauchte vorhin nicht auf. Wie holt man sie zurück?
+    explanation: Fehlende Partner werden mit **NULL** aufgefüllt – dem Zeichen für »kein Wert«.
+    difficulty: 3
 
 srs:
   cards_from: [wer, ohne]

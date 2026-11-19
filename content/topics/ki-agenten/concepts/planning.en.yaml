@@ -35,6 +35,7 @@ steps:
       defaults: { p: 90 }
 
   - kind: explain
+    id: s3
     body: |
       Errors pile up with every step. So good agents **check** along the way whether they are still on course. If not, they adjust the plan.
 
@@ -49,6 +50,39 @@ steps:
     hints:
       - What does the observation say about the plan?
     explanation: Observations change the plan. That is the strength of the loop.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Each step of an agent succeeds with 95%. How likely does a 20-step task succeed? In percent, rounded. (0.95²⁰ ≈ 0.358)
+    params:
+      unit: "%"
+    answer:
+      value: 36
+      tolerance: 1
+    hints:
+      - All 20 steps must work.
+    explanation: Only 36%. Long tasks demand extremely reliable single steps – or checkpoints.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How do you raise the success rate for long tasks most effectively?
+    params:
+      options:
+        - label: Check intermediate results and correct errors instead of carrying on blindly
+          correct: true
+        - label: Have the task solved in one single step
+          feedback: That usually overwhelms the model.
+        - label: Make the agent faster
+          feedback: Speed does not change the error rate.
+    hints:
+      - An error that is caught is no longer an error.
+    explanation: Self-checking turns a chain that breaks at its weakest link into a system that catches errors.
+    difficulty: 3
 
 srs:
   cards_from: [reise, fehler]

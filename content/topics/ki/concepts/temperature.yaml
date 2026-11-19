@@ -25,6 +25,7 @@ steps:
     explanation: Bei niedriger Temperatur dominiert das wahrscheinlichste Wort.
 
   - kind: explain
+    id: s2
     body: |
       Die **Temperatur** steuert, wie mutig das Modell wählt.
       Niedrig – fast immer das wahrscheinlichste Wort. Hoch – auch seltene Wörter kommen öfter dran. Das ist kreativer, aber fehleranfälliger.
@@ -70,3 +71,33 @@ steps:
     hints:
       - Probiere oben die kleinste Temperatur aus.
     explanation: Fast die ganze Wahrscheinlichkeit liegt dann auf dem häufigsten Wort.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Bei **Top-k-Sampling** mit k = 3 passiert was?
+    params:
+      options:
+        - label: Das Modell zieht nur aus den drei wahrscheinlichsten Tokens
+          correct: true
+        - label: Es erzeugt drei Antworten
+          feedback: Es begrenzt die Auswahl pro Schritt.
+        - label: Es wiederholt jedes Wort dreimal
+          feedback: Es geht um die Auswahl, nicht um Wiederholung.
+    hints:
+      - Alle anderen Tokens werden ausgeschlossen.
+    explanation: So bleiben sehr unpassende Wörter draußen – auch bei hoher Temperatur.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Die Temperatur T teilt die Rohwerte (Logits) vor der Umrechnung in Wahrscheinlichkeiten. Zwei Tokens haben die Logits 2 und 0. Wie groß ist der Unterschied nach der Division durch T = 0,5?
+    answer:
+      value: 4
+    hints:
+      - "2 : 0,5 und 0 : 0,5."
+    explanation: "Aus 2 wird 4: Niedrige Temperatur vergrößert Abstände, der Favorit dominiert. Hohe Temperatur ebnet sie ein."
+    difficulty: 3

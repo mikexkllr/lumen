@@ -8,6 +8,20 @@ authors: ["Lumen-Team"]
 estimated_minutes: 7
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Kreuzungen (Knoten) hat das Straßennetz Europas ungefähr – in Millionen?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 50
+      within: 80
+    explanation: Rund 50 Millionen. Ein Navi findet darin trotzdem in Millisekunden den kürzesten Weg.
+
+
+  - kind: problem
     id: route-a-f
     widget: network
     prompt: Finde den kürzesten Weg von A nach F. Tippe die Orte nacheinander an.
@@ -37,11 +51,13 @@ steps:
     explanation: A → C → B → D → F kostet 2 + 1 + 5 + 2 = 10 km.
 
   - kind: explain
+    id: s2
     body: |
       Ein **Netzwerk** besteht aus **Knoten** (Orten) und **Kanten** (Verbindungen mit einer Länge).
       Navis lösen genau diese Aufgabe – mit Millionen Kreuzungen.
 
   - kind: explain
+    id: s3
     body: Ist der kürzeste Weg immer der mit den wenigsten Stationen?
     reveal:
       body: Nein. Ein Umweg über mehr Knoten kann kürzer sein – so wie eben über C nach B.
@@ -116,6 +132,42 @@ steps:
     hints:
       - Für den ersten Stopp gibt es 10 Möglichkeiten, dann 9, dann 8 …
     explanation: 10 · 9 · … · 1 = 3 628 800. Darum probieren Computer nicht alles aus, sondern nutzen schlaue Abkürzungen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Dijkstras Algorithmus findet kürzeste Wege. Was ist seine Grundidee?
+    params:
+      options:
+        - label: Immer den nächstgelegenen noch unbesuchten Ort abschließen und von dort weiterrechnen
+          correct: true
+        - label: Alle möglichen Wege ausprobieren
+          feedback: Das wären viel zu viele.
+        - label: Immer die kürzeste Kante nehmen
+          feedback: Eine kurze erste Kante kann in eine Sackgasse führen.
+    hints:
+      - Der nächstgelegene Ort kann auf keinem Umweg schneller erreicht werden.
+    explanation: "Wie eine Welle, die sich vom Start ausbreitet: Was sie zuerst erreicht, ist sicher am nächsten."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Das Problem des Handlungsreisenden: die kürzeste Rundreise durch 50 Städte finden. Warum ist das so schwer?"
+    params:
+      options:
+        - label: Es gibt mehr Reihenfolgen als Atome im Universum – und kein Verfahren, das sie geschickt umgeht
+          correct: true
+        - label: Weil Computer keine Entfernungen berechnen können
+          feedback: Das können sie mühelos.
+        - label: Weil es keine Lösung gibt
+          feedback: Es gibt immer eine beste Route – man findet sie nur nicht schnell.
+    hints:
+      - 49! Reihenfolgen – eine Zahl mit 63 Stellen.
+    explanation: Ein **NP-schweres** Problem. In der Praxis nutzt man Näherungen, die fast optimal sind.
+    difficulty: 3
 
 srs:
   cards_from: [laenge, route-s-t]

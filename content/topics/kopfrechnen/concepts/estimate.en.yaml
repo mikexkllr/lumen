@@ -5,8 +5,22 @@ summary: Judge orders of magnitude with confidence.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many breaths do you take in a day?"
+    params:
+      min: 1000
+      max: 1000000
+      scale: log
+    answer:
+      value: 22000
+      within: 45
+    explanation: About 15 breaths a minute times 1440 minutes is roughly 22,000.
+
+
   - kind: problem
     id: groessenordnung
     widget: choice
@@ -22,6 +36,7 @@ steps:
     explanation: 400 · 20 = 8000. The exact value is 8358.
 
   - kind: explain
+    id: s2
     body: |
       **Estimate:** Round to one digit and calculate with that.
       398 · 21 ≈ 400 · 20 = 8000. This way wrong results stand out at once.
@@ -52,6 +67,7 @@ steps:
     explanation: Rounded, it is 5 + 12 + 3 + 7 = 27 €. The exact total is 26.99 €.
 
   - kind: explain
+    id: s5
     body: Roughly how often does a heart beat in a human lifetime?
     reveal:
       body: 70 beats per minute · 60 · 24 · 365 · 80 years ≈ 3 billion. Such **Fermi estimates** help you get a feel for sizes.
@@ -68,6 +84,53 @@ steps:
     hints:
       - A day has about 90,000 seconds.
     explanation: 86,400 · 365 ≈ 31.5 million.
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 49 · 31 is roughly 1500.
+          right: true
+        - text: 7.9 · 0.52 is roughly 40.
+          right: false
+          why: 8 · 0.5 = 4. Times 0.5 halves.
+        - text: 612 ÷ 19 is roughly 30.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Fermi question: you drink about 2 litres a day. How many litres is that in 80 years – roughly?"
+    params:
+      unit: l
+    answer:
+      value: 58400
+      tolerance: 12000
+    hints:
+      - 2 litres times 365 days is about 700 litres a year.
+    explanation: 700 · 80 ≈ 56,000 litres – a small swimming pool.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "For 38 · 47 you round both factors up: 40 · 50. What is true of the estimate?"
+    params:
+      options:
+        - label: It is certainly too large
+          correct: true
+        - label: It is certainly too small
+          feedback: Both factors grew – so did the product.
+        - label: The errors cancel
+          feedback: That only happens if you round one factor up and the other down.
+    hints:
+      - What happens to a product when both factors grow?
+    explanation: "2000 instead of 1786. For a closer estimate round in opposite directions: 40 · 45 = 1800."
+    difficulty: 3
 
 srs:
   cards_from: [ueberschlag, groessenordnung]

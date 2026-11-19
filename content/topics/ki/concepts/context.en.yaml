@@ -5,9 +5,27 @@ summary: Training, context window and knowledge gaps.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "You ask an AI: “What is my dog called?” It does not know you. When can it know anyway?"
+    params:
+      options:
+        - label: If it is written earlier in the chat
+          correct: true
+        - label: Always – it knows everything
+          feedback: Nothing about your dog was in its training.
+        - label: Never
+          feedback: You can tell it in the chat.
+    hints:
+      - What can the AI read right now?
+    explanation: It sees what is in the chat. The rest it knows only from training.
+
+
   - kind: explain
+    id: s1
     body: |
       A model knows two things: what it learned in **training** and what is in the **context window** – the current conversation. It knows nothing else.
 
@@ -50,6 +68,51 @@ steps:
     hints:
       - When was the model trained?
     explanation: Every model has a knowledge cutoff. New information only arrives through the conversation or a search.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: A chatbot answers questions about a company’s internal documents that were never in training. How?
+    params:
+      options:
+        - label: Matching passages are retrieved and placed into the prompt
+          correct: true
+        - label: The model guesses
+          feedback: Then it would hallucinate.
+        - label: It was secretly retrained
+          feedback: Usually inserting into the context suffices.
+    hints:
+      - What is in the context window, the model “knows”.
+    explanation: This is called **RAG** – retrieval-augmented generation. Search plus language model.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux in simple words how a language model writes a text.
+    params:
+      keywords:
+        - - nächste
+          - next
+        - - wort
+          - token
+          - word
+        - - wahrscheinlich
+          - probab
+          - likely
+        - - wiederhol
+          - schritt
+          - immer wieder
+          - repeat
+          - step
+          - again
+          - anhäng
+          - append
+      min: 3
+      sample: It computes a probability for every possible next word and draws one of them. It appends that to the text and repeats the step – word by word until the answer is finished.
+    difficulty: 3
 
 srs:
   cards_from: [woher, neu]

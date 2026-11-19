@@ -35,6 +35,7 @@ steps:
       defaults: { p: 90 }
 
   - kind: explain
+    id: s3
     body: |
       Fehler häufen sich mit jedem Schritt. Gute Agenten **prüfen** darum zwischendurch, ob sie noch auf Kurs sind. Wenn nicht, passen sie den Plan an.
 
@@ -49,6 +50,39 @@ steps:
     hints:
       - Was sagt die Beobachtung über den Plan?
     explanation: Beobachtungen ändern den Plan – das ist die Stärke der Schleife.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Jeder Schritt eines Agenten gelingt mit 95 %. Wie wahrscheinlich gelingt eine Aufgabe mit 20 Schritten? In Prozent, gerundet. (0,95²⁰ ≈ 0,358)
+    params:
+      unit: "%"
+    answer:
+      value: 36
+      tolerance: 1
+    hints:
+      - Alle 20 Schritte müssen klappen.
+    explanation: Nur 36 %. Lange Aufgaben verlangen extrem zuverlässige Einzelschritte – oder Prüfpunkte.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie erhöht man die Erfolgsquote bei langen Aufgaben am wirksamsten?
+    params:
+      options:
+        - label: Zwischenergebnisse prüfen und bei Fehlern korrigieren, statt blind weiterzumachen
+          correct: true
+        - label: Die Aufgabe in einem einzigen Schritt lösen lassen
+          feedback: Das überfordert das Modell meist.
+        - label: Den Agenten schneller machen
+          feedback: Tempo ändert die Fehlerquote nicht.
+    hints:
+      - Ein erkannter Fehler ist kein Fehler mehr.
+    explanation: Selbstprüfung macht aus einer Kette, die am schwächsten Glied reißt, ein System, das Fehler abfängt.
+    difficulty: 3
 
 srs:
   cards_from: [reise, fehler]

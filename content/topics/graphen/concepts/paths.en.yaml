@@ -8,6 +8,20 @@ authors: ["Lumen-Team"]
 estimated_minutes: 7
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: roughly how many junctions (nodes) does Europe’s road network have – in millions?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 50
+      within: 80
+    explanation: About 50 million. A sat-nav still finds the shortest path in it within milliseconds.
+
+
+  - kind: problem
     id: route-a-f
     widget: network
     prompt: Find the shortest path from A to F. Tap the places one after another.
@@ -37,11 +51,13 @@ steps:
     explanation: A → C → B → D → F costs 2 + 1 + 5 + 2 = 10 km.
 
   - kind: explain
+    id: s2
     body: |
       A **network** consists of **nodes** (places) and **edges** (connections with a length).
       Navigation apps solve exactly this task, with millions of intersections.
 
   - kind: explain
+    id: s3
     body: Is the shortest path always the one with the fewest stops?
     reveal:
       body: No. A detour through more nodes can be shorter, just like the route through C to B.
@@ -116,6 +132,42 @@ steps:
     hints:
       - For the first stop there are 10 options, then 9, then 8 …
     explanation: 10 · 9 · … · 1 = 3,628,800. That is why computers don't try everything. They use clever shortcuts.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Dijkstra’s algorithm finds shortest paths. What is its basic idea?
+    params:
+      options:
+        - label: Always finalise the nearest unvisited place and continue from there
+          correct: true
+        - label: Try all possible paths
+          feedback: That would be far too many.
+        - label: Always take the shortest edge
+          feedback: A short first edge can lead into a dead end.
+    hints:
+      - The nearest place cannot be reached faster by any detour.
+    explanation: "Like a wave spreading from the start: what it reaches first is certainly nearest."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "The travelling salesman problem: find the shortest round trip through 50 cities. Why is that so hard?"
+    params:
+      options:
+        - label: There are more orderings than atoms in the universe – and no method that cleverly avoids them
+          correct: true
+        - label: Because computers cannot compute distances
+          feedback: They can do that effortlessly.
+        - label: Because there is no solution
+          feedback: There is always a best route – it just cannot be found quickly.
+    hints:
+      - 49! orderings – a number with 63 digits.
+    explanation: An **NP-hard** problem. In practice approximations that are almost optimal are used.
+    difficulty: 3
 
 srs:
   cards_from: [laenge, route-s-t]

@@ -5,9 +5,27 @@ summary: How text steers the noise.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A sculptor says: “The figure is already in the stone. I only remove what does not belong.” What does an image AI start with?"
+    params:
+      options:
+        - label: With pure noise
+          correct: true
+        - label: With a finished photo
+          feedback: Then it would have nothing to create.
+        - label: With a white sheet
+          feedback: It removes – it does not paint on.
+    hints:
+      - What can you carve something out of?
+    explanation: Step by step noise becomes a picture.
+
+
   - kind: explain
+    id: s1
     body: |
       When generating, the model removes a little noise in each step. The **text** steers the direction: the gray becomes a cat one time and a lighthouse another.
 
@@ -47,6 +65,36 @@ steps:
     hints:
       - Is it easier to guess a whole image or just a small improvement?
     explanation: Many small, well-learned steps add up to a big result.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: A control called “guidance” determines how strongly the model sticks to the text. What happens at a very high value?
+    params:
+      options:
+        - label: The image matches the text more closely but often looks oversaturated and unnatural
+          correct: true
+        - label: The image becomes more random
+          feedback: "On the contrary: it is tied more tightly to the text."
+        - label: Nothing
+          feedback: The control has a big influence.
+    hints:
+      - Too much of a good thing.
+    explanation: "As with temperature: a control between fidelity and variety."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An image of 512 × 512 pixels is represented in latent space as a 64 × 64 grid with 4 channels. By what factor is that smaller than the 512 × 512 × 3 pixel values?
+    answer:
+      value: 48
+    hints:
+      - 786,432 divided by 16,384.
+    explanation: 48 times fewer numbers – at almost the same image quality.
+    difficulty: 3
 
 srs:
   cards_from: [seed, klein]

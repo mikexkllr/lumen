@@ -9,6 +9,19 @@ skills: [cs.search]
 estimated_minutes: 6
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Ja/Nein-Fragen brauchst du höchstens, um eine von einer Milliarde Zahlen zu finden?"
+    params:
+      min: 5
+      max: 1000
+    answer:
+      value: 30
+      tolerance: 6
+    explanation: Nur 30. Jede Frage halbiert – und 2³⁰ ist gut eine Milliarde.
+
+
+  - kind: problem
     id: raten
     widget: numeric
     body: Ich denke mir eine Zahl von 1 bis 100. Du rätst – ich sage nur »größer« oder »kleiner«.
@@ -19,6 +32,7 @@ steps:
     explanation: Mit 50 bleibt nach der Antwort höchstens die Hälfte übrig.
 
   - kind: explain
+    id: s2
     body: |
       **Binäre Suche** – jede Frage halbiert die Möglichkeiten.
       Aus 100 werden 50, 25, 13, 7, 4, 2, 1. Nach höchstens 7 Fragen kennst du die Zahl.
@@ -62,3 +76,33 @@ steps:
     hints:
       - Woher weißt du sonst, in welcher Hälfte du weitersuchst?
     explanation: Nur in einer sortierten Liste sagt »größer« oder »kleiner«, wo du weitersuchen musst.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: In einer **unsortierten** Liste mit 1000 Namen suchst du einen bestimmten. Wie viele Namen musst du im schlimmsten Fall ansehen?
+    answer:
+      value: 1000
+    hints:
+      - Ohne Ordnung hilft Halbieren nicht.
+    explanation: Alle 1000 – das ist die **lineare Suche**. Sortiert wären es höchstens 10.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Liste verdoppelt sich von 1 Million auf 2 Millionen Einträge. Wie viele Schritte braucht die binäre Suche zusätzlich?
+    params:
+      options:
+        - label: Einen
+          correct: true
+        - label: Doppelt so viele
+          feedback: Das gilt für die lineare Suche.
+        - label: Eine Million
+          feedback: Eine Halbierung macht die Verdopplung wett.
+    hints:
+      - Der erste Schritt halbiert 2 Millionen auf 1 Million.
+    explanation: "Der Aufwand wächst **logarithmisch**: log₂(n). Das macht Suchmaschinen und Datenbanken möglich."
+    difficulty: 3

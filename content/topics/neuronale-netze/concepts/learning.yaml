@@ -31,6 +31,7 @@ steps:
     explanation: y = 0,5 · x + 1. Genau das macht Training – Regler drehen, bis der Fehler verschwindet.
 
   - kind: explain
+    id: s2
     body: |
       Ein Netz lernt aus Beispielen. Es misst den **Fehler** – wie weit liegt es daneben?
       Dann dreht es jedes Gewicht ein kleines Stück so, dass der Fehler kleiner wird.
@@ -50,6 +51,7 @@ steps:
     explanation: (1 + 0 + 2) / 3 = 1.
 
   - kind: explain
+    id: s4
     body: |
       **Überanpassung:** Ein Modell, das die Beispiele auswendig lernt, versagt bei neuen Daten.
       Darum prüft man es mit Daten, die es nie gesehen hat.
@@ -83,6 +85,54 @@ steps:
     hints:
       - Was soll das Modell später können?
     explanation: Gute Daten sind vielfältig, korrekt beschriftet und vom Test getrennt.
+
+  - kind: problem
+    id: c1
+    widget: sim
+    prompt: Der Ball rollt den Fehlerberg hinab. Stell die Lernrate so ein, dass der Fehler nach **höchstens 5 Schritten** unter 0,01 liegt.
+    params:
+      scene: descent
+    answer:
+      loss:
+        - 0
+        - 0.01
+      steps:
+        - 0
+        - 5
+    explanation: Mit einer mittleren Lernrate um 0,5 ist man fast sofort im Tal. Zu klein, und es dauert ewig.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: "Jetzt übertreib es: Wähle 5 Schritte und eine Lernrate, bei der der Fehler **explodiert** – über 100."
+    params:
+      scene: descent
+    answer:
+      steps: 5
+      loss:
+        - 100
+        - 1000000
+    explanation: Über 1,0 springt der Ball jedes Mal weiter über das Tal hinaus – das Training **divergiert**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie erfährt ein Gewicht tief im Netz, in welche Richtung es sich ändern soll?
+    params:
+      options:
+        - label: Der Fehler wird Schicht für Schicht rückwärts durchgerechnet – mit der Kettenregel
+          correct: true
+        - label: Jedes Gewicht wird zufällig geändert und geprüft
+          feedback: Bei Milliarden Gewichten wäre das hoffnungslos langsam.
+        - label: Ein Mensch stellt sie ein
+          feedback: Niemand könnte Milliarden Zahlen von Hand einstellen.
+    hints:
+      - Der Fehler hängt über viele verkettete Funktionen von jedem Gewicht ab.
+    explanation: "**Backpropagation**: Ein einziger Rückwärtsdurchlauf liefert die Steigung für alle Gewichte auf einmal."
+    difficulty: 3
 
 srs:
   cards_from: [fehler, auswendig]

@@ -7,7 +7,22 @@ license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene Rundreisen gibt es durch nur 10 Städte?"
+    params:
+      min: 10
+      max: 100000000
+      scale: log
+    answer:
+      value: 181440
+      within: 80
+    explanation: Genau 181 440. Mit jeder weiteren Stadt explodiert die Zahl.
+
+
   - kind: explain
+    id: s1
     body: |
       Eine Händlerin will alle Städte genau einmal besuchen und zurückkehren – auf dem kürzesten Weg. Bei n Städten gibt es $\frac{(n-1)!}{2}$ verschiedene Rundreisen.
 
@@ -42,6 +57,37 @@ steps:
     hints:
       - Muss es immer die allerbeste Lösung sein?
     explanation: Heuristiken liefern Wege, die nur wenige Prozent über dem Optimum liegen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Die Strategie »immer zur nächsten unbesuchten Stadt« ist schnell. Wie viele Entfernungen muss man bei 100 Städten höchstens vergleichen – grob 100² geteilt durch 2?
+    answer:
+      value: 5000
+      tolerance: 100
+    hints:
+      - 99 + 98 + … + 1.
+    explanation: Rund 5000 Vergleiche statt 10¹⁵⁵ Rundreisen. Die Tour ist meist etwa 25 % länger als die beste.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ein Verfahren garantiert eine Rundreise, die höchstens 50 % länger ist als die beste – und läuft schnell. Wie nennt man so etwas?
+    params:
+      options:
+        - label: Einen Approximationsalgorithmus
+          correct: true
+        - label: Einen exakten Algorithmus
+          feedback: Exakt wäre nur die beste Tour selbst.
+        - label: Einen Zufallsalgorithmus
+          feedback: Die Garantie gilt immer, nicht nur mit Glück.
+    hints:
+      - Nicht perfekt, aber mit Garantie.
+    explanation: Der Christofides-Algorithmus von 1976 schafft genau das. Statt aufzugeben, verhandelt man mit der Schwierigkeit.
+    difficulty: 3
 
 srs:
   cards_from: [fuenf, praxis]

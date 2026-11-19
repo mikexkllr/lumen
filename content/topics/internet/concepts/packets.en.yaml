@@ -5,8 +5,21 @@ summary: Everything is cut into small pieces.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: via how many intermediate stops (routers) does a data packet typically travel to a website?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 15
+      tolerance: 8
+    explanation: Usually 10 to 20 – and that within a few hundredths of a second.
+
+
   - kind: problem
     id: wie-viele
     widget: numeric
@@ -19,6 +32,7 @@ steps:
     explanation: 3,000,000 / 1,500 = 2,000 packets.
 
   - kind: explain
+    id: s2
     body: |
       Nothing travels in one piece on the internet. Everything is cut into **packets**. Each one carries a sender, a destination and a number.
       At the destination, they are put back together.
@@ -50,6 +64,42 @@ steps:
     hints:
       - What are the numbers for?
     explanation: If a number is missing, exactly that packet is sent again.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: The packets of a message arrive in the wrong order. What now?
+    params:
+      options:
+        - label: The receiver sorts them by their numbers
+          correct: true
+        - label: The message is lost
+          feedback: That is exactly why every packet carries a number.
+        - label: The routers sort them on the way
+          feedback: Routers only forward – sorting happens at the destination.
+    hints:
+      - What else is on every packet besides sender and destination?
+    explanation: The **TCP** protocol numbers, acknowledges and re-requests what was lost.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Video calls often use UDP instead of TCP – without acknowledgement and without resending. Why?
+    params:
+      options:
+        - label: A late packet is useless – better a short glitch than a delay
+          correct: true
+        - label: UDP is more secure
+          feedback: It is actually less reliable.
+        - label: TCP cannot carry video
+          feedback: Streaming services use TCP – buffering is fine there.
+    hints:
+      - What use is a word that arrives two seconds late?
+    explanation: Reliable or fast – every protocol is a trade-off for its purpose.
+    difficulty: 3
 
 srs:
   cards_from: [wie-viele, verloren]

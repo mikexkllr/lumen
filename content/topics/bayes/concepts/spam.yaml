@@ -5,9 +5,24 @@ summary: Wörter als Beweise.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Prozent aller E-Mails weltweit sind Spam?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 45
+      tolerance: 12
+    explanation: Fast die Hälfte. Ohne Filter wäre dein Postfach unbrauchbar.
+
+
   - kind: explain
+    id: s1
     body: |
       Ein Bayes-Filter fragt: Wie oft kommt ein Wort in Spam vor – und wie oft in normalen Mails? Von 1000 Mails seien 500 Spam. Das Wort »Gewinn« steht in 40 % der Spam-Mails, aber nur in 1 % der normalen.
 
@@ -42,6 +57,36 @@ steps:
     hints:
       - 200 von 205 Mails mit diesem Wort.
     explanation: 200 von 205 ≈ 98 %. Echte Filter kombinieren Hunderte Wörter so.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Mail enthält zwei Wörter. »Gratis« ist in Spam 20-mal so häufig wie in normalen Mails, »Meeting« in Spam nur 1/5-mal so häufig. Mit welchem Faktor ändern beide zusammen die Spam-Chance?
+    answer:
+      value: 4
+    hints:
+      - "Verhältnisse multiplizieren: 20 · 1/5."
+    explanation: Faktor 4. Jedes Wort ist ein Hinweis – dafür oder dagegen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Der Filter heißt »naiver« Bayes. Was ist an ihm naiv?
+    params:
+      options:
+        - label: Er nimmt an, dass alle Wörter unabhängig voneinander auftreten
+          correct: true
+        - label: Er wurde von Anfängern programmiert
+          feedback: Der Name beschreibt eine mathematische Vereinfachung.
+        - label: Er glaubt jeder Mail
+          feedback: Er bewertet nach Wahrscheinlichkeiten.
+    hints:
+      - »Gratis« und »Gewinn« treten oft gemeinsam auf.
+    explanation: Die Annahme ist falsch – und funktioniert trotzdem erstaunlich gut. Ein einfaches, robustes Modell schlägt oft ein kompliziertes.
+    difficulty: 3
 
 srs:
   cards_from: [normal, schluss]

@@ -5,7 +5,7 @@ summary: Die Grundidee der Bildgeneratoren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: start
@@ -21,6 +21,7 @@ steps:
     explanation: Aus dem Rauschen wird in vielen Schritten ein Bild.
 
   - kind: explain
+    id: s2
     body: |
       **Diffusionsmodelle** lernen das Gegenteil von Verrauschen: Man gibt ihnen Bilder mit etwas Rauschen und lässt sie raten, welches Rauschen entfernt werden muss. Millionen Mal.
 
@@ -50,6 +51,56 @@ steps:
     variants:
       params: { n: "choice[20,30,50,100]" }
       defaults: { n: 50 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Ein Bildgenerator startet mit Zufallsrauschen.
+          right: true
+        - text: Er setzt das Bild aus gespeicherten Fotos zusammen.
+          right: false
+          why: Er hat keine Bilder gespeichert – nur gelernte Muster in Gewichten.
+        - text: Derselbe Prompt kann sehr verschiedene Bilder ergeben.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Im Training werden echte Bilder schrittweise verrauscht. Was genau soll das Modell vorhersagen?
+    params:
+      options:
+        - label: Das Rauschen, das hinzugefügt wurde
+          correct: true
+        - label: Den Namen des Bildes
+          feedback: Das wäre Bilderkennung.
+        - label: Das nächste Bild einer Serie
+          feedback: Es geht um ein einzelnes Bild.
+    hints:
+      - Wer das Rauschen kennt, kann es abziehen.
+    explanation: Die Aufgabe ist einfach zu stellen und braucht keine Beschriftung – so lassen sich Milliarden Bilder nutzen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Neue Bild-KIs arbeiten nicht mit den Pixeln selbst. Sie nutzen eine viel kleinere Fassung des Bildes. Warum?
+    params:
+      options:
+        - label: Das spart enorm Rechenzeit – ein zweites Netz übersetzt am Ende zurück in Pixel
+          correct: true
+        - label: Die Bilder werden dadurch schärfer
+          feedback: Es geht um Effizienz.
+        - label: Pixel kann man nicht verrauschen
+          feedback: Das kann man – es ist nur teuer.
+    hints:
+      - Eine Million Pixel oder ein paar tausend Zahlen – was ist schneller?
+    explanation: "**Latente Diffusion**: Ein Autoencoder komprimiert das Bild etwa 50-fach. Erst das machte Generatoren auf normalen Rechnern möglich."
+    difficulty: 3
 
 srs:
   cards_from: [start, training]

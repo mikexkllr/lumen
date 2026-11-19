@@ -5,7 +5,7 @@ summary: The basic idea of image generators.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: start
@@ -21,6 +21,7 @@ steps:
     explanation: In many steps, the noise becomes an image.
 
   - kind: explain
+    id: s2
     body: |
       **Diffusion models** learn the opposite of adding noise. You give them images with some noise and let them guess which noise must be removed. Millions of times.
 
@@ -50,6 +51,56 @@ steps:
     variants:
       params: { n: "choice[20,30,50,100]" }
       defaults: { n: 50 }
+
+  - kind: problem
+    id: c1
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: An image generator starts from random noise.
+          right: true
+        - text: It assembles the image from stored photos.
+          right: false
+          why: It has stored no images – only learnt patterns in weights.
+        - text: The same prompt can give very different images.
+          right: true
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: In training real images are noised step by step. What exactly should the model predict?
+    params:
+      options:
+        - label: The noise that was added
+          correct: true
+        - label: The name of the image
+          feedback: That would be image recognition.
+        - label: The next image of a series
+          feedback: It is about a single image.
+    hints:
+      - Whoever knows the noise can subtract it.
+    explanation: The task is easy to set and needs no labelling – so billions of images can be used.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: New image AIs do not work on the pixels as such. They use a much smaller form of the image. Why?
+    params:
+      options:
+        - label: That saves an enormous amount of computation – a second network translates back into pixels at the end
+          correct: true
+        - label: That makes the images sharper
+          feedback: It is about efficiency.
+        - label: Pixels cannot be noised
+          feedback: They can – it is just expensive.
+    hints:
+      - A million pixels or a few thousand numbers – which is faster?
+    explanation: "**Latent diffusion**: an autoencoder compresses the image about 50-fold. Only that made generators possible on ordinary computers."
+    difficulty: 3
 
 srs:
   cards_from: [start, training]

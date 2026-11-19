@@ -9,6 +9,20 @@ skills: [ai.next]
 estimated_minutes: 7
 steps:
   - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: from roughly how many different tokens does a large language model choose at each step?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 70
+    explanation: About 100,000. It computes a probability for every single one – anew for each word.
+
+
+  - kind: problem
     id: lueckensatz
     widget: choice
     body: A sentence breaks off – “For breakfast I like to drink a cup of …”
@@ -25,11 +39,13 @@ steps:
     explanation: In texts, “a cup of” is very often followed by a drink.
 
   - kind: explain
+    id: s2
     body: |
       At its core, a language model does exactly this. For every possible next word, it estimates a **probability**.
       It learned this from huge amounts of text.
 
   - kind: explain
+    id: s3
     body: |
       Try it – draw a few words. Most often you get “coffee”, but not always.
     visual:
@@ -76,3 +92,35 @@ steps:
     hints:
       - At the end, everything starts over – with one more token.
     explanation: Split, probabilities, pick, append – word by word.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A model gives “sunny” 60%, “rainy” 30% and “foggy” 10%. How likely is “sunny” twice in **two** independent draws? In percent.
+    params:
+      unit: "%"
+    answer:
+      value: 36
+    hints:
+      - 0.6 · 0.6.
+    explanation: 36%. The longer a text, the less likely exactly this one version.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A language model has only learnt to predict the next word. Why can it still solve maths problems and write poems?
+    params:
+      options:
+        - label: To predict the next word well it must model relationships in the world
+          correct: true
+        - label: It has memorised all answers
+          feedback: It also solves tasks that never appeared anywhere.
+        - label: Humans secretly type the answers
+          feedback: The model produces the answers.
+    hints:
+      - How do you predict the ending of a crime novel without understanding the plot?
+    explanation: A simple goal pursued at huge scale forces a surprising amount of structure. How deep this “understanding” goes is still being researched.
+    difficulty: 3

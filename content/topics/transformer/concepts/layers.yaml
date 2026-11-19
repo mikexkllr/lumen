@@ -22,6 +22,7 @@ steps:
     explanation: Dutzende Schichten verfeinern das Verständnis Stück für Stück.
 
   - kind: explain
+    id: s2
     body: |
       Ein **Transformer** stapelt viele gleich gebaute Schichten. Jede Schicht hat Attention und ein kleines neuronales Netz. Frühe Schichten erfassen eher Grammatik, spätere eher Bedeutung und Zusammenhänge.
 
@@ -49,6 +50,42 @@ steps:
     variants:
       params: { h: "choice[8,12,16]", l: "choice[12,24,32]" }
       defaults: { h: 12, l: 24 }
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Attention behandelt alle Tokens gleichzeitig – ohne Reihenfolge. Woher weiß das Modell dann, dass »Hund beißt Mann« etwas anderes ist als »Mann beißt Hund«?
+    params:
+      options:
+        - label: Jedes Token bekommt zusätzlich eine Markierung für seine Position
+          correct: true
+        - label: Es weiß es nicht
+          feedback: Ohne Positionsangabe wären beide Sätze identisch – darum fügt man sie hinzu.
+        - label: Es liest heimlich von links nach rechts
+          feedback: Die Verarbeitung ist parallel.
+    hints:
+      - Zum Wortvektor kommt ein Positionsvektor.
+    explanation: Die **Positionskodierung** – ohne sie wäre ein Text für das Modell nur ein ungeordneter Beutel Wörter.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In jeder Schicht wird das Ergebnis zum Eingang **addiert**, statt ihn zu ersetzen. Wozu dienen diese »Residualverbindungen«?
+    params:
+      options:
+        - label: Signale und Lernimpulse können ungehindert durch Hunderte Schichten fließen
+          correct: true
+        - label: Sie sparen Speicher
+          feedback: Sie brauchen sogar etwas mehr.
+        - label: Sie verhindern Halluzinationen
+          feedback: Damit haben sie nichts zu tun.
+    hints:
+      - Jede Schicht muss nur eine kleine Korrektur lernen.
+    explanation: Ohne sie verschwindet das Lernsignal in tiefen Netzen. Erst diese Idee machte wirklich tiefe Modelle trainierbar.
+    difficulty: 3
 
 srs:
   cards_from: [ablauf, parallel]
