@@ -1,0 +1,52 @@
+id: ai.generative.diffusion
+type: concept
+title: Step by step to an image
+summary: How text steers the noise.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      When generating, the model removes a little noise in each step. The **text** steers the direction: the gray becomes a cat one time and a lighthouse another.
+
+  - kind: problem
+    id: seed
+    widget: choice
+    prompt: Same text, but a different random start. What comes out?
+    params:
+      options:
+        - { label: A different image on the same topic, correct: true }
+        - { label: Exactly the same image, feedback: "You only get the same image with the same random start." }
+    hints:
+      - What else does the result depend on besides the text?
+    explanation: The random start is called the **seed**. With it, you can repeat images exactly.
+
+  - kind: problem
+    id: zahlen
+    widget: numeric
+    prompt: A color image has {{s}} × {{s}} pixels with three color values each. How many numbers must the model denoise?
+    params: { placeholder: "Number" }
+    answer: { value: "{{s * s * 3}}" }
+    hints:
+      - Pixels times 3.
+    explanation: "{{s * s * 3}} numbers – that is why many models work in a shrunken space."
+    variants:
+      params: { s: "choice[64,128,256,512]" }
+      defaults: { s: 256 }
+
+  - kind: problem
+    id: klein
+    widget: choice
+    prompt: Why remove the noise in many small steps instead of one big one?
+    params:
+      options:
+        - { label: Small corrections are much easier to guess right., correct: true }
+        - { label: Because computers can only take small steps., feedback: "It is a question of learnability, not computing power." }
+    hints:
+      - Is it easier to guess a whole image or just a small improvement?
+    explanation: Many small, well-learned steps add up to a big result.
+
+srs:
+  cards_from: [seed, klein]

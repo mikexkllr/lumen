@@ -1,0 +1,61 @@
+id: cs.recursion.towers
+type: concept
+title: Thinking recursively about Hanoi
+summary: Solve n with the help of n − 1.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Thought of recursively, Hanoi is simple: move the tower of n − 1 disks aside. Then the largest to the goal. Then the small tower on top.
+
+  - kind: problem
+    id: vier
+    widget: hanoi
+    prompt: Try it with four disks – think in towers, not in disks.
+    params: { disks: 4 }
+    hints:
+      - First three disks to B. That is a smaller Hanoi.
+    explanation: If you think recursively, you never need to remember more than one step.
+
+  - kind: problem
+    id: formel
+    widget: numeric
+    body: For n disks, T(n) = 2 · T(n − 1) + 1.
+    prompt: T({{n}}) is {{t}}. What is T({{n + 1}})?
+    params: { unit: moves }
+    answer: { value: "{{2 * t + 1}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * t"
+        misconception: forget-plus-one
+        text: Do not forget the one move for the largest disk.
+    hints:
+      - "Move the small tower twice, the big disk once."
+    explanation: "2 · {{t}} + 1 = {{2 * t + 1}}."
+    variants:
+      params: { n: "int[3,7]" }
+      derive: { t: "2 ** n - 1" }
+      defaults: { n: 4 }
+
+  - kind: problem
+    id: wie-oft
+    widget: choice
+    prompt: How often does the largest disk move in the best solution?
+    params:
+      options:
+        - { label: Exactly once, correct: true }
+        - { label: As often as the smallest, feedback: "The smallest moves constantly. The largest moves only once." }
+        - { label: Twice, feedback: "One move is enough when the path is clear." }
+    hints:
+      - When is it even allowed to move?
+    explanation: The largest disk moves exactly once – when all the others are on the spare peg.
+
+  - kind: explain
+    body: This sounds like a trick. Where does it show up in daily life?
+    reveal:
+      body: Folders hold folders. Sentences hold clauses. Mirrors show mirrors. Programs search folders this way.
+
+srs:
+  cards_from: [formel, wie-oft]

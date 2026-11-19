@@ -1,0 +1,77 @@
+id: cs.gates.combine
+type: concept
+title: Combining gates
+summary: XOR, NAND and the stairwell light.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: kette
+    widget: gates
+    prompt: Two gates in a row. Make the lamp light up.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NOT, in: [B] }
+        - { id: g, type: AND, in: [A, n] }
+      outputs: [{ id: Q, from: g, label: Lamp }]
+      goal: { Q: 1 }
+    hints:
+      - Follow the path of B. What does the NOT make of it?
+    explanation: A must be on, B off. The NOT turns B = 0 into a 1.
+
+  - kind: explain
+    body: |
+      **XOR** means “either or”. It gives 1 when **exactly one** of the inputs is 1.
+      If both are on, the lamp stays off.
+
+  - kind: problem
+    id: xor
+    widget: gates
+    prompt: Choose the gate that lights up when exactly one switch is on.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [AND, OR, XOR] }]
+      outputs: [{ id: Q, from: g, label: Lamp }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0]" }
+    hints:
+      - What should happen when both are on?
+    explanation: XOR – with 1 and 1 it stays off, unlike OR.
+
+  - kind: problem
+    id: treppe
+    widget: choice
+    prompt: In a stairwell, each of two switches toggles the light. Which gate describes that?
+    params:
+      options:
+        - { label: XOR, correct: true }
+        - { label: OR, feedback: "With OR, the light would stay on if you flipped the second switch too." }
+        - { label: AND, feedback: "Then you would always need both switches." }
+    hints:
+      - What happens when both switches are flipped?
+    explanation: Every change flips the result – that is XOR.
+
+  - kind: problem
+    id: nand
+    widget: gates
+    prompt: The lamp should always light up – except when both switches are on. Choose the first gate.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [OR, AND] }
+        - { id: n, type: NOT, in: [g] }
+      outputs: [{ id: Q, from: n, label: Lamp }]
+    check: { predicate: "table('Q') == [1, 1, 1, 0]" }
+    hints:
+      - The NOT flips everything at the end. What must come before it?
+    explanation: AND with a NOT after it – that is called NAND.
+
+  - kind: explain
+    body: You can build any computer from a single type of gate. Which one is it?
+    reveal:
+      body: NAND. You can assemble AND, OR and NOT from NAND gates – and with them, everything else.
+
+srs:
+  cards_from: [xor, treppe]

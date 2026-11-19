@@ -1,0 +1,85 @@
+id: math.growth.decay
+type: concept
+title: Decay and half-life
+summary: When the factor is less than 1.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: medikament
+    widget: numeric
+    prompt: A drug is broken down by half every 4 hours. Starting from {{d}} mg, how much is left after {{h}} hours?
+    params: { unit: mg }
+    answer: { value: "{{d / 2 ** (h / 4)}}" }
+    feedback:
+      - when: "numval(state.input) == 0"
+        misconception: linear-decay
+        text: When you halve, something always remains. Halve step by step.
+    hints:
+      - "{{h}} hours are {{h / 4}} halvings."
+    explanation: "{{d}} mg halved {{h / 4}} times gives {{d / 2 ** (h / 4)}} mg."
+    variants:
+      params: { d: "choice[160,320,400,800]", h: "choice[8,12,16]" }
+      defaults: { d: 200, h: 12 }
+
+  - kind: explain
+    body: |
+      In **decay**, the factor is less than 1. Minus 20% means times 0.8.
+      The **half-life** is the time until only half is left.
+
+  - kind: problem
+    id: auto
+    widget: numeric
+    prompt: A car loses 20% of its value every year. New, it costs €{{p}}. What is it worth after 2 years?
+    params: { unit: "€" }
+    answer: { value: "{{p * 0.64}}" }
+    feedback:
+      - when: "numval(state.input) == p * 0.6"
+        misconception: add-percents
+        text: The second loss is taken from the already smaller value.
+    hints:
+      - Multiply the price by 0.8 twice.
+    explanation: "{{p}} · 0.8 · 0.8 = €{{p * 0.64}}."
+    variants:
+      params: { p: "choice[20000,25000,30000,40000]" }
+      defaults: { p: 25000 }
+
+  - kind: problem
+    id: zerfall
+    widget: chart
+    prompt: The half-life is 1 day. Drag the bars to the right values.
+    params:
+      title: Amount in grams
+      labels: [Day 0, Day 1, Day 2, Day 3]
+      values: [16, 8, 16, 16]
+      editable: [2, 3]
+      min: 0
+      max: 16
+      step: 1
+    answer: { values: [16, 8, 4, 2] }
+    hints:
+      - The amount halves every day.
+    explanation: 16, 8, 4, 2. Each bar is half as tall as the one before.
+
+  - kind: problem
+    id: plus-minus
+    widget: choice
+    prompt: A value first rises by 50%, then falls by 50%. Where does it end up?
+    params:
+      options:
+        - { label: At 75% of the starting value, correct: true }
+        - { label: Back at the starting value, feedback: "The 50% loss is taken from the higher value. Try it with €100." }
+        - { label: At 50% of the starting value, feedback: "Too low. Calculate €100 · 1.5 · 0.5." }
+    hints:
+      - Start with €100.
+    explanation: €100 · 1.5 = €150. Half of that is €75.
+
+  - kind: explain
+    body: Why does exponential growth look so harmless for so long?
+    reveal:
+      body: At first the numbers are small. Then suddenly a large value doubles. This is exactly how pandemics, interest and viral trends surprise us.
+
+srs:
+  cards_from: [auto, medikament]

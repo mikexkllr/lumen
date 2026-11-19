@@ -1,0 +1,56 @@
+id: stats.normal.zscore
+type: concept
+title: The z-score
+summary: Comparing apples to oranges.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      The **z-score** counts how many standard deviations a value is from the mean: $z = \frac{x - \mu}{\sigma}$. That lets you compare values from very different tests.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Mean {{m}}, σ = {{s}}. What is the z-score of {{m + k * s}}?
+    params: { placeholder: "z" }
+    answer: { value: "{{k}}" }
+    hints:
+      - "Distance from the mean divided by {{s}}."
+    explanation: "({{m + k * s}} − {{m}}) ÷ {{s}} = {{k}}."
+    variants:
+      params: { m: "int[50,80]", s: "int[4,12]", k: "int[-2,3]" }
+      constraints: ["k != 0"]
+      defaults: { m: 60, s: 8, k: 2 }
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    body: "Anna scored 80 points in math – average 70, σ = 5. Ben scored 85 points in English – average 80, σ = 10."
+    prompt: Who did better compared to their own class?
+    params:
+      options:
+        - { label: Anna, correct: true }
+        - { label: Ben, feedback: "Ben has more points – but so does his class. Work out the z-scores." }
+        - { label: Both the same, feedback: "Both are above average, but by different amounts." }
+    hints:
+      - Anna is 10 points above average. How many σ is that?
+    explanation: Anna has z = 2, Ben only z = 0.5.
+
+  - kind: problem
+    id: zurueck
+    widget: numeric
+    prompt: Mean 50, σ = 8. Which value has z = {{z}}?
+    params: { placeholder: "Value" }
+    answer: { value: "{{50 + 8 * z}}" }
+    hints:
+      - "Add {{z}} times σ to the mean."
+    explanation: "50 + {{z}} · 8 = {{50 + 8 * z}}."
+    variants:
+      params: { z: "int[1,3]" }
+      defaults: { z: 2 }
+
+srs:
+  cards_from: [rechnen, vergleich]

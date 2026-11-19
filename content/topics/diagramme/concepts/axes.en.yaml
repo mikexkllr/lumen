@@ -1,0 +1,56 @@
+id: stats.dataviz.axes
+type: concept
+title: Truncated axes
+summary: How small differences look huge.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wirkung
+    widget: choice
+    visual:
+      widget: chart
+      params: { labels: [Company A, Company B], values: [98, 100], min: 96, max: 101, title: Customer satisfaction }
+    prompt: How much more satisfied are Company B's customers really?
+    params:
+      options:
+        - { label: Only about 2% more, correct: true }
+        - { label: About twice as satisfied, feedback: "Look at the axis. It starts at 96, not at 0." }
+    hints:
+      - Where does the y-axis start?
+    explanation: 98 versus 100. The truncated axis blows up the difference.
+
+  - kind: explain
+    body: |
+      Bars must **start at zero**, because their length stands for size. Line charts may have a truncated axis, as long as it is clearly visible.
+
+  - kind: problem
+    id: prozent
+    widget: numeric
+    prompt: A value rises from {{a}} to {{b}}. By what percent is that?
+    params: { unit: "%" }
+    answer: { value: "{{(b - a) * 100 / a}}" }
+    hints:
+      - The increase divided by the starting value.
+    explanation: "({{b}} − {{a}}) ÷ {{a}} = {{(b - a) * 100 / a}}%."
+    variants:
+      params: { a: "choice[50,100,200]", p: "choice[2,4,5,10]" }
+      derive: { b: "a + a * p / 100" }
+      defaults: { a: 100, p: 2 }
+
+  - kind: problem
+    id: wann
+    widget: choice
+    prompt: When is an axis that does not start at zero fine?
+    params:
+      options:
+        - { label: For a fever curve between 36 and 41 °C, correct: true }
+        - { label: "For bars that compare sales", feedback: "With bars, the shortened length always deceives." }
+    hints:
+      - Where is zero not a sensible value at all?
+    explanation: A body temperature of 0 °C makes no sense. Here the small swings matter.
+
+srs:
+  cards_from: [wirkung, wann]

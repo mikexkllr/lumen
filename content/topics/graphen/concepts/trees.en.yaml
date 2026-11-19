@@ -1,0 +1,105 @@
+id: cs.graphs.trees
+type: concept
+title: Connecting cheaply
+summary: Spanning trees and Kruskal's trick.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: glasfaser
+    widget: network
+    prompt: Connect all the houses with fiber. Choose the lines so that everything is connected and the cost is lowest.
+    params:
+      mode: select
+      unit: km
+      nodes:
+        - { id: A, x: 8, y: 20 }
+        - { id: B, x: 46, y: 6 }
+        - { id: C, x: 90, y: 24 }
+        - { id: D, x: 72, y: 92 }
+        - { id: E, x: 24, y: 90 }
+      edges:
+        - { a: A, b: B, w: 3 }
+        - { a: B, b: C, w: 4 }
+        - { a: C, b: D, w: 2 }
+        - { a: D, b: E, w: 5 }
+        - { a: E, b: A, w: 4 }
+        - { a: A, b: D, w: 7 }
+        - { a: B, b: E, w: 6 }
+        - { a: B, b: D, w: 6 }
+    hints:
+      - Tap lines to select them.
+      - Start with the cheapest ones.
+    explanation: C–D, A–B, B–C and A–E connect everything for 13 km.
+
+  - kind: explain
+    body: |
+      A network without cycles that connects all nodes is called a **spanning tree**.
+      With n nodes, it always has exactly n − 1 edges.
+
+  - kind: problem
+    id: kanten
+    widget: numeric
+    prompt: How many lines does a spanning tree need for {{n}} houses?
+    params: { unit: lines }
+    answer: { value: "{{n - 1}}" }
+    feedback:
+      - when: "numval(state.input) == n"
+        misconception: nodes-equals-edges
+        text: Close. A tree always has one edge fewer than nodes.
+    hints:
+      - Two houses need one line, three houses need two …
+    explanation: "{{n}} houses need {{n - 1}} lines."
+    variants:
+      params: { n: "int[6,24]" }
+      defaults: { n: 12 }
+
+  - kind: explain
+    body: |
+      **Kruskal's trick:** Always take the cheapest line that does not close a cycle.
+      Keep going until everything is connected.
+
+  - kind: problem
+    id: kruskal
+    widget: network
+    prompt: Use Kruskal's trick. Connect all six places as cheaply as possible.
+    params:
+      mode: select
+      unit: km
+      nodes:
+        - { id: P, x: 4, y: 50 }
+        - { id: Q, x: 35, y: 8 }
+        - { id: R, x: 35, y: 92 }
+        - { id: S, x: 66, y: 8 }
+        - { id: T, x: 66, y: 92 }
+        - { id: U, x: 96, y: 50 }
+      edges:
+        - { a: P, b: Q, w: 2 }
+        - { a: P, b: R, w: 3 }
+        - { a: Q, b: R, w: 4 }
+        - { a: Q, b: S, w: 5 }
+        - { a: R, b: T, w: 1 }
+        - { a: S, b: T, w: 6 }
+        - { a: S, b: U, w: 2 }
+        - { a: T, b: U, w: 7 }
+    hints:
+      - The order is 1, 2, 2, 3 … Skip anything that closes a cycle.
+    explanation: R–T, P–Q, S–U, P–R and Q–S, 13 km in total.
+
+  - kind: problem
+    id: kreis
+    widget: choice
+    prompt: Why is a cycle redundant in a cable network?
+    params:
+      options:
+        - { label: "You can drop one line in the cycle, and everything stays connected.", correct: true }
+        - { label: Cycles disturb the signal., feedback: "There are technical reasons for that, but this is about connectivity." }
+        - { label: Cycles are forbidden., feedback: "Not forbidden, just needlessly expensive." }
+    hints:
+      - What happens if you remove one edge from a cycle?
+    explanation: In a cycle there are two ways between two points. One of them is enough.
+
+srs:
+  cards_from: [kanten, kreis]

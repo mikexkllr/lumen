@@ -1,0 +1,79 @@
+id: ai.neural.neuron
+type: concept
+title: An Artificial Neuron
+summary: Weigh, add, decide.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: summe
+    widget: numeric
+    body: A neuron multiplies each input by its weight and adds everything up. If the sum is greater than 0, it “fires.”
+    prompt: Inputs 2 and 3, weights 0.5 and −1. What is the sum?
+    params: { placeholder: "Sum" }
+    answer: { value: -2 }
+    feedback:
+      - when: "numval(state.input) == 4"
+        misconception: sign
+        text: The weight −1 is negative. 3 · (−1) gives −3.
+    hints:
+      - "Calculate 2 · 0.5 and 3 · (−1)."
+    explanation: 1 + (−3) = −2.
+
+  - kind: explain
+    body: |
+      A **neuron** weights its inputs. A large weight means this input matters.
+      A negative weight holds back. The sum decides whether it fires.
+
+  - kind: problem
+    id: feuert
+    widget: choice
+    prompt: Does the neuron from before fire?
+    params:
+      options:
+        - { label: "No, −2 is not greater than 0.", correct: true }
+        - { label: "Yes, it has inputs, after all.", feedback: "Inputs alone are not enough. The sum is what counts." }
+    hints:
+      - Compare the sum with 0.
+    explanation: The sum is negative – the neuron stays silent.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Inputs {{x}} and {{y}}, weights {{a}} and {{b}}. What is the weighted sum?
+    params: { placeholder: "Sum" }
+    answer: { value: "{{x * a + y * b}}" }
+    feedback:
+      - when: "numval(state.input) == x + y"
+        misconception: ignore-weights
+        text: Multiply each input by its weight.
+    hints:
+      - "{{x}} · {{a}} plus {{y}} · {{b}}."
+    explanation: "{{x}} · {{a}} + {{y}} · {{b}} = {{x * a + y * b}}."
+    variants:
+      params: { x: "int[1,5]", y: "int[1,5]", a: "choice[-2,-1,2,3]", b: "choice[-3,-1,1,2]" }
+      constraints: ["x * a + y * b != x + y"]
+      defaults: { x: 4, y: 2, a: 2, b: -3 }
+
+  - kind: problem
+    id: und-neuron
+    widget: choice
+    prompt: A neuron has two inputs (0 or 1) with weight 1. At what threshold does it behave like an AND?
+    params:
+      options:
+        - { label: "It fires only when the sum is above 1.5.", correct: true }
+        - { label: "It fires when the sum is above 0.5.", feedback: "Then a single 1 is enough. That would be an OR." }
+        - { label: "It fires when the sum is above 2.5.", feedback: "Then it never fires – the sum cannot exceed 2." }
+    hints:
+      - The possible sums are 0, 1, and 2.
+    explanation: Only 1 + 1 = 2 exceeds the threshold 1.5. That is AND.
+
+  - kind: explain
+    body: How many such neurons are in a large language model?
+    reveal:
+      body: It has billions of weights. But each single neuron calculates only as simply as here – the sheer quantity makes the difference.
+
+srs:
+  cards_from: [rechnen, und-neuron]

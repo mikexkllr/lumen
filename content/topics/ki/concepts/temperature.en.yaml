@@ -1,0 +1,72 @@
+id: ai.llm.temperature
+type: concept
+title: Temperature
+summary: How bold the model is when drawing.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.temperature]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: kalt
+    widget: distribution
+    prompt: Set the temperature so that “blue” has a probability above 80%.
+    params:
+      mode: tokens
+      context: The sky today is
+      items: [{ label: blue, logit: 3.0 }, { label: gray, logit: 2.2 }, { label: cloudy, logit: 1.8 }, { label: clear, logit: 1.4 }, { label: green, logit: -1.0 }]
+      temperature: { min: 0.2, max: 2, step: 0.2, initial: 1 }
+      sample: [1, 10]
+    check: { predicate: "prob('blue') > 0.8" }
+    hints:
+      - Move the slider and watch the bars.
+      - A low temperature makes the most likely word even more likely.
+    explanation: At a low temperature, the most likely word dominates.
+
+  - kind: explain
+    body: |
+      The **temperature** controls how boldly the model chooses.
+      Low – almost always the most likely word. High – rare words come up more often. That is more creative, but more error-prone.
+
+  - kind: problem
+    id: heiss
+    widget: distribution
+    prompt: Set the temperature so that even “green” gets at least 4%.
+    params:
+      mode: tokens
+      context: The sky today is
+      items: [{ label: blue, logit: 3.0 }, { label: gray, logit: 2.2 }, { label: cloudy, logit: 1.8 }, { label: clear, logit: 1.4 }, { label: green, logit: -1.0 }]
+      temperature: { min: 0.2, max: 2, step: 0.2, initial: 1 }
+      sample: [1, 10]
+    check: { predicate: "prob('green') >= 0.04" }
+    hints:
+      - Rare words need a high temperature.
+    explanation: Only at a high temperature does the unlikely word get a real chance.
+    difficulty: 2
+
+  - kind: problem
+    id: wofuer
+    widget: choice
+    prompt: For a math problem or a cooking recipe – which temperature is better?
+    params:
+      options:
+        - { label: Low, correct: true }
+        - { label: High, feedback: "A high temperature adds variety – but with facts, also more errors." }
+        - { label: Doesn't matter, feedback: "With facts, reliability counts – and that depends on the temperature." }
+    hints:
+      - Do you need creativity or reliability here?
+    explanation: With facts and calculations, you want the most likely, most reliable word.
+
+  - kind: problem
+    id: nahe-null
+    widget: choice
+    prompt: What happens at a temperature near 0?
+    params:
+      options:
+        - { label: You get almost the same answer every time, correct: true }
+        - { label: The model does not answer at all, feedback: "It answers – just very predictably." }
+        - { label: The answers become especially creative, feedback: "That happens at a high temperature." }
+    hints:
+      - Try the lowest temperature above.
+    explanation: Almost all the probability then sits on the most common word.

@@ -1,0 +1,64 @@
+id: alg.functions.everyday
+type: concept
+title: Rates as lines
+summary: Base price plus price per unit.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: taxi
+    widget: slider
+    prompt: A taxi costs a 3 € base fare and 1 € per km. Set the line to match.
+    params:
+      expr: "m*x + b"
+      x: [0, 6]
+      y: [0, 8]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: "€ per km", min: 0, max: 2, step: 0.5, initial: 2 }
+        - { id: b, label: Base fare, min: 0, max: 5, step: 1, initial: 0 }
+      markers: [{ x: 0, y: 3, label: Start }, { x: 4, y: 7, label: "4 km" }]
+    answer: { values: { m: 1, b: 3 } }
+    hints:
+      - The base fare is the height at 0 km.
+    explanation: y = 1 · x + 3. The slope is the price per km, the starting value is the base fare.
+
+  - kind: explain
+    body: |
+      Many rates are **linear functions**: y = m · x + b.
+      m is the price per unit, b the fixed base price.
+
+  - kind: problem
+    id: kosten
+    widget: numeric
+    prompt: A phone plan costs {{b}} € plus {{m}} € per GB. What do {{x}} GB cost?
+    params: { unit: "€" }
+    answer: { value: "{{b + m * x}}" }
+    feedback:
+      - when: "numval(state.input) == m * x"
+        misconception: forget-base
+        text: The base price is still missing.
+    hints:
+      - "{{b}} + {{m}} · {{x}}."
+    explanation: "{{b}} + {{m * x}} = {{b + m * x}} €."
+    variants:
+      params: { b: "choice[5,8,10]", m: "choice[2,3,4]", x: "int[2,8]" }
+      defaults: { b: 5, m: 2, x: 4 }
+
+  - kind: problem
+    id: steigung
+    widget: choice
+    prompt: Two rates have the same base price. Which one gets more expensive with heavy use?
+    params:
+      options:
+        - { label: The one with the steeper line, correct: true }
+        - { label: The one with the flatter line, feedback: "Flatter means each extra unit costs less." }
+        - { label: Both the same, feedback: "Only at the start – after that the lines separate." }
+    hints:
+      - What does the slope mean here?
+    explanation: The slope is the price per unit. Steeper means more expensive per unit.
+
+srs:
+  cards_from: [kosten, steigung]

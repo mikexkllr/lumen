@@ -1,0 +1,63 @@
+id: math.calculus.tangent
+type: concept
+title: The slope at a point
+summary: From the average to the speedometer.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      A speedometer shows your speed **right now**, not the average. To get that, the second point moves closer and closer, until the line just touches the curve. This line is called a **tangent**.
+
+  - kind: problem
+    id: beruehren
+    widget: graph
+    prompt: Drag B so that the line just touches the parabola at A.
+    params:
+      x: [-1, 4]
+      y: [-2, 8]
+      functions: [{ expr: "x*x" }]
+      points:
+        - { id: A, x: 1, y: 1, draggable: false }
+        - { id: B, x: 3, y: 1 }
+      lines: [[A, B]]
+    check: { predicate: "state.points.B.x != 1 && state.points.B.y - 1 == 2 * (state.points.B.x - 1)" }
+    hints:
+      - The tangent at A is twice as steep as the diagonal – one step right, two steps up.
+    explanation: The tangent at x = 1 has slope 2 – for example through (2 | 3).
+
+  - kind: problem
+    id: muster
+    widget: choice
+    body: "The parabola y = x² has slope 2 at x = 1, slope 4 at x = 2, and slope 6 at x = 3."
+    prompt: What pattern is behind this?
+    params:
+      options:
+        - { label: "Slope = 2 · x", correct: true }
+        - { label: "Slope = x²", feedback: "At x = 3 that would be 9, not 6." }
+        - { label: The slope is the same everywhere, feedback: "A parabola keeps getting steeper." }
+    hints:
+      - Compare x with the slope.
+    explanation: The slope is always twice x.
+
+  - kind: problem
+    id: steil
+    widget: numeric
+    prompt: How steep is the parabola y = x² at x = {{a}}?
+    params: { placeholder: "Slope" }
+    answer: { value: "{{2 * a}}" }
+    feedback:
+      - when: "numval(state.input) == a * a"
+        misconception: value-not-slope
+        text: That is the height of the curve, not its slope.
+    hints:
+      - Slope = 2 · x.
+    explanation: "2 · {{a}} = {{2 * a}}."
+    variants:
+      params: { a: "int[3,9]" }
+      defaults: { a: 5 }
+
+srs:
+  cards_from: [muster, steil]

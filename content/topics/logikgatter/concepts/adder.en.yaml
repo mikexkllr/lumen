@@ -1,0 +1,74 @@
+id: cs.gates.adder
+type: concept
+title: Building an arithmetic unit
+summary: Add in binary with two gates.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Adding in binary works like written addition: 0 + 1 = 1 and 1 + 1 = **10**.
+      With 1 + 1, a **carry** goes into the next place.
+
+  - kind: problem
+    id: eins-plus-eins
+    widget: numeric
+    prompt: What is 1 + 1 in binary?
+    params: { placeholder: "only 0 and 1" }
+    answer: { value: 10 }
+    feedback:
+      - when: "numval(state.input) == 2"
+        misconception: decimal
+        text: That is right in the decimal system. How do you write 2 in binary?
+    hints:
+      - In binary, 2 has two digits.
+    explanation: 2 is 10 in binary – a 0 in the place and a 1 as the carry.
+
+  - kind: problem
+    id: halbaddierer
+    widget: gates
+    prompt: Build a half adder. S is the sum digit, C the carry. Choose both gates.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: gs, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: gu, type: "?", in: [A, B], options: [AND, OR, XOR] }
+      outputs: [{ id: S, from: gs, label: S }, { id: U, from: gu, label: C }]
+    check: { predicate: "table('S') == [0, 1, 1, 0] && table('U') == [0, 0, 0, 1]" }
+    hints:
+      - The sum digit is 1 when exactly one input is 1.
+      - A carry only happens with 1 + 1.
+    explanation: S is an XOR, C an AND. Together they add two bits.
+
+  - kind: problem
+    id: uebertrag
+    widget: gates
+    prompt: Set the switches so that a carry occurs and the sum digit is 0.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: gs, type: XOR, in: [A, B] }
+        - { id: gu, type: AND, in: [A, B] }
+      outputs: [{ id: S, from: gs, label: S }, { id: U, from: gu, label: C }]
+      goal: { S: 0, U: 1 }
+    hints:
+      - When is there a carry?
+    explanation: 1 + 1 = 10 – sum digit 0, carry 1.
+
+  - kind: problem
+    id: addieren
+    widget: bits
+    prompt: Calculate 0101 + 0011 in binary and set the result.
+    params: { bits: 4, showValue: false }
+    answer: { value: 8 }
+    hints:
+      - First translate to decimal – 5 and 3.
+    explanation: 5 + 3 = 8, which is 1000 in binary. Three carries move to the left.
+
+  - kind: explain
+    body: A processor contains billions of transistors. At its core, it does exactly this – switch gates and add bits. Just very, very fast.
+
+srs:
+  cards_from: [eins-plus-eins, uebertrag]

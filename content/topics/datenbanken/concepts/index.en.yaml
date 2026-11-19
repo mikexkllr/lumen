@@ -1,0 +1,52 @@
+id: cs.databases.index
+type: concept
+title: Fast and safe
+summary: Indexes and SQL injection.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      An **index** is like the index at the back of a book: a sorted list that points to the right rows. Instead of searching everything, the database jumps almost straight there.
+
+  - kind: problem
+    id: schritte
+    widget: choice
+    prompt: A table has a million rows and a sorted index. Roughly how many comparisons does a search need?
+    params:
+      options:
+        - { label: About 20, correct: true }
+        - { label: "About 500,000", feedback: "That is the average without an index." }
+        - { label: Exactly one, feedback: "You can't do it with no comparisons, but it is close." }
+    hints:
+      - Binary search halves the range at every step.
+    explanation: $2^{20}$ is about a million, so 20 halvings are enough.
+
+  - kind: problem
+    id: injection
+    widget: choice
+    prompt: A login builds its query directly from the text typed in. Why is that dangerous?
+    params:
+      options:
+        - { label: Attackers can smuggle in their own SQL code., correct: true }
+        - { label: It is only slower., feedback: "It is one of the most common security holes there is." }
+    hints:
+      - What if someone types SQL commands into the name field?
+    explanation: This is called **SQL injection**. Input turns into commands.
+
+  - kind: problem
+    id: schutz
+    widget: choice
+    prompt: What reliably protects against SQL injection?
+    params:
+      options:
+        - { label: Prepared statements with placeholders, correct: true }
+        - { label: Filtering out forbidden words, feedback: "Filters can almost always be bypassed." }
+    hints:
+      - Input should never be read as a command.
+    explanation: With placeholders, input always stays plain data.
+
+srs:
+  cards_from: [schritte, injection]

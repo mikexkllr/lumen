@@ -1,0 +1,56 @@
+id: geo.circles.wheels
+type: concept
+title: Wheels and revolutions
+summary: How often does a wheel turn?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: umfang
+    widget: numeric
+    prompt: A bicycle wheel has a 70 cm diameter. How far does it roll in one turn? Use π ≈ 3.14.
+    params: { unit: cm }
+    answer: { value: 219.8, tolerance: 1 }
+    hints:
+      - Circumference = π · d.
+    explanation: 3.14 · 70 ≈ 220 cm – a bit over 2 meters.
+
+  - kind: problem
+    id: umdrehungen
+    widget: numeric
+    prompt: A wheel covers {{u}} m per turn. How many turns does it need for {{k}} km?
+    params: { unit: turns }
+    answer: { value: "{{k * 1000 / u}}" }
+    hints:
+      - "{{k}} km is {{k * 1000}} m."
+    explanation: "{{k * 1000}} m : {{u}} m = {{k * 1000 / u}} turns."
+    variants:
+      params: { u: "choice[2,2.5,4]", k: "int[1,5]" }
+      defaults: { u: 2, k: 3 }
+
+  - kind: explain
+    body: Two gears mesh. The large one has 40 teeth, the small one 10. How often does the small one turn when the large one turns once?
+    reveal:
+      body: Four times. With each turn of the large gear, 40 teeth pass by – the small one needs four rounds for that. That is how bicycle gears work.
+
+  - kind: problem
+    id: gang
+    widget: numeric
+    prompt: The bicycle has {{v}} teeth at the front and {{h}} at the back. How often does the rear wheel turn per pedal turn?
+    params: { unit: "times" }
+    answer: { value: "{{v / h}}" }
+    feedback:
+      - when: "approx(numval(state.input), h / v)"
+        misconception: inverted
+        text: The other way around – front divided by back.
+    hints:
+      - "{{v}} teeth pass by at the front."
+    explanation: "{{v}} ÷ {{h}} = {{v / h}} turns."
+    variants:
+      params: { v: "choice[36,48]", h: "choice[12,16,24]" }
+      defaults: { v: 48, h: 16 }
+
+srs:
+  cards_from: [umdrehungen, gang]

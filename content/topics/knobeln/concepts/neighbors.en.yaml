@@ -1,0 +1,65 @@
+id: logic.constraints.neighbors
+type: concept
+title: Neighbors
+summary: Who lives next to whom?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: strasse
+    widget: logic-grid
+    prompt: Who lives in which house, and who has which pet?
+    params:
+      categories:
+        - { name: House, items: [House 1, House 2, House 3] }
+        - { name: Person, items: [Pia, Quinn, Rosa] }
+        - { name: Pet, items: [Dog, Cat, Bird] }
+      ordered: 0
+      clues:
+        - text: Pia lives in house 1.
+          rule: { is: [Pia, House 1] }
+        - text: Rosa has the bird.
+          rule: { is: [Rosa, Bird] }
+        - text: Quinn does not live in house 3.
+          rule: { not: [Quinn, House 3] }
+        - text: Pia does not have a cat.
+          rule: { not: [Pia, Cat] }
+    hints:
+      - If Quinn does not live in house 3 and Pia lives in house 1 …
+    explanation: Quinn in house 2, Rosa in house 3 with the bird. Pia has the dog, Quinn the cat.
+
+  - kind: problem
+    id: sitzplan
+    widget: logic-grid
+    prompt: Who sits where on the bench?
+    params:
+      categories:
+        - { name: Person, items: [Tom, Uli, Vera] }
+        - { name: Seat, items: [left, middle, right] }
+      ordered: 1
+      clues:
+        - text: Uli sits directly to the right of Tom.
+          rule: { offset: [Tom, Uli, 1] }
+        - text: Tom does not sit on the left.
+          rule: { not: [Tom, left] }
+    hints:
+      - If Tom does not sit on the left and Uli is right of him …
+    explanation: Tom in the middle, Uli on the right, Vera on the left.
+
+  - kind: problem
+    id: neben
+    widget: choice
+    prompt: With three houses in a row, what follows from “The dog lives right next to the cat”?
+    params:
+      options:
+        - { label: Dog and cat do not live in house 1 and house 3 together., correct: true }
+        - { label: One of them lives in house 2., feedback: "That is also true – but more precisely, 1 and 3 are ruled out as a pair." }
+        - { label: Nothing, feedback: "Being neighbors rules out the two outer houses as a pair." }
+    hints:
+      - Which pairs are neighbors?
+    explanation: The neighbor pairs are 1–2 and 2–3. So house 2 is always involved.
+
+srs:
+  cards_from: [strasse, sitzplan]

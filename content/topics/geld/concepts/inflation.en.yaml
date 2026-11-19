@@ -1,0 +1,82 @@
+id: math.money.inflation
+type: concept
+title: Inflation and Purchasing Power
+summary: What your money will still be worth tomorrow.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: kaufkraft
+    widget: choice
+    prompt: Prices rise 5% a year. Your account pays 2% interest. What happens to your purchasing power?
+    params:
+      options:
+        - { label: It falls., correct: true }
+        - { label: It rises., feedback: "You do have more euros – but everything costs even more." }
+        - { label: It stays the same., feedback: "Interest and price increases are different amounts." }
+    hints:
+      - What grows faster – your money or prices?
+    explanation: Prices rise faster than your balance. You can buy less.
+
+  - kind: explain
+    body: |
+      **Inflation** means things get more expensive.
+      With 3% inflation, a €100 shopping trip costs €103 after one year.
+
+  - kind: problem
+    id: einkauf
+    widget: numeric
+    prompt: A shopping trip costs €{{p}} today. What will it cost in 2 years at {{i}}% inflation? Round to the cent.
+    params: { unit: "€" }
+    answer: { value: "{{round(p * (1 + i / 100) ** 2, 2)}}", tolerance: 0.01 }
+    feedback:
+      - when: "abs(numval(state.input) - p * (1 + 2 * i / 100)) < 0.01"
+        misconception: simple-interest
+        text: Close. In the second year, the already higher price rises again.
+    hints:
+      - "Multiply {{p}} by {{1 + i / 100}} twice."
+    explanation: "{{p}} · {{1 + i / 100}}² ≈ €{{round(p * (1 + i / 100) ** 2, 2)}}."
+    variants:
+      params: { p: "choice[50,80,100,120]", i: "choice[2,3,4,5]" }
+      defaults: { p: 100, i: 3 }
+
+  - kind: problem
+    id: realzins
+    widget: numeric
+    prompt: Your account pays {{z}}% interest, and inflation is {{i}}%. By roughly what percent does your purchasing power change? Minus means a loss.
+    params: { unit: "%" }
+    answer: { value: "{{z - i}}" }
+    feedback:
+      - when: "numval(state.input) == i - z"
+        misconception: sign
+        text: The sign is flipped. Calculate interest minus inflation.
+    hints:
+      - "Rule of thumb: interest minus inflation."
+    explanation: "{{z}}% − {{i}}% = {{z - i}}%. This is called the **real interest rate**."
+    variants:
+      params: { z: "int[0,5]", i: "int[1,6]" }
+      constraints: ["z != i"]
+      defaults: { z: 2, i: 5 }
+
+  - kind: explain
+    body: In how many years does purchasing power halve at 3.5% inflation?
+    reveal:
+      body: In about 20 years. The rule of 70 applies here too – 70 divided by 3.5 is 20.
+
+  - kind: problem
+    id: kredit
+    widget: choice
+    prompt: Someone has a €10,000 loan with a fixed rate. Then inflation rises sharply. Who benefits?
+    params:
+      options:
+        - { label: The person repaying the loan, correct: true }
+        - { label: The bank, feedback: "The bank gets back fixed euros – but they are worth less." }
+        - { label: Nobody, feedback: "The debt stays the same size, but the money is worth less." }
+    hints:
+      - The €10,000 stays the same. What about its value?
+    explanation: The fixed debt loses value in real terms. That helps the person repaying it.
+
+srs:
+  cards_from: [einkauf, realzins]

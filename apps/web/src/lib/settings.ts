@@ -1,4 +1,4 @@
-import { detectLocale, type UiLocale } from './i18n.ts';
+import { detectLocale, translate, type UiLocale } from './i18n.ts';
 
 export type AgeBand = 'u13' | '13-15' | '16+';
 
@@ -92,6 +92,8 @@ export const isKid = (s: Settings) => s.age === 'u13' || s.age === '13-15';
 export function applyDocumentSettings(s: Settings): void {
   const root = document.documentElement;
   root.lang = s.locale;
+  document.title = translate(s.locale, 'seo.title');
+  document.querySelector('meta[name="description"]')?.setAttribute('content', translate(s.locale, 'seo.description'));
   if (s.theme === 'system') root.removeAttribute('data-theme');
   else root.dataset.theme = s.theme;
   if (s.highContrast) root.dataset.contrast = 'high';

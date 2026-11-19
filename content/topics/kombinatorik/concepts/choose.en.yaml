@@ -1,0 +1,77 @@
+id: math.combinatorics.choose
+type: concept
+title: Choosing Without Order
+summary: Handshakes, teams, and the lottery.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: haende
+    widget: numeric
+    prompt: "{{n}} people each shake hands with everyone else once. How many handshakes is that?"
+    params: { unit: handshakes }
+    answer: { value: "{{n * (n - 1) / 2}}" }
+    feedback:
+      - when: "numval(state.input) == n * (n - 1)"
+        misconception: double-count
+        text: That counts every handshake twice – A with B is B with A.
+    hints:
+      - Everyone shakes hands with {{n - 1}} others. But each handshake has two people.
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}."
+    variants:
+      params: { n: "int[4,12]" }
+      defaults: { n: 6 }
+
+  - kind: explain
+    body: |
+      If the **order does not matter**, divide by the number of orderings.
+      Choosing 2 out of 5: 5 · 4 = 20 ordered, divided by 2! = 10.
+
+  - kind: problem
+    id: wichtig
+    widget: buckets
+    prompt: Does order matter here?
+    params:
+      buckets: [{ label: order matters }, { label: order does not matter }]
+      items:
+        - { label: PIN code, bucket: order matters }
+        - { label: Winners' podium, bucket: order matters }
+        - { label: Words from letters, bucket: order matters }
+        - { label: Lottery numbers, bucket: order does not matter }
+        - { label: Pizza toppings, bucket: order does not matter }
+        - { label: A team of 3 people, bucket: order does not matter }
+    hints:
+      - Does anything change if you rearrange the selection?
+    explanation: With a PIN or podium, rearranging changes everything. With pizza or teams, it changes nothing.
+
+  - kind: problem
+    id: team
+    widget: numeric
+    prompt: A team of 3 is formed from 6 people. How many teams are possible?
+    params: { unit: teams }
+    answer: { value: 20 }
+    feedback:
+      - when: "numval(state.input) == 120"
+        misconception: ordered
+        text: Those are ordered choices. Also divide by 3! = 6.
+    hints:
+      - 6 · 5 · 4 ordered, then divide by 3 · 2 · 1.
+    explanation: 120 / 6 = 20 teams.
+
+  - kind: problem
+    id: lotto
+    widget: choice
+    prompt: What is the chance of getting all 6 right in a 6-from-49 lottery?
+    params:
+      options:
+        - { label: About 1 in 14 million, correct: true }
+        - { label: About 1 in 49, feedback: "That would be for a single number." }
+        - { label: "About 1 in 300,000", feedback: "Much smaller still." }
+    hints:
+      - There are “49 choose 6” possibilities.
+    explanation: 49 choose 6 = 13,983,816. One ticket hits exactly one of them.
+
+srs:
+  cards_from: [haende, team]

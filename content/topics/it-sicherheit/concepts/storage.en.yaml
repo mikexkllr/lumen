@@ -1,0 +1,51 @@
+id: cs.security.storage
+type: concept
+title: How services store passwords
+summary: Hash, salt and password managers.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Good services never store the password itself. They store a **hash** made with a **salt**: a random addition for each person. At login, your input is processed the same way and compared.
+
+  - kind: problem
+    id: salz
+    widget: choice
+    prompt: Two people have the same password. Why do their stored hashes still look different?
+    params:
+      options:
+        - { label: Each gets a different salt., correct: true }
+        - { label: The computer calculates imprecisely., feedback: "Hashes are exact. The salt makes the difference." }
+    hints:
+      - What is mixed in before hashing?
+    explanation: That way an attacker cannot crack everyone at once with precomputed tables.
+
+  - kind: problem
+    id: vergessen
+    widget: choice
+    prompt: You click "Forgot password" and get your old password back by email. What does that tell you?
+    params:
+      options:
+        - { label: The service stores passwords insecurely., correct: true }
+        - { label: The service is especially helpful., feedback: "A secure service doesn't know your password. It could only let you set a new one." }
+    hints:
+      - Can a hash be reversed?
+    explanation: If a service can send your password back, it stored it as plain text or in a reversible form.
+
+  - kind: problem
+    id: manager
+    widget: choice
+    prompt: What does a password manager do?
+    params:
+      options:
+        - { label: It creates and remembers a separate strong password for each service., correct: true }
+        - { label: It makes all passwords the same., feedback: "Quite the opposite. Each one is unique." }
+    hints:
+      - How many passwords do you still have to remember?
+    explanation: One strong master password protects the whole vault.
+
+srs:
+  cards_from: [salz, vergessen]

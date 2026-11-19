@@ -1,0 +1,51 @@
+id: stats.bayes.update
+type: concept
+title: Calculating with Frequencies
+summary: Bayes without a formula.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Bayes is easiest with **natural frequencies**. Picture 1000 people. 1 % are sick, so 10. The test catches 9 of them. Among the 990 healthy people, it falsely shows positive for 9 %.
+
+  - kind: problem
+    id: falsch
+    widget: numeric
+    prompt: How many of the 990 healthy people get a false positive?
+    params: { unit: people }
+    answer: { value: 89, tolerance: 1 }
+    hints:
+      - 9 % of 990.
+    explanation: About 89 healthy people. That is far more than the 9 truly sick.
+
+  - kind: problem
+    id: anteil
+    widget: numeric
+    prompt: What percentage of positive results are truly sick?
+    params: { unit: "%" }
+    answer: { value: 9, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: confuse-sensitivity
+        text: 90 % is the share of sick people the test catches. The question is the share among all positives.
+    hints:
+      - 9 true cases out of 9 + 89 positives.
+    explanation: 9 out of 98, only about 9 %.
+
+  - kind: problem
+    id: zweiter
+    widget: choice
+    prompt: What helps when a test for a rare condition comes back positive?
+    params:
+      options:
+        - { label: "Take a second, independent test", correct: true }
+        - { label: Repeat the same test right away several times, feedback: "Repeated errors from the same test are often not independent." }
+    hints:
+      - After the first test, the new base rate is much higher.
+    explanation: The first positive raises the prior from 1 % to 9 %. A second test boosts it a lot more.
+
+srs:
+  cards_from: [anteil, zweiter]

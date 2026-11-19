@@ -1,0 +1,73 @@
+id: geo.circles.sectors
+type: concept
+title: Slices of pie
+summary: Angle divided by 360.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: viertel
+    widget: fraction
+    prompt: Color a quarter of the circle.
+    params: { parts: 4, shape: circle }
+    answer: { fraction: "1/4" }
+    hints:
+      - A quarter is one part of four.
+    explanation: A quarter corresponds to an angle of 90°.
+
+  - kind: explain
+    body: A **sector** is a slice of pie. Its share of the whole circle is its angle divided by 360°.
+
+  - kind: problem
+    id: anteil
+    widget: numeric
+    prompt: A slice of pie has an angle of {{w}}°. What share of the pie is that? Enter a fraction.
+    params: { placeholder: "e.g. 1/3" }
+    answer: { value: "{{w}}/360" }
+    hints:
+      - "Calculate {{w}} / 360 and simplify."
+    explanation: "{{w}}/360 – simplified {{360 / w == round(360 / w) ? '1/' + (360 / w) : w / gcd(w, 360) + '/' + 360 / gcd(w, 360)}}."
+    variants:
+      params: { w: "choice[30,45,60,90,120]" }
+      defaults: { w: 45 }
+
+  - kind: problem
+    id: diagramm
+    widget: numeric
+    prompt: In a pie chart, {{p}}% stands for the bus. What is its angle?
+    params: { unit: "°" }
+    answer: { value: "{{p * 3.6}}" }
+    feedback:
+      - when: "numval(state.input) == p"
+        misconception: percent-as-degrees
+        text: Percent and degrees are not the same. 100% is 360°.
+    hints:
+      - 1% corresponds to 3.6°.
+    explanation: "{{p}} · 3.6° = {{p * 3.6}}°."
+    variants:
+      params: { p: "choice[10,20,25,40,50]" }
+      defaults: { p: 25 }
+
+  - kind: explain
+    body: Why does a circle actually have 360 degrees?
+    reveal:
+      body: It goes back to the Babylonians. 360 is divisible by very many numbers – 2, 3, 4, 5, 6, 8, 9, 10, 12 and more.
+
+  - kind: problem
+    id: bogen
+    widget: choice
+    prompt: How long is a circular arc of 90° with a radius of 2 m?
+    params:
+      options:
+        - { label: "About 3.14 m", correct: true }
+        - { label: "About 12.57 m", feedback: "That is the whole circumference. You need a quarter of it." }
+        - { label: "About 6.28 m", feedback: "That would be a half circle." }
+        - { label: "About 1.57 m", feedback: "That would be an eighth of the circumference." }
+    hints:
+      - First work out the whole circumference.
+    explanation: The circumference is 2 · π · 2 ≈ 12.57 m. A quarter of that is about 3.14 m.
+
+srs:
+  cards_from: [anteil, diagramm]

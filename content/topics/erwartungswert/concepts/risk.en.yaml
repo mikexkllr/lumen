@@ -1,0 +1,59 @@
+id: stats.expected.risk
+type: concept
+title: Same average, different risk
+summary: How much does the result swing?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zwei-spiele
+    widget: choice
+    body: Game A – a sure 10 €. Game B – a coin flip for 0 € or 20 €.
+    prompt: What is true?
+    params:
+      options:
+        - { label: Same expected value – B is riskier., correct: true }
+        - { label: B pays more on average., feedback: "1/2 · 20 € = 10 € – just like A." }
+        - { label: A pays more on average., feedback: "Both pay 10 € on average." }
+    hints:
+      - Work out both expected values.
+    explanation: The average is the same, the swing is not.
+
+  - kind: explain
+    body: |
+      The expected value only tells you what comes out **on average**. The **spread** shows how much it swings.
+      Many people pay for less swing – that is the core of every insurance.
+
+  - kind: problem
+    id: schnitt
+    widget: numeric
+    prompt: "A game – with a 1/{{k}} chance you win {{g}} €, otherwise nothing. What is the expected value?"
+    params: { unit: "€" }
+    answer: { value: "{{g / k}}" }
+    hints:
+      - "{{g}} € · 1/{{k}}."
+    explanation: "{{g}} / {{k}} = {{g / k}} €."
+    variants:
+      params: { k: "choice[2,4,5,10]", g: "choice[20,40,100]" }
+      defaults: { k: 4, g: 40 }
+
+  - kind: problem
+    id: lieber
+    widget: buckets
+    prompt: Rather little or a lot of swing?
+    params:
+      buckets: [{ label: little swing }, { label: a lot of swing }]
+      items:
+        - { label: Fixed salary, bucket: little swing }
+        - { label: Savings account, bucket: little swing }
+        - { label: Lotto, bucket: a lot of swing }
+        - { label: Commission on sales, bucket: a lot of swing }
+        - { label: A single stock, bucket: a lot of swing }
+    hints:
+      - How certain is the result?
+    explanation: The same expectation can carry very different risk.
+
+srs:
+  cards_from: [zwei-spiele, schnitt]

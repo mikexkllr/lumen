@@ -1,0 +1,74 @@
+id: cs.crypto.keys
+type: concept
+title: Passwords and keys
+summary: Length beats special characters.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: pin
+    widget: numeric
+    prompt: A PIN has {{n}} digits. How many different PINs are there?
+    params: { unit: PINs }
+    answer: { value: "{{10 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 10 * n"
+        misconception: add-not-multiply
+        text: Each position multiplies the possibilities by 10.
+    hints:
+      - Each position has 10 options.
+    explanation: "10 to the power of {{n}} = {{10 ** n}}."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 4 }
+
+  - kind: explain
+    body: |
+      Each extra character **multiplies** the options.
+      26 letters in 8 places give $26^8$ – about 209 billion passwords.
+
+  - kind: problem
+    id: sicherer
+    widget: choice
+    prompt: What makes a password most secure?
+    params:
+      options:
+        - { label: More length, correct: true }
+        - { label: An exclamation mark at the end, feedback: "Attackers know that trick too. Length does far more." }
+        - { label: Your own name backward, feedback: "Attackers try such patterns first." }
+    hints:
+      - The length is in the exponent.
+    explanation: Each extra character multiplies the possibilities. Long phrases of random words are strong.
+
+  - kind: problem
+    id: knacken
+    widget: numeric
+    prompt: A computer tries 10 billion passwords per second. How many seconds does it need for all 209 billion?
+    params: { unit: seconds }
+    answer: { value: 20.9, tolerance: 0.5 }
+    hints:
+      - Calculate 209 divided by 10.
+    explanation: A little over 20 seconds. Eight lowercase letters are far too short.
+
+  - kind: explain
+    body: |
+      Today, people use **two** keys. Anyone may know the public one – you lock with it.
+      Only the holder of the private one can open. Like a mailbox.
+
+  - kind: problem
+    id: briefkasten
+    widget: choice
+    prompt: With the mailbox principle, what may you share publicly?
+    params:
+      options:
+        - { label: The public key, correct: true }
+        - { label: The private key, feedback: "Anyone with the private key can read everything." }
+        - { label: Both, feedback: "The private key must stay secret." }
+    hints:
+      - The mail slot is for everyone, the key to empty it is not.
+    explanation: The public key only locks. Only the private key can open.
+
+srs:
+  cards_from: [pin, briefkasten]

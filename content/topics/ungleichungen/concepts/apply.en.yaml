@@ -1,0 +1,62 @@
+id: alg.inequalities.apply
+type: concept
+title: Comparing Plans
+summary: When does the base fee pay off?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: telefon
+    widget: numeric
+    prompt: Plan A costs a €10 base fee plus €0.10 per minute. Plan B costs €0.30 per minute. From how many minutes on is A cheaper?
+    params: { prefix: "more than", unit: minutes }
+    answer: { value: 50 }
+    feedback:
+      - when: "numval(state.input) == 100"
+        misconception: base-fee
+        text: Compare the extra cost per minute, €0.30 − €0.10 = €0.20.
+    hints:
+      - Set up 10 + 0.1 · m < 0.3 · m.
+    explanation: 10 < 0.2 · m, so m > 50.
+
+  - kind: explain
+    body: |
+      Questions like this are inequalities, cost A < cost B.
+      Solve for the quantity. The limit shows where a plan tips over.
+
+  - kind: problem
+    id: studio
+    widget: numeric
+    prompt: Gym A charges a €{{g}} sign-up fee and €{{a}} per month. Gym B has no sign-up fee but charges €{{b}} per month. From which month on is A cheaper?
+    params: { unit: month }
+    answer: { value: "{{floor(g / (b - a)) + 1}}" }
+    hints:
+      - "Each month, A saves €{{b - a}}. When do you earn back the €{{g}}?"
+    explanation: "{{g}} ÷ {{b - a}} ≈ {{round(g / (b - a), 1)}}. From month {{floor(g / (b - a)) + 1}} on, A is cheaper."
+    variants:
+      params: { g: "choice[50,60,100]", a: "choice[20,25]", b: "choice[30,35]" }
+      defaults: { g: 60, a: 20, b: 30 }
+
+  - kind: problem
+    id: taxi
+    widget: choice
+    prompt: A taxi costs €4 plus €2 per kilometer. You have €20. What is the farthest you can go?
+    params:
+      layout: grid
+      options:
+        - { label: 8 km, correct: true }
+        - { label: 10 km, feedback: "You must subtract the €4 base fare first." }
+        - { label: 12 km, feedback: "Too far. Solve 4 + 2 · k ≤ 20." }
+    hints:
+      - 4 + 2 · k ≤ 20.
+    explanation: 2 · k ≤ 16, so k ≤ 8.
+
+  - kind: explain
+    body: Why use an inequality to compare contracts?
+    reveal:
+      body: It shows where a plan tips over. Stay below that point, and the plan with a base fee costs you more.
+
+srs:
+  cards_from: [studio, taxi]

@@ -1,0 +1,56 @@
+id: math.ratios.mix
+type: concept
+title: Mixing and recipes
+summary: Ratios in cooking and mixing.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: saft
+    widget: numeric
+    prompt: "A spritzer is mixed 1 : 3 – one part juice, three parts water. How much juice do you need for 2 liters?"
+    params: { unit: liters }
+    answer: { value: 0.5 }
+    feedback:
+      - when: "approx(numval(state.input), 2/3)"
+        misconception: part-to-part
+        text: The whole has 1 + 3 = 4 parts, not 3.
+    hints:
+      - How many parts are there in total?
+    explanation: 2 liters divided by 4 parts = 0.5 liters per part. Juice is one part.
+
+  - kind: explain
+    body: |
+      In mixtures, you count **all parts together**. 1 ÷ 3 means 4 parts, and one of them is juice – so one quarter.
+
+  - kind: problem
+    id: rezept
+    widget: numeric
+    prompt: A recipe for {{p}} people needs {{g}} g of flour. How much do you need for {{q}} people?
+    params: { unit: g }
+    answer: { value: "{{g * q / p}}" }
+    hints:
+      - First work back to one person.
+    explanation: "{{g}} ÷ {{p}} · {{q}} = {{g * q / p}} g."
+    variants:
+      params: { p: "choice[2,4]", q: "choice[3,6,8]", g: "choice[200,300,400]" }
+      constraints: ["p != q"]
+      defaults: { p: 4, q: 6, g: 400 }
+
+  - kind: problem
+    id: beton
+    widget: choice
+    prompt: "Concrete is mixed 1 : 2 : 3 – cement, sand, gravel. How much gravel is in 60 kg of mix?"
+    params:
+      options:
+        - { label: 30 kg, correct: true }
+        - { label: 20 kg, feedback: "That would be a third. But gravel has 3 of 6 parts." }
+        - { label: 18 kg, feedback: "Count all the parts: 1 + 2 + 3 = 6." }
+    hints:
+      - 6 parts in total – how heavy is one part?
+    explanation: One part is 10 kg, and gravel has 3 parts – so 30 kg.
+
+srs:
+  cards_from: [saft, rezept]

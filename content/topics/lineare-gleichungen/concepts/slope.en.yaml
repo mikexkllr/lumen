@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.slope
+type: concept
+title: Exploring slope
+summary: One step right, m steps up. That is the slope.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.slope]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: durch-punkt
+    widget: slider
+    prompt: Set m so that the line passes through the point (2 | 4).
+    params:
+      expr: "m*x"
+      sliders: [{ id: m, label: m, min: -3, max: 3, step: 0.5, initial: 0.5 }]
+      markers: [{ x: 2, y: 4, label: Z }]
+    answer: { values: { m: 2 } }
+    hints:
+      - Watch what happens as you move the slider.
+      - At x = 2, y should be 4. Which m fits m · 2 = 4?
+    explanation: m · 2 = 4, so m = 2.
+
+  - kind: explain
+    body: |
+      The number **m** is called the slope.
+      If you go 1 to the right, the line goes m up.
+      So with m = 2, it goes 2 up.
+    visual:
+      widget: slider
+      params:
+        expr: "m*x"
+        sliders: [{ id: m, label: m, min: -3, max: 3, step: 0.5, initial: 2 }]
+
+  - kind: problem
+    id: zielgerade
+    widget: slider
+    prompt: Place your line exactly on the dashed line.
+    params:
+      expr: "m*x + b"
+      sliders:
+        - { id: m, label: m, min: -3, max: 3, step: 0.5, initial: 1 }
+        - { id: b, label: b, min: -4, max: 4, step: 1, initial: 0 }
+      target: { expr: "0.5x + 1" }
+    answer: { matchTarget: true }
+    feedback:
+      - when: "m == 0.5 && b != 1"
+        text: The steepness is right. Now move the line up or down with b.
+      - when: "b == 1 && m != 0.5"
+        text: The y-intercept is right. Now the steepness is still missing.
+    hints:
+      - Where does the target line cross the y-axis? That is b.
+      - How much does it rise per step to the right? That is m.
+    explanation: The target line crosses the y-axis at 1 and rises 0.5 per step. So m = 0.5 and b = 1.
+    difficulty: 2
+
+  - kind: problem
+    id: negativ
+    widget: choice
+    prompt: What does a negative m do?
+    params:
+      options:
+        - label: The line falls from left to right.
+          correct: true
+        - label: The line lies below the x-axis.
+          feedback: Whether the line is high or low depends mostly on b. The slope m sets the direction.
+        - label: The line gets steeper.
+          feedback: A line gets steeper as m moves away from 0, whether positive or negative.
+    hints:
+      - Try it with the slider above, or imagine m = −1.
+    explanation: With a negative m, each step to the right goes down. The line falls.
+
+  - kind: problem
+    id: b-ziehen
+    widget: graph
+    prompt: Drag B so that the line through A and B has a slope of 2.
+    params:
+      points: [{ id: A, x: -1, y: -1, draggable: false }, { id: B, x: 2, y: 0 }]
+      lines: [[A, B]]
+    check:
+      predicate: "slope('A', 'B') == 2"
+    feedback:
+      - when: "slope('A', 'B') == 0.5"
+        misconception: run-over-rise
+        text: That is a slope of 1/2. You went 2 right and 1 up. The reverse would be right.
+    hints:
+      - A slope of 2 means 1 right, 2 up.
+      - Start at A (−1 | −1) and go 1 right and 2 up.
+    explanation: For example B (0 | 1), which is 1 right and 2 up.
+    difficulty: 2
+
+  - kind: problem
+    id: steigung-berechnen
+    widget: numeric
+    prompt: "A line passes through (0 | {{b}}) and ({{d}} | {{b + m * d}}). What is its slope?"
+    answer: { value: "{{m}}" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / m) && m != 1"
+        misconception: run-over-rise
+        text: You divided the wrong way round. Slope = rise divided by steps to the right.
+      - when: "numval(state.input) == m * d && d != 1"
+        text: That is the whole rise. Now divide it by the {{d}} steps to the right.
+    hints:
+      - How far does it go up? How far to the right?
+      - "Slope = {{m * d}} ÷ {{d}}."
+    explanation: "The rise is {{m * d}}, and the steps to the right are {{d}}. Slope = {{m * d}} ÷ {{d}} = {{m}}."
+    difficulty: 2
+    variants:
+      params: { m: "int[1,4]", b: "int[-2,2]", d: "choice[1,2,3]" }
+      constraints: ["b + m * d <= 12"]
+      defaults: { m: 3, b: 1, d: 2 }
+
+srs:
+  cards_from: ["steps[5]"]

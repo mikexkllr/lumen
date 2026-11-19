@@ -159,6 +159,7 @@ export const SkillSchema = z.object({
 
 export const SkillsFileSchema = z.object({
   type: z.literal('skills'),
+  locale: z.string().default('de'),
   skills: z.array(SkillSchema),
 });
 

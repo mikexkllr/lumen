@@ -1,0 +1,59 @@
+id: ai.transformers.limits
+type: concept
+title: Limits of the Architecture
+summary: Cost, context, and open questions.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: quadrat
+    widget: numeric
+    prompt: In attention, every token compares itself with every other token. The text becomes {{k}} times as long. How many times more comparisons are needed?
+    params: { unit: "times" }
+    answer: { value: "{{k * k}}" }
+    feedback:
+      - when: "numval(state.input) == k"
+        misconception: linear
+        text: Every token with every other one. That grows with the square.
+    hints:
+      - "{{k}} times as many tokens, each looking at {{k}} times as many others."
+    explanation: "{{k}}² = {{k * k}}. That is why very long texts are expensive."
+    variants:
+      params: { k: "int[2,6]" }
+      defaults: { k: 2 }
+
+  - kind: explain
+    body: |
+      Transformers are powerful, but not all-knowing. They have a limited **context window**, no direct access to new facts, and often calculate inaccurately without tools.
+
+  - kind: problem
+    id: gut
+    widget: buckets
+    prompt: Strength or weakness of a plain language model?
+    params:
+      buckets: [{ label: strength }, { label: weakness }]
+      items:
+        - { label: Rephrasing texts, bucket: strength }
+        - { label: Translating between languages, bucket: strength }
+        - { label: Exact math with large numbers, bucket: weakness }
+        - { label: Today's knowledge without search, bucket: weakness }
+    hints:
+      - What relates to language patterns, and what to exact facts?
+    explanation: With tools such as a calculator and search, modern systems make up for these weaknesses.
+
+  - kind: problem
+    id: werkzeug
+    widget: choice
+    prompt: How does a language model reliably get the result of 4837 · 9281?
+    params:
+      options:
+        - { label: It calls a calculator as a tool., correct: true }
+        - { label: It guesses from training., feedback: "Guessing often gives wrong digits with large numbers." }
+    hints:
+      - What does a person do with a task like this?
+    explanation: Good systems combine language with exact tools.
+
+srs:
+  cards_from: [quadrat, gut]

@@ -1,0 +1,73 @@
+id: stats.conditional.bayes
+type: concept
+title: The Test Fallacy
+summary: When false alarms outnumber true hits.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: bauchgefuehl
+    widget: choice
+    body: 1 in 100 people has a disease. A test detects 90 % of the sick. It wrongly flags 9 % of the healthy.
+    prompt: Your test is positive. How likely are you to be sick?
+    params:
+      options:
+        - { label: About 9 %, correct: true }
+        - { label: About 90 %, feedback: "That is the hit rate among the sick. But there are far more healthy people." }
+        - { label: About 50 %, feedback: "Closer, but still too high." }
+        - { label: About 99 %, feedback: "Much too high. Think of all the healthy people with a false alarm." }
+    hints:
+      - Picture 1000 people.
+    explanation: The few true hits get lost among many false alarms.
+
+  - kind: explain
+    body: |
+      Think in **frequencies**. Of 1000 people, 10 are sick, and 9 of them test positive.
+      Of the 990 healthy people, about 89 still test positive.
+
+  - kind: problem
+    id: positive
+    widget: numeric
+    prompt: How many of the 1000 people test positive in total?
+    params: { unit: people }
+    answer: { value: 98, tolerance: 1 }
+    hints:
+      - Add the true hits and the false alarms.
+    explanation: 9 true plus 89 false, so about 98 positive tests.
+
+  - kind: problem
+    id: anteil
+    widget: numeric
+    prompt: What share of the people who test positive is truly sick? In percent, rounded.
+    params: { unit: "%" }
+    answer: { value: 9, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: base-rate-neglect
+        text: 90 % is the hit rate among the sick. This question is about all positives.
+    hints:
+      - Calculate 9 divided by 98.
+    explanation: 9 out of 98, about 9 %. The disease is rare, so false alarms dominate.
+
+  - kind: explain
+    body: What helps against this fallacy?
+    reveal:
+      body: A second, independent test. And knowing the **base rate**. The rarer something is, the more false alarms you get in proportion.
+
+  - kind: problem
+    id: haeufiger
+    widget: choice
+    prompt: The disease becomes more common, 1 in 10 instead of 1 in 100. What happens to the share of true hits among the positives?
+    params:
+      options:
+        - { label: It rises sharply., correct: true }
+        - { label: It falls., feedback: "More sick people means more true hits, with the same number of false alarms." }
+        - { label: It stays the same., feedback: "The test stays the same, but the base rate changes everything." }
+    hints:
+      - Picture 1000 people again, but now 100 are sick.
+    explanation: 90 true hits against about 81 false alarms. Now a good half of the positives are sick.
+
+srs:
+  cards_from: [bauchgefuehl, anteil]

@@ -1,0 +1,84 @@
+id: math.primes.factor
+type: concept
+title: Prime factors, GCD and LCM
+summary: Every number has a blueprint.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: zerlegung
+    widget: choice
+    prompt: Which factorization of 36 uses only primes?
+    params:
+      options:
+        - { label: "2 · 2 · 3 · 3", correct: true }
+        - { label: "4 · 9", feedback: "4 and 9 can be broken down further." }
+        - { label: "6 · 6", feedback: "6 is not a prime – 6 = 2 · 3." }
+        - { label: "2 · 18", feedback: "18 is not a prime." }
+    hints:
+      - Keep breaking down until you can't go on.
+    explanation: 36 = 2 · 2 · 3 · 3. You can't go further.
+
+  - kind: explain
+    body: |
+      Every number above 1 can be broken into prime factors in **exactly one way** – like a blueprint.
+      For example, 60 = 2 · 2 · 3 · 5.
+
+  - kind: problem
+    id: fehlt
+    widget: numeric
+    prompt: "{{a}} = 2 · 2 · 5 · ? – which prime is missing?"
+    params: { placeholder: "?" }
+    answer: { value: "{{x}}" }
+    hints:
+      - Divide {{a}} by 20.
+    explanation: "{{a}} ÷ 20 = {{x}}."
+    variants:
+      params: { x: "choice[3,7,11,13,17]" }
+      derive: { a: "20 * x" }
+      defaults: { x: 7 }
+
+  - kind: explain
+    body: |
+      The **GCD** takes the shared prime factors.
+      12 = 2 · 2 · 3 and 18 = 2 · 3 · 3 share 2 · 3. So their GCD is 6.
+
+  - kind: problem
+    id: ggt
+    widget: numeric
+    prompt: What is the greatest common divisor of {{a}} and {{b}}?
+    params: { placeholder: "GCD" }
+    answer: { value: "{{gcd(a, b)}}" }
+    feedback:
+      - when: "numval(state.input) == lcm(a, b)"
+        misconception: lcm-for-gcd
+        text: That is the least common multiple. You need the greatest divisor.
+    hints:
+      - Break both numbers into prime factors.
+    explanation: "GCD({{a}}, {{b}}) = {{gcd(a, b)}}."
+    variants:
+      params: { g: "int[2,7]", p: "choice[2,3,5]", q: "choice[7,11]" }
+      derive: { a: "g * p", b: "g * q" }
+      defaults: { g: 6, p: 2, q: 7 }
+
+  - kind: problem
+    id: busse
+    widget: numeric
+    prompt: Bus A runs every {{p}} minutes, bus B every {{q}} minutes. Both leave now. When do they leave together again?
+    params: { unit: minutes }
+    answer: { value: "{{lcm(p, q)}}" }
+    feedback:
+      - when: "numval(state.input) == p * q && p * q != lcm(p, q)"
+        misconception: product-not-lcm
+        text: They also meet then – but not for the first time.
+    hints:
+      - Write down the departure times of both buses.
+    explanation: The least common multiple – after {{lcm(p, q)}} minutes.
+    variants:
+      params: { p: "choice[6,8,10,12]", q: "choice[9,15,20]" }
+      defaults: { p: 6, q: 9 }
+
+srs:
+  cards_from: [ggt, busse]

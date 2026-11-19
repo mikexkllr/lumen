@@ -1,0 +1,57 @@
+id: stats.regression.residuals
+type: concept
+title: Reading deviations
+summary: What the leftovers reveal.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      The **residual** is a point's distance from the line: measured value minus predicted value. Positive means the point lies above the line.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: The line predicts {{p}}, and {{p + r}} was measured. What is the residual?
+    params: { placeholder: "Residual" }
+    answer: { value: "{{r}}" }
+    feedback:
+      - when: "numval(state.input) == -r"
+        misconception: sign
+        text: Measured minus predicted – not the other way around.
+    hints:
+      - Measured minus predicted.
+    explanation: "{{p + r}} − {{p}} = {{r}}."
+    variants:
+      params: { p: "int[10,40]", r: "int[-6,6]" }
+      constraints: ["r != 0"]
+      defaults: { p: 20, r: 3 }
+
+  - kind: problem
+    id: muster
+    widget: choice
+    prompt: The residuals are first positive, then negative, then positive again – like an arc. What does that mean?
+    params:
+      options:
+        - { label: A line does not fit – the data is curved., correct: true }
+        - { label: Everything is fine., feedback: "Random residuals have no pattern. An arc shows curvature." }
+    hints:
+      - Good residuals look like random noise.
+    explanation: A pattern in the residuals shows that the model misses something important.
+
+  - kind: problem
+    id: summe
+    widget: choice
+    prompt: What is the sum of all residuals for the best line?
+    params:
+      options:
+        - { label: Exactly zero, correct: true }
+        - { label: Always something positive, feedback: "The line sits so that the residuals cancel out exactly." }
+    hints:
+      - The line runs through the middle of the point cloud.
+    explanation: Deviations upward and downward cancel out exactly.
+
+srs:
+  cards_from: [rechnen, muster]

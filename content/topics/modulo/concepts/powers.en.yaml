@@ -1,0 +1,54 @@
+id: math.modular.powers
+type: concept
+title: Powers in a Circle
+summary: Remainders repeat.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zyklus
+    widget: order
+    prompt: The remainders of 2, 4, 8, 16, 32 when divided by 5. Put them in the right order.
+    params:
+      items:
+        - { label: "2" }
+        - { label: "4" }
+        - { label: "3" }
+        - { label: "1" }
+    hints:
+      - "8 mod 5 = 3, 16 mod 5 = 1."
+    explanation: 2, 4, 3, 1 – after that, everything repeats.
+
+  - kind: problem
+    id: gross
+    widget: numeric
+    prompt: The remainders of powers of two modulo 5 repeat every 4 steps (2, 4, 3, 1). What remainder does 2 to the power of {{k}} leave?
+    params: { placeholder: "Remainder" }
+    answer: { value: "{{mod(2 ** k, 5)}}" }
+    hints:
+      - "What remainder is left when {{k}} is divided by 4?"
+    explanation: "The cycle 2, 4, 3, 1 at position {{mod(k - 1, 4) + 1}} – so {{mod(2 ** k, 5)}}."
+    variants:
+      params: { k: "int[5,20]" }
+      defaults: { k: 10 }
+
+  - kind: explain
+    body: |
+      Powers modulo n are easy to compute but hard to reverse. **RSA**, one of the most important encryption methods, is built on exactly this. It raises huge numbers to powers modulo a number with hundreds of digits.
+
+  - kind: problem
+    id: rsa
+    widget: choice
+    prompt: Why is reversing it hard?
+    params:
+      options:
+        - { label: The remainders jump around seemingly at random., correct: true }
+        - { label: Because computers cannot divide., feedback: "Dividing is easy – there is just no shortcut back to the exponent." }
+    hints:
+      - Can you tell from a remainder which exponent produced it?
+    explanation: Without the secret key, trial and error is practically the only way – hopeless with huge numbers.
+
+srs:
+  cards_from: [gross, rsa]

@@ -2,6 +2,8 @@ export type UiLocale = 'de' | 'en';
 
 const de = {
   'app.name': 'Lumen',
+  'seo.title': 'Lumen – die kostenlose Alternative zu Brilliant.org',
+  'seo.description': 'Lumen ist eine kostenlose Alternative zu Brilliant.org: Mathe, Naturwissenschaften, Informatik und KI in interaktiven Lektionen mit sofortigem Feedback und KI-Tutor. Werbefrei und Open Source.',
   'app.tagline': 'Mathe, Daten, Informatik und KI in kurzen interaktiven Lektionen. Frei und offen.',
   'skip': 'Zum Inhalt springen',
   'tab.learn': 'Lernen',
@@ -338,6 +340,8 @@ type Key = keyof typeof de;
 
 const en: Record<Key, string | readonly string[]> = {
   'app.name': 'Lumen',
+  'seo.title': 'Lumen – a free alternative to Brilliant.org',
+  'seo.description': 'Lumen is a free alternative to Brilliant.org: learn math, science, computer science and AI with interactive lessons, instant feedback and an AI tutor. Free, ad-free, open source.',
   'app.tagline': 'Understand STEM by trying things out – free, ad-free, open.',
   'skip': 'Skip to content',
   'tab.learn': 'Learn',

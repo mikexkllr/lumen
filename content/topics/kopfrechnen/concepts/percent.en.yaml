@@ -1,0 +1,62 @@
+id: math.mental.percent
+type: concept
+title: Percentages in your head
+summary: First 10 %, then the rest.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zehn
+    widget: numeric
+    prompt: What is 10 % of {{n}} €?
+    params: { unit: "€" }
+    answer: { value: "{{n / 10}}" }
+    hints:
+      - Move the decimal point one place to the left.
+    explanation: "{{n}} ÷ 10 = {{n / 10}} €."
+    variants:
+      params: { n: "step[20,90,10]" }
+      defaults: { n: 60 }
+
+  - kind: explain
+    body: |
+      **Trick:** 10 % is one tenth. You can build everything from it. 5 % is half of that, 20 % is double, and 15 % = 10 % + 5 %.
+
+  - kind: problem
+    id: trinkgeld
+    widget: numeric
+    prompt: The bill is {{n}} €. How much is a 15 % tip?
+    params: { unit: "€" }
+    answer: { value: "{{n * 0.15}}" }
+    feedback:
+      - when: "numval(state.input) == n / 10"
+        misconception: ten-only
+        text: That is 10 %. Add half of it on top.
+    hints:
+      - "10 % is {{n / 10}} €, and 5 % is {{n / 20}} €."
+    explanation: "{{n / 10}} + {{n / 20}} = {{n * 0.15}} €."
+    variants:
+      params: { n: "step[20,80,20]" }
+      defaults: { n: 40 }
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: A jacket costs {{p}} €. There is a 30 % discount. What do you pay?
+    params: { unit: "€" }
+    answer: { value: "{{p * 0.7}}" }
+    feedback:
+      - when: "numval(state.input) == p * 0.3"
+        misconception: discount-not-price
+        text: That is the discount. The question asks what you still pay.
+    hints:
+      - "You pay 70 %. Or: 10 % is {{p / 10}} €."
+    explanation: "{{p}} − {{p * 0.3}} = {{p * 0.7}} €."
+    variants:
+      params: { p: "step[40,200,20]" }
+      defaults: { p: 120 }
+
+srs:
+  cards_from: [trinkgeld, rabatt]

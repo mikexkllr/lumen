@@ -14,6 +14,12 @@ describe('lumen check', () => {
     expect(stats.topics).toBeGreaterThanOrEqual(3);
     expect(stats.problems).toBeGreaterThan(50);
   });
+
+  it('the English translation is complete and faithful', async () => {
+    const { issues } = await checkContent(CONTENT, 'en');
+    const bad = issues.filter((i) => i.level !== 'info' || i.code === 'i18n.missing').map((i) => `${i.code} ${i.file ?? i.concept}`);
+    expect(bad).toEqual([]);
+  });
 });
 
 describe('lumen build', () => {

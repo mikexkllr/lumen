@@ -1,0 +1,78 @@
+id: stats.expected.decisions
+type: concept
+title: Warranties and insurance
+summary: When protection is worth it.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schaden
+    widget: numeric
+    prompt: A phone costs {{p}} €. It breaks with a {{q}}% probability per year. What is the expected damage per year?
+    params: { unit: "€" }
+    answer: { value: "{{p * q / 100}}" }
+    hints:
+      - "{{q}}% of {{p}} €."
+    explanation: "{{q}}% · {{p}} € = {{p * q / 100}} € per year."
+    variants:
+      params: { p: "choice[600,800,1000,1200]", q: "choice[5,10]" }
+      defaults: { p: 800, q: 5 }
+
+  - kind: explain
+    body: |
+      On average, insurance costs **more** than the expected damage – otherwise nobody would profit from it.
+      It pays off for losses you could not bear alone.
+
+  - kind: problem
+    id: garantie
+    widget: numeric
+    prompt: A warranty costs 30 €. The 150 € device breaks with a 10% probability. How much do you lose on average by buying the warranty?
+    params: { unit: "€" }
+    answer: { value: 15 }
+    feedback:
+      - when: "numval(state.input) == 30"
+        misconception: ignore-benefit
+        text: The warranty pays out too. Subtract the expected damage.
+    hints:
+      - The expected damage is 10% of 150 €.
+    explanation: You pay 30 €, and the damage is 15 € on average. You lose 15 € on average.
+
+  - kind: problem
+    id: absichern
+    widget: buckets
+    prompt: What speaks more for insuring, and what for bearing the cost yourself?
+    params:
+      buckets: [{ label: insure }, { label: bear yourself }]
+      items:
+        - { label: Liability for million-euro damages, bucket: insure }
+        - { label: Fire in your own house, bucket: insure }
+        - { label: High medical costs, bucket: insure }
+        - { label: Glasses for 200 €, bucket: bear yourself }
+        - { label: Warranty for a toaster, bucket: bear yourself }
+        - { label: Scratch on a phone screen, bucket: bear yourself }
+    hints:
+      - Would the loss ruin you financially?
+    explanation: Small losses are better borne yourself. Large, rare risks are worth insuring.
+
+  - kind: explain
+    body: When is the expected value a poor guide?
+    reveal:
+      body: When a rare outcome is ruinous. If you bet everything on one card, you can lose it all despite a positive expected value.
+
+  - kind: problem
+    id: ablehnen
+    widget: choice
+    prompt: Which bet has a negative expected value?
+    params:
+      options:
+        - { label: "Coin flip – plus 10 € or minus 12 €", correct: true }
+        - { label: "Coin flip – plus 10 € or minus 8 €", feedback: "Here you win 1 € on average." }
+        - { label: "Die – plus 7 € on a 6, otherwise minus 1 €", feedback: "7/6 − 5/6 = +1/3 € – a small edge for you." }
+    hints:
+      - Work out the average for each bet.
+    explanation: 1/2 · 10 € − 1/2 · 12 € = −1 €.
+
+srs:
+  cards_from: [schaden, garantie]

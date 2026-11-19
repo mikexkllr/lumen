@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.coordinates
+type: concept
+title: Finding points
+summary: First right, then up. That is how you find any point.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.coordinates]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: p-setzen
+    widget: graph
+    prompt: Drag point P to (3 | 2).
+    params:
+      x: [-5, 5]
+      y: [-5, 5]
+      points: [{ id: P, x: 0, y: 0 }]
+    answer: { points: { P: { x: 3, y: 2 } } }
+    feedback:
+      - when: "state.points.P.x == 2 && state.points.P.y == 3"
+        misconception: swapped-coordinates
+        text: You swapped x and y. The first number says how far right. The second says how far up.
+    hints:
+      - The first number belongs to the horizontal axis.
+      - From the origin, go 3 right and then 2 up.
+    explanation: (3 | 2) means 3 right and 2 up.
+
+  - kind: explain
+    body: |
+      A point has two coordinates: (x | y).
+      **x** says how far right, or left if x is negative.
+      **y** says how far up, or down.
+    visual:
+      widget: graph
+      params:
+        x: [-5, 5]
+        y: [-5, 5]
+        points: [{ id: P, x: 3, y: 2, draggable: false }]
+
+  - kind: problem
+    id: q-negativ
+    widget: graph
+    prompt: Put Q at (−2 | 4).
+    params:
+      points: [{ id: Q, x: 0, y: 0 }]
+    answer: { points: { Q: { x: -2, y: 4 } } }
+    feedback:
+      - when: "state.points.Q.x == 2 && state.points.Q.y == 4"
+        misconception: sign
+        text: Almost! The minus in −2 means left, not right.
+      - when: "state.points.Q.x == 4 && state.points.Q.y == -2"
+        misconception: swapped-coordinates
+        text: You swapped x and y. The horizontal value comes first.
+    hints:
+      - Negative x-values lie left of the origin.
+    explanation: 2 left, 4 up.
+
+  - kind: problem
+    id: r-variante
+    widget: graph
+    prompt: Put R at ({{a}} | {{b}}).
+    params:
+      points: [{ id: R, x: 0, y: 0 }]
+    answer: { points: { R: { x: "{{a}}", y: "{{b}}" } } }
+    feedback:
+      - when: "state.points.R.x == b && state.points.R.y == a && a != b"
+        misconception: swapped-coordinates
+        text: You swapped x and y. First right or left, then up or down.
+    hints:
+      - First the horizontal direction, then the vertical.
+    explanation: "({{a}} | {{b}}): {{a}} on the x-axis, {{b}} on the y-axis."
+    variants:
+      params: { a: "nonzero[-4,4]", b: "nonzero[-4,4]" }
+      defaults: { a: -3, b: -1 }
+
+  - kind: problem
+    id: wo-liegt
+    widget: choice
+    prompt: Where is the point (−3 | 2)?
+    params:
+      layout: grid
+      options:
+        - label: upper left
+          correct: true
+        - label: upper right
+          feedback: The minus in −3 means left of the origin.
+        - label: lower left
+          feedback: y = 2 is positive, so it is up.
+        - label: lower right
+          feedback: Both directions are mixed up. −3 means left, 2 means up.
+    hints:
+      - What does the minus sign on x mean?
+    explanation: x negative means left, y positive means up.
+
+  - kind: problem
+    id: waagerecht
+    widget: graph
+    prompt: Drag A and B so that segment AB is horizontal and exactly 4 long.
+    params:
+      points: [{ id: A, x: 0, y: 0 }, { id: B, x: 1, y: 2 }]
+      segments: [[A, B]]
+    check:
+      predicate: "state.points.A.y == state.points.B.y && abs(state.points.A.x - state.points.B.x) == 4"
+    feedback:
+      - when: "state.points.A.y != state.points.B.y"
+        text: Horizontal means both points have the same y-coordinate.
+      - when: "state.points.A.y == state.points.B.y && abs(state.points.A.x - state.points.B.x) != 4"
+        text: It is horizontal already. Only the length is still off.
+    hints:
+      - Horizontal means the same height.
+      - Count the grid squares between A and B.
+    explanation: For example A (0 | 0) and B (4 | 0). The y-values are equal, and the x-values are 4 apart.
+
+  - kind: problem
+    id: abstand
+    widget: numeric
+    prompt: How far apart are (1 | 2) and (1 | −3)?
+    answer: { value: 5 }
+    feedback:
+      - when: "abs(numval(state.input)) == 1"
+        misconception: sign
+        text: From 2 down to −3 is more steps than that. Count across zero.
+    hints:
+      - Both points have x = 1. So they lie one above the other.
+      - Count from y = 2 to y = −3.
+    explanation: From 2 to 0 is 2 steps, and from 0 to −3 is 3 more. That makes 5.
+
+srs:
+  cards_from: ["steps[3]"]

@@ -1,0 +1,57 @@
+id: math.logs.scales
+type: concept
+title: Logarithmic scales
+summary: Decibels, earthquakes and curves.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Some quantities cover huge ranges. Then you count in steps of ten: with **decibels**, +10 dB means ten times as much sound energy.
+
+  - kind: problem
+    id: dezibel
+    widget: numeric
+    prompt: The noise rises from {{a}} dB to {{a + 10 * k}} dB. How many times more sound energy is that?
+    params: { unit: "times" }
+    answer: { value: "{{10 ** k}}" }
+    feedback:
+      - when: "numval(state.input) == 10 * k"
+        misconception: linear
+        text: Every 10 dB multiplies by 10 – they do not add.
+    hints:
+      - "{{k}} times 10 dB means multiplying by 10 {{k}} times."
+    explanation: "$10^{ {{k}} } = {{10 ** k}}$ times as much energy."
+    variants:
+      params: { a: "choice[30,40,50,60,70]", k: "int[2,4]" }
+      defaults: { a: 60, k: 2 }
+
+  - kind: problem
+    id: kurve
+    widget: choice
+    prompt: Why is exponential growth often shown on a logarithmic axis?
+    params:
+      options:
+        - { label: There it becomes a straight line., correct: true }
+        - { label: To make it look less alarming., feedback: "It is about readability – equal growth rates become equally steep." }
+    hints:
+      - What does the logarithm turn a doubling into?
+    explanation: On a log axis, every doubling is a step of the same size – the curve becomes straight.
+
+  - kind: problem
+    id: erdbeben
+    widget: choice
+    prompt: One earthquake has magnitude 7 and another magnitude 5. How do their amplitudes compare?
+    params:
+      options:
+        - { label: The amplitude is 100 times as large., correct: true }
+        - { label: It is 2 times as large., feedback: "Each step means ten times the amplitude." }
+        - { label: "It is 1.4 times as large.", feedback: "The scale is logarithmic, not linear." }
+    hints:
+      - Two steps, a factor of 10 each.
+    explanation: 10 · 10 = 100 – two steps make a huge difference.
+
+srs:
+  cards_from: [dezibel, kurve]

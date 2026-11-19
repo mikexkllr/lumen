@@ -1,0 +1,80 @@
+id: cs.crypto.caesar
+type: concept
+title: The Caesar shift
+summary: Every letter moves along.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: hallo
+    widget: choice
+    prompt: Caesar shifted every letter by 3 – A becomes D, B becomes E. What does KHOOR say?
+    params:
+      layout: grid
+      options:
+        - { label: HELLO, correct: true }
+        - { label: NKRRU, feedback: "You shifted by 3 again. To decrypt, you go back." }
+        - { label: KELLO, feedback: "You have to shift the K too." }
+        - { label: HALLO, feedback: "Look at the second letter – H becomes E." }
+    hints:
+      - Go back 3 steps in the alphabet for each letter.
+    explanation: K → H, H → E, O → L, O → L, R → O.
+
+  - kind: explain
+    body: |
+      In a **Caesar shift**, every letter moves k places along.
+      After Z, it starts again at A.
+
+  - kind: problem
+    id: schluessel
+    widget: numeric
+    prompt: The letter {{p}} becomes {{c}}. By how many places was it shifted?
+    params: { unit: places }
+    answer: { value: "{{k}}" }
+    hints:
+      - Count in the alphabet from {{p}} to {{c}}.
+    explanation: "{{p}} + {{k}} places = {{c}}."
+    variants:
+      params: { i: "int[0,14]", k: "int[2,9]" }
+      derive: { p: "chr(i)", c: "chr(i + k)" }
+      defaults: { i: 7, k: 3 }
+
+  - kind: problem
+    id: paare
+    widget: match
+    prompt: Shift by 1. Match plaintext and ciphertext.
+    params:
+      leftTitle: Plaintext
+      rightTitle: Ciphertext
+      pairs:
+        - { left: HAL, right: IBM }
+        - { left: CAT, right: DBU }
+        - { left: ZEBRA, right: AFCSB }
+        - { left: YOU, right: ZPV }
+    hints:
+      - Watch out for the Z – after it comes A again.
+    explanation: Every letter moves one along. HAL becomes IBM.
+
+  - kind: problem
+    id: anzahl
+    widget: numeric
+    prompt: How many different Caesar keys are there, if a shift of 0 does not count?
+    params: { unit: keys }
+    answer: { value: 25 }
+    feedback:
+      - when: "numval(state.input) == 26"
+        misconception: count-zero
+        text: After 26 places, you are back at the start. That is the same as a shift of 0.
+    hints:
+      - The alphabet has 26 letters.
+    explanation: The shifts 1 to 25 are different. After that, it repeats.
+
+  - kind: explain
+    body: How do you crack Caesar without the key?
+    reveal:
+      body: Try all 25 options. Or count – in English, E is the most common letter. The most common secret letter reveals the shift.
+
+srs:
+  cards_from: [schluessel, anzahl]

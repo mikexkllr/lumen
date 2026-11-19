@@ -1,0 +1,85 @@
+id: stats.data.median
+type: concept
+title: Median and outliers
+summary: The middle value is hardly fazed by outliers.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [data.median]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: mitte
+    widget: numeric
+    visual:
+      widget: chart
+      params: { labels: [A, B, C, D, E], values: [1, 2, 2, 3, 20], min: 0, max: 20, step: 1 }
+    prompt: What is the median of these five values?
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 5.6"
+        misconception: mean-vs-median
+        text: That is the mean. The median is the value in the middle of the sorted list.
+    hints:
+      - Sort the values and take the middle one.
+    explanation: Sorted, it is 1, 2, 2, 3, 20 – the middle one is 2.
+
+  - kind: explain
+    body: |
+      The **median** is the value in the middle when you sort everything.
+      Outliers barely move it – but they move the mean a lot.
+
+  - kind: problem
+    id: ausreisser
+    widget: chart
+    prompt: Drag bar E up until the mean is above 8. Watch the median as you do.
+    params: { labels: [A, B, C, D, E], values: [3, 5, 6, 7, 4], editable: [4], min: 0, max: 30, show: [mean, median] }
+    check: { predicate: "mean(state.values) > 8" }
+    hints:
+      - The sum must be above 40.
+    explanation: From E = 20 on, the mean is above 8 – the median stays at 6.
+    difficulty: 2
+
+  - kind: problem
+    id: median-variante
+    widget: numeric
+    prompt: What is the median of {{a}}, {{b}}, {{c}}, {{d}} and {{e}}?
+    answer: { value: "{{median([a, b, c, d, e])}}" }
+    feedback:
+      - when: "numval(state.input) == c && c != median([a, b, c, d, e])"
+        misconception: unsorted-median
+        text: Sort first, then take the middle.
+    hints:
+      - Sort the five numbers.
+    explanation: "Sorted, {{median([a, b, c, d, e])}} is in the middle."
+    variants:
+      params: { a: "int[1,20]", b: "int[1,20]", c: "int[1,20]", d: "int[1,20]", e: "int[1,20]" }
+      defaults: { a: 12, b: 3, c: 15, d: 7, e: 9 }
+
+  - kind: problem
+    id: gerade-anzahl
+    widget: numeric
+    prompt: What is the median of 4, 9, 1 and 7?
+    answer: { value: 5.5 }
+    hints:
+      - Sort them – 1, 4, 7, 9.
+      - With an even count, take the middle of the two middle values.
+    explanation: "(4 + 7) ÷ 2 = 5.5."
+    difficulty: 2
+
+  - kind: problem
+    id: gehaelter
+    widget: choice
+    body: At a company, nine people earn 3,000 € each, and the boss earns 50,000 €.
+    prompt: Which value describes the typical salary better?
+    params:
+      options:
+        - { label: The median, correct: true }
+        - { label: The mean, feedback: "The high salary pulls the mean up to 7,700 € – nobody here earns that." }
+        - { label: Both equally well, feedback: "Calculate both – 3,000 € and 7,700 €." }
+    hints:
+      - What does the person in the middle earn?
+    explanation: The median is 3,000 €, the mean 7,700 €.
+
+srs:
+  cards_from: ["steps[3]"]

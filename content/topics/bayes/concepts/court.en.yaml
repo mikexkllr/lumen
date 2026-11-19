@@ -1,0 +1,53 @@
+id: stats.bayes.court
+type: concept
+title: Bayes in Court
+summary: The prosecutor's fallacy.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: treffer
+    widget: numeric
+    body: A DNA trace matches only 1 in 1 million people by chance. The region has {{m}} million people.
+    prompt: How many people in the region match the trace purely by chance?
+    params: { unit: people }
+    answer: { value: "{{m}}" }
+    hints:
+      - "One person per million, {{m}} million people."
+    explanation: "About {{m}} people. The defendant is only one of them."
+    variants:
+      params: { m: "int[3,9]" }
+      defaults: { m: 5 }
+
+  - kind: problem
+    id: schuld
+    widget: choice
+    prompt: The prosecutor says the chance of a random match is one in a million, so the defendant must be guilty. Is that right?
+    params:
+      options:
+        - { label: "No. Without more evidence, he is only one of several candidates.", correct: true }
+        - { label: Yes, feedback: "This mixes up two questions: how rare a match is and how likely guilt is." }
+    hints:
+      - How many people match in total?
+    explanation: This is the **prosecutor's fallacy**. It has caused real wrongful convictions.
+
+  - kind: explain
+    body: |
+      Evidence makes a hypothesis more likely. How much depends on your **prior knowledge**. Further independent clues, such as witnesses or a motive, raise the probability step by step.
+
+  - kind: problem
+    id: kombinieren
+    widget: choice
+    prompt: What makes a verdict most reliable?
+    params:
+      options:
+        - { label: "Several independent pieces of evidence that all point the same way", correct: true }
+        - { label: "A single, very rare match", feedback: "A match alone leaves many candidates." }
+    hints:
+      - How many candidates survive several checks?
+    explanation: Each independent piece of evidence narrows the field further. Together they are strong.
+
+srs:
+  cards_from: [treffer, schuld]

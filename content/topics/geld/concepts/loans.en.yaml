@@ -1,0 +1,82 @@
+id: math.money.loans
+type: concept
+title: Installments, Loans, and Discounts
+summary: Seeing the true price.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: raten
+    widget: numeric
+    prompt: A device costs €{{p}} – or {{n}} installments of €{{r}}. How much more do you pay with installments?
+    params: { unit: "€" }
+    answer: { value: "{{n * r - p}}" }
+    feedback:
+      - when: "numval(state.input) == n * r"
+        misconception: total-not-extra
+        text: That is the total price. The question asks for the extra cost.
+    hints:
+      - "First calculate {{n}} · {{r}}."
+    explanation: "{{n}} · €{{r}} = €{{n * r}}, so €{{n * r - p}} more."
+    variants:
+      params: { p: "choice[480,600,900]", n: "choice[12,24]" }
+      derive: { r: "ceil(p * 1.15 / n)" }
+      defaults: { p: 600, n: 24 }
+
+  - kind: explain
+    body: |
+      The **effective annual rate** shows the true cost of a loan – including all fees.
+      Only it makes offers comparable.
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    prompt: You borrow €1000 for one year. Which is cheaper?
+    params:
+      options:
+        - { label: B – 6% effective annual rate, correct: true }
+        - { label: A – 0% interest and a €99 fee, feedback: "€99 on €1000 is almost 10%. Zero percent does not mean free." }
+        - { label: Both the same, feedback: "Calculate both costs in euros." }
+    hints:
+      - How many euros does each offer cost?
+    explanation: B costs about €60, A costs €99.
+
+  - kind: explain
+    body: |
+      **Discount trap:** First add 25%, then “20% off.” The price is exactly the same again.
+      The percentages refer to different base values.
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: A shop raises €{{p}} by 25% and then gives 20% off. What does it cost now?
+    params: { unit: "€" }
+    answer: { value: "{{p}}" }
+    feedback:
+      - when: "numval(state.input) == p * 1.05"
+        misconception: add-percents
+        text: The 20% applies to the raised price.
+    hints:
+      - "First calculate {{p}} · 1.25, then times 0.8."
+    explanation: "{{p}} · 1.25 · 0.8 = €{{p}}. The “discount” only undoes the increase."
+    variants:
+      params: { p: "choice[40,80,120,200]" }
+      defaults: { p: 80 }
+
+  - kind: problem
+    id: tilgung
+    widget: numeric
+    prompt: You borrow €{{s}} interest-free and repay €{{r}} a month. How many months does it take?
+    params: { unit: months }
+    answer: { value: "{{s / r}}" }
+    hints:
+      - "How many times does {{r}} fit into {{s}}?"
+    explanation: "{{s}} ÷ {{r}} = {{s / r}} months."
+    variants:
+      params: { s: "choice[900,1200,1500,1800]", r: "choice[50,75,100]" }
+      defaults: { s: 1200, r: 75 }
+
+srs:
+  cards_from: [raten, rabatt]

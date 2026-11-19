@@ -1,0 +1,75 @@
+id: math.combinatorics.order
+type: concept
+title: Orderings
+summary: Factorial – the exclamation mark of math.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: drei
+    widget: numeric
+    prompt: Three friends line up in a row. How many orderings are there?
+    params: { unit: orderings }
+    answer: { value: 6 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: count-people
+        text: Write them out – ABC, ACB, BAC … that is more than three.
+    hints:
+      - There are 3 options for place 1, then 2, then 1.
+    explanation: 3 · 2 · 1 = 6.
+
+  - kind: explain
+    body: |
+      For n things there are n · (n − 1) · … · 1 orderings. This is written **n!** and read “n factorial.”
+      5! = 5 · 4 · 3 · 2 · 1 = 120.
+
+  - kind: problem
+    id: fakultaet
+    widget: numeric
+    prompt: How many orderings are there for {{n}} books on a shelf?
+    params: { unit: orderings }
+    answer: { value: "{{f}}" }
+    feedback:
+      - when: "numval(state.input) == n * n"
+        misconception: square
+        text: With each place, the choice gets smaller. Calculate {{n}} · {{n - 1}} · …
+    hints:
+      - "{{n}} · {{n - 1}} · … · 1."
+    explanation: "{{n}}! = {{f}}."
+    variants:
+      params: { n: "choice[4,5,6,7]" }
+      derive: { f: "n == 4 ? 24 : n == 5 ? 120 : n == 6 ? 720 : 5040" }
+      defaults: { n: 5 }
+
+  - kind: problem
+    id: podium
+    widget: numeric
+    prompt: Eight runners are in a race. How many ways are there to award gold, silver, and bronze?
+    params: { unit: ways }
+    answer: { value: 336 }
+    feedback:
+      - when: "numval(state.input) == 40320"
+        misconception: full-factorial
+        text: Only the first three places count. Stop after three factors.
+    hints:
+      - 8 for gold, then 7 for silver, then 6 for bronze.
+    explanation: 8 · 7 · 6 = 336.
+
+  - kind: problem
+    id: karten
+    widget: choice
+    prompt: How many orderings are there for a shuffled deck of 52 cards?
+    params:
+      options:
+        - { label: More than the atoms on Earth, correct: true }
+        - { label: About a million, feedback: "Far more. 52! has 68 digits." }
+        - { label: "52 · 52", feedback: "That would be for drawing just two cards with replacement." }
+    hints:
+      - 52! is a number with 68 digits.
+    explanation: 52! ≈ 8 · 10⁶⁷. Any well-shuffled order has probably never occurred before.
+
+srs:
+  cards_from: [fakultaet, podium]

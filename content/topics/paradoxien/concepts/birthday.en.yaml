@@ -1,0 +1,65 @@
+id: stats.paradoxes.birthday
+type: concept
+title: The birthday paradox
+summary: Just 23 people are enough.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schaetzen
+    widget: choice
+    prompt: How many people must be in a room for a better than 50% chance that two share a birthday?
+    params:
+      layout: grid
+      options:
+        - { label: "23", correct: true }
+        - { label: "183", feedback: "That would be half of 365. But any pair will do." }
+        - { label: "60", feedback: "With 60 people it is already almost certain, over 99%." }
+        - { label: "100", feedback: "Far too many." }
+    hints:
+      - It does not have to be your birthday. Any pair will do.
+    explanation: Just 23 people are enough. With 50 people, the chance is 97%.
+
+  - kind: explain
+    body: |
+      The trick: **pairs** count, not people. With 23 people, there are surprisingly many possible pairs.
+
+  - kind: problem
+    id: paare
+    widget: numeric
+    prompt: How many different pairs are there among {{n}} people?
+    params: { unit: pairs }
+    answer: { value: "{{n * (n - 1) / 2}}" }
+    feedback:
+      - when: "numval(state.input) == n * (n - 1)"
+        misconception: double-count
+        text: You counted each pair twice.
+    hints:
+      - Everyone with everyone, divided by 2.
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} pairs."
+    variants:
+      params: { n: "choice[10,23,30,50]" }
+      defaults: { n: 23 }
+
+  - kind: problem
+    id: eigener
+    widget: choice
+    prompt: How many people do you need for a better than 50% chance that someone shares YOUR birthday?
+    params:
+      options:
+        - { label: About 250, correct: true }
+        - { label: "23", feedback: "That holds for any pair. For your date, it is much harder." }
+        - { label: "183", feedback: "Close, but some people share days among themselves." }
+    hints:
+      - Now each person only counts against you.
+    explanation: About 253 people. Here there is no explosion of pairs.
+
+  - kind: explain
+    body: Where is this effect used?
+    reveal:
+      body: In cryptography. So-called birthday attacks look for two files with the same hash. That works much faster than you would think.
+
+srs:
+  cards_from: [schaetzen, paare]

@@ -1,0 +1,89 @@
+id: cs.gates.basic
+type: concept
+title: AND, OR, NOT
+summary: Three building blocks for every decision.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: und
+    widget: gates
+    prompt: The lamp is connected to an AND gate. Make it light up.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: AND, in: [A, B] }]
+      outputs: [{ id: Q, from: g, label: Lamp }]
+      goal: { Q: 1 }
+    hints:
+      - One switch alone is not enough.
+    explanation: AND gives 1 only when both inputs are 1.
+
+  - kind: explain
+    body: |
+      **AND** gives 1 when both inputs are 1. **OR** gives 1 as soon as one is 1. **NOT** flips the value.
+      Try out the OR gate.
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs: [{ id: A }, { id: B }]
+        gates: [{ id: g, type: OR, in: [A, B] }]
+        outputs: [{ id: Q, from: g, label: Lamp }]
+
+  - kind: problem
+    id: nicht
+    widget: gates
+    prompt: This one has a NOT gate. How must the switch be set so the lamp lights up?
+    params:
+      inputs: [{ id: A, value: 1 }]
+      gates: [{ id: n, type: NOT, in: [A] }]
+      outputs: [{ id: Q, from: n, label: Lamp }]
+      goal: { Q: 1 }
+    hints:
+      - NOT turns a 1 into a 0 and a 0 into a 1.
+    explanation: The switch must be off. NOT turns that into a 1.
+
+  - kind: problem
+    id: welches
+    widget: gates
+    prompt: A is on, B is off. Which gate makes the lamp light up? Tap it.
+    params:
+      inputs: [{ id: A, value: 1, fixed: true }, { id: B, value: 0, fixed: true }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [AND, OR] }]
+      outputs: [{ id: Q, from: g, label: Lamp }]
+      goal: { Q: 1 }
+    hints:
+      - Is one input with 1 enough?
+    explanation: For OR, one input with 1 is enough. AND would need both.
+
+  - kind: problem
+    id: alarm
+    widget: choice
+    prompt: An alarm should go off when the door is open or the window is. Which gate fits?
+    params:
+      options:
+        - { label: OR, correct: true }
+        - { label: AND, feedback: "Then the door and window would both have to be open at once." }
+        - { label: NOT, feedback: "NOT has only one input and flips it." }
+    hints:
+      - Is one of the two already enough?
+    explanation: A single open spot should be enough – that is OR.
+
+  - kind: problem
+    id: tabelle
+    widget: gates
+    prompt: Choose the gate that lights up only when both switches are on.
+    body: It is checked for all four switch positions.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [OR, AND] }]
+      outputs: [{ id: Q, from: g, label: Lamp }]
+    check: { predicate: "table('Q') == [0, 0, 0, 1]" }
+    hints:
+      - Try the switches and watch the lamp.
+    explanation: That is AND. It gives a 1 only for 1 and 1.
+
+srs:
+  cards_from: [welches, alarm]

@@ -1,0 +1,60 @@
+id: logic.propositional.tables
+type: concept
+title: Truth tables
+summary: All cases at a glance.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      A **truth table** lists all cases. With two statements A and B, there are four: false-false, false-true, true-false, true-true.
+
+  - kind: problem
+    id: zeilen
+    widget: numeric
+    prompt: How many rows does a truth table with {{n}} statements have?
+    params: { unit: rows }
+    answer: { value: "{{2 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * n"
+        misconception: linear
+        text: Each new statement doubles the cases.
+    hints:
+      - Each statement is true or false.
+    explanation: "$2^{ {{n}} } = {{2 ** n}}$ rows."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 3 }
+
+  - kind: problem
+    id: wenn-dann
+    widget: gates
+    prompt: Build "if A, then B". It is false only if A is true and B is false. Choose the gate.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NOT, in: [A] }
+        - { id: g, type: "?", in: [n, B], options: [AND, OR] }
+      outputs: [{ id: Q, from: g, label: "true" }]
+    check: { predicate: "table('Q') == [1, 1, 0, 1]" }
+    hints:
+      - '"If A, then B" is the same as "not A or B".'
+    explanation: Not A OR B – that is the implication.
+
+  - kind: problem
+    id: gleich
+    widget: choice
+    prompt: Which statement has the same truth table as "not (A and B)"?
+    params:
+      options:
+        - { label: not A or not B, correct: true }
+        - { label: not A and not B, feedback: "That is \"neither A nor B\" – too strict." }
+        - { label: A or B, feedback: "That is almost the opposite." }
+    hints:
+      - De Morgan.
+    explanation: By De Morgan, "and" becomes "or".
+
+srs:
+  cards_from: [zeilen, gleich]

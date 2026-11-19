@@ -1,0 +1,78 @@
+id: math.powers.roots
+type: concept
+title: Roots and powers of ten
+summary: Working backward and taming huge numbers.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rueckwaerts
+    widget: numeric
+    prompt: Which number multiplied by itself gives {{n * n}}?
+    params: { placeholder: "Number" }
+    answer: { value: "{{n}}" }
+    feedback:
+      - when: "numval(state.input) == n * n / 2"
+        misconception: half
+        text: Halving is not the opposite of squaring.
+    hints:
+      - Try numbers whose square is close.
+    explanation: "{{n}} · {{n}} = {{n * n}}. So $\\sqrt{ {{n * n}} } = {{n}}$."
+    variants:
+      params: { n: "int[4,15]" }
+      defaults: { n: 7 }
+
+  - kind: explain
+    body: |
+      The **root** $\sqrt{49}$ asks: which number times itself gives 49?
+      Answer: 7. Roots undo squaring.
+
+  - kind: problem
+    id: schaetzen
+    widget: numberline
+    prompt: Roughly where is $\sqrt{20}$? Place the marker.
+    params: { min: 0, max: 6, ticks: 2, labels: integers }
+    answer: { value: 4.5, tolerance: 0.01 }
+    hints:
+      - 4 · 4 = 16 and 5 · 5 = 25. Where does 20 fall in between?
+    explanation: $\sqrt{20} \approx 4.47$, just under 4.5.
+
+  - kind: explain
+    body: |
+      Large numbers are written with **powers of ten**: 3,000,000 = $3 \cdot 10^6$.
+      The Sun is about $1.5 \cdot 10^8$ km from Earth.
+
+  - kind: problem
+    id: zehner
+    widget: numeric
+    prompt: "Write {{t}} as 4 · 10 to the power … Give the exponent."
+    params: { prefix: "4 · 10^" }
+    answer: { value: "{{n}}" }
+    feedback:
+      - when: "numval(state.input) == n + 1"
+        misconception: count-digits
+        text: You counted all the digits. Count only the zeros after the 4.
+    hints:
+      - Count the zeros.
+    explanation: "{{t}} has {{n}} zeros after the 4."
+    variants:
+      params: { n: "int[3,7]" }
+      derive: { t: "4 * 10 ** n" }
+      defaults: { n: 4 }
+
+  - kind: problem
+    id: groesser
+    widget: choice
+    prompt: Which number is larger?
+    params:
+      options:
+        - { label: "$3 \\cdot 10^5$", correct: true }
+        - { label: "$9 \\cdot 10^4$", feedback: "9 is larger than 3, but the exponent counts more. $9 \\cdot 10^4$ = 90,000." }
+    hints:
+      - Write out both numbers.
+    explanation: 300,000 is more than 90,000.
+
+srs:
+  cards_from: [rueckwaerts, zehner]

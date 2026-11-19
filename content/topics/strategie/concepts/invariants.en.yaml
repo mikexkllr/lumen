@@ -1,0 +1,71 @@
+id: logic.strategy.invariants
+type: concept
+title: What Never Changes
+summary: Invariants prove the impossible.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schachbrett
+    widget: choice
+    prompt: A chessboard is missing two opposite corner squares. Can you cover it completely with dominoes? Each domino covers two adjacent squares.
+    params:
+      options:
+        - { label: No, correct: true }
+        - { label: Yes, feedback: "62 squares sounds like a fit. But look at the colors of the corners." }
+    hints:
+      - What color are the two missing corners?
+    explanation: Both corners have the same color. But each domino covers one light and one dark square.
+
+  - kind: explain
+    body: |
+      Each domino covers **one light and one dark** square. Here, two squares of the same color are missing, so it never works out.
+      This is called an **invariant**: a quantity that never changes.
+
+  - kind: problem
+    id: tafel
+    widget: choice
+    body: The numbers 1 to 10 are on a board. You erase two and write their difference. You repeat this until one number is left.
+    prompt: Can the final number be 0?
+    params:
+      options:
+        - { label: "No, the result is always odd.", correct: true }
+        - { label: "Yes, with the right order.", feedback: "Try it. The sum always stays odd." }
+    hints:
+      - Check whether the sum of all numbers is even or odd, and whether that changes.
+    explanation: The sum starts at 55, which is odd. Each step changes it by an even number.
+
+  - kind: problem
+    id: schokolade
+    widget: numeric
+    prompt: A chocolate bar has {{a}} × {{b}} pieces. How many breaks do you need until all pieces are separate?
+    params: { unit: breaks }
+    answer: { value: "{{a * b - 1}}" }
+    feedback:
+      - when: "numval(state.input) == a * b"
+        misconception: off-by-one
+        text: Almost. At the start, you already have one piece.
+    hints:
+      - Each break turns one piece into two.
+    explanation: "Going from 1 to {{a * b}} pieces takes {{a * b - 1}} breaks, no matter how."
+    variants:
+      params: { a: "int[3,6]", b: "int[4,8]" }
+      defaults: { a: 4, b: 6 }
+
+  - kind: problem
+    id: turnier
+    widget: numeric
+    prompt: In a knockout tournament, {{n}} teams play. How many games are needed to find the winner?
+    params: { unit: games }
+    answer: { value: "{{n - 1}}" }
+    hints:
+      - Each game eliminates exactly one team.
+    explanation: "All {{n - 1}} other teams are eliminated, one game per team."
+    variants:
+      params: { n: "choice[8,16,20,32,64]" }
+      defaults: { n: 16 }
+
+srs:
+  cards_from: [schokolade, turnier]

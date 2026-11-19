@@ -1,0 +1,99 @@
+id: cs.binary.bytes
+type: concept
+title: Bytes, Storage, and Colors
+summary: From 8 bits to millions of colors.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: byte
+    widget: choice
+    prompt: A byte has 8 bits. How many different values can a byte store?
+    params:
+      options:
+        - { label: "256", correct: true }
+        - { label: "255", feedback: "255 is the largest value. Counting 0 as well, there are 256." }
+        - { label: "8", feedback: "8 is the number of bits. Each bit doubles the number of values." }
+        - { label: "64", feedback: "6 bits give 64 values." }
+    hints:
+      - Calculate 2 to the power of 8.
+    explanation: $2^8 = 256$ values, from 0 to 255.
+
+  - kind: explain
+    body: |
+      Storage grows in steps of one thousand:
+      A **kilobyte** (kB) is 1000 bytes, a **megabyte** (MB) is a million, and a **gigabyte** (GB) is a billion.
+
+  - kind: problem
+    id: fotos
+    widget: numeric
+    prompt: A photo is {{s}} MB. How many whole photos fit on a card with {{g}} GB?
+    body: Use 1 GB = 1000 MB.
+    params: { unit: photos }
+    answer: { value: "{{floor(g * 1000 / s)}}" }
+    feedback:
+      - when: "numval(state.input) == floor(g / s)"
+        misconception: unit-mismatch
+        text: First convert the GB to MB.
+    hints:
+      - "{{g}} GB is {{g * 1000}} MB."
+    explanation: "{{g * 1000}} MB : {{s}} MB ≈ {{floor(g * 1000 / s)}} photos."
+    variants:
+      params: { s: "int[3,7]", g: "choice[8,16,32,64]" }
+      defaults: { s: 4, g: 16 }
+
+  - kind: explain
+    body: |
+      Screens mix **red, green, and blue**. Each channel gets one byte, so 0 to 255.
+      (255, 0, 0) is pure red, (0, 0, 0) is black.
+
+  - kind: problem
+    id: gelb
+    widget: choice
+    prompt: What color does the screen show for (255, 255, 0)?
+    params:
+      layout: grid
+      options:
+        - { label: Yellow, correct: true }
+        - { label: White, feedback: "White would need all three channels at full." }
+        - { label: Green, feedback: "Red is at full here too." }
+        - { label: Purple, feedback: "Purple mixes red with blue. Here blue is 0." }
+    hints:
+      - Light mixes differently from paint in a paint box.
+    explanation: Red and green light together make yellow.
+
+  - kind: problem
+    id: farben
+    widget: numeric
+    prompt: With 3 bytes per pixel, how many colors are there? Enter the exponent. 2 to the power of …
+    params: { prefix: "2^" }
+    answer: { value: 24 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: bytes-vs-bits
+        text: Each byte has 8 bits. How many bits is that in total?
+    hints:
+      - 3 bytes are 3 · 8 bits.
+    explanation: 24 bits give $2^{24}$ – about 16.7 million colors.
+
+  - kind: problem
+    id: groessen
+    widget: buckets
+    prompt: How big is it, roughly? Sort the items.
+    params:
+      buckets: [{ label: kB }, { label: MB }, { label: GB }]
+      items:
+        - { label: A short message, bucket: kB }
+        - { label: An email without attachment, bucket: kB }
+        - { label: A phone photo, bucket: MB }
+        - { label: A song as MP3, bucket: MB }
+        - { label: A feature film in HD, bucket: GB }
+        - { label: A big video game, bucket: GB }
+    hints:
+      - Text is tiny, videos are huge.
+    explanation: Text needs kilobytes, photos and music need megabytes, films and games need gigabytes.
+
+srs:
+  cards_from: [fotos, byte]

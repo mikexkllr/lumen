@@ -1,0 +1,95 @@
+id: math.decimals.change
+type: concept
+title: Discounts and increases
+summary: A percentage always refers to a base value.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [pct.change]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: jacke
+    widget: numeric
+    prompt: A jacket costs 80 €. It is reduced by 25%. What does it cost now?
+    params: { unit: "€" }
+    answer: { value: 60 }
+    feedback:
+      - when: "numval(state.input) == 20"
+        misconception: discount-only
+        text: 20 € is the discount. Subtract it from the old price.
+    hints:
+      - 25% is a quarter.
+      - A quarter of 80 € is 20 €.
+    explanation: 80 € − 20 € = 60 €.
+
+  - kind: explain
+    body: |
+      Reduced by 25% means you still pay **75%**.
+      So you can calculate directly $80 € \cdot 0.75 = 60 €$.
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: A bike costs {{g}} €. There is a {{p}}% discount. What does it cost now?
+    params: { unit: "€" }
+    answer: { value: "{{g * (100 - p) / 100}}" }
+    feedback:
+      - when: "numval(state.input) == g * p / 100"
+        misconception: discount-only
+        text: That is only the discount. The new price is {{g}} € minus the discount.
+    hints:
+      - "You pay {{100 - p}}%."
+    explanation: "{{g}} € · {{(100 - p) / 100}} = {{g * (100 - p) / 100}} €."
+    variants:
+      params: { p: "choice[10,20,25,30,40]", g: "choice[40,60,80,120,200]" }
+      constraints: ["isInt(g * p / 100)"]
+      defaults: { g: 120, p: 20 }
+
+  - kind: problem
+    id: anstieg
+    widget: numeric
+    prompt: A price rises from 50 € to 60 €. By what percent?
+    params: { unit: "%" }
+    answer: { value: 20 }
+    feedback:
+      - when: "numval(state.input) == 10"
+        misconception: absolute-vs-relative
+        text: 10 € is the rise in euros. What percent of 50 € is that?
+    hints:
+      - The rise is 10 €.
+      - 10 out of 50. What percent is that?
+    explanation: 10/50 = 0.2 = 20%.
+
+  - kind: problem
+    id: hin-und-zurueck
+    widget: choice
+    prompt: A price rises by 10% and then falls by 10%. Is it back to the start?
+    params:
+      options:
+        - { label: "No, a little lower", correct: true }
+        - { label: "Yes, exactly the same", feedback: "The −10% applies to the higher price. 100 becomes 110 and then 99." }
+        - { label: "No, a little higher", feedback: "Try it with 100 €: 110 €, then 99 €." }
+    hints:
+      - Start with 100 €.
+    explanation: 100 → 110 → 110 − 11 = 99.
+    difficulty: 2
+
+  - kind: problem
+    id: rueckwaerts
+    widget: numeric
+    prompt: After a 20% discount, a phone costs 240 €. What was the old price?
+    params: { unit: "€" }
+    answer: { value: 300 }
+    feedback:
+      - when: "numval(state.input) == 288"
+        misconception: base-confusion
+        text: The 240 € is already 80% of the old price, not 100%.
+    hints:
+      - 240 € is 80% of the old price.
+      - "1% is 240 € : 80 = 3 €."
+    explanation: "240 € : 0.8 = 300 €."
+    difficulty: 3
+
+srs:
+  cards_from: ["steps[2]"]

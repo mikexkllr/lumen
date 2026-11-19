@@ -1,0 +1,72 @@
+id: stats.data.mean
+type: concept
+title: The mean
+summary: Shared fairly – this is what each one would get.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [data.mean]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: saeule
+    widget: chart
+    prompt: Drag the bar for Friday so that the mean is exactly 5.
+    params: { labels: [Mon, Tue, Wed, Thu, Fri], values: [4, 6, 5, 3, 2], editable: [4], min: 0, max: 10, show: [mean], title: Pages read }
+    check: { predicate: "mean(state.values) == 5" }
+    hints:
+      - For a mean of 5, five days need 25 pages together.
+      - Monday to Thursday are already 18 pages.
+    explanation: "4 + 6 + 5 + 3 + 7 = 25, and 25 ÷ 5 = 5."
+
+  - kind: explain
+    body: |
+      The **mean** is the sum of all values divided by how many there are.
+      It tells you what each one would get if everything were shared fairly.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Calculate the mean of {{a}}, {{b}} and {{c}}.
+    answer: { value: "{{(a + b + c) / 3}}" }
+    feedback:
+      - when: "numval(state.input) == a + b + c"
+        misconception: sum-not-mean
+        text: That is the sum. Now divide it by the number of values.
+    hints:
+      - "Sum: {{a + b + c}}."
+      - Divide by 3.
+    explanation: "({{a}} + {{b}} + {{c}}) ÷ 3 = {{(a + b + c) / 3}}."
+    variants:
+      params: { a: "int[1,12]", b: "int[1,12]", c: "int[1,12]" }
+      constraints: ["isInt((a + b + c) / 3)", "a != b || b != c"]
+      defaults: { a: 4, b: 7, c: 10 }
+
+  - kind: problem
+    id: ablesen
+    widget: numeric
+    visual:
+      widget: chart
+      params: { labels: [Jan, Feb, Mar, Apr, May], values: [2, 4, 4, 6, 9], min: 0, max: 10, title: Rainy days }
+    prompt: What is the mean number of rainy days?
+    answer: { value: 5 }
+    hints:
+      - Add up all the bars.
+      - 25 days over 5 months.
+    explanation: "2 + 4 + 4 + 6 + 9 = 25, and 25 ÷ 5 = 5."
+
+  - kind: problem
+    id: ausreisser
+    widget: choice
+    prompt: One single value suddenly becomes very large. What happens to the mean?
+    params:
+      options:
+        - { label: It rises sharply, correct: true }
+        - { label: It stays the same, feedback: "The sum gets bigger – so the mean does too." }
+        - { label: It drops, feedback: "A larger value can't lower the mean." }
+    hints:
+      - What happens to the sum?
+    explanation: A very large value pulls the mean up.
+
+srs:
+  cards_from: ["steps[2]"]

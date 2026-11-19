@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.parts
+type: concept
+title: What a fraction tells you
+summary: The denominator divides, the numerator counts.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.part-whole]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: drei-viertel
+    widget: fraction
+    prompt: Shade 3/4 of the strip. Tap the parts to do so.
+    params: { parts: 4 }
+    answer: { fraction: "3/4" }
+    hints:
+      - The strip has 4 equal parts.
+      - Shade 3 of them.
+    explanation: 3/4 means 3 of 4 equal parts.
+
+  - kind: explain
+    body: |
+      The **denominator** (bottom) tells you how many equal parts the whole is divided into.
+      The **numerator** (top) tells you how many parts you take.
+    visual:
+      widget: fraction
+      params: { parts: 4, shaded: [0, 1, 2] }
+
+  - kind: problem
+    id: faerben-variante
+    widget: fraction
+    prompt: Shade {{k}}/{{n}} of the strip.
+    params: { parts: "{{n}}" }
+    answer: { fraction: "{{k}}/{{n}}" }
+    feedback:
+      - when: "shadedCount == n - k && k != n - k"
+        misconception: complement
+        text: You shaded the parts that should stay empty. You need to shade {{k}} parts.
+    hints:
+      - The denominator {{n}} tells you how many parts there are.
+      - The numerator {{k}} tells you how many to shade.
+    explanation: "Shade {{k}} of {{n}} parts."
+    variants:
+      params: { n: "choice[3,4,5,6,8]", k: "int[1,7]" }
+      constraints: ["k < n"]
+      defaults: { n: 5, k: 2 }
+
+  - kind: problem
+    id: pizza
+    widget: fraction
+    prompt: Shade 5/8 of the pizza.
+    params: { parts: 8, shape: circle }
+    answer: { fraction: "5/8" }
+    hints:
+      - The pizza is cut into 8 equal slices.
+    explanation: 5 of 8 slices.
+
+  - kind: problem
+    id: ablesen
+    widget: choice
+    visual:
+      widget: fraction
+      params: { parts: 6, shaded: [0, 1] }
+    prompt: Which fraction is shaded?
+    params:
+      layout: grid
+      options:
+        - label: "2/6"
+          correct: true
+        - label: "2/4"
+          feedback: You compared shaded with unshaded parts. The denominator counts all parts.
+        - label: "6/2"
+          feedback: Numerator and denominator are swapped. The denominator is the number of all parts.
+        - label: "4/6"
+          feedback: That is the part that is not shaded.
+    hints:
+      - How many parts does the strip have in total?
+    explanation: 2 of 6 parts are shaded, so 2/6.
+
+  - kind: problem
+    id: neu-teilen
+    widget: fraction
+    prompt: It doesn't work with 4 parts. Divide the strip again and shade 1/3.
+    params: { parts: 4, partOptions: [2, 3, 4, 6] }
+    answer: { fraction: "1/3" }
+    hints:
+      - 1/3 means dividing the whole into 3 equal parts.
+      - At the top, choose "3 parts" and shade one.
+    explanation: Divide into 3 parts and shade one. With 6 parts and 2 shaded, it works too.
+
+  - kind: problem
+    id: kuchen-rest
+    widget: numeric
+    prompt: A cake has {{n}} equal pieces. {{k}} pieces have been eaten. What fraction is left?
+    params: { placeholder: "e.g. 3/4" }
+    answer: { value: "{{n - k}}/{{n}}" }
+    feedback:
+      - when: "approx(numval(state.input), k / n)"
+        misconception: complement
+        text: That is the part that was eaten. The question is what is left.
+    hints:
+      - How many pieces are still there?
+      - "{{n}} − {{k}} pieces of {{n}} are left."
+    explanation: "{{n - k}} of {{n}} pieces are left: {{n - k}}/{{n}}."
+    difficulty: 2
+    variants:
+      params: { n: "choice[4,5,6,8,10,12]", k: "int[1,3]" }
+      constraints: ["k < n", "n != 2 * k"]
+      defaults: { n: 8, k: 3 }
+
+srs:
+  cards_from: ["steps[2]", "steps[6]"]

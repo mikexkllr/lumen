@@ -80,7 +80,7 @@ export function Profile() {
         <h2 id="set-h">{t('settings.title')}</h2>
         <div className="list">
           <div className="list-row"><span className="lbl">{t('settings.theme')}</span><Segmented label={t('settings.theme')} value={settings.theme} options={(['system', 'light', 'dark'] as const).map((v) => ({ value: v, label: t(`settings.theme.${v}`) }))} onChange={(v) => updateSettings({ theme: v })} /></div>
-          <div className="list-row"><span className="lbl">{t('settings.language')}</span><Segmented label={t('settings.language')} value={settings.locale} options={[{ value: 'de', label: 'DE' }, { value: 'en', label: 'EN' }]} onChange={(v) => updateSettings({ locale: v })} /></div>
+          <div className="list-row"><span className="lbl">{t('settings.language')}</span><Segmented label={t('settings.language')} value={settings.locale} options={[{ value: 'de', label: 'Deutsch' }, { value: 'en', label: 'English' }]} onChange={(v) => updateSettings({ locale: v })} /></div>
           <div className="list-row"><span className="lbl">{t('settings.dailyGoal')}</span><Segmented label={t('settings.dailyGoal')} value={settings.dailyGoal} options={[5, 10, 15, 20].map((m) => ({ value: m, label: `${m}′` }))} onChange={(v) => updateSettings({ dailyGoal: v })} /></div>
           <div className="list-row"><span className="lbl">{t('settings.fontSize')}</span><Segmented label={t('settings.fontSize')} value={settings.fontScale} options={[{ value: 0.9, label: 'S' }, { value: 1, label: 'M' }, { value: 1.15, label: 'L' }, { value: 1.3, label: 'XL' }]} onChange={(v) => updateSettings({ fontScale: v })} /></div>
         </div>

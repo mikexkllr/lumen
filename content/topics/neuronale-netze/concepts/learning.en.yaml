@@ -1,0 +1,88 @@
+id: ai.neural.learning
+type: concept
+title: Learning Means Shrinking the Error
+summary: Training, error, and memorizing.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: anpassen
+    widget: slider
+    prompt: Set the line so that it passes exactly through all the points.
+    params:
+      expr: "m*x + b"
+      x: [-3, 5]
+      y: [-2, 4]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Slope, min: -1, max: 2, step: 0.25, initial: 1.5 }
+        - { id: b, label: Height, min: -2, max: 3, step: 0.5, initial: -1 }
+      markers:
+        - { x: -2, y: 0 }
+        - { x: 0, y: 1 }
+        - { x: 2, y: 2 }
+        - { x: 4, y: 3 }
+    answer: { values: { m: 0.5, b: 1 } }
+    hints:
+      - Where does the line cross the y-axis?
+      - For each step to the right, it goes up half a step.
+    explanation: y = 0.5 · x + 1. That is exactly what training does – turn the dials until the error disappears.
+
+  - kind: explain
+    body: |
+      A network learns from examples. It measures the **error** – how far off is it?
+      Then it turns each weight a little so that the error gets smaller.
+
+  - kind: problem
+    id: fehler
+    widget: numeric
+    prompt: The model predicts 3, 5, and 8. The correct values are 4, 5, and 6. What is the mean error (ignoring sign)?
+    params: { placeholder: "Error" }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: sum-not-mean
+        text: That is the total error. Also divide by the number of examples.
+    hints:
+      - The distances are 1, 0, and 2.
+    explanation: (1 + 0 + 2) / 3 = 1.
+
+  - kind: explain
+    body: |
+      **Overfitting:** A model that memorizes the examples fails on new data.
+      That is why you test it with data it has never seen.
+
+  - kind: problem
+    id: auswendig
+    widget: choice
+    prompt: A model recognizes 100% of the training images, but only 60% of new images. What happened?
+    params:
+      options:
+        - { label: It memorized them., correct: true }
+        - { label: The new images are wrong., feedback: "Possible, but unlikely. The large gap is a typical warning sign." }
+        - { label: It needs more training on the same images., feedback: "That would reinforce the memorizing." }
+    hints:
+      - What does it mean when training and test results are so far apart?
+    explanation: This is **overfitting**. More varied data or a simpler model helps.
+
+  - kind: problem
+    id: daten
+    widget: buckets
+    prompt: Does this help training – or harm it?
+    params:
+      buckets: [{ label: helps }, { label: harms }]
+      items:
+        - { label: Many different examples, bucket: helps }
+        - { label: Keeping test data separate, bucket: helps }
+        - { label: Examples from all groups, bucket: helps }
+        - { label: Only photos in sunshine, bucket: harms }
+        - { label: Wrong labels, bucket: harms }
+        - { label: Training on the test data, bucket: harms }
+    hints:
+      - What should the model be able to do later?
+    explanation: Good data is varied, correctly labeled, and kept apart from the test.
+
+srs:
+  cards_from: [fehler, auswendig]

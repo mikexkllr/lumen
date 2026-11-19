@@ -1,0 +1,80 @@
+id: geo.solids.scale
+type: concept
+title: Building bigger
+summary: Length times k, volume times k³.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: verdoppeln
+    widget: choice
+    prompt: You double all edges of a cube. How does the volume change?
+    params:
+      options:
+        - { label: It becomes 8 times as big., correct: true }
+        - { label: It becomes twice as big., feedback: "That would be if only one edge grew. Here all three grow." }
+        - { label: It becomes 4 times as big., feedback: "That is true for areas. Volume has one more dimension." }
+    hints:
+      - How many small cubes fit into one twice as big?
+    explanation: 2 · 2 · 2 = 8. Eight small cubes make one big one.
+
+  - kind: explain
+    body: |
+      If everything becomes k times as long, **areas** grow by k² and **volumes** by k³.
+
+  - kind: problem
+    id: volumen-k
+    widget: numeric
+    prompt: All edges of a solid become {{k}} times as long. How many times as big does the volume become?
+    params: { placeholder: "times" }
+    answer: { value: "{{k ** 3}}" }
+    feedback:
+      - when: "numval(state.input) == k * k"
+        misconception: area-for-volume
+        text: That is true for areas. For volume, the height comes in too.
+    hints:
+      - "Calculate {{k}} · {{k}} · {{k}}."
+    explanation: "{{k}}³ = {{k ** 3}}."
+    variants:
+      params: { k: "int[2,5]" }
+      defaults: { k: 3 }
+
+  - kind: problem
+    id: flaeche-k
+    widget: numeric
+    prompt: "And the surface area: how many times as big does it become if all edges become {{k}} times as long?"
+    params: { placeholder: "times" }
+    answer: { value: "{{k * k}}" }
+    feedback:
+      - when: "numval(state.input) == k ** 3"
+        misconception: volume-for-area
+        text: That is true for volume. Areas have only two directions.
+    hints:
+      - Each face grows in length and width.
+    explanation: "{{k}}² = {{k * k}}."
+    variants:
+      params: { k: "int[2,5]" }
+      defaults: { k: 3 }
+
+  - kind: explain
+    body: Why are there no ants as big as horses?
+    reveal:
+      body: Weight grows with k³, but the thickness of the legs only with k². Beyond a certain size, the legs can no longer carry the body.
+
+  - kind: problem
+    id: statue
+    widget: choice
+    prompt: A statue is rebuilt at half the size. How much bronze do you need in comparison?
+    params:
+      options:
+        - { label: One eighth, correct: true }
+        - { label: Half, feedback: "Only the height halves that way. Width and depth halve too." }
+        - { label: One quarter, feedback: "That is true for the surface area." }
+    hints:
+      - "k = 1/2. Calculate k³."
+    explanation: (1/2)³ = 1/8.
+
+srs:
+  cards_from: [volumen-k, statue]

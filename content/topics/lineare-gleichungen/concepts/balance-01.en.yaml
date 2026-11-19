@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.balance-01
+type: concept
+title: Equations as a balance scale
+summary: Whatever you do on the left, do on the right too. Then everything stays balanced.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.balance, alg.solve-one-step]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      On the scale, there is a crate **x** and 3 weights on the left. There are 7 weights on the right.
+      The scale is balanced: both sides weigh the same.
+    visual:
+      widget: balance
+      params: { left: { x: 1, units: 3 }, right: { x: 0, units: 7 } }
+
+  - kind: problem
+    id: kippt
+    widget: choice
+    visual:
+      widget: balance
+      params: { left: { x: 1, units: 3 }, right: { x: 0, units: 7 } }
+    prompt: What happens if you remove a weight from the left side only?
+    params:
+      options:
+        - label: The scale tips to the right.
+          correct: true
+        - label: The scale tips to the left.
+          feedback: The left side gets lighter, not heavier. The heavier side sinks.
+        - label: It stays balanced.
+          feedback: Then the left side is missing a weight and the right is not. The balance is gone.
+    hints:
+      - Which side is heavier afterward?
+    explanation: The left side is missing a weight, the right is not. The right side is heavier and sinks.
+
+  - kind: problem
+    id: x-allein
+    widget: balance
+    params:
+      left: { x: 1, units: "{{a}}" }
+      right: { x: 0, units: "{{a + b}}" }
+      allow: [remove_unit]
+    prompt: Remove weights until crate x is alone. The scale must not tip.
+    check:
+      predicate: "state.left.x == 1 && state.left.units == 0 && state.right.units == b && state.balanced"
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: The scale tipped! You changed only one side. Always remove the same amount from both sides.
+    hints:
+      - Remove the same amount from both sides.
+      - How many weights must leave the left so x is alone? Remove just as many on the right.
+    explanation: There are {{a}} weights next to x on the left. Remove {{a}} from both sides. {{b}} remain on the right, so x = {{b}}.
+    variants:
+      params: { a: "int[1,6]", b: "int[1,8]" }
+      defaults: { a: 3, b: 4 }
+
+  - kind: explain
+    body: |
+      That was a **transformation**: you did the same thing to both sides.
+      $x + 3 = 7$ became $x = 4$ because you removed 3 from both sides.
+
+  - kind: problem
+    id: kisten-beide-seiten
+    widget: balance
+    params:
+      left: { x: 2, units: 1 }
+      right: { x: 1, units: 6 }
+      allow: [remove_unit, remove_x]
+    prompt: Now there are crates on both sides. Get one crate x alone on one side.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: The scale tips. You also remove crates from both sides at once.
+    hints:
+      - You can remove a crate from both sides too.
+      - First remove one crate from both sides. Then deal with the weights.
+    explanation: "From 2x + 1 = x + 6, removing one crate gives x + 1 = 6, then x = 5."
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: "Solve without the scale: $x + {{a}} = {{a + b}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "numval(state.input) == a + (a + b)"
+        misconception: inverse-op
+        text: You added. To get x alone, you must remove {{a}} from both sides.
+    hints:
+      - Which number must you remove from both sides?
+      - "Calculate {{a + b}} − {{a}}."
+    explanation: "Remove {{a}} from both sides: x = {{a + b}} − {{a}} = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "int[2,9]", b: "int[1,9]" }
+      defaults: { a: 5, b: 7 }
+
+  - kind: problem
+    id: welche-umformung
+    widget: choice
+    prompt: Which transformation keeps the scale balanced?
+    params:
+      options:
+        - label: Remove 2 weights from both sides
+          correct: true
+        - label: Remove 2 from the left, add 2 to the right
+          feedback: The left gets lighter and the right heavier. The scale tips twice as far.
+        - label: Remove 2 weights from the right only
+          feedback: Changing only one side always throws the scale off balance.
+    hints:
+      - Both sides must change the same way.
+    explanation: The scale stays balanced only if both sides lose (or gain) the same amount.
+
+srs:
+  cards_from: ["steps[2]", "steps[5]"]

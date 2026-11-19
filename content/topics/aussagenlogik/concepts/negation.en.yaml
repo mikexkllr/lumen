@@ -1,0 +1,75 @@
+id: logic.propositional.negation
+type: concept
+title: Negating correctly
+summary: '"All" becomes "at least one is not".'
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schwaene
+    widget: choice
+    prompt: What is the logical opposite of "All swans are white"?
+    params:
+      options:
+        - { label: At least one swan is not white., correct: true }
+        - { label: All swans are black., feedback: "That is an extreme, not the opposite. A single dark swan is enough." }
+        - { label: No swan is white., feedback: "Too strong. It is enough if one is not white." }
+    hints:
+      - What would you need to find to refute the statement?
+    explanation: A single non-white swan refutes "all".
+
+  - kind: explain
+    body: |
+      You negate **all** with **at least one not**.
+      You negate **there is** with **none**.
+
+  - kind: problem
+    id: kuchen
+    widget: choice
+    prompt: What is the opposite of "Someone ate the cake"?
+    params:
+      options:
+        - { label: Nobody ate the cake., correct: true }
+        - { label: Someone did not eat the cake., feedback: "That can be true at the same time as the statement." }
+        - { label: Everyone ate the cake., feedback: "That even fits the statement." }
+    hints:
+      - When would "someone ate …" be false?
+    explanation: '"There is someone" is false only if there is no one.'
+
+  - kind: explain
+    body: |
+      **De Morgan:** ¬(A ∧ B) is ¬A ∨ ¬B. And ¬(A ∨ B) is ¬A ∧ ¬B.
+      When you negate, *and* and *or* swap places.
+
+  - kind: problem
+    id: und-verneinen
+    widget: choice
+    prompt: What is the opposite of "It is raining and it is cold"?
+    params:
+      options:
+        - { label: It is not raining or it is not cold., correct: true }
+        - { label: It is not raining and it is not cold., feedback: "Too strict. Even warm rain makes the statement false." }
+        - { label: It is raining or it is cold., feedback: "The negation is missing here." }
+    hints:
+      - The statement is false as soon as one part is not true.
+    explanation: By De Morgan, "and" becomes "or", and both parts are negated.
+
+  - kind: problem
+    id: weder-noch
+    widget: gates
+    prompt: The lamp should light only if both switches are off. Choose the first gate.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [AND, OR] }
+        - { id: n, type: NOT, in: [g] }
+      outputs: [{ id: Q, from: n, label: Lamp }]
+    check: { predicate: "table('Q') == [1, 0, 0, 0]" }
+    hints:
+      - Neither A nor B means not (A or B).
+    explanation: Not (A or B) is the same as "not A and not B".
+
+srs:
+  cards_from: [schwaene, und-verneinen]

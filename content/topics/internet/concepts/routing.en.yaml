@@ -1,0 +1,75 @@
+id: cs.internet.routing
+type: concept
+title: Routers and detours
+summary: Packets find the fastest path.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: route
+    widget: network
+    prompt: Find the fastest path for a packet from K to W. The numbers are milliseconds.
+    params:
+      start: K
+      end: W
+      unit: ms
+      nodes:
+        - { id: K, x: 4, y: 40 }
+        - { id: HH, x: 34, y: 6 }
+        - { id: F, x: 30, y: 72 }
+        - { id: B, x: 66, y: 12 }
+        - { id: M, x: 64, y: 90 }
+        - { id: W, x: 96, y: 60 }
+      edges:
+        - { a: K, b: HH, w: 6 }
+        - { a: K, b: F, w: 3 }
+        - { a: F, b: HH, w: 5 }
+        - { a: HH, b: B, w: 4 }
+        - { a: F, b: M, w: 6 }
+        - { a: F, b: B, w: 9 }
+        - { a: B, b: W, w: 8 }
+        - { a: M, b: W, w: 4 }
+    hints:
+      - Work out both routes, via B and via M.
+    explanation: K → F → M → W costs 3 + 6 + 4 = 13 ms and is the fastest.
+
+  - kind: explain
+    body: |
+      **Routers** are the switches of the internet. They know their neighbors and send each packet in the best direction.
+      This way, the network finds paths without anyone planning everything.
+
+  - kind: problem
+    id: ausfall
+    widget: choice
+    prompt: A cable between two cities fails. What happens?
+    params:
+      options:
+        - { label: The packets automatically take a detour., correct: true }
+        - { label: The internet goes down across all of Europe., feedback: "The network structure prevents exactly that." }
+        - { label: "All packets wait until the cable is repaired.", feedback: "Routers immediately look for another route." }
+    hints:
+      - Why does a network have many connections?
+    explanation: The internet was built so that single failures are routed around.
+
+  - kind: problem
+    id: download
+    widget: numeric
+    prompt: A file is {{m}} MB. Your line manages {{r}} Mbit per second. How many seconds does the download take?
+    body: 1 byte is 8 bits.
+    params: { unit: seconds }
+    answer: { value: "{{m * 8 / r}}" }
+    feedback:
+      - when: "numval(state.input) == m / r"
+        misconception: bits-vs-bytes
+        text: MB are megabytes, Mbit are megabits. A byte has 8 bits.
+    hints:
+      - "First convert {{m}} MB to megabits – times 8."
+    explanation: "{{m}} · 8 = {{m * 8}} Mbit, divided by {{r}} is {{m * 8 / r}} seconds."
+    variants:
+      params: { m: "choice[50,100,250]", r: "choice[25,50,100]" }
+      defaults: { m: 100, r: 50 }
+
+srs:
+  cards_from: [download, ausfall]

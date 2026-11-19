@@ -99,7 +99,7 @@ const KIND_DE: Record<string, string> = {
   pixels: 'Felder schalten',
   bits: 'Bits schalten',
   robot: 'Roboter programmieren',
-  logicgrid: 'Logikgitter ausfüllen',
+  'logic-grid': 'Logikgitter ausfüllen',
   chart: 'Diagramm ablesen oder einstellen',
   distribution: 'Verteilung einstellen',
   nim: 'Spiel gegen den Computer',
@@ -107,6 +107,35 @@ const KIND_DE: Record<string, string> = {
   angle: 'Winkel einstellen',
   rect: 'Rechteck einstellen',
   swap: 'Balken tauschen',
+};
+
+const KIND_EN: Record<string, string> = {
+  choice: 'choice – tap one option',
+  numeric: 'enter a number',
+  expression: 'enter an expression',
+  order: 'put things in the right order',
+  tiles: 'build from tiles',
+  buckets: 'sort cards into groups',
+  match: 'connect pairs',
+  graph: 'place points on the coordinate plane',
+  slider: 'set a slider',
+  numberline: 'mark a point on the number line',
+  fraction: 'shade a fraction',
+  balance: 'balance the scale',
+  gates: 'choose logic gates',
+  network: 'tap in the network',
+  venn: 'shade regions of a Venn diagram',
+  pixels: 'toggle cells',
+  bits: 'toggle bits',
+  robot: 'program the robot',
+  'logic-grid': 'fill in the logic grid',
+  chart: 'read or adjust the chart',
+  distribution: 'set the distribution',
+  nim: 'play against the computer',
+  hanoi: 'move the towers',
+  angle: 'set the angle',
+  rect: 'adjust the rectangle',
+  swap: 'swap bars',
 };
 
 const LETTERS = 'ABCDEFGH';
@@ -318,7 +347,7 @@ function contextBlock(ctx: TutorContext): string {
   if (ctx.course || ctx.lesson) lines.push(`${L.lesson}: ${[ctx.course, ctx.lesson].filter(Boolean).join(' › ')}`);
   lines.push(`${L.task}: ${ctx.task}`);
   if (ctx.status === 'explain') return lines.join('\n');
-  lines.push(`${L.format}: ${de ? (KIND_DE[ctx.kind] ?? ctx.kind) : ctx.kind}`);
+  lines.push(`${L.format}: ${(de ? KIND_DE : KIND_EN)[ctx.kind] ?? ctx.kind}`);
   if (ctx.options?.length) lines.push(`${L.options}: ${ctx.options.join(' · ')}`);
   if (ctx.setup) lines.push(`${L.setup}: ${ctx.setup}`);
   if (ctx.status === 'unanswered') lines.push(`${L.state}: ${L.open}`);
@@ -502,7 +531,7 @@ export function ruleReply(ctx: TutorContext, intent: TutorIntent, turn = 0, mess
         noMore: 'I have no more hints here. Give it another try – or use »Show solution« to see it explained.',
         look: 'Look at your answer again step by step.',
         task: 'Read the task in two parts: what is given – and what is asked?',
-        format: (k: string) => `Here you: ${k}.`,
+        format: (k: string) => `Your job here: ${KIND_EN[k] ?? 'solve the task'}.`,
         tip: 'Hint:',
         explainStep: 'Read the section again slowly. Which sentence is unclear to you? Send it to me and we go through it together.',
         try: 'What would you try next?',

@@ -1,0 +1,75 @@
+id: geo.circles.pi
+type: concept
+title: The number π
+summary: Every circle has the same ratio.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rad
+    widget: choice
+    prompt: A wheel with a 1 m diameter rolls exactly one turn. How far does it go?
+    params:
+      layout: grid
+      options:
+        - { label: A bit over 3 m, correct: true }
+        - { label: 1 m, feedback: "The rim is much longer than the diameter. Picture the wheel unrolled." }
+        - { label: 2 m, feedback: "Closer – but the circumference is more than twice as long." }
+        - { label: 6 m, feedback: "Too much. That would be about right for a 2 m diameter." }
+    hints:
+      - When rolling, the wheel covers its circumference.
+    explanation: The circumference is about 3.14 m – a bit over three times the diameter.
+
+  - kind: explain
+    body: |
+      In **every** circle, the circumference is about 3.14 times as long as the diameter.
+      This number is called **π** (pi). It has infinitely many digits.
+
+  - kind: problem
+    id: umfang-d
+    widget: numeric
+    prompt: A circle has a diameter of {{d}} cm. How long is its circumference? Use π ≈ 3.14.
+    params: { unit: cm }
+    answer: { value: "{{d * 3.14}}", tolerance: 0.1 }
+    feedback:
+      - when: "abs(numval(state.input) - 2 * 3.14 * d) < 0.2"
+        misconception: radius-formula
+        text: You used 2 · π. You only need that with the radius.
+    hints:
+      - Circumference = π · diameter.
+    explanation: "3.14 · {{d}} = {{d * 3.14}} cm."
+    variants:
+      params: { d: "int[2,20]" }
+      defaults: { d: 10 }
+
+  - kind: explain
+    body: |
+      **C = π · d = 2 · π · r.**
+      The radius r is half the diameter.
+
+  - kind: problem
+    id: umfang-r
+    widget: numeric
+    prompt: A circle has a radius of {{r}} cm. How long is its circumference? Use π ≈ 3.14.
+    params: { unit: cm }
+    answer: { value: "{{2 * 3.14 * r}}", tolerance: 0.1 }
+    feedback:
+      - when: "abs(numval(state.input) - 3.14 * r) < 0.2"
+        misconception: radius-as-diameter
+        text: You used the radius like the diameter. Double it first.
+    hints:
+      - The diameter is twice as long as the radius.
+    explanation: "2 · 3.14 · {{r}} = {{2 * 3.14 * r}} cm."
+    variants:
+      params: { r: "int[2,15]" }
+      defaults: { r: 5 }
+
+  - kind: explain
+    body: How many digits of π do you need to steer space probes?
+    reveal:
+      body: Only about 15. Even for a circle as large as our solar system, the error is then just a few centimeters.
+
+srs:
+  cards_from: [umfang-d, umfang-r]

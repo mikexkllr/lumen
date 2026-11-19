@@ -1,0 +1,132 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.solve
+type: concept
+title: Solving without the scale
+summary: Every operation has an inverse. Use it to get x out of any simple equation.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.solve-two-step, alg.terms]
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: minus
+    widget: numeric
+    prompt: "Solve: $x - 4 = 9$"
+    answer: { value: 13 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: inverse-op
+        text: You subtracted 4. But 4 was already subtracted here, so you must add 4.
+    hints:
+      - Which operation undoes "− 4"?
+      - Add 4 on both sides.
+    explanation: "x − 4 = 9 → add 4 to both sides → x = 13."
+
+  - kind: explain
+    body: |
+      A balance scale can't show negative numbers. The rule still holds:
+      plus and minus cancel each other, and so do times and divide.
+
+  - kind: problem
+    id: kacheln
+    widget: tiles
+    prompt: "Build the equation after the first step of $3x + 5 = 20$."
+    params:
+      tiles: ["3x", "=", "15", "25", "x", "+", "5"]
+    answer:
+      sequence: ["3x", "=", "15"]
+    hints:
+      - Remove 5 from both sides.
+      - 3x stays on the left, and 20 − 5 on the right.
+    feedback:
+      - when: "state.placed.length == 3 && state.placed[2] == 3"
+        misconception: inverse-op
+        text: You added 5 instead of subtracting it.
+    explanation: "3x + 5 = 20 → − 5 on both sides → 3x = 15."
+
+  - kind: problem
+    id: minus-variante
+    widget: numeric
+    prompt: "Solve: $x - {{a}} = {{b}}$"
+    answer: { value: "{{a + b}}" }
+    feedback:
+      - when: "numval(state.input) == b - a"
+        misconception: inverse-op
+        text: You subtracted {{a}}. You undo "− {{a}}" with "+ {{a}}".
+    hints:
+      - Which operation undoes "− {{a}}"?
+    explanation: "x = {{b}} + {{a}} = {{a + b}}."
+    variants:
+      params: { a: "int[2,9]", b: "int[2,12]" }
+      constraints: ["b != a"]
+      defaults: { a: 6, b: 8 }
+
+  - kind: problem
+    id: einsetzen
+    widget: choice
+    prompt: Which equation has the solution $x = 3$?
+    params:
+      options:
+        - label: "2x + 1 = 7"
+          correct: true
+        - label: "x + 3 = 0"
+          feedback: "Plug in: 3 + 3 = 6, not 0."
+        - label: "4x = 7"
+          feedback: "Plug in: 4 · 3 = 12, not 7."
+        - label: "x − 3 = 3"
+          feedback: "Plug in: 3 − 3 = 0, not 3."
+    hints:
+      - Plug in 3 for x and work out both sides.
+    explanation: "Only 2 · 3 + 1 = 7 has equal sides."
+
+  - kind: problem
+    id: term-aufstellen
+    widget: expression
+    prompt: Write an expression for three times a number x, decreased by 2.
+    answer: { equivalentTo: "3x - 2" }
+    feedback:
+      - when: "state.input.includes('(')"
+        misconception: brackets
+        text: You don't need parentheses here. Multiply by 3 first, then subtract 2.
+    hints:
+      - Three times x is written 3x.
+      - Decreased by 2 means "− 2".
+    explanation: "3x − 2"
+
+  - kind: problem
+    id: zwei-schritte-minus
+    widget: numeric
+    prompt: "Solve: ${{a}}x - {{u}} = {{a * b - u}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "approx(numval(state.input), (a * b - u - u) / a)"
+        misconception: inverse-op
+        text: "Check this: you subtracted {{u}}. You undo \"− {{u}}\" with \"+ {{u}}\"."
+    hints:
+      - First add {{u}} to both sides.
+      - "Then {{a}}x = {{a * b}} is left. Now divide."
+    explanation: "+ {{u}}: {{a}}x = {{a * b}}. Divide by {{a}}: x = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3,4]", b: "int[2,9]", u: "int[1,9]" }
+      constraints: ["a * b - u > 0"]
+      defaults: { a: 2, b: 7, u: 3 }
+
+  - kind: problem
+    id: klammer
+    widget: expression
+    prompt: "Expand the parentheses: $3(x + 2)$"
+    answer: { equivalentTo: "3x + 6", form: expanded }
+    feedback:
+      - when: "state.input == '3x+2' || state.input == '3x + 2'"
+        misconception: distributive-partial
+        text: The 3 applies to both terms in the parentheses, including the 2.
+    hints:
+      - Multiply the 3 by each part inside the parentheses.
+      - "3 · x and 3 · 2."
+    explanation: "3(x + 2) = 3 · x + 3 · 2 = 3x + 6."
+    difficulty: 2
+
+srs:
+  cards_from: ["steps[3]", "steps[6]"]

@@ -1,0 +1,58 @@
+id: sci.energy.costs
+type: concept
+title: What does electricity cost?
+summary: Small devices that never switch off.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: wasserkocher
+    widget: numeric
+    prompt: One kWh costs 30 cents. A kettle uses 0.1 kWh per fill. What does one fill cost?
+    params: { unit: cents }
+    answer: { value: 3 }
+    hints:
+      - 0.1 · 30 cents.
+    explanation: 0.1 kWh · 30 ct = 3 cents.
+
+  - kind: explain
+    body: |
+      **Cost = kWh · price per kWh.**
+      Anything that runs around the clock adds up. A year has 24 · 365 = 8760 hours.
+
+  - kind: problem
+    id: router
+    widget: numeric
+    prompt: A router draws 10 W all the time. How many kWh is that per year?
+    params: { unit: kWh }
+    answer: { value: 87.6, tolerance: 0.5 }
+    feedback:
+      - when: "abs(numval(state.input) - 87600) < 10"
+        misconception: wh-not-kwh
+        text: That is watt-hours. Divide by 1000.
+    hints:
+      - 10 W · 8760 h, then divide by 1000.
+    explanation: 10 · 8760 = 87,600 Wh = 87.6 kWh.
+
+  - kind: problem
+    id: standby
+    widget: numeric
+    prompt: A device draws {{w}} W on standby all year. What does that cost at 30 cents per kWh? Give euros, rounded.
+    params: { unit: "€" }
+    answer: { value: "{{round(w * 8.76 * 0.3)}}", tolerance: 1 }
+    hints:
+      - "{{w}} W · 8760 h = {{w * 8.76}} kWh."
+    explanation: "{{w * 8.76}} kWh · 0.30 € ≈ {{round(w * 8.76 * 0.3)}} €."
+    variants:
+      params: { w: "choice[5,10,15,20,30]" }
+      defaults: { w: 10 }
+
+  - kind: explain
+    body: What uses the most electricity in a typical home?
+    reveal:
+      body: Anything that heats or cools, such as hot water, the dryer, the stove and the fridge. Small devices only stand out if they run all the time.
+
+srs:
+  cards_from: [router, standby]

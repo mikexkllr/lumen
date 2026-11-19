@@ -1,0 +1,74 @@
+id: sci.energy.power
+type: concept
+title: Watts and kilowatt-hours
+summary: Power times time is energy.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: foehn
+    widget: choice
+    prompt: A hair dryer says 2000 W. What does that number tell you?
+    params:
+      options:
+        - { label: How fast it uses energy, correct: true }
+        - { label: How much it uses in total, feedback: "That depends on how long it runs." }
+        - { label: How hot it gets, feedback: "Watts measure power, not temperature." }
+    hints:
+      - Watt is a unit of power, which is energy per time.
+    explanation: Watt is the **power**. Only with time does it become energy used.
+
+  - kind: explain
+    body: |
+      **Power** (watts) tells you how fast energy flows. **Energy** is power times time.
+      1000 watts for one hour gives 1 **kilowatt-hour** (kWh).
+
+  - kind: problem
+    id: viertelstunde
+    widget: numeric
+    prompt: A 2000 W hair dryer runs for 15 minutes. How many kWh does it use?
+    params: { unit: kWh }
+    answer: { value: 0.5 }
+    feedback:
+      - when: "numval(state.input) == 30000"
+        misconception: watt-minutes
+        text: Work in kilowatts and hours. That is 2 kW and a quarter of an hour.
+    hints:
+      - 2000 W is 2 kW, and 15 minutes is 0.25 hours.
+    explanation: 2 kW · 0.25 h = 0.5 kWh.
+
+  - kind: problem
+    id: geraet
+    widget: numeric
+    prompt: A {{w}} W device runs for {{h}} hours. How many kWh does it use?
+    params: { unit: kWh }
+    answer: { value: "{{w * h / 1000}}" }
+    feedback:
+      - when: "numval(state.input) == w * h"
+        misconception: wh-not-kwh
+        text: That is watt-hours. Divide by 1000 as well.
+    hints:
+      - "{{w}} W · {{h}} h, then divide by 1000."
+    explanation: "{{w}} · {{h}} = {{w * h}} Wh = {{w * h / 1000}} kWh."
+    variants:
+      params: { w: "choice[50,100,500,1500]", h: "choice[2,4,6]" }
+      defaults: { w: 100, h: 4 }
+
+  - kind: problem
+    id: leistungen
+    widget: match
+    prompt: Which power rating fits which device, roughly?
+    params:
+      pairs:
+        - { left: LED lamp, right: 8 W }
+        - { left: Laptop, right: 50 W }
+        - { left: Vacuum cleaner, right: 700 W }
+        - { left: Kettle, right: 2000 W }
+    hints:
+      - Whatever heats needs the most.
+    explanation: Heating and cooking need the most power. Light needs the least.
+
+srs:
+  cards_from: [viertelstunde, geraet]

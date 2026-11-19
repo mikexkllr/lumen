@@ -10,6 +10,10 @@ Danke, dass du Lumen besser machen willst! Beiträge zu Inhalten, Widgets, App u
 4. Pull Request öffnen. Zwei Reviews sind nötig: eines **fachlich**, eines **didaktisch**.
 5. Nach dem Merge baut die CI signierte Bundles, und die Apps laden sie beim nächsten Start.
 
+## Übersetzen
+
+Übersetzungen liegen als `name.en.yaml` neben dem Original (Details in [docs/content-format.md](docs/content-format.md#übersetzungen)). Nur den Wortlaut übersetzen, nie IDs, Zahlen, Bedingungen oder `{{Vorlagen}}`. `node scripts/check-translation.ts en <topic>` muss mit 0 Fehlern, 0 Warnungen und 0 fehlenden Dateien enden. Wer ein deutsches Concept ändert, passt die Übersetzung im selben PR an.
+
 ## Didaktischer Styleguide
 
 - **Problem zuerst**, dann die Prozedur. Ein Concept beginnt nicht mit drei Erklär-Screens.

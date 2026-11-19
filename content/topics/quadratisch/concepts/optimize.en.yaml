@@ -1,0 +1,64 @@
+id: math.quadratic.optimize
+type: concept
+title: The biggest enclosure
+summary: Parabolas have a peak.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: gehege
+    widget: rect
+    prompt: You have 16 m of fence for a rectangular enclosure. Drag it so the area is as large as possible.
+    params: { maxW: 8, maxH: 8, w: 1, perimeter: 16 }
+    check: { predicate: "area == 16" }
+    hints:
+      - Try different widths and watch the area.
+    explanation: 4 × 4, a square, gives 16 m². Every longer rectangle has less.
+
+  - kind: explain
+    body: |
+      With width x, the length is 8 − x. The area is x · (8 − x).
+      This is a **parabola**. It rises, reaches a peak and falls again.
+
+  - kind: problem
+    id: gipfel
+    widget: slider
+    prompt: Slide the parabola y = −(x − s)² + 4 so its peak is at x = 2.
+    params:
+      expr: "-(x - s)^2 + 4"
+      x: [-2, 6]
+      y: [-3, 5]
+      sliders: [{ id: s, min: -1, max: 5, step: 0.5, initial: 0 }]
+      markers: [{ x: 2, y: 4, label: Peak }]
+      showCoordinates: false
+    answer: { values: { s: 2 } }
+    hints:
+      - The vertex is at x = s.
+    explanation: With s = 2, the peak is exactly at (2 | 4).
+
+  - kind: problem
+    id: zaun
+    widget: numeric
+    prompt: With {{z}} m of fence, what is the area of the largest rectangular enclosure?
+    params: { unit: m² }
+    answer: { value: "{{(z / 4) ** 2}}" }
+    feedback:
+      - when: "numval(state.input) == z"
+        misconception: perimeter-for-area
+        text: That is the perimeter. Split it into four equal sides.
+    hints:
+      - "The largest is a square with side {{z}} ÷ 4."
+    explanation: "Side {{z / 4}} m, area {{(z / 4) ** 2}} m²."
+    variants:
+      params: { z: "choice[12,20,24,40]" }
+      defaults: { z: 20 }
+
+  - kind: explain
+    body: Where do you meet a peak like this in everyday life?
+    reveal:
+      body: In the price of a product. If it is too low, you earn little. If it is too high, nobody buys. In between lies the peak, often a parabola.
+
+srs:
+  cards_from: [zaun, gehege]

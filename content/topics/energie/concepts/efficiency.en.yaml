@@ -1,0 +1,79 @@
+id: sci.energy.efficiency
+type: concept
+title: Efficiency
+summary: How much really arrives?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: gluehbirne
+    widget: choice
+    prompt: A 60 W incandescent bulb is as bright as an 8 W LED. Where does the rest of the energy go?
+    params:
+      options:
+        - { label: Into heat, correct: true }
+        - { label: "Into light you can't see", feedback: "A small part is infrared, but that is heat." }
+        - { label: It is lost, feedback: "Energy is never lost. It only changes form." }
+    hints:
+      - Better not touch an old incandescent bulb.
+    explanation: Most of the energy becomes heat. Only a small part becomes light.
+
+  - kind: explain
+    body: |
+      **Efficiency** = useful energy ÷ energy input.
+      An incandescent bulb turns only about 5% into light. An LED turns about 40%.
+
+  - kind: problem
+    id: motor
+    widget: numeric
+    prompt: A motor takes in {{e}} joules and delivers {{n}} joules of motion. What is its efficiency?
+    params: { unit: "%" }
+    answer: { value: "{{100 * n / e}}" }
+    hints:
+      - "{{n}} divided by {{e}}, times 100."
+    explanation: "{{n}} ÷ {{e}} = {{n / e}}, so {{100 * n / e}}%."
+    variants:
+      params: { e: "choice[1000,2000,500]", p: "choice[25,40,80,90]" }
+      derive: { n: "e * p / 100" }
+      defaults: { e: 1000, p: 80 }
+
+  - kind: problem
+    id: sparen
+    widget: numeric
+    prompt: What percent of electricity does an 8 W LED save compared with a 60 W incandescent bulb? Round to whole percent.
+    params: { unit: "%" }
+    answer: { value: 87, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 52"
+        misconception: watts-as-percent
+        text: 52 W is the saving in watts. Divide it by 60.
+    hints:
+      - The saving is 52 W out of 60 W.
+    explanation: "52 ÷ 60 ≈ 0.87, so about 87% less."
+
+  - kind: problem
+    id: einordnen
+    widget: buckets
+    prompt: High or low efficiency?
+    params:
+      buckets: [{ label: high – over 80% }, { label: low – under 40% }]
+      items:
+        - { label: Electric motor, bucket: high – over 80% }
+        - { label: Transformer, bucket: high – over 80% }
+        - { label: Charging and discharging a battery, bucket: high – over 80% }
+        - { label: Incandescent bulb, bucket: low – under 40% }
+        - { label: Gasoline engine, bucket: low – under 40% }
+        - { label: Cooking over an open fire, bucket: low – under 40% }
+    hints:
+      - Where is a lot of waste heat produced?
+    explanation: Electrical machines are very efficient. Combustion loses a lot as heat.
+
+  - kind: explain
+    body: Can efficiency be above 100%?
+    reveal:
+      body: No. Energy does not come from nothing. A heat pump does deliver more heat than the electricity it uses. But it takes the rest from the surroundings.
+
+srs:
+  cards_from: [motor, sparen]

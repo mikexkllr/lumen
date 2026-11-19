@@ -1,0 +1,82 @@
+id: geo.solids.surface
+type: concept
+title: Surface area
+summary: All faces together.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wuerfel-o
+    widget: numeric
+    prompt: A cube has edge length {{a}} cm. What is its surface area?
+    params: { unit: cm² }
+    answer: { value: "{{6 * a * a}}" }
+    feedback:
+      - when: "numval(state.input) == a ** 3"
+        misconception: volume-for-surface
+        text: That is the volume. The surface area is made of the faces.
+    hints:
+      - A cube has 6 equal square faces.
+    explanation: "6 · {{a}}² = {{6 * a * a}} cm²."
+    variants:
+      params: { a: "int[2,8]" }
+      constraints: ["a != 6"]
+      defaults: { a: 3 }
+
+  - kind: explain
+    body: |
+      The **surface area** is the sum of all faces.
+      A cuboid has three pairs of equal rectangles.
+
+  - kind: problem
+    id: quader-o
+    widget: numeric
+    prompt: A cuboid is {{a}} cm long, {{b}} cm wide and {{c}} cm tall. What is its surface area?
+    params: { unit: cm² }
+    answer: { value: "{{2 * (a * b + a * c + b * c)}}" }
+    feedback:
+      - when: "numval(state.input) == a * b + a * c + b * c"
+        misconception: half-surface
+        text: "Every face appears twice: top and bottom, front and back, left and right."
+    hints:
+      - "Calculate {{a}} · {{b}}, {{a}} · {{c}} and {{b}} · {{c}}, each counted twice."
+    explanation: "2 · ({{a * b}} + {{a * c}} + {{b * c}}) = {{2 * (a * b + a * c + b * c)}} cm²."
+    variants:
+      params: { a: "int[3,8]", b: "int[2,5]", c: "int[1,4]" }
+      defaults: { a: 5, b: 4, c: 2 }
+
+  - kind: problem
+    id: netze
+    widget: choice
+    prompt: How many different cube nets are there, meaning fold patterns made of six squares?
+    params:
+      layout: grid
+      options:
+        - { label: "11", correct: true }
+        - { label: "6", feedback: "There are more patterns than faces." }
+        - { label: "4", feedback: "There are many more. Try it with paper." }
+        - { label: "24", feedback: "Too many. Rotated and mirrored patterns count only once." }
+    hints:
+      - More than you think, but fewer than 20.
+    explanation: There are exactly 11 cube nets.
+
+  - kind: explain
+    body: For a given volume, the **sphere** has the smallest surface area. That is why soap bubbles are round and drops are almost spherical.
+
+  - kind: problem
+    id: dose
+    widget: choice
+    prompt: Which can needs the least metal for one liter?
+    params:
+      options:
+        - { label: "One that is about as tall as it is wide", correct: true }
+        - { label: A very tall and narrow one, feedback: "Tall cans have a lot of side area." }
+        - { label: A very flat and wide one, feedback: "Flat cans have huge lids." }
+    hints:
+      - Which shape comes closest to a sphere?
+    explanation: The cheapest can has height equal to diameter.
+
+srs:
+  cards_from: [wuerfel-o, quader-o]

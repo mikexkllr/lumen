@@ -1,0 +1,72 @@
+id: ai.neural.layers
+type: concept
+title: Hidden Layers
+summary: Why networks need to be deep.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: unmoeglich
+    widget: choice
+    visual:
+      widget: slider
+      interactive: true
+      params:
+        expr: "m*x + b"
+        x: [-4, 4]
+        y: [-4, 4]
+        showCoordinates: false
+        sliders:
+          - { id: m, label: Slope, min: -3, max: 3, step: 0.25, initial: 0.5 }
+          - { id: b, label: Height, min: -3, max: 3, step: 0.5, initial: 0 }
+        markers:
+          - { x: -2, y: 2, group: a }
+          - { x: 2, y: -2, group: a }
+          - { x: 2, y: 2, group: b }
+          - { x: -2, y: -2, group: b }
+    prompt: Try it out. Is there a line that separates blue from orange?
+    params:
+      options:
+        - { label: No – not a single one, correct: true }
+        - { label: "Yes", feedback: "Keep trying – every line leaves a point on the wrong side." }
+    hints:
+      - Blue is diagonal, and so is orange.
+    explanation: This pattern is called **XOR**. A single neuron cannot handle it.
+
+  - kind: explain
+    body: |
+      The solution: a **hidden layer**. Two neurons each draw a line, and a third combines them. More layers allow ever finer shapes.
+
+  - kind: problem
+    id: xor
+    widget: gates
+    prompt: Build XOR from two hidden neurons and an AND at the output.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: h1, type: "?", in: [A, B], options: [OR, AND] }
+        - { id: h2, type: "?", in: [A, B], options: [NAND, NOR] }
+        - { id: g, type: AND, in: [h1, h2] }
+      outputs: [{ id: Q, from: g, label: XOR }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0]" }
+    hints:
+      - XOR means at least one, but not both.
+    explanation: “At least one” (OR) and “not both” (NAND) – together they make XOR.
+
+  - kind: problem
+    id: gewichte
+    widget: numeric
+    prompt: A network has {{a}} inputs, {{h}} hidden neurons, and 1 output. Each layer is fully connected. How many weights are there?
+    params: { unit: weights }
+    answer: { value: "{{a * h + h}}" }
+    hints:
+      - "Inputs to hidden: {{a}} · {{h}}. Hidden to output: {{h}}."
+    explanation: "{{a * h}} + {{h}} = {{a * h + h}}. Large language models have billions of them."
+    variants:
+      params: { a: "int[2,6]", h: "int[3,8]" }
+      defaults: { a: 3, h: 4 }
+
+srs:
+  cards_from: [xor, gewichte]

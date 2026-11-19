@@ -1,0 +1,67 @@
+id: cs.graphs.social
+type: concept
+title: Social networks
+summary: Friends of friends.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: kette
+    widget: network
+    prompt: Reach the star through as few acquaintances as possible. Tap the chain.
+    params:
+      start: U
+      end: S
+      unit: steps
+      nodes:
+        - { id: U, x: 4, y: 50, label: You }
+        - { id: A, x: 30, y: 12, label: Ali }
+        - { id: B, x: 30, y: 88, label: Bea }
+        - { id: C, x: 55, y: 42, label: Cem }
+        - { id: D, x: 66, y: 90, label: Dana }
+        - { id: E, x: 78, y: 12, label: Eli }
+        - { id: S, x: 96, y: 55, label: Star }
+      edges:
+        - { a: U, b: A }
+        - { a: U, b: B }
+        - { a: A, b: C }
+        - { a: C, b: E }
+        - { a: E, b: S }
+        - { a: B, b: D }
+        - { a: D, b: S }
+        - { a: B, b: C }
+    hints:
+      - Each line is an acquaintance. Count steps.
+    explanation: You → Bea → Dana → Star, three steps.
+
+  - kind: problem
+    id: freunde
+    widget: numeric
+    prompt: How many direct contacts does Bea have in the network above?
+    params: { unit: contacts }
+    answer: { value: 3 }
+    hints:
+      - Count the lines at Bea.
+    explanation: You, Cem and Dana. In graph theory, this is called the **degree**.
+
+  - kind: explain
+    body: |
+      In real networks, almost everyone is connected within a few steps. The reason is **nodes with very many contacts**. They link distant groups.
+
+  - kind: problem
+    id: wachstum
+    widget: numeric
+    prompt: Everyone knows {{k}} people. How many people can you reach in two steps at most?
+    params: { unit: people }
+    answer: { value: "{{k * k}}" }
+    hints:
+      - "{{k}} friends with {{k}} friends each."
+    explanation: "{{k}} · {{k}} = {{k * k}}, with no overlaps. After a few steps, you reach millions."
+    variants:
+      params: { k: "choice[50,100,150,200]" }
+      defaults: { k: 100 }
+
+srs:
+  cards_from: [freunde, wachstum]

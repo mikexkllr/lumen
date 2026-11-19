@@ -1,0 +1,80 @@
+id: alg.functions.table
+type: concept
+title: Functions and value tables
+summary: Exactly one y for every x.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [fn.table]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: taxi
+    widget: numeric
+    body: A taxi costs a 3 € base fare and 1 € per kilometer.
+    prompt: What does a 5 km ride cost?
+    params: { unit: "€" }
+    answer: { value: 8 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        text: The 3 € base fare always applies.
+    hints:
+      - Base fare plus 5 kilometers.
+    explanation: 3 € + 5 · 1 € = 8 €.
+
+  - kind: explain
+    body: |
+      A **function** assigns exactly one y to every x.
+      For the taxi, $y = x + 3$ – x is the kilometers, y the price.
+    visual:
+      widget: graph
+      params: { x: [0, 8], y: [0, 10], functions: [{ expr: "x + 3" }], points: [{ id: P, x: 5, y: 8, draggable: false }] }
+
+  - kind: problem
+    id: punkt
+    widget: graph
+    prompt: Plot the point for a 4 km ride.
+    params: { x: [0, 8], y: [0, 10], points: [{ id: P, x: 0, y: 0 }] }
+    answer: { points: { P: { x: 4, y: 7 } } }
+    feedback:
+      - when: "state.points.P.x == 7 && state.points.P.y == 4"
+        misconception: swapped-coordinates
+        text: The kilometers go on the x-axis, the price on the y-axis.
+    hints:
+      - x = 4 km. What does that cost?
+      - 3 € + 4 € = 7 €.
+    explanation: At x = 4, y = 4 + 3 = 7.
+
+  - kind: problem
+    id: tabelle
+    widget: choice
+    body: |
+      x = 0 → y = 1
+      x = 1 → y = 3
+      x = 2 → y = 5
+      x = 3 → y = 7
+    prompt: Which function fits the table?
+    params:
+      options:
+        - { label: "$y = 2x + 1$", correct: true }
+        - { label: "$y = x + 1$", feedback: "Check x = 2 – that gives 3, not 5." }
+        - { label: "$y = 2x$", feedback: "Check x = 0 – that gives 0, not 1." }
+        - { label: "$y = x + 2$", feedback: "Check x = 0 – that gives 2, not 1." }
+    hints:
+      - By how much does y grow when x grows by 1?
+    explanation: y grows by 2 per step and starts at 1.
+
+  - kind: problem
+    id: einsetzen
+    widget: numeric
+    prompt: "For $y = {{m}}x {{b < 0 ? '-' : '+'}} {{abs(b)}}$: What is y at x = {{x}}?"
+    answer: { value: "{{m * x + b}}" }
+    hints:
+      - "Plug in {{x}} for x."
+    explanation: "{{m}} · {{x}} {{b < 0 ? '−' : '+'}} {{abs(b)}} = {{m * x + b}}."
+    variants:
+      params: { m: "int[2,5]", b: "nonzero[-3,5]", x: "int[1,6]" }
+      defaults: { m: 3, b: -2, x: 4 }
+
+srs:
+  cards_from: ["steps[4]"]

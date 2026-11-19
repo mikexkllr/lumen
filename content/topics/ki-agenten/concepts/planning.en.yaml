@@ -1,0 +1,54 @@
+id: ai.agents.planning
+type: concept
+title: Breaking down big tasks
+summary: A plan made of small steps.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: reise
+    widget: order
+    prompt: An agent is to book a trip. Which order makes sense?
+    params:
+      items:
+        - { label: Ask about preferences }
+        - { label: Search for flights }
+        - { label: Show an offer }
+        - { label: Book after confirmation }
+    hints:
+      - Booking comes at the very end.
+    explanation: First clarify, then search, then ask, and only then act.
+
+  - kind: problem
+    id: fehler
+    widget: numeric
+    prompt: Each step succeeds with {{p}}% probability. How likely are 2 steps in a row to succeed?
+    params: { unit: "%" }
+    answer: { value: "{{p * p / 100}}", tolerance: 0.5 }
+    hints:
+      - "{{p}}% of {{p}}%."
+    explanation: "{{p}}% · {{p}}% = {{round(p * p / 100, 1)}}%. Long plans become error-prone."
+    variants:
+      params: { p: "choice[80,90,95]" }
+      defaults: { p: 90 }
+
+  - kind: explain
+    body: |
+      Errors pile up with every step. So good agents **check** along the way whether they are still on course. If not, they adjust the plan.
+
+  - kind: problem
+    id: anpassen
+    widget: choice
+    prompt: The flight you wanted is sold out. What should a good agent do?
+    params:
+      options:
+        - { label: Look for alternatives and ask, correct: true }
+        - { label: Book it anyway, feedback: "That will surely fail. The plan must adapt to what it observes." }
+    hints:
+      - What does the observation say about the plan?
+    explanation: Observations change the plan. That is the strength of the loop.
+
+srs:
+  cards_from: [reise, fehler]

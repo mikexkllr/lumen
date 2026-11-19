@@ -1,0 +1,67 @@
+id: sci.motion.fall
+type: concept
+title: Falling and throwing
+summary: Everything falls at the same rate – along a parabola.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: gleich
+    widget: choice
+    prompt: A bowling ball and a tennis ball are dropped together without air. Which lands first?
+    params:
+      options:
+        - { label: They land at the same time., correct: true }
+        - { label: The bowling ball, feedback: "Heavier feels faster. But without air, everything falls the same." }
+        - { label: The tennis ball, feedback: "Lighter does not mean faster." }
+    hints:
+      - On the Moon, a hammer and a feather fell at the same rate.
+    explanation: Without air resistance, all objects fall at the same rate.
+
+  - kind: explain
+    body: |
+      Without air, all objects fall at the same rate.
+      After t seconds, a stone has fallen about **5 · t²** meters.
+
+  - kind: problem
+    id: tiefe
+    widget: numeric
+    prompt: A stone falls for {{t}} seconds. About how far does it fall? Use 5 · t².
+    params: { unit: m }
+    answer: { value: "{{5 * t * t}}" }
+    feedback:
+      - when: "numval(state.input) == 5 * t"
+        misconception: linear-fall
+        text: The time is squared. First calculate {{t}} · {{t}}.
+    hints:
+      - "{{t}} · {{t}} = {{t * t}}. Then times 5."
+    explanation: "5 · {{t}}² = {{5 * t * t}} m."
+    variants:
+      params: { t: "int[2,6]" }
+      defaults: { t: 3 }
+
+  - kind: problem
+    id: wurf
+    widget: slider
+    prompt: Set the throwing force so the ball lands exactly in the basket.
+    params:
+      expr: "k*x*(8 - x)/8"
+      x: [0, 10]
+      y: [0, 6]
+      sliders: [{ id: k, label: Force, min: 0.5, max: 3, step: 0.25, initial: 1 }]
+      markers: [{ x: 6, y: 3, label: Basket }]
+      showCoordinates: false
+    answer: { values: { k: 2 } }
+    hints:
+      - At x = 6, the path must be at height 3.
+    explanation: With force 2, the parabola hits the basket.
+
+  - kind: explain
+    body: Why does a thrown ball fly along a parabola?
+    reveal:
+      body: Sideways, it keeps a steady speed. Gravity pulls it down faster and faster. Together, the path is a parabola.
+
+srs:
+  cards_from: [tiefe, gleich]

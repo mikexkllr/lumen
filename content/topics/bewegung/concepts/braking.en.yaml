@@ -1,0 +1,77 @@
+id: sci.motion.braking
+type: concept
+title: Braking and accelerating
+summary: Double the speed, four times the braking distance.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: doppelt
+    widget: choice
+    prompt: A car drives twice as fast. How does its braking distance change?
+    params:
+      options:
+        - { label: It becomes about 4 times as long., correct: true }
+        - { label: It becomes twice as long., feedback: "That would be nice. But braking distance grows with the square." }
+        - { label: It stays the same., feedback: "More speed means more kinetic energy that has to be removed." }
+    hints:
+      - Kinetic energy grows with the square of the speed.
+    explanation: Double the speed means four times the kinetic energy – and about four times the braking distance.
+
+  - kind: explain
+    body: |
+      **Acceleration** is the change in speed per second.
+      Braking distance grows with the **square** of the speed.
+
+  - kind: problem
+    id: faustformel
+    widget: numeric
+    prompt: Rule of thumb – braking distance in meters = (speed in km/h divided by 10)². How long is the braking distance at {{v}} km/h?
+    params: { unit: m }
+    answer: { value: "{{(v / 10) ** 2}}" }
+    feedback:
+      - when: "numval(state.input) == v / 10 * 2"
+        misconception: times-two
+        text: Squared means times itself, not times 2.
+    hints:
+      - "{{v}} ÷ 10 = {{v / 10}}. Now multiply it by itself."
+    explanation: "({{v / 10}})² = {{(v / 10) ** 2}} m."
+    variants:
+      params: { v: "choice[30,50,80,100,130]" }
+      defaults: { v: 50 }
+
+  - kind: problem
+    id: anfahren
+    widget: numeric
+    prompt: A car accelerates from 0 to 100 km/h in {{t}} seconds. By how many km/h does it get faster each second?
+    params: { unit: km/h per s }
+    answer: { value: "{{100 / t}}" }
+    hints:
+      - Divide the change by the time.
+    explanation: "100 km/h : {{t}} s = {{100 / t}} km/h per second."
+    variants:
+      params: { t: "choice[4,5,8,10]" }
+      defaults: { t: 10 }
+
+  - kind: explain
+    body: Why is a 30 km/h limit in front of schools so important?
+    reveal:
+      body: By the rule of thumb, a car at 30 km/h stops in 9 m. At 50 km/h it needs 25 m. Where the slow car has already stopped, the fast one has barely slowed down.
+
+  - kind: problem
+    id: reaktion
+    widget: numeric
+    prompt: Reaction distance in meters ≈ (speed divided by 10) · 3. How long is it at {{v}} km/h?
+    params: { unit: m }
+    answer: { value: "{{v / 10 * 3}}" }
+    hints:
+      - "{{v}} ÷ 10 · 3."
+    explanation: "{{v / 10}} · 3 = {{v / 10 * 3}} m – that is how far you travel before you even start braking."
+    variants:
+      params: { v: "choice[30,50,70,100]" }
+      defaults: { v: 50 }
+
+srs:
+  cards_from: [faustformel, reaktion]

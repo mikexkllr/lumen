@@ -1,0 +1,72 @@
+id: stats.correlation.chance
+type: concept
+title: Chance and outliers
+summary: Regression to the mean and lucky hits.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rekord
+    widget: choice
+    prompt: A team has a record season. The next year goes worse. What is the most likely explanation?
+    params:
+      options:
+        - { label: The record also involved a lot of luck., correct: true }
+        - { label: Success made the team lazy., feedback: "Possible, but unnecessary. There is a simpler explanation." }
+        - { label: There is a curse on champions., feedback: "Sounds exciting, but explains nothing." }
+    hints:
+      - How much luck does a record take?
+    explanation: Extremes usually include luck. More normal values often follow.
+
+  - kind: explain
+    body: |
+      **Regression to the mean:** Extreme results are often followed by more normal ones.
+      Extremes usually include some luck or bad luck – and that rarely repeats.
+
+  - kind: problem
+    id: nachhilfe
+    widget: choice
+    prompt: The students with the worst grades get tutoring. Afterward, they do better. Does that prove the tutoring works?
+    params:
+      options:
+        - { label: "No – you need a comparison group.", correct: true }
+        - { label: "Yes, they did get better.", feedback: "They probably would have improved a bit without tutoring – regression to the mean." }
+    hints:
+      - Would the weakest students have improved without tutoring?
+    explanation: Only a comparison with students who had no tutoring shows the real effect.
+
+  - kind: explain
+    body: |
+      If you compare a lot, you find **chance** relationships.
+      If each test has a 5% chance of a lucky hit, you find one on average in 20 tests.
+
+  - kind: problem
+    id: treffer
+    widget: numeric
+    prompt: Each test has a 5% chance of a lucky hit. How many hits do you expect in {{n}} tests, even if nothing is behind it?
+    params: { unit: hits }
+    answer: { value: "{{n * 0.05}}" }
+    hints:
+      - "5% of {{n}}."
+    explanation: "{{n}} · 0.05 = {{n * 0.05}} lucky hits."
+    variants:
+      params: { n: "choice[20,40,60,100]" }
+      defaults: { n: 40 }
+
+  - kind: problem
+    id: frage
+    widget: choice
+    prompt: Which question helps most with any study?
+    params:
+      options:
+        - { label: Was there a random comparison group?, correct: true }
+        - { label: Does the result sound surprising?, feedback: "Surprising results are exciting – but are more often chance." }
+        - { label: Was a lot of money spent?, feedback: "Expensive does not mean correct." }
+    hints:
+      - What separates cause from chance?
+    explanation: Only a fair comparison separates effect from chance and third factors.
+
+srs:
+  cards_from: [rekord, treffer]

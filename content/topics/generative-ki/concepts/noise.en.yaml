@@ -1,0 +1,55 @@
+id: ai.generative.noise
+type: concept
+title: From noise to image
+summary: The basic idea of image generators.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: start
+    widget: choice
+    prompt: What does an image generator start with before it paints a picture?
+    params:
+      options:
+        - { label: Pure random noise, correct: true }
+        - { label: A matching photo from the internet, feedback: "It doesn't copy a photo – it shapes noise step by step." }
+        - { label: A white canvas, feedback: "White would be too uniform – randomness provides the variety." }
+    hints:
+      - What does a TV look like without a signal?
+    explanation: In many steps, the noise becomes an image.
+
+  - kind: explain
+    body: |
+      **Diffusion models** learn the opposite of adding noise. You give them images with some noise and let them guess which noise must be removed. Millions of times.
+
+  - kind: problem
+    id: training
+    widget: order
+    prompt: Put one training step in the right order.
+    params:
+      items:
+        - { label: Take a real image }
+        - { label: Add random noise }
+        - { label: The model guesses the noise }
+        - { label: Learn from the error }
+    hints:
+      - The model has to guess what was added.
+    explanation: If you can recognize noise, you can also remove it.
+
+  - kind: problem
+    id: dauer
+    widget: numeric
+    prompt: A generator needs {{n}} steps of 0.1 seconds each. How long does one image take?
+    params: { unit: s }
+    answer: { value: "{{n / 10}}" }
+    hints:
+      - "{{n}} · 0.1."
+    explanation: "{{n / 10}} seconds – that is why researchers work on methods with fewer steps."
+    variants:
+      params: { n: "choice[20,30,50,100]" }
+      defaults: { n: 50 }
+
+srs:
+  cards_from: [start, training]

@@ -1,0 +1,51 @@
+id: ai.agents.evaluation
+type: concept
+title: Testing agents
+summary: How to measure whether an agent is any good.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: quote
+    widget: numeric
+    prompt: An agent solves {{k}} of {{n}} test tasks. What is its success rate?
+    params: { unit: "%" }
+    answer: { value: "{{100 * k / n}}" }
+    hints:
+      - Solved divided by all.
+    explanation: "{{k}} ÷ {{n}} = {{100 * k / n}}%."
+    variants:
+      params: { n: "choice[20,50]", k: "choice[10,15,18]" }
+      defaults: { n: 20, k: 15 }
+
+  - kind: explain
+    body: |
+      On the same task, an agent may win one time and fail the next. So you test each task **several times**, and on many different tasks. A single success tells you little.
+
+  - kind: problem
+    id: streuung
+    widget: distribution
+    prompt: Have the agent solve the same task at least 50 times. How often does it work?
+    params:
+      items: [{ label: solved, weight: 7 }, { label: failed, weight: 3 }]
+    check: { predicate: "draws >= 50" }
+    hints:
+      - Many runs show the true rate.
+    explanation: Only many attempts show how reliable the agent really is.
+
+  - kind: problem
+    id: gut
+    widget: choice
+    prompt: What makes a good test for agents?
+    params:
+      options:
+        - { label: "Tasks it has not seen in training", correct: true }
+        - { label: Tasks from its training, feedback: "Then you measure memorizing, not skill." }
+    hints:
+      - What is the test supposed to measure?
+    explanation: New tasks show whether the agent really generalizes.
+
+srs:
+  cards_from: [quote, gut]

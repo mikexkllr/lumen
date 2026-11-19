@@ -1,0 +1,64 @@
+id: stats.conditional.given
+type: concept
+title: Given That
+summary: P(B | A) is not P(A | B).
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: sport-musik
+    widget: numeric
+    visual: { widget: venn, params: { sets: [Sports, Music], outside: true, counts: { A: 20, B: 30, AB: 10, O: 40 } } }
+    prompt: 100 people were surveyed. What share of the athletes also play music?
+    params: { placeholder: "Fraction" }
+    answer: { value: "1/3" }
+    feedback:
+      - when: "approx(numval(state.input), 1/10)"
+        misconception: joint-not-conditional
+        text: 10 out of 100 do both. But the question is only about the athletes.
+    hints:
+      - How many do sports? How many of them also play music?
+    explanation: 30 do sports, and 10 of them also play music. 10/30 = 1/3.
+
+  - kind: explain
+    body: |
+      **P(B | A)** means the probability of B when A is already known.
+      You look only at the cases with A.
+
+  - kind: problem
+    id: musik-sport
+    widget: numeric
+    visual: { widget: venn, params: { sets: [Sports, Music], outside: true, counts: { A: 20, B: 30, AB: 10, O: 40 } } }
+    prompt: Now the other way around. What share of the musicians also do sports?
+    params: { placeholder: "Fraction" }
+    answer: { value: "1/4" }
+    feedback:
+      - when: "approx(numval(state.input), 1/3)"
+        misconception: swap-condition
+        text: Now music is the condition. How many play music?
+    hints:
+      - 40 play music.
+    explanation: 10 of 40 musicians do sports, which is 1/4. That differs from before.
+
+  - kind: explain
+    body: Are P(A | B) and P(B | A) equal?
+    reveal:
+      body: Usually not. Almost all pro basketball players are tall. But very few tall people play pro basketball.
+
+  - kind: problem
+    id: papst
+    widget: choice
+    prompt: Which is more likely?
+    params:
+      options:
+        - { label: "Being Catholic, given that you are the pope", correct: true }
+        - { label: "Being the pope, given that you are Catholic", feedback: "Among over a billion Catholics, there is exactly one pope." }
+        - { label: Both are equal, feedback: "The condition makes the difference." }
+    hints:
+      - How many popes are there, and how many Catholics?
+    explanation: The pope is always Catholic. The reverse is nearly impossible.
+
+srs:
+  cards_from: [sport-musik, musik-sport]

@@ -1,0 +1,61 @@
+id: math.ratios.scale
+type: concept
+title: Scale
+summary: Reading maps and models correctly.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: karte
+    widget: numeric
+    prompt: "A hiking map has a scale of 1 : 25,000. On the map it is 4 cm. How far is that in reality?"
+    params: { unit: km }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 100000"
+        misconception: units
+        text: 100,000 cm is correct. Now convert to kilometers.
+    hints:
+      - 4 cm · 25,000 = 100,000 cm.
+    explanation: 100,000 cm is 1,000 m – exactly 1 km.
+
+  - kind: explain
+    body: |
+      **Scale 1 : n** means: 1 cm on the plan is n cm in real life.
+      At 1 ÷ 100,000, 1 cm is 1 km.
+
+  - kind: problem
+    id: strecke
+    widget: numeric
+    prompt: "Scale 1 : {{m}}. On the plan you measure {{c}} cm. How many meters is that in real life?"
+    params: { unit: m }
+    answer: { value: "{{c * m / 100}}" }
+    hints:
+      - "{{c}} · {{m}} gives centimeters. Divide by 100 for meters."
+    explanation: "{{c}} · {{m}} = {{c * m}} cm = {{c * m / 100}} m."
+    variants:
+      params: { m: "choice[500,1000,5000,10000]", c: "int[2,9]" }
+      defaults: { m: 1000, c: 3 }
+
+  - kind: problem
+    id: modell
+    widget: choice
+    prompt: "A model car is built at a scale of 1 : 18 and is 25 cm long. How long is the real car?"
+    params:
+      options:
+        - { label: "4.5 m", correct: true }
+        - { label: "1.8 m", feedback: "That is too short for a car. Calculate 25 cm · 18." }
+        - { label: 45 m, feedback: "Too long – 25 · 18 = 450 cm." }
+    hints:
+      - 25 cm · 18.
+    explanation: 25 · 18 = 450 cm = 4.5 m.
+
+  - kind: explain
+    body: Why do maps often show a bar labeled "1 km" instead of a number?
+    reveal:
+      body: "The bar grows when you copy or zoom. The number 1 ÷ 25,000 is no longer right after enlarging."
+
+srs:
+  cards_from: [strecke, karte]

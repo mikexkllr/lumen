@@ -1,0 +1,75 @@
+id: stats.expected.basics
+type: concept
+title: What does it pay on average?
+summary: Outcome times probability, then add up.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: wuerfelspiel
+    widget: choice
+    prompt: You roll a die. On a 6 you win 5 €, otherwise you lose 1 €. What happens in the long run?
+    params:
+      options:
+        - { label: It roughly breaks even., correct: true }
+        - { label: I win on average., feedback: "Losing 1 € five times exactly cancels winning 5 € once." }
+        - { label: I lose on average., feedback: "Work through six rolls – one win, five losses." }
+    hints:
+      - Play six rounds in your head.
+    explanation: In 6 rounds, about +5 € and 5 · (−1 €). Together 0 €.
+
+  - kind: explain
+    body: |
+      The **expected value** is the long-run average.
+      Take each outcome times its probability – then add everything up.
+
+  - kind: problem
+    id: augenzahl
+    widget: numeric
+    prompt: What number do you expect on average from a fair die?
+    params: { placeholder: "Number" }
+    answer: { value: 3.5 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: integer-only
+        text: The average does not have to be a whole number.
+    hints:
+      - Add 1 to 6 and divide by 6.
+    explanation: (1 + 2 + 3 + 4 + 5 + 6) / 6 = 21 / 6 = 3.5.
+
+  - kind: explain
+    body: Can you roll a 3.5?
+    reveal:
+      body: No. The expected value does not have to be a possible outcome. It describes the average of many rolls.
+
+  - kind: problem
+    id: los
+    widget: numeric
+    prompt: A ticket costs 2 €. Every tenth ticket wins {{g}} €. What is your gain per ticket on average? Minus means a loss.
+    params: { unit: "€" }
+    answer: { value: "{{g / 10 - 2}}" }
+    feedback:
+      - when: "numval(state.input) == g / 10"
+        misconception: ignore-stake
+        text: Now subtract the 2 € stake.
+    hints:
+      - "On average, a ticket brings in {{g}} € / 10 = {{g / 10}} €."
+    explanation: "{{g / 10}} € − 2 € = {{g / 10 - 2}} € per ticket."
+    variants:
+      params: { g: "choice[10,15,25,30]" }
+      defaults: { g: 15 }
+
+  - kind: problem
+    id: gluecksrad
+    widget: numeric
+    prompt: A prize wheel pays exactly 8 € with a 1/4 chance, otherwise nothing. What is the most one spin may cost for the game to be fair?
+    params: { unit: "€" }
+    answer: { value: 2 }
+    hints:
+      - A fair price equals the expected value.
+    explanation: 1/4 · 8 € = 2 €. A higher stake would be unfair to you.
+
+srs:
+  cards_from: [augenzahl, los]

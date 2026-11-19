@@ -1,0 +1,56 @@
+id: cs.crypto.checksums
+type: concept
+title: Check digits and hashes
+summary: Spot errors, protect passwords.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quersumme
+    widget: numeric
+    body: A simple check digit – add all the digits and take the last digit of the sum.
+    prompt: What is the check digit of {{a}}{{b}}{{c}}{{d}}?
+    params: { placeholder: "Digit" }
+    answer: { value: "{{mod(a + b + c + d, 10)}}" }
+    hints:
+      - "{{a}} + {{b}} + {{c}} + {{d}} = {{a + b + c + d}}."
+    explanation: "The sum is {{a + b + c + d}} – the last digit is {{mod(a + b + c + d, 10)}}."
+    variants:
+      params: { a: "int[1,9]", b: "int[0,9]", c: "int[0,9]", d: "int[0,9]" }
+      defaults: { a: 4, b: 7, c: 3, d: 8 }
+
+  - kind: problem
+    id: dreher
+    widget: choice
+    prompt: Someone types 4738 instead of 4378. Does the digit-sum check notice the error?
+    params:
+      options:
+        - { label: No – the sum stays the same, correct: true }
+        - { label: "Yes", feedback: "Swapped digits give the same sum." }
+    hints:
+      - Calculate both sums.
+    explanation: That is why real check digits, like in IBANs or ISBNs, weight each position differently.
+
+  - kind: explain
+    body: |
+      A **hash** is a kind of super check digit. Any data becomes a short fingerprint. If one character changes, the whole hash changes – and you cannot work backward.
+
+  - kind: problem
+    id: passwort
+    widget: buckets
+    prompt: What should a service store about your password?
+    params:
+      buckets: [{ label: good }, { label: bad }]
+      items:
+        - { label: A salted hash, bucket: good }
+        - { label: The password in plain text, bucket: bad }
+        - { label: The password shifted with Caesar, bucket: bad }
+        - { label: A slow password hash, bucket: good }
+    hints:
+      - What happens if the database is stolen?
+    explanation: A salted, slow hash is almost impossible to reverse. Plain text and Caesar are cracked instantly.
+
+srs:
+  cards_from: [dreher, passwort]

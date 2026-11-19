@@ -1,0 +1,64 @@
+id: ai.llm.tokens
+type: concept
+title: Tokens
+summary: Models do not read letters, but word pieces.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.tokens]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zerlegen
+    widget: choice
+    body: Language models split text into **tokens**. Common words are one token, rare ones are cut into pieces.
+    prompt: How will “snowboarding” probably be split?
+    params:
+      options:
+        - { label: "snow · board · ing", correct: true }
+        - { label: "s · n · o · w · b · o · a · r · d …", feedback: "Single letters would be far too many tokens." }
+        - { label: A single token, feedback: "The word is too rare for that." }
+    hints:
+      - Which parts appear in many words?
+    explanation: Common building blocks like “snow”, “board” and “ing” are tokens of their own.
+
+  - kind: problem
+    id: bauen
+    widget: tiles
+    prompt: Put the tokens together to form the word “unbelievable”.
+    params: { tiles: ["believ", "able", "un", "ship", "luck"] }
+    answer: { sequence: ["un", "believ", "able"] }
+    hints:
+      - How does the word begin?
+    explanation: un · believ · able.
+
+  - kind: explain
+    body: |
+      So a model does not see letters, but numbers for tokens.
+      That is why it sometimes struggles with tasks like “How many r’s are in strawberry?” – the letters are hidden inside the token.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: One token equals about 0.75 words on average. About how many tokens is a text with 750 words?
+    answer: { value: 1000, tolerance: 20 }
+    feedback:
+      - when: "abs(numval(state.input) - 562.5) < 20"
+        text: There are more tokens than words – a word is often more than one token. Divide by 0.75.
+    hints:
+      - 750 words divided by 0.75 words per token.
+    explanation: "750 ÷ 0.75 = 1000 tokens."
+    difficulty: 2
+
+  - kind: problem
+    id: grenze
+    widget: choice
+    prompt: Why do chatbots often count tokens instead of words?
+    params:
+      options:
+        - { label: Because the model only processes tokens internally, correct: true }
+        - { label: Because words are counted too imprecisely, feedback: "Words are easy to count – but the model works in tokens." }
+        - { label: Because tokens are always whole sentences, feedback: "Tokens are mostly word pieces, not sentences." }
+    hints:
+      - What does the model really see?
+    explanation: A model's computing time and limits depend on the number of tokens.

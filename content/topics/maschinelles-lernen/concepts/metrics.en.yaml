@@ -1,0 +1,55 @@
+id: ai.ml.metrics
+type: concept
+title: Good or just lucky?
+summary: Accuracy and its traps.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quote
+    widget: numeric
+    prompt: A model gets {{k}} of {{n}} test cases right. What is its accuracy?
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - Correct divided by all, times 100.
+    explanation: "{{k}} ÷ {{n}} = {{p}}%."
+    variants:
+      params: { n: "choice[50,200,400]", p: "choice[70,85,90,95]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 200, p: 90 }
+
+  - kind: problem
+    id: falle
+    widget: choice
+    prompt: Only 1% of all payments are fraud. A model simply always says “no fraud”. How good is it?
+    params:
+      options:
+        - { label: "99% accuracy, and still useless", correct: true }
+        - { label: A very good model, feedback: "It does not find a single case of fraud." }
+    hints:
+      - How many fraud cases does it find?
+    explanation: For rare events, accuracy is badly misleading.
+
+  - kind: explain
+    body: |
+      So you also measure: How many **real cases** does the model find (recall)? And how many of its **alarms** are right (precision)? A good detector needs both.
+
+  - kind: problem
+    id: gefunden
+    widget: numeric
+    prompt: Of {{n}} real fraud cases, the model finds {{k}}. What share is found?
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - "{{k}} divided by {{n}}."
+    explanation: "{{k}} ÷ {{n}} = {{p}}% recall."
+    variants:
+      params: { n: "choice[20,50]", p: "choice[40,60,80,90]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 50, p: 60 }
+
+srs:
+  cards_from: [falle, gefunden]

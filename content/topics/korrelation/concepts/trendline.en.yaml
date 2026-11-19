@@ -1,0 +1,66 @@
+id: stats.correlation.trendline
+type: concept
+title: The trend line
+summary: A straight line through the scatter plot.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: anpassen
+    widget: slider
+    prompt: Place the line through the points so that it fits the trend well.
+    params:
+      expr: "m*x + b"
+      x: [0, 8]
+      y: [0, 6]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Slope, min: -1, max: 2, step: 0.25, initial: 0 }
+        - { id: b, label: Start, min: -2, max: 4, step: 0.5, initial: 3 }
+      markers:
+        - { x: 1, y: 1.5 }
+        - { x: 2, y: 1.5 }
+        - { x: 3, y: 2.5 }
+        - { x: 4, y: 2.5 }
+        - { x: 5, y: 3.5 }
+        - { x: 6, y: 3.5 }
+        - { x: 7, y: 4.5 }
+    check: { predicate: "m >= 0.5 && m <= 0.75 && b >= 0 && b <= 1" }
+    hints:
+      - For each step right, the cloud rises by about a half.
+    explanation: About y = 0.5 · x + 1. With a line like this, you can estimate values.
+
+  - kind: explain
+    body: |
+      A **trend line** sums up a scatter plot. Its slope says how much y grows on average when x grows by 1.
+      It is only rough – individual points deviate.
+
+  - kind: problem
+    id: vorhersage
+    widget: numeric
+    prompt: "Trend: price = {{m}} € · area in m² + {{b}} €. What is the estimated price for {{a}} m²?"
+    params: { unit: "€" }
+    answer: { value: "{{m * a + b}}" }
+    hints:
+      - "{{m}} · {{a}} + {{b}}."
+    explanation: "{{m * a}} + {{b}} = {{m * a + b}} €."
+    variants:
+      params: { m: "choice[10,12,15]", b: "choice[100,200]", a: "choice[30,50,80]" }
+      defaults: { m: 12, b: 200, a: 50 }
+
+  - kind: problem
+    id: grenzen
+    widget: choice
+    prompt: A trend line for children's heights rises 6 cm per year. What does it say about 40-year-olds?
+    params:
+      options:
+        - { label: Nothing – it does not apply outside the data., correct: true }
+        - { label: "They are over 2.5 m tall.", feedback: "Adults do not keep growing. The line only applies within the measured range." }
+    hints:
+      - Were adults measured at all?
+    explanation: Extending trends beyond the range of the data is dangerous.
+
+srs:
+  cards_from: [vorhersage, grenzen]

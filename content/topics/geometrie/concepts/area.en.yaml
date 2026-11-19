@@ -1,0 +1,88 @@
+id: geo.basics.area
+type: concept
+title: Area
+summary: How many unit squares fit inside?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [geo.area]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: rechteck
+    widget: numeric
+    prompt: A rectangle is 7 m long and 4 m wide. What is its area?
+    params: { unit: "m²" }
+    answer: { value: 28 }
+    feedback:
+      - when: "numval(state.input) == 22"
+        misconception: area-perimeter
+        text: 22 m is the perimeter. The area counts the squares inside, which is 7 rows of 4.
+    hints:
+      - How many 1 × 1 squares fit inside?
+    explanation: 7 · 4 = 28 m².
+
+  - kind: explain
+    body: |
+      The area of a rectangle is **length times width**.
+      A triangle is half as big as the rectangle around it: $A = \frac{b \cdot h}{2}$ (b = base, h = height).
+
+  - kind: problem
+    id: dreieck
+    widget: numeric
+    prompt: A triangle has a base of {{g}} cm and a height of {{h}} cm. What is its area?
+    params: { unit: "cm²" }
+    answer: { value: "{{g * h / 2}}" }
+    feedback:
+      - when: "numval(state.input) == g * h"
+        misconception: triangle-half
+        text: That is the whole rectangle. The triangle is half as big.
+    hints:
+      - "Base times height, divided by 2."
+    explanation: "{{g}} · {{h}} ÷ 2 = {{g * h / 2}} cm²."
+    variants:
+      params: { g: "int[3,12]", h: "int[2,10]" }
+      constraints: ["isInt(g * h / 2)"]
+      defaults: { g: 8, h: 5 }
+
+  - kind: problem
+    id: punkt-c
+    widget: graph
+    prompt: Drag C so that triangle ABC has an area of 6.
+    params:
+      x: [-1, 5]
+      y: [-4, 4]
+      points: [{ id: A, x: 0, y: 0, draggable: false }, { id: B, x: 4, y: 0, draggable: false }, { id: C, x: 1, y: 1 }]
+      segments: [[A, B], [B, C], [C, A]]
+    check: { predicate: "abs(state.points.C.y) == 3" }
+    feedback:
+      - when: "abs(state.points.C.y) == 6 || abs(state.points.C.y) == 1.5"
+        text: "The base is 4 long. Which height gives 4 · h : 2 = 6?"
+    hints:
+      - The base AB is 4 long.
+      - "4 · h : 2 = 6, so h = 3."
+    explanation: "With height 3, 4 · 3 ÷ 2 = 6. It doesn't matter where C is horizontally."
+    difficulty: 2
+
+  - kind: problem
+    id: quadrat
+    widget: numeric
+    prompt: A square has an area of 49 cm². How long is one side?
+    params: { unit: cm }
+    answer: { value: 7 }
+    hints:
+      - Which number times itself gives 49?
+    explanation: 7 · 7 = 49.
+
+  - kind: problem
+    id: rechteck-bauen
+    widget: rect
+    prompt: Drag out a rectangle with an area of 12 m² and a perimeter of 14 m.
+    params: { maxW: 10, maxH: 8, w: 2, h: 2 }
+    check: { predicate: "area == 12 && perimeter == 14" }
+    hints:
+      - Which rectangles have 12 m²? Check the perimeter of each.
+    explanation: 4 × 3 gives an area of 12 m² and a perimeter of 2 · (4 + 3) = 14 m.
+
+srs:
+  cards_from: ["steps[2]"]

@@ -1,0 +1,63 @@
+id: cs.algorithms.complexity
+type: concept
+title: How does the effort grow?
+summary: Logarithmic, linear, quadratic.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: telefonbuch
+    widget: numeric
+    prompt: A sorted directory has {{n}} names. How many steps does halving need at most to find a name?
+    params: { unit: steps }
+    answer: { value: "{{k}}" }
+    hints:
+      - How often can you halve {{n}} until 1 is left?
+    explanation: "$2^{ {{k}} }$ ≥ {{n}}, so {{k}} steps."
+    variants:
+      params: { k: "choice[7,10,14,20]" }
+      derive: { n: "2 ** k" }
+      defaults: { k: 10 }
+
+  - kind: explain
+    body: |
+      What matters is how the effort **grows**. When the data doubles, halving needs just one more step.
+      Going through everything takes twice as long. Comparing all pairs takes four times as long.
+
+  - kind: problem
+    id: wachsen
+    widget: match
+    prompt: The amount of data doubles. What happens to the effort?
+    params:
+      leftTitle: Method
+      rightTitle: Effort
+      pairs:
+        - { left: Halving a sorted list, right: One step more }
+        - { left: Scanning an unsorted list, right: Twice as long }
+        - { left: Comparing all pairs, right: Four times as long }
+    hints:
+      - With pairs, the effort grows with the square.
+    explanation: Logarithmic, linear, quadratic. These terms describe exactly this.
+
+  - kind: problem
+    id: million
+    widget: choice
+    prompt: A program compares all pairs in a list. With 1000 entries it takes 1 second. How long does it take with a million?
+    params:
+      options:
+        - { label: About 11 days, correct: true }
+        - { label: 1000 seconds, feedback: "That would be linear. Pairs grow with the square, so 1000² times as much." }
+        - { label: 2 seconds, feedback: "Much more. The data is a thousand times as large." }
+    hints:
+      - A thousand times more data means a million times more pairs.
+    explanation: 1,000,000 seconds are about 11.6 days. That is why the right algorithm matters more than a fast computer.
+
+  - kind: explain
+    body: Are there sorting methods faster than bubble sort?
+    reveal:
+      body: Yes. Merge sort splits the list into halves again and again. For a million numbers it needs about 20 million steps instead of 500 billion.
+
+srs:
+  cards_from: [telefonbuch, million]

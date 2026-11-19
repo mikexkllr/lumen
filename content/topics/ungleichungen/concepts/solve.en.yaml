@@ -1,0 +1,82 @@
+id: alg.inequalities.solve
+type: concept
+title: Rearranging, With a Trap
+summary: With negative factors, the sign flips.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: plus
+    widget: numeric
+    prompt: Solve x + {{a}} > {{b}}. From which number on does it hold? x > …
+    params: { prefix: "x >" }
+    answer: { value: "{{b - a}}" }
+    feedback:
+      - when: "numval(state.input) == b + a"
+        misconception: wrong-inverse
+        text: Subtract {{a}} from both sides instead of adding.
+    hints:
+      - Like an equation, subtract {{a}} from both sides.
+    explanation: "x > {{b}} − {{a}} = {{b - a}}."
+    variants:
+      params: { a: "int[2,9]", b: "int[5,20]" }
+      defaults: { a: 4, b: 11 }
+
+  - kind: explain
+    body: |
+      You rearrange inequalities almost like equations.
+      **But:** If you multiply or divide by a **negative** number, you must flip the sign.
+
+  - kind: problem
+    id: umdrehen
+    widget: choice
+    prompt: From −2x > 6 it follows that …
+    params:
+      options:
+        - { label: x < −3, correct: true }
+        - { label: x > −3, feedback: "Divided by −2, the sign must flip." }
+        - { label: x > 3, feedback: "The sign of the 3 changes too." }
+    hints:
+      - Divide by −2 and remember the rule.
+    explanation: Divided by −2, > flips to <. So x < −3.
+
+  - kind: explain
+    body: Why does the sign flip?
+    reveal:
+      body: 3 < 5 is true. Times −1 gives −3 and −5. Now −3 is the larger number, so the order reverses.
+
+  - kind: problem
+    id: negativ
+    widget: numeric
+    prompt: Solve −{{a}}x ≥ {{c}}. Then x ≤ …
+    params: { prefix: "x ≤" }
+    answer: { value: "{{-k}}" }
+    feedback:
+      - when: "numval(state.input) == k"
+        misconception: lost-sign
+        text: Divide by −{{a}}. The result is negative.
+    hints:
+      - "Divide both sides by −{{a}} and flip the sign."
+    explanation: "x ≤ {{c}} ÷ (−{{a}}) = {{-k}}."
+    variants:
+      params: { a: "int[2,5]", k: "int[1,6]" }
+      derive: { c: "a * k" }
+      defaults: { a: 3, k: 4 }
+
+  - kind: problem
+    id: nicht-drehen
+    widget: choice
+    prompt: Which step does NOT flip the sign?
+    params:
+      options:
+        - { label: Subtracting 5 from both sides, correct: true }
+        - { label: Multiplying by −1, feedback: "Multiplying by a negative always flips it." }
+        - { label: Dividing by −4, feedback: "Dividing by a negative number flips it." }
+    hints:
+      - Only multiplying and dividing by negative numbers are risky.
+    explanation: Adding and subtracting never change the order.
+
+srs:
+  cards_from: [umdrehen, negativ]

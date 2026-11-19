@@ -1,0 +1,84 @@
+id: math.powers.basics
+type: concept
+title: Power, not times
+summary: What the exponent really means.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quadrat
+    widget: numeric
+    visual: { widget: pixels, params: { cells: ["####.", "####.", "####.", "####.", "....."] } }
+    prompt: How many cells does the square have? You write this as $4^2$.
+    params: { unit: cells }
+    answer: { value: 16 }
+    feedback:
+      - when: "numval(state.input) == 8"
+        misconception: power-as-product
+        text: 4 · 2 would be 8. But the square has 4 rows of 4 cells each.
+    hints:
+      - Count one row and multiply it by the number of rows.
+    explanation: 4 · 4 = 16. That is why $4^2$ is also read "4 squared".
+
+  - kind: explain
+    body: |
+      $4^2$ means 4 · 4, not 4 · 2.
+      The **exponent** on top says how many times the **base** is multiplied by itself.
+
+  - kind: problem
+    id: berechnen
+    widget: numeric
+    prompt: Calculate ${{a}}^{{n}}$.
+    params: { placeholder: "Result" }
+    answer: { value: "{{a ** n}}" }
+    feedback:
+      - when: "numval(state.input) == a * n"
+        misconception: power-as-product
+        text: You calculated {{a}} · {{n}}. A power means multiplying {{a}} by itself that many times.
+    hints:
+      - Write it as a product of {{n}} equal numbers.
+    explanation: "{{a}} to the power {{n}} = {{a ** n}}."
+    variants:
+      params: { a: "int[2,5]", n: "int[2,4]" }
+      constraints: ["a * n != a ** n"]
+      defaults: { a: 3, n: 4 }
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    prompt: Which is bigger, $2^{10}$ or $10^2$?
+    params:
+      options:
+        - { label: "$2^{10}$", correct: true }
+        - { label: "$10^2$", feedback: "$10^2$ is 100. $2^{10}$ is 1024." }
+        - { label: Both the same, feedback: "Swapping base and exponent almost always changes the result." }
+    hints:
+      - Work out both. Double 10 times.
+    explanation: $2^{10} = 1024$, $10^2 = 100$.
+
+  - kind: explain
+    body: You fold a sheet of paper 42 times. How thick would it be?
+    reveal:
+      body: Each fold doubles the layers. $2^{42}$ layers of 0.1 mm each would reach the Moon.
+
+  - kind: problem
+    id: falten
+    widget: numeric
+    prompt: How many layers does the sheet have after {{n}} folds?
+    params: { unit: layers }
+    answer: { value: "{{2 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * n"
+        misconception: linear-growth
+        text: Each fold doubles the layers. It doesn't just add 2.
+    hints:
+      - 1 fold gives 2 layers, 2 folds give 4 layers …
+    explanation: "$2^{ {{n}} } = {{2 ** n}}$ layers."
+    variants:
+      params: { n: "int[5,10]" }
+      defaults: { n: 10 }
+
+srs:
+  cards_from: [berechnen, falten]

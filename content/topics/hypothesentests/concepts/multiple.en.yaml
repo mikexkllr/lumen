@@ -1,0 +1,54 @@
+id: stats.testing.multiple
+type: concept
+title: Look long enough
+summary: Many tests, false findings.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zwanzig
+    widget: numeric
+    prompt: Researchers test {{n}} useless drugs, each at the 5 % level. How many "significant" findings do you expect by chance alone?
+    params: { unit: findings }
+    answer: { value: "{{n / 20}}" }
+    hints:
+      - "5 % of {{n}}."
+    explanation: "{{n}} · 0.05 = {{n / 20}} chance findings, even though none works."
+    variants:
+      params: { n: "choice[20,40,60,100]" }
+      defaults: { n: 20 }
+
+  - kind: explain
+    body: |
+      If you test many hypotheses and report only the hits, you will find something. This is called **p-hacking**. That is why you must tighten the threshold when you run many tests.
+
+  - kind: problem
+    id: gummibaerchen
+    widget: choice
+    body: A study tests 20 colors of gummy bears for acne. Only green has p < 5 %. The headline reads "Green gummy bears cause acne!"
+    prompt: What is the problem?
+    params:
+      options:
+        - { label: "With 20 tests, one chance hit is expected.", correct: true }
+        - { label: Green is a special color., feedback: "Green simply got lucky in chance's game of dice." }
+    hints:
+      - How many chance hits do you expect in 20 tests?
+    explanation: Exactly one, and it became the headline.
+
+  - kind: problem
+    id: grenze
+    widget: numeric
+    prompt: A simple correction divides the 5 % threshold by the number of tests. What threshold applies for {{n}} tests?
+    params: { unit: "%" }
+    answer: { value: "{{5 / n}}" }
+    hints:
+      - "5 ÷ {{n}}."
+    explanation: "5 ÷ {{n}} = {{5 / n}} %. This keeps the overall false-alarm rate at 5 %."
+    variants:
+      params: { n: "choice[2,4,5,10]" }
+      defaults: { n: 10 }
+
+srs:
+  cards_from: [zwanzig, gummibaerchen]

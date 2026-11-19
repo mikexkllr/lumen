@@ -1,0 +1,83 @@
+id: stats.prob.chance
+type: concept
+title: Chances as a fraction
+summary: Favorable over possible outcomes.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [prob.chance]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: sechs-oder-eins
+    widget: choice
+    prompt: When rolling a die, which is more likely, a 6 or a 1?
+    params:
+      options:
+        - { label: Equally likely, correct: true }
+        - { label: The 6, feedback: "The 6 feels rarer because you often wait for it. But every side has the same chance." }
+        - { label: The 1, feedback: "A fair die favors no side." }
+    hints:
+      - Does a fair die have a favorite side?
+    explanation: Each side of a fair die has a chance of 1/6.
+
+  - kind: explain
+    body: |
+      Try it out. Roll the die 10 or 100 times.
+      The counts vary, but every number has the chance $\frac{1}{6}$.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items: [{ label: "1" }, { label: "2" }, { label: "3" }, { label: "4" }, { label: "5" }, { label: "6" }]
+
+  - kind: problem
+    id: gerade
+    widget: numeric
+    prompt: What is the probability of rolling an even number?
+    params: { placeholder: "e.g. 1/3" }
+    answer: { value: "1/2" }
+    hints:
+      - Which numbers on the die are even?
+      - 2, 4 and 6, three out of six.
+    explanation: 3 of 6 outcomes are even. 3/6 = 1/2.
+
+  - kind: explain
+    body: |
+      **Laplace rule:** if all outcomes are equally likely,
+      $P = \frac{\text{favorable outcomes}}{\text{possible outcomes}}$.
+
+  - kind: problem
+    id: kugeln
+    widget: numeric
+    prompt: A bag holds {{r}} red and {{b}} blue balls. What is the probability of drawing a red one blindly?
+    params: { placeholder: "e.g. 2/5" }
+    answer: { value: "{{r}}/{{r + b}}" }
+    feedback:
+      - when: "approx(numval(state.input), r / b) && r != b"
+        misconception: part-to-part
+        text: You compared red with blue. Divide by all the balls.
+    hints:
+      - "There are {{r + b}} balls in total."
+    explanation: "{{r}} favorable out of {{r + b}} possible, so {{r}}/{{r + b}}."
+    variants:
+      params: { r: "int[1,6]", b: "int[1,6]" }
+      constraints: ["r != b"]
+      defaults: { r: 3, b: 5 }
+
+  - kind: problem
+    id: muenze
+    widget: choice
+    body: A fair coin showed heads five times in a row.
+    prompt: What is more likely on the sixth toss?
+    params:
+      options:
+        - { label: Both equally, correct: true }
+        - { label: "Tails, it is due now", feedback: "The coin has no memory. Every toss starts fresh." }
+        - { label: "Heads, the streak continues", feedback: "A fair coin has no streaks in its mood. It stays 1/2." }
+    hints:
+      - Does the coin know what happened before?
+    explanation: Every toss is independent. Heads and tails each have 1/2.
+
+srs:
+  cards_from: ["steps[4]"]

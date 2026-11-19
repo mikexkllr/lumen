@@ -1,0 +1,67 @@
+id: ai.ml.trees
+type: concept
+title: Decision trees
+summary: One question after another.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      A **decision tree** asks yes-no questions one after another until an answer is settled. When learning, it looks for the questions that separate the examples most cleanly.
+
+  - kind: problem
+    id: weg
+    widget: network
+    prompt: A fruit is round, red and small. Tap its path through the tree.
+    params:
+      start: q1
+      end: kirsche
+      aspect: 0.7
+      nodes:
+        - { id: q1, x: 50, y: 6, label: "round?" }
+        - { id: banane, x: 15, y: 44, label: Banana }
+        - { id: q2, x: 70, y: 44, label: "red?" }
+        - { id: orange, x: 92, y: 94, label: Orange }
+        - { id: q3, x: 48, y: 72, label: "small?" }
+        - { id: kirsche, x: 30, y: 96, label: Cherry }
+        - { id: apfel, x: 66, y: 96, label: Apple }
+      edges:
+        - { a: q1, b: banane }
+        - { a: q1, b: q2 }
+        - { a: q2, b: orange }
+        - { a: q2, b: q3 }
+        - { a: q3, b: kirsche }
+        - { a: q3, b: apfel }
+    hints:
+      - Round, yes. Red, yes. Small, yes.
+    explanation: "round? → red? → small? → cherry. Three questions, one answer."
+
+  - kind: problem
+    id: fragen
+    widget: numeric
+    prompt: Each yes-no question halves the possibilities. What is the minimum number of questions a tree needs for {{2 ** k}} classes?
+    params: { unit: questions }
+    answer: { value: "{{k}}" }
+    hints:
+      - "2, 4, 8, 16 … how often do you double?"
+    explanation: "$2^{ {{k}} } = {{2 ** k}}$, so {{k}} questions."
+    variants:
+      params: { k: "int[3,7]" }
+      defaults: { k: 4 }
+
+  - kind: problem
+    id: banken
+    widget: choice
+    prompt: Banks like to use decision trees for loans. Why?
+    params:
+      options:
+        - { label: You can trace every decision., correct: true }
+        - { label: They are always the most accurate models., feedback: "Other models are often more accurate, but hard to explain." }
+    hints:
+      - What must the bank explain when it says no?
+    explanation: A tree is a chain of rules that you can read.
+
+srs:
+  cards_from: [weg, banken]

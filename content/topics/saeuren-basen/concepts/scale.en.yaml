@@ -1,0 +1,55 @@
+id: chem.acids.scale
+type: concept
+title: The pH scale in detail
+summary: Each step counts tenfold.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: Solution A has pH {{a}}, and solution B has pH {{a + d}}. How many times more H⁺ ions does A have?
+    params: { unit: "times" }
+    answer: { value: "{{10 ** d}}" }
+    feedback:
+      - when: "numval(state.input) == d"
+        misconception: linear
+        text: Each step is a factor of 10, not just one more.
+    hints:
+      - "{{d}} steps means 10 multiplied {{d}} times."
+    explanation: "$10^{ {{d}} } = {{10 ** d}}$ times as many H⁺ ions."
+    variants:
+      params: { a: "int[1,4]", d: "int[2,4]" }
+      defaults: { a: 2, d: 3 }
+
+  - kind: problem
+    id: ordnen
+    widget: order
+    prompt: Sort from acidic to basic.
+    params:
+      items:
+        - { label: Stomach acid }
+        - { label: Lemon juice }
+        - { label: Rainwater }
+        - { label: Blood }
+        - { label: Soapy water }
+    hints:
+      - Blood is very slightly basic.
+    explanation: Stomach about 1.5, lemon 2, rain 5.6, blood 7.4, soap 10.
+
+  - kind: problem
+    id: regen
+    widget: choice
+    prompt: Why is even clean rain slightly acidic?
+    params:
+      options:
+        - { label: It dissolves CO₂ from the air and forms carbonic acid., correct: true }
+        - { label: Because of exhaust fumes, feedback: "Exhaust makes it even more acidic. But clean air already contains CO₂." }
+    hints:
+      - Which gas is always in the air?
+    explanation: Carbonic acid lowers the pH to about 5.6.
+
+srs:
+  cards_from: [faktor, ordnen]

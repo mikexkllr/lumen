@@ -1,0 +1,60 @@
+id: cs.gates.design
+type: concept
+title: Circuits for everyday life
+summary: Alarm system, comparator, check bit.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: alarm
+    widget: gates
+    prompt: The alarm should go off when the system is armed (S) and the door (T) or the window (F) is open.
+    params:
+      inputs: [{ id: S }, { id: T }, { id: F }]
+      gates:
+        - { id: o, type: "?", in: [T, F], options: [AND, OR] }
+        - { id: g, type: "?", in: [S, o], options: [AND, OR] }
+      outputs: [{ id: Q, from: g, label: Alarm }]
+    check: { predicate: "table('Q') == [0, 0, 0, 0, 0, 1, 1, 1]" }
+    hints:
+      - First combine door and window, then combine with S.
+    explanation: S AND (T OR F) – just like in the sentence.
+
+  - kind: problem
+    id: gleich
+    widget: gates
+    prompt: The lamp should light up when A and B are equal.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: x, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: n, type: NOT, in: [x] }
+      outputs: [{ id: Q, from: n, label: equal }]
+    check: { predicate: "table('Q') == [1, 0, 0, 1]" }
+    hints:
+      - Which gate detects that two inputs are different?
+    explanation: XOR reports “different”, NOT flips it to “equal”. That is how chips compare numbers.
+
+  - kind: explain
+    body: |
+      **Check bit:** When sending, you append a bit that records whether the number of ones is odd. If a bit flips along the way, the check bit no longer matches.
+
+  - kind: problem
+    id: paritaet
+    widget: gates
+    prompt: Build the check bit for three bits – 1 for an odd number of ones.
+    params:
+      inputs: [{ id: A }, { id: B }, { id: C }]
+      gates:
+        - { id: g1, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: g2, type: "?", in: [g1, C], options: [AND, OR, XOR] }
+      outputs: [{ id: Q, from: g2, label: odd }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0, 1, 0, 0, 1]" }
+    hints:
+      - Which gate gives a 0 for two ones?
+    explanation: XOR gates in a row count the ones modulo 2.
+
+srs:
+  cards_from: [gleich, paritaet]

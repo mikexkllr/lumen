@@ -1,0 +1,67 @@
+id: math.mental.tricks
+type: concept
+title: Eleven and squares ending in 5
+summary: Two tricks that feel like magic.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: elf
+    widget: numeric
+    prompt: Calculate 36 · 11.
+    params: { placeholder: "Result" }
+    answer: { value: 396 }
+    hints:
+      - 36 · 10 + 36.
+    explanation: 360 + 36 = 396.
+
+  - kind: explain
+    body: |
+      **Times 11** for two-digit numbers: pull the digits apart and put their sum in the middle.
+      36 · 11 → 3 | 9 | 6 = 396. If the sum is 10 or more, you carry.
+
+  - kind: problem
+    id: elf-variante
+    widget: numeric
+    prompt: Use the eleven trick. {{n}} · 11.
+    params: { placeholder: "Result" }
+    answer: { value: "{{n * 11}}" }
+    hints:
+      - "Digits {{floor(n / 10)}} and {{mod(n, 10)}}, with their sum {{floor(n / 10) + mod(n, 10)}} in the middle."
+    explanation: "{{n}} · 11 = {{n * 11}}."
+    variants:
+      params: { n: "int[12,98]" }
+      constraints: ["mod(n, 10) != 0"]
+      defaults: { n: 54 }
+
+  - kind: explain
+    body: |
+      **Squares of numbers ending in 5:** For 35², work out 3 · 4 = 12 and attach 25. That gives 1225.
+      Take the first digit times its successor, then add 25.
+
+  - kind: problem
+    id: fuenfer-quadrat
+    widget: numeric
+    prompt: Work it out in your head. {{d}}5².
+    params: { placeholder: "Result" }
+    answer: { value: "{{(10 * d + 5) ** 2}}" }
+    feedback:
+      - when: "numval(state.input) == d * d * 100 + 25"
+        misconception: forget-successor
+        text: Almost. Take {{d}} times its successor {{d + 1}}, not times itself.
+    hints:
+      - "{{d}} · {{d + 1}} = {{d * (d + 1)}}. Attach 25."
+    explanation: "{{d * (d + 1)}} and 25 make {{(10 * d + 5) ** 2}}."
+    variants:
+      params: { d: "int[1,9]" }
+      defaults: { d: 6 }
+
+  - kind: explain
+    body: Why does the trick for fives work?
+    reveal:
+      body: "$(10a + 5)^2 = 100 \\cdot a \\cdot (a + 1) + 25$. The trick is just this formula, worked out in your head."
+
+srs:
+  cards_from: [elf-variante, fuenfer-quadrat]

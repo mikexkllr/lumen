@@ -1,0 +1,52 @@
+id: stats.expected.waiting
+type: concept
+title: How long do I have to wait?
+summary: On average, six rolls until a six.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: sechs
+    widget: numeric
+    prompt: How many times do you have to roll on average until the first 6 comes up?
+    params: { unit: rolls }
+    answer: { value: 6 }
+    hints:
+      - The chance per roll is 1/6.
+    explanation: With a 1/6 chance, it takes 6 rolls on average.
+
+  - kind: explain
+    body: |
+      If an event has chance p per try, you wait **1/p** tries on average.
+      At 1%, that is 100 tries on average.
+
+  - kind: problem
+    id: wartezeit
+    widget: numeric
+    prompt: A collector card is in {{p}}% of the packs. How many packs do you open on average until it shows up?
+    params: { unit: packs }
+    answer: { value: "{{100 / p}}" }
+    hints:
+      - "1 divided by {{p / 100}}."
+    explanation: "100 / {{p}} = {{100 / p}} packs."
+    variants:
+      params: { p: "choice[2,4,5,10,20,25]" }
+      defaults: { p: 5 }
+
+  - kind: problem
+    id: gedaechtnis
+    widget: choice
+    prompt: You have already rolled 10 times without a 6. How many more rolls does it take on average now?
+    params:
+      options:
+        - { label: Still 6, correct: true }
+        - { label: Fewer – it is overdue, feedback: "The die has no memory." }
+        - { label: More – today is just unlucky, feedback: "Bad luck is not a property of the die." }
+    hints:
+      - Does the die know what came before?
+    explanation: Every roll starts fresh. The waiting time starts over each time.
+
+srs:
+  cards_from: [wartezeit, gedaechtnis]

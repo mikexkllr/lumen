@@ -1,0 +1,84 @@
+id: cs.binary.places
+type: concept
+title: Place Values with 0 and 1
+summary: Each place is worth twice as much.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fuenf
+    widget: bits
+    prompt: Switch the lamps so that they add up to exactly 5.
+    params: { bits: 3 }
+    answer: { value: 5 }
+    hints:
+      - The lamps count 4, 2, and 1.
+    explanation: 4 + 1 = 5. In binary, that is written 101.
+
+  - kind: explain
+    body: |
+      Each place is worth **twice as much** as the one to its right: 1, 2, 4, 8 …
+      A place is on (1) or off (0). Try it out.
+    visual: { widget: bits, interactive: true, params: { bits: 4, initial: "1010" } }
+
+  - kind: problem
+    id: einstellen
+    widget: bits
+    prompt: Set the number {{n}} – this time without a display.
+    params: { bits: 4, showValue: false }
+    answer: { value: "{{n}}" }
+    hints:
+      - Start on the left with the largest place that still fits.
+      - "Subtract it from {{n}} and continue with the remainder."
+    explanation: "{{n}} = {{bin(n)}} in the binary system."
+    variants:
+      params: { n: "int[3,15]" }
+      defaults: { n: 11 }
+
+  - kind: problem
+    id: lesen
+    widget: numeric
+    prompt: Which number is written as 1101 in binary?
+    params: { placeholder: "Decimal number" }
+    answer: { value: 13 }
+    feedback:
+      - when: "numval(state.input) == 1101"
+        misconception: decimal-reading
+        text: That reads it as a decimal number. Calculate with 8, 4, 2, and 1.
+    hints:
+      - From the right, the places are worth 1, 2, 4, and 8.
+    explanation: 8 + 4 + 0 + 1 = 13.
+
+  - kind: explain
+    body: With 4 bits you can reach 15. How far can you get with 8 bits?
+    reveal:
+      body: Up to 255. Each new bit doubles the possibilities. With 8 bits there are $2^8 = 256$ values – from 0 to 255.
+
+  - kind: problem
+    id: werte
+    widget: choice
+    prompt: How many different values fit into 5 bits?
+    params:
+      options:
+        - { label: "32", correct: true }
+        - { label: "31", feedback: "31 is the largest value. But 0 counts too." }
+        - { label: "25", feedback: "That would be 5 · 5. But bits double." }
+        - { label: "10", feedback: "Each bit doubles the count instead of adding just 2." }
+    hints:
+      - 1 bit has 2 values, 2 bits have 4 values …
+    explanation: $2^5 = 32$ values, namely 0 to 31.
+
+  - kind: problem
+    id: maximum
+    widget: bits
+    prompt: Set the largest number that fits into 6 bits.
+    params: { bits: 6, showValue: false }
+    answer: { value: 63 }
+    hints:
+      - Which lamps must be on for that?
+    explanation: All six on – 32 + 16 + 8 + 4 + 2 + 1 = 63.
+
+srs:
+  cards_from: [einstellen, lesen]

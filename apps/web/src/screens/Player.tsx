@@ -124,7 +124,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
           list = c.steps.map((s) => ({ key: s.id, step: s, conceptId: c.id, topicId, seed: 0 }));
         } else if (mode.kind === 'daily') {
           const dp = dailyPuzzle(lib.catalog, app.today);
-          if (!dp) throw new Error('Kein Tagesrätsel verfügbar');
+          if (!dp) throw new Error('No daily puzzle available');
           const c = await lib.concept(dp.conceptId);
           const step = c.steps.find((s) => s.id === dp.itemId);
           if (step) list = [{ key: `daily-${app.today}`, step, conceptId: dp.conceptId, topicId: dp.topicId, seed: dp.seed }];
@@ -593,7 +593,7 @@ function ProblemView({
               onSubmit={primary}
             />
           ) : (
-            <p role="alert">Widget {rp.widget.kind} hat keine Oberfläche.</p>
+            <p role="alert">Widget {rp.widget.kind} has no UI.</p>
           )}
         </div>
         <AnimatePresence>

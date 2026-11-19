@@ -1,0 +1,82 @@
+id: ai.neural.boundary
+type: concept
+title: The Decision Boundary
+summary: A neuron draws a line.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: trennen
+    widget: slider
+    prompt: Set the line so that all blue points lie above it and all orange points below it.
+    params:
+      expr: "m*x + b"
+      x: [-4, 4]
+      y: [-3, 5]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Slope, min: -2, max: 2, step: 0.25, initial: 1 }
+        - { id: b, label: Height, min: -3, max: 3, step: 0.5, initial: -2 }
+      markers:
+        - { x: -2, y: 3, group: a }
+        - { x: 0, y: 3, group: a }
+        - { x: 2, y: 4, group: a }
+        - { x: -2, y: -1, group: b }
+        - { x: 1, y: 0, group: b }
+        - { x: 3, y: 1, group: b }
+    check: { predicate: "3 > -2 * m + b && 3 > b && 4 > 2 * m + b && -1 < -2 * m + b && 0 < m + b && 1 < 3 * m + b" }
+    hints:
+      - A flat line at medium height works here.
+    explanation: For example y = 1.5. Everything blue lies above it, everything orange below.
+
+  - kind: explain
+    body: |
+      A neuron with two inputs draws a **line** through the plane. On one side it fires, on the other it does not.
+      **Learning** means turning the weights so that the line separates well.
+
+  - kind: problem
+    id: schraeg
+    widget: slider
+    prompt: New data. This time you need a slope.
+    params:
+      expr: "m*x + b"
+      x: [-4, 4]
+      y: [-3, 5]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Slope, min: -2, max: 2, step: 0.25, initial: 0 }
+        - { id: b, label: Height, min: -3, max: 3, step: 0.5, initial: 0 }
+      markers:
+        - { x: -3, y: -1, group: a }
+        - { x: -1, y: 1, group: a }
+        - { x: 1, y: 3, group: a }
+        - { x: -1, y: -2, group: b }
+        - { x: 1, y: 0, group: b }
+        - { x: 3, y: 1, group: b }
+    check: { predicate: "-1 > -3 * m + b && 1 > -m + b && 3 > m + b && -2 < -m + b && 0 < m + b && 1 < 3 * m + b" }
+    hints:
+      - The blue points rise to the right. The line should do the same.
+    explanation: For example, y = x + 0.5 separates both groups.
+
+  - kind: problem
+    id: xor
+    widget: choice
+    prompt: Which pattern can a single neuron NOT separate?
+    params:
+      options:
+        - { label: "A checkerboard – blue at top left and bottom right", correct: true }
+        - { label: "Blue on the left, orange on the right", feedback: "A vertical line separates that." }
+        - { label: "Blue on top, orange on the bottom", feedback: "A horizontal line separates that." }
+    hints:
+      - Try to lay a single line through a checkerboard in your head.
+    explanation: The checkerboard pattern is like XOR. No single line separates it.
+
+  - kind: explain
+    body: And how do you separate the checkerboard?
+    reveal:
+      body: With several neurons in layers. Each layer draws its own lines. Together they make arbitrary shapes – this is **deep learning**.
+
+srs:
+  cards_from: [trennen, xor]

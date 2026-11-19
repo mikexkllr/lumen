@@ -1,0 +1,63 @@
+id: cs.code.loops
+type: concept
+title: Loops
+summary: Repeat instead of copying.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [cs.loops]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: lange-strecke
+    widget: robot
+    prompt: Get the robot to the goal – with at most 3 blocks.
+    params: { grid: ["S.......G"], blocks: [forward, repeat, end], repeatCounts: [2, 4, 8], maxBlocks: 3 }
+    hints:
+      - Eight forward blocks would be too many.
+      - Repeat 8× – forward – end.
+    explanation: One loop – repeat 8× forward.
+
+  - kind: explain
+    body: |
+      A **loop** repeats commands.
+      "Repeat 8× forward, end" is shorter than writing "forward" eight times – and easier to change.
+
+  - kind: problem
+    id: treppe
+    widget: robot
+    prompt: The staircase has a pattern. Can you do it with at most 6 blocks?
+    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
+    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    hints:
+      - Which four commands repeat on every step?
+      - forward, right, forward, left – three times.
+    explanation: repeat 3× (forward, turn right, forward, turn left).
+    difficulty: 3
+
+  - kind: problem
+    id: quadrat
+    widget: choice
+    prompt: What does "repeat 4× – forward, turn right – end" do on an open field?
+    params:
+      options:
+        - { label: The robot drives a square and ends up back at the start, correct: true }
+        - { label: It drives 4 squares straight ahead, feedback: "After each step it turns." }
+        - { label: It only turns on the spot, feedback: "Before each turn it moves one square." }
+    hints:
+      - Four right turns make a full circle.
+    explanation: Four sides, four right turns – a square back to the start.
+
+  - kind: problem
+    id: verschachtelt
+    widget: numeric
+    prompt: How many times does the robot move forward in "repeat 3× ( repeat 4× forward end ) end"?
+    answer: { value: 12 }
+    feedback:
+      - when: "numval(state.input) == 7"
+        misconception: nested-loops-add
+        text: The inner loop runs completely on every round of the outer loop – so multiply, don't add.
+    hints:
+      - The inner loop runs three times.
+    explanation: 3 · 4 = 12.
+    difficulty: 2

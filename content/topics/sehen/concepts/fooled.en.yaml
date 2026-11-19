@@ -1,0 +1,55 @@
+id: ai.vision.fooled
+type: concept
+title: Fooled eyes
+summary: Small changes, big mistakes.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zahlen
+    widget: numeric
+    prompt: An image has {{s}} × {{s}} pixels with three color values each. How many numbers does the model see?
+    params: { placeholder: "Number" }
+    answer: { value: "{{s * s * 3}}" }
+    hints:
+      - Count the pixels, then times 3.
+    explanation: "{{s}} · {{s}} · 3 = {{s * s * 3}}. To the model, a photo is just a long list of numbers."
+    variants:
+      params: { s: "choice[32,64,100,128]" }
+      defaults: { s: 64 }
+
+  - kind: problem
+    id: sticker
+    widget: choice
+    prompt: A few stickers on a stop sign, and a model sees a speed limit. Why?
+    params:
+      options:
+        - { label: "It looks at patterns that humans do not care about.", correct: true }
+        - { label: The sign was really unreadable., feedback: "People recognized it without trouble." }
+    hints:
+      - Does the model understand what a sign means?
+    explanation: The model computes with pixel patterns. Targeted disturbances can tip it over.
+
+  - kind: explain
+    body: |
+      These tricks are called **adversarial examples**. You often cannot see them. Yet the AI changes its answer.
+
+  - kind: problem
+    id: wer
+    widget: buckets
+    prompt: Who gets fooled?
+    params:
+      buckets: [{ label: people too }, { label: only the AI }]
+      items:
+        - { label: Lines with arrowheads, bucket: people too }
+        - { label: Faces in clouds, bucket: people too }
+        - { label: Pixel noise, bucket: only the AI }
+        - { label: Stop sign stickers, bucket: only the AI }
+    hints:
+      - Would you fall for it?
+    explanation: People and AI have different blind spots.
+
+srs:
+  cards_from: [sticker, wer]

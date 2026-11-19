@@ -1,0 +1,60 @@
+id: cs.gates.nand
+type: concept
+title: One gate for everything
+summary: With NAND, you can build any chip.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      **NAND** means “not and”. It outputs 0 only when both inputs are 1. The special thing – from NAND alone, you can build every other gate.
+
+  - kind: problem
+    id: nicht
+    widget: gates
+    prompt: Build a NOT. Both inputs are connected to A.
+    params:
+      inputs: [{ id: A }]
+      gates:
+        - { id: g, type: "?", in: [A, A], options: [AND, OR, NAND] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [1, 0]" }
+    hints:
+      - Which gate turns 1 and 1 into a 0?
+    explanation: NAND(A, A) is 0 exactly when A = 1 – so NOT A.
+
+  - kind: problem
+    id: und
+    widget: gates
+    prompt: Build an AND from two gates. The first is already a NAND.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NAND, in: [A, B] }
+        - { id: g, type: "?", in: [n, n], options: [AND, OR, NAND] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [0, 0, 0, 1]" }
+    hints:
+      - AND is “not NAND”. How do you build a NOT?
+    explanation: The second NAND reverses the first – together they make an AND.
+
+  - kind: problem
+    id: oder
+    widget: gates
+    prompt: Now OR. Choose the first two gates.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: x, type: "?", in: [A, A], options: [AND, NAND] }
+        - { id: y, type: "?", in: [B, B], options: [AND, NAND] }
+        - { id: g, type: NAND, in: [x, y] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [0, 1, 1, 1]" }
+    hints:
+      - First invert both inputs.
+    explanation: NAND of “not A” and “not B” is “A or B” – De Morgan in hardware.
+
+srs:
+  cards_from: [nicht, oder]

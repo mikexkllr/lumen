@@ -1,0 +1,59 @@
+id: math.modular.clock
+type: concept
+title: Calculating Like a Clock
+summary: After 24, it starts again at 0.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: uhrzeit
+    widget: numeric
+    prompt: It is {{h}}:00 now. What time will it be in {{d}} hours? Give the hour.
+    params: { unit: "h" }
+    answer: { value: "{{mod(h + d, 24)}}" }
+    feedback:
+      - when: "numval(state.input) == h + d"
+        misconception: no-wrap
+        text: After 24:00, the next day starts again at 0.
+    hints:
+      - "{{h}} + {{d}} – and subtract anything over 24."
+    explanation: "{{h + d}} − 24 = {{mod(h + d, 24)}}:00."
+    variants:
+      params: { h: "int[14,23]", d: "int[5,20]" }
+      constraints: ["h + d >= 24"]
+      defaults: { h: 20, d: 7 }
+
+  - kind: explain
+    body: |
+      In **arithmetic modulo n**, only the remainder after dividing by n counts. Clocks work modulo 24 (or 12), weekdays modulo 7. You write $27 \bmod 24 = 3$.
+
+  - kind: problem
+    id: wochentag
+    widget: choice
+    prompt: Today is Monday. What day of the week will it be in 100 days?
+    params:
+      options:
+        - { label: Wednesday, correct: true }
+        - { label: Monday, feedback: "100 is not a multiple of 7 – there is a remainder." }
+        - { label: Friday, feedback: "Work out the remainder of 100 divided by 7." }
+    hints:
+      - 100 = 14 · 7 + 2.
+    explanation: After 14 full weeks, 2 days remain – Wednesday.
+
+  - kind: problem
+    id: tage
+    widget: numeric
+    prompt: What remainder is left when you divide {{n}} by 7?
+    params: { placeholder: "Remainder" }
+    answer: { value: "{{mod(n, 7)}}" }
+    hints:
+      - How many full weeks fit in?
+    explanation: "{{n}} = {{floor(n / 7)}} · 7 + {{mod(n, 7)}}."
+    variants:
+      params: { n: "int[30,365]" }
+      defaults: { n: 100 }
+
+srs:
+  cards_from: [uhrzeit, wochentag]

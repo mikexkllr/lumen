@@ -1,0 +1,60 @@
+id: cs.internet.speed
+type: concept
+title: How fast is fast?
+summary: Bits, bytes and ping.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: mbyte
+    widget: numeric
+    prompt: A line manages {{r}} megabits per second. How many megabytes per second is that?
+    params: { unit: MB/s }
+    answer: { value: "{{r / 8}}" }
+    feedback:
+      - when: "numval(state.input) == r"
+        misconception: bit-byte
+        text: A bit and a byte are not the same – a byte has 8 bits.
+    hints:
+      - 8 bits = 1 byte.
+    explanation: "{{r}} ÷ 8 = {{r / 8}} MB/s."
+    variants:
+      params: { r: "choice[16,40,80,160,400]" }
+      defaults: { r: 80 }
+
+  - kind: problem
+    id: download
+    widget: numeric
+    prompt: How many seconds does a download of {{g}} GB take at 100 Mbit/s?
+    params: { unit: s }
+    answer: { value: "{{g * 80}}" }
+    hints:
+      - 1 GB = 1,000 MB = 8,000 megabits.
+    explanation: "{{g}} · 8000 ÷ 100 = {{g * 80}} seconds."
+    variants:
+      params: { g: "int[1,9]" }
+      defaults: { g: 3 }
+
+  - kind: explain
+    body: |
+      **Bandwidth** tells you how much gets through per second. **Ping** tells you how long a single packet takes there and back. For some things one counts, for others the other.
+
+  - kind: problem
+    id: was-zaehlt
+    widget: buckets
+    prompt: What matters more here?
+    params:
+      buckets: [{ label: Bandwidth }, { label: Ping }]
+      items:
+        - { label: Streaming a 4K movie, bucket: Bandwidth }
+        - { label: Downloading a big update, bucket: Bandwidth }
+        - { label: Online game, bucket: Ping }
+        - { label: Video call, bucket: Ping }
+    hints:
+      - Is it about a lot of data or a fast reaction?
+    explanation: Large amounts of data need bandwidth. Reactions need a short ping.
+
+srs:
+  cards_from: [mbyte, was-zaehlt]

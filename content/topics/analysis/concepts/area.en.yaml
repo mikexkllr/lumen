@@ -1,0 +1,58 @@
+id: math.calculus.area
+type: concept
+title: Area under the curve
+summary: From speed to distance.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: konstant
+    widget: numeric
+    prompt: A car drives at a constant {{v}} km/h for {{t}} hours. How far does it get?
+    params: { unit: km }
+    answer: { value: "{{v * t}}" }
+    hints:
+      - Speed times time.
+    explanation: "{{v}} · {{t}} = {{v * t}} km – exactly the area of the rectangle under the speed line."
+    variants:
+      params: { t: "int[2,5]", v: "choice[50,60,80,100]" }
+      defaults: { t: 3, v: 60 }
+
+  - kind: explain
+    body: |
+      In a speed-time graph, the **area under the curve** is the distance. For curved lines, you cut the area into thin strips and add them up. This is called an **integral**.
+
+  - kind: problem
+    id: dreieck
+    widget: numeric
+    prompt: A wheel speeds up evenly from 0 to {{v}} m/s in {{t}} s. How far does it travel?
+    params: { unit: m }
+    answer: { value: "{{v * t / 2}}" }
+    feedback:
+      - when: "numval(state.input) == v * t"
+        misconception: full-rectangle
+        text: That would be the distance at full speed from the start. Under the curve there is only a triangle.
+    hints:
+      - The area is a triangle – half the base times the height.
+    explanation: "{{t}} · {{v}} ÷ 2 = {{v * t / 2}} m."
+    variants:
+      params: { t: "choice[4,6,10]", v: "choice[4,6,8,10]" }
+      defaults: { t: 6, v: 8 }
+
+  - kind: problem
+    id: wasser
+    widget: choice
+    prompt: A graph shows how many liters per minute flow into a tub. What does the area under it measure?
+    params:
+      options:
+        - { label: The total amount of water, correct: true }
+        - { label: The highest flow rate, feedback: "That is the highest point of the curve." }
+        - { label: The duration, feedback: "The duration is on the x-axis." }
+    hints:
+      - Liters per minute times minutes gives …
+    explanation: Rate times time gives the amount. The area adds up everything that has flowed.
+
+srs:
+  cards_from: [dreieck, wasser]

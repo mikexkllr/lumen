@@ -1,0 +1,54 @@
+id: cs.crypto.publickey
+type: concept
+title: Public keys
+summary: A lock for everyone, a key for you.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Picture an open padlock. Anyone can snap it shut, but only you have the key. The padlock is your **public key**, and its key is your **private key**.
+
+  - kind: problem
+    id: wessen
+    widget: choice
+    prompt: Anna wants to send Ben a secret message. Which key does she lock it with?
+    params:
+      options:
+        - { label: Ben's public key, correct: true }
+        - { label: Her own private key, feedback: "Then anyone with Anna's public key could open it." }
+        - { label: Ben's private key, feedback: "Only Ben has that." }
+    hints:
+      - Who should be able to open the message?
+    explanation: Only Ben has the matching private key to open it.
+
+  - kind: problem
+    id: einweg
+    widget: numeric
+    prompt: Such methods use calculations that are easy forward and hard backward. What is the remainder of $3^{ {{e}} }$ divided by 7?
+    params: { placeholder: "Remainder" }
+    answer: { value: "{{mod(3 ** e, 7)}}" }
+    hints:
+      - "$3^{ {{e}} } = {{3 ** e}}$. Divide by 7."
+    explanation: "{{3 ** e}} = 7 · {{floor(3 ** e / 7)}} + {{mod(3 ** e, 7)}}. Going backward – which exponent gives this remainder? – is almost impossible with large numbers."
+    variants:
+      params: { e: "int[2,6]" }
+      defaults: { e: 4 }
+
+  - kind: problem
+    id: signatur
+    widget: choice
+    prompt: How does Ben prove that a message really comes from him?
+    params:
+      options:
+        - { label: He signs it with his private key., correct: true }
+        - { label: He writes his name underneath., feedback: "Anyone can fake that." }
+        - { label: He uses Anna's public key., feedback: "Everyone has that – it proves nothing about Ben." }
+    hints:
+      - What does only Ben have?
+    explanation: With Ben's public key, anyone can check that only Ben's private key can have made the signature.
+
+srs:
+  cards_from: [wessen, signatur]

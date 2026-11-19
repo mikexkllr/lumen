@@ -1,0 +1,57 @@
+id: ai.recommend.collab
+type: concept
+title: People Like You Also Liked …
+summary: Recommending from the behavior of others.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: empfehlen
+    widget: choice
+    body: Carla has almost the same taste as you. She loves a series you do not know yet.
+    prompt: What will a system probably recommend to you?
+    params:
+      options:
+        - { label: Exactly that series, correct: true }
+        - { label: The most-watched series overall, feedback: "That would be a simple top list – unrelated to you." }
+        - { label: "A series that Carla does not like", feedback: "Her taste is similar to yours." }
+    hints:
+      - What did the system just measure similarity for?
+    explanation: This is called **collaborative filtering** – similar people help each other without knowing it.
+
+  - kind: explain
+    body: |
+      There are two basic ideas. **Content-based** – you liked crime shows, here is another one.
+      **Collaborative** – people like you also liked this.
+
+  - kind: problem
+    id: art
+    widget: buckets
+    prompt: Content-based or collaborative?
+    params:
+      buckets: [{ label: content-based }, { label: collaborative }]
+      items:
+        - { label: More from the same director, bucket: content-based }
+        - { label: A song at the same tempo, bucket: content-based }
+        - { label: "People who bought this also bought …", bucket: collaborative }
+        - { label: Popular with similar listeners, bucket: collaborative }
+    hints:
+      - Is it about properties of the item – or about other people?
+    explanation: Many services mix both.
+
+  - kind: problem
+    id: kaltstart
+    widget: choice
+    prompt: A brand-new film has no ratings yet. Which method can still recommend it?
+    params:
+      options:
+        - { label: Content-based, correct: true }
+        - { label: Collaborative, feedback: "Without ratings, nobody knows which people like it." }
+    hints:
+      - What do you know about a film without viewers?
+    explanation: This is the **cold-start problem**. Features like genre help until ratings arrive.
+
+srs:
+  cards_from: [art, kaltstart]

@@ -1,0 +1,79 @@
+id: math.money.lab
+type: concept
+title: Money Lab
+summary: Compound interest, savings plans, and discounts you can play with.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zinseszins
+    widget: chart
+    prompt: An amount grows 50% every year. Set the bar for year 2.
+    params:
+      labels: [Start, Year 1, Year 2]
+      values: [100, 150, 100]
+      editable: [2]
+      min: 0
+      max: 300
+      step: 25
+      unit: "€"
+    answer: { values: [100, 150, 225] }
+    feedback:
+      - when: "values[2] == 200"
+        misconception: simple-interest
+        text: The 50% applies to the new balance of €150 – not just the first €100.
+    hints:
+      - Half of €150 gets added.
+    explanation: 150 + 75 = €225. Interest on interest – that is why the bar grows ever faster.
+
+  - kind: problem
+    id: sparrate
+    widget: slider
+    prompt: You want to save €1200 in 12 months. Set the monthly savings rate.
+    params:
+      expr: "r*x"
+      x: [0, 12]
+      y: [0, 1500]
+      showCoordinates: false
+      sliders: [{ id: r, label: "Savings rate (€)", min: 25, max: 200, step: 25, initial: 50 }]
+      markers:
+        - { x: 12, y: 1200, group: a }
+    check: { predicate: "r == 100" }
+    hints:
+      - The line should hit the point after 12 months.
+    explanation: "€1200 ÷ 12 = €100 per month."
+
+  - kind: problem
+    id: kosten
+    widget: buckets
+    prompt: Fixed costs or variable costs?
+    params:
+      buckets: [{ label: fixed }, { label: variable }]
+      items:
+        - { label: Rent, bucket: fixed }
+        - { label: Phone contract, bucket: fixed }
+        - { label: Insurance, bucket: fixed }
+        - { label: Groceries, bucket: variable }
+        - { label: Movies, bucket: variable }
+        - { label: Gas, bucket: variable }
+    hints:
+      - Is the amount the same every month?
+    explanation: When saving, you usually start with the variable costs.
+
+  - kind: problem
+    id: rabatt
+    widget: tiles
+    prompt: Build the calculation for 25% off €80.
+    params:
+      tiles: ["80", "·", "0.75", "0.25", "=", "60", "20"]
+    answer:
+      sequence: ["80", "·", "0.75", "=", "60"]
+      anyOf: [["0.75", "·", "80", "=", "60"]]
+    hints:
+      - After 25% off, you still pay 75%.
+    explanation: €80 · 0.75 = €60. With the factor, you calculate in one step.
+
+srs:
+  cards_from: [zinseszins, rabatt]

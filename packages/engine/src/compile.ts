@@ -63,6 +63,54 @@ function pickLocale<T extends { locale?: string }>(docs: T[], locale: string): T
   return docs.find((d) => (d.locale ?? DEFAULT_LOCALE) === locale) ?? docs.find((d) => (d.locale ?? DEFAULT_LOCALE) === DEFAULT_LOCALE) ?? docs[0];
 }
 
+// ---------- Translations ----------
+
+/** Keys whose values are code, not prose: they must be identical in every locale. */
+const CODE_KEYS = new Set(['type', 'id', 'when', 'variants', 'widget', 'kind', 'misconception', 'skills', 'cards_from', 'prerequisites', 'concepts', 'topics', 'area', 'level', 'icon', 'color', 'license', 'recommends', 'mastered', 'estimated_minutes']);
+
+/**
+ * Language-independent fingerprint of a document: structure, numbers, booleans,
+ * ids and `{{…}}` templates. Prose is ignored, so a faithful translation has the
+ * same fingerprint as its original.
+ */
+function fingerprint(v: unknown, key = ''): unknown {
+  // a skills file's `skills` holds titled objects; elsewhere `skills` lists ids
+  if (CODE_KEYS.has(key) && !(Array.isArray(v) && v.some((x) => x && typeof x === 'object'))) return JSON.stringify(v);
+  if (typeof v === 'string') return (v.match(/\{\{[^}]*\}\}/g) ?? []).sort().join('');
+  if (Array.isArray(v)) return v.map((x) => fingerprint(x));
+  if (v && typeof v === 'object') {
+    const o: Record<string, unknown> = {};
+    for (const k of Object.keys(v).sort()) if (k !== 'locale' && k !== 'authors' && k !== 'sources') o[k] = fingerprint((v as Record<string, unknown>)[k], k);
+    return o;
+  }
+  return v;
+}
+
+/** First path where two fingerprints differ, for a readable message. */
+function firstDiff(a: unknown, b: unknown, path = ''): string | undefined {
+  if (JSON.stringify(a) === JSON.stringify(b)) return undefined;
+  if (a && b && typeof a === 'object' && typeof b === 'object') {
+    if (Array.isArray(a) !== Array.isArray(b)) return path || '(root)';
+    if (Array.isArray(a) && Array.isArray(b) && a.length !== b.length) return `${path || '(root)'} (length ${a.length} ≠ ${b.length})`;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    for (const k of keys) {
+      const d = firstDiff((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k], path ? `${path}.${k}` : k);
+      if (d) return d;
+    }
+  }
+  return path || '(root)';
+}
+
+/**
+ * Checks a translation against the default-locale original: same steps, ids,
+ * widgets, numbers, conditions and templates – only the wording may differ.
+ */
+export function translationIssues(original: unknown, translation: unknown, file: string): Issue[] {
+  const diff = firstDiff(fingerprint(original), fingerprint(translation));
+  if (!diff) return [];
+  return [{ level: 'error', code: 'i18n.parity', message: `Translation differs from the original in structure, numbers, ids or {{templates}} at ${diff}. Translate the wording only.`, file }];
+}
+
 export function compileContent(files: SourceFile[], locale = DEFAULT_LOCALE): { course: Course; issues: Issue[] } {
   const issues: Issue[] = [];
   const byKey = new Map<string, { doc: Doc; file: string }[]>();
@@ -94,6 +142,11 @@ export function compileContent(files: SourceFile[], locale = DEFAULT_LOCALE): { 
     const chosen = pickLocale(list.map((x) => ({ ...x, locale: x.doc.locale as string | undefined })), locale);
     if (!chosen) continue;
     const { doc, file } = chosen;
+    if (locale !== DEFAULT_LOCALE) {
+      const original = list.find((x) => (x.doc.locale ?? DEFAULT_LOCALE) === DEFAULT_LOCALE);
+      if ((doc.locale ?? DEFAULT_LOCALE) !== locale) issues.push({ level: 'info', code: 'i18n.missing', message: `No ${locale} translation yet – falls back to ${DEFAULT_LOCALE}.`, file });
+      else if (original) issues.push(...translationIssues(original.doc, doc, file));
+    }
     switch (doc.type) {
       case 'concept': {
         const r = ConceptSchema.safeParse(doc);

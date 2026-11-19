@@ -1,0 +1,81 @@
+id: logic.sets.count
+type: concept
+title: Counting correctly
+summary: If you count twice, you are off.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: mindestens-eins
+    widget: numeric
+    prompt: "{{k}} people drink coffee, {{t}} drink tea, {{b}} drink both. How many drink at least one of them?"
+    params: { unit: people }
+    answer: { value: "{{k + t - b}}" }
+    feedback:
+      - when: "numval(state.input) == k + t"
+        misconception: double-count
+        text: You counted the {{b}} who drink both twice.
+    hints:
+      - Anyone who drinks both is in both numbers.
+    explanation: "{{k}} + {{t}} − {{b}} = {{k + t - b}}."
+    variants:
+      params: { k: "int[8,16]", t: "int[6,12]", b: "int[2,5]" }
+      defaults: { k: 12, t: 9, b: 4 }
+
+  - kind: explain
+    body: |
+      Anyone in both sets is counted **twice** when you add.
+      So: |A ∪ B| = |A| + |B| − |A ∩ B|.
+    visual: { widget: venn, params: { sets: ["Coffee (12)", "Tea (9)"], counts: { A: 8, B: 5, AB: 4 } } }
+
+  - kind: problem
+    id: keins
+    widget: numeric
+    prompt: "{{n}} people live in a building. {{f}} have a bike, {{a}} have a car, {{b}} have both. How many have neither?"
+    params: { unit: people }
+    answer: { value: "{{n - (f + a - b)}}" }
+    feedback:
+      - when: "numval(state.input) == f + a - b"
+        misconception: complement
+        text: That is those with at least one. You need the rest.
+    hints:
+      - First work out how many have at least one.
+    explanation: "{{f}} + {{a}} − {{b}} = {{f + a - b}} have one. That leaves {{n - (f + a - b)}}."
+    variants:
+      params: { n: "int[28,40]", f: "int[12,18]", a: "int[10,15]", b: "int[4,8]" }
+      constraints: ["n - (f + a - b) > 0"]
+      defaults: { n: 30, f: 18, a: 15, b: 7 }
+
+  - kind: problem
+    id: genau-eins
+    widget: venn
+    prompt: Shade everyone who likes exactly one of the two.
+    params: { sets: [Pizza, Pasta], counts: { A: 7, B: 5, AB: 3 } }
+    answer: { regions: [A, B] }
+    hints:
+      - Exactly one – so not both.
+    explanation: The two outer parts, 12 people together.
+
+  - kind: explain
+    body: A survey reports that 60% like pizza and 50% like pasta. Is that even possible?
+    reveal:
+      body: Yes. Together that is 110%. So **at least 10%** must like both. Overlapping groups do not add up to 100.
+
+  - kind: problem
+    id: ueberlapp
+    widget: numeric
+    prompt: "{{p}}% like pizza, {{q}}% like pasta. What percent like both, at the very least?"
+    params: { unit: "%" }
+    answer: { value: "{{p + q - 100}}" }
+    hints:
+      - There cannot be more than 100%. How much is too much?
+    explanation: "{{p}} + {{q}} = {{p + q}}. The {{p + q - 100}}% above 100 must be counted twice."
+    variants:
+      params: { p: "step[55,85,5]", q: "step[40,70,5]" }
+      constraints: ["p + q > 100"]
+      defaults: { p: 60, q: 50 }
+
+srs:
+  cards_from: [mindestens-eins, keins]

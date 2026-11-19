@@ -1,0 +1,55 @@
+id: math.modular.checkdigits
+type: concept
+title: Weighted Check Digits
+summary: How barcodes catch typos.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      In barcodes, the digits are weighted alternately by 1 and 3, then added. The **check digit** tops the sum up to the next multiple of 10. Because of the weights, swapped neighboring digits show up too.
+
+  - kind: problem
+    id: ergaenzen
+    widget: numeric
+    prompt: The weighted sum is {{s}}. Which check digit tops it up to the next multiple of 10?
+    params: { placeholder: "Digit" }
+    answer: { value: "{{mod(10 - mod(s, 10), 10)}}" }
+    hints:
+      - How much is missing to the next multiple of ten?
+    explanation: "{{s}} + {{mod(10 - mod(s, 10), 10)}} is a multiple of 10."
+    variants:
+      params: { s: "int[40,99]" }
+      defaults: { s: 47 }
+
+  - kind: problem
+    id: dreher
+    widget: choice
+    prompt: Someone swaps two neighboring digits, 2 and 7. Does the weighted check catch it?
+    params:
+      options:
+        - { label: "Yes – the weights 1 and 3 change the sum.", correct: true }
+        - { label: "No – the sum stays the same.", feedback: "Without weights it would. With the weights 1 and 3, the sum changes." }
+    hints:
+      - Compare 2 · 1 + 7 · 3 with 7 · 1 + 2 · 3.
+    explanation: 23 versus 13 – the sum changes, so the error shows.
+
+  - kind: problem
+    id: wo
+    widget: buckets
+    prompt: Does it contain a check digit?
+    params:
+      buckets: [{ label: "yes" }, { label: "no" }]
+      items:
+        - { label: Supermarket barcode, bucket: "yes" }
+        - { label: IBAN, bucket: "yes" }
+        - { label: ISBN of a book, bucket: "yes" }
+        - { label: House number, bucket: "no" }
+    hints:
+      - Where would a typo be costly?
+    explanation: Everywhere numbers are typed in and errors cost money.
+
+srs:
+  cards_from: [ergaenzen, dreher]

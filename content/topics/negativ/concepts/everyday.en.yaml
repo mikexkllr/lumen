@@ -1,0 +1,60 @@
+id: math.negative.everyday
+type: concept
+title: Temperatures and bank balance
+summary: Differences across zero.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: temperatur
+    widget: numeric
+    prompt: At night it was {{a}} °C, at noon {{b}} °C. By how many degrees did it get warmer?
+    params: { unit: "°C" }
+    answer: { value: "{{b - a}}" }
+    feedback:
+      - when: "numval(state.input) == b + a"
+        misconception: ignore-sign
+        text: Count across zero – first up to 0, then onward.
+    hints:
+      - "From {{a}} to 0 is {{-a}} degrees, then another {{b}}."
+    explanation: "{{b}} − ({{a}}) = {{b - a}} degrees."
+    variants:
+      params: { a: "int[-12,-2]", b: "int[3,15]" }
+      defaults: { a: -5, b: 7 }
+
+  - kind: problem
+    id: punkt
+    widget: numberline
+    prompt: Place the marker on −3.5.
+    params: { min: -5, max: 2, ticks: 2, labels: integers }
+    answer: { value: -3.5 }
+    hints:
+      - Exactly halfway between −4 and −3.
+    explanation: −3.5 lies between −4 and −3.
+
+  - kind: explain
+    body: |
+      On a bank account, minus means you owe the bank money.
+      If you are at −200 € and withdraw 50 €, you end up at −250 €.
+
+  - kind: problem
+    id: konto
+    widget: numeric
+    prompt: Your account is at {{k}} €. Then {{g}} € in pay comes in. What is the new balance?
+    params: { unit: "€" }
+    answer: { value: "{{k + g}}" }
+    feedback:
+      - when: "numval(state.input) == g - k"
+        misconception: subtract-wrong
+        text: Calculate {{k}} + {{g}}. The debt gets smaller.
+    hints:
+      - "Start at {{k}} and go {{g}} to the right."
+    explanation: "{{k}} + {{g}} = {{k + g}} €."
+    variants:
+      params: { k: "step[-500,-100,50]", g: "step[200,1500,100]" }
+      defaults: { k: -300, g: 1200 }
+
+srs:
+  cards_from: [temperatur, konto]

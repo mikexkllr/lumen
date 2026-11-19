@@ -1,0 +1,84 @@
+id: geo.solids.volume
+type: concept
+title: Counting volume
+summary: How many cubes fit inside?
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quader
+    widget: numeric
+    prompt: A cuboid is {{a}} cm long, {{b}} cm wide and {{c}} cm tall. How many 1 cm cubes fit inside?
+    params: { unit: cubes }
+    answer: { value: "{{a * b * c}}" }
+    feedback:
+      - when: "numval(state.input) == a + b + c"
+        misconception: add-dimensions
+        text: You added. Think in layers. One layer has {{a * b}} cubes.
+    hints:
+      - "One layer has {{a}} · {{b}} cubes. How many layers are there?"
+    explanation: "{{a}} · {{b}} · {{c}} = {{a * b * c}} cubes."
+    variants:
+      params: { a: "int[2,6]", b: "int[2,5]", c: "int[2,4]" }
+      defaults: { a: 4, b: 3, c: 2 }
+
+  - kind: explain
+    body: |
+      **Volume = length · width · height.**
+      You count how many unit cubes fit inside. That is why the unit is cm³.
+
+  - kind: problem
+    id: wuerfel
+    widget: numeric
+    prompt: A cube has edge length {{a}} cm. What is its volume?
+    params: { unit: cm³ }
+    answer: { value: "{{a ** 3}}" }
+    feedback:
+      - when: "numval(state.input) == 3 * a"
+        misconception: power-as-product
+        text: To the power of 3 means {{a}} · {{a}} · {{a}}, not {{a}} · 3.
+    hints:
+      - Length, width and height are equal.
+    explanation: "{{a}}³ = {{a ** 3}} cm³."
+    variants:
+      params: { a: "int[2,10]" }
+      defaults: { a: 5 }
+
+  - kind: problem
+    id: aquarium
+    widget: numeric
+    prompt: An aquarium is 50 cm long, 30 cm wide and 40 cm tall. How many liters fit inside?
+    body: 1 liter = 1000 cm³
+    params: { unit: liters }
+    answer: { value: 60 }
+    feedback:
+      - when: "numval(state.input) == 60000"
+        misconception: no-conversion
+        text: That is in cm³. Divide by 1000 as well.
+    hints:
+      - First calculate the volume in cm³.
+    explanation: 50 · 30 · 40 = 60,000 cm³ = 60 liters.
+
+  - kind: explain
+    body: How much water does a cube with 1 m edge length hold?
+    reveal:
+      body: 1000 liters, one ton of water. 1 m³ is 1000 dm³, and one dm³ is exactly one liter.
+
+  - kind: problem
+    id: einheiten
+    widget: match
+    prompt: What belongs together?
+    params:
+      pairs:
+        - { left: 1 liter, right: 1 dm³ }
+        - { left: 1 m³, right: 1000 liters }
+        - { left: 1 milliliter, right: 1 cm³ }
+        - { left: 1 hectoliter, right: 100 liters }
+    hints:
+      - A milliliter is a thousandth of a liter.
+    explanation: 1 l = 1 dm³, 1 ml = 1 cm³, 1 m³ = 1000 l, 1 hl = 100 l.
+
+srs:
+  cards_from: [quader, wuerfel]

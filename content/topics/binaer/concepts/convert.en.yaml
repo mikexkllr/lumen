@@ -1,0 +1,89 @@
+id: cs.binary.convert
+type: concept
+title: Converting Back and Forth
+summary: Binary to decimal and back.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: nach-dezimal
+    widget: numeric
+    prompt: Convert the binary number {{b}} to a decimal number.
+    params: { placeholder: "Decimal number" }
+    answer: { value: "{{n}}" }
+    hints:
+      - "Write the value above each place – from the right: 1, 2, 4, 8, 16."
+      - Add up only the places that hold a 1.
+    explanation: "{{b}} equals {{n}}."
+    variants:
+      params: { n: "int[9,31]" }
+      derive: { b: "bin(n)" }
+      defaults: { n: 22 }
+
+  - kind: explain
+    body: |
+      **Decimal to binary:** Take the largest power of two that fits. Subtract it. Repeat with the remainder.
+      Example: 11 = 8 + 2 + 1 – so **1011**.
+
+  - kind: problem
+    id: nach-binaer
+    widget: numeric
+    prompt: Write {{n}} as a binary number.
+    params: { placeholder: "only 0 and 1", keypad: true }
+    answer: { value: "{{bin(n)}}" }
+    hints:
+      - Which power of two is the largest one that fits into {{n}}?
+    explanation: "{{n}} = {{bin(n)}}."
+    variants:
+      params: { n: "int[5,20]" }
+      defaults: { n: 6 }
+
+  - kind: problem
+    id: plus-eins
+    widget: bits
+    prompt: Count one more. Which number comes after 0111?
+    params: { bits: 4, initial: "0111", showValue: false }
+    answer: { value: 8 }
+    hints:
+      - Like in the decimal system after 0999 – there is a carry.
+    explanation: All the ones flip to 0, and the next place jumps to 1. 0111 becomes 1000.
+
+  - kind: problem
+    id: paare
+    widget: match
+    prompt: Connect each binary number to its value.
+    params:
+      leftTitle: Binary
+      rightTitle: Decimal
+      pairs:
+        - { left: "101", right: "5" }
+        - { left: "1001", right: "9" }
+        - { left: "111", right: "7" }
+        - { left: "1100", right: "12" }
+    hints:
+      - Start with the shortest number.
+    explanation: 101 = 5, 111 = 7, 1001 = 9, and 1100 = 12.
+
+  - kind: explain
+    body: Why do computers use 0 and 1 at all?
+    reveal:
+      body: A transistor has two reliable states – current on or off. Two states are hard to mix up. That makes calculation robust.
+
+  - kind: problem
+    id: gerade
+    widget: choice
+    prompt: A binary number ends in 0. What do you know for sure about it?
+    params:
+      options:
+        - { label: It is even., correct: true }
+        - { label: It is odd., feedback: "The last place is the ones place. If it is 0, the 1 is missing." }
+        - { label: It is divisible by 10., feedback: "That holds in the decimal system. Here the places are 1, 2, 4 …" }
+        - { label: Nothing., feedback: "The last place does tell you something. What is its value?" }
+    hints:
+      - All other places are worth 2, 4, 8 …
+    explanation: Only the last place is odd (1). If it is missing, the sum stays even.
+
+srs:
+  cards_from: [nach-dezimal, nach-binaer]

@@ -1,0 +1,65 @@
+id: stats.paradoxes.monty
+type: concept
+title: The Monty Hall problem
+summary: Switching doubles your chance.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: wechseln
+    widget: choice
+    body: Behind one of three doors is a car, behind the others are goats. You pick door 1. The host knows where everything is and opens door 3, a goat.
+    prompt: Should you switch to door 2?
+    params:
+      options:
+        - { label: "Yes, switching wins in 2 of 3 cases", correct: true }
+        - { label: "Doesn't matter, it's 50-50 now", feedback: "Almost everyone thinks so. But the host never opens the car, and that is information." }
+        - { label: "No, staying is safer", feedback: "Your first pick had only a 1/3 chance. Opening a door does not change that." }
+    hints:
+      - How likely was your first pick to be right?
+    explanation: Your door has 1/3. The remaining 2/3 now sit entirely on the other closed door.
+
+  - kind: explain
+    body: Try it out. Let the game run 100 times. The bars show how often each strategy wins.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items: [{ label: Stay, weight: 1 }, { label: Switch, weight: 2 }]
+        sample: [10, 100]
+
+  - kind: explain
+    body: Why does 50-50 feel so right?
+    reveal:
+      body: Because we only see the two doors. We overlook that the host does not open at random. He helps you, and you only have to switch.
+
+  - kind: problem
+    id: hundert
+    widget: numeric
+    prompt: Now 100 doors. You pick one. The host opens 98 goat doors. What is your chance of winning if you switch?
+    params: { unit: "%" }
+    answer: { value: 99 }
+    feedback:
+      - when: "numval(state.input) == 50"
+        misconception: equal-chance
+        text: Your first door had only 1%. The rest moves to the last door.
+    hints:
+      - How likely was your first pick to be right?
+    explanation: Your door has 1%, the other has 99%. Here you can see the effect clearly.
+
+  - kind: problem
+    id: zufaellig
+    widget: choice
+    prompt: Suppose the host opens a door at random, and by chance it is a goat. Is switching worth it now?
+    params:
+      options:
+        - { label: "Then it really is 50-50", correct: true }
+        - { label: "Switching stays at 2/3", feedback: "The advantage comes only from the host knowing." }
+    hints:
+      - Where did the advantage come from?
+    explanation: Without his knowledge, the goat reveals nothing special. Then both doors are equally good.
+
+srs:
+  cards_from: [wechseln, hundert]

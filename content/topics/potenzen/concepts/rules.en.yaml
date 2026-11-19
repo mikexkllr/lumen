@@ -1,0 +1,88 @@
+id: math.powers.rules
+type: concept
+title: Power rules
+summary: Adding, multiplying, subtracting.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: mal
+    widget: numeric
+    prompt: Fill in the exponent. ${{b}}^{{m}} \cdot {{b}}^{{n}} = {{b}}^{?}$
+    params: { placeholder: "?" }
+    answer: { value: "{{m + n}}" }
+    feedback:
+      - when: "numval(state.input) == m * n"
+        misconception: multiply-exponents
+        text: Count the factors. There are {{m}} plus {{n}} equal numbers.
+    hints:
+      - Write both powers as products.
+    explanation: "{{m}} + {{n}} = {{m + n}} factors."
+    variants:
+      params: { b: "choice[2,3,5,10]", m: "int[2,6]", n: "int[2,6]" }
+      constraints: ["m * n != m + n"]
+      defaults: { b: 2, m: 3, n: 4 }
+
+  - kind: explain
+    body: |
+      **Multiplying with the same base:** add the exponents. $2^3 \cdot 2^4 = 2^7$, which is 3 + 4 twos.
+      **Raising a power to a power:** multiply the exponents. $(2^3)^2 = 2^6$.
+
+  - kind: problem
+    id: hoch
+    widget: numeric
+    prompt: Fill in the exponent. $({{b}}^{{m}})^{{n}} = {{b}}^{?}$
+    params: { placeholder: "?" }
+    answer: { value: "{{m * n}}" }
+    feedback:
+      - when: "numval(state.input) == m + n"
+        misconception: add-exponents
+        text: Here the whole power is taken {{n}} times. So multiply.
+    hints:
+      - "Write it out: {{n}} parentheses, with {{m}} factors in each."
+    explanation: "{{n}} · {{m}} = {{m * n}}."
+    variants:
+      params: { b: "choice[2,3,7]", m: "int[2,4]", n: "int[2,4]" }
+      constraints: ["m * n != m + n"]
+      defaults: { b: 3, m: 2, n: 3 }
+
+  - kind: explain
+    body: |
+      **Dividing** subtracts: $5^6 \div 5^2 = 5^4$.
+      That is why $5^2 \div 5^2 = 5^0 = 1$. Any number to the power 0 is 1.
+
+  - kind: problem
+    id: hoch-null
+    widget: choice
+    prompt: What is $7^0$?
+    params:
+      layout: grid
+      options:
+        - { label: "1", correct: true }
+        - { label: "0", feedback: "To the power 0 doesn't mean \"nothing at all\". Think of $7^2 \\div 7^2$." }
+        - { label: "7", feedback: "That would be $7^1$." }
+    hints:
+      - What does a number divided by itself give?
+    explanation: "$7^0 = 7^1 \\div 7^1 = 1$."
+
+  - kind: problem
+    id: teilen
+    widget: numeric
+    prompt: "Fill in the exponent. $10^{{a}} : 10^{{b}} = 10^{?}$"
+    params: { placeholder: "?" }
+    answer: { value: "{{a - b}}" }
+    feedback:
+      - when: "numval(state.input) == a + b"
+        misconception: add-on-divide
+        text: When dividing, you subtract.
+    hints:
+      - When dividing, {{b}} tens cancel out.
+    explanation: "{{a}} − {{b}} = {{a - b}}."
+    variants:
+      params: { a: "int[5,9]", b: "int[1,4]" }
+      defaults: { a: 7, b: 3 }
+
+srs:
+  cards_from: [mal, hoch]

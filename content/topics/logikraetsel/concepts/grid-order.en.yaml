@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: logic.puzzles.grid-order
+type: concept
+title: Who Is First?
+summary: Build a full ranking from "faster than" and "older than."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [logic.ordering]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: schnecken
+    widget: order
+    body: Three snails race. Rosa is faster than Max. Max is faster than Fritz.
+    prompt: Sort them from first to last place.
+    params:
+      items: [{ label: Rosa }, { label: Max }, { label: Fritz }]
+      startLabel: 1st place
+      endLabel: last place
+    hints:
+      - Who is faster than all the others?
+    explanation: Rosa before Max, Max before Fritz, so Rosa, Max, Fritz.
+
+  - kind: explain
+    body: |
+      "Faster than" defines an order. It carries over:
+      If A is faster than B and B is faster than C, then A is faster than C.
+
+  - kind: problem
+    id: plaetze
+    widget: logic-grid
+    prompt: Who takes which place?
+    params:
+      categories:
+        - { name: Child, items: [Ole, Pia, Rina] }
+        - { name: Place, items: [1st place, 2nd place, 3rd place] }
+      ordered: 1
+      clues:
+        - text: Pia was faster than Ole.
+          rule: { less: [Pia, Ole] }
+        - text: Ole did not finish last.
+          rule: { not: [Ole, 3rd place] }
+    hints:
+      - Ole is not last. Can he be first if Pia was faster?
+    explanation: Ole can be neither first nor last, so he is second. Pia is first and Rina third.
+
+  - kind: problem
+    id: alter
+    widget: logic-grid
+    prompt: How old is each child?
+    params:
+      categories:
+        - { name: Child, items: [Tim, Una, Vera, Wim] }
+        - { name: Age, items: [8 years, 9 years, 10 years, 11 years] }
+      ordered: 1
+      clues:
+        - text: Tim is exactly one year older than Una.
+          rule: { offset: [Una, Tim, 1] }
+        - text: Vera is the youngest.
+          rule: { is: [Vera, 8 years] }
+        - text: Wim is older than Tim.
+          rule: { less: [Tim, Wim] }
+    hints:
+      - Vera is 8. The others get 9, 10, and 11.
+      - Wim is older than Tim, and Tim is older than Una. So who is 11?
+    explanation: Vera 8, Una 9, Tim 10, Wim 11.
+    difficulty: 2
+
+  - kind: problem
+    id: groesse
+    widget: choice
+    body: Ella is taller than Finn. Gabi is shorter than Finn.
+    prompt: Who is the shortest?
+    params:
+      options:
+        - label: Gabi
+          correct: true
+        - label: Finn
+          feedback: Gabi is even shorter than Finn.
+        - label: Ella
+          feedback: Ella is taller than Finn, so she is the tallest.
+        - label: You can't say.
+          feedback: Yes, you can. Line the three up as Ella, Finn, Gabi.
+    hints:
+      - Order the three from tall to short.
+    explanation: Ella > Finn > Gabi. Gabi is the shortest.
+
+  - kind: problem
+    id: schlange
+    widget: order
+    body: Ali stands before Bea. Cem stands behind Bea. Dana stands directly before Ali.
+    prompt: How do the four stand in line?
+    params:
+      items: [{ label: Dana }, { label: Ali }, { label: Bea }, { label: Cem }]
+      startLabel: front
+      endLabel: back
+    hints:
+      - Start with Ali and Bea. Where does Dana fit?
+    explanation: Dana stands directly before Ali, Ali before Bea, and Cem behind Bea.
+    difficulty: 2

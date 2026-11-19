@@ -1,0 +1,82 @@
+id: math.money.interest
+type: concept
+title: Interest and Compound Interest
+summary: When interest earns interest.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: ein-jahr
+    widget: numeric
+    prompt: You invest €{{k}} at {{p}}% interest per year. How much interest do you get after one year?
+    params: { unit: "€" }
+    answer: { value: "{{k * p / 100}}" }
+    feedback:
+      - when: "numval(state.input) == k + k * p / 100"
+        misconception: total-not-interest
+        text: That is the whole balance. The question asks only for the interest.
+    hints:
+      - "{{p}}% of €{{k}} – that is {{k}} · {{p}} / 100."
+    explanation: "{{p}}% of €{{k}} is €{{k * p / 100}}."
+    variants:
+      params: { k: "choice[500,1000,2000,5000]", p: "choice[2,3,4,5]" }
+      defaults: { k: 1000, p: 3 }
+
+  - kind: explain
+    body: |
+      **Compound interest** – the interest stays in the account and earns interest too.
+      After n years you have $K \cdot (1 + p/100)^n$.
+
+  - kind: problem
+    id: zwei-jahre
+    widget: numeric
+    prompt: €1000 sits for 2 years at 10% interest. The interest stays in. How much do you have at the end?
+    params: { unit: "€" }
+    answer: { value: 1210 }
+    feedback:
+      - when: "numval(state.input) == 1200"
+        misconception: simple-interest
+        text: That would be without compounding. In the second year you earn 10% on €1100.
+    hints:
+      - "Year 1: €1000 + €100. Year 2: 10% on the new balance."
+    explanation: €1100 + €110 = €1210.
+
+  - kind: problem
+    id: n-jahre
+    widget: numeric
+    prompt: How much will €{{k}} be after {{n}} years at {{p}}% compound interest? Round to whole euros.
+    params: { unit: "€" }
+    answer: { value: "{{round(k * (1 + p / 100) ** n)}}", tolerance: 1 }
+    feedback:
+      - when: "abs(numval(state.input) - (k + k * p / 100 * n)) < 1 && n > 1"
+        misconception: simple-interest
+        text: That is calculated without compounding. Use the factor {{1 + p / 100}} a total of {{n}} times.
+    hints:
+      - "Calculate {{k}} · {{1 + p / 100}} to the power of {{n}}."
+    explanation: "{{k}} · {{1 + p / 100}}^{{n}} ≈ €{{round(k * (1 + p / 100) ** n)}}."
+    variants:
+      params: { k: "choice[1000,2000,5000]", p: "choice[2,4,5]", n: "choice[2,3]" }
+      defaults: { k: 2000, p: 5, n: 3 }
+
+  - kind: explain
+    body: Two people each invest €100 a month at 5%. One starts at 25, the other at 35. What do they have at 65?
+    reveal:
+      body: The early starter has about €148,000, the late starter about €82,000. She paid in only €12,000 more. The rest is compound interest.
+
+  - kind: problem
+    id: frueh
+    widget: choice
+    prompt: What matters most for compound interest?
+    params:
+      options:
+        - { label: Starting early, correct: true }
+        - { label: Switching accounts often, feedback: "That rarely adds much. Time is what counts." }
+        - { label: Withdrawing the interest every year, feedback: "Then you lose exactly the compounding." }
+    hints:
+      - What is in the exponent for compound interest?
+    explanation: Time is in the exponent. Each extra year acts like another factor.
+
+srs:
+  cards_from: [ein-jahr, zwei-jahre]

@@ -1,0 +1,66 @@
+id: ai.vision.classify
+type: concept
+title: Recognizing, and getting it wrong
+summary: Wolves, snow and good training images.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: woelfe
+    widget: choice
+    prompt: A network recognizes wolves very well. Later it turns out that all wolf photos had snow. What did it really learn?
+    params:
+      options:
+        - { label: To recognize snow, correct: true }
+        - { label: To recognize wolves, feedback: "Maybe a little. But snow was the easier feature." }
+        - { label: Nothing at all, feedback: "It learned something, just not the right thing." }
+    hints:
+      - What did all the wolf images have in common?
+    explanation: Networks pick up any pattern that helps, even a wrong one.
+
+  - kind: explain
+    body: |
+      Networks learn any pattern that helps, even random ones like snow or watermarks.
+      That is why you need **varied** training images.
+
+  - kind: problem
+    id: treffer
+    widget: numeric
+    body: The network takes 45 of 50 cat photos for cats. Of 50 dog photos, it takes 10 for cats.
+    prompt: What percent of the “cat” answers are correct? Round to whole percent.
+    params: { unit: "%" }
+    answer: { value: 82, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: recall-not-precision
+        text: 90% of the cats are recognized. But the question is how often “cat” is right.
+    hints:
+      - In total, it says “cat” 45 + 10 = 55 times.
+    explanation: 45 of 55 answers are correct, about 82%.
+
+  - kind: problem
+    id: bilder
+    widget: buckets
+    prompt: Does this help the network, or mislead it?
+    params:
+      buckets: [{ label: helps }, { label: misleads }]
+      items:
+        - { label: Photos from many countries, bucket: helps }
+        - { label: Images by day and night, bucket: helps }
+        - { label: Different cameras, bucket: helps }
+        - { label: Only studio photos, bucket: misleads }
+        - { label: Always the same background, bucket: misleads }
+        - { label: Mislabeled images, bucket: misleads }
+    hints:
+      - Should the network later understand unusual photos too?
+    explanation: Variety helps. Uniform backgrounds and wrong labels teach wrong patterns.
+
+  - kind: explain
+    body: Can tiny disturbances fool a network?
+    reveal:
+      body: Yes. A few subtle pixels can make a network see a monkey instead of a panda. These are called **adversarial examples**.
+
+srs:
+  cards_from: [treffer, woelfe]

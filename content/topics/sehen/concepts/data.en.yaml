@@ -1,0 +1,52 @@
+id: ai.vision.data
+type: concept
+title: What you learn is what you were shown
+summary: Gaps in the data become gaps in the model.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: kuh
+    widget: choice
+    prompt: A model has only seen cows on green meadows. Now a cow stands on a beach. What happens?
+    params:
+      options:
+        - { label: It probably will not recognize the cow., correct: true }
+        - { label: It will surely recognize it., feedback: "It may have learned “green background” instead of “cow”." }
+    hints:
+      - What was the same in all cow images?
+    explanation: The model may have learned the grass too. Such shortcuts only show up in new situations.
+
+  - kind: problem
+    id: nacht
+    widget: numeric
+    prompt: Of {{n}} training photos, only {{p}}% were taken at night. How many night photos is that?
+    params: { unit: photos }
+    answer: { value: "{{n * p / 100}}" }
+    hints:
+      - "{{p}}% of {{n}}."
+    explanation: "Only {{n * p / 100}} night photos. So the model will do worse at night."
+    variants:
+      params: { n: "choice[1000,2000,5000,10000]", p: "int[2,9]" }
+      defaults: { n: 5000, p: 4 }
+
+  - kind: explain
+    body: |
+      A model is only as good as its data. If situations, places or groups of people are missing, it makes more mistakes there. That is why you check error rates **for each group separately**.
+
+  - kind: problem
+    id: pruefen
+    widget: choice
+    prompt: A model is right 95% of the time overall. What else should you check?
+    params:
+      options:
+        - { label: How well it does in each subgroup, correct: true }
+        - { label: "Nothing, 95% is good", feedback: "An average can hide weak groups." }
+    hints:
+      - Can an average hide something?
+    explanation: 99% by day and 60% by night also average out to a good-looking value.
+
+srs:
+  cards_from: [kuh, pruefen]

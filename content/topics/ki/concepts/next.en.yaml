@@ -1,0 +1,78 @@
+id: ai.llm.next
+type: concept
+title: Predicting the next word
+summary: A language model estimates which word comes next.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.next]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: lueckensatz
+    widget: choice
+    body: A sentence breaks off – “For breakfast I like to drink a cup of …”
+    prompt: Which word is most likely?
+    params:
+      layout: grid
+      options:
+        - { label: coffee, correct: true }
+        - { label: bicycle, feedback: "Grammatically that works, but it almost never appears in texts." }
+        - { label: moon, feedback: "You almost never read “a cup of moon”." }
+        - { label: running, feedback: "After “a cup of”, you expect a noun, not a verb." }
+    hints:
+      - What do you often read after “a cup of”?
+    explanation: In texts, “a cup of” is very often followed by a drink.
+
+  - kind: explain
+    body: |
+      At its core, a language model does exactly this. For every possible next word, it estimates a **probability**.
+      It learned this from huge amounts of text.
+
+  - kind: explain
+    body: |
+      Try it – draw a few words. Most often you get “coffee”, but not always.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        mode: tokens
+        context: For breakfast I like to drink a cup of
+        items: [{ label: coffee, logit: 3.2 }, { label: tea, logit: 2.8 }, { label: cocoa, logit: 1.6 }, { label: milk, logit: 1.0 }, { label: water, logit: 0.6 }]
+        sample: [1, 10]
+
+  - kind: problem
+    id: erwartung
+    widget: numeric
+    prompt: “Coffee” has a probability of 45%. How often do you expect “coffee” in 200 draws?
+    answer: { value: 90 }
+    hints:
+      - 45% of 200.
+    explanation: 0.45 · 200 = 90.
+
+  - kind: problem
+    id: verschieden
+    widget: choice
+    prompt: Why does a chatbot sometimes give different answers to the same question?
+    params:
+      options:
+        - { label: "It draws words at random, based on their probabilities", correct: true }
+        - { label: It misheard you the first time, feedback: "The text arrives the same every time." }
+        - { label: It searches the internet anew each time, feedback: "The basic principle is word prediction – not web search." }
+    hints:
+      - Think of the drawing you just did.
+    explanation: Because it draws, a different – but likely – word can come up each time.
+
+  - kind: problem
+    id: ablauf
+    widget: order
+    prompt: Put the steps a language model takes in the right order.
+    params:
+      items:
+        - { label: Split the text into tokens }
+        - { label: Compute probabilities for the next token }
+        - { label: Pick one token }
+        - { label: Append the token and start over }
+    hints:
+      - At the end, everything starts over – with one more token.
+    explanation: Split, probabilities, pick, append – word by word.

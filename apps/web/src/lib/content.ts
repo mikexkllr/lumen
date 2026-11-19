@@ -20,7 +20,7 @@ async function fetchText(path: string): Promise<string> {
 
 async function fetchVerified<T>(entry: { path: string; sha256: string }): Promise<T> {
   const text = await fetchText(entry.path);
-  if ((await sha256Hex(text)) !== entry.sha256) throw new Error(`Integritätsprüfung fehlgeschlagen: ${entry.path}`);
+  if ((await sha256Hex(text)) !== entry.sha256) throw new Error(`Integrity check failed: ${entry.path}`);
   return JSON.parse(text) as T;
 }
 
@@ -47,7 +47,7 @@ export class ContentLibrary {
   static async load(preferred: string): Promise<ContentLibrary> {
     const manifest = JSON.parse(await fetchText('manifest.json')) as ContentManifest;
     const pub = import.meta.env.VITE_LUMEN_PUBLIC_KEY;
-    if (pub && !(await verifySignature(manifest, pub))) throw new Error('Signatur der Inhalte ungültig');
+    if (pub && !(await verifySignature(manifest, pub))) throw new Error('Invalid content signature');
     const locale = manifest.locales[preferred] ? preferred : Object.keys(manifest.locales)[0];
     const catalog = await fetchVerified<Catalog>(manifest.locales[locale].catalog);
     return new ContentLibrary(manifest, locale, catalog);

@@ -1,0 +1,53 @@
+id: ai.rl.explore
+type: concept
+title: Explore or exploit?
+summary: The dilemma of every learner.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: restaurant
+    widget: choice
+    prompt: You know a good restaurant. Do you always go there, or do you try new ones?
+    params:
+      options:
+        - { label: "Mostly the familiar one, sometimes a new one", correct: true }
+        - { label: Always the familiar one, feedback: "Then you never find out whether there is a better one." }
+        - { label: Always a new one, feedback: "Then you never use what you already know." }
+    hints:
+      - Both have costs.
+    explanation: Learning agents need exactly this mix.
+
+  - kind: explain
+    body: |
+      **Exploiting** means choosing the best action known so far. **Exploring** means trying something new. A simple strategy: with a small probability ε the agent acts at random. Otherwise it uses its knowledge.
+
+  - kind: problem
+    id: epsilon
+    widget: numeric
+    prompt: An agent explores with ε = {{e}} %. About how many of {{n}} moves are random?
+    params: { unit: moves }
+    answer: { value: "{{n * e / 100}}" }
+    hints:
+      - "{{e}} % of {{n}}."
+    explanation: "{{n}} · {{e}} % = {{n * e / 100}} moves."
+    variants:
+      params: { e: "choice[5,10,20]", n: "choice[100,200,500]" }
+      defaults: { e: 10, n: 200 }
+
+  - kind: problem
+    id: spaeter
+    widget: choice
+    prompt: How should ε change over the course of learning?
+    params:
+      options:
+        - { label: It should slowly get smaller., correct: true }
+        - { label: It should grow., feedback: "With more knowledge, trying things out pays off less and less." }
+    hints:
+      - When does the agent know more, at the start or later?
+    explanation: Explore a lot first, then rely more and more on what you have learned.
+
+srs:
+  cards_from: [restaurant, spaeter]

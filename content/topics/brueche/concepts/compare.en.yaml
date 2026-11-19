@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.compare
+type: concept
+title: Comparing fractions
+summary: Bigger numbers don't automatically make a bigger fraction.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.compare]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: pizza-vergleich
+    widget: choice
+    prompt: Which is more – 1/3 or 1/4 of a pizza?
+    params:
+      options:
+        - label: "1/3"
+          correct: true
+        - label: "1/4"
+          feedback: 4 is bigger than 3. But cut into 4 parts, the pieces are smaller.
+        - label: Both are equal
+          feedback: Try it. Cut one pizza into 3 pieces and one into 4. The pieces are different sizes.
+    hints:
+      - Imagine the pizza is shared among 3 people or among 4.
+    explanation: The more parts, the smaller each part. 1/3 is more than 1/4.
+
+  - kind: explain
+    body: |
+      Same top? Then the **smaller** bottom wins. Its parts are big.
+      Same bottom? Then the larger top wins.
+      (Top = numerator, bottom = denominator.)
+
+  - kind: problem
+    id: stammbrueche
+    widget: order
+    prompt: Sort from smallest to largest.
+    params:
+      direction: horizontal
+      items: [{ label: "1/8" }, { label: "1/4" }, { label: "1/3" }, { label: "1/2" }]
+      startLabel: small
+      endLabel: large
+    hints:
+      - The numerator is 1 each time. Which denominator gives the smallest pieces?
+    explanation: The larger the denominator, the smaller the piece.
+
+  - kind: problem
+    id: gleicher-nenner
+    widget: order
+    prompt: Sort from smallest to largest.
+    params:
+      direction: horizontal
+      items: [{ label: "2/7" }, { label: "3/7" }, { label: "5/7" }, { label: "6/7" }]
+      startLabel: small
+      endLabel: large
+    hints:
+      - All pieces are the same size. Count how many there are in each.
+    explanation: Same denominator – the numerator decides.
+
+  - kind: explain
+    body: |
+      Different numerators and denominators? Make the denominators equal.
+      $\frac{2}{3}$ and $\frac{3}{4}$ become $\frac{8}{12}$ and $\frac{9}{12}$. Now you can see that 3/4 is larger.
+
+  - kind: problem
+    id: drei-fuenftel
+    widget: choice
+    prompt: Which fraction is larger – 3/5 or 2/3?
+    params:
+      options:
+        - label: "2/3"
+          correct: true
+        - label: "3/5"
+          feedback: Bigger numbers don't make a bigger fraction. Convert both to fifteenths – 9/15 and 10/15.
+        - label: Both are equal
+          feedback: Convert to fifteenths. Then you see 9/15 and 10/15.
+    hints:
+      - Find a common denominator. 15 works for 5 and 3.
+      - "3/5 = 9/15 and 2/3 = 10/15."
+    explanation: 10/15 is more than 9/15, so 2/3 is larger.
+    difficulty: 2
+
+  - kind: problem
+    id: groesserer-markieren
+    widget: numberline
+    prompt: Put the marker on the larger of the two fractions, 5/6 and 3/4.
+    params: { min: 0, max: 1, ticks: 12, labels: none, markers: [{ value: 0, label: "0" }, { value: 1, label: "1" }] }
+    answer: { value: "5/6" }
+    hints:
+      - "The line is divided into twelfths. 5/6 = ?/12 and 3/4 = ?/12."
+      - "5/6 = 10/12 and 3/4 = 9/12."
+    explanation: 5/6 = 10/12 is larger than 3/4 = 9/12.
+    difficulty: 2
+
+  - kind: problem
+    id: vergleich-variante
+    widget: choice
+    prompt: Which fraction is larger?
+    params:
+      shuffle: true
+      options:
+        - label: "{{a}}/{{b}}"
+          correct: "{{a * d > c * b}}"
+        - label: "{{c}}/{{d}}"
+          correct: "{{c * b > a * d}}"
+        - label: Both are equal
+          correct: false
+    hints:
+      - Make the denominators equal. {{b * d}} works for {{b}} and {{d}}.
+      - "{{a}}/{{b}} = {{a * d}}/{{b * d}} and {{c}}/{{d}} = {{c * b}}/{{b * d}}."
+    explanation: "Rewritten with denominator {{b * d}}: {{a * d}}/{{b * d}} and {{c * b}}/{{b * d}}."
+    variants:
+      params: { a: "int[1,5]", b: "int[2,9]", c: "int[1,5]", d: "int[2,9]" }
+      constraints: ["a < b", "c < d", "a * d != c * b", "b != d"]
+      defaults: { a: 3, b: 5, c: 2, d: 3 }
+
+srs:
+  cards_from: ["steps[7]", "steps[2]"]

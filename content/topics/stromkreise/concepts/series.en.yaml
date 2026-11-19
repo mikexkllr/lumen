@@ -1,0 +1,71 @@
+id: sci.circuits.series
+type: concept
+title: Series or Parallel?
+summary: Two ways to connect devices.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: kette
+    widget: choice
+    prompt: In a string of lights, one bulb breaks and all go out. How are they wired?
+    params:
+      options:
+        - { label: "In series, one after another", correct: true }
+        - { label: "In parallel, side by side", feedback: "Then the others would keep shining." }
+    hints:
+      - Must the current pass through every bulb?
+    explanation: In series, the current flows through all of them. One gap breaks the whole loop.
+
+  - kind: problem
+    id: schalter
+    widget: gates
+    prompt: Two switches in parallel. The lamp is on if either one is on. Which gate fits?
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [AND, OR, XOR] }
+      outputs: [{ id: Q, from: g, label: Lamp }]
+    check: { predicate: "table('Q') == [0, 1, 1, 1]" }
+    hints:
+      - It is on even when both are on.
+    explanation: Parallel is OR, and series is AND.
+
+  - kind: explain
+    body: |
+      In **series**, resistances add up. In **parallel**, every device gets the full voltage. That is how the outlets in a house are wired.
+
+  - kind: problem
+    id: reihe
+    widget: numeric
+    prompt: Two resistors of {{a}} Ω and {{b}} Ω are in series. What is the total resistance?
+    params: { unit: Ω }
+    answer: { value: "{{a + b}}" }
+    hints:
+      - Just add them.
+    explanation: "{{a}} + {{b}} = {{a + b}} Ω."
+    variants:
+      params: { a: "choice[10,47,100,220]", b: "choice[22,33,68,150]" }
+      defaults: { a: 100, b: 68 }
+
+  - kind: problem
+    id: parallel
+    widget: numeric
+    prompt: Two identical resistors of {{r}} Ω each are in parallel. What is the total resistance?
+    params: { unit: Ω }
+    answer: { value: "{{r / 2}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * r"
+        misconception: parallel-add
+        text: In parallel there are two paths. The resistance gets smaller, not larger.
+    hints:
+      - Two equal paths, so the current flows twice as easily.
+    explanation: "Half as large, {{r / 2}} Ω."
+    variants:
+      params: { r: "choice[10,20,50,100,220]" }
+      defaults: { r: 100 }
+
+srs:
+  cards_from: [kette, parallel]

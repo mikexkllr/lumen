@@ -1,0 +1,73 @@
+id: math.primes.sieve
+type: concept
+title: The sieve of Eratosthenes
+summary: Finding primes by crossing out.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: welche-prim
+    widget: choice
+    prompt: Which of these numbers is a prime?
+    params:
+      layout: grid
+      options:
+        - { label: "53", correct: true }
+        - { label: "51", feedback: "51 = 3 · 17. The digit sum 6 gives it away." }
+        - { label: "57", feedback: "57 = 3 · 19." }
+        - { label: "91", feedback: "91 = 7 · 13 – a popular trap." }
+    hints:
+      - Check the divisors 3 and 7.
+    explanation: 53 has only the divisors 1 and 53.
+
+  - kind: explain
+    body: |
+      A **prime** has exactly two divisors – 1 and itself.
+      The 1 is not a prime. It has only one divisor.
+
+  - kind: explain
+    body: |
+      The **sieve of Eratosthenes:** Cross out all multiples of 2, then of 3, then of 5.
+      What is left is prime. Up to 30, these three are enough.
+
+  - kind: problem
+    id: sieb
+    widget: pixels
+    prompt: Mark all primes from 1 to 30.
+    params: { numbers: { start: 1 }, cells: ["..........", "..........", ".........."], counter: true }
+    answer: { pattern: [".##.#.#...", "#.#...#.#.", "..#.....#."] }
+    feedback:
+      - when: "onLabels.includes(1)"
+        misconception: one-is-prime
+        text: The 1 is not a prime. It has only one divisor.
+      - when: "onLabels.includes(9) || onLabels.includes(15) || onLabels.includes(21) || onLabels.includes(25) || onLabels.includes(27)"
+        misconception: odd-is-prime
+        text: Not every odd number is prime. Check the multiples of 3 and 5.
+    hints:
+      - Of the even numbers, only 2 is prime.
+      - Cross out 9, 15, 21, 25 and 27.
+    explanation: 2, 3, 5, 7, 11, 13, 17, 19, 23 and 29 – ten primes.
+
+  - kind: problem
+    id: bis-zwanzig
+    widget: numeric
+    prompt: How many primes are there from 1 to 20?
+    params: { unit: primes }
+    answer: { value: 8 }
+    feedback:
+      - when: "numval(state.input) == 9"
+        misconception: one-is-prime
+        text: Did you count the 1? It is not a prime.
+    hints:
+      - Use your sieve from before.
+    explanation: 2, 3, 5, 7, 11, 13, 17 and 19.
+
+  - kind: explain
+    body: Is there a largest prime?
+    reveal:
+      body: No. Euclid proved over 2,000 years ago that there are infinitely many. The largest known one has over 41 million digits.
+
+srs:
+  cards_from: [welche-prim, bis-zwanzig]

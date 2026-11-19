@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.equivalent
+type: concept
+title: Equivalent fractions
+summary: Cutting finer or coarser doesn't change the amount.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.equivalent]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: genauso-viel
+    widget: fraction
+    prompt: Above, you see 1/2. Shade the same amount below.
+    params: { parts: 4, reference: ["1/2"] }
+    answer: { fraction: "1/2" }
+    hints:
+      - Compare the length, not the number of parts.
+    explanation: 2 of 4 parts is the same amount as 1 of 2.
+
+  - kind: explain
+    body: |
+      1/2 and 2/4 are the same amount – just cut finer.
+      If you split each piece in 2, numerator and denominator double.
+      This is called **expanding**.
+
+  - kind: problem
+    id: sechstel
+    widget: fraction
+    prompt: Divide the strip into 6 parts and shade as much as 2/3.
+    params: { parts: 3, partOptions: [3, 6, 9], reference: ["2/3"] }
+    answer: { fraction: "4/6", equivalent: false }
+    hints:
+      - At the top, choose "6 parts".
+      - Each third becomes 2 sixths.
+    explanation: 2/3 = 4/6, because numerator and denominator were multiplied by 2.
+    difficulty: 2
+
+  - kind: problem
+    id: erweitern
+    widget: numeric
+    prompt: "Fill in the numerator: $\\frac{ {{a}} }{ {{b}} } = \\frac{?}{ {{b * k}} }$"
+    answer: { value: "{{a * k}}" }
+    feedback:
+      - when: "numval(state.input) == a + b * k - b"
+        misconception: additive-equivalence
+        text: "You added the same amount to the numerator as to the denominator. It only stays equivalent if you multiply: denominator · {{k}}, so numerator · {{k}}."
+    hints:
+      - What was the denominator multiplied by?
+      - "{{b}} · {{k}} = {{b * k}}. Multiply the numerator by {{k}} too."
+    explanation: "{{a}} · {{k}} = {{a * k}}, so {{a}}/{{b}} = {{a * k}}/{{b * k}}."
+    variants:
+      params: { a: "int[1,4]", b: "int[2,6]", k: "choice[2,3,4]" }
+      constraints: ["a < b"]
+      defaults: { a: 3, b: 4, k: 2 }
+
+  - kind: explain
+    body: |
+      It works the other way too. If you divide numerator and denominator by the same number, it is called **simplifying**.
+      $\frac{6}{8} = \frac{3}{4}$, because 6 ÷ 2 = 3 and 8 ÷ 2 = 4.
+
+  - kind: problem
+    id: kuerzen
+    widget: numeric
+    prompt: "Simplify as far as possible: $\\frac{12}{18}$"
+    params: { placeholder: "e.g. 1/2" }
+    answer: { value: "2/3", form: simplified }
+    hints:
+      - Which number divides both 12 and 18?
+      - The greatest common divisor is 6.
+    explanation: "12 ÷ 6 = 2 and 18 ÷ 6 = 3, so 2/3."
+
+  - kind: problem
+    id: kuerzen-variante
+    widget: numeric
+    prompt: "Simplify as far as possible: $\\frac{ {{a * k}} }{ {{b * k}} }$"
+    params: { placeholder: "e.g. 1/2" }
+    answer: { value: "{{a}}/{{b}}", form: simplified }
+    hints:
+      - Look for a number that divides both numerator and denominator.
+      - "Both are divisible by {{k}}."
+    explanation: "Divide by {{k}}: {{a}}/{{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "int[1,5]", b: "int[2,9]", k: "choice[2,3,4,5]" }
+      constraints: ["a < b", "gcd(a, b) == 1"]
+      defaults: { a: 3, b: 5, k: 4 }
+
+  - kind: problem
+    id: nicht-gleichwertig
+    widget: choice
+    prompt: Which fraction is **not** equivalent to 3/5?
+    params:
+      layout: grid
+      options:
+        - label: "6/10"
+          feedback: Numerator and denominator times 2 – that is equivalent.
+        - label: "9/15"
+          feedback: Numerator and denominator times 3 – that is equivalent.
+        - label: "5/7"
+          correct: true
+        - label: "30/50"
+          feedback: Numerator and denominator times 10 – that is equivalent.
+    hints:
+      - Check whether numerator and denominator were multiplied by the same number.
+    explanation: For 5/7, 2 was added to numerator and denominator. Adding changes the value.
+
+srs:
+  cards_from: ["steps[3]", "steps[6]"]

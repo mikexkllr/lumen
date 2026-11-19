@@ -1,0 +1,60 @@
+id: sci.waves.decibel
+type: concept
+title: Decibels
+summary: Ten more means ten times as much.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zehn
+    widget: choice
+    prompt: A sound gets 10 dB louder. What does that mean for the sound energy?
+    params:
+      options:
+        - { label: It is ten times as large., correct: true }
+        - { label: It is 10% larger., feedback: "Decibels are not percentages. Every 10 dB multiplies by 10." }
+        - { label: It is twice as large., feedback: "That would be about 3 dB." }
+    hints:
+      - Decibels are a logarithmic scale.
+    explanation: Plus 10 dB means ten times the energy. Our ear perceives that as about twice as loud.
+
+  - kind: explain
+    body: |
+      The **decibel scale** counts powers of ten. 20 dB more means a hundred times the energy, 30 dB a thousand times.
+      That way, a quiet whisper and a jet fit on one scale.
+
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: A sound is {{d}} dB louder than another. How many times as much sound energy does it have?
+    params: { placeholder: "times" }
+    answer: { value: "{{10 ** (d / 10)}}" }
+    feedback:
+      - when: "numval(state.input) == d"
+        misconception: linear
+        text: Every 10 dB is a factor of 10. So at {{d}} dB, multiply by 10 a total of {{d / 10}} times.
+    hints:
+      - "Multiply by 10 a total of {{d / 10}} times."
+    explanation: "$10^{ {{d / 10}} } = {{10 ** (d / 10)}}$."
+    variants:
+      params: { d: "choice[20,30,40,60]" }
+      defaults: { d: 20 }
+
+  - kind: problem
+    id: laut
+    widget: match
+    prompt: Match each sound to its loudness.
+    params:
+      pairs:
+        - { left: Whisper, right: 30 dB }
+        - { left: Conversation, right: 60 dB }
+        - { left: Jackhammer, right: 100 dB }
+        - { left: Jet at takeoff, right: 130 dB }
+    hints:
+      - From about 85 dB, long exposure can damage your hearing.
+    explanation: From 30 to 130 dB, the energy is a hundred billion times larger.
+
+srs:
+  cards_from: [zehn, faktor]

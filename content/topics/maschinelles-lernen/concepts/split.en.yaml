@@ -1,0 +1,52 @@
+id: ai.ml.split
+type: concept
+title: Testing fairly
+summary: Training and test data.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: gleiche
+    widget: choice
+    prompt: A model is tested on exactly the examples it was trained on. What does that measure?
+    params:
+      options:
+        - { label: "Mostly how well it memorized", correct: true }
+        - { label: How well it solves new cases, feedback: "It has not seen any new cases there." }
+    hints:
+      - Would you call an exam made of the practice problems fair?
+    explanation: Only unseen examples show whether the model generalizes.
+
+  - kind: explain
+    body: |
+      So you split the data. About **80%** is used for training, and you hold back the other **20%**. Only at the very end do you test with it, like an exam with new questions.
+
+  - kind: problem
+    id: teilen
+    widget: numeric
+    prompt: You have {{n}} labeled photos and split them 80 to 20. How many go into training?
+    params: { unit: photos }
+    answer: { value: "{{n * 4 / 5}}" }
+    hints:
+      - "80% of {{n}}."
+    explanation: "{{n * 4 / 5}} for training, {{n / 5}} for testing."
+    variants:
+      params: { n: "choice[500,1000,2500,5000]" }
+      defaults: { n: 1000 }
+
+  - kind: problem
+    id: zukunft
+    widget: choice
+    prompt: A model predicts sales. Why test it on the most recent months instead of randomly chosen ones?
+    params:
+      options:
+        - { label: "That checks whether it also works for the future.", correct: true }
+        - { label: New data is more accurate., feedback: "The point is to mimic real use: predicting the future." }
+    hints:
+      - What will the model be used for later?
+    explanation: The test should look like the later use.
+
+srs:
+  cards_from: [gleiche, teilen]

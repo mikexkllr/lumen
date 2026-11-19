@@ -1,0 +1,54 @@
+id: ai.transformers.layers
+type: concept
+title: Layer by Layer
+summary: How a transformer is built.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: ablauf
+    widget: order
+    prompt: Put the processing steps in a language model in the right order.
+    params:
+      items:
+        - { label: Split the text into tokens }
+        - { label: Convert tokens into embeddings }
+        - { label: Many attention layers process them }
+        - { label: Probabilities for the next token }
+    hints:
+      - A prediction comes at the end.
+    explanation: Dozens of layers refine the understanding step by step.
+
+  - kind: explain
+    body: |
+      A **transformer** stacks many identical layers. Each layer has attention and a small neural network. Early layers tend to capture grammar, and later ones meaning and context.
+
+  - kind: problem
+    id: parallel
+    widget: choice
+    prompt: What was the big advantage of transformers over older language models?
+    params:
+      options:
+        - { label: They process all the words of a text at once., correct: true }
+        - { label: They need no data., feedback: "Quite the opposite. They need huge amounts of data." }
+    hints:
+      - Older models read word by word, one after another.
+    explanation: Parallel computing fits graphics chips perfectly. That made huge models possible.
+
+  - kind: problem
+    id: koepfe
+    widget: numeric
+    prompt: A layer has {{h}} attention heads, and the model has {{l}} layers. How many heads are there in total?
+    params: { unit: heads }
+    answer: { value: "{{h * l}}" }
+    hints:
+      - Heads per layer times layers.
+    explanation: "{{h}} · {{l}} = {{h * l}}. Each one attends to different relationships."
+    variants:
+      params: { h: "choice[8,12,16]", l: "choice[12,24,32]" }
+      defaults: { h: 12, l: 24 }
+
+srs:
+  cards_from: [ablauf, parallel]

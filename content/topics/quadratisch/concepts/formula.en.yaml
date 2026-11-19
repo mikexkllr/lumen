@@ -1,0 +1,68 @@
+id: math.quadratic.formula
+type: concept
+title: The solution formula
+summary: For every quadratic equation.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      For x² + px + q = 0, the **pq-formula** applies:
+      $x = -\frac{p}{2} \pm \sqrt{\left(\frac{p}{2}\right)^2 - q}$
+
+  - kind: problem
+    id: einsetzen
+    widget: numeric
+    prompt: Solve x² − 6x + 8 = 0. Enter the larger solution.
+    params: { placeholder: "x" }
+    answer: { value: 4 }
+    feedback:
+      - when: "numval(state.input) == 2"
+        misconception: smaller-root
+        text: That is the smaller solution. You need the larger one.
+    hints:
+      - p = −6, q = 8. So 3 ± $\sqrt{9 - 8}$.
+    explanation: 3 ± 1, so x = 4 or x = 2.
+
+  - kind: problem
+    id: variante
+    widget: numeric
+    prompt: "Solve x² − {{r + s}}x + {{r * s}} = 0. Enter the larger solution."
+    params: { placeholder: "x" }
+    answer: { value: "{{max(r, s)}}" }
+    hints:
+      - "−p/2 = {{(r + s) / 2}}. Then ± the root."
+    explanation: "The solutions are {{r}} and {{s}}."
+    variants:
+      params: { r: "int[1,6]", s: "int[7,12]" }
+      defaults: { r: 2, s: 9 }
+
+  - kind: problem
+    id: diskriminante
+    widget: choice
+    prompt: There is a negative number under the root. How many solutions are there?
+    params:
+      options:
+        - { label: No real solution, correct: true }
+        - { label: Two, feedback: "You cannot take a real root of a negative number." }
+        - { label: One, feedback: "There is exactly one when the value under the root is 0." }
+    hints:
+      - Which number times itself is negative?
+    explanation: The parabola then does not touch the x-axis at all.
+
+  - kind: problem
+    id: probe
+    widget: choice
+    prompt: How can you quickly check whether x = 3 solves x² − 5x + 6 = 0?
+    params:
+      options:
+        - { label: "Plug it in, 9 − 15 + 6 = 0", correct: true }
+        - { label: Work out the formula again, feedback: "That works too, but plugging in is faster." }
+    hints:
+      - Put 3 in place of x.
+    explanation: 9 − 15 + 6 = 0. The check works out.
+
+srs:
+  cards_from: [variante, diskriminante]

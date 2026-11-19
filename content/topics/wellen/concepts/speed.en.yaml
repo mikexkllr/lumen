@@ -1,0 +1,64 @@
+id: sci.waves.speed
+type: concept
+title: How fast is sound?
+summary: Lightning, thunder and wavelength.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: gewitter
+    widget: numeric
+    body: Sound travels about 340 m per second. Light arrives practically instantly.
+    prompt: "{{t}} seconds pass between lightning and thunder. How far away is the storm?"
+    params: { unit: m }
+    answer: { value: "{{340 * t}}", tolerance: 30 }
+    feedback:
+      - when: "numval(state.input) == 340 / t"
+        misconception: divide
+        text: Distance = speed · time. Multiply.
+    hints:
+      - "{{t}} · 340 m."
+    explanation: "{{t}} · 340 m ≈ {{340 * t}} m. Rule of thumb – seconds divided by 3 gives kilometers."
+    variants:
+      params: { t: "int[2,12]" }
+      defaults: { t: 3 }
+
+  - kind: explain
+    body: |
+      For every wave: **speed = frequency · wavelength**.
+      A low note has long waves, a high one has short waves.
+
+  - kind: problem
+    id: wellenlaenge
+    widget: numeric
+    prompt: A note has {{f}} Hz. How long is one wave at 340 m/s?
+    params: { unit: m }
+    answer: { value: "{{340 / f}}", tolerance: 0.01 }
+    feedback:
+      - when: "numval(state.input) == 340 * f"
+        misconception: multiply
+        text: "Wavelength = speed : frequency."
+    hints:
+      - "340 divided by {{f}}."
+    explanation: "340 ÷ {{f}} = {{340 / f}} m."
+    variants:
+      params: { f: "choice[34,85,170,340,680]" }
+      defaults: { f: 340 }
+
+  - kind: problem
+    id: medium
+    widget: choice
+    prompt: Where is sound fastest?
+    params:
+      options:
+        - { label: In steel, correct: true }
+        - { label: In air, feedback: "Air is the slowest of the three – about 340 m/s." }
+        - { label: In space, feedback: "In a vacuum there is no sound at all – nothing can vibrate." }
+    hints:
+      - Sound needs particles that push on each other.
+    explanation: In steel, it is around 5,000 m/s. That is why you hear a train earlier through the rails.
+
+srs:
+  cards_from: [gewitter, wellenlaenge]

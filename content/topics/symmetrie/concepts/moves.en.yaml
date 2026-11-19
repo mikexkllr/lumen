@@ -1,0 +1,80 @@
+id: geo.symmetry.moves
+type: concept
+title: Translating and reflecting on the grid
+summary: Transformations as rules for calculating.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: verschieben
+    widget: graph
+    prompt: Translate P by 3 to the right and 2 up. Drag P′ to the right spot.
+    params:
+      x: [-4, 4]
+      y: [-3, 3]
+      points:
+        - { id: P, x: -2, y: -1, draggable: false }
+        - { id: Q, x: 0, y: 0, label: "P′" }
+    answer: { points: { Q: { x: 1, y: 1 } } }
+    hints:
+      - Start at P and count the grid squares.
+    explanation: (−2 | −1) becomes (−2 + 3 | −1 + 2) = (1 | 1).
+
+  - kind: explain
+    body: |
+      A **translation** adds the same amount to every point.
+      (x | y) becomes (x + a | y + b).
+
+  - kind: problem
+    id: spiegeln-y
+    widget: graph
+    prompt: Reflect P across the y-axis. Drag P′ to the right spot.
+    params:
+      x: [-4, 4]
+      y: [-3, 3]
+      points:
+        - { id: P, x: 3, y: 2, draggable: false }
+        - { id: Q, x: 0, y: -2, label: "P′" }
+    answer: { points: { Q: { x: -3, y: 2 } } }
+    feedback:
+      - when: "state.points.Q.x == 3 && state.points.Q.y == -2"
+        misconception: wrong-axis
+        text: That is the reflection across the x-axis. The y-axis is the vertical one.
+    hints:
+      - The y-axis is vertical. The point jumps to the left.
+    explanation: x changes sign, y stays. (3 | 2) becomes (−3 | 2).
+
+  - kind: problem
+    id: x-achse
+    widget: numeric
+    prompt: The point ({{a}} | {{b}}) is reflected across the x-axis. What is the y-coordinate of the image?
+    params: { placeholder: "y" }
+    answer: { value: "{{-b}}" }
+    feedback:
+      - when: "numval(state.input) == b"
+        misconception: no-change
+        text: When you reflect across the x-axis, the y-coordinate is the one that changes.
+    hints:
+      - The x-axis is horizontal. The point jumps up or down.
+    explanation: "({{a}} | {{b}}) becomes ({{a}} | {{-b}})."
+    variants:
+      params: { a: "nonzero[-5,5]", b: "nonzero[-5,5]" }
+      defaults: { a: 4, b: -1 }
+
+  - kind: problem
+    id: regel
+    widget: choice
+    prompt: What does a reflection across the y-axis change?
+    params:
+      options:
+        - { label: The sign of x, correct: true }
+        - { label: The sign of y, feedback: "That is what the reflection across the x-axis does." }
+        - { label: Both signs, feedback: "That would be a half turn about the origin." }
+    hints:
+      - Think of P(3 | 2) from before.
+    explanation: Left and right swap. Only x changes sign.
+
+srs:
+  cards_from: [x-achse, regel]

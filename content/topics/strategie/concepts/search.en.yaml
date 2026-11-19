@@ -1,0 +1,82 @@
+id: logic.strategy.search
+type: concept
+title: Weighing and Guessing
+summary: Three outcomes beat two.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: neun
+    widget: numeric
+    prompt: One of 9 coins is lighter. What is the fewest weighings on a balance scale that find it for sure?
+    params: { unit: weighings }
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 3 || numval(state.input) == 4"
+        misconception: halving
+        text: Halving works, but it isn't the best. Try three groups.
+    hints:
+      - One weighing has three possible outcomes.
+    explanation: 3 groups of 3. One weighing finds the group, a second finds the coin.
+
+  - kind: explain
+    body: |
+      Each weighing has **three** outcomes: left heavier, right heavier, equal.
+      So always split into **three** groups.
+
+  - kind: problem
+    id: schritte
+    widget: order
+    prompt: Put the steps in the right order.
+    params:
+      items:
+        - { label: Split the 9 coins into three groups of 3. }
+        - { label: Put two groups on the scale. }
+        - { label: "Take the lighter group, or the third." }
+        - { label: Put two coins from it on the scale. }
+        - { label: "The lighter one is it, or the third." }
+    hints:
+      - First form groups, then weigh.
+    explanation: Split into thirds twice, so 9, 3, 1.
+
+  - kind: problem
+    id: wie-viele
+    widget: numeric
+    prompt: How many coins can you check at most with {{w}} weighings, if exactly one is lighter?
+    params: { unit: coins }
+    answer: { value: "{{3 ** w}}" }
+    feedback:
+      - when: "numval(state.input) == 2 ** w"
+        misconception: binary
+        text: That would be with two outcomes. The scale has three.
+    hints:
+      - Each weighing triples the possibilities.
+    explanation: "3 to the power of {{w}} = {{3 ** w}} coins."
+    variants:
+      params: { w: "int[3,5]" }
+      defaults: { w: 3 }
+
+  - kind: problem
+    id: raten
+    widget: choice
+    prompt: Someone thinks of a number from 1 to 100. You may only ask "higher or lower?" How many questions are enough for sure?
+    params:
+      layout: grid
+      options:
+        - { label: "7", correct: true }
+        - { label: "10", feedback: "That is enough, but you can do it with fewer." }
+        - { label: "50", feedback: "Far too many. Halve the range each time." }
+        - { label: "5", feedback: "5 questions only cover 32 numbers." }
+    hints:
+      - Each question halves the range. How often do you halve 100 down to 1?
+    explanation: $2^7 = 128$ is enough for 100 numbers, but $2^6 = 64$ is not.
+
+  - kind: explain
+    body: What do the scale and number guessing have in common?
+    reveal:
+      body: Both make the most of every answer. Two outcomes halve, three outcomes split into thirds. This is the core idea of **information theory**.
+
+srs:
+  cards_from: [neun, wie-viele]

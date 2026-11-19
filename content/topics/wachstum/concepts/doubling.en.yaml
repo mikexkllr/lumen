@@ -1,0 +1,83 @@
+id: math.growth.doubling
+type: concept
+title: The power of doubling
+summary: Linear adds, exponential multiplies.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: seerosen
+    widget: choice
+    prompt: Water lilies double their area every day. After 30 days the pond is full. When was it half full?
+    params:
+      layout: grid
+      options:
+        - { label: On day 29, correct: true }
+        - { label: On day 15, feedback: "That would be true for steady growth. Here everything doubles." }
+        - { label: On day 20, feedback: "Think backward. What was it one day before “full”?" }
+        - { label: On day 25, feedback: "On day 25, only one thirty-second was covered." }
+    hints:
+      - Work backward, one day back from the full pond.
+    explanation: One day before “full”, it was half. Exponential growth happens almost suddenly at the end.
+
+  - kind: explain
+    body: |
+      **Linear** growth adds the same amount each time.
+      **Exponential** growth multiplies by the same factor each time.
+
+  - kind: problem
+    id: sortieren
+    widget: buckets
+    prompt: Linear or exponential? Sort them.
+    params:
+      buckets: [{ label: linear }, { label: exponential }]
+      items:
+        - { label: Saving €50 more each month, bucket: linear }
+        - { label: Bacteria divide every hour, bucket: exponential }
+        - { label: A candle burns down 1 cm per hour, bucket: linear }
+        - { label: Clip views double daily, bucket: exponential }
+        - { label: Taxi costs €2 per kilometer, bucket: linear }
+        - { label: Savings with 5% interest per year, bucket: exponential }
+    hints:
+      - Is the same amount added each time, or is it multiplied?
+    explanation: A fixed amount per step is linear. A fixed factor per step is exponential.
+
+  - kind: problem
+    id: bakterien
+    widget: numeric
+    prompt: A culture has {{s}} cells and doubles every hour. How many are there after {{h}} hours?
+    params: { unit: cells }
+    answer: { value: "{{s * 2 ** h}}" }
+    feedback:
+      - when: "numval(state.input) == s * 2 * h"
+        misconception: linear-thinking
+        text: That would be linear growth. It doubles every hour, not just times 2 once.
+    hints:
+      - "After 1 hour: {{s * 2}}. After 2 hours: {{s * 4}} …"
+    explanation: "{{s}} · $2^{ {{h}} }$ = {{s * 2 ** h}}."
+    variants:
+      params: { s: "choice[100,250,500]", h: "int[3,6]" }
+      defaults: { s: 100, h: 5 }
+
+  - kind: explain
+    body: How long does doubling take at 7% growth per year?
+    reveal:
+      body: About 10 years. This is the **rule of 70**. Dividing 70 by the percentage gives roughly the doubling time.
+
+  - kind: problem
+    id: siebziger
+    widget: numeric
+    prompt: Use the rule of 70. After how many years does something double at {{p}}% growth per year?
+    params: { unit: years }
+    answer: { value: "{{70 / p}}", tolerance: 0.5 }
+    hints:
+      - Calculate 70 divided by {{p}}.
+    explanation: "70 ÷ {{p}} = {{70 / p}} years."
+    variants:
+      params: { p: "choice[2,5,7,10,14]" }
+      defaults: { p: 7 }
+
+srs:
+  cards_from: [bakterien, siebziger]

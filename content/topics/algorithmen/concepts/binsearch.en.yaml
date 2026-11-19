@@ -1,0 +1,54 @@
+id: cs.algorithms.binsearch
+type: concept
+title: Halve instead of scan
+summary: Binary search in a few steps.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: erster
+    widget: choice
+    prompt: I'm thinking of a number from 1 to 100. You only hear "higher" or "lower". What do you guess first?
+    params:
+      options:
+        - { label: "50", correct: true }
+        - { label: "1", feedback: "Then in the worst case you rule out only one number." }
+        - { label: "99", feedback: "If the answer is “lower”, 98 numbers are still left." }
+    hints:
+      - Which guess rules out the most numbers in every case?
+    explanation: The middle halves the search space, whatever the answer is.
+
+  - kind: explain
+    body: |
+      **Binary search:** Always ask in the middle. Each answer halves what is left. That way you can find anything in a sorted list very fast.
+
+  - kind: problem
+    id: schritte
+    widget: numeric
+    prompt: The number lies between 1 and {{2 ** k - 1}}. How many guesses do you need at most?
+    params: { unit: guesses }
+    answer: { value: "{{k}}" }
+    hints:
+      - 1 guess is enough for 1 number, 2 for 3 numbers, 3 for 7 numbers …
+    explanation: "With {{k}} guesses you cover $2^{ {{k}} } - 1 = {{2 ** k - 1}}$ numbers."
+    variants:
+      params: { k: "int[4,10]" }
+      defaults: { k: 7 }
+
+  - kind: problem
+    id: telefonbuch
+    widget: choice
+    prompt: A sorted list has a million names. About how many steps does binary search need?
+    params:
+      options:
+        - { label: "20", correct: true }
+        - { label: "1000", feedback: "Far fewer. Each step halves the list." }
+        - { label: "500,000", feedback: "That is the average if you start at the front." }
+    hints:
+      - $2^{10}$ is about a thousand, $2^{20}$ about a million.
+    explanation: Halving twenty times is enough for a million. That is the power of the logarithm.
+
+srs:
+  cards_from: [schritte, telefonbuch]

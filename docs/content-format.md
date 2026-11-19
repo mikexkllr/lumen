@@ -18,7 +18,7 @@ id: alg.linear.balance-01        # Kleinbuchstaben, Ziffern, . _ -
 type: concept
 title: Gleichungen als Waage
 summary: Ein Satz für Karten und Suche.
-locale: de                       # weitere Sprachen: gleiche id, andere locale, eigene Datei
+locale: de                       # Übersetzungen: gleiche id, andere locale, Datei name.<locale>.yaml
 license: CC-BY-SA-4.0            # Pflicht
 authors: ["@maria"]              # Pflicht
 skills: [alg.balance]
@@ -131,3 +131,17 @@ Logikgitter-Regeln: `is: [a, b]`, `not: [a, b]`, `either: [a, b, c]`, `less: [a,
 - **Layout-Lint**: Überlappungen, zu dichte Raster, zu viele Objekte
 - **Text**: ≤ 40 Wörter pro Screen, Lesbarkeitsindex ≥ 40 (Amstad), Hinweise vorhanden
 - **Alt-Texte**: Bilder brauchen `alt`; Visuals bekommen ihre Beschreibung aus `describe()`.
+- **Übersetzungen** (`i18n.parity`, nur bei `--locale` ≠ `de`): siehe unten.
+
+## Übersetzungen
+
+Jede Datei (Concept, Topic, Pfad, Skills, Einstufung) kann Übersetzungen haben. Eine Übersetzung liegt als `name.<locale>.yaml` neben `name.yaml`, trägt dieselbe `id` und `locale: <locale>` und ist eine vollständige Kopie, in der nur der Wortlaut übersetzt ist. Fehlt eine Übersetzung, zeigt die App das deutsche Original (`i18n.missing`, Hinweis).
+
+Die Eval `i18n.parity` vergleicht jede Übersetzung mit dem Original. Gleich bleiben müssen: alle Schlüssel und IDs, Widgets, Zahlen und Wahrheitswerte, Anzahl der Steps, Hinweise, Optionen und Regeln, `when`-Bedingungen, der ganze `variants`-Block, `skills`, `prerequisites`, `level` und alle `{{…}}`-Vorlagen. Zahlen in Vorlagen formatiert die Engine je nach Sprache (`3,5` bzw. `3.5`).
+
+```bash
+node packages/cli/src/cli.ts check content --locale en --strict   # alle englischen Inhalte
+node scripts/check-translation.ts en brueche kreise                # nur diese Topics, inkl. fehlender Übersetzungen
+```
+
+Eine neue Sprache braucht: `UiLocale` und ein Wörterbuch in `apps/web/src/lib/i18n.ts`, die Locale in `vite-plugin-lumen-content.ts` und im `build`-Aufruf (`--locales de,en,…`) sowie `*.<locale>.yaml`-Dateien. Engine-Texte (Feedback, `describe()`, Lux) nutzen `t(locale, de, en)` und fallen für weitere Sprachen auf Englisch zurück.

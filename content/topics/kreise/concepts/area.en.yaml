@@ -1,0 +1,67 @@
+id: geo.circles.area
+type: concept
+title: The area of a circle
+summary: The radius counts squared.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: pizza
+    widget: choice
+    prompt: Which is more pizza – one with a 30 cm diameter or two with 20 cm each?
+    params:
+      options:
+        - { label: The one large pizza, correct: true }
+        - { label: The two small pizzas, feedback: "A combined diameter of 40 cm sounds like more. But area grows with the square." }
+        - { label: The same amount, feedback: "Work out both areas – they are different." }
+    hints:
+      - Compare 15 · 15 with 2 · 10 · 10.
+    explanation: The large one has about 707 cm², the two small ones together only 628 cm².
+
+  - kind: explain
+    body: |
+      **A = π · r².** The radius is squared.
+      So double the radius means **four times** the area.
+
+  - kind: explain
+    body: A circle with radius 5 on graph paper covers about 80 squares. That fits well with π · 5² ≈ 78.5.
+    visual: { widget: pixels, params: { cells: ["...####...", ".########.", ".########.", "##########", "##########", "##########", "##########", ".########.", ".########.", "...####..."] } }
+
+  - kind: problem
+    id: flaeche
+    widget: numeric
+    prompt: What is the area of a circle with radius {{r}} m? Use π ≈ 3.14.
+    params: { unit: m² }
+    answer: { value: "{{3.14 * r * r}}", tolerance: 0.5 }
+    feedback:
+      - when: "abs(numval(state.input) - 2 * 3.14 * r) < 0.5"
+        misconception: perimeter-for-area
+        text: That is the circumference. For the area, use r times r.
+    hints:
+      - "First {{r}} · {{r}}, then times 3.14."
+    explanation: "3.14 · {{r}}² = {{3.14 * r * r}} m²."
+    variants:
+      params: { r: "int[3,9]" }
+      defaults: { r: 3 }
+
+  - kind: problem
+    id: verdreifachen
+    widget: numeric
+    prompt: The radius of a circle becomes {{k}} times as large. How many times as large does the area become?
+    params: { placeholder: "times" }
+    answer: { value: "{{k * k}}" }
+    feedback:
+      - when: "numval(state.input) == k"
+        misconception: linear-scaling
+        text: The radius is squared. The area grows faster.
+    hints:
+      - "Calculate ({{k}} · r)²."
+    explanation: "({{k}} · r)² = {{k * k}} · r²."
+    variants:
+      params: { k: "int[2,5]" }
+      defaults: { k: 3 }
+
+srs:
+  cards_from: [flaeche, verdreifachen]

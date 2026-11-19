@@ -1,0 +1,57 @@
+id: stats.conditional.independence
+type: concept
+title: Independent or Not?
+summary: When one thing tells you nothing about the other.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: einordnen
+    widget: buckets
+    prompt: Independent or dependent?
+    params:
+      buckets: [{ label: independent }, { label: dependent }]
+      items:
+        - { label: Two coin flips in a row, bucket: independent }
+        - { label: A die roll and the weather, bucket: independent }
+        - { label: Rain and a wet street, bucket: dependent }
+        - { label: Two cards drawn without replacement, bucket: dependent }
+        - { label: Height and weight, bucket: dependent }
+    hints:
+      - Does knowing one change the chance of the other?
+    explanation: Independent means one tells you nothing about the other.
+
+  - kind: explain
+    body: |
+      For **independent** events, P(A and B) = P(A) · P(B).
+      If they are dependent, this simple rule no longer holds.
+
+  - kind: problem
+    id: beide
+    widget: numeric
+    prompt: "It rains with 20 % probability. Independently, your alarm clock rings too late with {{p}} % probability. How likely is both?"
+    params: { unit: "%" }
+    answer: { value: "{{20 * p / 100}}" }
+    hints:
+      - "0.2 · {{p / 100}}."
+    explanation: "0.2 · {{p / 100}} = {{20 * p / 10000}}, so {{20 * p / 100}} %."
+    variants:
+      params: { p: "choice[10,25,50]" }
+      defaults: { p: 10 }
+
+  - kind: problem
+    id: falle
+    widget: choice
+    prompt: 1 % of houses had a fire, and 1 % had a faulty smoke detector. Is "both at once" then 1 % · 1 % = 0.01 %?
+    params:
+      options:
+        - { label: Only if the two are independent, correct: true }
+        - { label: "Yes, always", feedback: "If the events are linked, the product is wrong." }
+    hints:
+      - Could a defect be linked to fires?
+    explanation: You may only multiply for independent events. Expert reports often forget this.
+
+srs:
+  cards_from: [einordnen, beide]

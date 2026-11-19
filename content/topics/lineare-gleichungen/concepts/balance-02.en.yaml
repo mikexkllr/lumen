@@ -1,0 +1,125 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.balance-02
+type: concept
+title: Dividing fairly
+summary: Several crates? Divide both sides by the same number.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.solve-one-step, alg.solve-two-step]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: zwei-kisten
+    widget: balance
+    params:
+      left: { x: 2, units: 0 }
+      right: { x: 0, units: 8 }
+      allow: [remove_unit, remove_x, divide]
+    prompt: Two crates of equal weight weigh 8 together. Get a single crate onto the scale.
+    hints:
+      - You can split both sides fairly.
+      - Divide both sides by 2. 2 crates become 1, and 8 weights become 4.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: The scale tips. Removing doesn't help here. Try dividing.
+    explanation: "Divide both sides by 2: 2x = 8 becomes x = 4."
+
+  - kind: explain
+    body: |
+      Dividing is allowed, as long as you divide **both** sides by the same number.
+      $2x = 8$ becomes $x = 4$.
+
+  - kind: problem
+    id: erst-weg-dann-teilen
+    widget: balance
+    params:
+      left: { x: "{{a}}", units: "{{u}}" }
+      right: { x: 0, units: "{{a * b + u}}" }
+      allow: [remove_unit, remove_x, divide]
+    prompt: Get one crate x alone on the scale.
+    hints:
+      - First remove the single weights.
+      - Then only crates are left on the left. Divide both sides by the number of crates.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: The scale tips. Always change both sides the same way.
+    explanation: "First remove {{u}}: {{a}}x = {{a * b}}. Then divide by {{a}}: x = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3]", b: "int[2,4]", u: "int[1,4]" }
+      constraints: ["a * b + u <= 16"]
+      defaults: { a: 3, b: 4, u: 2 }
+
+  - kind: problem
+    id: erster-schritt
+    widget: choice
+    prompt: "For $3x + 2 = 14$, what is the best first step?"
+    params:
+      options:
+        - label: Remove 2 from both sides
+          correct: true
+        - label: Divide both sides by 3
+          feedback: That doesn't divide evenly. The 2 can't be split into 3 equal parts. Remove the 2 first.
+        - label: Remove all crates from the left
+          feedback: Then x would be gone, and the right side would lack the same change.
+    hints:
+      - What gets in the way of having only crates on the left?
+    explanation: "First remove 2 (3x = 12), then divide by 3 (x = 4)."
+
+  - kind: problem
+    id: teilen-rechnen
+    widget: numeric
+    prompt: "Solve: ${{a}}x = {{a * b}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "numval(state.input) == a * b - a"
+        misconception: subtract-instead-of-divide
+        text: "You subtracted {{a}}. But {{a}}x means {{a}} · x, and you undo that by dividing."
+    hints:
+      - "{{a}}x means {{a}} crates. How heavy is one?"
+      - "Divide {{a * b}} by {{a}}."
+    explanation: "Divide both sides by {{a}}: x = {{a * b}} ÷ {{a}} = {{b}}."
+    variants:
+      params: { a: "choice[2,3,4,5]", b: "int[2,9]" }
+      constraints: ["a * b - a != b"]
+      defaults: { a: 4, b: 6 }
+
+  - kind: problem
+    id: reihenfolge
+    widget: order
+    prompt: "Put the solution steps for $2x + 6 = 14$ in the right order."
+    params:
+      items:
+        - label: "2x + 6 = 14"
+        - label: "2x = 8"
+        - label: "x = 4"
+        - label: "Check: 2 · 4 + 6 = 14 ✓"
+      startLabel: Start
+      endLabel: End
+    hints:
+      - What goes first, the 6 or the 2 in front of x?
+    explanation: First remove 6, then divide by 2. The check comes last.
+
+  - kind: problem
+    id: zwei-schritte
+    widget: numeric
+    prompt: "Solve: ${{a}}x + {{u}} = {{a * b + u}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "approx(numval(state.input), (a * b + u) / a - u)"
+        misconception: wrong-order
+        text: You divided first and then subtracted {{u}}. Remove the {{u}} first, then divide.
+    hints:
+      - First remove {{u}} from both sides.
+      - "Then {{a}}x = {{a * b}} is left. Now divide."
+    explanation: "{{a}}x + {{u}} = {{a * b + u}} → {{a}}x = {{a * b}} → x = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3,4,5]", b: "int[1,9]", u: "int[1,9]" }
+      defaults: { a: 5, b: 3, u: 4 }
+
+srs:
+  cards_from: ["steps[2]", "steps[6]"]

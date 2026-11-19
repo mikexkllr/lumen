@@ -1,0 +1,65 @@
+id: math.sequences.geometric
+type: concept
+title: Always times the same number
+summary: Geometric sequences.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: weiter
+    widget: numeric
+    prompt: "{{a}}, {{a * q}}, {{a * q * q}}, …: which number comes next?"
+    params: { placeholder: "Number" }
+    answer: { value: "{{a * q * q * q}}" }
+    feedback:
+      - when: "numval(state.input) == a * q * q + (a * q * q - a * q)"
+        misconception: additive
+        text: The same amount is not added each time. Each term is multiplied by the same number.
+    hints:
+      - What is each term multiplied by?
+    explanation: "Always times {{q}}, so {{a * q * q * q}}."
+    variants:
+      params: { a: "int[1,5]", q: "int[2,3]" }
+      defaults: { a: 3, q: 2 }
+
+  - kind: explain
+    body: |
+      If you always multiply by the same factor q, the sequence is **geometric**. It grows harmlessly at first, then explosively.
+
+  - kind: problem
+    id: falten
+    widget: numeric
+    prompt: A stack of cardboard is 1 mm thick. You fold it in half again and again. How thick is it after {{n}} folds?
+    params: { unit: mm }
+    answer: { value: "{{2 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * n"
+        misconception: linear
+        text: Each fold doubles the whole thickness. It does not just add 2 mm.
+    hints:
+      - "1 → 2 → 4 → 8 …"
+    explanation: "$2^{ {{n}} } = {{2 ** n}}$ mm. After 42 folds, a sheet of paper would be thicker than the distance to the Moon."
+    variants:
+      params: { n: "int[5,10]" }
+      defaults: { n: 7 }
+
+  - kind: problem
+    id: sortieren
+    widget: buckets
+    prompt: Arithmetic or geometric?
+    params:
+      buckets: [{ label: arithmetic }, { label: geometric }]
+      items:
+        - { label: "2, 5, 8, 11", bucket: arithmetic }
+        - { label: "100, 90, 80, 70", bucket: arithmetic }
+        - { label: "3, 6, 12, 24", bucket: geometric }
+        - { label: "64, 32, 16, 8", bucket: geometric }
+        - { label: "1, 10, 100, 1000", bucket: geometric }
+    hints:
+      - Plus or times?
+    explanation: Equal differences mean arithmetic. Equal factors mean geometric, even when halving.
+
+srs:
+  cards_from: [falten, sortieren]

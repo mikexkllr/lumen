@@ -1,0 +1,56 @@
+id: ai.recommend.metrics
+type: concept
+title: What Gets Measured Gets Optimized
+summary: Click rates and their side effects.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: klickrate
+    widget: numeric
+    prompt: "{{n}} people see a post, {{k}} click on it. What is the click rate?"
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - Clicks divided by views, times 100.
+    explanation: "{{k}} ÷ {{n}} = {{p}}%."
+    variants:
+      params: { n: "choice[200,500,1000,2000]", p: "int[2,15]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 1000, p: 4 }
+
+  - kind: problem
+    id: nur-klicks
+    widget: choice
+    prompt: A feed shows only what is clicked most. What will probably win out?
+    params:
+      options:
+        - { label: Sensational titles and outrage, correct: true }
+        - { label: The most thorough articles, feedback: "Thorough does not mean click-heavy." }
+    hints:
+      - What makes people tap quickly?
+    explanation: Clicks measure curiosity, not quality. The system learns to stir curiosity.
+
+  - kind: explain
+    body: |
+      **Goodhart's law:** When a metric becomes a goal, it stops being a good measure. So good systems combine several signals.
+
+  - kind: problem
+    id: signale
+    widget: buckets
+    prompt: Does this measure short-term attention or real benefit?
+    params:
+      buckets: [{ label: Attention }, { label: Benefit }]
+      items:
+        - { label: Clicks, bucket: Attention }
+        - { label: Watched the first 3 seconds, bucket: Attention }
+        - { label: Comes back after a week, bucket: Benefit }
+        - { label: Rating “was worth it”, bucket: Benefit }
+    hints:
+      - What says something about the time afterward?
+    explanation: People who come back or are satisfied got real benefit.
+
+srs:
+  cards_from: [nur-klicks, signale]

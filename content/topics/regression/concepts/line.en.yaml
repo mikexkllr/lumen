@@ -1,0 +1,63 @@
+id: stats.regression.line
+type: concept
+title: The best line
+summary: One line that sums up the data.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: anpassen
+    widget: slider
+    prompt: Place the line through the points so that it is as close as possible to all of them.
+    params:
+      expr: "m*x + b"
+      x: [0, 6]
+      y: [0, 14]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Slope, min: 0, max: 4, step: 0.25, initial: 0.5 }
+        - { id: b, label: Height, min: -2, max: 4, step: 0.5, initial: 3 }
+      markers:
+        - { x: 1, y: 3, group: a }
+        - { x: 2, y: 5, group: a }
+        - { x: 3, y: 6, group: a }
+        - { x: 4, y: 9, group: a }
+        - { x: 5, y: 11, group: a }
+    check: { predicate: "m >= 1.75 && m <= 2.25 && b >= 0 && b <= 1.5" }
+    hints:
+      - From x = 1 to x = 5, the points rise by about 8.
+    explanation: The best fit is about y = 2x + 0.8.
+
+  - kind: explain
+    body: |
+      The **regression line** makes the sum of squared distances to all points as small as possible. That is why the method is called **least squares**.
+
+  - kind: problem
+    id: vorhersage
+    widget: numeric
+    prompt: The line is y = 2x + 0.8. What does it predict for x = {{x}}?
+    params: { placeholder: "y" }
+    answer: { value: "{{2 * x + 0.8}}" }
+    hints:
+      - "2 · {{x}} + 0.8."
+    explanation: "{{2 * x}} + 0.8 = {{2 * x + 0.8}}."
+    variants:
+      params: { x: "int[6,12]" }
+      defaults: { x: 7 }
+
+  - kind: problem
+    id: quadrat
+    widget: choice
+    prompt: Why do you square the distances instead of just adding them?
+    params:
+      options:
+        - { label: Otherwise upward and downward deviations cancel out., correct: true }
+        - { label: Squaring makes the numbers smaller., feedback: "Usually it makes them larger – it is about the sign." }
+    hints:
+      - What do +3 and −3 add up to?
+    explanation: Squares are never negative – and large outliers count especially strongly.
+
+srs:
+  cards_from: [anpassen, quadrat]

@@ -1,0 +1,52 @@
+id: ai.rl.value
+type: concept
+title: What is a situation worth?
+summary: Rewards in the future.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      For every situation, an agent learns a **value**: how much reward it can still expect from there. Later rewards count a little less. Each step **discounts** them, for example by 10 %.
+
+  - kind: problem
+    id: abzug
+    widget: numeric
+    prompt: A reward of 100 waits {{k}} steps away. Each step counts 10 % less. How much is it worth now?
+    params: { placeholder: "Value" }
+    answer: { value: "{{100 * 0.9 ** k}}", tolerance: 0.01 }
+    hints:
+      - "100 · 0.9 to the power {{k}}."
+    explanation: "100 · 0.9^{{k}} ≈ {{round(100 * 0.9 ** k, 2)}}."
+    variants:
+      params: { k: "int[1,3]" }
+      defaults: { k: 2 }
+
+  - kind: problem
+    id: warum
+    widget: choice
+    prompt: Why do distant rewards count less?
+    params:
+      options:
+        - { label: "They are less certain, and the agent should act quickly.", correct: true }
+        - { label: Because they are smaller., feedback: "The reward itself is the same size. It is just further away." }
+    hints:
+      - Would you rather have 100 € now or in ten years?
+    explanation: Without a discount, an agent would put off rewards forever.
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    prompt: Path A gives 50 right away. Path B gives 100 in 10 steps, and each step counts 10 % less. Which is worth more?
+    params:
+      options:
+        - { label: Path A, correct: true }
+        - { label: Path B, feedback: "100 · 0.9^10 is only about 35." }
+    hints:
+      - "0.9^10 is about 0.35."
+    explanation: Patience only pays off if the later reward is big enough.
+
+srs:
+  cards_from: [abzug, vergleich]

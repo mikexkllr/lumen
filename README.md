@@ -1,51 +1,64 @@
-# Lumen
+# Lumen – a free alternative to Brilliant.org
 
-**MINT verstehen durch Ausprobieren – kostenlos, werbefrei, offen, datensparsam.**
+🌐 **English** · [Deutsch](README.de.md)
 
-Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem Feedback. Der Kern ist eine **Engine für deklarative, automatisch prüfbare Aufgaben** und ein **offenes Content-Format**. Jede veröffentlichte Aufgabe muss automatische Evals bestehen: Sie muss lösbar und eindeutig sein und darf keine unmöglichen Zustände erreichen.
+**Lumen is a free alternative to Brilliant.org: learn math, science, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
 
-> Arbeitstitel aus der Spezifikation. Lumen ist ein eigenständiges Projekt ohne Bezug zu kommerziellen Anbietern; Inhalte, Gestaltung und Namen sind eigene Arbeit.
+Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
 
-## Stand (MVP: Meilensteine M0 und M1)
+> Lumen is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Brilliant.org or any other commercial provider; "Brilliant" is used here only to describe what Lumen is an alternative to. All content, design and names are original work.
 
-| Bereich | Umgesetzt |
+## Why Lumen?
+
+- **Free forever** – no subscription, no paywall, no ads.
+- **Learn by doing** – 26 interactive problem types instead of videos: drag, build, simulate, play.
+- **Zero to hero** – 7 subjects, each with one learning path through five stages.
+- **Lux, an AI tutor in every lesson** – asks how you got your answer and never gives the solution away.
+- **Private by design** – no account, no tracking; progress stays on your device.
+- **Open** – code under MIT/AGPL, content under CC BY-SA 4.0. Self-host it at your school.
+- **Multilingual** – English and German throughout; more languages are just more YAML files.
+
+## Status (MVP: milestones M0 and M1)
+
+| Area | Done |
 |---|---|
-| Content-Format v0.1 | YAML, per JSON-Schema validiert: Fach-Pfad → Topic (mit Stufe) → Unit → Concept → Step; Evals prüfen, dass jeder Pfad aufsteigt und Voraussetzungen vorher kommen; Varianten-Generatoren; Fehlvorstellungs-Feedback; Skill-Graph; Einstufung |
-| Engine (`@lumen/engine`, MIT) | 26 Aufgabentypen plus Erklär- und Aufdeck-Screens (u. a. Spiele gegen einen perfekten Computer (Nim), Türme von Hanoi, Lights out, Winkel/Einheitskreis, Rechteck-Optimierung, Tausch-Sortieren, Roboter-Programmierung, Logikgatter, Netzwerke, Venn-Diagramme, Pixelraster, Bits, Zuordnen, Paare, Diagramme, Zufall/Sprachmodell-Sampling); Level, Abzeichen, Tagesaufgaben und Tagesrätsel – alles aus dem Ereignislog abgeleitet; sicherer Ausdrucks-Evaluator (kein `eval`); Mathe-Parser mit symbolischer Äquivalenz; Referenzlöser (Widget-Löser oder Breitensuche); FSRS-Wiederholung; XP, Streak und Tagesziel aus dem Ereignislog |
-| Evals | Schema · Referenzen und Zyklen · Lizenz · Lösbarkeit · „nicht trivial“ · Eindeutigkeit · Fuzzing auf unmögliche Zustände · Feedback-Regeln · Layout-Lint · Lesbarkeit (Amstad-Index) · Wörter pro Screen · Alt-Texte · Varianten-Vielfalt |
-| CLI (`@lumen/cli`, MIT) | `lumen check`, `lumen build` (Bundles mit Content-Hash, optional mit Ed25519 signiert), `lumen keygen`, `lumen schema`, `lumen dev` |
-| Web-App (`@lumen/web`, AGPL) | PWA, offline, ohne Account: ruhiges Designsystem (hell/dunkel, Desktop-Seitenleiste, mobile Tab-Leiste), generierte Kurs-Cover, Kurskatalog mit Bereichen und Lernpfaden, Lektions-Player mit Fortschrittssegmenten, Combo-Zähler, XP-Effekt und Feedback-Panel (gezieltes Feedback, zweiter Versuch, »Lösung zeigen«), Abschluss-Screen mit Level-Balken, neuen Abzeichen und Wochen-Streak, Tagesrätsel und drei Tagesaufgaben auf der Startseite, Sounds, die mit der Combo ansteigen, Wiederholen (FSRS), Profil mit Aktivitäts-Heatmap; Autor:innen-Vorschau mit Live-Evals |
-| Barrierefreiheit | Bedienung per Tastatur und Screenreader (`describe()` jedes Widgets als Live-Region), jedes Manipulative auch ohne Ziehen bedienbar, Richtig/Falsch mit Symbol und Text statt nur Farbe, Dunkelmodus, hoher Kontrast, reduzierte Bewegung, Schriftgröße, Atkinson Hyperlegible |
-| Sync-Server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); Sync-Code statt E-Mail/Passwort; idempotentes Mergen; Export und Löschen; Tutor-Endpunkt für Lux |
-| Lux – Tutor und Maskottchen | in jeder Lektion: vor der Antwort (»Worum geht es?«, Tipp), nach Fehlern (»Mit Lux durchgehen«: Lux fragt zuerst, wie du auf deine Antwort gekommen bist, und setzt an deiner Begründung an; bis zu vier Versuche), am Ende jeder Lektion und jedes Kurses als Fehler-Rückblick (»Fehler durchgehen«, jede falsche Aufgabe mit deiner damaligen Antwort), nach der Lösung (»Warum richtig?«) und auf Erklär-Screens; spricht über ein beliebiges OpenAI-kompatibles Modell (lokal Ollama, in Produktion z. B. OpenRouter); deterministischer Leak-Schutz verwirft Antworten, die die Lösung verraten; ohne Modell oder offline antwortet ein Regel-Tutor aus den Hinweisen der Lektion; für Unter-16-Jährige nur Regel-Tutor |
-| Inhalte (CC BY-SA 4.0) | 7 Fächer mit je einem Lernpfad von null bis Profi in fünf Stufen (Einstieg, Grundlagen, Aufbau, Fortgeschritten, Experte): 98 Kurse, 513 Lektionen, 2291 Steps, 1710 Aufgaben (mit Varianten-Generatoren), viele Kurse mit eigener Experimentier-Lektion, Deutsch – **Mathematik** (28 Kurse: Kopfrechnen und Brüche bis Analysis, Integrale, Matrizen, komplexe Zahlen), **Physik** (13: Universum bis Optik, Kernphysik, Relativität, Entropie und Quantenwelt), **Chemie** (10: Gemische bis Klima, Redox und Gleichgewicht), **Informatik** (13: Code und Bits bis Datenbanken, IT-Sicherheit und Komplexität), **Data Science** (13: Daten und Diagramme bis Zeitreihen, Bayes, Regression und Hypothesentests), **KI** (10: Maschinelles Lernen, Verantwortung, generative KI bis Transformer und Agenten), **Logik & Denken** (11: Rätsel und Denkfehler bis Quantoren, Beweise und Gödel) |
+| Content format v0.1 | YAML validated by JSON Schema: subject path → topic (with stage) → unit → concept → step; evals check that every path climbs and prerequisites come first; variant generators; misconception feedback; skill graph; placement test |
+| Engine (`@lumen/engine`, MIT) | 26 problem types plus explain and reveal screens (incl. games against a perfect computer (Nim), Tower of Hanoi, Lights Out, angles/unit circle, rectangle optimisation, swap sorting, robot programming, logic gates, networks, Venn diagrams, pixel grids, bits, matching, pairs, charts, randomness/language-model sampling); levels, badges, daily quests and a daily puzzle – all derived from the event log; safe expression evaluator (no `eval`); math parser with symbolic equivalence; reference solver (widget solver or breadth-first search); FSRS spaced repetition; XP, streak and daily goal from the event log |
+| Evals | schema · references and cycles · licence · solvability · "not trivial" · uniqueness · fuzzing for impossible states · feedback rules · layout lint · readability (Flesch / Amstad) · words per screen · alt texts · variant diversity · translation parity |
+| CLI (`@lumen/cli`, MIT) | `lumen check`, `lumen build` (content-hashed bundles, optionally Ed25519-signed), `lumen keygen`, `lumen schema`, `lumen dev` |
+| Web app (`@lumen/web`, AGPL) | PWA, offline, no account: calm design system (light/dark, desktop sidebar, mobile tab bar), generated course covers, course catalogue with subjects and learning paths, lesson player with progress segments, combo counter, XP effect and feedback panel (targeted feedback, second try, "Show solution"), completion screen with level bar, new badges and weekly streak, daily puzzle and three daily quests on the home screen, sounds that rise with the combo, review (FSRS), profile with activity heatmap; author preview with live evals |
+| Internationalisation | English and German complete: UI, engine feedback, screen-reader texts, Lux and all content; the language follows the device and can be switched in settings; translations live as `*.en.yaml` next to the original, and the `i18n.parity` eval guarantees they differ only in wording (same steps, ids, numbers, conditions, templates); adding a language means adding `*.<locale>.yaml` files |
+| Accessibility | keyboard and screen-reader support (`describe()` of every widget as a live region), every manipulative usable without dragging, right/wrong shown with icon and text, not colour alone, dark mode, high contrast, reduced motion, font size, Atkinson Hyperlegible |
+| Sync server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); sync code instead of email/password; idempotent merge; export and delete; tutor endpoint for Lux |
+| Lux – tutor and mascot | in every lesson: before answering ("What is this about?", hint), after mistakes ("Go through it with Lux": Lux first asks how you got your answer and builds on your reasoning; up to four tries), at the end of every lesson and course as a mistakes review (every wrong problem with the answer you gave), after the solution ("Why is this right?") and on explain screens; talks to any OpenAI-compatible model (Ollama locally, e.g. OpenRouter in production); a deterministic leak guard discards replies that give the solution away; without a model or offline, a rule tutor answers from the lesson's hints; under-16s get the rule tutor only |
+| Content (CC BY-SA 4.0) | 7 subjects, each with one learning path from zero to hero in five stages (Starter, Foundations, Intermediate, Advanced, Expert): 98 courses, 513 lessons, 2291 steps, 1710 problems (with variant generators), many courses with their own hands-on lab lesson, in English and German – **Mathematics** (28 courses: mental arithmetic and fractions up to calculus, integrals, matrices, complex numbers), **Physics** (13: the universe up to optics, nuclear physics, relativity, entropy and the quantum world), **Chemistry** (10: mixtures up to climate, redox and equilibrium), **Computer science** (13: code and bits up to databases, IT security and complexity), **Data science** (13: data and charts up to time series, Bayes, regression and hypothesis tests), **AI** (10: machine learning, responsibility, generative AI up to transformers and agents), **Logic & reasoning** (11: puzzles and fallacies up to quantifiers, proofs and Gödel) |
 
-Noch nicht umgesetzt (laut Roadmap später): KI-Tutor (M3), Ligen und Abzeichen (M5), Capacitor-Apps und Push (M2), Python-Editor (M4), englische Inhalte (die UI ist zweisprachig; englische Concepts fallen auf Deutsch zurück).
+Not done yet (later on the roadmap): leagues (M5), Capacitor apps and push notifications (M2), Python editor (M4).
 
-## Schnellstart
+## Quick start
 
-Voraussetzung: **Node.js ≥ 24** (empfohlen 26). TypeScript läuft direkt über Nodes eingebautes Type-Stripping, ohne Build-Schritt.
+Requires **Node.js ≥ 24** (26 recommended). TypeScript runs directly through Node's built-in type stripping, with no build step.
 
 ```bash
 npm install
-npm run dev          # App mit Live-Vorschau der Inhalte: http://localhost:5173
-npm test             # Engine-, CLI- und Server-Tests
-npm run check        # alle Inhalte gegen die Evals prüfen
-npm run build        # Content-Bundles + PWA nach apps/web/dist
-npm run server       # optionaler Sync-Server auf :8787
+npm run dev          # app with live content preview: http://localhost:5173
+npm test             # engine, CLI and server tests
+npm run check        # check all content (German and English) against the evals
+npm run build        # content bundles + PWA into apps/web/dist
+npm run server       # optional sync server on :8787
 ```
 
-Self-Hosting mit Docker (App auf `:8080`, Sync auf `:8787`):
+Self-hosting with Docker (app on `:8080`, sync on `:8787`):
 
 ```bash
 docker compose up --build
 ```
 
-## Lux, der Tutor
+## Lux, the tutor
 
-Lux leitet durch jede Lektion, verrät aber nie die Lösung. Die Engine (`packages/engine/src/tutor.ts`) baut aus Aufgabe, Antwort, Fehlvorstellung und Hinweisen einen festen Kontext; der Server baut daraus den Prompt (Clients können ihn nicht ersetzen) und prüft jede Modellantwort mit dem Leak-Schutz. Verrät das Modell die Lösung zweimal oder wiederholt es nur seine letzte Nachricht, antwortet der Regel-Tutor.
+Lux guides you through every lesson but never gives away the solution. The engine (`packages/engine/src/tutor.ts`) builds a fixed context from the problem, the answer, the misconception and the hints; the server builds the prompt from it (clients cannot replace it) and checks every model reply with the leak guard. If the model leaks the solution twice or only repeats its last message, the rule tutor answers instead. Lux replies in the learner's language.
 
-Lokal mit einem kleinen Modell testen (Mac mit 8 GB reicht):
+Test locally with a small model (a Mac with 8 GB is enough):
 
 ```bash
 ollama pull qwen3:1.7b
@@ -53,88 +66,94 @@ ollama serve
 npm run server
 ```
 
-Die Web-App (`npm run dev -w @lumen/web`) leitet `/api` an den Server weiter. In Produktion ein OpenAI-kompatibles Modell setzen:
+The web app (`npm run dev -w @lumen/web`) proxies `/api` to the server. In production, set an OpenAI-compatible model:
 
-| Variable | Bedeutung | Standard |
+| Variable | Meaning | Default |
 |---|---|---|
-| `LUMEN_TUTOR_URL` | Basis-URL, z. B. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
-| `LUMEN_TUTOR_MODEL` | Modellname | `qwen3:1.7b` (lokal) |
-| `LUMEN_TUTOR_API_KEY` | API-Schlüssel, nur auf dem Server | – |
-| `LUMEN_TUTOR_REASONING` | `reasoning_effort`, lokal `none` | – |
-| `LUMEN_TUTOR_RATE_LIMIT` | Anfragen pro Minute und IP | 30 |
-| `LUMEN_TUTOR=off` | nur Regel-Tutor | – |
+| `LUMEN_TUTOR_URL` | base URL, e.g. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
+| `LUMEN_TUTOR_MODEL` | model name | `qwen3:1.7b` (local) |
+| `LUMEN_TUTOR_API_KEY` | API key, server only | – |
+| `LUMEN_TUTOR_REASONING` | `reasoning_effort`, locally `none` | – |
+| `LUMEN_TUTOR_RATE_LIMIT` | requests per minute and IP | 30 |
+| `LUMEN_TUTOR=off` | rule tutor only | – |
 
-Datenschutz: Lux schickt Aufgabe, Antwort und Nachrichten an den Lumen-Server und dessen Modell; der Server loggt nur den Grund eines Rückfalls, nie Inhalte. In den Einstellungen lässt sich das Modell abschalten.
+Privacy: Lux sends the problem, the answer and the messages to the Lumen server and its model; the server only logs the reason for a fallback, never content. The model can be switched off in settings.
 
-## Aufbau
+## Structure
 
 ```
-packages/engine   Headless-Engine: Schema, Widgets, Prüfung, Löser, Evals, FSRS, Fortschritt   (MIT)
+packages/engine   headless engine: schema, widgets, checking, solver, evals, FSRS, progress   (MIT)
 packages/cli      lumen check | build | keygen | schema | dev                                  (MIT)
-apps/web          PWA (React + Vite + vite-plugin-pwa), IndexedDB als Ereignislog             (AGPL-3.0)
-apps/server       Sync-API (Fastify, node:sqlite)                                             (AGPL-3.0)
-content/          Pfade, Topics, Concepts, Skills, Einstufung als YAML                        (CC BY-SA 4.0)
-docs/             Referenz des Content-Formats
+apps/web          PWA (React + Vite + vite-plugin-pwa), IndexedDB as event log              (AGPL-3.0)
+apps/server       sync API (Fastify, node:sqlite)                                           (AGPL-3.0)
+content/          paths, topics, concepts, skills, placement as YAML (de + en)              (CC BY-SA 4.0)
+docs/             content format reference
 ```
 
-### Widget-Vertrag
+### Widget contract
 
-Jeder Aufgabentyp ist eine reine, typisierte Definition. Dieselbe API dient der UI, den CI-Evals, dem Authoring und später dem Tutor:
+Every problem type is a pure, typed definition. The same API serves the UI, the CI evals, authoring and the tutor:
 
 ```ts
 init(params, ctx) → state            applyAction(state, action, params) → state
 checkAnswer(state, answer, params)   isSolved(state, params)
-solve(params, answer) → state        describe(state, params, locale) → Text für Screenreader/LLM
-actions(state, params) → Aktionen    validateState(state, params) → verletzte Invarianten
-lint(params, answer) → Hinweise      diagnose(state, answer, params) → Feedback zur Fehlvorstellung
+solve(params, answer) → state        describe(state, params, locale) → text for screen readers/LLMs
+actions(state, params) → actions     validateState(state, params) → violated invariants
+lint(params, answer) → issues        diagnose(state, answer, params) → misconception feedback
 ```
 
-`createWidgetInstance()` stellt zusätzlich die objektorientierte Form aus der Spezifikation bereit (`getState`, `applyAction`, `isSolved`, `describe`, `solve`).
+`createWidgetInstance()` also provides the object-oriented form from the specification (`getState`, `applyAction`, `isSolved`, `describe`, `solve`).
 
-### Fortschritt: local-first
+### Progress: local-first
 
-Jeder Versuch ist ein Ereignis mit UUID, das nur angehängt wird. XP, Streak (mit 2 automatischen Freezes pro Woche), Tagesziel und der FSRS-Zustand jeder Karte werden **deterministisch aus dem Log abgeleitet**. Deshalb kann Sync Logs konfliktfrei vereinigen.
+Every attempt is an append-only event with a UUID. XP, streak (with 2 automatic freezes per week), daily goal and the FSRS state of every card are **derived deterministically from the log**. That is why sync can merge logs without conflicts.
 
-XP-Regeln: gelöste Aufgabe 1–3 XP (Schwierigkeit), Concept +10, Wiederholungs-Session +5. Wiederholungen am selben Tag geben keine XP.
+XP rules: solved problem 1–3 XP (difficulty), concept +10, review session +5. Repeats on the same day give no XP.
 
-### Wiederholung (FSRS)
+### Review (FSRS)
 
-Karten sind Aufgaben mit Varianten-Generator, und jede Wiederholung zeigt neue Zahlen. Die Bewertung wird automatisch abgeleitet: falsch → Again, mit Hinweis oder im 2. Versuch → Hard, richtig → Good, richtig und schnell → Easy. Sessions sortieren nach Abrufwahrscheinlichkeit und mischen Topics. Scheitert eine Karte, werden Karten zu den Voraussetzungs-Skills vorgezogen.
+Cards are problems with a variant generator, so every review shows new numbers. The rating is derived automatically: wrong → Again, with a hint or on the 2nd try → Hard, right → Good, right and fast → Easy. Sessions sort by recall probability and mix topics. If a card fails, cards for its prerequisite skills move up.
 
-## Inhalte schreiben
+## Writing and translating content
 
-Siehe [docs/content-format.md](docs/content-format.md) und [CONTRIBUTING.md](CONTRIBUTING.md). Kurzfassung:
+See [docs/content-format.md](docs/content-format.md) and [CONTRIBUTING.md](CONTRIBUTING.md). In short:
 
-1. `npm run dev`, dann **Profil → Autor:innen-Vorschau** öffnen. Jede gespeicherte YAML-Datei lädt die Seite neu, inklusive Live-Evals.
-2. `npm run check` muss mit 0 Fehlern und 0 Warnungen durchlaufen. Die CI prüft das mit `--strict`.
+1. `npm run dev`, then open **Profile → Author preview**. Every saved YAML file reloads the page, including live evals.
+2. `npm run check` must pass with 0 errors and 0 warnings. CI checks this with `--strict`.
 
-## Signierte Content-Bundles
+To translate, put `name.<locale>.yaml` next to `name.yaml`, set `locale: <locale>` and translate only the wording. Check with `node scripts/check-translation.ts en <topic folder>`: the `i18n.parity` eval rejects any change to steps, ids, numbers, conditions or `{{templates}}`, and untranslated files are listed.
+
+## Signed content bundles
 
 ```bash
-node packages/cli/src/cli.ts keygen --out keys            # keys/ ist in .gitignore
+node packages/cli/src/cli.ts keygen --out keys            # keys/ is in .gitignore
 node packages/cli/src/cli.ts build content --out apps/web/public/content --key keys/content-signing.pem
-VITE_LUMEN_PUBLIC_KEY=<öffentlicher Schlüssel> npm run build -w @lumen/web
+VITE_LUMEN_PUBLIC_KEY=<public key> npm run build -w @lumen/web
 ```
 
-Die App prüft jede Datei gegen den SHA-256 im Manifest. Ist ein öffentlicher Schlüssel konfiguriert, prüft sie zusätzlich die Ed25519-Signatur des Manifests.
+The app checks every file against the SHA-256 in the manifest. If a public key is configured, it also verifies the manifest's Ed25519 signature.
 
-## Datenschutz
+## Privacy
 
-- Ohne Account nutzbar; alles liegt lokal in IndexedDB.
-- Sync ist optional und braucht nur einen zufälligen Sync-Code. Der Server speichert SHA-256(Code) und pseudonyme Lernereignisse, keine E-Mail-Adresse und kein Profil.
-- Unter 16 Jahren (DSGVO Art. 8): Kindermodus, Sync nur mit Zustimmung eines Elternteils.
-- Export und Löschung lokal wie auf dem Server per Knopfdruck. Keine Third-Party-SDKs, kein Tracking.
-- Einstufung und Bewertung sind regelbasiert und deterministisch (kein ML/LLM), mit Blick auf den EU AI Act.
+- Works without an account; everything is stored locally in IndexedDB.
+- Sync is optional and only needs a random sync code. The server stores SHA-256(code) and pseudonymous learning events – no email address and no profile.
+- Under 16 (GDPR Art. 8): kids mode, sync only with a parent's consent.
+- Export and deletion, locally and on the server, at the press of a button. No third-party SDKs, no tracking.
+- Placement and grading are rule-based and deterministic (no ML/LLM), with the EU AI Act in mind.
 
-Vor einem öffentlichen Betrieb sind eine anwaltliche Prüfung (Marke, AGB, Datenschutzerklärung) und eine DSFA nötig.
+Before running Lumen publicly, a legal review (trademark, terms, privacy policy) and a DPIA are required.
 
-## Lizenzen
+## Licences
 
-| Teil | Lizenz |
+| Part | Licence |
 |---|---|
-| `packages/*` (Engine, Format, CLI) | MIT |
-| `apps/*` (Web-App, Server) | AGPL-3.0-or-later |
-| `content/` (Texte, Aufgaben) | CC BY-SA 4.0 |
-| Name und Logo | siehe [TRADEMARK.md](TRADEMARK.md) |
+| `packages/*` (engine, format, CLI) | MIT |
+| `apps/*` (web app, server) | AGPL-3.0-or-later |
+| `content/` (texts, problems) | CC BY-SA 4.0 |
+| Name and logo | see [TRADEMARK.md](TRADEMARK.md) |
 
-Beiträge laufen über das [Developer Certificate of Origin](https://developercertificate.org/) (`git commit -s`), es gibt keine CLA.
+Contributions use the [Developer Certificate of Origin](https://developercertificate.org/) (`git commit -s`); there is no CLA.
+
+---
+
+**Keywords:** free Brilliant.org alternative · free alternative to Brilliant · open-source learning app · interactive math lessons · learn STEM for free · learn science, computer science and AI · spaced repetition · AI tutor · self-hosted e-learning

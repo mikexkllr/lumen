@@ -1,0 +1,56 @@
+id: sci.circuits.safety
+type: concept
+title: Electricity and Safety
+summary: What is really dangerous.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      What is dangerous is **current through the body**. Even about 50 mA can be life-threatening. Wet skin lowers the resistance, so more current flows.
+
+  - kind: problem
+    id: koerper
+    widget: numeric
+    prompt: At 230 V, a body has {{r}} Ω of resistance. How much current flows?
+    params: { unit: mA }
+    answer: { value: "{{230000 / r}}" }
+    hints:
+      - "Current = voltage ÷ resistance. Then multiply by 1000 for mA."
+    explanation: "230 ÷ {{r}} = {{230 / r}} A, so {{230000 / r}} mA. That is far above the danger limit."
+    variants:
+      params: { r: "choice[1000,2000,2300,4600]" }
+      defaults: { r: 2300 }
+
+  - kind: problem
+    id: fi
+    widget: choice
+    prompt: What is the RCD switch in the fuse box for?
+    params:
+      options:
+        - { label: "It cuts power when current takes a wrong path.", correct: true }
+        - { label: It saves electricity., feedback: "It protects people, not your wallet." }
+        - { label: It only protects against overload., feedback: "That is what the normal fuse does." }
+    hints:
+      - What happens when current flows through a person to the ground?
+    explanation: If part of the current is missing on the way back, the RCD disconnects within milliseconds.
+
+  - kind: problem
+    id: gefahr
+    widget: buckets
+    prompt: Dangerous or not?
+    params:
+      buckets: [{ label: dangerous }, { label: harmless }]
+      items:
+        - { label: Hair dryer on the edge of the bathtub, bucket: dangerous }
+        - { label: Kite near a power line, bucket: dangerous }
+        - { label: Bird on a high-voltage line, bucket: harmless }
+        - { label: Phone charging on the table, bucket: harmless }
+    hints:
+      - Can current flow through a body to the ground?
+    explanation: The bird touches only one wire, so there is no path for current through it.
+
+srs:
+  cards_from: [fi, gefahr]

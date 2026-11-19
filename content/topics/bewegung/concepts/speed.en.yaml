@@ -1,0 +1,82 @@
+id: sci.motion.speed
+type: concept
+title: Speed
+summary: Distance divided by time.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zug
+    widget: numeric
+    prompt: A train travels {{d}} km in {{t}} hours. What is its average speed?
+    params: { unit: km/h }
+    answer: { value: "{{d / t}}" }
+    feedback:
+      - when: "numval(state.input) == d * t"
+        misconception: multiply
+        text: Speed is distance divided by time.
+    hints:
+      - How many kilometers does it cover in one hour?
+    explanation: "{{d}} km : {{t}} h = {{d / t}} km/h."
+    variants:
+      params: { t: "choice[2,3,4]", v: "choice[80,90,120,150]" }
+      derive: { d: "t * v" }
+      defaults: { t: 2, v: 120 }
+
+  - kind: explain
+    body: |
+      **Speed = distance : time.** You measure it in km/h or m/s.
+      To convert, use 3.6 – 1 m/s is 3.6 km/h.
+
+  - kind: problem
+    id: sprint
+    widget: numeric
+    prompt: A sprinter runs 100 m in 10 seconds. How many km/h is that?
+    params: { unit: km/h }
+    answer: { value: 36 }
+    feedback:
+      - when: "numval(state.input) == 10"
+        misconception: no-conversion
+        text: 10 m/s is correct. Now convert to km/h – times 3.6.
+    hints:
+      - First m/s, then times 3.6.
+    explanation: "100 m : 10 s = 10 m/s. Times 3.6 gives 36 km/h."
+
+  - kind: problem
+    id: diagramm
+    widget: slider
+    prompt: A cyclist is 4 meters along after 2 seconds. Set the speed in the distance-time graph.
+    params:
+      expr: "v*x"
+      x: [0, 6]
+      y: [0, 6]
+      sliders: [{ id: v, label: "v in m/s", min: 0, max: 3, step: 0.5, initial: 0.5 }]
+      markers: [{ x: 2, y: 4, label: "2 s, 4 m" }]
+      showCoordinates: false
+    answer: { values: { v: 2 } }
+    hints:
+      - Every second, they must cover 2 meters.
+    explanation: 4 m in 2 s – that is 2 m/s.
+
+  - kind: explain
+    body: |
+      In a **distance-time graph**, the slope is the speed.
+      Steeper means faster. Flat means nothing is moving.
+
+  - kind: problem
+    id: waagerecht
+    widget: choice
+    prompt: What does a horizontal line in a distance-time graph show?
+    params:
+      options:
+        - { label: Standing still, correct: true }
+        - { label: Steady motion, feedback: "In steady motion, the line rises steadily." }
+        - { label: Very high speed, feedback: "Then the line would be very steep." }
+    hints:
+      - Does the distance change as time passes?
+    explanation: Time keeps running, but the distance stays the same.
+
+srs:
+  cards_from: [zug, sprint]

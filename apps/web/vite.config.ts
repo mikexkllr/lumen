@@ -12,10 +12,10 @@ export default defineConfig({
       injectRegister: false,
       includeAssets: ['icon.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {
-        name: 'Lumen – MINT verstehen',
+        name: 'Lumen – learn by doing',
         short_name: 'Lumen',
-        description: 'Freie, offene Lern-App für Mathe und Logik mit interaktiven Aufgaben.',
-        lang: 'de',
+        description: 'A free alternative to Brilliant.org: interactive lessons in math, science, computer science and AI.',
+        lang: 'en',
         start_url: '.',
         display: 'standalone',
         background_color: '#fbf8f2',

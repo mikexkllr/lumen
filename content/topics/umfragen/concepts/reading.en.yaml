@@ -1,0 +1,57 @@
+id: stats.sampling.reading
+type: concept
+title: Percent or Percentage Points?
+summary: A small word with a big effect.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: punkte
+    widget: numeric
+    prompt: A party rises from {{a}}% to {{b}}%. By how many percentage points did it rise?
+    params: { unit: percentage points }
+    answer: { value: "{{b - a}}" }
+    hints:
+      - Percentage points are simply the difference.
+    explanation: "{{b}} − {{a}} = {{b - a}} percentage points."
+    variants:
+      params: { a: "choice[10,20,25,40]", d: "choice[2,5,10]" }
+      derive: { b: "a + d" }
+      defaults: { a: 20, d: 5 }
+
+  - kind: problem
+    id: prozent
+    widget: numeric
+    prompt: And by what percent did it grow – from 20% to 25%?
+    params: { unit: "%" }
+    answer: { value: 25 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: points-vs-percent
+        text: 5 is the percentage points. The question is growth relative to 20.
+    hints:
+      - 5 out of 20 is what percent?
+    explanation: 5 / 20 = 25%. The same change, a very different number.
+
+  - kind: explain
+    body: |
+      **Percentage points** are the difference between two percentages. **Percent** describes the relative change.
+      Headlines like to mix them up – usually they pick the bigger number.
+
+  - kind: problem
+    id: risiko
+    widget: choice
+    prompt: "“A drug doubles the risk!” Before, it was 1 in 10,000. How big is it now?"
+    params:
+      options:
+        - { label: "2 in 10,000", correct: true }
+        - { label: 50%, feedback: "Doubling applies to the small starting risk." }
+        - { label: 1 in 5000 – so huge, feedback: "That is the same as 2 in 10,000 – and still tiny." }
+    hints:
+      - Doubling means times 2.
+    explanation: The relative risk sounds dramatic, but the absolute risk stays tiny – 0.02%.
+
+srs:
+  cards_from: [punkte, risiko]

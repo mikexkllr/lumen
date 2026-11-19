@@ -1,0 +1,53 @@
+id: stats.regression.predict
+type: concept
+title: Making predictions
+summary: From model to number.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wohnung
+    widget: numeric
+    body: "A model predicts apartment prices: price = 3,000 € · area + 50,000 €."
+    prompt: What does it predict for {{a}} m²?
+    params: { unit: "€" }
+    answer: { value: "{{3000 * a + 50000}}" }
+    hints:
+      - "3,000 · {{a}} + 50,000."
+    explanation: "{{3000 * a}} + 50,000 = {{3000 * a + 50000}} €."
+    variants:
+      params: { a: "choice[40,60,80,100,120]" }
+      defaults: { a: 80 }
+
+  - kind: explain
+    body: |
+      Regressions are behind price estimates, weather models and medicine. They predict the **average** – single cases deviate from it.
+
+  - kind: problem
+    id: einzeln
+    widget: choice
+    prompt: The model predicts 290,000 € for an apartment. What does it actually cost?
+    params:
+      options:
+        - { label: You do not know exactly – the model estimates the average., correct: true }
+        - { label: "Exactly 290,000 €", feedback: "Location, condition and chance cause deviations." }
+    hints:
+      - Do all points lie exactly on the line?
+    explanation: A good model also says how widely single values typically spread.
+
+  - kind: problem
+    id: mehrere
+    widget: choice
+    prompt: How can you improve the prediction?
+    params:
+      options:
+        - { label: Include more factors such as location and year built, correct: true }
+        - { label: Make the line steeper, feedback: "The best slope is already fixed – information is missing." }
+    hints:
+      - Does the price depend only on the area?
+    explanation: With several factors, it is called **multiple regression** – the start of many AI models.
+
+srs:
+  cards_from: [wohnung, einzeln]

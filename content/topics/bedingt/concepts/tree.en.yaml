@@ -1,0 +1,82 @@
+id: stats.conditional.tree
+type: concept
+title: Tree Diagrams
+summary: Multiply along, add across.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zwei-rot
+    widget: numeric
+    prompt: A bag holds one red and one blue marble. You draw, put it back, and draw again. How likely is red twice?
+    params: { placeholder: "Fraction, e.g. 1/3" }
+    answer: { value: "1/4" }
+    feedback:
+      - when: "approx(numval(state.input), 1/2)"
+        misconception: single-stage
+        text: That holds for one draw. But red must come up twice.
+    hints:
+      - List all possibilities, RR, RB, BR, BB.
+    explanation: One of four equally likely outcomes fits, so 1/4.
+
+  - kind: explain
+    body: |
+      **Path rule:** Along a path in the tree, probabilities are **multiplied**.
+      So red twice is 1/2 · 1/2 = 1/4.
+
+  - kind: problem
+    id: muenzen
+    widget: numeric
+    prompt: A coin is flipped {{n}} times. How likely is it that every flip lands heads?
+    params: { placeholder: "Fraction" }
+    answer: { value: "1/{{2 ** n}}" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / (2 * n))"
+        misconception: add-instead-multiply
+        text: Along the path you multiply, not add.
+    hints:
+      - "The factor 1/2, {{n}} times."
+    explanation: "(1/2) to the power of {{n}} = 1/{{2 ** n}}."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 3 }
+
+  - kind: explain
+    body: |
+      **Sum rule:** If several paths lead to the same outcome, you combine their chances. You **add** them.
+
+  - kind: problem
+    id: genau-einmal
+    widget: numeric
+    prompt: Two coin flips. How likely is exactly one head?
+    params: { placeholder: "Fraction" }
+    answer: { value: "1/2" }
+    feedback:
+      - when: "approx(numval(state.input), 1/4)"
+        misconception: one-path
+        text: Heads can come on the first or the second flip. That makes two paths.
+    hints:
+      - HT and TH both lead to the goal.
+    explanation: 1/4 + 1/4 = 1/2.
+
+  - kind: problem
+    id: ohne-zuruecklegen
+    widget: numeric
+    prompt: A bag has {{r}} red and {{b}} blue marbles. You draw two without putting any back. How likely are both red?
+    params: { placeholder: "Fraction" }
+    answer: { value: "{{r * (r - 1)}}/{{(r + b) * (r + b - 1)}}" }
+    feedback:
+      - when: "approx(numval(state.input), (r / (r + b)) ** 2)"
+        misconception: with-replacement
+        text: That would be with replacement. After the first draw, one red marble is gone.
+    hints:
+      - "First draw {{r}}/{{r + b}}. Then {{r - 1}} red out of {{r + b - 1}} remain."
+    explanation: "{{r}}/{{r + b}} · {{r - 1}}/{{r + b - 1}} = {{r * (r - 1)}}/{{(r + b) * (r + b - 1)}}."
+    variants:
+      params: { r: "int[2,5]", b: "int[2,4]" }
+      defaults: { r: 3, b: 2 }
+
+srs:
+  cards_from: [muenzen, ohne-zuruecklegen]

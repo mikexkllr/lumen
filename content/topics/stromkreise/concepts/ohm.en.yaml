@@ -1,0 +1,90 @@
+id: sci.circuits.ohm
+type: concept
+title: Voltage, Current, Resistance
+summary: Ohm's law, U = R · I.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      **Voltage** U (volts) drives the current. **Current** I (amperes) flows. **Resistance** R (ohms, Ω) slows it down.
+      **Ohm's law** says: U = R · I.
+
+  - kind: problem
+    id: lampe
+    widget: numeric
+    prompt: A lamp has 12 Ω and is connected to 6 V. What is the current?
+    params: { unit: A }
+    answer: { value: 0.5 }
+    feedback:
+      - when: "numval(state.input) == 72"
+        misconception: multiply
+        text: "Rearranged, I = U ÷ R."
+      - when: "numval(state.input) == 2"
+        misconception: inverted
+        text: The other way around. Voltage divided by resistance.
+    hints:
+      - "I = U ÷ R."
+    explanation: "6 V ÷ 12 Ω = 0.5 A."
+
+  - kind: problem
+    id: strom
+    widget: numeric
+    prompt: A resistor of {{r}} Ω has {{u}} V across it. What is the current?
+    params: { unit: A }
+    answer: { value: "{{u / r}}", tolerance: 0.01 }
+    feedback:
+      - when: "numval(state.input) == u * r"
+        misconception: multiply
+        text: Divide the voltage by the resistance.
+    hints:
+      - "I = {{u}} V ÷ {{r}} Ω."
+    explanation: "{{u}} ÷ {{r}} = {{u / r}} A."
+    variants:
+      params: { u: "choice[6,9,12,24]", r: "choice[2,3,4,6]" }
+      defaults: { u: 12, r: 4 }
+
+  - kind: problem
+    id: widerstand
+    widget: numeric
+    prompt: What resistance lets exactly {{i}} A flow at 230 V?
+    params: { unit: Ω }
+    answer: { value: "{{230 / i}}" }
+    hints:
+      - "R = U ÷ I."
+    explanation: "230 V ÷ {{i}} A = {{230 / i}} Ω."
+    variants:
+      params: { i: "choice[1,2,5,10]" }
+      defaults: { i: 2 }
+
+  - kind: problem
+    id: einheiten
+    widget: match
+    prompt: Match each quantity with its unit.
+    params:
+      pairs:
+        - { left: Voltage, right: Volt }
+        - { left: Current, right: Ampere }
+        - { left: Resistance, right: Ohm }
+        - { left: Power, right: Watt }
+    hints:
+      - All the units are named after scientists.
+    explanation: Volta, Ampère, Ohm, and Watt gave them their names.
+
+  - kind: problem
+    id: doppelt
+    widget: choice
+    prompt: The voltage stays the same, and the resistance doubles. What happens to the current?
+    params:
+      options:
+        - { label: It halves., correct: true }
+        - { label: It doubles., feedback: "More resistance slows it down more." }
+        - { label: It stays the same., feedback: "I = U ÷ R. If R grows, I drops." }
+    hints:
+      - "Look at I = U ÷ R."
+    explanation: Double the resistance, half the current.
+
+srs:
+  cards_from: [strom, doppelt]

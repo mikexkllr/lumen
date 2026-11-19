@@ -1,0 +1,71 @@
+id: cs.recursion.idea
+type: concept
+title: The idea of recursion
+summary: A big problem as a smaller one of the same kind.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fak-vier
+    widget: numeric
+    body: "fact(n) = n · fact(n − 1), and fact(1) = 1."
+    prompt: If fact(3) = 6 – what is fact(4)?
+    params: { placeholder: "Result" }
+    answer: { value: 24 }
+    hints:
+      - fact(4) = 4 · fact(3).
+    explanation: 4 · 6 = 24.
+
+  - kind: explain
+    body: |
+      **Recursion** means: a function solves a problem by calling itself with a smaller version.
+      It needs a **stopping condition** – otherwise it never ends.
+
+  - kind: problem
+    id: reihenfolge
+    widget: order
+    prompt: fact(4) is called. In what order do the calls finish?
+    params:
+      startLabel: finishes first
+      endLabel: finishes last
+      items:
+        - { label: "fact(1) = 1" }
+        - { label: "fact(2) = 2" }
+        - { label: "fact(3) = 6" }
+        - { label: "fact(4) = 24" }
+    hints:
+      - fact(4) has to wait for fact(3), which waits for fact(2) …
+    explanation: The innermost call finishes first. Then all the others finish in reverse.
+
+  - kind: problem
+    id: ohne-abbruch
+    widget: choice
+    prompt: What happens if the stopping condition is missing?
+    params:
+      options:
+        - { label: The function calls itself endlessly – until memory is full., correct: true }
+        - { label: It returns 0., feedback: "Without stopping, it returns nothing at all." }
+        - { label: Nothing special., feedback: "Every call uses memory. At some point it is full." }
+    hints:
+      - When would the chain of calls end?
+    explanation: This is called a **stack overflow** – a well-known programmer website even carries the name.
+
+  - kind: problem
+    id: fibonacci
+    widget: numeric
+    body: f(1) = f(2) = 1, and every further number is the sum of the two before it.
+    prompt: What is f({{n}})?
+    params: { placeholder: "Number" }
+    answer: { value: "{{v}}" }
+    hints:
+      - 1, 1, 2, 3, 5, 8 …
+    explanation: "f({{n}}) = {{v}}."
+    variants:
+      params: { n: "choice[6,7,8,10]" }
+      derive: { v: "n == 6 ? 8 : n == 7 ? 13 : n == 8 ? 21 : 55" }
+      defaults: { n: 7 }
+
+srs:
+  cards_from: [fak-vier, ohne-abbruch]

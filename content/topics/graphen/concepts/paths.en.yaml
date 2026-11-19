@@ -1,0 +1,121 @@
+id: cs.graphs.paths
+type: concept
+title: Shortest paths
+summary: Fewer stops does not mean shorter.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: route-a-f
+    widget: network
+    prompt: Find the shortest path from A to F. Tap the places one after another.
+    params:
+      start: A
+      end: F
+      unit: km
+      nodes:
+        - { id: A, x: 4, y: 50 }
+        - { id: B, x: 35, y: 10 }
+        - { id: C, x: 35, y: 90 }
+        - { id: D, x: 66, y: 10 }
+        - { id: E, x: 66, y: 90 }
+        - { id: F, x: 96, y: 50 }
+      edges:
+        - { a: A, b: B, w: 4 }
+        - { a: A, b: C, w: 2 }
+        - { a: B, b: C, w: 1 }
+        - { a: B, b: D, w: 5 }
+        - { a: C, b: E, w: 3 }
+        - { a: C, b: D, w: 8 }
+        - { a: D, b: F, w: 2 }
+        - { a: E, b: F, w: 6 }
+    hints:
+      - The direct way from A to B is not the cheapest.
+      - Going through C gets you to B for less.
+    explanation: A → C → B → D → F costs 2 + 1 + 5 + 2 = 10 km.
+
+  - kind: explain
+    body: |
+      A **network** consists of **nodes** (places) and **edges** (connections with a length).
+      Navigation apps solve exactly this task, with millions of intersections.
+
+  - kind: explain
+    body: Is the shortest path always the one with the fewest stops?
+    reveal:
+      body: No. A detour through more nodes can be shorter, just like the route through C to B.
+
+  - kind: problem
+    id: route-s-t
+    widget: network
+    prompt: New map. Find the shortest path from S to T.
+    params:
+      start: S
+      end: T
+      unit: km
+      nodes:
+        - { id: S, x: 4, y: 30 }
+        - { id: A, x: 32, y: 6 }
+        - { id: B, x: 32, y: 62 }
+        - { id: C, x: 64, y: 30 }
+        - { id: D, x: 64, y: 94 }
+        - { id: T, x: 96, y: 60 }
+      edges:
+        - { a: S, b: A, w: 3 }
+        - { a: S, b: B, w: 6 }
+        - { a: A, b: B, w: 2 }
+        - { a: A, b: C, w: 4 }
+        - { a: B, b: C, w: 1 }
+        - { a: C, b: T, w: 5 }
+        - { a: B, b: D, w: 4 }
+        - { a: D, b: T, w: 3 }
+    hints:
+      - For each place, work out its shortest distance from S so far.
+    explanation: S → A → B → C → T = 3 + 2 + 1 + 5 = 11 km.
+
+  - kind: problem
+    id: laenge
+    widget: numeric
+    visual:
+      widget: network
+      params:
+        unit: km
+        nodes:
+          - { id: A, x: 6, y: 50 }
+          - { id: B, x: 50, y: 8 }
+          - { id: C, x: 50, y: 92 }
+          - { id: D, x: 94, y: 50 }
+        edges:
+          - { a: A, b: B, w: 2 }
+          - { a: B, b: D, w: 3 }
+          - { a: A, b: C, w: 4 }
+          - { a: C, b: D, w: 1 }
+          - { a: B, b: C, w: 1 }
+    prompt: How long is the shortest path from A to D?
+    params: { unit: km }
+    answer: { value: 4 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: direct-route
+        text: Close. There is a shortcut along the short edge in the middle.
+    hints:
+      - Try A → B → C → D.
+    explanation: A → B → C → D = 2 + 1 + 1 = 4 km.
+
+  - kind: problem
+    id: reihenfolgen
+    widget: choice
+    prompt: A delivery service has 10 stops. How many orders are there to visit them?
+    params:
+      options:
+        - { label: "About 3.6 million", correct: true }
+        - { label: "100", feedback: "That would be 10 · 10. But with each stop the choice shrinks, and you multiply." }
+        - { label: "55", feedback: "That is 1 + 2 + … + 10. Orders multiply." }
+        - { label: About 1000, feedback: "Far more. Calculate 10 · 9 · 8 · … · 1." }
+    hints:
+      - For the first stop there are 10 options, then 9, then 8 …
+    explanation: 10 · 9 · … · 1 = 3,628,800. That is why computers don't try everything. They use clever shortcuts.
+
+srs:
+  cards_from: [laenge, route-s-t]

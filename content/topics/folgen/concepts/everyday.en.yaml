@@ -1,0 +1,70 @@
+id: math.sequences.everyday
+type: concept
+title: Sequences in everyday life
+summary: Savings plans, subscriptions and grains of rice.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: sparplan
+    widget: numeric
+    prompt: You save €{{a}} in the first month and €{{d}} more each month. How much do you save in month 12?
+    params: { unit: "€" }
+    answer: { value: "{{a + 11 * d}}" }
+    feedback:
+      - when: "numval(state.input) == a + 12 * d"
+        misconception: off-by-one
+        text: By month 12 there are only 11 increases.
+    hints:
+      - Between month 1 and month 12 there are 11 steps.
+    explanation: "{{a}} + 11 · {{d}} = €{{a + 11 * d}}."
+    variants:
+      params: { a: "choice[20,50,100]", d: "choice[5,10,20]" }
+      defaults: { a: 50, d: 10 }
+
+  - kind: problem
+    id: schach
+    widget: choice
+    prompt: The first chessboard square gets 1 grain of rice, and each next square twice as many. How many are on square 64?
+    params:
+      options:
+        - { label: "2⁶³, over 9 quintillion", correct: true }
+        - { label: "128", feedback: "That would be 64 · 2. Here you double 63 times." }
+        - { label: "2⁶⁴", feedback: "Square 1 has 2⁰ = 1 grain, so square 64 has 2⁶³." }
+    hints:
+      - "Square 1: 2⁰, square 2: 2¹, square 3: 2² …"
+    explanation: More rice than humanity has ever harvested. That is geometric growth.
+
+  - kind: problem
+    id: nutzer
+    widget: numeric
+    prompt: An app has 1000 users and grows 10% every month. How many users does it have after two months?
+    params: { unit: users }
+    answer: { value: 1210 }
+    feedback:
+      - when: "numval(state.input) == 1200"
+        misconception: simple-interest
+        text: In the second month the new users grow too. Take 10% of 1100.
+    hints:
+      - First 1000 · 1.1, then · 1.1 again.
+    explanation: 1000 → 1100 → 1210. Each month multiplies by 1.1.
+
+  - kind: problem
+    id: welche
+    widget: buckets
+    prompt: Plus or times? Which kind of sequence is behind it?
+    params:
+      buckets: [{ label: arithmetic }, { label: geometric }]
+      items:
+        - { label: Salary rises €500 every year, bucket: arithmetic }
+        - { label: Cost of a subscription over the months, bucket: arithmetic }
+        - { label: Compound interest, bucket: geometric }
+        - { label: Bacteria divide every hour, bucket: geometric }
+    hints:
+      - Is a fixed amount added, or a fixed share?
+    explanation: Fixed amount means arithmetic. Fixed percentage means geometric.
+
+srs:
+  cards_from: [sparplan, nutzer]

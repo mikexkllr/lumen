@@ -1,0 +1,59 @@
+id: chem.equilibrium.speed
+type: concept
+title: How fast does it react?
+summary: Temperature, surface area, concentration.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Particles only react when they **collide**, and hard enough. Anything that causes more or harder collisions speeds up a reaction.
+
+  - kind: problem
+    id: tempo
+    widget: buckets
+    prompt: Does the reaction get faster or slower?
+    params:
+      buckets: [{ label: faster }, { label: slower }]
+      items:
+        - { label: Higher temperature, bucket: faster }
+        - { label: Fine powder instead of lumps, bucket: faster }
+        - { label: Higher concentration, bucket: faster }
+        - { label: Storing in the fridge, bucket: slower }
+    hints:
+      - More collisions or fewer?
+    explanation: That is why food keeps longer in the fridge. Spoiling is chemistry too.
+
+  - kind: problem
+    id: regel
+    widget: numeric
+    prompt: "Rule of thumb: for every 10 °C warmer, twice as fast. How many times faster does a reaction run at {{10 * k}} °C more?"
+    params: { unit: "times" }
+    answer: { value: "{{2 ** k}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * k"
+        misconception: linear
+        text: Each step doubles, so the factors multiply.
+    hints:
+      - "Double it {{k}} times."
+    explanation: "$2^{ {{k}} } = {{2 ** k}}$ times as fast."
+    variants:
+      params: { k: "int[3,5]" }
+      defaults: { k: 3 }
+
+  - kind: problem
+    id: mehl
+    widget: choice
+    prompt: A sack of flour hardly burns, but finely dispersed flour dust can explode. Why?
+    params:
+      options:
+        - { label: Fine dust has a huge surface area., correct: true }
+        - { label: Dust is hotter., feedback: "The temperature is the same. The contact area with oxygen is not." }
+    hints:
+      - Where can oxygen attack?
+    explanation: More surface means more collisions, and the reaction runs explosively.
+
+srs:
+  cards_from: [tempo, mehl]

@@ -1,0 +1,58 @@
+id: stats.timeseries.average
+type: concept
+title: Moving Averages
+summary: Smoothing out the spikes.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      A **moving average** always averages the last few values. It smooths random spikes and makes the course visible – this is how infection numbers are averaged over 7 days, for example.
+
+  - kind: problem
+    id: drei
+    widget: numeric
+    prompt: The last three days had {{a}}, {{b}}, and {{c}} visitors. What is the 3-day average?
+    params: { unit: visitors }
+    answer: { value: "{{(a + b + c) / 3}}" }
+    hints:
+      - Add all three, then divide by 3.
+    explanation: "({{a}} + {{b}} + {{c}}) ÷ 3 = {{(a + b + c) / 3}}."
+    variants:
+      params: { a: "int[10,40]", b: "int[10,40]", m: "int[0,2]" }
+      derive: { c: "30 + m - ((a + b + 30 + m) % 3)" }
+      constraints: ["(a + b + c) % 3 == 0"]
+      defaults: { a: 20, b: 25, m: 0 }
+
+  - kind: problem
+    id: geglaettet
+    widget: chart
+    body: "Daily values: 4, 8, 6, 10, 8. The 3-day average from day 3 is 6, 8, 8."
+    prompt: Set the smoothed values for days 3 to 5.
+    params:
+      labels: [Day 3, Day 4, Day 5]
+      values: [0, 0, 0]
+      editable: [0, 1, 2]
+      min: 0
+      max: 12
+    answer: { values: [6, 8, 8] }
+    hints:
+      - It is already in the text – copy the values.
+    explanation: The smoothed series fluctuates far less than the raw values.
+
+  - kind: problem
+    id: verzoegerung
+    widget: choice
+    prompt: What is a drawback of moving averages?
+    params:
+      options:
+        - { label: They react late to real changes., correct: true }
+        - { label: They distort all values at random., feedback: "They only smooth – but they lag behind." }
+    hints:
+      - What happens when everything suddenly shoots up?
+    explanation: Because old values count too, a turning point shows up only after a few days.
+
+srs:
+  cards_from: [drei, verzoegerung]

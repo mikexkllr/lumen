@@ -1,0 +1,80 @@
+id: math.growth.factor
+type: concept
+title: The growth factor
+summary: Why two rises of 10% are more than 20%.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: A price rises by 10%. What number do you multiply the old price by?
+    params: { placeholder: "Factor" }
+    answer: { value: 1.1 }
+    feedback:
+      - when: "approx(numval(state.input), 0.1)"
+        misconception: increase-only
+        text: That is only the increase. The old price stays, so 1 plus 0.1.
+      - when: "numval(state.input) == 10"
+        misconception: percent-as-factor
+        text: Times 10 would be a tenfold increase. Write 10% as a decimal.
+    hints:
+      - 100% of the old price plus 10% on top.
+    explanation: 100% + 10% = 110% = 1.1.
+
+  - kind: explain
+    body: |
+      Plus p% means times (1 + p/100).
+      Two rises of 10% are times 1.1 · 1.1 = 1.21. That is **21%**, not 20%.
+
+  - kind: problem
+    id: zweimal
+    widget: numeric
+    prompt: A value rises twice in a row by {{p}}%. By what percent has it risen in total?
+    params: { unit: "%" }
+    answer: { value: "{{2 * p + p * p / 100}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * p"
+        misconception: add-percents
+        text: The second rise is calculated on the already raised value.
+    hints:
+      - "Multiply by the factor {{1 + p / 100}} twice."
+    explanation: "{{1 + p / 100}}² = {{(1 + p / 100) ** 2}}, so plus {{2 * p + p * p / 100}}%."
+    variants:
+      params: { p: "choice[10,20,30,50]" }
+      defaults: { p: 10 }
+
+  - kind: problem
+    id: saeulen
+    widget: chart
+    prompt: A balance doubles every 10 years. Drag the last bar to the right value.
+    params:
+      title: Balance in thousand €
+      labels: [Start, "10 yrs", "20 yrs", "30 yrs"]
+      values: [2, 4, 8, 1]
+      editable: [3]
+      min: 0
+      max: 20
+      step: 1
+    answer: { values: [2, 4, 8, 16] }
+    hints:
+      - Double once more from 8.
+    explanation: 2, 4, 8, 16. Each bar is twice as tall as the one before.
+
+  - kind: problem
+    id: wer-gewinnt
+    widget: choice
+    prompt: Which grows more in the long run, if both start with €1000?
+    params:
+      options:
+        - { label: 5% interest per year, correct: true }
+        - { label: Add €60 every year, feedback: "At first that leads. After about 15 years, interest overtakes it and pulls away." }
+        - { label: Both the same, feedback: "Interest grows along, the fixed €60 does not." }
+    hints:
+      - How much does interest bring when €3000 is already in the account?
+    explanation: Percentages grow with the balance. Fixed amounts do not.
+
+srs:
+  cards_from: [faktor, zweimal]

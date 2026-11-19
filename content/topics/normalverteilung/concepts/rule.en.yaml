@@ -1,0 +1,58 @@
+id: stats.normal.rule
+type: concept
+title: The 68-95-99.7 rule
+summary: What is typical and what is rare.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      For a normal distribution, this rule of thumb applies: **68%** lie within 1 σ of the mean, **95%** within 2 σ and **99.7%** within 3 σ.
+
+  - kind: problem
+    id: iq
+    widget: numeric
+    prompt: IQ scores have a mean of 100 and σ = 15. What percentage lie between 70 and 130?
+    params: { unit: "%" }
+    answer: { value: 95 }
+    feedback:
+      - when: "numval(state.input) == 68"
+        misconception: one-sigma
+        text: 70 and 130 are two σ from the mean, not one.
+    hints:
+      - How many σ is 30 points?
+    explanation: 30 points is 2 σ – so about 95%.
+
+  - kind: problem
+    id: oben
+    widget: numeric
+    prompt: What percentage then have an IQ above 130?
+    params: { unit: "%" }
+    answer: { value: 2.5 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: both-tails
+        text: 5% lie outside – but split between both sides.
+    hints:
+      - 5% lie outside, half below and half above.
+    explanation: 100 − 95 = 5%, half of that above – 2.5%.
+
+  - kind: problem
+    id: selten
+    widget: buckets
+    prompt: Mean 100, σ = 15. Common or very rare?
+    params:
+      buckets: [{ label: common }, { label: very rare }]
+      items:
+        - { label: "110", bucket: common }
+        - { label: "92", bucket: common }
+        - { label: "149", bucket: very rare }
+        - { label: "52", bucket: very rare }
+    hints:
+      - How many σ is the value from the mean?
+    explanation: 149 and 52 are more than 3 σ away – that happens less than 3 times in 1000.
+
+srs:
+  cards_from: [iq, oben]

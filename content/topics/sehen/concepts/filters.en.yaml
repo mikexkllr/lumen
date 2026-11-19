@@ -1,0 +1,71 @@
+id: ai.vision.filters
+type: concept
+title: Finding edges
+summary: A small window computes across the image.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: differenz
+    widget: numeric
+    body: A simple edge filter computes, for each pixel, the right neighbor minus the left neighbor.
+    prompt: The left value is {{l}} and the right is {{r}}. What does the filter output?
+    params: { placeholder: "Value" }
+    answer: { value: "{{r - l}}" }
+    feedback:
+      - when: "numval(state.input) == l - r"
+        misconception: order
+        text: Right minus left, not the other way around.
+    hints:
+      - "Calculate {{r}} − {{l}}."
+    explanation: "{{r}} − {{l}} = {{r - l}}. A large value means there is an edge here."
+    variants:
+      params: { l: "choice[0,10,20]", r: "choice[180,200,255]" }
+      defaults: { l: 10, r: 200 }
+
+  - kind: explain
+    body: |
+      A **filter** slides a small window across the image and computes with the numbers in it.
+      This is how a network finds edges, corners and patterns.
+
+  - kind: problem
+    id: kante
+    widget: pixels
+    prompt: The numbers show brightness. In each row, mark the first bright cell after the edge.
+    params:
+      labels:
+        - [0, 0, 0, 9, 9, 9]
+        - [0, 0, 9, 9, 9, 9]
+        - [0, 0, 0, 0, 9, 9]
+        - [0, 0, 0, 9, 9, 9]
+    answer: { pattern: ["...#..", "..#...", "....#.", "...#.."] }
+    hints:
+      - In each row, find the jump from 0 to 9.
+    explanation: That is exactly where the difference from the neighbor is large, and the filter responds.
+
+  - kind: explain
+    body: Who decides which filters a network uses?
+    reveal:
+      body: Nobody. A network **learns** its own filters. Early layers find edges, later ones whole eyes or wheels.
+
+  - kind: problem
+    id: schichten
+    widget: order
+    prompt: What do the layers of an image network recognize, one after another?
+    params:
+      startLabel: first layer
+      endLabel: last layer
+      items:
+        - { label: Light and dark spots }
+        - { label: Edges }
+        - { label: Shapes like circles and corners }
+        - { label: Parts like eyes or wheels }
+        - { label: Whole things like cats or cars }
+    hints:
+      - From simple to complex.
+    explanation: Each layer builds larger patterns from the patterns of the previous one.
+
+srs:
+  cards_from: [differenz, schichten]

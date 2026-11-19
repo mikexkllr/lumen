@@ -1,0 +1,88 @@
+id: logic.strategy.backwards
+type: concept
+title: Thinking Backward
+summary: The stones game and its winning formula.
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fuenf
+    widget: numeric
+    body: Game - players take turns taking 1, 2, or 3 stones. Whoever takes the last stone wins.
+    prompt: There are 5 stones and it is your turn. How many do you take?
+    params: { unit: stones }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 2 || numval(state.input) == 3"
+        misconception: greedy
+        text: Then 3 or 2 are left, and your opponent takes them all.
+    hints:
+      - How many stones should your opponent face?
+    explanation: If 4 are left, you can always top up to 4 and take the last one.
+
+  - kind: explain
+    body: |
+      **Thinking backward:** Whoever faces 4 stones loses. Whatever they take, you take the rest.
+      So always leave your opponent a multiple of 4.
+
+  - kind: problem
+    id: n-steine
+    widget: numeric
+    prompt: Now there are {{n}} stones. How many do you take to win for sure?
+    params: { unit: stones }
+    answer: { value: "{{mod(n, 4)}}" }
+    hints:
+      - Which multiple of 4 lies just below {{n}}?
+    explanation: "You take {{mod(n, 4)}}. That leaves {{n - mod(n, 4)}}, a multiple of 4."
+    variants:
+      params: { n: "int[6,23]" }
+      constraints: ["mod(n, 4) != 0"]
+      defaults: { n: 10 }
+
+  - kind: problem
+    id: anfangen
+    widget: choice
+    prompt: With which starting number would you rather let the other player begin?
+    params:
+      layout: grid
+      options:
+        - { label: "12", correct: true }
+        - { label: "10", feedback: "With 10, you take 2 and win yourself." }
+        - { label: "13", feedback: "With 13, you take 1 and win." }
+        - { label: "15", feedback: "With 15, you take 3 and win." }
+    hints:
+      - When is there no good first move?
+    explanation: With multiples of 4, whoever starts loses, if the other plays correctly.
+
+  - kind: explain
+    body: What changes if you may take 1 to 5 stones?
+    reveal:
+      body: Then multiples of 6 lose. In general, the largest allowed move plus 1.
+
+  - kind: problem
+    id: bis-fuenf
+    widget: numeric
+    prompt: You may take 1 to 5 stones. There are 20. How many do you take?
+    params: { unit: stones }
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 4"
+        misconception: old-rule
+        text: That was the old rule with 4. Now multiples of 6 count.
+    hints:
+      - The next multiple of 6 below 20 is 18.
+    explanation: 20 − 2 = 18, a multiple of 6.
+
+  - kind: problem
+    id: gegen-computer
+    widget: nim
+    prompt: Now for real. You play against a computer that makes no mistakes. 10 stones, take 1 to 3.
+    params: { piles: [10], maxTake: 3 }
+    hints:
+      - Always leave the computer a multiple of 4.
+    explanation: First take 2, leaving 8. After that, top up each move to 4.
+
+srs:
+  cards_from: [n-steine, bis-fuenf]
