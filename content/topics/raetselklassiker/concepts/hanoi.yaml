@@ -1,0 +1,75 @@
+id: logic.classics.hanoi
+type: concept
+title: Die Türme von Hanoi
+summary: Ein Turm, drei Stäbe, eine goldene Regel.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: zwei
+    widget: hanoi
+    prompt: Bring den Turm auf Stab C. Nie darf eine größere Scheibe auf einer kleineren liegen.
+    params: { disks: 2 }
+    hints:
+      - Die kleine Scheibe muss zuerst Platz machen.
+    explanation: Klein nach B, groß nach C, klein nach C – drei Züge.
+
+  - kind: problem
+    id: drei
+    widget: hanoi
+    prompt: Jetzt mit drei Scheiben. Schaffst du es in 7 Zügen?
+    params: { disks: 3, maxMoves: 7 }
+    hints:
+      - Erst die oberen zwei Scheiben nach B bringen – wie eben.
+      - Dann die große nach C und die zwei von B obendrauf.
+    explanation: Kleiner Turm weg, große Scheibe rüber, kleiner Turm drauf. Das sind 3 + 1 + 3 = 7 Züge.
+
+  - kind: explain
+    body: Merkst du das Muster? Wie bekommt man einen Turm aus n Scheiben bewegt?
+    reveal:
+      body: Turm aus n − 1 Scheiben zur Seite, größte Scheibe ans Ziel, Turm wieder drauf. Jede neue Scheibe verdoppelt die Arbeit – plus ein Zug.
+
+  - kind: problem
+    id: vier-zuege
+    widget: numeric
+    prompt: Wie viele Züge braucht man mindestens für {{n}} Scheiben?
+    params: { unit: Züge }
+    answer: { value: "{{2 ** n - 1}}" }
+    feedback:
+      - when: "numval(state.input) == 2 ** n"
+        misconception: off-by-one
+        text: Fast – es ist eins weniger. 3 Scheiben brauchen 7, nicht 8 Züge.
+    hints:
+      - 1 Scheibe – 1 Zug, 2 – 3 Züge, 3 – 7 Züge. Verdoppeln und 1 dazu.
+    explanation: "$2^{ {{n}} } - 1 = {{2 ** n - 1}}$ Züge."
+    variants:
+      params: { n: "int[4,8]" }
+      defaults: { n: 4 }
+
+  - kind: problem
+    id: legende
+    widget: choice
+    prompt: Eine Legende erzählt von 64 Scheiben und einem Zug pro Sekunde. Wie lange dauert das?
+    params:
+      options:
+        - { label: Rund 585 Milliarden Jahre, correct: true }
+        - { label: Rund 64 Jahre, feedback: "Die Züge verdoppeln sich mit jeder Scheibe. Das wächst viel schneller." }
+        - { label: Rund 2 Jahre, feedback: "Viel zu wenig. Denk an $2^{64}$." }
+    hints:
+      - $2^{64}$ ist eine Zahl mit 20 Stellen.
+    explanation: $2^{64} - 1$ Sekunden sind rund 585 Milliarden Jahre – über 40-mal das Alter des Universums.
+
+  - kind: problem
+    id: vier
+    widget: hanoi
+    prompt: Meisterprüfung – vier Scheiben in 15 Zügen.
+    params: { disks: 4, maxMoves: 15 }
+    hints:
+      - Bringe erst drei Scheiben nach B. Das ist das Rätsel von eben, nur mit anderem Ziel.
+      - Die kleinste Scheibe wandert immer im Kreis – A, B, C, A …
+    explanation: 7 Züge, 1 Zug, 7 Züge – zusammen 15.
+
+srs:
+  cards_from: [vier-zuege, drei]

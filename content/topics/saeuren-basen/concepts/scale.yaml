@@ -1,0 +1,55 @@
+id: chem.acids.scale
+type: concept
+title: Die pH-Skala genau
+summary: Jede Stufe zählt zehnfach.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: Lösung A hat pH {{a}}, Lösung B pH {{a + d}}. Wievielmal mehr H⁺-Ionen hat A?
+    params: { unit: "-mal" }
+    answer: { value: "{{10 ** d}}" }
+    feedback:
+      - when: "numval(state.input) == d"
+        misconception: linear
+        text: Jede Stufe ist ein Faktor 10 – nicht eins mehr.
+    hints:
+      - "{{d}} Stufen – {{d}}-mal mal 10."
+    explanation: "$10^{ {{d}} } = {{10 ** d}}$-mal so viele H⁺-Ionen."
+    variants:
+      params: { a: "int[1,4]", d: "int[2,4]" }
+      defaults: { a: 2, d: 3 }
+
+  - kind: problem
+    id: ordnen
+    widget: order
+    prompt: Ordne von sauer nach basisch.
+    params:
+      items:
+        - { label: Magensaft }
+        - { label: Zitronensaft }
+        - { label: Regenwasser }
+        - { label: Blut }
+        - { label: Seifenlauge }
+    hints:
+      - Blut ist ganz leicht basisch.
+    explanation: Magen etwa 1,5, Zitrone 2, Regen 5,6, Blut 7,4, Seife 10.
+
+  - kind: problem
+    id: regen
+    widget: choice
+    prompt: Warum ist selbst sauberer Regen leicht sauer?
+    params:
+      options:
+        - { label: Er löst CO₂ aus der Luft und bildet Kohlensäure., correct: true }
+        - { label: Wegen Abgasen, feedback: "Abgase machen ihn noch saurer – aber schon saubere Luft enthält CO₂." }
+    hints:
+      - Welches Gas ist immer in der Luft?
+    explanation: Kohlensäure senkt den pH auf etwa 5,6.
+
+srs:
+  cards_from: [faktor, ordnen]

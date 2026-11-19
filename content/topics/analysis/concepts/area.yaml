@@ -1,0 +1,58 @@
+id: math.calculus.area
+type: concept
+title: Fläche unter der Kurve
+summary: Vom Tempo zur Strecke.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: konstant
+    widget: numeric
+    prompt: Ein Auto fährt {{t}} Stunden lang konstant {{v}} km/h. Wie weit kommt es?
+    params: { unit: km }
+    answer: { value: "{{v * t}}" }
+    hints:
+      - Tempo mal Zeit.
+    explanation: "{{v}} · {{t}} = {{v * t}} km – genau die Rechteckfläche unter der Tempo-Linie."
+    variants:
+      params: { t: "int[2,5]", v: "choice[50,60,80,100]" }
+      defaults: { t: 3, v: 60 }
+
+  - kind: explain
+    body: |
+      In einem Tempo-Zeit-Diagramm ist die **Fläche unter der Kurve** die Strecke. Bei krummen Kurven zerlegt man die Fläche in schmale Streifen und addiert sie. Das nennt man **Integral**.
+
+  - kind: problem
+    id: dreieck
+    widget: numeric
+    prompt: Ein Rad beschleunigt gleichmäßig in {{t}} s von 0 auf {{v}} m/s. Wie weit fährt es dabei?
+    params: { unit: m }
+    answer: { value: "{{v * t / 2}}" }
+    feedback:
+      - when: "numval(state.input) == v * t"
+        misconception: full-rectangle
+        text: Das wäre die Strecke mit vollem Tempo von Anfang an. Unter der Kurve liegt nur ein Dreieck.
+    hints:
+      - Die Fläche ist ein Dreieck – halbe Grundseite mal Höhe.
+    explanation: "{{t}} · {{v}} : 2 = {{v * t / 2}} m."
+    variants:
+      params: { t: "choice[4,6,10]", v: "choice[4,6,8,10]" }
+      defaults: { t: 6, v: 8 }
+
+  - kind: problem
+    id: wasser
+    widget: choice
+    prompt: Ein Diagramm zeigt, wie viele Liter pro Minute in eine Wanne fließen. Was misst die Fläche darunter?
+    params:
+      options:
+        - { label: Die gesamte Wassermenge, correct: true }
+        - { label: Das höchste Tempo, feedback: "Das ist der höchste Punkt der Kurve." }
+        - { label: Die Dauer, feedback: "Die Dauer steht auf der x-Achse." }
+    hints:
+      - Liter pro Minute mal Minuten ergibt …
+    explanation: Rate mal Zeit ergibt die Menge – die Fläche zählt alles zusammen, was geflossen ist.
+
+srs:
+  cards_from: [dreieck, wasser]

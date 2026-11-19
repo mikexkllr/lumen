@@ -1,0 +1,97 @@
+id: stats.correlation.scatter
+type: concept
+title: Punktwolken lesen
+summary: Positiv, negativ oder gar nicht.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wolke
+    widget: choice
+    visual:
+      widget: graph
+      params:
+        x: [0, 8]
+        y: [0, 6]
+        showCoordinates: false
+        points:
+          - { id: a, x: 1, y: 1, draggable: false, label: "" }
+          - { id: b, x: 2, y: 1, draggable: false, label: "" }
+          - { id: c, x: 2, y: 2, draggable: false, label: "" }
+          - { id: d, x: 3, y: 2, draggable: false, label: "" }
+          - { id: e, x: 4, y: 3, draggable: false, label: "" }
+          - { id: f, x: 5, y: 3, draggable: false, label: "" }
+          - { id: g, x: 5, y: 4, draggable: false, label: "" }
+          - { id: h, x: 6, y: 4, draggable: false, label: "" }
+          - { id: i, x: 7, y: 5, draggable: false, label: "" }
+    prompt: Was zeigt diese Punktwolke?
+    params:
+      options:
+        - { label: "Je größer x, desto größer y.", correct: true }
+        - { label: "Je größer x, desto kleiner y.", feedback: "Die Punkte steigen nach rechts an." }
+        - { label: Keinen Zusammenhang., feedback: "Die Punkte liegen ziemlich klar entlang einer Linie." }
+    hints:
+      - Lies die Wolke von links nach rechts.
+    explanation: Die Punkte steigen nach rechts – ein positiver Zusammenhang.
+
+  - kind: explain
+    body: |
+      Eine **Korrelation** ist ein statistischer Zusammenhang.
+      Steigen beide Größen gemeinsam, ist sie positiv. Fällt eine, wenn die andere steigt, ist sie negativ.
+
+  - kind: problem
+    id: sortieren
+    widget: buckets
+    prompt: Positiv, negativ oder kein Zusammenhang?
+    params:
+      buckets: [{ label: positiv }, { label: negativ }, { label: keiner }]
+      items:
+        - { label: Körpergröße und Schuhgröße, bucket: positiv }
+        - { label: Außentemperatur und Heizkosten, bucket: negativ }
+        - { label: Schuhgröße und Lieblingsfarbe, bucket: keiner }
+        - { label: Übungszeit und Fehlerzahl, bucket: negativ }
+        - { label: Lernzeit und Testergebnis, bucket: positiv }
+        - { label: Hausnummer und Einkommen, bucket: keiner }
+    hints:
+      - Frag dich – wenn das eine steigt, was macht das andere meist?
+    explanation: Größe passt zu Schuhgröße, Wärme senkt Heizkosten, Hausnummern sagen nichts übers Einkommen.
+
+  - kind: problem
+    id: trend
+    widget: graph
+    prompt: Ziehe den grünen Punkt bei x = 6 so, dass er zum Trend der Wolke passt.
+    params:
+      x: [0, 8]
+      y: [0, 6]
+      showCoordinates: false
+      points:
+        - { id: a, x: 1, y: 1, draggable: false, label: "" }
+        - { id: b, x: 2, y: 2, draggable: false, label: "" }
+        - { id: c, x: 3, y: 2, draggable: false, label: "" }
+        - { id: d, x: 4, y: 3, draggable: false, label: "" }
+        - { id: e, x: 5, y: 4, draggable: false, label: "" }
+        - { id: f, x: 7, y: 5, draggable: false, label: "" }
+        - { id: Q, x: 6, y: 0, label: "?" }
+    check: { predicate: "state.points.Q.x == 6 && state.points.Q.y >= 4 && state.points.Q.y <= 5" }
+    solution: { state: { points: { Q: { x: 6, y: 4 } } } }
+    hints:
+      - Zwischen x = 5 und x = 7 liegen die Punkte bei 4 und 5.
+    explanation: Bei x = 6 liegt der Trend zwischen 4 und 5.
+
+  - kind: problem
+    id: staerke
+    widget: choice
+    prompt: Zwei Größen korrelieren stark. Was folgt daraus sicher?
+    params:
+      options:
+        - { label: Man kann die eine gut aus der anderen schätzen., correct: true }
+        - { label: Die eine verursacht die andere., feedback: "Das folgt daraus nicht. Darum geht es in der nächsten Lektion." }
+        - { label: Beide sind gleich groß., feedback: "Korrelation sagt nichts über die Größe der Werte." }
+    hints:
+      - Was bedeutet »die Punkte liegen nah an einer Linie«?
+    explanation: Eine starke Korrelation erlaubt gute Schätzungen – mehr nicht.
+
+srs:
+  cards_from: [sortieren, staerke]

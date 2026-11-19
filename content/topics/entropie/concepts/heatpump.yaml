@@ -1,0 +1,49 @@
+id: sci.entropy.heatpump
+type: concept
+title: Die Wärmepumpe
+summary: Mehr Wärme heraus als Strom hinein.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: mehr
+    widget: choice
+    prompt: Eine Wärmepumpe gibt aus 1 kWh Strom 3 kWh Wärme ab. Verletzt das die Energieerhaltung?
+    params:
+      options:
+        - { label: Nein – sie holt 2 kWh Wärme aus der Außenluft., correct: true }
+        - { label: Ja, feedback: "Sie erzeugt die Wärme nicht, sie verschiebt sie von draußen nach drinnen." }
+    hints:
+      - Woher kommt die zusätzliche Wärme?
+    explanation: Wie ein umgekehrter Kühlschrank – Wärme wird von kalt nach warm gepumpt.
+
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: Eine Wärmepumpe liefert {{w}} kWh Wärme aus {{s}} kWh Strom. Wie groß ist ihre Leistungszahl?
+    params: { placeholder: "Faktor" }
+    answer: { value: "{{w / s}}" }
+    hints:
+      - Wärme geteilt durch Strom.
+    explanation: "{{w}} : {{s}} = {{w / s}}."
+    variants:
+      params: { s: "choice[2,4,5]", k: "int[2,5]" }
+      derive: { w: "s * k" }
+      defaults: { s: 4, k: 3 }
+
+  - kind: problem
+    id: kaelter
+    widget: choice
+    prompt: Wann arbeitet eine Luft-Wärmepumpe am effizientesten?
+    params:
+      options:
+        - { label: Wenn es draußen nicht zu kalt ist, correct: true }
+        - { label: Bei strengem Frost, feedback: "Je größer der Temperaturunterschied, desto mehr Arbeit kostet das Pumpen." }
+    hints:
+      - Ein großer Temperaturunterschied ist schwerer zu überwinden.
+    explanation: Kleine Temperaturunterschiede machen das Pumpen billig – darum passen Fußbodenheizungen gut dazu.
+
+srs:
+  cards_from: [mehr, faktor]

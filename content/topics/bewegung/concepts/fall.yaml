@@ -1,0 +1,67 @@
+id: sci.motion.fall
+type: concept
+title: Fallen und Werfen
+summary: Alles fällt gleich schnell – auf einer Parabel.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: gleich
+    widget: choice
+    prompt: Eine Bowlingkugel und ein Tennisball fallen ohne Luft gleichzeitig los. Welche ist zuerst unten?
+    params:
+      options:
+        - { label: Beide kommen gleichzeitig an., correct: true }
+        - { label: Die Bowlingkugel, feedback: "Schwerer fühlt sich schneller an. Ohne Luft fallen aber alle gleich." }
+        - { label: Der Tennisball, feedback: "Leichter heißt nicht schneller." }
+    hints:
+      - Auf dem Mond fielen ein Hammer und eine Feder gleich schnell.
+    explanation: Ohne Luftwiderstand fallen alle Körper gleich schnell.
+
+  - kind: explain
+    body: |
+      Ohne Luft fallen alle Körper gleich schnell.
+      Nach t Sekunden ist ein Stein etwa **5 · t²** Meter tief gefallen.
+
+  - kind: problem
+    id: tiefe
+    widget: numeric
+    prompt: Ein Stein fällt {{t}} Sekunden lang. Wie tief fällt er etwa? Rechne mit 5 · t².
+    params: { unit: m }
+    answer: { value: "{{5 * t * t}}" }
+    feedback:
+      - when: "numval(state.input) == 5 * t"
+        misconception: linear-fall
+        text: Die Zeit steht im Quadrat. Rechne erst {{t}} · {{t}}.
+    hints:
+      - "{{t}} · {{t}} = {{t * t}}. Dann mal 5."
+    explanation: "5 · {{t}}² = {{5 * t * t}} m."
+    variants:
+      params: { t: "int[2,6]" }
+      defaults: { t: 3 }
+
+  - kind: problem
+    id: wurf
+    widget: slider
+    prompt: Stelle die Wurfkraft so ein, dass der Ball genau im Korb landet.
+    params:
+      expr: "k*x*(8 - x)/8"
+      x: [0, 10]
+      y: [0, 6]
+      sliders: [{ id: k, label: Kraft, min: 0.5, max: 3, step: 0.25, initial: 1 }]
+      markers: [{ x: 6, y: 3, label: Korb }]
+      showCoordinates: false
+    answer: { values: { k: 2 } }
+    hints:
+      - Bei x = 6 muss die Bahn auf Höhe 3 sein.
+    explanation: Mit Kraft 2 trifft die Parabel den Korb.
+
+  - kind: explain
+    body: Warum fliegt ein geworfener Ball auf einer Parabel?
+    reveal:
+      body: Waagerecht fliegt er gleichmäßig weiter. Senkrecht zieht ihn die Schwerkraft immer stärker nach unten. Zusammen ergibt das eine Parabel.
+
+srs:
+  cards_from: [tiefe, gleich]

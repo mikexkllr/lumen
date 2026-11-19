@@ -1,0 +1,73 @@
+id: stats.prob.law
+type: concept
+title: Viele Versuche
+summary: Auf lange Sicht pendelt sich der Zufall ein.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [prob.law]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Wirf die Münze erst ein paarmal, dann 100-mal.
+      Vergleiche den Strich (deine Häufigkeit) mit dem Balken (der Wahrscheinlichkeit).
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items: [{ label: Kopf }, { label: Zahl }]
+
+  - kind: problem
+    id: annaeherung
+    widget: choice
+    prompt: Was passiert mit dem Anteil »Kopf«, wenn man sehr oft wirft?
+    params:
+      options:
+        - { label: Er nähert sich 50 % an, correct: true }
+        - { label: Er ist immer genau 50 %, feedback: "Nach 10 Würfen sind 7-mal Kopf ganz normal. Erst bei vielen Würfen kommt man nah an 50 %." }
+        - { label: Er wird immer unvorhersehbarer, feedback: "Einzelwürfe bleiben zufällig – der Anteil wird aber stabiler." }
+    hints:
+      - Probiere es oben mit 100 Würfen aus.
+    explanation: Bei vielen Versuchen liegt der Anteil nahe an der Wahrscheinlichkeit.
+
+  - kind: explain
+    body: |
+      Das **Gesetz der großen Zahlen** – bei vielen Versuchen pendelt sich die relative Häufigkeit bei der Wahrscheinlichkeit ein.
+      Bei wenigen Versuchen schwankt sie stark.
+
+  - kind: problem
+    id: gezinkt
+    widget: distribution
+    prompt: Dieser Würfel ist gezinkt. Wirf ihn mindestens 100-mal, um herauszufinden, welche Zahl bevorzugt ist.
+    params:
+      items: [{ label: "1", weight: 1 }, { label: "2", weight: 1 }, { label: "3", weight: 1 }, { label: "4", weight: 1 }, { label: "5", weight: 1 }, { label: "6", weight: 5 }]
+    check: { predicate: "draws >= 100" }
+    hints:
+      - Nutze »100× ziehen«.
+    explanation: Bei vielen Würfen sieht man es deutlich – die 6 kommt etwa jedes zweite Mal.
+
+  - kind: problem
+    id: erwartung
+    widget: numeric
+    prompt: Ein fairer Würfel wird 600-mal geworfen. Wie oft erwartest du ungefähr eine 6?
+    answer: { value: 100 }
+    hints:
+      - Die Chance ist 1/6.
+    explanation: 600 · 1/6 = 100.
+
+  - kind: problem
+    id: gluecksrad
+    widget: numeric
+    prompt: Ein Glücksrad hat {{n}} gleich große Felder, {{k}} davon gewinnen. Wie oft gewinnst du ungefähr bei {{w}} Drehungen?
+    answer: { value: "{{w * k / n}}" }
+    hints:
+      - "Die Gewinnchance ist {{k}}/{{n}}."
+    explanation: "{{w}} · {{k}}/{{n}} = {{w * k / n}}."
+    variants:
+      params: { n: "choice[4,5,8,10]", k: "int[1,3]", w: "choice[40,80,100,200]" }
+      constraints: ["isInt(w * k / n)", "k < n"]
+      defaults: { n: 8, k: 2, w: 80 }
+
+srs:
+  cards_from: ["steps[5]"]

@@ -1,0 +1,82 @@
+id: geo.solids.surface
+type: concept
+title: Oberfläche
+summary: Alle Seiten zusammen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wuerfel-o
+    widget: numeric
+    prompt: Ein Würfel hat die Kantenlänge {{a}} cm. Wie groß ist seine Oberfläche?
+    params: { unit: cm² }
+    answer: { value: "{{6 * a * a}}" }
+    feedback:
+      - when: "numval(state.input) == a ** 3"
+        misconception: volume-for-surface
+        text: Das ist das Volumen. Die Oberfläche besteht aus den Seiten.
+    hints:
+      - Ein Würfel hat 6 gleiche quadratische Seiten.
+    explanation: "6 · {{a}}² = {{6 * a * a}} cm²."
+    variants:
+      params: { a: "int[2,8]" }
+      constraints: ["a != 6"]
+      defaults: { a: 3 }
+
+  - kind: explain
+    body: |
+      Die **Oberfläche** ist die Summe aller Seitenflächen.
+      Ein Quader hat drei Paare gleicher Rechtecke.
+
+  - kind: problem
+    id: quader-o
+    widget: numeric
+    prompt: Ein Quader ist {{a}} cm lang, {{b}} cm breit und {{c}} cm hoch. Wie groß ist seine Oberfläche?
+    params: { unit: cm² }
+    answer: { value: "{{2 * (a * b + a * c + b * c)}}" }
+    feedback:
+      - when: "numval(state.input) == a * b + a * c + b * c"
+        misconception: half-surface
+        text: Jede Seite gibt es zweimal – oben und unten, vorn und hinten, links und rechts.
+    hints:
+      - "Rechne {{a}} · {{b}}, {{a}} · {{c}} und {{b}} · {{c}} – jeweils doppelt."
+    explanation: "2 · ({{a * b}} + {{a * c}} + {{b * c}}) = {{2 * (a * b + a * c + b * c)}} cm²."
+    variants:
+      params: { a: "int[3,8]", b: "int[2,5]", c: "int[1,4]" }
+      defaults: { a: 5, b: 4, c: 2 }
+
+  - kind: problem
+    id: netze
+    widget: choice
+    prompt: Wie viele verschiedene Würfelnetze gibt es – also Faltmuster aus sechs Quadraten?
+    params:
+      layout: grid
+      options:
+        - { label: "11", correct: true }
+        - { label: "6", feedback: "Es gibt mehr Muster als Seiten." }
+        - { label: "4", feedback: "Es gibt deutlich mehr – probier es mit Papier." }
+        - { label: "24", feedback: "Zu viele. Gedrehte und gespiegelte Muster zählen nur einmal." }
+    hints:
+      - Mehr als du denkst, aber weniger als 20.
+    explanation: Es gibt genau 11 Würfelnetze.
+
+  - kind: explain
+    body: Bei gleichem Volumen hat die **Kugel** die kleinste Oberfläche. Darum sind Seifenblasen rund und Tropfen fast kugelig.
+
+  - kind: problem
+    id: dose
+    widget: choice
+    prompt: Welche Dose braucht für einen Liter am wenigsten Blech?
+    params:
+      options:
+        - { label: "Eine, die etwa so hoch wie breit ist", correct: true }
+        - { label: Eine sehr hohe und schmale, feedback: "Hohe Dosen haben viel Seitenfläche." }
+        - { label: Eine sehr flache und breite, feedback: "Flache Dosen haben riesige Deckel." }
+    hints:
+      - Welche Form kommt einer Kugel am nächsten?
+    explanation: Am günstigsten ist eine Dose mit Höhe gleich Durchmesser.
+
+srs:
+  cards_from: [wuerfel-o, quader-o]

@@ -1,0 +1,52 @@
+id: ai.vision.data
+type: concept
+title: Gelernt ist, was gezeigt wurde
+summary: Lücken in den Daten werden Lücken im Modell.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: kuh
+    widget: choice
+    prompt: Ein Modell hat Kühe nur auf grünen Wiesen gesehen. Nun steht eine Kuh am Strand. Was passiert?
+    params:
+      options:
+        - { label: Es erkennt die Kuh eher nicht., correct: true }
+        - { label: Es erkennt sie sicher., feedback: "Es hat womöglich »grüner Hintergrund« statt »Kuh« gelernt." }
+    hints:
+      - Was war auf allen Kuhbildern gleich?
+    explanation: Das Modell lernte vielleicht das Gras mit. Solche Abkürzungen fallen erst bei neuen Situationen auf.
+
+  - kind: problem
+    id: nacht
+    widget: numeric
+    prompt: Von {{n}} Trainingsfotos sind nur {{p}} % nachts aufgenommen. Wie viele Nachtfotos sind das?
+    params: { unit: Fotos }
+    answer: { value: "{{n * p / 100}}" }
+    hints:
+      - "{{p}} % von {{n}}."
+    explanation: "Nur {{n * p / 100}} Nachtfotos. Nachts wird das Modell also schlechter sein."
+    variants:
+      params: { n: "choice[1000,2000,5000,10000]", p: "int[2,9]" }
+      defaults: { n: 5000, p: 4 }
+
+  - kind: explain
+    body: |
+      Ein Modell ist nur so gut wie seine Daten. Fehlen Situationen, Orte oder Menschengruppen, macht es dort mehr Fehler. Darum prüft man Fehlerraten **für jede Gruppe einzeln**.
+
+  - kind: problem
+    id: pruefen
+    widget: choice
+    prompt: Ein Modell trifft insgesamt 95 %. Was solltest du noch prüfen?
+    params:
+      options:
+        - { label: Wie gut es in jeder Untergruppe ist, correct: true }
+        - { label: Nichts – 95 % ist gut, feedback: "Ein Durchschnitt kann schwache Gruppen verstecken." }
+    hints:
+      - Kann ein Durchschnitt etwas verbergen?
+    explanation: 99 % bei Tag und 60 % bei Nacht ergeben im Mittel auch einen guten Wert.
+
+srs:
+  cards_from: [kuh, pruefen]

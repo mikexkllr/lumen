@@ -1,0 +1,78 @@
+id: stats.expected.decisions
+type: concept
+title: Garantien und Versicherungen
+summary: Wann sich Absichern lohnt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schaden
+    widget: numeric
+    prompt: Ein Handy kostet {{p}} €. Es geht mit {{q}} % Wahrscheinlichkeit pro Jahr kaputt. Wie hoch ist der erwartete Schaden pro Jahr?
+    params: { unit: "€" }
+    answer: { value: "{{p * q / 100}}" }
+    hints:
+      - "{{q}} % von {{p}} €."
+    explanation: "{{q}} % · {{p}} € = {{p * q / 100}} € pro Jahr."
+    variants:
+      params: { p: "choice[600,800,1000,1200]", q: "choice[5,10]" }
+      defaults: { p: 800, q: 5 }
+
+  - kind: explain
+    body: |
+      Versicherungen kosten im Schnitt **mehr** als der erwartete Schaden – sonst verdient niemand daran.
+      Sie lohnen sich bei Schäden, die man allein nicht tragen könnte.
+
+  - kind: problem
+    id: garantie
+    widget: numeric
+    prompt: Eine Garantie kostet 30 €. Das Gerät für 150 € geht mit 10 % Wahrscheinlichkeit kaputt. Wie viel verlierst du durch die Garantie im Schnitt?
+    params: { unit: "€" }
+    answer: { value: 15 }
+    feedback:
+      - when: "numval(state.input) == 30"
+        misconception: ignore-benefit
+        text: Die Garantie zahlt ja auch etwas. Zieh den erwarteten Schaden ab.
+    hints:
+      - Der erwartete Schaden ist 10 % von 150 €.
+    explanation: Du zahlst 30 €, der Schaden ist im Schnitt 15 €. Du verlierst im Schnitt 15 €.
+
+  - kind: problem
+    id: absichern
+    widget: buckets
+    prompt: Was spricht eher fürs Versichern, was fürs Selbst-Tragen?
+    params:
+      buckets: [{ label: versichern }, { label: selbst tragen }]
+      items:
+        - { label: Haftung bei Millionenschäden, bucket: versichern }
+        - { label: Feuer im eigenen Haus, bucket: versichern }
+        - { label: Hohe Arztkosten, bucket: versichern }
+        - { label: Brille für 200 €, bucket: selbst tragen }
+        - { label: Garantie für einen Toaster, bucket: selbst tragen }
+        - { label: Kratzer im Handy-Display, bucket: selbst tragen }
+    hints:
+      - Würde der Schaden dich finanziell ruinieren?
+    explanation: Kleine Schäden trägt man besser selbst. Große, seltene Risiken sichert man ab.
+
+  - kind: explain
+    body: Wann ist der Erwartungswert ein schlechter Ratgeber?
+    reveal:
+      body: Wenn ein seltenes Ergebnis ruinös ist. Wer alles auf eine Karte setzt, kann trotz positivem Erwartungswert alles verlieren.
+
+  - kind: problem
+    id: ablehnen
+    widget: choice
+    prompt: Welche Wette hat einen negativen Erwartungswert?
+    params:
+      options:
+        - { label: "Münzwurf – plus 10 € oder minus 12 €", correct: true }
+        - { label: "Münzwurf – plus 10 € oder minus 8 €", feedback: "Hier gewinnst du im Schnitt 1 €." }
+        - { label: "Würfel – bei 6 plus 7 €, sonst minus 1 €", feedback: "7/6 − 5/6 = +1/3 € – ein kleiner Vorteil für dich." }
+    hints:
+      - Rechne für jede Wette den Schnitt aus.
+    explanation: 1/2 · 10 € − 1/2 · 12 € = −1 €.
+
+srs:
+  cards_from: [schaden, garantie]

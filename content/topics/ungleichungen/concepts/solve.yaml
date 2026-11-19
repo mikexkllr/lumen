@@ -1,0 +1,82 @@
+id: alg.inequalities.solve
+type: concept
+title: Umformen – mit einer Falle
+summary: Bei negativen Faktoren kippt das Zeichen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: plus
+    widget: numeric
+    prompt: Löse x + {{a}} > {{b}}. Ab welcher Zahl gilt es? x > …
+    params: { prefix: "x >" }
+    answer: { value: "{{b - a}}" }
+    feedback:
+      - when: "numval(state.input) == b + a"
+        misconception: wrong-inverse
+        text: Zieh {{a}} auf beiden Seiten ab, statt zu addieren.
+    hints:
+      - Wie bei einer Gleichung – {{a}} auf beiden Seiten abziehen.
+    explanation: "x > {{b}} − {{a}} = {{b - a}}."
+    variants:
+      params: { a: "int[2,9]", b: "int[5,20]" }
+      defaults: { a: 4, b: 11 }
+
+  - kind: explain
+    body: |
+      Ungleichungen formt man fast wie Gleichungen um.
+      **Aber:** Wer mit einer **negativen** Zahl malnimmt oder teilt, muss das Zeichen umdrehen.
+
+  - kind: problem
+    id: umdrehen
+    widget: choice
+    prompt: Aus −2x > 6 folgt …
+    params:
+      options:
+        - { label: x < −3, correct: true }
+        - { label: x > −3, feedback: "Geteilt durch −2 – das Zeichen muss sich umdrehen." }
+        - { label: x > 3, feedback: "Auch das Vorzeichen der 3 ändert sich." }
+    hints:
+      - Teile durch −2 und denk an die Regel.
+    explanation: Geteilt durch −2 kippt > zu <. Also x < −3.
+
+  - kind: explain
+    body: Warum dreht sich das Zeichen um?
+    reveal:
+      body: 3 < 5 stimmt. Mal −1 ergibt −3 und −5. Jetzt ist −3 die größere Zahl – die Reihenfolge kehrt sich um.
+
+  - kind: problem
+    id: negativ
+    widget: numeric
+    prompt: Löse −{{a}}x ≥ {{c}}. Dann gilt x ≤ …
+    params: { prefix: "x ≤" }
+    answer: { value: "{{-k}}" }
+    feedback:
+      - when: "numval(state.input) == k"
+        misconception: lost-sign
+        text: Teile durch −{{a}}. Das Ergebnis wird negativ.
+    hints:
+      - "Teile beide Seiten durch −{{a}} und dreh das Zeichen um."
+    explanation: "x ≤ {{c}} : (−{{a}}) = {{-k}}."
+    variants:
+      params: { a: "int[2,5]", k: "int[1,6]" }
+      derive: { c: "a * k" }
+      defaults: { a: 3, k: 4 }
+
+  - kind: problem
+    id: nicht-drehen
+    widget: choice
+    prompt: Welche Umformung dreht das Zeichen NICHT um?
+    params:
+      options:
+        - { label: Auf beiden Seiten 5 abziehen, correct: true }
+        - { label: Mal −1 nehmen, feedback: "Negativ malnehmen dreht immer um." }
+        - { label: Durch −4 teilen, feedback: "Durch eine negative Zahl teilen dreht um." }
+    hints:
+      - Nur Malnehmen und Teilen mit negativen Zahlen sind gefährlich.
+    explanation: Addieren und Subtrahieren ändern die Reihenfolge nie.
+
+srs:
+  cards_from: [umdrehen, negativ]

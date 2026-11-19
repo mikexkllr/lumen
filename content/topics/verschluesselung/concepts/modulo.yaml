@@ -1,0 +1,91 @@
+id: cs.crypto.modulo
+type: concept
+title: Uhrenrechnen
+summary: Modulo – rechnen im Kreis.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: uhr
+    widget: numeric
+    prompt: Es ist {{h}} Uhr. Wie spät ist es in {{d}} Stunden?
+    params: { unit: Uhr }
+    answer: { value: "{{mod(h + d, 24)}}" }
+    feedback:
+      - when: "numval(state.input) == h + d"
+        misconception: no-wrap
+        text: Eine Uhr hat nur 24 Stunden. Nach 24 geht es bei 0 weiter.
+    hints:
+      - Was passiert um Mitternacht?
+    explanation: "{{h}} + {{d}} = {{h + d}}, minus 24 ergibt {{mod(h + d, 24)}} Uhr."
+    variants:
+      params: { h: "int[18,23]", d: "int[3,9]" }
+      constraints: ["h + d >= 24"]
+      defaults: { h: 22, d: 5 }
+
+  - kind: explain
+    body: |
+      **Modulo** rechnet im Kreis – man behält nur den Rest.
+      27 mod 24 = 3. Caesar rechnet modulo 26.
+
+  - kind: problem
+    id: rest
+    widget: numeric
+    prompt: Was ist {{a}} mod {{m}}?
+    params: { placeholder: "Rest" }
+    answer: { value: "{{mod(a, m)}}" }
+    feedback:
+      - when: "numval(state.input) == floor(a / m)"
+        misconception: quotient
+        text: Das ist, wie oft {{m}} hineinpasst. Gesucht ist der Rest.
+    hints:
+      - Wie oft passt {{m}} in {{a}}, und was bleibt übrig?
+    explanation: "{{a}} = {{floor(a / m)}} · {{m}} + {{mod(a, m)}}."
+    variants:
+      params: { a: "int[20,99]", m: "choice[5,7,12,26]" }
+      constraints: ["mod(a, m) != floor(a / m)"]
+      defaults: { a: 30, m: 7 }
+
+  - kind: problem
+    id: buchstabe
+    widget: numeric
+    prompt: Buchstaben als Zahlen – A = 0, B = 1 … Z = 25. Verschiebe {{l}} um {{k}}. Welche Zahl kommt heraus?
+    params: { placeholder: "0 bis 25" }
+    answer: { value: "{{mod(i + k, 26)}}" }
+    feedback:
+      - when: "numval(state.input) == i + k"
+        misconception: no-wrap
+        text: Über 25 hinaus geht es wieder bei 0 los.
+    hints:
+      - "{{l}} ist die {{i}}. Rechne {{i}} + {{k}} modulo 26."
+    explanation: "({{i}} + {{k}}) mod 26 = {{mod(i + k, 26)}} – das ist {{chr(i + k)}}."
+    variants:
+      params: { i: "int[18,25]", k: "int[3,12]" }
+      derive: { l: "chr(i)" }
+      constraints: ["i + k >= 26"]
+      defaults: { i: 23, k: 5 }
+
+  - kind: problem
+    id: wochentag
+    widget: choice
+    prompt: Heute ist Mittwoch. Welcher Wochentag ist in 100 Tagen?
+    params:
+      layout: grid
+      options:
+        - { label: Freitag, correct: true }
+        - { label: Mittwoch, feedback: "100 ist kein Vielfaches von 7." }
+        - { label: Donnerstag, feedback: "100 mod 7 ist 2, nicht 1." }
+        - { label: Samstag, feedback: "Einen Tag zu weit." }
+    hints:
+      - Eine Woche hat 7 Tage. Rechne 100 mod 7.
+    explanation: 100 = 14 · 7 + 2. Zwei Tage nach Mittwoch ist Freitag.
+
+  - kind: explain
+    body: Wo steckt Modulo im Alltag?
+    reveal:
+      body: In Uhren und Kalendern, in Prüfziffern von IBAN und ISBN – und in fast jeder modernen Verschlüsselung.
+
+srs:
+  cards_from: [rest, buchstabe]

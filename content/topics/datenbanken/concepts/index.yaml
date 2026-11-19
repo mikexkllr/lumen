@@ -1,0 +1,52 @@
+id: cs.databases.index
+type: concept
+title: Schnell und sicher
+summary: Indizes und SQL-Injection.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Ein **Index** ist wie das Stichwortverzeichnis eines Buches: eine sortierte Liste, die auf die richtigen Zeilen zeigt. Statt alles zu durchsuchen, springt die Datenbank fast direkt hin.
+
+  - kind: problem
+    id: schritte
+    widget: choice
+    prompt: Eine Tabelle hat eine Million Zeilen und einen sortierten Index. Wie viele Vergleiche braucht die Suche ungefähr?
+    params:
+      options:
+        - { label: Etwa 20, correct: true }
+        - { label: Etwa 500 000, feedback: "So viele braucht man ohne Index im Schnitt." }
+        - { label: Genau einen, feedback: "Ganz ohne Vergleiche geht es nicht – aber fast." }
+    hints:
+      - Binäre Suche halbiert bei jedem Schritt.
+    explanation: $2^{20}$ ist etwa eine Million – 20 Halbierungen reichen.
+
+  - kind: problem
+    id: injection
+    widget: choice
+    prompt: Ein Login baut die Abfrage direkt aus dem eingegebenen Text zusammen. Warum ist das gefährlich?
+    params:
+      options:
+        - { label: Angreifer können eigenen SQL-Code einschleusen., correct: true }
+        - { label: Es ist nur langsamer., feedback: "Es ist eine der häufigsten Sicherheitslücken überhaupt." }
+    hints:
+      - Was, wenn jemand SQL-Befehle ins Namensfeld tippt?
+    explanation: Das heißt **SQL-Injection** – Eingaben werden zu Befehlen.
+
+  - kind: problem
+    id: schutz
+    widget: choice
+    prompt: Was schützt zuverlässig vor SQL-Injection?
+    params:
+      options:
+        - { label: Vorbereitete Abfragen mit Platzhaltern, correct: true }
+        - { label: Verbotene Wörter herausfiltern, feedback: "Filter lassen sich fast immer umgehen." }
+    hints:
+      - Eingaben sollten nie als Befehl gelesen werden.
+    explanation: Mit Platzhaltern bleiben Eingaben immer reine Daten.
+
+srs:
+  cards_from: [schritte, injection]

@@ -1,0 +1,110 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.equivalent
+type: concept
+title: Gleichwertige Brüche
+summary: Feiner oder gröber teilen ändert die Menge nicht.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.equivalent]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: genauso-viel
+    widget: fraction
+    prompt: Oben siehst du 1/2. Färbe unten genauso viel.
+    params: { parts: 4, reference: ["1/2"] }
+    answer: { fraction: "1/2" }
+    hints:
+      - Vergleiche die Länge, nicht die Anzahl der Teile.
+    explanation: 2 von 4 Teilen sind genauso viel wie 1 von 2.
+
+  - kind: explain
+    body: |
+      1/2 und 2/4 sind gleich viel – nur feiner geteilt.
+      Teilst du jedes Stück in 2, verdoppeln sich Zähler und Nenner.
+      Das heißt **Erweitern**.
+
+  - kind: problem
+    id: sechstel
+    widget: fraction
+    prompt: Teile den Streifen in 6 Teile und färbe so viel wie 2/3.
+    params: { parts: 3, partOptions: [3, 6, 9], reference: ["2/3"] }
+    answer: { fraction: "4/6", equivalent: false }
+    hints:
+      - Wähle oben »6 Teile«.
+      - Aus jedem Drittel werden 2 Sechstel.
+    explanation: 2/3 = 4/6, denn Zähler und Nenner wurden mit 2 malgenommen.
+    difficulty: 2
+
+  - kind: problem
+    id: erweitern
+    widget: numeric
+    prompt: "Ergänze den Zähler: $\\frac{ {{a}} }{ {{b}} } = \\frac{?}{ {{b * k}} }$"
+    answer: { value: "{{a * k}}" }
+    feedback:
+      - when: "numval(state.input) == a + b * k - b"
+        misconception: additive-equivalence
+        text: "Du hast beim Zähler genauso viel addiert wie beim Nenner. Gleichwertig wird es nur durch Malnehmen: Nenner · {{k}}, also auch Zähler · {{k}}."
+    hints:
+      - Mit welcher Zahl wurde der Nenner malgenommen?
+      - "{{b}} · {{k}} = {{b * k}}. Nimm auch den Zähler mal {{k}}."
+    explanation: "{{a}} · {{k}} = {{a * k}}, also {{a}}/{{b}} = {{a * k}}/{{b * k}}."
+    variants:
+      params: { a: "int[1,4]", b: "int[2,6]", k: "choice[2,3,4]" }
+      constraints: ["a < b"]
+      defaults: { a: 3, b: 4, k: 2 }
+
+  - kind: explain
+    body: |
+      Umgekehrt geht es auch: Teilst du Zähler und Nenner durch dieselbe Zahl, heißt das **Kürzen**.
+      $\frac{6}{8} = \frac{3}{4}$, weil 6 : 2 = 3 und 8 : 2 = 4.
+
+  - kind: problem
+    id: kuerzen
+    widget: numeric
+    prompt: "Kürze so weit wie möglich: $\\frac{12}{18}$"
+    params: { placeholder: "z. B. 1/2" }
+    answer: { value: "2/3", form: simplified }
+    hints:
+      - Welche Zahl teilt 12 und 18?
+      - Der größte gemeinsame Teiler ist 6.
+    explanation: "12 : 6 = 2 und 18 : 6 = 3, also 2/3."
+
+  - kind: problem
+    id: kuerzen-variante
+    widget: numeric
+    prompt: "Kürze so weit wie möglich: $\\frac{ {{a * k}} }{ {{b * k}} }$"
+    params: { placeholder: "z. B. 1/2" }
+    answer: { value: "{{a}}/{{b}}", form: simplified }
+    hints:
+      - Suche eine Zahl, durch die Zähler und Nenner teilbar sind.
+      - "Beide sind durch {{k}} teilbar."
+    explanation: "Durch {{k}} teilen: {{a}}/{{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "int[1,5]", b: "int[2,9]", k: "choice[2,3,4,5]" }
+      constraints: ["a < b", "gcd(a, b) == 1"]
+      defaults: { a: 3, b: 5, k: 4 }
+
+  - kind: problem
+    id: nicht-gleichwertig
+    widget: choice
+    prompt: Welcher Bruch ist **nicht** gleichwertig zu 3/5?
+    params:
+      layout: grid
+      options:
+        - label: "6/10"
+          feedback: Zähler und Nenner mal 2 – das ist gleichwertig.
+        - label: "9/15"
+          feedback: Zähler und Nenner mal 3 – das ist gleichwertig.
+        - label: "5/7"
+          correct: true
+        - label: "30/50"
+          feedback: Zähler und Nenner mal 10 – das ist gleichwertig.
+    hints:
+      - Prüfe, ob Zähler und Nenner mit derselben Zahl malgenommen wurden.
+    explanation: Bei 5/7 wurde zu Zähler und Nenner 2 addiert. Addieren ändert den Wert.
+
+srs:
+  cards_from: ["steps[3]", "steps[6]"]

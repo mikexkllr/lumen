@@ -1,0 +1,80 @@
+id: geo.symmetry.moves
+type: concept
+title: Verschieben und Spiegeln im Koordinatensystem
+summary: Abbildungen als Rechenregeln.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: verschieben
+    widget: graph
+    prompt: Verschiebe P um 3 nach rechts und 2 nach oben. Ziehe P′ an die richtige Stelle.
+    params:
+      x: [-4, 4]
+      y: [-3, 3]
+      points:
+        - { id: P, x: -2, y: -1, draggable: false }
+        - { id: Q, x: 0, y: 0, label: "P′" }
+    answer: { points: { Q: { x: 1, y: 1 } } }
+    hints:
+      - Starte bei P und zähle die Kästchen ab.
+    explanation: (−2 | −1) wird zu (−2 + 3 | −1 + 2) = (1 | 1).
+
+  - kind: explain
+    body: |
+      Eine **Verschiebung** addiert zu jedem Punkt dasselbe.
+      Aus (x | y) wird (x + a | y + b).
+
+  - kind: problem
+    id: spiegeln-y
+    widget: graph
+    prompt: Spiegle P an der y-Achse. Ziehe P′ an die richtige Stelle.
+    params:
+      x: [-4, 4]
+      y: [-3, 3]
+      points:
+        - { id: P, x: 3, y: 2, draggable: false }
+        - { id: Q, x: 0, y: -2, label: "P′" }
+    answer: { points: { Q: { x: -3, y: 2 } } }
+    feedback:
+      - when: "state.points.Q.x == 3 && state.points.Q.y == -2"
+        misconception: wrong-axis
+        text: Das ist die Spiegelung an der x-Achse. Die y-Achse ist die senkrechte.
+    hints:
+      - Die y-Achse steht senkrecht. Der Punkt springt nach links.
+    explanation: x wechselt das Vorzeichen, y bleibt. Aus (3 | 2) wird (−3 | 2).
+
+  - kind: problem
+    id: x-achse
+    widget: numeric
+    prompt: Der Punkt ({{a}} | {{b}}) wird an der x-Achse gespiegelt. Welche y-Koordinate hat das Bild?
+    params: { placeholder: "y" }
+    answer: { value: "{{-b}}" }
+    feedback:
+      - when: "numval(state.input) == b"
+        misconception: no-change
+        text: Beim Spiegeln an der x-Achse ändert sich gerade die y-Koordinate.
+    hints:
+      - Die x-Achse liegt waagerecht. Der Punkt springt nach oben oder unten.
+    explanation: "Aus ({{a}} | {{b}}) wird ({{a}} | {{-b}})."
+    variants:
+      params: { a: "nonzero[-5,5]", b: "nonzero[-5,5]" }
+      defaults: { a: 4, b: -1 }
+
+  - kind: problem
+    id: regel
+    widget: choice
+    prompt: Was ändert eine Spiegelung an der y-Achse?
+    params:
+      options:
+        - { label: Das Vorzeichen von x, correct: true }
+        - { label: Das Vorzeichen von y, feedback: "Das macht die Spiegelung an der x-Achse." }
+        - { label: Beide Vorzeichen, feedback: "Das wäre eine halbe Drehung um den Ursprung." }
+    hints:
+      - Denk an P(3 | 2) von eben.
+    explanation: Links und rechts tauschen. Nur x wechselt das Vorzeichen.
+
+srs:
+  cards_from: [x-achse, regel]

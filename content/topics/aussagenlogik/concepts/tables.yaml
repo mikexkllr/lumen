@@ -1,0 +1,60 @@
+id: logic.propositional.tables
+type: concept
+title: Wahrheitstafeln
+summary: Alle Fälle auf einen Blick.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Eine **Wahrheitstafel** listet alle Fälle auf. Bei zwei Aussagen A und B sind es vier: falsch-falsch, falsch-wahr, wahr-falsch, wahr-wahr.
+
+  - kind: problem
+    id: zeilen
+    widget: numeric
+    prompt: Wie viele Zeilen hat eine Wahrheitstafel mit {{n}} Aussagen?
+    params: { unit: Zeilen }
+    answer: { value: "{{2 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * n"
+        misconception: linear
+        text: Jede neue Aussage verdoppelt die Fälle.
+    hints:
+      - Jede Aussage ist wahr oder falsch.
+    explanation: "$2^{ {{n}} } = {{2 ** n}}$ Zeilen."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 3 }
+
+  - kind: problem
+    id: wenn-dann
+    widget: gates
+    prompt: Baue »wenn A, dann B« nach. Sie ist nur falsch, wenn A wahr und B falsch ist. Wähle das Gatter.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NOT, in: [A] }
+        - { id: g, type: "?", in: [n, B], options: [AND, OR] }
+      outputs: [{ id: Q, from: g, label: wahr }]
+    check: { predicate: "table('Q') == [1, 1, 0, 1]" }
+    hints:
+      - »Wenn A, dann B« ist dasselbe wie »nicht A oder B«.
+    explanation: Nicht A ODER B – das ist die Implikation.
+
+  - kind: problem
+    id: gleich
+    widget: choice
+    prompt: Welche Aussage hat dieselbe Wahrheitstafel wie »nicht (A und B)«?
+    params:
+      options:
+        - { label: nicht A oder nicht B, correct: true }
+        - { label: nicht A und nicht B, feedback: "Das ist »weder A noch B« – zu streng." }
+        - { label: A oder B, feedback: "Das ist fast das Gegenteil." }
+    hints:
+      - De Morgan.
+    explanation: Nach De Morgan wird aus »und« ein »oder«.
+
+srs:
+  cards_from: [zeilen, gleich]

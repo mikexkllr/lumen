@@ -1,0 +1,80 @@
+id: alg.functions.table
+type: concept
+title: Funktionen und Wertetabellen
+summary: Jedem x genau ein y.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [fn.table]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: taxi
+    widget: numeric
+    body: Ein Taxi kostet 3 € Grundgebühr und 1 € pro Kilometer.
+    prompt: Was kostet eine Fahrt über 5 km?
+    params: { unit: "€" }
+    answer: { value: 8 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        text: Die Grundgebühr von 3 € kommt immer dazu.
+    hints:
+      - Grundgebühr plus 5 Kilometer.
+    explanation: 3 € + 5 · 1 € = 8 €.
+
+  - kind: explain
+    body: |
+      Eine **Funktion** ordnet jedem x genau ein y zu.
+      Beim Taxi ist $y = x + 3$ – x sind die Kilometer, y der Preis.
+    visual:
+      widget: graph
+      params: { x: [0, 8], y: [0, 10], functions: [{ expr: "x + 3" }], points: [{ id: P, x: 5, y: 8, draggable: false }] }
+
+  - kind: problem
+    id: punkt
+    widget: graph
+    prompt: Trage den Punkt für eine Fahrt über 4 km ein.
+    params: { x: [0, 8], y: [0, 10], points: [{ id: P, x: 0, y: 0 }] }
+    answer: { points: { P: { x: 4, y: 7 } } }
+    feedback:
+      - when: "state.points.P.x == 7 && state.points.P.y == 4"
+        misconception: swapped-coordinates
+        text: Die Kilometer gehören auf die x-Achse, der Preis auf die y-Achse.
+    hints:
+      - x = 4 km. Was kostet das?
+      - 3 € + 4 € = 7 €.
+    explanation: Bei x = 4 ist y = 4 + 3 = 7.
+
+  - kind: problem
+    id: tabelle
+    widget: choice
+    body: |
+      x = 0 → y = 1
+      x = 1 → y = 3
+      x = 2 → y = 5
+      x = 3 → y = 7
+    prompt: Welche Funktion passt zur Tabelle?
+    params:
+      options:
+        - { label: "$y = 2x + 1$", correct: true }
+        - { label: "$y = x + 1$", feedback: "Prüfe x = 2 – das ergibt 3, nicht 5." }
+        - { label: "$y = 2x$", feedback: "Prüfe x = 0 – das ergibt 0, nicht 1." }
+        - { label: "$y = x + 2$", feedback: "Prüfe x = 0 – das ergibt 2, nicht 1." }
+    hints:
+      - Um wie viel wächst y, wenn x um 1 wächst?
+    explanation: y wächst pro Schritt um 2 und startet bei 1.
+
+  - kind: problem
+    id: einsetzen
+    widget: numeric
+    prompt: "Für $y = {{m}}x {{b < 0 ? '-' : '+'}} {{abs(b)}}$: Wie groß ist y bei x = {{x}}?"
+    answer: { value: "{{m * x + b}}" }
+    hints:
+      - "Setze {{x}} für x ein."
+    explanation: "{{m}} · {{x}} {{b < 0 ? '−' : '+'}} {{abs(b)}} = {{m * x + b}}."
+    variants:
+      params: { m: "int[2,5]", b: "nonzero[-3,5]", x: "int[1,6]" }
+      defaults: { m: 3, b: -2, x: 4 }
+
+srs:
+  cards_from: ["steps[4]"]

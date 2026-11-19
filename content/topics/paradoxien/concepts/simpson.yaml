@@ -1,0 +1,63 @@
+id: stats.paradoxes.simpson
+type: concept
+title: Das Simpson-Paradox
+summary: Besser in jeder Gruppe, schlechter insgesamt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: kliniken
+    widget: choice
+    body: Klinik A rettet bei leichten Fällen 99 %, bei schweren 80 %. Klinik B rettet bei leichten 95 %, bei schweren 70 %.
+    prompt: Welche Klinik ist besser?
+    params:
+      options:
+        - { label: A – sie ist in beiden Gruppen besser, correct: true }
+        - { label: B, feedback: "In jeder einzelnen Gruppe liegt A vorn." }
+    hints:
+      - Vergleiche Gruppe für Gruppe.
+    explanation: A ist in beiden Gruppen besser. Trotzdem kann ihre Gesamtquote schlechter aussehen …
+
+  - kind: problem
+    id: gesamt
+    widget: numeric
+    body: Klinik A behandelt vor allem schwere Fälle – 100 leichte und 900 schwere. Mit 99 % und 80 % überleben 99 und 720.
+    prompt: Wie viel Prozent überleben in Klinik A insgesamt? Runde auf ganze Prozent.
+    params: { unit: "%" }
+    answer: { value: 82, tolerance: 1 }
+    hints:
+      - (99 + 720) / 1000.
+    explanation: 819 von 1000 – also rund 82 %.
+
+  - kind: problem
+    id: gesamt-b
+    widget: numeric
+    body: Klinik B behandelt fast nur leichte Fälle – 900 leichte und 100 schwere. Mit 95 % und 70 % überleben 855 und 70.
+    prompt: Und wie viel Prozent überleben in Klinik B insgesamt?
+    params: { unit: "%" }
+    answer: { value: 93, tolerance: 1 }
+    hints:
+      - (855 + 70) / 1000.
+    explanation: 925 von 1000 – rund 93 %. B sieht insgesamt besser aus, obwohl A in jeder Gruppe gewinnt.
+
+  - kind: explain
+    body: |
+      Das ist das **Simpson-Paradox**. Eine versteckte Größe – hier die Schwere der Fälle – kehrt den Gesamtvergleich um.
+
+  - kind: problem
+    id: lehre
+    widget: choice
+    prompt: Was lernst du daraus für Statistiken in den Nachrichten?
+    params:
+      options:
+        - { label: "Nach Untergruppen fragen, bevor man vergleicht", correct: true }
+        - { label: Gesamtzahlen sind immer richtig, feedback: "Sie stimmen – führen aber in die Irre, wenn die Gruppen ungleich verteilt sind." }
+        - { label: Prozente sind nutzlos, feedback: "Nicht nutzlos – man muss nur wissen, worauf sie sich beziehen." }
+    hints:
+      - Was hat den Vergleich eben umgedreht?
+    explanation: Erst wenn man Gleiches mit Gleichem vergleicht, sieht man die Wahrheit.
+
+srs:
+  cards_from: [kliniken, lehre]

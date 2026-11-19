@@ -1,0 +1,67 @@
+id: math.mental.tricks
+type: concept
+title: Elf und die Fünfer-Quadrate
+summary: Zwei Tricks, die wie Zauberei wirken.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: elf
+    widget: numeric
+    prompt: Rechne – 36 · 11.
+    params: { placeholder: "Ergebnis" }
+    answer: { value: 396 }
+    hints:
+      - 36 · 10 + 36.
+    explanation: 360 + 36 = 396.
+
+  - kind: explain
+    body: |
+      **Mal 11** bei zweistelligen Zahlen: Ziffern auseinanderziehen, ihre Summe in die Mitte.
+      36 · 11 → 3 | 9 | 6 = 396. Ist die Summe 10 oder mehr, gibt es einen Übertrag.
+
+  - kind: problem
+    id: elf-variante
+    widget: numeric
+    prompt: Rechne mit dem Elfer-Trick – {{n}} · 11.
+    params: { placeholder: "Ergebnis" }
+    answer: { value: "{{n * 11}}" }
+    hints:
+      - "Ziffern {{floor(n / 10)}} und {{mod(n, 10)}}, in der Mitte ihre Summe {{floor(n / 10) + mod(n, 10)}}."
+    explanation: "{{n}} · 11 = {{n * 11}}."
+    variants:
+      params: { n: "int[12,98]" }
+      constraints: ["mod(n, 10) != 0"]
+      defaults: { n: 54 }
+
+  - kind: explain
+    body: |
+      **Quadrate mit 5 am Ende:** Bei 35² rechnet man 3 · 4 = 12 und hängt 25 an. Ergibt 1225.
+      Die erste Ziffer mal ihren Nachfolger – dann 25.
+
+  - kind: problem
+    id: fuenfer-quadrat
+    widget: numeric
+    prompt: Rechne im Kopf – {{d}}5².
+    params: { placeholder: "Ergebnis" }
+    answer: { value: "{{(10 * d + 5) ** 2}}" }
+    feedback:
+      - when: "numval(state.input) == d * d * 100 + 25"
+        misconception: forget-successor
+        text: Fast. Nimm {{d}} mal den Nachfolger {{d + 1}}, nicht mal sich selbst.
+    hints:
+      - "{{d}} · {{d + 1}} = {{d * (d + 1)}}. Hänge 25 an."
+    explanation: "{{d * (d + 1)}} und 25 ergeben {{(10 * d + 5) ** 2}}."
+    variants:
+      params: { d: "int[1,9]" }
+      defaults: { d: 6 }
+
+  - kind: explain
+    body: Warum funktioniert der Fünfer-Trick?
+    reveal:
+      body: "$(10a + 5)^2 = 100 \\cdot a \\cdot (a + 1) + 25$. Der Trick ist nur diese Formel – im Kopf ausgerechnet."
+
+srs:
+  cards_from: [elf-variante, fuenfer-quadrat]

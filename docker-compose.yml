@@ -1,0 +1,23 @@
+# Self-hosting: `docker compose up --build`
+#   App:  http://localhost:8080
+#   Sync: http://localhost:8787 (optional – the app works fully offline without it)
+services:
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      args:
+        VITE_LUMEN_SYNC_URL: http://localhost:8787
+    ports: ["8080:80"]
+    restart: unless-stopped
+  sync:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.server
+    environment:
+      LUMEN_CORS_ORIGINS: http://localhost:8080
+    ports: ["8787:8787"]
+    volumes: ["lumen-data:/data"]
+    restart: unless-stopped
+volumes:
+  lumen-data:

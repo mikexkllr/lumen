@@ -1,0 +1,55 @@
+id: sci.energy.heating
+type: concept
+title: Wärme kostet
+summary: Wasser, Heizung und das eine Grad.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wasser
+    widget: numeric
+    body: Um 1 Liter Wasser um 1 °C zu erwärmen, braucht man etwa 4,2 kJ.
+    prompt: Wie viel Energie braucht man für {{l}} Liter von 20 auf 100 °C?
+    params: { unit: kJ }
+    answer: { value: "{{l * 336}}" }
+    hints:
+      - "Das sind 80 Grad. Rechne {{l}} · 80 · 4,2."
+    explanation: "{{l}} · 80 · 4,2 = {{l * 336}} kJ."
+    variants:
+      params: { l: "int[1,3]" }
+      defaults: { l: 1 }
+
+  - kind: problem
+    id: deckel
+    widget: choice
+    prompt: Was spart beim Nudelwasser am meisten Energie?
+    params:
+      options:
+        - { label: Deckel auf den Topf, correct: true }
+        - { label: Mehr Wasser nehmen, feedback: "Mehr Wasser braucht mehr Energie." }
+        - { label: Salz sofort hinein, feedback: "Das ändert fast nichts." }
+    hints:
+      - Wo geht die Wärme verloren?
+    explanation: Ohne Deckel entweicht viel Wärme mit dem Dampf.
+
+  - kind: explain
+    body: |
+      Heizen ist meist der größte Energieposten im Haushalt. Faustregel – **jedes Grad weniger** Raumtemperatur spart etwa 6 % Heizenergie.
+
+  - kind: problem
+    id: grad
+    widget: numeric
+    prompt: Deine Heizkosten sind {{k}} € im Jahr. Wie viel sparst du mit 1 °C weniger?
+    params: { unit: "€" }
+    answer: { value: "{{k * 6 / 100}}" }
+    hints:
+      - "6 % von {{k}} €."
+    explanation: "{{k}} · 0,06 = {{k * 6 / 100}} € pro Jahr."
+    variants:
+      params: { k: "choice[600,900,1200,1500]" }
+      defaults: { k: 1200 }
+
+srs:
+  cards_from: [wasser, grad]

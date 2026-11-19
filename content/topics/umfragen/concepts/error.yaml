@@ -1,0 +1,59 @@
+id: stats.sampling.error
+type: concept
+title: Die Fehlerspanne
+summary: Viermal mehr Befragte, halber Fehler.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Auch zufällige Stichproben schwanken. Faustregel für die **Fehlerspanne** in Prozentpunkten: etwa 100 geteilt durch die Wurzel aus der Zahl der Befragten.
+
+  - kind: problem
+    id: spanne
+    widget: numeric
+    prompt: Wie groß ist die Fehlerspanne bei {{n}} Befragten ungefähr? Gib Prozentpunkte an.
+    params: { unit: Prozentpunkte }
+    answer: { value: "{{100 / sqrt(n)}}" }
+    hints:
+      - "Die Wurzel aus {{n}} ist {{sqrt(n)}}."
+    explanation: "100 / {{sqrt(n)}} = {{100 / sqrt(n)}} – also etwa ± {{100 / sqrt(n)}} Prozentpunkte."
+    variants:
+      params: { n: "choice[100,400,2500,10000]" }
+      defaults: { n: 400 }
+
+  - kind: problem
+    id: halbieren
+    widget: choice
+    prompt: Du willst die Fehlerspanne halbieren. Wie viele Befragte brauchst du?
+    params:
+      options:
+        - { label: Viermal so viele, correct: true }
+        - { label: Doppelt so viele, feedback: "Die Wurzel bremst. Doppelt so viele verkleinern den Fehler nur um ein knappes Drittel." }
+        - { label: Halb so viele, feedback: "Weniger Befragte machen den Fehler größer." }
+    hints:
+      - Die Wurzel aus 4 ist 2.
+    explanation: Wurzel aus 4 ist 2. Darum sind sehr genaue Umfragen sehr teuer.
+
+  - kind: problem
+    id: knapp
+    widget: choice
+    prompt: Partei A hat 31 %, Partei B 29 %. Die Fehlerspanne ist ± 3 Prozentpunkte. Wer liegt vorn?
+    params:
+      options:
+        - { label: Unklar – der Abstand ist kleiner als die Spanne., correct: true }
+        - { label: A liegt sicher vorn., feedback: "2 Punkte Abstand liegen innerhalb der Unsicherheit." }
+        - { label: B liegt vorn., feedback: "Dafür gibt es keinen Hinweis." }
+    hints:
+      - A könnte bei 28 % liegen, B bei 32 %.
+    explanation: Bei so wenig Abstand ist ein Kopf-an-Kopf-Rennen die ehrliche Aussage.
+
+  - kind: explain
+    body: Warum reichen 1000 Befragte für 80 Millionen Menschen?
+    reveal:
+      body: Die Genauigkeit hängt fast nur von der Stichprobe ab, kaum von der Größe des Landes. Eine Löffelprobe sagt dir auch, wie die ganze Suppe schmeckt – wenn sie gut umgerührt ist.
+
+srs:
+  cards_from: [spanne, knapp]

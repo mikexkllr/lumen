@@ -1,0 +1,52 @@
+id: stats.expected.waiting
+type: concept
+title: Wie lange muss ich warten?
+summary: Im Schnitt sechs Würfe bis zur Sechs.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: sechs
+    widget: numeric
+    prompt: Wie oft musst du im Schnitt würfeln, bis die erste 6 kommt?
+    params: { unit: Würfe }
+    answer: { value: 6 }
+    hints:
+      - Die Chance pro Wurf ist 1/6.
+    explanation: Bei Chance 1/6 dauert es im Schnitt 6 Würfe.
+
+  - kind: explain
+    body: |
+      Hat ein Ereignis die Chance p pro Versuch, wartet man im Schnitt **1/p** Versuche.
+      Bei 1 % sind es im Schnitt 100 Versuche.
+
+  - kind: problem
+    id: wartezeit
+    widget: numeric
+    prompt: Ein Sammelbild ist in {{p}} % der Packungen. Wie viele Packungen öffnest du im Schnitt, bis es kommt?
+    params: { unit: Packungen }
+    answer: { value: "{{100 / p}}" }
+    hints:
+      - "1 geteilt durch {{p / 100}}."
+    explanation: "100 / {{p}} = {{100 / p}} Packungen."
+    variants:
+      params: { p: "choice[2,4,5,10,20,25]" }
+      defaults: { p: 5 }
+
+  - kind: problem
+    id: gedaechtnis
+    widget: choice
+    prompt: Du hast schon 10-mal ohne 6 gewürfelt. Wie viele Würfe dauert es jetzt im Schnitt noch?
+    params:
+      options:
+        - { label: Immer noch 6, correct: true }
+        - { label: Weniger – sie ist ja überfällig, feedback: "Der Würfel hat kein Gedächtnis." }
+        - { label: Mehr – heute ist Pech, feedback: "Pech gibt es nicht als Eigenschaft des Würfels." }
+    hints:
+      - Weiß der Würfel, was vorher war?
+    explanation: Jeder Wurf beginnt neu. Die Wartezeit fängt jedes Mal von vorn an.
+
+srs:
+  cards_from: [wartezeit, gedaechtnis]

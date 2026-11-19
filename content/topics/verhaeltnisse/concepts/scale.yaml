@@ -1,0 +1,61 @@
+id: math.ratios.scale
+type: concept
+title: Maßstab
+summary: Karten und Modelle richtig lesen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: karte
+    widget: numeric
+    prompt: "Eine Wanderkarte hat den Maßstab 1 : 25 000. Auf der Karte sind es 4 cm. Wie weit ist das in Wirklichkeit?"
+    params: { unit: km }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 100000"
+        misconception: units
+        text: 100 000 cm stimmt. Rechne noch in Kilometer um.
+    hints:
+      - 4 cm · 25 000 = 100 000 cm.
+    explanation: 100 000 cm sind 1000 m – also genau 1 km.
+
+  - kind: explain
+    body: |
+      **Maßstab 1 : n** heißt: 1 cm auf dem Plan sind n cm in echt.
+      Bei 1 : 100 000 ist 1 cm also 1 km.
+
+  - kind: problem
+    id: strecke
+    widget: numeric
+    prompt: "Maßstab 1 : {{m}}. Auf dem Plan misst du {{c}} cm. Wie viele Meter sind das in echt?"
+    params: { unit: m }
+    answer: { value: "{{c * m / 100}}" }
+    hints:
+      - "{{c}} · {{m}} ergibt Zentimeter. Teile durch 100 für Meter."
+    explanation: "{{c}} · {{m}} = {{c * m}} cm = {{c * m / 100}} m."
+    variants:
+      params: { m: "choice[500,1000,5000,10000]", c: "int[2,9]" }
+      defaults: { m: 1000, c: 3 }
+
+  - kind: problem
+    id: modell
+    widget: choice
+    prompt: "Ein Modellauto ist im Maßstab 1 : 18 gebaut und 25 cm lang. Wie lang ist das echte Auto?"
+    params:
+      options:
+        - { label: "4,5 m", correct: true }
+        - { label: "1,8 m", feedback: "Das ist zu kurz für ein Auto. Rechne 25 cm · 18." }
+        - { label: 45 m, feedback: "Zu lang – 25 · 18 = 450 cm." }
+    hints:
+      - 25 cm · 18.
+    explanation: 25 · 18 = 450 cm = 4,5 m.
+
+  - kind: explain
+    body: Warum steht bei Karten oft ein Strich mit »1 km« statt einer Zahl?
+    reveal:
+      body: "Der Strich wächst beim Kopieren und Zoomen mit. Die Zahl 1 : 25 000 stimmt nach dem Vergrößern nicht mehr."
+
+srs:
+  cards_from: [strecke, karte]

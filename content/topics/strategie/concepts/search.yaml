@@ -1,0 +1,82 @@
+id: logic.strategy.search
+type: concept
+title: Wiegen und Raten
+summary: Drei Ausgänge schlagen zwei.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: neun
+    widget: numeric
+    prompt: Von 9 Münzen ist eine leichter. Wie oft musst du mit einer Balkenwaage mindestens wiegen, um sie sicher zu finden?
+    params: { unit: Wägungen }
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 3 || numval(state.input) == 4"
+        misconception: halving
+        text: Halbieren klappt, ist aber nicht das Beste. Probier es mit drei Gruppen.
+    hints:
+      - Eine Wägung hat drei mögliche Ausgänge.
+    explanation: 3 Gruppen zu je 3. Eine Wägung findet die Gruppe, eine zweite die Münze.
+
+  - kind: explain
+    body: |
+      Jede Wägung hat **drei** Ausgänge – links schwerer, rechts schwerer, gleich.
+      Teile deshalb immer in **drei** Gruppen.
+
+  - kind: problem
+    id: schritte
+    widget: order
+    prompt: Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - { label: Teile die 9 Münzen in drei Gruppen zu je 3. }
+        - { label: Lege zwei Gruppen auf die Waage. }
+        - { label: Nimm die leichtere Gruppe – oder die dritte. }
+        - { label: Lege zwei Münzen daraus auf die Waage. }
+        - { label: Die leichtere ist es – oder die dritte. }
+    hints:
+      - Erst Gruppen bilden, dann wiegen.
+    explanation: Zweimal dritteln – 9, 3, 1.
+
+  - kind: problem
+    id: wie-viele
+    widget: numeric
+    prompt: Wie viele Münzen kannst du mit {{w}} Wägungen höchstens prüfen, wenn genau eine leichter ist?
+    params: { unit: Münzen }
+    answer: { value: "{{3 ** w}}" }
+    feedback:
+      - when: "numval(state.input) == 2 ** w"
+        misconception: binary
+        text: Das wäre mit zwei Ausgängen. Die Waage hat drei.
+    hints:
+      - Jede Wägung verdreifacht die Möglichkeiten.
+    explanation: "3 hoch {{w}} = {{3 ** w}} Münzen."
+    variants:
+      params: { w: "int[3,5]" }
+      defaults: { w: 3 }
+
+  - kind: problem
+    id: raten
+    widget: choice
+    prompt: Jemand denkt an eine Zahl von 1 bis 100. Du fragst nur »größer oder kleiner?«. Wie viele Fragen reichen sicher?
+    params:
+      layout: grid
+      options:
+        - { label: "7", correct: true }
+        - { label: "10", feedback: "Das reicht, aber es geht mit weniger." }
+        - { label: "50", feedback: "Viel zu viele. Halbiere jedes Mal den Bereich." }
+        - { label: "5", feedback: "5 Fragen schaffen nur 32 Zahlen." }
+    hints:
+      - Jede Frage halbiert den Bereich. Wie oft halbiert man 100 bis auf 1?
+    explanation: $2^7 = 128$ reicht für 100 Zahlen, $2^6 = 64$ nicht.
+
+  - kind: explain
+    body: Was haben die Waage und das Zahlenraten gemeinsam?
+    reveal:
+      body: Beide nutzen jede Antwort maximal aus. Zwei Ausgänge halbieren, drei dritteln. Das ist die Grundidee der **Informationstheorie**.
+
+srs:
+  cards_from: [neun, wie-viele]

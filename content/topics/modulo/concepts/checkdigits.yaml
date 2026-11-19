@@ -1,0 +1,55 @@
+id: math.modular.checkdigits
+type: concept
+title: Prüfziffern mit Gewicht
+summary: Wie Barcodes Tippfehler finden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Bei Barcodes werden die Ziffern abwechselnd mit 1 und 3 gewichtet und addiert. Die **Prüfziffer** ergänzt die Summe zum nächsten Vielfachen von 10. Durch das Gewicht fallen auch vertauschte Nachbarziffern auf.
+
+  - kind: problem
+    id: ergaenzen
+    widget: numeric
+    prompt: Die gewichtete Summe ist {{s}}. Welche Prüfziffer ergänzt sie zum nächsten Vielfachen von 10?
+    params: { placeholder: "Ziffer" }
+    answer: { value: "{{mod(10 - mod(s, 10), 10)}}" }
+    hints:
+      - Wie viel fehlt bis zur nächsten Zehnerzahl?
+    explanation: "{{s}} + {{mod(10 - mod(s, 10), 10)}} ist ein Vielfaches von 10."
+    variants:
+      params: { s: "int[40,99]" }
+      defaults: { s: 47 }
+
+  - kind: problem
+    id: dreher
+    widget: choice
+    prompt: Jemand vertauscht zwei Nachbarziffern 2 und 7. Erkennt die gewichtete Prüfung das?
+    params:
+      options:
+        - { label: Ja – die Gewichte 1 und 3 ändern die Summe., correct: true }
+        - { label: Nein – die Summe bleibt gleich., feedback: "Ohne Gewicht wäre das so – mit den Gewichten 1 und 3 ändert sich die Summe." }
+    hints:
+      - Vergleiche 2 · 1 + 7 · 3 mit 7 · 1 + 2 · 3.
+    explanation: 23 gegen 13 – die Summe ändert sich, der Fehler fällt auf.
+
+  - kind: problem
+    id: wo
+    widget: buckets
+    prompt: Steckt eine Prüfziffer drin?
+    params:
+      buckets: [{ label: ja }, { label: nein }]
+      items:
+        - { label: Barcode im Supermarkt, bucket: ja }
+        - { label: IBAN, bucket: ja }
+        - { label: ISBN eines Buches, bucket: ja }
+        - { label: Hausnummer, bucket: nein }
+    hints:
+      - Wo würde ein Tippfehler teuer?
+    explanation: Überall, wo Zahlen abgetippt werden und Fehler Geld kosten.
+
+srs:
+  cards_from: [ergaenzen, dreher]

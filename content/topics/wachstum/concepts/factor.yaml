@@ -1,0 +1,80 @@
+id: math.growth.factor
+type: concept
+title: Der Wachstumsfaktor
+summary: Warum zweimal 10 % mehr als 20 % sind.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: Ein Preis steigt um 10 %. Mit welcher Zahl muss man den alten Preis malnehmen?
+    params: { placeholder: "Faktor" }
+    answer: { value: 1.1 }
+    feedback:
+      - when: "approx(numval(state.input), 0.1)"
+        misconception: increase-only
+        text: Das ist nur der Zuwachs. Der alte Preis bleibt ja – also 1 plus 0,1.
+      - when: "numval(state.input) == 10"
+        misconception: percent-as-factor
+        text: Mal 10 wäre eine Verzehnfachung. Schreib 10 % als Dezimalzahl.
+    hints:
+      - 100 % des alten Preises plus 10 % dazu.
+    explanation: 100 % + 10 % = 110 % = 1,1.
+
+  - kind: explain
+    body: |
+      Plus p % heißt mal (1 + p/100).
+      Zweimal plus 10 % ist also mal 1,1 · 1,1 = 1,21. Das sind **21 %**, nicht 20 %.
+
+  - kind: problem
+    id: zweimal
+    widget: numeric
+    prompt: Ein Wert steigt zweimal hintereinander um {{p}} %. Um wie viel Prozent ist er insgesamt gestiegen?
+    params: { unit: "%" }
+    answer: { value: "{{2 * p + p * p / 100}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * p"
+        misconception: add-percents
+        text: Der zweite Anstieg rechnet auf den schon erhöhten Wert.
+    hints:
+      - "Rechne den Faktor {{1 + p / 100}} zweimal mal."
+    explanation: "{{1 + p / 100}}² = {{(1 + p / 100) ** 2}} – also plus {{2 * p + p * p / 100}} %."
+    variants:
+      params: { p: "choice[10,20,30,50]" }
+      defaults: { p: 10 }
+
+  - kind: problem
+    id: saeulen
+    widget: chart
+    prompt: Ein Guthaben verdoppelt sich alle 10 Jahre. Ziehe die letzte Säule auf den richtigen Wert.
+    params:
+      title: Guthaben in Tausend €
+      labels: [Start, "10 J.", "20 J.", "30 J."]
+      values: [2, 4, 8, 1]
+      editable: [3]
+      min: 0
+      max: 20
+      step: 1
+    answer: { values: [2, 4, 8, 16] }
+    hints:
+      - Von 8 aus noch einmal verdoppeln.
+    explanation: 2, 4, 8, 16 – jede Säule ist doppelt so hoch wie die davor.
+
+  - kind: problem
+    id: wer-gewinnt
+    widget: choice
+    prompt: Was wächst auf lange Sicht stärker – wenn beide mit 1000 € starten?
+    params:
+      options:
+        - { label: 5 % Zinsen pro Jahr, correct: true }
+        - { label: Jedes Jahr 60 € dazu, feedback: "Anfangs liegt das vorne. Nach rund 15 Jahren überholt der Zins – und zieht davon." }
+        - { label: Beide gleich, feedback: "Der Zins wächst mit, die festen 60 € nicht." }
+    hints:
+      - Wie viel bringt der Zins, wenn schon 3000 € auf dem Konto liegen?
+    explanation: Prozente wachsen mit dem Guthaben mit. Feste Beträge nicht.
+
+srs:
+  cards_from: [faktor, zweimal]

@@ -1,0 +1,78 @@
+id: math.powers.roots
+type: concept
+title: Wurzeln und Zehnerpotenzen
+summary: Rückwärts rechnen und riesige Zahlen bändigen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rueckwaerts
+    widget: numeric
+    prompt: Welche Zahl ergibt mit sich selbst malgenommen {{n * n}}?
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{n}}" }
+    feedback:
+      - when: "numval(state.input) == n * n / 2"
+        misconception: half
+        text: Halbieren ist nicht das Gegenteil von Quadrieren.
+    hints:
+      - Probiere Zahlen aus, die mal sich selbst nahe dran sind.
+    explanation: "{{n}} · {{n}} = {{n * n}}. Also ist $\\sqrt{ {{n * n}} } = {{n}}$."
+    variants:
+      params: { n: "int[4,15]" }
+      defaults: { n: 7 }
+
+  - kind: explain
+    body: |
+      Die **Wurzel** $\sqrt{49}$ fragt: Welche Zahl mal sich selbst ergibt 49?
+      Antwort: 7. Wurzeln machen das Quadrieren rückgängig.
+
+  - kind: problem
+    id: schaetzen
+    widget: numberline
+    prompt: Wo liegt $\sqrt{20}$ ungefähr? Setze die Markierung.
+    params: { min: 0, max: 6, ticks: 2, labels: integers }
+    answer: { value: 4.5, tolerance: 0.01 }
+    hints:
+      - 4 · 4 = 16 und 5 · 5 = 25. Wo liegt 20 dazwischen?
+    explanation: $\sqrt{20} \approx 4{,}47$ – knapp unter 4,5.
+
+  - kind: explain
+    body: |
+      Große Zahlen schreibt man mit **Zehnerpotenzen**: 3 000 000 = $3 \cdot 10^6$.
+      Die Sonne ist etwa $1{,}5 \cdot 10^8$ km von der Erde entfernt.
+
+  - kind: problem
+    id: zehner
+    widget: numeric
+    prompt: "Schreibe {{t}} als 4 · 10 hoch … Gib den Exponenten an."
+    params: { prefix: "4 · 10^" }
+    answer: { value: "{{n}}" }
+    feedback:
+      - when: "numval(state.input) == n + 1"
+        misconception: count-digits
+        text: Du hast alle Stellen gezählt. Zähle nur die Nullen hinter der 4.
+    hints:
+      - Zähle die Nullen.
+    explanation: "{{t}} hat {{n}} Nullen hinter der 4."
+    variants:
+      params: { n: "int[3,7]" }
+      derive: { t: "4 * 10 ** n" }
+      defaults: { n: 4 }
+
+  - kind: problem
+    id: groesser
+    widget: choice
+    prompt: Welche Zahl ist größer?
+    params:
+      options:
+        - { label: "$3 \\cdot 10^5$", correct: true }
+        - { label: "$9 \\cdot 10^4$", feedback: "9 ist größer als 3 – aber der Exponent zählt mehr. $9 \\cdot 10^4$ = 90 000." }
+    hints:
+      - Schreibe beide Zahlen aus.
+    explanation: 300 000 ist mehr als 90 000.
+
+srs:
+  cards_from: [rueckwaerts, zehner]

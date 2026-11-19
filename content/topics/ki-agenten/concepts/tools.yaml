@@ -1,0 +1,55 @@
+id: ai.agents.tools
+type: concept
+title: Werkzeuge nutzen
+summary: Was ein Modell nicht selbst kann, ruft es auf.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wahl
+    widget: match
+    prompt: Welches Werkzeug passt zu welcher Aufgabe?
+    params:
+      pairs:
+        - { left: Wetter von morgen, right: Websuche }
+        - { left: 3817 mal 492, right: Taschenrechner }
+        - { left: Termin eintragen, right: Kalender }
+    hints:
+      - Was weiß das Modell nicht aus seinem Training?
+    explanation: Werkzeuge liefern aktuelle Daten und exakte Rechnungen.
+
+  - kind: explain
+    body: |
+      Das Modell ruft ein Werkzeug nicht selbst auf. Es schreibt eine **Anfrage** mit Name und Argumenten. Das Programm drumherum führt sie aus und gibt das Ergebnis zurück.
+
+  - kind: problem
+    id: rechnen
+    widget: choice
+    prompt: Warum sollte ein Agent große Zahlen lieber mit einem Rechner multiplizieren?
+    params:
+      options:
+        - { label: Sprachmodelle raten Ziffern und verrechnen sich leicht., correct: true }
+        - { label: Weil es schneller tippt., feedback: "Es geht um Genauigkeit – das Modell erzeugt Text, es rechnet nicht exakt." }
+    hints:
+      - Wie erzeugt ein Sprachmodell eine Antwort?
+    explanation: Ein Rechner ist exakt, ein Sprachmodell nur wahrscheinlich richtig.
+
+  - kind: problem
+    id: brauchen
+    widget: buckets
+    prompt: Braucht der Agent dafür ein Werkzeug?
+    params:
+      buckets: [{ label: Werkzeug }, { label: kein Werkzeug }]
+      items:
+        - { label: Aktueller Kurs einer Aktie, bucket: Werkzeug }
+        - { label: Eine Datei speichern, bucket: Werkzeug }
+        - { label: Ein Gedicht schreiben, bucket: kein Werkzeug }
+        - { label: Einen Text kürzen, bucket: kein Werkzeug }
+    hints:
+      - Geht es um die Außenwelt oder nur um Sprache?
+    explanation: Sprache kann das Modell selbst – für die Außenwelt braucht es Werkzeuge.
+
+srs:
+  cards_from: [wahl, brauchen]

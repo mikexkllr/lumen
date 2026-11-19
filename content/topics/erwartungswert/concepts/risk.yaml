@@ -1,0 +1,59 @@
+id: stats.expected.risk
+type: concept
+title: Gleicher Schnitt, anderes Risiko
+summary: Wie stark schwankt das Ergebnis?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zwei-spiele
+    widget: choice
+    body: Spiel A – sicher 10 €. Spiel B – Münzwurf um 0 € oder 20 €.
+    prompt: Was stimmt?
+    params:
+      options:
+        - { label: Gleicher Erwartungswert – B ist riskanter., correct: true }
+        - { label: B bringt im Schnitt mehr., feedback: "1/2 · 20 € = 10 € – genau wie A." }
+        - { label: A bringt im Schnitt mehr., feedback: "Beide bringen im Schnitt 10 €." }
+    hints:
+      - Rechne beide Erwartungswerte aus.
+    explanation: Der Schnitt ist gleich, die Schwankung nicht.
+
+  - kind: explain
+    body: |
+      Der Erwartungswert sagt nur, was **im Schnitt** herauskommt. Wie stark es schwankt, zeigt die **Streuung**.
+      Viele Menschen zahlen für weniger Schwankung – das ist der Kern jeder Versicherung.
+
+  - kind: problem
+    id: schnitt
+    widget: numeric
+    prompt: "Spiel – mit 1/{{k}} gewinnst du {{g}} €, sonst nichts. Was ist der Erwartungswert?"
+    params: { unit: "€" }
+    answer: { value: "{{g / k}}" }
+    hints:
+      - "{{g}} € · 1/{{k}}."
+    explanation: "{{g}} / {{k}} = {{g / k}} €."
+    variants:
+      params: { k: "choice[2,4,5,10]", g: "choice[20,40,100]" }
+      defaults: { k: 4, g: 40 }
+
+  - kind: problem
+    id: lieber
+    widget: buckets
+    prompt: Eher wenig oder viel Schwankung?
+    params:
+      buckets: [{ label: wenig Schwankung }, { label: viel Schwankung }]
+      items:
+        - { label: Festes Gehalt, bucket: wenig Schwankung }
+        - { label: Sparbuch, bucket: wenig Schwankung }
+        - { label: Lotto, bucket: viel Schwankung }
+        - { label: Provision nach Verkäufen, bucket: viel Schwankung }
+        - { label: Einzelne Aktie, bucket: viel Schwankung }
+    hints:
+      - Wie sicher ist das Ergebnis?
+    explanation: Gleiche Erwartung kann sehr verschieden riskant sein.
+
+srs:
+  cards_from: [zwei-spiele, schnitt]

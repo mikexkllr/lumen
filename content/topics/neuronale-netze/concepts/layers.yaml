@@ -1,0 +1,72 @@
+id: ai.neural.layers
+type: concept
+title: Versteckte Schichten
+summary: Warum Netze tief sein müssen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: unmoeglich
+    widget: choice
+    visual:
+      widget: slider
+      interactive: true
+      params:
+        expr: "m*x + b"
+        x: [-4, 4]
+        y: [-4, 4]
+        showCoordinates: false
+        sliders:
+          - { id: m, label: Steigung, min: -3, max: 3, step: 0.25, initial: 0.5 }
+          - { id: b, label: Höhe, min: -3, max: 3, step: 0.5, initial: 0 }
+        markers:
+          - { x: -2, y: 2, group: a }
+          - { x: 2, y: -2, group: a }
+          - { x: 2, y: 2, group: b }
+          - { x: -2, y: -2, group: b }
+    prompt: Probier es aus. Gibt es eine Gerade, die Blau von Orange trennt?
+    params:
+      options:
+        - { label: Nein – keine einzige, correct: true }
+        - { label: Ja, feedback: "Probier weiter – jede Gerade lässt einen Punkt auf der falschen Seite." }
+    hints:
+      - Blau liegt über Kreuz, Orange auch.
+    explanation: Dieses Muster heißt **XOR**. Ein einzelnes Neuron schafft es nicht.
+
+  - kind: explain
+    body: |
+      Die Lösung: eine **versteckte Schicht**. Zwei Neuronen ziehen je eine Gerade, ein drittes kombiniert sie. Mehr Schichten erlauben immer feinere Formen.
+
+  - kind: problem
+    id: xor
+    widget: gates
+    prompt: Baue XOR aus zwei versteckten Neuronen und einem UND am Ausgang.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: h1, type: "?", in: [A, B], options: [OR, AND] }
+        - { id: h2, type: "?", in: [A, B], options: [NAND, NOR] }
+        - { id: g, type: AND, in: [h1, h2] }
+      outputs: [{ id: Q, from: g, label: XOR }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0]" }
+    hints:
+      - XOR heißt – mindestens eins, aber nicht beide.
+    explanation: »Mindestens eins« (ODER) und »nicht beide« (NAND) – zusammen XOR.
+
+  - kind: problem
+    id: gewichte
+    widget: numeric
+    prompt: Ein Netz hat {{a}} Eingänge, {{h}} versteckte Neuronen und 1 Ausgang. Jede Schicht ist voll verbunden. Wie viele Gewichte gibt es?
+    params: { unit: Gewichte }
+    answer: { value: "{{a * h + h}}" }
+    hints:
+      - "Eingänge zu versteckt: {{a}} · {{h}}. Versteckt zum Ausgang: {{h}}."
+    explanation: "{{a * h}} + {{h}} = {{a * h + h}}. Große Sprachmodelle haben Milliarden davon."
+    variants:
+      params: { a: "int[2,6]", h: "int[3,8]" }
+      defaults: { a: 3, h: 4 }
+
+srs:
+  cards_from: [xor, gewichte]

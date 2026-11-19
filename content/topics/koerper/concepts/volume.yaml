@@ -1,0 +1,84 @@
+id: geo.solids.volume
+type: concept
+title: Volumen zählen
+summary: Wie viele Würfel passen hinein?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quader
+    widget: numeric
+    prompt: Ein Quader ist {{a}} cm lang, {{b}} cm breit und {{c}} cm hoch. Wie viele 1-cm-Würfel passen hinein?
+    params: { unit: Würfel }
+    answer: { value: "{{a * b * c}}" }
+    feedback:
+      - when: "numval(state.input) == a + b + c"
+        misconception: add-dimensions
+        text: Du hast addiert. Denk in Schichten – eine Schicht hat {{a * b}} Würfel.
+    hints:
+      - "Eine Schicht hat {{a}} · {{b}} Würfel. Wie viele Schichten gibt es?"
+    explanation: "{{a}} · {{b}} · {{c}} = {{a * b * c}} Würfel."
+    variants:
+      params: { a: "int[2,6]", b: "int[2,5]", c: "int[2,4]" }
+      defaults: { a: 4, b: 3, c: 2 }
+
+  - kind: explain
+    body: |
+      **Volumen = Länge · Breite · Höhe.**
+      Man zählt, wie viele Einheitswürfel hineinpassen. Daher die Einheit cm³.
+
+  - kind: problem
+    id: wuerfel
+    widget: numeric
+    prompt: Ein Würfel hat die Kantenlänge {{a}} cm. Wie groß ist sein Volumen?
+    params: { unit: cm³ }
+    answer: { value: "{{a ** 3}}" }
+    feedback:
+      - when: "numval(state.input) == 3 * a"
+        misconception: power-as-product
+        text: Hoch 3 heißt {{a}} · {{a}} · {{a}}, nicht {{a}} · 3.
+    hints:
+      - Länge, Breite und Höhe sind gleich.
+    explanation: "{{a}}³ = {{a ** 3}} cm³."
+    variants:
+      params: { a: "int[2,10]" }
+      defaults: { a: 5 }
+
+  - kind: problem
+    id: aquarium
+    widget: numeric
+    prompt: Ein Aquarium ist 50 cm lang, 30 cm breit und 40 cm hoch. Wie viele Liter passen hinein?
+    body: 1 Liter = 1000 cm³
+    params: { unit: Liter }
+    answer: { value: 60 }
+    feedback:
+      - when: "numval(state.input) == 60000"
+        misconception: no-conversion
+        text: Das sind cm³. Teile noch durch 1000.
+    hints:
+      - Rechne erst das Volumen in cm³ aus.
+    explanation: 50 · 30 · 40 = 60 000 cm³ = 60 Liter.
+
+  - kind: explain
+    body: Wie viel Wasser fasst ein Würfel mit 1 m Kantenlänge?
+    reveal:
+      body: 1000 Liter – eine Tonne Wasser. Denn 1 m³ sind 1000 dm³, und ein dm³ ist genau ein Liter.
+
+  - kind: problem
+    id: einheiten
+    widget: match
+    prompt: Was gehört zusammen?
+    params:
+      pairs:
+        - { left: 1 Liter, right: 1 dm³ }
+        - { left: 1 m³, right: 1000 Liter }
+        - { left: 1 Milliliter, right: 1 cm³ }
+        - { left: 1 Hektoliter, right: 100 Liter }
+    hints:
+      - Ein Milliliter ist ein Tausendstel Liter.
+    explanation: 1 l = 1 dm³, 1 ml = 1 cm³, 1 m³ = 1000 l, 1 hl = 100 l.
+
+srs:
+  cards_from: [quader, wuerfel]

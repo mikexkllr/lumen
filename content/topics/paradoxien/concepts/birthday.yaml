@@ -1,0 +1,65 @@
+id: stats.paradoxes.birthday
+type: concept
+title: Das Geburtstagsparadox
+summary: Schon 23 Leute reichen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schaetzen
+    widget: choice
+    prompt: Ab wie vielen Leuten in einem Raum haben mit über 50 % zwei am selben Tag Geburtstag?
+    params:
+      layout: grid
+      options:
+        - { label: "23", correct: true }
+        - { label: "183", feedback: "Das wäre die Hälfte von 365. Es geht aber um irgendein Paar." }
+        - { label: "60", feedback: "Bei 60 Leuten ist es schon fast sicher – über 99 %." }
+        - { label: "100", feedback: "Viel zu viele." }
+    hints:
+      - Es muss nicht dein Geburtstag sein – irgendein Paar reicht.
+    explanation: Schon 23 Leute genügen. Bei 50 Leuten sind es 97 %.
+
+  - kind: explain
+    body: |
+      Der Trick: Es zählen **Paare**, nicht Personen. Bei 23 Leuten gibt es überraschend viele mögliche Paare.
+
+  - kind: problem
+    id: paare
+    widget: numeric
+    prompt: Wie viele verschiedene Paare gibt es bei {{n}} Leuten?
+    params: { unit: Paare }
+    answer: { value: "{{n * (n - 1) / 2}}" }
+    feedback:
+      - when: "numval(state.input) == n * (n - 1)"
+        misconception: double-count
+        text: Jedes Paar hast du doppelt gezählt.
+    hints:
+      - Jeder mit jedem, geteilt durch 2.
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} Paare."
+    variants:
+      params: { n: "choice[10,23,30,50]" }
+      defaults: { n: 23 }
+
+  - kind: problem
+    id: eigener
+    widget: choice
+    prompt: Wie viele Leute braucht es, damit mit über 50 % jemand an DEINEM Geburtstag Geburtstag hat?
+    params:
+      options:
+        - { label: Rund 250, correct: true }
+        - { label: "23", feedback: "Das gilt für irgendein Paar. Für dein Datum ist es viel schwerer." }
+        - { label: "183", feedback: "Nahe dran, aber manche teilen ja untereinander Tage." }
+    hints:
+      - Jetzt zählt nur noch jede einzelne Person gegen dich.
+    explanation: Rund 253 Leute. Hier gibt es keine Paar-Explosion.
+
+  - kind: explain
+    body: Wo nutzt man diesen Effekt?
+    reveal:
+      body: In der Kryptographie. Sogenannte Geburtstagsangriffe suchen zwei Dateien mit gleicher Prüfsumme – das geht viel schneller als gedacht.
+
+srs:
+  cards_from: [schaetzen, paare]

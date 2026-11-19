@@ -1,0 +1,60 @@
+id: sci.waves.decibel
+type: concept
+title: Dezibel
+summary: Zehn mehr heißt zehnmal so viel.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zehn
+    widget: choice
+    prompt: Ein Geräusch wird um 10 dB lauter. Was bedeutet das für die Schallenergie?
+    params:
+      options:
+        - { label: Sie ist zehnmal so groß., correct: true }
+        - { label: Sie ist 10 % größer., feedback: "Dezibel sind keine Prozente. Jede 10 dB multiplizieren mit 10." }
+        - { label: Sie ist doppelt so groß., feedback: "Das wären etwa 3 dB." }
+    hints:
+      - Dezibel ist eine logarithmische Skala.
+    explanation: Plus 10 dB heißt zehnmal so viel Energie. Unser Ohr empfindet das als etwa doppelt so laut.
+
+  - kind: explain
+    body: |
+      Die **Dezibel-Skala** zählt Zehnerpotenzen. 20 dB mehr heißt hundertmal so viel Energie, 30 dB tausendmal.
+      So passen leises Flüstern und ein Düsenjet auf eine Skala.
+
+  - kind: problem
+    id: faktor
+    widget: numeric
+    prompt: Ein Geräusch ist {{d}} dB lauter als ein anderes. Wie viel Mal so viel Schallenergie hat es?
+    params: { placeholder: "-mal" }
+    answer: { value: "{{10 ** (d / 10)}}" }
+    feedback:
+      - when: "numval(state.input) == d"
+        misconception: linear
+        text: Jede 10 dB bedeuten einen Faktor 10. Bei {{d}} dB also {{d / 10}}-mal den Faktor 10.
+    hints:
+      - "{{d / 10}}-mal mit 10 malnehmen."
+    explanation: "$10^{ {{d / 10}} } = {{10 ** (d / 10)}}$."
+    variants:
+      params: { d: "choice[20,30,40,60]" }
+      defaults: { d: 20 }
+
+  - kind: problem
+    id: laut
+    widget: match
+    prompt: Ordne die Geräusche ihrer Lautstärke zu.
+    params:
+      pairs:
+        - { left: Flüstern, right: 30 dB }
+        - { left: Gespräch, right: 60 dB }
+        - { left: Presslufthammer, right: 100 dB }
+        - { left: Düsenjet beim Start, right: 130 dB }
+    hints:
+      - Ab etwa 85 dB kann längeres Hören dem Gehör schaden.
+    explanation: Von 30 bis 130 dB ist die Energie hundert Milliarden Mal größer.
+
+srs:
+  cards_from: [zehn, faktor]

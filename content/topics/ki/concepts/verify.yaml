@@ -1,0 +1,80 @@
+id: ai.llm.verify
+type: concept
+title: KI-Antworten prüfen
+summary: Plausibel ist nicht dasselbe wie richtig.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.verify]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: zugspitze
+    widget: choice
+    body: Ein Chatbot schreibt – »Die Zugspitze ist mit 2962 m höher als der Mont Blanc.«
+    prompt: Was stimmt?
+    params:
+      options:
+        - { label: Der Mont Blanc ist deutlich höher – die Aussage ist falsch, correct: true }
+        - { label: Alles korrekt, feedback: "Der Mont Blanc ist über 4800 m hoch." }
+        - { label: Das kann man nicht prüfen, feedback: "Berghöhen stehen in jedem Atlas." }
+    hints:
+      - Der Mont Blanc ist der höchste Berg der Alpen.
+    explanation: Die Höhe der Zugspitze stimmt – der Vergleich aber nicht. Mischungen aus Wahrem und Falschem sind typisch.
+
+  - kind: explain
+    body: |
+      Ein Sprachmodell schreibt Texte, die **echt klingen**. Ob sie stimmen, prüft es nicht.
+      Klingt etwas sicher, ist aber erfunden, heißt das **Halluzination**.
+
+  - kind: problem
+    id: strategien
+    widget: choice
+    prompt: Welche Strategien helfen beim Prüfen? Wähle alle passenden.
+    params:
+      multiple: true
+      options:
+        - { label: Mit einer verlässlichen Quelle vergleichen, correct: true }
+        - { label: Rechnungen selbst nachrechnen, correct: true }
+        - { label: "Glauben, weil es selbstsicher klingt", feedback: "Ein Modell klingt auch bei Fehlern sicher." }
+        - { label: "Fragen, bis die Antwort gefällt", feedback: "Damit findest du die gewünschte, nicht die richtige Antwort." }
+    hints:
+      - Was würdest du bei einer Aussage eines Menschen tun?
+    explanation: Quellen vergleichen und selbst nachrechnen.
+
+  - kind: problem
+    id: nachrechnen
+    widget: numeric
+    body: Eine KI rechnet – »17 · 23 = 381«.
+    prompt: Rechne nach. Was ist 17 · 23 wirklich?
+    answer: { value: 391 }
+    hints:
+      - 17 · 20 = 340, dazu 17 · 3.
+    explanation: 340 + 51 = 391. Die KI lag um 10 daneben.
+
+  - kind: problem
+    id: code
+    widget: choice
+    prompt: Eine KI schreibt Code, der prüfen soll, ob eine Zahl gerade ist. Wie stellst du sicher, dass er stimmt?
+    params:
+      options:
+        - { label: "Mit Testfällen prüfen – etwa 0, 1, 2 und −3", correct: true }
+        - { label: Den Code einfach übernehmen, feedback: "Auch generierter Code kann Fehler haben – besonders bei Sonderfällen." }
+        - { label: "Nur prüfen, ob er kurz ist", feedback: "Kurz heißt nicht richtig." }
+    hints:
+      - Welche Zahlen sind knifflig?
+    explanation: Gezielte Testfälle, auch Sonderfälle wie 0 und negative Zahlen, decken Fehler auf.
+
+  - kind: problem
+    id: reihenfolge
+    widget: order
+    prompt: Bring die Schritte beim Arbeiten mit KI in eine sinnvolle Reihenfolge.
+    params:
+      items:
+        - { label: Aufgabe klar beschreiben }
+        - { label: Antwort lesen }
+        - { label: Wichtige Fakten prüfen }
+        - { label: Ergebnis verwenden }
+    hints:
+      - Wann prüfst du – vor oder nach dem Verwenden?
+    explanation: Erst klar fragen, dann lesen, prüfen und erst danach verwenden.

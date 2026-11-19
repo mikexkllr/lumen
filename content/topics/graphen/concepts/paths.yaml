@@ -1,0 +1,121 @@
+id: cs.graphs.paths
+type: concept
+title: Kürzeste Wege
+summary: Weniger Stationen heißt nicht kürzer.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: route-a-f
+    widget: network
+    prompt: Finde den kürzesten Weg von A nach F. Tippe die Orte nacheinander an.
+    params:
+      start: A
+      end: F
+      unit: km
+      nodes:
+        - { id: A, x: 4, y: 50 }
+        - { id: B, x: 35, y: 10 }
+        - { id: C, x: 35, y: 90 }
+        - { id: D, x: 66, y: 10 }
+        - { id: E, x: 66, y: 90 }
+        - { id: F, x: 96, y: 50 }
+      edges:
+        - { a: A, b: B, w: 4 }
+        - { a: A, b: C, w: 2 }
+        - { a: B, b: C, w: 1 }
+        - { a: B, b: D, w: 5 }
+        - { a: C, b: E, w: 3 }
+        - { a: C, b: D, w: 8 }
+        - { a: D, b: F, w: 2 }
+        - { a: E, b: F, w: 6 }
+    hints:
+      - Der direkte Weg von A nach B ist nicht der günstigste.
+      - Über C kommst du billiger zu B.
+    explanation: A → C → B → D → F kostet 2 + 1 + 5 + 2 = 10 km.
+
+  - kind: explain
+    body: |
+      Ein **Netzwerk** besteht aus **Knoten** (Orten) und **Kanten** (Verbindungen mit einer Länge).
+      Navis lösen genau diese Aufgabe – mit Millionen Kreuzungen.
+
+  - kind: explain
+    body: Ist der kürzeste Weg immer der mit den wenigsten Stationen?
+    reveal:
+      body: Nein. Ein Umweg über mehr Knoten kann kürzer sein – so wie eben über C nach B.
+
+  - kind: problem
+    id: route-s-t
+    widget: network
+    prompt: Neue Karte. Finde den kürzesten Weg von S nach T.
+    params:
+      start: S
+      end: T
+      unit: km
+      nodes:
+        - { id: S, x: 4, y: 30 }
+        - { id: A, x: 32, y: 6 }
+        - { id: B, x: 32, y: 62 }
+        - { id: C, x: 64, y: 30 }
+        - { id: D, x: 64, y: 94 }
+        - { id: T, x: 96, y: 60 }
+      edges:
+        - { a: S, b: A, w: 3 }
+        - { a: S, b: B, w: 6 }
+        - { a: A, b: B, w: 2 }
+        - { a: A, b: C, w: 4 }
+        - { a: B, b: C, w: 1 }
+        - { a: C, b: T, w: 5 }
+        - { a: B, b: D, w: 4 }
+        - { a: D, b: T, w: 3 }
+    hints:
+      - Rechne für jeden Ort aus, wie weit er höchstens von S entfernt ist.
+    explanation: S → A → B → C → T = 3 + 2 + 1 + 5 = 11 km.
+
+  - kind: problem
+    id: laenge
+    widget: numeric
+    visual:
+      widget: network
+      params:
+        unit: km
+        nodes:
+          - { id: A, x: 6, y: 50 }
+          - { id: B, x: 50, y: 8 }
+          - { id: C, x: 50, y: 92 }
+          - { id: D, x: 94, y: 50 }
+        edges:
+          - { a: A, b: B, w: 2 }
+          - { a: B, b: D, w: 3 }
+          - { a: A, b: C, w: 4 }
+          - { a: C, b: D, w: 1 }
+          - { a: B, b: C, w: 1 }
+    prompt: Wie lang ist der kürzeste Weg von A nach D?
+    params: { unit: km }
+    answer: { value: 4 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: direct-route
+        text: Fast. Es gibt eine Abkürzung über die kurze Kante in der Mitte.
+    hints:
+      - Probier A → B → C → D.
+    explanation: A → B → C → D = 2 + 1 + 1 = 4 km.
+
+  - kind: problem
+    id: reihenfolgen
+    widget: choice
+    prompt: Ein Lieferdienst hat 10 Stopps. Wie viele Reihenfolgen gibt es, sie abzufahren?
+    params:
+      options:
+        - { label: "Rund 3,6 Millionen", correct: true }
+        - { label: "100", feedback: "Das wäre 10 · 10. Mit jedem Stopp sinkt aber die Auswahl und es wird multipliziert." }
+        - { label: "55", feedback: "Das ist 1 + 2 + … + 10. Reihenfolgen multiplizieren sich." }
+        - { label: Rund 1000, feedback: "Viel mehr. Rechne 10 · 9 · 8 · … · 1." }
+    hints:
+      - Für den ersten Stopp gibt es 10 Möglichkeiten, dann 9, dann 8 …
+    explanation: 10 · 9 · … · 1 = 3 628 800. Darum probieren Computer nicht alles aus, sondern nutzen schlaue Abkürzungen.
+
+srs:
+  cards_from: [laenge, route-s-t]

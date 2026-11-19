@@ -1,0 +1,60 @@
+id: cs.gates.design
+type: concept
+title: Schaltungen für den Alltag
+summary: Alarmanlage, Vergleicher, Prüfbit.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: alarm
+    widget: gates
+    prompt: Der Alarm soll losgehen, wenn die Anlage scharf ist (S) und Tür (T) oder Fenster (F) offen ist.
+    params:
+      inputs: [{ id: S }, { id: T }, { id: F }]
+      gates:
+        - { id: o, type: "?", in: [T, F], options: [AND, OR] }
+        - { id: g, type: "?", in: [S, o], options: [AND, OR] }
+      outputs: [{ id: Q, from: g, label: Alarm }]
+    check: { predicate: "table('Q') == [0, 0, 0, 0, 0, 1, 1, 1]" }
+    hints:
+      - Erst Tür und Fenster verbinden, dann mit S.
+    explanation: S UND (T ODER F) – genau wie im Satz.
+
+  - kind: problem
+    id: gleich
+    widget: gates
+    prompt: Die Lampe soll leuchten, wenn A und B gleich sind.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: x, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: n, type: NOT, in: [x] }
+      outputs: [{ id: Q, from: n, label: gleich }]
+    check: { predicate: "table('Q') == [1, 0, 0, 1]" }
+    hints:
+      - Welches Gatter erkennt, dass zwei Eingänge verschieden sind?
+    explanation: XOR meldet »verschieden«, NICHT dreht es zu »gleich«. So vergleichen Chips Zahlen.
+
+  - kind: explain
+    body: |
+      **Prüfbit:** Beim Senden hängt man ein Bit an, das zählt, ob die Zahl der Einsen ungerade ist. Kippt unterwegs ein Bit, passt das Prüfbit nicht mehr.
+
+  - kind: problem
+    id: paritaet
+    widget: gates
+    prompt: Baue das Prüfbit für drei Bits – 1 bei ungerader Zahl von Einsen.
+    params:
+      inputs: [{ id: A }, { id: B }, { id: C }]
+      gates:
+        - { id: g1, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: g2, type: "?", in: [g1, C], options: [AND, OR, XOR] }
+      outputs: [{ id: Q, from: g2, label: ungerade }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0, 1, 0, 0, 1]" }
+    hints:
+      - Welches Gatter gibt bei zwei Einsen eine 0?
+    explanation: XOR hintereinander zählt die Einsen modulo 2.
+
+srs:
+  cards_from: [gleich, paritaet]

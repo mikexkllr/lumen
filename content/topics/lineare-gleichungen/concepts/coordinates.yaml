@@ -1,0 +1,131 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.coordinates
+type: concept
+title: Punkte finden
+summary: Erst nach rechts, dann nach oben – so findest du jeden Punkt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.coordinates]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: p-setzen
+    widget: graph
+    prompt: Ziehe den Punkt P auf (3 | 2).
+    params:
+      x: [-5, 5]
+      y: [-5, 5]
+      points: [{ id: P, x: 0, y: 0 }]
+    answer: { points: { P: { x: 3, y: 2 } } }
+    feedback:
+      - when: "state.points.P.x == 2 && state.points.P.y == 3"
+        misconception: swapped-coordinates
+        text: Du hast x und y vertauscht. Die erste Zahl sagt, wie weit nach rechts. Die zweite, wie weit nach oben.
+    hints:
+      - Die erste Zahl gehört zur waagerechten Achse.
+      - Gehe vom Ursprung 3 nach rechts und dann 2 nach oben.
+    explanation: (3 | 2) heißt 3 nach rechts und 2 nach oben.
+
+  - kind: explain
+    body: |
+      Ein Punkt hat zwei Koordinaten: (x | y).
+      **x** sagt, wie weit nach rechts – oder links, wenn x negativ ist.
+      **y** sagt, wie weit nach oben – oder unten.
+    visual:
+      widget: graph
+      params:
+        x: [-5, 5]
+        y: [-5, 5]
+        points: [{ id: P, x: 3, y: 2, draggable: false }]
+
+  - kind: problem
+    id: q-negativ
+    widget: graph
+    prompt: Setze Q auf (−2 | 4).
+    params:
+      points: [{ id: Q, x: 0, y: 0 }]
+    answer: { points: { Q: { x: -2, y: 4 } } }
+    feedback:
+      - when: "state.points.Q.x == 2 && state.points.Q.y == 4"
+        misconception: sign
+        text: Fast! Das Minus bei −2 heißt nach links, nicht nach rechts.
+      - when: "state.points.Q.x == 4 && state.points.Q.y == -2"
+        misconception: swapped-coordinates
+        text: Du hast x und y vertauscht. Erst kommt die Waagerechte.
+    hints:
+      - Negative x-Werte liegen links vom Ursprung.
+    explanation: 2 nach links, 4 nach oben.
+
+  - kind: problem
+    id: r-variante
+    widget: graph
+    prompt: Setze R auf ({{a}} | {{b}}).
+    params:
+      points: [{ id: R, x: 0, y: 0 }]
+    answer: { points: { R: { x: "{{a}}", y: "{{b}}" } } }
+    feedback:
+      - when: "state.points.R.x == b && state.points.R.y == a && a != b"
+        misconception: swapped-coordinates
+        text: Du hast x und y vertauscht. Erst rechts/links, dann oben/unten.
+    hints:
+      - Zuerst die waagerechte Richtung, dann die senkrechte.
+    explanation: "({{a}} | {{b}}): {{a}} auf der x-Achse, {{b}} auf der y-Achse."
+    variants:
+      params: { a: "nonzero[-4,4]", b: "nonzero[-4,4]" }
+      defaults: { a: -3, b: -1 }
+
+  - kind: problem
+    id: wo-liegt
+    widget: choice
+    prompt: Wo liegt der Punkt (−3 | 2)?
+    params:
+      layout: grid
+      options:
+        - label: links oben
+          correct: true
+        - label: rechts oben
+          feedback: Das Minus bei −3 heißt links vom Ursprung.
+        - label: links unten
+          feedback: y = 2 ist positiv – also oben.
+        - label: rechts unten
+          feedback: Beide Richtungen sind vertauscht. −3 heißt links, 2 heißt oben.
+    hints:
+      - Was bedeutet das Minuszeichen bei x?
+    explanation: x negativ → links, y positiv → oben.
+
+  - kind: problem
+    id: waagerecht
+    widget: graph
+    prompt: Ziehe A und B so, dass die Strecke AB waagerecht und genau 4 lang ist.
+    params:
+      points: [{ id: A, x: 0, y: 0 }, { id: B, x: 1, y: 2 }]
+      segments: [[A, B]]
+    check:
+      predicate: "state.points.A.y == state.points.B.y && abs(state.points.A.x - state.points.B.x) == 4"
+    feedback:
+      - when: "state.points.A.y != state.points.B.y"
+        text: Waagerecht heißt, beide Punkte haben dieselbe y-Koordinate.
+      - when: "state.points.A.y == state.points.B.y && abs(state.points.A.x - state.points.B.x) != 4"
+        text: Waagerecht ist sie schon. Jetzt stimmt nur die Länge noch nicht.
+    hints:
+      - Waagerecht bedeutet gleiche Höhe.
+      - Zähle die Kästchen zwischen A und B.
+    explanation: Zum Beispiel A (0 | 0) und B (4 | 0). Gleiche y-Werte, x-Werte 4 auseinander.
+
+  - kind: problem
+    id: abstand
+    widget: numeric
+    prompt: Wie weit liegen (1 | 2) und (1 | −3) auseinander?
+    answer: { value: 5 }
+    feedback:
+      - when: "abs(numval(state.input)) == 1"
+        misconception: sign
+        text: Von 2 nach unten bis −3 sind es mehr Schritte. Zähle über die Null hinweg.
+    hints:
+      - Beide Punkte haben x = 1. Sie liegen also übereinander.
+      - Zähle von y = 2 bis y = −3.
+    explanation: Von 2 bis 0 sind es 2 Schritte, von 0 bis −3 noch 3. Zusammen 5.
+
+srs:
+  cards_from: ["steps[3]"]

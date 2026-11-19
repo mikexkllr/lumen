@@ -1,0 +1,80 @@
+id: geo.solids.scale
+type: concept
+title: Größer bauen
+summary: Länge mal k, Volumen mal k³.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: verdoppeln
+    widget: choice
+    prompt: Du verdoppelst alle Kanten eines Würfels. Wie verändert sich das Volumen?
+    params:
+      options:
+        - { label: Es wird 8-mal so groß., correct: true }
+        - { label: Es wird doppelt so groß., feedback: "Das wäre, wenn nur eine Kante wächst. Hier wachsen alle drei." }
+        - { label: Es wird 4-mal so groß., feedback: "Das gilt für die Flächen. Volumen hat eine Dimension mehr." }
+    hints:
+      - Wie viele kleine Würfel passen in einen doppelt so großen?
+    explanation: 2 · 2 · 2 = 8. Acht kleine Würfel ergeben einen großen.
+
+  - kind: explain
+    body: |
+      Wird alles k-mal so lang, wachsen **Flächen** mit k² und **Volumen** mit k³.
+
+  - kind: problem
+    id: volumen-k
+    widget: numeric
+    prompt: Alle Kanten eines Körpers werden {{k}}-mal so lang. Wie viel Mal so groß wird das Volumen?
+    params: { placeholder: "-mal" }
+    answer: { value: "{{k ** 3}}" }
+    feedback:
+      - when: "numval(state.input) == k * k"
+        misconception: area-for-volume
+        text: Das gilt für Flächen. Beim Volumen kommt die Höhe dazu.
+    hints:
+      - "Rechne {{k}} · {{k}} · {{k}}."
+    explanation: "{{k}}³ = {{k ** 3}}."
+    variants:
+      params: { k: "int[2,5]" }
+      defaults: { k: 3 }
+
+  - kind: problem
+    id: flaeche-k
+    widget: numeric
+    prompt: Und die Oberfläche – wie viel Mal so groß wird sie, wenn alle Kanten {{k}}-mal so lang werden?
+    params: { placeholder: "-mal" }
+    answer: { value: "{{k * k}}" }
+    feedback:
+      - when: "numval(state.input) == k ** 3"
+        misconception: volume-for-area
+        text: Das gilt für das Volumen. Flächen haben nur zwei Richtungen.
+    hints:
+      - Jede Fläche wächst in Länge und Breite.
+    explanation: "{{k}}² = {{k * k}}."
+    variants:
+      params: { k: "int[2,5]" }
+      defaults: { k: 3 }
+
+  - kind: explain
+    body: Warum gibt es keine Ameisen so groß wie Pferde?
+    reveal:
+      body: Das Gewicht wächst mit k³, die Dicke der Beine nur mit k². Ab einer gewissen Größe tragen die Beine den Körper nicht mehr.
+
+  - kind: problem
+    id: statue
+    widget: choice
+    prompt: Eine Statue wird halb so groß nachgebaut. Wie viel Bronze braucht man im Vergleich?
+    params:
+      options:
+        - { label: Ein Achtel, correct: true }
+        - { label: Die Hälfte, feedback: "Nur die Höhe halbiert sich so. Breite und Tiefe auch." }
+        - { label: Ein Viertel, feedback: "Das gilt für die Oberfläche." }
+    hints:
+      - "k = 1/2. Rechne k³."
+    explanation: (1/2)³ = 1/8.
+
+srs:
+  cards_from: [volumen-k, statue]

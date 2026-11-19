@@ -1,0 +1,65 @@
+id: math.sequences.geometric
+type: concept
+title: Immer mal dasselbe
+summary: Geometrische Folgen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: weiter
+    widget: numeric
+    prompt: "{{a}}, {{a * q}}, {{a * q * q}}, … – welche Zahl kommt als Nächstes?"
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{a * q * q * q}}" }
+    feedback:
+      - when: "numval(state.input) == a * q * q + (a * q * q - a * q)"
+        misconception: additive
+        text: Hier kommt nicht immer gleich viel dazu – es wird immer mit derselben Zahl multipliziert.
+    hints:
+      - Womit wird jedes Glied multipliziert?
+    explanation: "Immer mal {{q}} – also {{a * q * q * q}}."
+    variants:
+      params: { a: "int[1,5]", q: "int[2,3]" }
+      defaults: { a: 3, q: 2 }
+
+  - kind: explain
+    body: |
+      Wird immer mit demselben Faktor q multipliziert, heißt die Folge **geometrisch**. Sie wächst anfangs harmlos – und dann explosiv.
+
+  - kind: problem
+    id: falten
+    widget: numeric
+    prompt: Ein Stapel Pappe ist 1 mm dick. Du legst ihn immer wieder doppelt. Wie dick ist er nach {{n}}-mal?
+    params: { unit: mm }
+    answer: { value: "{{2 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * n"
+        misconception: linear
+        text: Jedes Falten verdoppelt die ganze Dicke – nicht nur 2 mm dazu.
+    hints:
+      - "1 → 2 → 4 → 8 …"
+    explanation: "$2^{ {{n}} } = {{2 ** n}}$ mm. Nach 42-mal wäre ein Blatt Papier dicker als der Weg zum Mond."
+    variants:
+      params: { n: "int[5,10]" }
+      defaults: { n: 7 }
+
+  - kind: problem
+    id: sortieren
+    widget: buckets
+    prompt: Arithmetisch oder geometrisch?
+    params:
+      buckets: [{ label: arithmetisch }, { label: geometrisch }]
+      items:
+        - { label: "2, 5, 8, 11", bucket: arithmetisch }
+        - { label: "100, 90, 80, 70", bucket: arithmetisch }
+        - { label: "3, 6, 12, 24", bucket: geometrisch }
+        - { label: "64, 32, 16, 8", bucket: geometrisch }
+        - { label: "1, 10, 100, 1000", bucket: geometrisch }
+    hints:
+      - Plus oder mal?
+    explanation: Gleiche Abstände – arithmetisch. Gleiche Faktoren – geometrisch, auch beim Halbieren.
+
+srs:
+  cards_from: [falten, sortieren]

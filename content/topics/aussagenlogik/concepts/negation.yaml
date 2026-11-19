@@ -1,0 +1,75 @@
+id: logic.propositional.negation
+type: concept
+title: Richtig verneinen
+summary: Aus »alle« wird »mindestens einer nicht«.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schwaene
+    widget: choice
+    prompt: Was ist das logische Gegenteil von »Alle Schwäne sind weiß«?
+    params:
+      options:
+        - { label: Mindestens ein Schwan ist nicht weiß., correct: true }
+        - { label: Alle Schwäne sind schwarz., feedback: "Das ist ein Extrem, kein Gegenteil. Ein einziger dunkler Schwan reicht." }
+        - { label: Kein Schwan ist weiß., feedback: "Zu stark. Es reicht, wenn einer nicht weiß ist." }
+    hints:
+      - Was müsste man finden, um die Aussage zu widerlegen?
+    explanation: Ein einziger nicht weißer Schwan widerlegt »alle«.
+
+  - kind: explain
+    body: |
+      **Alle** verneint man mit **mindestens einer nicht**.
+      **Es gibt** verneint man mit **keiner**.
+
+  - kind: problem
+    id: kuchen
+    widget: choice
+    prompt: Was ist das Gegenteil von »Jemand hat den Kuchen gegessen«?
+    params:
+      options:
+        - { label: Niemand hat den Kuchen gegessen., correct: true }
+        - { label: Jemand hat den Kuchen nicht gegessen., feedback: "Das kann gleichzeitig mit der Aussage stimmen." }
+        - { label: Alle haben den Kuchen gegessen., feedback: "Das passt sogar zur Aussage." }
+    hints:
+      - Wann wäre »jemand hat …« falsch?
+    explanation: »Es gibt jemanden« ist nur falsch, wenn es keinen gibt.
+
+  - kind: explain
+    body: |
+      **De Morgan:** ¬(A ∧ B) ist ¬A ∨ ¬B. Und ¬(A ∨ B) ist ¬A ∧ ¬B.
+      Beim Verneinen tauschen *und* und *oder* die Plätze.
+
+  - kind: problem
+    id: und-verneinen
+    widget: choice
+    prompt: Was ist das Gegenteil von »Es regnet und es ist kalt«?
+    params:
+      options:
+        - { label: Es regnet nicht oder es ist nicht kalt., correct: true }
+        - { label: Es regnet nicht und es ist nicht kalt., feedback: "Zu streng. Schon warmer Regen macht die Aussage falsch." }
+        - { label: Es regnet oder es ist kalt., feedback: "Hier fehlt das Verneinen." }
+    hints:
+      - Die Aussage ist falsch, sobald ein Teil nicht stimmt.
+    explanation: Nach De Morgan wird aus »und« ein »oder«, und beide Teile werden verneint.
+
+  - kind: problem
+    id: weder-noch
+    widget: gates
+    prompt: Die Lampe soll nur leuchten, wenn beide Schalter aus sind. Wähle das erste Gatter.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [AND, OR] }
+        - { id: n, type: NOT, in: [g] }
+      outputs: [{ id: Q, from: n, label: Lampe }]
+    check: { predicate: "table('Q') == [1, 0, 0, 0]" }
+    hints:
+      - Weder A noch B heißt – nicht (A oder B).
+    explanation: Nicht (A oder B) ist dasselbe wie »nicht A und nicht B«.
+
+srs:
+  cards_from: [schwaene, und-verneinen]

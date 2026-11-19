@@ -1,0 +1,102 @@
+id: math.fractions.add
+type: concept
+title: Brüche addieren
+summary: Gleiche Nenner zählen, ungleiche erst gleich machen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.add]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: viertel-plus
+    widget: fraction
+    prompt: Färbe 1/4 und dann noch 2/4. Wie viel ist das zusammen?
+    params: { parts: 4 }
+    answer: { fraction: "3/4" }
+    hints:
+      - Erst ein Viertel, dann zwei weitere Viertel färben.
+    explanation: 1 Viertel plus 2 Viertel sind 3 Viertel.
+
+  - kind: explain
+    body: |
+      Gleiche Nenner? Dann zählst du nur die **Zähler** zusammen: $\frac{1}{4} + \frac{2}{4} = \frac{3}{4}$.
+      Der Nenner bleibt, denn die Stücke werden nicht kleiner.
+
+  - kind: problem
+    id: gleichnamig
+    widget: numeric
+    prompt: 'Rechne: $\frac{ {{a}} }{ {{n}} } + \frac{ {{b}} }{ {{n}} }$'
+    params: { placeholder: "z. B. 3/4" }
+    answer: { value: "{{a + b}}/{{n}}" }
+    feedback:
+      - when: "approx(numval(state.input), (a + b) / (2 * n))"
+        misconception: add-denominators
+        text: Du hast auch die Nenner addiert. Die Stückgröße bleibt gleich – nur die Anzahl der Stücke ändert sich.
+    hints:
+      - Die Nenner sind gleich. Was passiert mit den Zählern?
+      - "{{a}} + {{b}} Stücke von je 1/{{n}}."
+    explanation: "{{a}}/{{n}} + {{b}}/{{n}} = {{a + b}}/{{n}}."
+    variants:
+      params: { n: "choice[5,7,8,9,11]", a: "int[1,4]", b: "int[1,4]" }
+      constraints: ["a + b < n"]
+      defaults: { n: 7, a: 2, b: 3 }
+
+  - kind: problem
+    id: halb-drittel
+    widget: choice
+    prompt: Was ergibt 1/2 + 1/3?
+    params:
+      layout: grid
+      options:
+        - { label: "5/6", correct: true }
+        - { label: "2/5", feedback: "Zähler plus Zähler und Nenner plus Nenner – so geht es nicht. 2/5 ist sogar kleiner als 1/2!" }
+        - { label: "2/6", feedback: "2/6 ist ein Drittel – weniger als 1/2 allein." }
+        - { label: "1/5", feedback: "Das Ergebnis muss größer als 1/2 sein." }
+    hints:
+      - Mach die Nenner gleich. 6 passt für 2 und 3.
+    explanation: 1/2 = 3/6 und 1/3 = 2/6. Zusammen 5/6.
+
+  - kind: explain
+    body: |
+      Verschiedene Nenner? Erst **gleichnamig** machen, dann addieren:
+      $\frac{1}{2} + \frac{1}{3} = \frac{3}{6} + \frac{2}{6} = \frac{5}{6}$.
+
+  - kind: problem
+    id: stammbrueche-plus
+    widget: numeric
+    prompt: 'Rechne: $\frac{1}{ {{a}} } + \frac{1}{ {{b}} }$'
+    params: { placeholder: "z. B. 3/4" }
+    answer: { value: "{{a + b}}/{{a * b}}" }
+    feedback:
+      - when: "approx(numval(state.input), 2 / (a + b))"
+        misconception: add-denominators
+        text: Zähler plus Zähler und Nenner plus Nenner geht nicht. Mach die Nenner erst gleich – {{a * b}} passt.
+    hints:
+      - "Gemeinsamer Nenner: {{a}} · {{b}} = {{a * b}}."
+      - "1/{{a}} = {{b}}/{{a * b}} und 1/{{b}} = {{a}}/{{a * b}}."
+    explanation: "{{b}}/{{a * b}} + {{a}}/{{a * b}} = {{a + b}}/{{a * b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3,4]", b: "choice[3,5,7]" }
+      constraints: ["a != b", "gcd(a, b) == 1"]
+      defaults: { a: 2, b: 5 }
+
+  - kind: problem
+    id: minus
+    widget: numeric
+    prompt: 'Rechne: $\frac{3}{4} - \frac{1}{8}$'
+    params: { placeholder: "z. B. 1/2" }
+    answer: { value: "5/8" }
+    feedback:
+      - when: "approx(numval(state.input), 2 / 4)"
+        misconception: subtract-denominators
+        text: Du hast Zähler und Nenner getrennt abgezogen. Mach die Nenner erst gleich – Achtel passen.
+    hints:
+      - 3/4 sind wie viele Achtel?
+      - 3/4 = 6/8.
+    explanation: 6/8 − 1/8 = 5/8.
+    difficulty: 2
+
+srs:
+  cards_from: ["steps[2]", "steps[5]"]

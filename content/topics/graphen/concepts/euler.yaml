@@ -1,0 +1,72 @@
+id: cs.graphs.euler
+type: concept
+title: In einem Zug
+summary: Wann man jede Linie genau einmal abläuft.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: grad
+    widget: numeric
+    visual:
+      widget: network
+      params:
+        aspect: 0.9
+        nodes:
+          - { id: A, x: 15, y: 95 }
+          - { id: B, x: 85, y: 95 }
+          - { id: C, x: 15, y: 45 }
+          - { id: D, x: 85, y: 45 }
+          - { id: E, x: 50, y: 5 }
+        edges:
+          - { a: A, b: B }
+          - { a: A, b: C }
+          - { a: B, b: D }
+          - { a: C, b: D }
+          - { a: A, b: D }
+          - { a: B, b: C }
+          - { a: C, b: E }
+          - { a: D, b: E }
+    prompt: Wie viele Linien treffen sich in der Ecke A?
+    params: { unit: Linien }
+    answer: { value: 3 }
+    hints:
+      - Zähle die Linien, die bei A enden.
+    explanation: A hat Grad 3 – eine ungerade Zahl.
+
+  - kind: explain
+    body: |
+      **Eulers Regel:** Eine Figur lässt sich in einem Zug zeichnen, wenn höchstens zwei Ecken einen ungeraden Grad haben. Man startet dann an einer davon.
+
+  - kind: problem
+    id: start
+    widget: choice
+    prompt: Wo musst du anfangen, um das Haus oben in einem Zug zu zeichnen?
+    params:
+      options:
+        - { label: An einer der unteren Ecken, correct: true }
+        - { label: An der Dachspitze, feedback: "Die Spitze hat Grad 2 – dort endet der Zug nicht." }
+        - { label: Egal wo, feedback: "Nur A und B haben ungeraden Grad." }
+    hints:
+      - Welche Ecken haben ungeraden Grad?
+    explanation: A und B haben Grad 3. Der Zug startet an einer und endet an der anderen.
+
+  - kind: problem
+    id: welche
+    widget: buckets
+    prompt: In einem Zug zeichenbar?
+    params:
+      buckets: [{ label: ja }, { label: nein }]
+      items:
+        - { label: Quadrat, bucket: ja }
+        - { label: Fünfzackiger Stern, bucket: ja }
+        - { label: Quadrat mit beiden Diagonalen, bucket: nein }
+        - { label: Zwei getrennte Dreiecke, bucket: nein }
+    hints:
+      - Zähle in jeder Figur die Ecken mit ungeradem Grad.
+    explanation: Mit Diagonalen haben alle vier Ecken Grad 3 – zu viele ungerade. Getrennte Teile gehen nie in einem Zug.
+
+srs:
+  cards_from: [start, welche]

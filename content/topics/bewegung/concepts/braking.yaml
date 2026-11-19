@@ -1,0 +1,77 @@
+id: sci.motion.braking
+type: concept
+title: Bremsen und Beschleunigen
+summary: Doppeltes Tempo, vierfacher Bremsweg.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: doppelt
+    widget: choice
+    prompt: Ein Auto fährt doppelt so schnell. Wie verändert sich sein Bremsweg?
+    params:
+      options:
+        - { label: Er wird etwa 4-mal so lang., correct: true }
+        - { label: Er wird doppelt so lang., feedback: "Das wäre schön. Der Bremsweg wächst aber mit dem Quadrat." }
+        - { label: Er bleibt gleich., feedback: "Schneller heißt mehr Bewegungsenergie, die abgebaut werden muss." }
+    hints:
+      - Die Bewegungsenergie wächst mit dem Quadrat der Geschwindigkeit.
+    explanation: Doppeltes Tempo heißt vierfache Bewegungsenergie – und etwa vierfacher Bremsweg.
+
+  - kind: explain
+    body: |
+      **Beschleunigung** ist die Änderung der Geschwindigkeit pro Sekunde.
+      Der Bremsweg wächst mit dem **Quadrat** der Geschwindigkeit.
+
+  - kind: problem
+    id: faustformel
+    widget: numeric
+    prompt: Faustformel – Bremsweg in Metern = (Tempo in km/h durch 10)². Wie lang ist der Bremsweg bei {{v}} km/h?
+    params: { unit: m }
+    answer: { value: "{{(v / 10) ** 2}}" }
+    feedback:
+      - when: "numval(state.input) == v / 10 * 2"
+        misconception: times-two
+        text: Hoch 2 heißt mal sich selbst, nicht mal 2.
+    hints:
+      - "{{v}} : 10 = {{v / 10}}. Jetzt mal sich selbst."
+    explanation: "({{v / 10}})² = {{(v / 10) ** 2}} m."
+    variants:
+      params: { v: "choice[30,50,80,100,130]" }
+      defaults: { v: 50 }
+
+  - kind: problem
+    id: anfahren
+    widget: numeric
+    prompt: Ein Auto beschleunigt in {{t}} Sekunden von 0 auf 100 km/h. Um wie viel km/h wird es pro Sekunde schneller?
+    params: { unit: km/h pro s }
+    answer: { value: "{{100 / t}}" }
+    hints:
+      - Teile die Änderung durch die Zeit.
+    explanation: "100 km/h : {{t}} s = {{100 / t}} km/h pro Sekunde."
+    variants:
+      params: { t: "choice[4,5,8,10]" }
+      defaults: { t: 10 }
+
+  - kind: explain
+    body: Warum ist Tempo 30 vor Schulen so wichtig?
+    reveal:
+      body: Nach der Faustformel bremst ein Auto bei 30 km/h in 9 m, bei 50 km/h braucht es 25 m. Wo das langsame schon steht, ist das schnelle noch kaum gebremst.
+
+  - kind: problem
+    id: reaktion
+    widget: numeric
+    prompt: Reaktionsweg in Metern ≈ (Tempo durch 10) · 3. Wie lang ist er bei {{v}} km/h?
+    params: { unit: m }
+    answer: { value: "{{v / 10 * 3}}" }
+    hints:
+      - "{{v}} : 10 · 3."
+    explanation: "{{v / 10}} · 3 = {{v / 10 * 3}} m – so weit fährt man, bevor man überhaupt bremst."
+    variants:
+      params: { v: "choice[30,50,70,100]" }
+      defaults: { v: 50 }
+
+srs:
+  cards_from: [faustformel, reaktion]

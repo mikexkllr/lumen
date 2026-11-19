@@ -1,0 +1,56 @@
+id: stats.normal.zscore
+type: concept
+title: Der z-Wert
+summary: Äpfel mit Birnen vergleichen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Der **z-Wert** zählt, wie viele Standardabweichungen ein Wert vom Mittelwert entfernt ist: $z = \frac{x - \mu}{\sigma}$. So vergleicht man Werte aus ganz verschiedenen Tests.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Mittelwert {{m}}, σ = {{s}}. Welchen z-Wert hat {{m + k * s}}?
+    params: { placeholder: "z" }
+    answer: { value: "{{k}}" }
+    hints:
+      - "Abstand zum Mittelwert geteilt durch {{s}}."
+    explanation: "({{m + k * s}} − {{m}}) : {{s}} = {{k}}."
+    variants:
+      params: { m: "int[50,80]", s: "int[4,12]", k: "int[-2,3]" }
+      constraints: ["k != 0"]
+      defaults: { m: 60, s: 8, k: 2 }
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    body: "Anna hat in Mathe 80 Punkte – Schnitt 70, σ = 5. Ben hat in Deutsch 85 Punkte – Schnitt 80, σ = 10."
+    prompt: Wer war im Vergleich zur eigenen Klasse besser?
+    params:
+      options:
+        - { label: Anna, correct: true }
+        - { label: Ben, feedback: "Ben hat mehr Punkte – aber seine Klasse auch. Rechne die z-Werte." }
+        - { label: Beide gleich, feedback: "Beide liegen über dem Schnitt, aber unterschiedlich weit." }
+    hints:
+      - Anna liegt 10 Punkte über dem Schnitt, das sind wie viele σ?
+    explanation: Anna hat z = 2, Ben nur z = 0,5.
+
+  - kind: problem
+    id: zurueck
+    widget: numeric
+    prompt: Mittelwert 50, σ = 8. Welcher Wert hat z = {{z}}?
+    params: { placeholder: "Wert" }
+    answer: { value: "{{50 + 8 * z}}" }
+    hints:
+      - "{{z}}-mal σ zum Mittelwert dazu."
+    explanation: "50 + {{z}} · 8 = {{50 + 8 * z}}."
+    variants:
+      params: { z: "int[1,3]" }
+      defaults: { z: 2 }
+
+srs:
+  cards_from: [rechnen, vergleich]

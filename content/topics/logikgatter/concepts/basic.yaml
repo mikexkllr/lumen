@@ -1,0 +1,89 @@
+id: cs.gates.basic
+type: concept
+title: UND, ODER, NICHT
+summary: Drei Bausteine für jede Entscheidung.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: und
+    widget: gates
+    prompt: Die Lampe hängt an einem UND-Gatter. Bring sie zum Leuchten.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: AND, in: [A, B] }]
+      outputs: [{ id: Q, from: g, label: Lampe }]
+      goal: { Q: 1 }
+    hints:
+      - Ein Schalter allein reicht nicht.
+    explanation: UND gibt nur dann 1, wenn beide Eingänge 1 sind.
+
+  - kind: explain
+    body: |
+      **UND** gibt 1, wenn beide Eingänge 1 sind. **ODER** gibt 1, sobald einer 1 ist. **NICHT** dreht den Wert um.
+      Probier das ODER-Gatter aus.
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs: [{ id: A }, { id: B }]
+        gates: [{ id: g, type: OR, in: [A, B] }]
+        outputs: [{ id: Q, from: g, label: Lampe }]
+
+  - kind: problem
+    id: nicht
+    widget: gates
+    prompt: Hier steckt ein NICHT-Gatter. Wie muss der Schalter stehen, damit die Lampe leuchtet?
+    params:
+      inputs: [{ id: A, value: 1 }]
+      gates: [{ id: n, type: NOT, in: [A] }]
+      outputs: [{ id: Q, from: n, label: Lampe }]
+      goal: { Q: 1 }
+    hints:
+      - NICHT macht aus 1 eine 0 und aus 0 eine 1.
+    explanation: Der Schalter muss aus sein. NICHT macht daraus eine 1.
+
+  - kind: problem
+    id: welches
+    widget: gates
+    prompt: A ist an, B ist aus. Welches Gatter lässt die Lampe leuchten? Tippe es an.
+    params:
+      inputs: [{ id: A, value: 1, fixed: true }, { id: B, value: 0, fixed: true }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [AND, OR] }]
+      outputs: [{ id: Q, from: g, label: Lampe }]
+      goal: { Q: 1 }
+    hints:
+      - Reicht ein Eingang mit 1?
+    explanation: ODER reicht ein Eingang mit 1. UND bräuchte beide.
+
+  - kind: problem
+    id: alarm
+    widget: choice
+    prompt: Ein Alarm soll losgehen, wenn die Tür offen ist oder das Fenster. Welches Gatter passt?
+    params:
+      options:
+        - { label: ODER, correct: true }
+        - { label: UND, feedback: "Dann bräuchte es Tür und Fenster gleichzeitig offen." }
+        - { label: NICHT, feedback: "NICHT hat nur einen Eingang und dreht ihn um." }
+    hints:
+      - Reicht schon eins von beiden?
+    explanation: Schon eine offene Stelle soll reichen – das ist ODER.
+
+  - kind: problem
+    id: tabelle
+    widget: gates
+    prompt: Wähle das Gatter, das nur leuchtet, wenn beide Schalter an sind.
+    body: Geprüft wird für alle vier Schalter-Stellungen.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [OR, AND] }]
+      outputs: [{ id: Q, from: g, label: Lampe }]
+    check: { predicate: "table('Q') == [0, 0, 0, 1]" }
+    hints:
+      - Probier die Schalter aus und beobachte die Lampe.
+    explanation: Das ist UND. Es gibt nur bei 1 und 1 eine 1.
+
+srs:
+  cards_from: [welches, alarm]

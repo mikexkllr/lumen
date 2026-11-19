@@ -1,0 +1,55 @@
+id: stats.paradoxes.lab
+type: concept
+title: Paradoxien-Labor
+summary: Ziegenproblem simulieren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Beim **Ziegenproblem** gewinnt in jedem Spiel genau eine Strategie: Wechseln oder Bleiben. Die Simulation spielt viele Runden – und zählt, welche Strategie gewonnen hätte.
+
+  - kind: problem
+    id: simulation
+    widget: distribution
+    prompt: Spiele mindestens 100 Runden. Jede Säule zählt, wie oft diese Strategie gewonnen hätte.
+    params:
+      items: [{ label: Wechseln, weight: 2 }, { label: Bleiben, weight: 1 }]
+    check: { predicate: "draws >= 100" }
+    hints:
+      - Viele Runden auf einmal ziehen.
+    explanation: Wechseln gewinnt etwa doppelt so oft wie Bleiben.
+
+  - kind: problem
+    id: anteil
+    widget: numberline
+    prompt: Markiere die Gewinnchance beim Wechseln.
+    params: { min: 0, max: 1, ticks: 3, labels: fractions }
+    answer: { value: "2/3" }
+    feedback:
+      - when: "state.value == 0.5"
+        misconception: fifty-fifty
+        text: Es sind zwar zwei Türen übrig – aber nicht gleich wahrscheinlich.
+    hints:
+      - Wann verliert man beim Wechseln?
+    explanation: 2/3 – man verliert nur, wenn man anfangs zufällig das Auto erwischt hatte.
+
+  - kind: problem
+    id: geburtstag
+    widget: buckets
+    prompt: Ist die Chance auf zwei gleiche Geburtstage über oder unter 50 %?
+    params:
+      buckets: [{ label: unter 50 % }, { label: über 50 % }]
+      items:
+        - { label: 10 Personen, bucket: unter 50 % }
+        - { label: 20 Personen, bucket: unter 50 % }
+        - { label: 23 Personen, bucket: über 50 % }
+        - { label: 30 Personen, bucket: über 50 % }
+    hints:
+      - Ab 23 Personen kippt es.
+    explanation: Bei 23 Personen sind es schon 51 %, bei 30 sogar 71 %.
+
+srs:
+  cards_from: [anteil, geburtstag]

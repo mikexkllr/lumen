@@ -1,0 +1,125 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.balance-02
+type: concept
+title: Gerecht teilen
+summary: Mehrere Kisten? Teile beide Seiten durch dieselbe Zahl.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.solve-one-step, alg.solve-two-step]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: zwei-kisten
+    widget: balance
+    params:
+      left: { x: 2, units: 0 }
+      right: { x: 0, units: 8 }
+      allow: [remove_unit, remove_x, divide]
+    prompt: Zwei gleich schwere Kisten wiegen zusammen 8. Bringe eine einzelne Kiste auf die Waage.
+    hints:
+      - Du kannst beide Seiten gerecht aufteilen.
+      - Teile beide Seiten durch 2. Aus 2 Kisten wird 1, aus 8 Gewichten werden 4.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage kippt. Wegnehmen hilft hier nicht – versuch es mit Teilen.
+    explanation: "Beide Seiten durch 2 teilen: Aus 2x = 8 wird x = 4."
+
+  - kind: explain
+    body: |
+      Teilen ist erlaubt – solange du **beide** Seiten durch dieselbe Zahl teilst.
+      Aus $2x = 8$ wird $x = 4$.
+
+  - kind: problem
+    id: erst-weg-dann-teilen
+    widget: balance
+    params:
+      left: { x: "{{a}}", units: "{{u}}" }
+      right: { x: 0, units: "{{a * b + u}}" }
+      allow: [remove_unit, remove_x, divide]
+    prompt: Bringe eine Kiste x allein auf die Waage.
+    hints:
+      - Nimm zuerst die einzelnen Gewichte weg.
+      - Danach liegen nur noch Kisten links. Teile beide Seiten durch die Anzahl der Kisten.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage kippt. Verändere immer beide Seiten gleich.
+    explanation: "Erst {{u}} wegnehmen: {{a}}x = {{a * b}}. Dann durch {{a}} teilen: x = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3]", b: "int[2,4]", u: "int[1,4]" }
+      constraints: ["a * b + u <= 16"]
+      defaults: { a: 3, b: 4, u: 2 }
+
+  - kind: problem
+    id: erster-schritt
+    widget: choice
+    prompt: "Bei $3x + 2 = 14$: Was ist der beste erste Schritt?"
+    params:
+      options:
+        - label: Auf beiden Seiten 2 wegnehmen
+          correct: true
+        - label: Beide Seiten durch 3 teilen
+          feedback: Das geht nicht glatt – die 2 lässt sich nicht in 3 gleiche Teile teilen. Erst die 2 weg.
+        - label: Links alle Kisten wegnehmen
+          feedback: Dann wäre x verschwunden – und rechts fehlt der Ausgleich.
+    hints:
+      - Was stört, damit nur noch Kisten links liegen?
+    explanation: "Erst 2 wegnehmen (3x = 12), dann durch 3 teilen (x = 4)."
+
+  - kind: problem
+    id: teilen-rechnen
+    widget: numeric
+    prompt: "Löse: ${{a}}x = {{a * b}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "numval(state.input) == a * b - a"
+        misconception: subtract-instead-of-divide
+        text: "Du hast {{a}} abgezogen. Aber {{a}}x heißt {{a}} · x – das machst du mit Teilen rückgängig."
+    hints:
+      - "{{a}}x bedeutet: {{a}} Kisten. Wie schwer ist eine?"
+      - "Teile {{a * b}} durch {{a}}."
+    explanation: "Beide Seiten durch {{a}}: x = {{a * b}} : {{a}} = {{b}}."
+    variants:
+      params: { a: "choice[2,3,4,5]", b: "int[2,9]" }
+      constraints: ["a * b - a != b"]
+      defaults: { a: 4, b: 6 }
+
+  - kind: problem
+    id: reihenfolge
+    widget: order
+    prompt: "Bringe die Lösungsschritte für $2x + 6 = 14$ in die richtige Reihenfolge."
+    params:
+      items:
+        - label: "2x + 6 = 14"
+        - label: "2x = 8"
+        - label: "x = 4"
+        - label: "Probe: 2 · 4 + 6 = 14 ✓"
+      startLabel: Anfang
+      endLabel: Ende
+    hints:
+      - Was fällt zuerst weg – die 6 oder die 2 vor dem x?
+    explanation: Erst 6 wegnehmen, dann durch 2 teilen. Die Probe kommt am Schluss.
+
+  - kind: problem
+    id: zwei-schritte
+    widget: numeric
+    prompt: "Löse: ${{a}}x + {{u}} = {{a * b + u}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "approx(numval(state.input), (a * b + u) / a - u)"
+        misconception: wrong-order
+        text: Du hast zuerst geteilt und dann {{u}} abgezogen. Nimm zuerst die {{u}} weg, dann teile.
+    hints:
+      - Nimm zuerst die {{u}} auf beiden Seiten weg.
+      - "Dann bleibt {{a}}x = {{a * b}}. Jetzt teilen."
+    explanation: "{{a}}x + {{u}} = {{a * b + u}} → {{a}}x = {{a * b}} → x = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "choice[2,3,4,5]", b: "int[1,9]", u: "int[1,9]" }
+      defaults: { a: 5, b: 3, u: 4 }
+
+srs:
+  cards_from: ["steps[2]", "steps[6]"]

@@ -1,0 +1,64 @@
+id: alg.functions.everyday
+type: concept
+title: Tarife als Geraden
+summary: Grundpreis plus Preis pro Einheit.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: taxi
+    widget: slider
+    prompt: Ein Taxi kostet 3 € Grundpreis und 1 € pro km. Stelle die Gerade passend ein.
+    params:
+      expr: "m*x + b"
+      x: [0, 6]
+      y: [0, 8]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: "€ pro km", min: 0, max: 2, step: 0.5, initial: 2 }
+        - { id: b, label: Grundpreis, min: 0, max: 5, step: 1, initial: 0 }
+      markers: [{ x: 0, y: 3, label: Start }, { x: 4, y: 7, label: "4 km" }]
+    answer: { values: { m: 1, b: 3 } }
+    hints:
+      - Der Grundpreis ist die Höhe bei 0 km.
+    explanation: y = 1 · x + 3. Die Steigung ist der Preis pro km, der Startwert der Grundpreis.
+
+  - kind: explain
+    body: |
+      Viele Tarife sind **lineare Funktionen**: y = m · x + b.
+      m ist der Preis pro Einheit, b der feste Grundpreis.
+
+  - kind: problem
+    id: kosten
+    widget: numeric
+    prompt: Ein Handytarif kostet {{b}} € plus {{m}} € pro GB. Was kosten {{x}} GB?
+    params: { unit: "€" }
+    answer: { value: "{{b + m * x}}" }
+    feedback:
+      - when: "numval(state.input) == m * x"
+        misconception: forget-base
+        text: Der Grundpreis kommt noch dazu.
+    hints:
+      - "{{b}} + {{m}} · {{x}}."
+    explanation: "{{b}} + {{m * x}} = {{b + m * x}} €."
+    variants:
+      params: { b: "choice[5,8,10]", m: "choice[2,3,4]", x: "int[2,8]" }
+      defaults: { b: 5, m: 2, x: 4 }
+
+  - kind: problem
+    id: steigung
+    widget: choice
+    prompt: Zwei Tarife haben denselben Grundpreis. Welcher wird bei viel Nutzung teurer?
+    params:
+      options:
+        - { label: Der mit der steileren Geraden, correct: true }
+        - { label: Der mit der flacheren Geraden, feedback: "Flacher heißt: jede weitere Einheit kostet weniger." }
+        - { label: Beide gleich, feedback: "Nur am Anfang – danach trennen sich die Geraden." }
+    hints:
+      - Was bedeutet die Steigung hier?
+    explanation: Die Steigung ist der Preis pro Einheit. Steiler heißt teurer pro Einheit.
+
+srs:
+  cards_from: [kosten, steigung]

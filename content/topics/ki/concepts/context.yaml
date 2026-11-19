@@ -1,0 +1,55 @@
+id: ai.llm.context
+type: concept
+title: Was die KI gerade sieht
+summary: Training, Kontextfenster und Wissenslücken.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Ein Modell weiß zweierlei: was es im **Training** gelernt hat und was im **Kontextfenster** steht – also im aktuellen Gespräch. Alles andere kennt es nicht.
+
+  - kind: problem
+    id: woher
+    widget: buckets
+    prompt: Woher kann die KI das wissen?
+    params:
+      buckets: [{ label: aus dem Training }, { label: nur aus dem Gespräch }]
+      items:
+        - { label: Die Hauptstadt von Frankreich, bucket: aus dem Training }
+        - { label: Wie Photosynthese funktioniert, bucket: aus dem Training }
+        - { label: Was in deiner letzten E-Mail stand, bucket: nur aus dem Gespräch }
+        - { label: Deine Termine für morgen, bucket: nur aus dem Gespräch }
+    hints:
+      - Steht das irgendwo öffentlich und dauerhaft?
+    explanation: Persönliches und Neues muss man der KI mitgeben.
+
+  - kind: problem
+    id: woerter
+    widget: numeric
+    prompt: Ein Token ist im Schnitt etwa ¾ Wort. Wie viele Wörter passen etwa in {{t}} Tokens?
+    params: { unit: Wörter }
+    answer: { value: "{{t * 3 / 4}}" }
+    hints:
+      - "{{t}} · 3 : 4."
+    explanation: "Etwa {{t * 3 / 4}} Wörter."
+    variants:
+      params: { t: "choice[4000,8000,32000,200000]" }
+      defaults: { t: 8000 }
+
+  - kind: problem
+    id: neu
+    widget: choice
+    prompt: Die KI kennt ein Ereignis von letzter Woche nicht. Warum?
+    params:
+      options:
+        - { label: Ihr Training endete vorher., correct: true }
+        - { label: Sie verschweigt es absichtlich., feedback: "Sie kann es schlicht nicht wissen – außer man gibt es ihr." }
+    hints:
+      - Wann wurde das Modell trainiert?
+    explanation: Jedes Modell hat einen Wissensstand. Neues kommt nur über das Gespräch oder eine Suche hinzu.
+
+srs:
+  cards_from: [woher, neu]

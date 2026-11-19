@@ -1,0 +1,82 @@
+id: math.money.interest
+type: concept
+title: Zinsen und Zinseszins
+summary: Wenn Zinsen selbst Zinsen bringen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: ein-jahr
+    widget: numeric
+    prompt: Du legst {{k}} € zu {{p}} % Zinsen im Jahr an. Wie viel Zinsen bekommst du nach einem Jahr?
+    params: { unit: "€" }
+    answer: { value: "{{k * p / 100}}" }
+    feedback:
+      - when: "numval(state.input) == k + k * p / 100"
+        misconception: total-not-interest
+        text: Das ist das ganze Guthaben. Gefragt sind nur die Zinsen.
+    hints:
+      - "{{p}} % von {{k}} € – also {{k}} · {{p}} / 100."
+    explanation: "{{p}} % von {{k}} € sind {{k * p / 100}} €."
+    variants:
+      params: { k: "choice[500,1000,2000,5000]", p: "choice[2,3,4,5]" }
+      defaults: { k: 1000, p: 3 }
+
+  - kind: explain
+    body: |
+      **Zinseszins** – die Zinsen bleiben auf dem Konto und werden mitverzinst.
+      Nach n Jahren hat man $K \cdot (1 + p/100)^n$.
+
+  - kind: problem
+    id: zwei-jahre
+    widget: numeric
+    prompt: 1000 € liegen 2 Jahre lang bei 10 % Zinsen. Die Zinsen bleiben drauf. Wie viel hast du am Ende?
+    params: { unit: "€" }
+    answer: { value: 1210 }
+    feedback:
+      - when: "numval(state.input) == 1200"
+        misconception: simple-interest
+        text: Das wäre ohne Zinseszins. Im zweiten Jahr gibt es 10 % auf 1100 €.
+    hints:
+      - "Jahr 1: 1000 € + 100 €. Jahr 2: 10 % auf das neue Guthaben."
+    explanation: 1100 € + 110 € = 1210 €.
+
+  - kind: problem
+    id: n-jahre
+    widget: numeric
+    prompt: Wie viel werden {{k}} € nach {{n}} Jahren bei {{p}} % Zinseszins? Runde auf ganze Euro.
+    params: { unit: "€" }
+    answer: { value: "{{round(k * (1 + p / 100) ** n)}}", tolerance: 1 }
+    feedback:
+      - when: "abs(numval(state.input) - (k + k * p / 100 * n)) < 1 && n > 1"
+        misconception: simple-interest
+        text: Das ist ohne Zinseszins gerechnet. Nimm den Faktor {{1 + p / 100}} insgesamt {{n}}-mal.
+    hints:
+      - "Rechne {{k}} · {{1 + p / 100}} hoch {{n}}."
+    explanation: "{{k}} · {{1 + p / 100}}^{{n}} ≈ {{round(k * (1 + p / 100) ** n)}} €."
+    variants:
+      params: { k: "choice[1000,2000,5000]", p: "choice[2,4,5]", n: "choice[2,3]" }
+      defaults: { k: 2000, p: 5, n: 3 }
+
+  - kind: explain
+    body: Zwei Menschen legen monatlich 100 € zu 5 % an. Eine beginnt mit 25, einer mit 35. Was haben sie mit 65?
+    reveal:
+      body: Die Frühstarterin hat rund 148 000 €, der Spätstarter rund 82 000 €. Sie hat nur 12 000 € mehr eingezahlt. Der Rest ist Zinseszins.
+
+  - kind: problem
+    id: frueh
+    widget: choice
+    prompt: Was bringt beim Zinseszins am meisten?
+    params:
+      options:
+        - { label: Früh anfangen, correct: true }
+        - { label: Oft das Konto wechseln, feedback: "Das bringt selten viel. Entscheidend ist die Zeit." }
+        - { label: Zinsen jedes Jahr abheben, feedback: "Dann fehlt genau der Zinseszins." }
+    hints:
+      - Was steht beim Zinseszins im Exponenten?
+    explanation: Die Zeit steht im Exponenten. Jedes Jahr mehr wirkt wie ein weiterer Faktor.
+
+srs:
+  cards_from: [ein-jahr, zwei-jahre]

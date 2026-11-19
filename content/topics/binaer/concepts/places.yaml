@@ -1,0 +1,84 @@
+id: cs.binary.places
+type: concept
+title: Stellenwerte mit 0 und 1
+summary: Jede Stelle ist doppelt so viel wert.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fuenf
+    widget: bits
+    prompt: Schalte die Lampen so, dass zusammen genau 5 herauskommt.
+    params: { bits: 3 }
+    answer: { value: 5 }
+    hints:
+      - Die Lampen zählen 4, 2 und 1.
+    explanation: 4 + 1 = 5. Binär schreibt man das als 101.
+
+  - kind: explain
+    body: |
+      Jede Stelle ist **doppelt so viel wert** wie die rechts daneben: 1, 2, 4, 8 …
+      Eine Stelle ist an (1) oder aus (0). Probier es aus.
+    visual: { widget: bits, interactive: true, params: { bits: 4, initial: "1010" } }
+
+  - kind: problem
+    id: einstellen
+    widget: bits
+    prompt: Stelle die Zahl {{n}} ein – diesmal ohne Anzeige.
+    params: { bits: 4, showValue: false }
+    answer: { value: "{{n}}" }
+    hints:
+      - Beginne links mit der größten Stelle, die noch passt.
+      - "Ziehe sie von {{n}} ab und mach mit dem Rest weiter."
+    explanation: "{{n}} = {{bin(n)}} im Zweiersystem."
+    variants:
+      params: { n: "int[3,15]" }
+      defaults: { n: 11 }
+
+  - kind: problem
+    id: lesen
+    widget: numeric
+    prompt: Welche Zahl steht binär als 1101 da?
+    params: { placeholder: "Dezimalzahl" }
+    answer: { value: 13 }
+    feedback:
+      - when: "numval(state.input) == 1101"
+        misconception: decimal-reading
+        text: Das ist die Lesart im Zehnersystem. Rechne mit 8, 4, 2 und 1.
+    hints:
+      - Die Stellen sind von rechts 1, 2, 4 und 8 wert.
+    explanation: 8 + 4 + 0 + 1 = 13.
+
+  - kind: explain
+    body: Mit 4 Bits kommst du bis 15. Wie weit kommst du mit 8 Bits?
+    reveal:
+      body: Bis 255. Jedes neue Bit verdoppelt die Möglichkeiten. Mit 8 Bits sind es $2^8 = 256$ Werte – von 0 bis 255.
+
+  - kind: problem
+    id: werte
+    widget: choice
+    prompt: Wie viele verschiedene Werte passen in 5 Bits?
+    params:
+      options:
+        - { label: "32", correct: true }
+        - { label: "31", feedback: "31 ist der größte Wert. Die 0 zählt aber mit." }
+        - { label: "25", feedback: "Das wäre 5 · 5. Bits verdoppeln sich aber." }
+        - { label: "10", feedback: "Jedes Bit verdoppelt, statt nur 2 dazuzuzählen." }
+    hints:
+      - 1 Bit hat 2 Werte, 2 Bits haben 4 Werte …
+    explanation: $2^5 = 32$ Werte, nämlich 0 bis 31.
+
+  - kind: problem
+    id: maximum
+    widget: bits
+    prompt: Stelle die größte Zahl ein, die in 6 Bits passt.
+    params: { bits: 6, showValue: false }
+    answer: { value: 63 }
+    hints:
+      - Welche Lampen müssen dafür an sein?
+    explanation: Alle sechs an – 32 + 16 + 8 + 4 + 2 + 1 = 63.
+
+srs:
+  cards_from: [einstellen, lesen]

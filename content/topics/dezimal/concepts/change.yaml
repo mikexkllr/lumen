@@ -1,0 +1,95 @@
+id: math.decimals.change
+type: concept
+title: Rabatt und Zuwachs
+summary: Prozente beziehen sich immer auf einen Grundwert.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [pct.change]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: jacke
+    widget: numeric
+    prompt: Eine Jacke kostet 80 €. Sie ist um 25 % reduziert. Was kostet sie jetzt?
+    params: { unit: "€" }
+    answer: { value: 60 }
+    feedback:
+      - when: "numval(state.input) == 20"
+        misconception: discount-only
+        text: 20 € ist der Rabatt. Zieh ihn noch vom alten Preis ab.
+    hints:
+      - 25 % sind ein Viertel.
+      - Ein Viertel von 80 € sind 20 €.
+    explanation: 80 € − 20 € = 60 €.
+
+  - kind: explain
+    body: |
+      Reduziert um 25 % heißt – du zahlst noch **75 %**.
+      Rechne also direkt $80 € \cdot 0{,}75 = 60 €$.
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: Ein Rad kostet {{g}} €. Es gibt {{p}} % Rabatt. Was kostet es jetzt?
+    params: { unit: "€" }
+    answer: { value: "{{g * (100 - p) / 100}}" }
+    feedback:
+      - when: "numval(state.input) == g * p / 100"
+        misconception: discount-only
+        text: Das ist nur der Rabatt. Der neue Preis ist {{g}} € minus Rabatt.
+    hints:
+      - "Du zahlst {{100 - p}} %."
+    explanation: "{{g}} € · {{(100 - p) / 100}} = {{g * (100 - p) / 100}} €."
+    variants:
+      params: { p: "choice[10,20,25,30,40]", g: "choice[40,60,80,120,200]" }
+      constraints: ["isInt(g * p / 100)"]
+      defaults: { g: 120, p: 20 }
+
+  - kind: problem
+    id: anstieg
+    widget: numeric
+    prompt: Ein Preis steigt von 50 € auf 60 €. Um wie viel Prozent?
+    params: { unit: "%" }
+    answer: { value: 20 }
+    feedback:
+      - when: "numval(state.input) == 10"
+        misconception: absolute-vs-relative
+        text: 10 € ist der Anstieg in Euro. Wie viel Prozent von 50 € sind das?
+    hints:
+      - Der Anstieg sind 10 €.
+      - 10 von 50 – wie viel Prozent?
+    explanation: 10/50 = 0,2 = 20 %.
+
+  - kind: problem
+    id: hin-und-zurueck
+    widget: choice
+    prompt: Ein Preis steigt um 10 % und sinkt danach um 10 %. Ist er wieder gleich?
+    params:
+      options:
+        - { label: "Nein, etwas niedriger", correct: true }
+        - { label: "Ja, genau gleich", feedback: "Die −10 % beziehen sich auf den höheren Preis. Aus 100 werden 110 und dann 99." }
+        - { label: "Nein, etwas höher", feedback: "Probiere es mit 100 € aus: 110 €, dann 99 €." }
+    hints:
+      - Rechne mit 100 € als Start.
+    explanation: 100 → 110 → 110 − 11 = 99.
+    difficulty: 2
+
+  - kind: problem
+    id: rueckwaerts
+    widget: numeric
+    prompt: Ein Handy kostet nach 20 % Rabatt 240 €. Was war der alte Preis?
+    params: { unit: "€" }
+    answer: { value: 300 }
+    feedback:
+      - when: "numval(state.input) == 288"
+        misconception: base-confusion
+        text: Die 240 € sind schon 80 % des alten Preises – nicht 100 %.
+    hints:
+      - 240 € sind 80 % des alten Preises.
+      - "1 % sind 240 € : 80 = 3 €."
+    explanation: "240 € : 0,8 = 300 €."
+    difficulty: 3
+
+srs:
+  cards_from: ["steps[2]"]

@@ -1,0 +1,82 @@
+id: math.money.loans
+type: concept
+title: Raten, Kredite und Rabatte
+summary: Den wahren Preis erkennen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: raten
+    widget: numeric
+    prompt: Ein Gerät kostet {{p}} € – oder {{n}} Raten zu {{r}} €. Wie viel zahlst du mit Raten mehr?
+    params: { unit: "€" }
+    answer: { value: "{{n * r - p}}" }
+    feedback:
+      - when: "numval(state.input) == n * r"
+        misconception: total-not-extra
+        text: Das ist der Gesamtpreis. Gefragt ist der Aufpreis.
+    hints:
+      - "Rechne erst {{n}} · {{r}} aus."
+    explanation: "{{n}} · {{r}} € = {{n * r}} €, also {{n * r - p}} € mehr."
+    variants:
+      params: { p: "choice[480,600,900]", n: "choice[12,24]" }
+      derive: { r: "ceil(p * 1.15 / n)" }
+      defaults: { p: 600, n: 24 }
+
+  - kind: explain
+    body: |
+      Der **effektive Jahreszins** zeigt die wahren Kosten eines Kredits – mit allen Gebühren.
+      Nur er macht Angebote vergleichbar.
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    prompt: Du leihst 1000 € für ein Jahr. Was ist billiger?
+    params:
+      options:
+        - { label: B – 6 % effektiver Jahreszins, correct: true }
+        - { label: A – 0 % Zins und 99 € Gebühr, feedback: "99 € auf 1000 € sind fast 10 %. Null Prozent heißt nicht kostenlos." }
+        - { label: Beide gleich, feedback: "Rechne beide Kosten in Euro aus." }
+    hints:
+      - Wie viel Euro kostet jedes Angebot?
+    explanation: B kostet rund 60 €, A kostet 99 €.
+
+  - kind: explain
+    body: |
+      **Rabatt-Falle:** Erst plus 25 %, dann »20 % Rabatt«. Der Preis ist wieder genau gleich.
+      Die Prozente beziehen sich auf verschiedene Grundwerte.
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: Ein Shop erhöht {{p}} € um 25 % und gibt dann 20 % Rabatt. Was kostet es jetzt?
+    params: { unit: "€" }
+    answer: { value: "{{p}}" }
+    feedback:
+      - when: "numval(state.input) == p * 1.05"
+        misconception: add-percents
+        text: Die 20 % beziehen sich auf den erhöhten Preis.
+    hints:
+      - "Erst {{p}} · 1,25 rechnen, dann mal 0,8."
+    explanation: "{{p}} · 1,25 · 0,8 = {{p}} €. Der »Rabatt« macht nur die Erhöhung rückgängig."
+    variants:
+      params: { p: "choice[40,80,120,200]" }
+      defaults: { p: 80 }
+
+  - kind: problem
+    id: tilgung
+    widget: numeric
+    prompt: Du leihst dir {{s}} € ohne Zinsen und zahlst {{r}} € im Monat zurück. Wie viele Monate dauert es?
+    params: { unit: Monate }
+    answer: { value: "{{s / r}}" }
+    hints:
+      - "Wie oft passt {{r}} in {{s}}?"
+    explanation: "{{s}} : {{r}} = {{s / r}} Monate."
+    variants:
+      params: { s: "choice[900,1200,1500,1800]", r: "choice[50,75,100]" }
+      defaults: { s: 1200, r: 75 }
+
+srs:
+  cards_from: [raten, rabatt]

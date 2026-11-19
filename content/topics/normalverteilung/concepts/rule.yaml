@@ -1,0 +1,58 @@
+id: stats.normal.rule
+type: concept
+title: Die 68-95-99,7-Regel
+summary: Was typisch ist und was selten.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Bei einer Normalverteilung gilt die Faustregel: **68 %** liegen innerhalb von 1 σ um den Mittelwert, **95 %** innerhalb von 2 σ und **99,7 %** innerhalb von 3 σ.
+
+  - kind: problem
+    id: iq
+    widget: numeric
+    prompt: IQ-Werte haben den Mittelwert 100 und σ = 15. Wie viel Prozent liegen zwischen 70 und 130?
+    params: { unit: "%" }
+    answer: { value: 95 }
+    feedback:
+      - when: "numval(state.input) == 68"
+        misconception: one-sigma
+        text: 70 und 130 sind zwei σ vom Mittelwert entfernt, nicht eins.
+    hints:
+      - Wie viele σ sind 30 Punkte?
+    explanation: 30 Punkte sind 2 σ – also etwa 95 %.
+
+  - kind: problem
+    id: oben
+    widget: numeric
+    prompt: Wie viel Prozent haben dann einen IQ über 130?
+    params: { unit: "%" }
+    answer: { value: 2.5 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: both-tails
+        text: 5 % liegen außerhalb – aber verteilt auf beide Seiten.
+    hints:
+      - 5 % liegen außerhalb, je zur Hälfte unten und oben.
+    explanation: 100 − 95 = 5 %, davon die Hälfte oben – 2,5 %.
+
+  - kind: problem
+    id: selten
+    widget: buckets
+    prompt: Mittelwert 100, σ = 15. Üblich oder sehr selten?
+    params:
+      buckets: [{ label: üblich }, { label: sehr selten }]
+      items:
+        - { label: "110", bucket: üblich }
+        - { label: "92", bucket: üblich }
+        - { label: "149", bucket: sehr selten }
+        - { label: "52", bucket: sehr selten }
+    hints:
+      - Wie viele σ ist der Wert vom Mittelwert entfernt?
+    explanation: 149 und 52 liegen mehr als 3 σ entfernt – das passiert seltener als 3 von 1000 Mal.
+
+srs:
+  cards_from: [iq, oben]

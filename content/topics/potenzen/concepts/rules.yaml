@@ -1,0 +1,88 @@
+id: math.powers.rules
+type: concept
+title: Potenzregeln
+summary: Addieren, multiplizieren, abziehen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: mal
+    widget: numeric
+    prompt: Ergänze den Exponenten. ${{b}}^{{m}} \cdot {{b}}^{{n}} = {{b}}^{?}$
+    params: { placeholder: "?" }
+    answer: { value: "{{m + n}}" }
+    feedback:
+      - when: "numval(state.input) == m * n"
+        misconception: multiply-exponents
+        text: Zähle die Faktoren. Es sind {{m}} plus {{n}} gleiche Zahlen.
+    hints:
+      - Schreib beide Potenzen als Produkte aus.
+    explanation: "{{m}} + {{n}} = {{m + n}} Faktoren."
+    variants:
+      params: { b: "choice[2,3,5,10]", m: "int[2,6]", n: "int[2,6]" }
+      constraints: ["m * n != m + n"]
+      defaults: { b: 2, m: 3, n: 4 }
+
+  - kind: explain
+    body: |
+      **Gleiche Basis malnehmen:** Exponenten addieren. $2^3 \cdot 2^4 = 2^7$ – das sind 3 + 4 Zweien.
+      **Potenz hoch nehmen:** Exponenten malnehmen. $(2^3)^2 = 2^6$.
+
+  - kind: problem
+    id: hoch
+    widget: numeric
+    prompt: Ergänze den Exponenten. $({{b}}^{{m}})^{{n}} = {{b}}^{?}$
+    params: { placeholder: "?" }
+    answer: { value: "{{m * n}}" }
+    feedback:
+      - when: "numval(state.input) == m + n"
+        misconception: add-exponents
+        text: Hier wird die ganze Potenz {{n}}-mal genommen. Also malnehmen.
+    hints:
+      - "Schreib es aus: {{n}} Klammern, in jeder {{m}} Faktoren."
+    explanation: "{{n}} · {{m}} = {{m * n}}."
+    variants:
+      params: { b: "choice[2,3,7]", m: "int[2,4]", n: "int[2,4]" }
+      constraints: ["m * n != m + n"]
+      defaults: { b: 3, m: 2, n: 3 }
+
+  - kind: explain
+    body: |
+      **Teilen** zieht ab: $5^6 : 5^2 = 5^4$.
+      Darum gilt auch $5^2 : 5^2 = 5^0 = 1$. Jede Zahl hoch 0 ist 1.
+
+  - kind: problem
+    id: hoch-null
+    widget: choice
+    prompt: Was ist $7^0$?
+    params:
+      layout: grid
+      options:
+        - { label: "1", correct: true }
+        - { label: "0", feedback: "Hoch 0 heißt nicht »gar nichts«. Denk an $7^2 : 7^2$." }
+        - { label: "7", feedback: "Das wäre $7^1$." }
+    hints:
+      - Was ergibt eine Zahl geteilt durch sich selbst?
+    explanation: "$7^0 = 7^1 : 7^1 = 1$."
+
+  - kind: problem
+    id: teilen
+    widget: numeric
+    prompt: "Ergänze den Exponenten. $10^{{a}} : 10^{{b}} = 10^{?}$"
+    params: { placeholder: "?" }
+    answer: { value: "{{a - b}}" }
+    feedback:
+      - when: "numval(state.input) == a + b"
+        misconception: add-on-divide
+        text: Beim Teilen wird abgezogen.
+    hints:
+      - Beim Teilen kürzen sich {{b}} Zehner weg.
+    explanation: "{{a}} − {{b}} = {{a - b}}."
+    variants:
+      params: { a: "int[5,9]", b: "int[1,4]" }
+      defaults: { a: 7, b: 3 }
+
+srs:
+  cards_from: [mal, hoch]

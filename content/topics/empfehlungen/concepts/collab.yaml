@@ -1,0 +1,57 @@
+id: ai.recommend.collab
+type: concept
+title: Leute wie du mochten auch …
+summary: Empfehlen aus dem Verhalten anderer.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: empfehlen
+    widget: choice
+    body: Carla hat fast denselben Geschmack wie du. Sie liebt eine Serie, die du noch nicht kennst.
+    prompt: Was empfiehlt ein System dir wohl?
+    params:
+      options:
+        - { label: Genau diese Serie, correct: true }
+        - { label: Die meistgesehene Serie überhaupt, feedback: "Das wäre eine einfache Bestenliste – ohne Bezug zu dir." }
+        - { label: "Eine Serie, die Carla nicht mag", feedback: "Ihr Geschmack ist ja deinem ähnlich." }
+    hints:
+      - Wofür hat das System eben Ähnlichkeit gemessen?
+    explanation: Das nennt man **kollaboratives Filtern** – ähnliche Menschen helfen sich gegenseitig, ohne es zu wissen.
+
+  - kind: explain
+    body: |
+      Es gibt zwei Grundideen. **Inhaltsbasiert** – du mochtest Krimis, hier ist noch ein Krimi.
+      **Kollaborativ** – Menschen wie du mochten auch das.
+
+  - kind: problem
+    id: art
+    widget: buckets
+    prompt: Inhaltsbasiert oder kollaborativ?
+    params:
+      buckets: [{ label: inhaltsbasiert }, { label: kollaborativ }]
+      items:
+        - { label: Mehr vom selben Regisseur, bucket: inhaltsbasiert }
+        - { label: Ein Song im gleichen Tempo, bucket: inhaltsbasiert }
+        - { label: "Wer das kaufte, kaufte auch …", bucket: kollaborativ }
+        - { label: Beliebt bei ähnlichen Hörern, bucket: kollaborativ }
+    hints:
+      - Geht es um Eigenschaften des Inhalts – oder um andere Menschen?
+    explanation: Viele Dienste mischen beides.
+
+  - kind: problem
+    id: kaltstart
+    widget: choice
+    prompt: Ein brandneuer Film hat noch keine einzige Bewertung. Welche Methode kann ihn trotzdem empfehlen?
+    params:
+      options:
+        - { label: Inhaltsbasiert, correct: true }
+        - { label: Kollaborativ, feedback: "Ohne Bewertungen weiß niemand, welche Menschen ihn mögen." }
+    hints:
+      - Was weiß man über einen Film ohne Zuschauer?
+    explanation: Das ist das **Kaltstart-Problem**. Merkmale wie Genre helfen, bis Bewertungen da sind.
+
+srs:
+  cards_from: [art, kaltstart]

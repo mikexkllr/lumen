@@ -1,0 +1,55 @@
+id: geo.circles.cylinder
+type: concept
+title: Zylinder und Dosen
+summary: Kreisfläche mal Höhe.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Ein **Zylinder** ist ein Stapel aus Kreisen. Sein Volumen ist Grundfläche mal Höhe: V = π · r² · h.
+
+  - kind: problem
+    id: dose
+    widget: numeric
+    prompt: Eine Dose hat den Radius {{r}} cm und die Höhe {{h}} cm. Wie groß ist ihr Volumen? Rechne mit π ≈ 3,14.
+    params: { unit: cm³ }
+    answer: { value: "{{3.14 * r * r * h}}", tolerance: 1 }
+    feedback:
+      - when: "abs(numval(state.input) - 2 * 3.14 * r * h) < 1"
+        misconception: perimeter-not-area
+        text: Für die Grundfläche brauchst du r², nicht 2 · r.
+    hints:
+      - "Grundfläche 3,14 · {{r}}² – dann mal {{h}}."
+    explanation: "3,14 · {{r * r}} · {{h}} ≈ {{3.14 * r * r * h}} cm³."
+    variants:
+      params: { r: "int[3,6]", h: "int[8,15]" }
+      defaults: { r: 4, h: 10 }
+
+  - kind: problem
+    id: doppelt
+    widget: choice
+    prompt: Eine Dose ist doppelt so breit wie eine andere, aber gleich hoch. Wie viel mehr passt hinein?
+    params:
+      options:
+        - { label: Viermal so viel, correct: true }
+        - { label: Doppelt so viel, feedback: "Der Radius steht im Quadrat." }
+        - { label: Achtmal so viel, feedback: "Die Höhe bleibt gleich – nur die Grundfläche wächst." }
+    hints:
+      - Doppelter Radius – was passiert mit r²?
+    explanation: Doppelter Radius, vierfache Grundfläche, vierfaches Volumen.
+
+  - kind: problem
+    id: liter
+    widget: numeric
+    prompt: Ein Rohr hat innen 10 cm Radius und ist 100 cm lang. Wie viele Liter passen hinein? π ≈ 3,14.
+    params: { unit: Liter }
+    answer: { value: 31.4, tolerance: 0.2 }
+    hints:
+      - Volumen in cm³, dann durch 1000.
+    explanation: 3,14 · 100 · 100 = 31 400 cm³ = 31,4 Liter.
+
+srs:
+  cards_from: [dose, doppelt]

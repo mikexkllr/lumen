@@ -1,0 +1,78 @@
+id: ai.llm.next
+type: concept
+title: Das nächste Wort vorhersagen
+summary: Ein Sprachmodell schätzt, welches Wort als nächstes kommt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.next]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: lueckensatz
+    widget: choice
+    body: Ein Satz bricht ab – »Zum Frühstück trinke ich gern eine Tasse …«
+    prompt: Welches Wort ist am wahrscheinlichsten?
+    params:
+      layout: grid
+      options:
+        - { label: Kaffee, correct: true }
+        - { label: Fahrrad, feedback: "Grammatisch geht das, aber es kommt in Texten so gut wie nie vor." }
+        - { label: Mond, feedback: "Eine Tasse Mond liest man fast nie." }
+        - { label: laufen, feedback: "Nach »eine Tasse« erwartet man ein Nomen, kein Verb." }
+    hints:
+      - Was liest man nach »eine Tasse« besonders oft?
+    explanation: In Texten folgt auf »eine Tasse« sehr oft ein Getränk.
+
+  - kind: explain
+    body: |
+      Ein Sprachmodell tut im Kern genau das. Es schätzt für jedes mögliche nächste Wort eine **Wahrscheinlichkeit**.
+      Gelernt hat es das aus riesigen Mengen Text.
+
+  - kind: explain
+    body: |
+      Probier es aus – ziehe ein paar Wörter. Meist kommt »Kaffee«, aber nicht immer.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        mode: tokens
+        context: Zum Frühstück trinke ich gern eine Tasse
+        items: [{ label: Kaffee, logit: 3.2 }, { label: Tee, logit: 2.8 }, { label: Kakao, logit: 1.6 }, { label: Milch, logit: 1.0 }, { label: Wasser, logit: 0.6 }]
+        sample: [1, 10]
+
+  - kind: problem
+    id: erwartung
+    widget: numeric
+    prompt: »Kaffee« hat eine Wahrscheinlichkeit von 45 %. Wie oft erwartest du »Kaffee« bei 200 Ziehungen?
+    answer: { value: 90 }
+    hints:
+      - 45 % von 200.
+    explanation: 0,45 · 200 = 90.
+
+  - kind: problem
+    id: verschieden
+    widget: choice
+    prompt: Warum gibt ein Chatbot auf dieselbe Frage manchmal verschiedene Antworten?
+    params:
+      options:
+        - { label: Er zieht Wörter zufällig nach ihren Wahrscheinlichkeiten, correct: true }
+        - { label: Er hat sich beim ersten Mal verhört, feedback: "Der Text kommt jedes Mal gleich an." }
+        - { label: Er sucht jedes Mal neu im Internet, feedback: "Das Grundprinzip ist die Wortvorhersage – nicht die Websuche." }
+    hints:
+      - Denk an das Ziehen eben.
+    explanation: Weil gezogen wird, kann jedes Mal ein anderes – wahrscheinliches – Wort kommen.
+
+  - kind: problem
+    id: ablauf
+    widget: order
+    prompt: Bring die Arbeitsschritte eines Sprachmodells in die richtige Reihenfolge.
+    params:
+      items:
+        - { label: Text in Tokens zerlegen }
+        - { label: Wahrscheinlichkeiten für das nächste Token berechnen }
+        - { label: Ein Token auswählen }
+        - { label: Token anhängen und von vorn }
+    hints:
+      - Am Ende beginnt alles wieder von vorn – mit einem Token mehr.
+    explanation: Zerlegen, Wahrscheinlichkeiten, Auswahl, anhängen – Wort für Wort.

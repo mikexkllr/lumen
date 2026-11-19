@@ -1,0 +1,57 @@
+id: stats.conditional.independence
+type: concept
+title: Unabhängig oder nicht?
+summary: Wenn das eine nichts über das andere verrät.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: einordnen
+    widget: buckets
+    prompt: Unabhängig oder abhängig?
+    params:
+      buckets: [{ label: unabhängig }, { label: abhängig }]
+      items:
+        - { label: Zwei Münzwürfe nacheinander, bucket: unabhängig }
+        - { label: Würfel und Wetter, bucket: unabhängig }
+        - { label: Regen und nasse Straße, bucket: abhängig }
+        - { label: Zwei Karten ohne Zurücklegen, bucket: abhängig }
+        - { label: Größe und Gewicht, bucket: abhängig }
+    hints:
+      - Ändert das Wissen über das eine die Chance des anderen?
+    explanation: Unabhängig heißt – das eine verrät nichts über das andere.
+
+  - kind: explain
+    body: |
+      Bei **unabhängigen** Ereignissen gilt P(A und B) = P(A) · P(B).
+      Sind sie abhängig, stimmt diese einfache Regel nicht mehr.
+
+  - kind: problem
+    id: beide
+    widget: numeric
+    prompt: "Es regnet mit 20 %. Unabhängig davon klingelt dein Wecker zu {{p}} % zu spät. Wie wahrscheinlich ist beides?"
+    params: { unit: "%" }
+    answer: { value: "{{20 * p / 100}}" }
+    hints:
+      - "0,2 · {{p / 100}}."
+    explanation: "0,2 · {{p / 100}} = {{20 * p / 10000}} – also {{20 * p / 100}} %."
+    variants:
+      params: { p: "choice[10,25,50]" }
+      defaults: { p: 10 }
+
+  - kind: problem
+    id: falle
+    widget: choice
+    prompt: 1 % der Häuser hatten einen Brand, 1 % einen defekten Rauchmelder. Ist »beides zugleich« dann 1 % · 1 % = 0,01 %?
+    params:
+      options:
+        - { label: Nur wenn beides unabhängig ist, correct: true }
+        - { label: "Ja, immer", feedback: "Hängen die Dinge zusammen, ist das Produkt falsch." }
+    hints:
+      - Könnte ein Defekt mit Bränden zusammenhängen?
+    explanation: Malnehmen darf man nur bei Unabhängigkeit. Das wird in Gutachten oft vergessen.
+
+srs:
+  cards_from: [einordnen, beide]

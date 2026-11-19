@@ -1,0 +1,75 @@
+id: math.combinatorics.order
+type: concept
+title: Reihenfolgen
+summary: Fakultät – das Ausrufezeichen der Mathematik.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: drei
+    widget: numeric
+    prompt: Drei Freunde stellen sich in eine Reihe. Wie viele Reihenfolgen gibt es?
+    params: { unit: Reihenfolgen }
+    answer: { value: 6 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: count-people
+        text: Schreib sie auf – ABC, ACB, BAC … das sind mehr als drei.
+    hints:
+      - Für Platz 1 gibt es 3 Möglichkeiten, dann noch 2, dann 1.
+    explanation: 3 · 2 · 1 = 6.
+
+  - kind: explain
+    body: |
+      Für n Dinge gibt es n · (n − 1) · … · 1 Reihenfolgen. Man schreibt **n!** und sagt »n Fakultät«.
+      5! = 5 · 4 · 3 · 2 · 1 = 120.
+
+  - kind: problem
+    id: fakultaet
+    widget: numeric
+    prompt: Wie viele Reihenfolgen gibt es für {{n}} Bücher im Regal?
+    params: { unit: Reihenfolgen }
+    answer: { value: "{{f}}" }
+    feedback:
+      - when: "numval(state.input) == n * n"
+        misconception: square
+        text: Mit jedem Platz wird die Auswahl kleiner. Rechne {{n}} · {{n - 1}} · …
+    hints:
+      - "{{n}} · {{n - 1}} · … · 1."
+    explanation: "{{n}}! = {{f}}."
+    variants:
+      params: { n: "choice[4,5,6,7]" }
+      derive: { f: "n == 4 ? 24 : n == 5 ? 120 : n == 6 ? 720 : 5040" }
+      defaults: { n: 5 }
+
+  - kind: problem
+    id: podium
+    widget: numeric
+    prompt: Beim Rennen fahren 8 Läufer. Wie viele Möglichkeiten gibt es für Gold, Silber und Bronze?
+    params: { unit: Möglichkeiten }
+    answer: { value: 336 }
+    feedback:
+      - when: "numval(state.input) == 40320"
+        misconception: full-factorial
+        text: Nur die ersten drei Plätze zählen. Hör nach drei Faktoren auf.
+    hints:
+      - 8 für Gold, dann 7 für Silber, dann 6 für Bronze.
+    explanation: 8 · 7 · 6 = 336.
+
+  - kind: problem
+    id: karten
+    widget: choice
+    prompt: Wie viele Reihenfolgen gibt es für ein gemischtes Kartenspiel mit 52 Karten?
+    params:
+      options:
+        - { label: Mehr als Atome auf der Erde, correct: true }
+        - { label: Etwa eine Million, feedback: "Viel mehr. 52! hat 68 Stellen." }
+        - { label: "52 · 52", feedback: "Das wäre mit Zurücklegen von nur zwei Karten." }
+    hints:
+      - 52! ist eine Zahl mit 68 Stellen.
+    explanation: 52! ≈ 8 · 10⁶⁷. Jede gut gemischte Reihenfolge gab es vermutlich noch nie.
+
+srs:
+  cards_from: [fakultaet, podium]

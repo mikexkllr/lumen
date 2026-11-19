@@ -1,0 +1,56 @@
+id: geo.circles.wheels
+type: concept
+title: Räder und Umdrehungen
+summary: Wie oft dreht sich ein Rad?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: umfang
+    widget: numeric
+    prompt: Ein Fahrradrad hat 70 cm Durchmesser. Wie weit rollt es bei einer Umdrehung? Rechne mit π ≈ 3,14.
+    params: { unit: cm }
+    answer: { value: 219.8, tolerance: 1 }
+    hints:
+      - Umfang = π · d.
+    explanation: 3,14 · 70 ≈ 220 cm – gut 2 Meter.
+
+  - kind: problem
+    id: umdrehungen
+    widget: numeric
+    prompt: Ein Rad legt pro Umdrehung {{u}} m zurück. Wie viele Umdrehungen braucht es für {{k}} km?
+    params: { unit: Umdrehungen }
+    answer: { value: "{{k * 1000 / u}}" }
+    hints:
+      - "{{k}} km sind {{k * 1000}} m."
+    explanation: "{{k * 1000}} m : {{u}} m = {{k * 1000 / u}} Umdrehungen."
+    variants:
+      params: { u: "choice[2,2.5,4]", k: "int[1,5]" }
+      defaults: { u: 2, k: 3 }
+
+  - kind: explain
+    body: Zwei Zahnräder greifen ineinander. Das große hat 40 Zähne, das kleine 10. Wie oft dreht sich das kleine, wenn das große einmal dreht?
+    reveal:
+      body: Viermal. Pro Umdrehung des großen wandern 40 Zähne vorbei – das kleine braucht dafür vier Runden. So funktionieren Fahrradgänge.
+
+  - kind: problem
+    id: gang
+    widget: numeric
+    prompt: Vorn hat das Fahrrad {{v}} Zähne, hinten {{h}}. Wie oft dreht sich das Hinterrad pro Pedal-Umdrehung?
+    params: { unit: "-mal" }
+    answer: { value: "{{v / h}}" }
+    feedback:
+      - when: "approx(numval(state.input), h / v)"
+        misconception: inverted
+        text: Andersherum – vorn geteilt durch hinten.
+    hints:
+      - "Vorn wandern {{v}} Zähne vorbei."
+    explanation: "{{v}} : {{h}} = {{v / h}} Umdrehungen."
+    variants:
+      params: { v: "choice[36,48]", h: "choice[12,16,24]" }
+      defaults: { v: 48, h: 16 }
+
+srs:
+  cards_from: [umdrehungen, gang]

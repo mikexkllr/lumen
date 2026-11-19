@@ -1,0 +1,88 @@
+id: geo.basics.area
+type: concept
+title: Flächeninhalt
+summary: Wie viele Einheitsquadrate passen hinein?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [geo.area]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: rechteck
+    widget: numeric
+    prompt: Ein Rechteck ist 7 m lang und 4 m breit. Wie groß ist seine Fläche?
+    params: { unit: "m²" }
+    answer: { value: 28 }
+    feedback:
+      - when: "numval(state.input) == 22"
+        misconception: area-perimeter
+        text: 22 m ist der Umfang. Die Fläche zählt die Quadrate darin – 7 Reihen mit je 4.
+    hints:
+      - Wie viele 1 × 1-Quadrate passen hinein?
+    explanation: 7 · 4 = 28 m².
+
+  - kind: explain
+    body: |
+      Fläche eines Rechtecks – **Länge mal Breite**.
+      Ein Dreieck ist halb so groß wie das Rechteck um es herum: $A = \frac{g \cdot h}{2}$.
+
+  - kind: problem
+    id: dreieck
+    widget: numeric
+    prompt: Ein Dreieck hat die Grundseite {{g}} cm und die Höhe {{h}} cm. Wie groß ist seine Fläche?
+    params: { unit: "cm²" }
+    answer: { value: "{{g * h / 2}}" }
+    feedback:
+      - when: "numval(state.input) == g * h"
+        misconception: triangle-half
+        text: Das ist das ganze Rechteck. Das Dreieck ist halb so groß.
+    hints:
+      - "Grundseite mal Höhe, durch 2."
+    explanation: "{{g}} · {{h}} : 2 = {{g * h / 2}} cm²."
+    variants:
+      params: { g: "int[3,12]", h: "int[2,10]" }
+      constraints: ["isInt(g * h / 2)"]
+      defaults: { g: 8, h: 5 }
+
+  - kind: problem
+    id: punkt-c
+    widget: graph
+    prompt: Ziehe C so, dass das Dreieck ABC die Fläche 6 hat.
+    params:
+      x: [-1, 5]
+      y: [-4, 4]
+      points: [{ id: A, x: 0, y: 0, draggable: false }, { id: B, x: 4, y: 0, draggable: false }, { id: C, x: 1, y: 1 }]
+      segments: [[A, B], [B, C], [C, A]]
+    check: { predicate: "abs(state.points.C.y) == 3" }
+    feedback:
+      - when: "abs(state.points.C.y) == 6 || abs(state.points.C.y) == 1.5"
+        text: "Die Grundseite ist 4 lang. Welche Höhe ergibt 4 · h : 2 = 6?"
+    hints:
+      - Die Grundseite AB ist 4 lang.
+      - "4 · h : 2 = 6 – also h = 3."
+    explanation: "Mit Höhe 3 gilt 4 · 3 : 2 = 6. Wo C waagerecht liegt, ist egal!"
+    difficulty: 2
+
+  - kind: problem
+    id: quadrat
+    widget: numeric
+    prompt: Ein Quadrat hat die Fläche 49 cm². Wie lang ist eine Seite?
+    params: { unit: cm }
+    answer: { value: 7 }
+    hints:
+      - Welche Zahl mal sich selbst ergibt 49?
+    explanation: 7 · 7 = 49.
+
+  - kind: problem
+    id: rechteck-bauen
+    widget: rect
+    prompt: Zieh ein Rechteck mit 12 m² Fläche und 14 m Umfang.
+    params: { maxW: 10, maxH: 8, w: 2, h: 2 }
+    check: { predicate: "area == 12 && perimeter == 14" }
+    hints:
+      - Welche Rechtecke haben 12 m²? Prüfe bei jedem den Umfang.
+    explanation: 4 × 3 – Fläche 12 m², Umfang 2 · (4 + 3) = 14 m.
+
+srs:
+  cards_from: ["steps[2]"]

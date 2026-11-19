@@ -1,0 +1,62 @@
+id: math.mental.percent
+type: concept
+title: Prozente im Kopf
+summary: Erst 10 %, dann den Rest.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zehn
+    widget: numeric
+    prompt: Wie viel sind 10 % von {{n}} €?
+    params: { unit: "€" }
+    answer: { value: "{{n / 10}}" }
+    hints:
+      - Komma eine Stelle nach links.
+    explanation: "{{n}} : 10 = {{n / 10}} €."
+    variants:
+      params: { n: "step[20,90,10]" }
+      defaults: { n: 60 }
+
+  - kind: explain
+    body: |
+      **Trick:** 10 % ist ein Zehntel. Daraus baust du alles: 5 % ist die Hälfte davon, 20 % das Doppelte, 15 % = 10 % + 5 %.
+
+  - kind: problem
+    id: trinkgeld
+    widget: numeric
+    prompt: Die Rechnung beträgt {{n}} €. Wie viel sind 15 % Trinkgeld?
+    params: { unit: "€" }
+    answer: { value: "{{n * 0.15}}" }
+    feedback:
+      - when: "numval(state.input) == n / 10"
+        misconception: ten-only
+        text: Das sind 10 %. Nimm die Hälfte davon noch dazu.
+    hints:
+      - "10 % sind {{n / 10}} €, 5 % sind {{n / 20}} €."
+    explanation: "{{n / 10}} + {{n / 20}} = {{n * 0.15}} €."
+    variants:
+      params: { n: "step[20,80,20]" }
+      defaults: { n: 40 }
+
+  - kind: problem
+    id: rabatt
+    widget: numeric
+    prompt: Eine Jacke kostet {{p}} €. Es gibt 30 % Rabatt. Was zahlst du?
+    params: { unit: "€" }
+    answer: { value: "{{p * 0.7}}" }
+    feedback:
+      - when: "numval(state.input) == p * 0.3"
+        misconception: discount-not-price
+        text: Das ist der Rabatt. Gefragt ist, was du noch zahlst.
+    hints:
+      - "Du zahlst 70 % – oder: 10 % sind {{p / 10}} €."
+    explanation: "{{p}} − {{p * 0.3}} = {{p * 0.7}} €."
+    variants:
+      params: { p: "step[40,200,20]" }
+      defaults: { p: 120 }
+
+srs:
+  cards_from: [trinkgeld, rabatt]

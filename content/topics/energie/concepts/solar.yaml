@@ -1,0 +1,53 @@
+id: sci.energy.solar
+type: concept
+title: Strom vom Dach
+summary: Was eine Solaranlage liefert.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Solaranlagen werden in **kWp** angegeben – Kilowatt Spitzenleistung. Faustregel für Deutschland: 1 kWp liefert etwa **1000 kWh** pro Jahr.
+
+  - kind: problem
+    id: ertrag
+    widget: numeric
+    prompt: Wie viele kWh liefert eine Anlage mit {{p}} kWp etwa im Jahr?
+    params: { unit: kWh }
+    answer: { value: "{{p * 1000}}" }
+    hints:
+      - 1000 kWh pro kWp.
+    explanation: "{{p}} · 1000 = {{p * 1000}} kWh."
+    variants:
+      params: { p: "int[3,12]" }
+      defaults: { p: 6 }
+
+  - kind: problem
+    id: bedarf
+    widget: numeric
+    prompt: Ein Haushalt braucht {{v}} kWh im Jahr. Wie viel kWp braucht er rechnerisch?
+    params: { unit: kWp }
+    answer: { value: "{{v / 1000}}" }
+    hints:
+      - Teile durch 1000.
+    explanation: "{{v}} : 1000 = {{v / 1000}} kWp."
+    variants:
+      params: { v: "choice[2500,3500,4000,4500]" }
+      defaults: { v: 3500 }
+
+  - kind: problem
+    id: speicher
+    widget: choice
+    prompt: Warum deckt so eine Anlage den Bedarf trotzdem nicht ganz?
+    params:
+      options:
+        - { label: "Strom wird oft gebraucht, wenn keine Sonne scheint.", correct: true }
+        - { label: Die Faustregel ist falsch., feedback: "Die Menge übers Jahr passt – das Problem ist der Zeitpunkt." }
+    hints:
+      - Wann kochst du, wann scheint die Sonne?
+    explanation: Abends und im Winter fehlt Sonne. Speicher und Netz gleichen das aus.
+
+srs:
+  cards_from: [ertrag, speicher]

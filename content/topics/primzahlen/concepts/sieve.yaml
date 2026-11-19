@@ -1,0 +1,73 @@
+id: math.primes.sieve
+type: concept
+title: Das Sieb des Eratosthenes
+summary: Primzahlen finden durch Streichen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: welche-prim
+    widget: choice
+    prompt: Welche dieser Zahlen ist eine Primzahl?
+    params:
+      layout: grid
+      options:
+        - { label: "53", correct: true }
+        - { label: "51", feedback: "51 = 3 · 17. Die Quersumme 6 verrät es." }
+        - { label: "57", feedback: "57 = 3 · 19." }
+        - { label: "91", feedback: "91 = 7 · 13 – eine beliebte Falle." }
+    hints:
+      - Prüfe die Teiler 3 und 7.
+    explanation: 53 hat nur die Teiler 1 und 53.
+
+  - kind: explain
+    body: |
+      Eine **Primzahl** hat genau zwei Teiler – die 1 und sich selbst.
+      Die 1 ist keine Primzahl. Sie hat nur einen Teiler.
+
+  - kind: explain
+    body: |
+      Das **Sieb des Eratosthenes:** Streiche alle Vielfachen von 2, dann von 3, dann von 5.
+      Was übrig bleibt, ist prim. Bis 30 genügen diese drei.
+
+  - kind: problem
+    id: sieb
+    widget: pixels
+    prompt: Markiere alle Primzahlen von 1 bis 30.
+    params: { numbers: { start: 1 }, cells: ["..........", "..........", ".........."], counter: true }
+    answer: { pattern: [".##.#.#...", "#.#...#.#.", "..#.....#."] }
+    feedback:
+      - when: "onLabels.includes(1)"
+        misconception: one-is-prime
+        text: Die 1 ist keine Primzahl. Sie hat nur einen Teiler.
+      - when: "onLabels.includes(9) || onLabels.includes(15) || onLabels.includes(21) || onLabels.includes(25) || onLabels.includes(27)"
+        misconception: odd-is-prime
+        text: Nicht jede ungerade Zahl ist prim. Prüfe die Vielfachen von 3 und 5.
+    hints:
+      - Von den geraden Zahlen ist nur die 2 prim.
+      - Streiche 9, 15, 21, 25 und 27.
+    explanation: 2, 3, 5, 7, 11, 13, 17, 19, 23 und 29 – zehn Primzahlen.
+
+  - kind: problem
+    id: bis-zwanzig
+    widget: numeric
+    prompt: Wie viele Primzahlen gibt es von 1 bis 20?
+    params: { unit: Primzahlen }
+    answer: { value: 8 }
+    feedback:
+      - when: "numval(state.input) == 9"
+        misconception: one-is-prime
+        text: Zählst du die 1 mit? Sie ist keine Primzahl.
+    hints:
+      - Nutze dein Sieb von eben.
+    explanation: 2, 3, 5, 7, 11, 13, 17 und 19.
+
+  - kind: explain
+    body: Gibt es eine größte Primzahl?
+    reveal:
+      body: Nein. Euklid bewies vor über 2000 Jahren, dass es unendlich viele gibt. Die größte bekannte hat über 41 Millionen Stellen.
+
+srs:
+  cards_from: [welche-prim, bis-zwanzig]

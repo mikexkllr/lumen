@@ -1,0 +1,116 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.slope
+type: concept
+title: Steigung erkunden
+summary: Ein Schritt nach rechts, m Schritte nach oben – das ist die Steigung.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.slope]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: durch-punkt
+    widget: slider
+    prompt: Stelle m so ein, dass die Gerade durch den Punkt (2 | 4) geht.
+    params:
+      expr: "m*x"
+      sliders: [{ id: m, label: m, min: -3, max: 3, step: 0.5, initial: 0.5 }]
+      markers: [{ x: 2, y: 4, label: Z }]
+    answer: { values: { m: 2 } }
+    hints:
+      - Beobachte, was beim Verschieben des Reglers passiert.
+      - Bei x = 2 soll y = 4 sein. Welches m passt zu m · 2 = 4?
+    explanation: m · 2 = 4, also m = 2.
+
+  - kind: explain
+    body: |
+      Die Zahl **m** heißt Steigung.
+      Gehst du 1 nach rechts, geht die Gerade m nach oben.
+      Bei m = 2 also 2 nach oben.
+    visual:
+      widget: slider
+      params:
+        expr: "m*x"
+        sliders: [{ id: m, label: m, min: -3, max: 3, step: 0.5, initial: 2 }]
+
+  - kind: problem
+    id: zielgerade
+    widget: slider
+    prompt: Lege deine Linie genau auf die gestrichelte Linie.
+    params:
+      expr: "m*x + b"
+      sliders:
+        - { id: m, label: m, min: -3, max: 3, step: 0.5, initial: 1 }
+        - { id: b, label: b, min: -4, max: 4, step: 1, initial: 0 }
+      target: { expr: "0.5x + 1" }
+    answer: { matchTarget: true }
+    feedback:
+      - when: "m == 0.5 && b != 1"
+        text: Die Steilheit passt schon. Jetzt verschiebe die Gerade mit b nach oben oder unten.
+      - when: "b == 1 && m != 0.5"
+        text: Der Schnittpunkt mit der y-Achse passt. Jetzt fehlt noch die richtige Steilheit.
+    hints:
+      - Wo schneidet die Zielgerade die y-Achse? Das ist b.
+      - Wie viel steigt sie pro Schritt nach rechts? Das ist m.
+    explanation: Die Zielgerade schneidet die y-Achse bei 1 und steigt pro Schritt um 0,5. Also m = 0,5 und b = 1.
+    difficulty: 2
+
+  - kind: problem
+    id: negativ
+    widget: choice
+    prompt: Was bewirkt ein negatives m?
+    params:
+      options:
+        - label: Die Gerade fällt von links nach rechts.
+          correct: true
+        - label: Die Gerade liegt unter der x-Achse.
+          feedback: Ob die Gerade oben oder unten liegt, hängt vor allem von b ab. m bestimmt die Richtung.
+        - label: Die Gerade wird steiler.
+          feedback: Steiler wird sie, wenn m weiter von 0 weg ist – egal ob positiv oder negativ.
+    hints:
+      - Probiere es oben mit dem Regler aus, oder stell dir m = −1 vor.
+    explanation: Bei negativem m geht es pro Schritt nach rechts nach unten. Die Gerade fällt.
+
+  - kind: problem
+    id: b-ziehen
+    widget: graph
+    prompt: Ziehe B so, dass die Gerade durch A und B die Steigung 2 hat.
+    params:
+      points: [{ id: A, x: -1, y: -1, draggable: false }, { id: B, x: 2, y: 0 }]
+      lines: [[A, B]]
+    check:
+      predicate: "slope('A', 'B') == 2"
+    feedback:
+      - when: "slope('A', 'B') == 0.5"
+        misconception: run-over-rise
+        text: Das ist Steigung 1/2. Du bist 2 nach rechts und 1 nach oben gegangen – umgekehrt wäre richtig.
+    hints:
+      - Steigung 2 heißt 1 nach rechts, 2 nach oben.
+      - Starte bei A (−1 | −1) und gehe 1 nach rechts und 2 nach oben.
+    explanation: Zum Beispiel B (0 | 1) – 1 nach rechts, 2 nach oben.
+    difficulty: 2
+
+  - kind: problem
+    id: steigung-berechnen
+    widget: numeric
+    prompt: "Eine Gerade geht durch (0 | {{b}}) und ({{d}} | {{b + m * d}}). Wie groß ist ihre Steigung?"
+    answer: { value: "{{m}}" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / m) && m != 1"
+        misconception: run-over-rise
+        text: Du hast umgekehrt geteilt. Steigung = Höhenunterschied geteilt durch Schritte nach rechts.
+      - when: "numval(state.input) == m * d && d != 1"
+        text: Das ist der ganze Höhenunterschied. Teile ihn noch durch die {{d}} Schritte nach rechts.
+    hints:
+      - Wie viel geht es nach oben? Wie viel nach rechts?
+      - "Steigung = {{m * d}} : {{d}}."
+    explanation: "Höhenunterschied {{m * d}}, Schritte nach rechts {{d}}. Steigung = {{m * d}} : {{d}} = {{m}}."
+    difficulty: 2
+    variants:
+      params: { m: "int[1,4]", b: "int[-2,2]", d: "choice[1,2,3]" }
+      constraints: ["b + m * d <= 12"]
+      defaults: { m: 3, b: 1, d: 2 }
+
+srs:
+  cards_from: ["steps[5]"]

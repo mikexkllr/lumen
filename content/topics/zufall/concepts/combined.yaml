@@ -1,0 +1,80 @@
+id: stats.prob.combined
+type: concept
+title: Zwei Ereignisse
+summary: Unabhängige Wahrscheinlichkeiten werden multipliziert.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [prob.combined]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: zweimal-kopf
+    widget: numeric
+    prompt: Du wirfst zwei Münzen. Wie groß ist die Wahrscheinlichkeit für zweimal Kopf?
+    params: { placeholder: "z. B. 1/3" }
+    answer: { value: "1/4" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / 2)"
+        misconception: single-event
+        text: Für zweimal Kopf müssen beide Würfe klappen – die Hälfte von der Hälfte.
+    hints:
+      - Schreib alle Möglichkeiten auf – KK, KZ, ZK, ZZ.
+    explanation: 1 von 4 gleich wahrscheinlichen Ergebnissen.
+
+  - kind: explain
+    body: |
+      Hängen zwei Würfe nicht voneinander ab, nimmst du die Chancen **mal**:
+      $P(\text{Kopf, Kopf}) = \frac{1}{2} \cdot \frac{1}{2} = \frac{1}{4}$.
+
+  - kind: problem
+    id: pasch
+    widget: numeric
+    prompt: Zwei Würfel – wie groß ist die Wahrscheinlichkeit für einen Pasch, also zwei gleiche Zahlen?
+    params: { placeholder: "z. B. 1/3" }
+    answer: { value: "1/6" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / 36)"
+        text: 1/36 ist die Chance für einen bestimmten Pasch, etwa zwei Sechsen. Es gibt aber sechs verschiedene.
+    hints:
+      - Es gibt 36 Kombinationen.
+      - Sechs davon sind Paschs.
+    explanation: 6 von 36 = 1/6.
+    difficulty: 2
+
+  - kind: problem
+    id: augensumme
+    widget: choice
+    prompt: Welche Augensumme ist mit zwei Würfeln am wahrscheinlichsten?
+    params:
+      layout: grid
+      options:
+        - { label: "7", correct: true }
+        - { label: "12", feedback: "12 geht nur mit 6 + 6 – eine einzige Kombination." }
+        - { label: "2", feedback: "2 geht nur mit 1 + 1." }
+        - { label: Alle gleich, feedback: "Zähle die Kombinationen – für 7 gibt es sechs, für 12 nur eine." }
+    hints:
+      - Für welche Summe gibt es die meisten Kombinationen?
+    explanation: 7 entsteht auf sechs Arten (1+6, 2+5, … 6+1).
+
+  - kind: problem
+    id: urne
+    widget: numeric
+    prompt: Eine Urne enthält {{r}} rote und {{b}} blaue Kugeln. Du ziehst zweimal mit Zurücklegen. Wie groß ist P(zweimal rot)?
+    params: { placeholder: "z. B. 4/25" }
+    answer: { value: "{{r * r}}/{{(r + b) * (r + b)}}" }
+    feedback:
+      - when: "approx(numval(state.input), 2 * r / (r + b))"
+        misconception: add-instead-of-multiply
+        text: Für »und« wird multipliziert, nicht addiert.
+    hints:
+      - "P(rot) = {{r}}/{{r + b}}."
+      - Zweimal hintereinander – malnehmen.
+    explanation: "{{r}}/{{r + b}} · {{r}}/{{r + b}} = {{r * r}}/{{(r + b) * (r + b)}}."
+    difficulty: 2
+    variants:
+      params: { r: "int[1,4]", b: "int[1,4]" }
+      defaults: { r: 2, b: 3 }
+
+srs:
+  cards_from: ["steps[4]"]

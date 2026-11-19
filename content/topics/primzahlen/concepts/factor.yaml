@@ -1,0 +1,84 @@
+id: math.primes.factor
+type: concept
+title: Primfaktoren, ggT und kgV
+summary: Jede Zahl hat einen Bauplan.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: zerlegung
+    widget: choice
+    prompt: Welche Zerlegung von 36 besteht nur aus Primzahlen?
+    params:
+      options:
+        - { label: "2 · 2 · 3 · 3", correct: true }
+        - { label: "4 · 9", feedback: "4 und 9 lassen sich noch weiter zerlegen." }
+        - { label: "6 · 6", feedback: "6 ist keine Primzahl – 6 = 2 · 3." }
+        - { label: "2 · 18", feedback: "18 ist keine Primzahl." }
+    hints:
+      - Zerlege so lange, bis nichts mehr geht.
+    explanation: 36 = 2 · 2 · 3 · 3. Weiter geht es nicht.
+
+  - kind: explain
+    body: |
+      Jede Zahl über 1 lässt sich **auf genau eine Art** in Primfaktoren zerlegen – wie ein Bauplan.
+      Zum Beispiel 60 = 2 · 2 · 3 · 5.
+
+  - kind: problem
+    id: fehlt
+    widget: numeric
+    prompt: "{{a}} = 2 · 2 · 5 · ? – welche Primzahl fehlt?"
+    params: { placeholder: "?" }
+    answer: { value: "{{x}}" }
+    hints:
+      - Teile {{a}} durch 20.
+    explanation: "{{a}} : 20 = {{x}}."
+    variants:
+      params: { x: "choice[3,7,11,13,17]" }
+      derive: { a: "20 * x" }
+      defaults: { x: 7 }
+
+  - kind: explain
+    body: |
+      Der **ggT** nimmt die gemeinsamen Primfaktoren.
+      12 = 2 · 2 · 3 und 18 = 2 · 3 · 3 teilen sich 2 · 3. Ihr ggT ist also 6.
+
+  - kind: problem
+    id: ggt
+    widget: numeric
+    prompt: Was ist der größte gemeinsame Teiler von {{a}} und {{b}}?
+    params: { placeholder: "ggT" }
+    answer: { value: "{{gcd(a, b)}}" }
+    feedback:
+      - when: "numval(state.input) == lcm(a, b)"
+        misconception: lcm-for-gcd
+        text: Das ist das kleinste gemeinsame Vielfache. Gesucht ist der größte Teiler.
+    hints:
+      - Zerlege beide Zahlen in Primfaktoren.
+    explanation: "ggT({{a}}, {{b}}) = {{gcd(a, b)}}."
+    variants:
+      params: { g: "int[2,7]", p: "choice[2,3,5]", q: "choice[7,11]" }
+      derive: { a: "g * p", b: "g * q" }
+      defaults: { g: 6, p: 2, q: 7 }
+
+  - kind: problem
+    id: busse
+    widget: numeric
+    prompt: Bus A fährt alle {{p}} Minuten, Bus B alle {{q}} Minuten. Beide starten jetzt. Wann starten sie wieder gleichzeitig?
+    params: { unit: Minuten }
+    answer: { value: "{{lcm(p, q)}}" }
+    feedback:
+      - when: "numval(state.input) == p * q && p * q != lcm(p, q)"
+        misconception: product-not-lcm
+        text: Dann treffen sie sich auch – aber nicht zum ersten Mal.
+    hints:
+      - Schreib die Abfahrtszeiten beider Busse auf.
+    explanation: Das kleinste gemeinsame Vielfache – nach {{lcm(p, q)}} Minuten.
+    variants:
+      params: { p: "choice[6,8,10,12]", q: "choice[9,15,20]" }
+      defaults: { p: 6, q: 9 }
+
+srs:
+  cards_from: [ggt, busse]

@@ -1,0 +1,79 @@
+id: ai.neural.neuron
+type: concept
+title: Ein künstliches Neuron
+summary: Gewichten, addieren, entscheiden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: summe
+    widget: numeric
+    body: Ein Neuron nimmt jede Eingabe mal ihr Gewicht und addiert alles. Ist die Summe größer als 0, »feuert« es.
+    prompt: Eingaben 2 und 3, Gewichte 0,5 und −1. Wie groß ist die Summe?
+    params: { placeholder: "Summe" }
+    answer: { value: -2 }
+    feedback:
+      - when: "numval(state.input) == 4"
+        misconception: sign
+        text: Das Gewicht −1 ist negativ. 3 · (−1) ergibt −3.
+    hints:
+      - "Rechne 2 · 0,5 und 3 · (−1)."
+    explanation: 1 + (−3) = −2.
+
+  - kind: explain
+    body: |
+      Ein **Neuron** gewichtet seine Eingaben. Ein großes Gewicht heißt – das ist wichtig.
+      Ein negatives Gewicht bremst. Die Summe entscheidet, ob es feuert.
+
+  - kind: problem
+    id: feuert
+    widget: choice
+    prompt: Feuert das Neuron von eben?
+    params:
+      options:
+        - { label: "Nein, −2 ist nicht größer als 0.", correct: true }
+        - { label: "Ja, es hat ja Eingaben.", feedback: "Eingaben allein reichen nicht. Es kommt auf die Summe an." }
+    hints:
+      - Vergleiche die Summe mit 0.
+    explanation: Die Summe ist negativ – das Neuron bleibt still.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Eingaben {{x}} und {{y}}, Gewichte {{a}} und {{b}}. Wie groß ist die gewichtete Summe?
+    params: { placeholder: "Summe" }
+    answer: { value: "{{x * a + y * b}}" }
+    feedback:
+      - when: "numval(state.input) == x + y"
+        misconception: ignore-weights
+        text: Nimm jede Eingabe mit ihrem Gewicht mal.
+    hints:
+      - "{{x}} · {{a}} plus {{y}} · {{b}}."
+    explanation: "{{x}} · {{a}} + {{y}} · {{b}} = {{x * a + y * b}}."
+    variants:
+      params: { x: "int[1,5]", y: "int[1,5]", a: "choice[-2,-1,2,3]", b: "choice[-3,-1,1,2]" }
+      constraints: ["x * a + y * b != x + y"]
+      defaults: { x: 4, y: 2, a: 2, b: -3 }
+
+  - kind: problem
+    id: und-neuron
+    widget: choice
+    prompt: Ein Neuron hat zwei Eingaben (0 oder 1) mit Gewicht 1. Ab welcher Schwelle verhält es sich wie ein UND?
+    params:
+      options:
+        - { label: "Es feuert erst bei einer Summe über 1,5.", correct: true }
+        - { label: "Es feuert bei einer Summe über 0,5.", feedback: "Dann reicht schon eine 1. Das wäre ein ODER." }
+        - { label: "Es feuert bei einer Summe über 2,5.", feedback: "Dann feuert es nie – mehr als 2 geht nicht." }
+    hints:
+      - Mögliche Summen sind 0, 1 und 2.
+    explanation: Nur bei 1 + 1 = 2 wird die Schwelle 1,5 überschritten. Das ist UND.
+
+  - kind: explain
+    body: Wie viele solcher Neuronen steckt in einem großen Sprachmodell?
+    reveal:
+      body: Es hat Milliarden Gewichte. Jedes einzelne Neuron rechnet aber nur so einfach wie hier – die Menge macht den Unterschied.
+
+srs:
+  cards_from: [rechnen, und-neuron]

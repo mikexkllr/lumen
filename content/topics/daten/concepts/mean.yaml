@@ -1,0 +1,72 @@
+id: stats.data.mean
+type: concept
+title: Der Mittelwert
+summary: Gerecht verteilt – so viel hätte jeder.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [data.mean]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: saeule
+    widget: chart
+    prompt: Ziehe die Säule für Freitag so, dass der Mittelwert genau 5 beträgt.
+    params: { labels: [Mo, Di, Mi, Do, Fr], values: [4, 6, 5, 3, 2], editable: [4], min: 0, max: 10, show: [mean], title: Gelesene Seiten }
+    check: { predicate: "mean(state.values) == 5" }
+    hints:
+      - Für einen Mittelwert von 5 brauchen 5 Tage zusammen 25 Seiten.
+      - Mo bis Do sind schon 18 Seiten.
+    explanation: "4 + 6 + 5 + 3 + 7 = 25, und 25 : 5 = 5."
+
+  - kind: explain
+    body: |
+      Der **Mittelwert** ist die Summe aller Werte geteilt durch ihre Anzahl.
+      Er sagt – so viel hätte jeder, wenn man gerecht verteilt.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Berechne den Mittelwert von {{a}}, {{b}} und {{c}}.
+    answer: { value: "{{(a + b + c) / 3}}" }
+    feedback:
+      - when: "numval(state.input) == a + b + c"
+        misconception: sum-not-mean
+        text: Das ist die Summe. Teile sie noch durch die Anzahl der Werte.
+    hints:
+      - "Summe: {{a + b + c}}."
+      - Teile durch 3.
+    explanation: "({{a}} + {{b}} + {{c}}) : 3 = {{(a + b + c) / 3}}."
+    variants:
+      params: { a: "int[1,12]", b: "int[1,12]", c: "int[1,12]" }
+      constraints: ["isInt((a + b + c) / 3)", "a != b || b != c"]
+      defaults: { a: 4, b: 7, c: 10 }
+
+  - kind: problem
+    id: ablesen
+    widget: numeric
+    visual:
+      widget: chart
+      params: { labels: [Jan, Feb, Mär, Apr, Mai], values: [2, 4, 4, 6, 9], min: 0, max: 10, title: Regentage }
+    prompt: Wie groß ist der Mittelwert der Regentage?
+    answer: { value: 5 }
+    hints:
+      - Zähle alle Säulen zusammen.
+      - 25 Tage auf 5 Monate.
+    explanation: "2 + 4 + 4 + 6 + 9 = 25, und 25 : 5 = 5."
+
+  - kind: problem
+    id: ausreisser
+    widget: choice
+    prompt: Ein einziger Wert wird plötzlich sehr groß. Was passiert mit dem Mittelwert?
+    params:
+      options:
+        - { label: Er steigt deutlich, correct: true }
+        - { label: Er bleibt gleich, feedback: "Die Summe wird größer – also auch der Mittelwert." }
+        - { label: Er sinkt, feedback: "Ein größerer Wert kann den Mittelwert nicht senken." }
+    hints:
+      - Was passiert mit der Summe?
+    explanation: Ein sehr großer Wert zieht den Mittelwert nach oben.
+
+srs:
+  cards_from: ["steps[2]"]

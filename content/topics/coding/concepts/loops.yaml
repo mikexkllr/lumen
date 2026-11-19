@@ -1,0 +1,63 @@
+id: cs.code.loops
+type: concept
+title: Schleifen
+summary: Wiederholen statt abschreiben.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [cs.loops]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: lange-strecke
+    widget: robot
+    prompt: Bring den Roboter ans Ziel – mit höchstens 3 Blöcken.
+    params: { grid: ["S.......G"], blocks: [forward, repeat, end], repeatCounts: [2, 4, 8], maxBlocks: 3 }
+    hints:
+      - Achtmal vorwärts wären zu viele Blöcke.
+      - Wiederhole 8× – vorwärts – Ende.
+    explanation: Eine Schleife – wiederhole 8× vorwärts.
+
+  - kind: explain
+    body: |
+      Eine **Schleife** wiederholt Befehle.
+      »Wiederhole 8× vorwärts, Ende« ist kürzer als achtmal »vorwärts« – und leichter zu ändern.
+
+  - kind: problem
+    id: treppe
+    widget: robot
+    prompt: Die Treppe hat ein Muster. Schaffst du es mit höchstens 6 Blöcken?
+    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
+    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    hints:
+      - Welche vier Befehle wiederholen sich bei jeder Stufe?
+      - vorwärts, rechts, vorwärts, links – dreimal.
+    explanation: wiederhole 3× (vorwärts, rechts drehen, vorwärts, links drehen).
+    difficulty: 3
+
+  - kind: problem
+    id: quadrat
+    widget: choice
+    prompt: Was macht »wiederhole 4× – vorwärts, rechts drehen – Ende« auf freiem Feld?
+    params:
+      options:
+        - { label: Der Roboter fährt ein Quadrat und steht wieder am Start, correct: true }
+        - { label: Er fährt 4 Felder geradeaus, feedback: "Nach jedem Schritt dreht er sich." }
+        - { label: Er dreht sich nur auf der Stelle, feedback: "Vor jeder Drehung fährt er ein Feld." }
+    hints:
+      - Viermal rechts drehen ergibt eine volle Runde.
+    explanation: Vier Seiten, vier Rechtsdrehungen – ein Quadrat zurück zum Start.
+
+  - kind: problem
+    id: verschachtelt
+    widget: numeric
+    prompt: Wie oft fährt der Roboter vorwärts bei »wiederhole 3× ( wiederhole 4× vorwärts Ende ) Ende«?
+    answer: { value: 12 }
+    feedback:
+      - when: "numval(state.input) == 7"
+        misconception: nested-loops-add
+        text: Die innere Schleife läuft bei jeder Runde der äußeren komplett – also mal, nicht plus.
+    hints:
+      - Die innere Schleife läuft dreimal.
+    explanation: 3 · 4 = 12.
+    difficulty: 2

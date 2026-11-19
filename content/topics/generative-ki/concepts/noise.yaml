@@ -1,0 +1,55 @@
+id: ai.generative.noise
+type: concept
+title: Aus Rauschen wird Bild
+summary: Die Grundidee der Bildgeneratoren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: start
+    widget: choice
+    prompt: Womit beginnt ein Bildgenerator, bevor er ein Bild malt?
+    params:
+      options:
+        - { label: Mit reinem Zufallsrauschen, correct: true }
+        - { label: Mit einem passenden Foto aus dem Internet, feedback: "Er kopiert kein Foto – er formt Rauschen Schritt für Schritt." }
+        - { label: Mit einer weißen Fläche, feedback: "Weiß wäre zu gleichförmig – der Zufall liefert die Vielfalt." }
+    hints:
+      - Wie sieht ein Fernseher ohne Empfang aus?
+    explanation: Aus dem Rauschen wird in vielen Schritten ein Bild.
+
+  - kind: explain
+    body: |
+      **Diffusionsmodelle** lernen das Gegenteil von Verrauschen: Man gibt ihnen Bilder mit etwas Rauschen und lässt sie raten, welches Rauschen entfernt werden muss. Millionen Mal.
+
+  - kind: problem
+    id: training
+    widget: order
+    prompt: Bring einen Trainingsschritt in die richtige Reihenfolge.
+    params:
+      items:
+        - { label: Ein echtes Bild nehmen }
+        - { label: Zufälliges Rauschen hinzufügen }
+        - { label: Das Modell rät das Rauschen }
+        - { label: Aus dem Fehler lernen }
+    hints:
+      - Das Modell muss erraten, was dazugefügt wurde.
+    explanation: Wer Rauschen erkennen kann, kann es auch entfernen.
+
+  - kind: problem
+    id: dauer
+    widget: numeric
+    prompt: Ein Generator braucht {{n}} Schritte zu je 0,1 Sekunden. Wie lange dauert ein Bild?
+    params: { unit: s }
+    answer: { value: "{{n / 10}}" }
+    hints:
+      - "{{n}} · 0,1."
+    explanation: "{{n / 10}} Sekunden – darum arbeiten Forscher an Verfahren mit weniger Schritten."
+    variants:
+      params: { n: "choice[20,30,50,100]" }
+      defaults: { n: 50 }
+
+srs:
+  cards_from: [start, training]

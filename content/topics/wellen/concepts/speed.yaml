@@ -1,0 +1,64 @@
+id: sci.waves.speed
+type: concept
+title: Wie schnell ist Schall?
+summary: Blitz, Donner und Wellenlänge.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: gewitter
+    widget: numeric
+    body: Schall legt etwa 340 m pro Sekunde zurück. Licht ist praktisch sofort da.
+    prompt: Zwischen Blitz und Donner vergehen {{t}} Sekunden. Wie weit ist das Gewitter entfernt?
+    params: { unit: m }
+    answer: { value: "{{340 * t}}", tolerance: 30 }
+    feedback:
+      - when: "numval(state.input) == 340 / t"
+        misconception: divide
+        text: Weg = Geschwindigkeit · Zeit. Nimm mal.
+    hints:
+      - "{{t}} · 340 m."
+    explanation: "{{t}} · 340 m ≈ {{340 * t}} m. Faustregel – Sekunden durch 3 ergibt Kilometer."
+    variants:
+      params: { t: "int[2,12]" }
+      defaults: { t: 3 }
+
+  - kind: explain
+    body: |
+      Für jede Welle gilt: **Geschwindigkeit = Frequenz · Wellenlänge**.
+      Ein tiefer Ton hat lange Wellen, ein hoher kurze.
+
+  - kind: problem
+    id: wellenlaenge
+    widget: numeric
+    prompt: Ein Ton hat {{f}} Hz. Wie lang ist eine Welle bei 340 m/s?
+    params: { unit: m }
+    answer: { value: "{{340 / f}}", tolerance: 0.01 }
+    feedback:
+      - when: "numval(state.input) == 340 * f"
+        misconception: multiply
+        text: "Wellenlänge = Geschwindigkeit : Frequenz."
+    hints:
+      - "340 geteilt durch {{f}}."
+    explanation: "340 : {{f}} = {{340 / f}} m."
+    variants:
+      params: { f: "choice[34,85,170,340,680]" }
+      defaults: { f: 340 }
+
+  - kind: problem
+    id: medium
+    widget: choice
+    prompt: Wo ist Schall am schnellsten?
+    params:
+      options:
+        - { label: In Stahl, correct: true }
+        - { label: In Luft, feedback: "Luft ist am langsamsten der drei – etwa 340 m/s." }
+        - { label: Im Weltraum, feedback: "Im Vakuum gibt es gar keinen Schall – nichts kann schwingen." }
+    hints:
+      - Schall braucht Teilchen, die sich gegenseitig anstoßen.
+    explanation: In Stahl sind es rund 5000 m/s. Darum hört man einen Zug früher in den Schienen.
+
+srs:
+  cards_from: [gewitter, wellenlaenge]

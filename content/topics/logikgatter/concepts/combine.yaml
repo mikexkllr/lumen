@@ -1,0 +1,77 @@
+id: cs.gates.combine
+type: concept
+title: Gatter kombinieren
+summary: XOR, NAND und das Treppenhaus-Licht.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: kette
+    widget: gates
+    prompt: Zwei Gatter hintereinander. Bring die Lampe zum Leuchten.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NOT, in: [B] }
+        - { id: g, type: AND, in: [A, n] }
+      outputs: [{ id: Q, from: g, label: Lampe }]
+      goal: { Q: 1 }
+    hints:
+      - Verfolge den Weg von B. Was macht das NICHT daraus?
+    explanation: A muss an sein, B aus. Das NICHT macht aus B = 0 eine 1.
+
+  - kind: explain
+    body: |
+      **XOR** heißt »entweder oder«. Es gibt 1, wenn **genau einer** der Eingänge 1 ist.
+      Sind beide an, bleibt die Lampe aus.
+
+  - kind: problem
+    id: xor
+    widget: gates
+    prompt: Wähle das Gatter, das leuchtet, wenn genau ein Schalter an ist.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates: [{ id: g, type: "?", in: [A, B], options: [AND, OR, XOR] }]
+      outputs: [{ id: Q, from: g, label: Lampe }]
+    check: { predicate: "table('Q') == [0, 1, 1, 0]" }
+    hints:
+      - Was soll passieren, wenn beide an sind?
+    explanation: XOR – bei 1 und 1 bleibt es aus, anders als bei ODER.
+
+  - kind: problem
+    id: treppe
+    widget: choice
+    prompt: Im Treppenhaus schaltet jeder der zwei Schalter das Licht um. Welches Gatter beschreibt das?
+    params:
+      options:
+        - { label: XOR, correct: true }
+        - { label: ODER, feedback: "Bei ODER bliebe das Licht an, wenn man den zweiten Schalter auch drückt." }
+        - { label: UND, feedback: "Dann bräuchte es immer beide Schalter." }
+    hints:
+      - Was passiert, wenn beide Schalter umgelegt sind?
+    explanation: Jeder Wechsel kippt das Ergebnis – das ist XOR.
+
+  - kind: problem
+    id: nand
+    widget: gates
+    prompt: Die Lampe soll immer leuchten – außer wenn beide Schalter an sind. Wähle das erste Gatter.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [OR, AND] }
+        - { id: n, type: NOT, in: [g] }
+      outputs: [{ id: Q, from: n, label: Lampe }]
+    check: { predicate: "table('Q') == [1, 1, 1, 0]" }
+    hints:
+      - Das NICHT dreht am Ende alles um. Was muss davor stehen?
+    explanation: UND mit NICHT dahinter – das heißt NAND.
+
+  - kind: explain
+    body: Mit einem einzigen Gatter-Typ lässt sich jeder Computer bauen. Welcher ist es?
+    reveal:
+      body: NAND. Aus NAND-Gattern lassen sich UND, ODER und NICHT zusammensetzen – und damit alles andere.
+
+srs:
+  cards_from: [xor, treppe]

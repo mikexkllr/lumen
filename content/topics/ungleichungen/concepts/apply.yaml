@@ -1,0 +1,62 @@
+id: alg.inequalities.apply
+type: concept
+title: Tarife vergleichen
+summary: Ab wann lohnt sich die Grundgebühr?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: telefon
+    widget: numeric
+    prompt: Tarif A kostet 10 € Grundgebühr plus 0,10 € pro Minute. Tarif B kostet 0,30 € pro Minute. Ab wie vielen Minuten ist A günstiger?
+    params: { prefix: "mehr als", unit: Minuten }
+    answer: { value: 50 }
+    feedback:
+      - when: "numval(state.input) == 100"
+        misconception: base-fee
+        text: Vergleiche die Mehrkosten pro Minute – 0,30 € − 0,10 € = 0,20 €.
+    hints:
+      - Setze 10 + 0,1 · m < 0,3 · m.
+    explanation: 10 < 0,2 · m, also m > 50.
+
+  - kind: explain
+    body: |
+      Solche Fragen sind Ungleichungen – Kosten A < Kosten B.
+      Löse nach der Menge auf. Die Grenze zeigt, wo ein Tarif kippt.
+
+  - kind: problem
+    id: studio
+    widget: numeric
+    prompt: Studio A verlangt {{g}} € Aufnahme und {{a}} € im Monat. Studio B nimmt keine Aufnahme, aber {{b}} € im Monat. Ab dem wievielten Monat ist A günstiger?
+    params: { unit: Monat }
+    answer: { value: "{{floor(g / (b - a)) + 1}}" }
+    hints:
+      - "Pro Monat spart A {{b - a}} €. Wann sind {{g}} € wieder drin?"
+    explanation: "{{g}} : {{b - a}} ≈ {{round(g / (b - a), 1)}}. Ab Monat {{floor(g / (b - a)) + 1}} ist A günstiger."
+    variants:
+      params: { g: "choice[50,60,100]", a: "choice[20,25]", b: "choice[30,35]" }
+      defaults: { g: 60, a: 20, b: 30 }
+
+  - kind: problem
+    id: taxi
+    widget: choice
+    prompt: Ein Taxi kostet 4 € plus 2 € pro Kilometer. Du hast 20 €. Wie weit kommst du höchstens?
+    params:
+      layout: grid
+      options:
+        - { label: 8 km, correct: true }
+        - { label: 10 km, feedback: "Die 4 € Grundpreis musst du zuerst abziehen." }
+        - { label: 12 km, feedback: "Zu weit. Rechne 4 + 2 · k ≤ 20." }
+    hints:
+      - 4 + 2 · k ≤ 20.
+    explanation: 2 · k ≤ 16, also k ≤ 8.
+
+  - kind: explain
+    body: Warum lohnt sich die Ungleichung beim Vertragsvergleich?
+    reveal:
+      body: Sie zeigt die Grenze, an der ein Tarif kippt. Wer darunter bleibt, zahlt beim Tarif mit Grundgebühr drauf.
+
+srs:
+  cards_from: [studio, taxi]

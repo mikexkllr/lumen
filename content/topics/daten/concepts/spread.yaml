@@ -1,0 +1,61 @@
+id: stats.data.spread
+type: concept
+title: Wie weit streut es?
+summary: Gleicher Schnitt, ganz andere Daten.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zwei-klassen
+    widget: choice
+    body: Klasse A hat die Noten 3, 3, 3, 3. Klasse B hat 1, 1, 5, 5.
+    prompt: Was stimmt?
+    params:
+      options:
+        - { label: Gleicher Schnitt – aber B streut viel stärker., correct: true }
+        - { label: A ist besser., feedback: "Beide haben den Schnitt 3." }
+        - { label: Beide sind gleich., feedback: "Der Schnitt ist gleich, die Verteilung nicht." }
+    hints:
+      - Rechne beide Mittelwerte aus.
+    explanation: Der Mittelwert allein verrät nicht, wie unterschiedlich die Werte sind.
+
+  - kind: explain
+    body: |
+      Die **Spannweite** ist der Abstand vom kleinsten zum größten Wert. Sie zeigt, wie weit Daten streuen.
+      Zwei Datenreihen können denselben Mittelwert und völlig verschiedene Spannweiten haben.
+
+  - kind: problem
+    id: bauen
+    widget: chart
+    prompt: Ziehe die Säulen so, dass der Mittelwert 5 bleibt, die Spannweite aber 8 ist.
+    params:
+      labels: [A, B, C, D]
+      values: [5, 5, 5, 5]
+      editable: [0, 1, 2, 3]
+      min: 0
+      max: 10
+      step: 1
+      show: [mean]
+    check: { predicate: "avg == 5 && max(values) - min(values) == 8" }
+    solution: { state: { values: [1, 5, 5, 9] } }
+    hints:
+      - Mach eine Säule 4 kleiner und eine andere 4 größer.
+    explanation: Zum Beispiel 1, 5, 5, 9 – Schnitt 5, Spannweite 8.
+
+  - kind: problem
+    id: spannweite
+    widget: numeric
+    prompt: "Temperaturen einer Woche: {{a}}, 12, 15, {{b}}, 14 °C. Wie groß ist die Spannweite?"
+    params: { unit: "°C" }
+    answer: { value: "{{b - a}}" }
+    hints:
+      - Größter minus kleinster Wert.
+    explanation: "{{b}} − {{a}} = {{b - a}} °C."
+    variants:
+      params: { a: "int[3,9]", b: "int[17,25]" }
+      defaults: { a: 8, b: 19 }
+
+srs:
+  cards_from: [zwei-klassen, spannweite]

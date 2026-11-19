@@ -1,0 +1,75 @@
+id: stats.expected.basics
+type: concept
+title: Was bringt es im Schnitt?
+summary: Ergebnis mal Wahrscheinlichkeit, dann addieren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: wuerfelspiel
+    widget: choice
+    prompt: Du würfelst. Bei einer 6 gewinnst du 5 €, sonst verlierst du 1 €. Was passiert auf Dauer?
+    params:
+      options:
+        - { label: Es geht ungefähr plus minus null auf., correct: true }
+        - { label: Ich gewinne im Schnitt., feedback: "Fünfmal 1 € verlieren gleicht einmal 5 € gewinnen genau aus." }
+        - { label: Ich verliere im Schnitt., feedback: "Rechne sechs Würfe durch – ein Gewinn, fünf Verluste." }
+    hints:
+      - Spiel in Gedanken sechs Runden.
+    explanation: In 6 Runden etwa +5 € und 5 · (−1 €). Zusammen 0 €.
+
+  - kind: explain
+    body: |
+      Der **Erwartungswert** ist der Durchschnitt auf lange Sicht.
+      Jedes Ergebnis mal seine Wahrscheinlichkeit – dann alles addieren.
+
+  - kind: problem
+    id: augenzahl
+    widget: numeric
+    prompt: Welche Augenzahl erwartest du im Schnitt bei einem fairen Würfel?
+    params: { placeholder: "Zahl" }
+    answer: { value: 3.5 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: integer-only
+        text: Der Durchschnitt muss keine ganze Zahl sein.
+    hints:
+      - Addiere 1 bis 6 und teile durch 6.
+    explanation: (1 + 2 + 3 + 4 + 5 + 6) / 6 = 21 / 6 = 3,5.
+
+  - kind: explain
+    body: Kann man eine 3,5 würfeln?
+    reveal:
+      body: Nein. Der Erwartungswert muss kein mögliches Ergebnis sein. Er beschreibt den Schnitt vieler Würfe.
+
+  - kind: problem
+    id: los
+    widget: numeric
+    prompt: Ein Los kostet 2 €. Jedes zehnte Los gewinnt {{g}} €. Was ist dein Gewinn pro Los im Schnitt? Minus heißt Verlust.
+    params: { unit: "€" }
+    answer: { value: "{{g / 10 - 2}}" }
+    feedback:
+      - when: "numval(state.input) == g / 10"
+        misconception: ignore-stake
+        text: Zieh noch den Einsatz von 2 € ab.
+    hints:
+      - "Im Schnitt bringt ein Los {{g}} € / 10 = {{g / 10}} €."
+    explanation: "{{g / 10}} € − 2 € = {{g / 10 - 2}} € pro Los."
+    variants:
+      params: { g: "choice[10,15,25,30]" }
+      defaults: { g: 15 }
+
+  - kind: problem
+    id: gluecksrad
+    widget: numeric
+    prompt: Ein Glücksrad zahlt mit Chance 1/4 genau 8 €, sonst nichts. Wie viel darf ein Dreh höchstens kosten, damit das Spiel fair ist?
+    params: { unit: "€" }
+    answer: { value: 2 }
+    hints:
+      - Ein fairer Preis entspricht dem Erwartungswert.
+    explanation: 1/4 · 8 € = 2 €. Mehr Einsatz wäre unfair für dich.
+
+srs:
+  cards_from: [augenzahl, los]

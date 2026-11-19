@@ -1,0 +1,59 @@
+id: math.modular.clock
+type: concept
+title: Rechnen wie eine Uhr
+summary: Nach 24 geht es wieder bei 0 los.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: uhrzeit
+    widget: numeric
+    prompt: Es ist {{h}} Uhr. Wie spät ist es in {{d}} Stunden?
+    params: { unit: Uhr }
+    answer: { value: "{{mod(h + d, 24)}}" }
+    feedback:
+      - when: "numval(state.input) == h + d"
+        misconception: no-wrap
+        text: Nach 24 Uhr beginnt der nächste Tag wieder bei 0.
+    hints:
+      - "{{h}} + {{d}} – und alles über 24 abziehen."
+    explanation: "{{h + d}} − 24 = {{mod(h + d, 24)}} Uhr."
+    variants:
+      params: { h: "int[14,23]", d: "int[5,20]" }
+      constraints: ["h + d >= 24"]
+      defaults: { h: 20, d: 7 }
+
+  - kind: explain
+    body: |
+      Beim **Rechnen modulo n** zählt nur der Rest beim Teilen durch n. Uhren rechnen modulo 24 (oder 12), Wochentage modulo 7. Man schreibt $27 \bmod 24 = 3$.
+
+  - kind: problem
+    id: wochentag
+    widget: choice
+    prompt: Heute ist Montag. Welcher Wochentag ist in 100 Tagen?
+    params:
+      options:
+        - { label: Mittwoch, correct: true }
+        - { label: Montag, feedback: "100 ist kein Vielfaches von 7 – es bleibt ein Rest." }
+        - { label: Freitag, feedback: "Rechne den Rest von 100 geteilt durch 7." }
+    hints:
+      - 100 = 14 · 7 + 2.
+    explanation: Nach 14 vollen Wochen sind es noch 2 Tage – Mittwoch.
+
+  - kind: problem
+    id: tage
+    widget: numeric
+    prompt: Welcher Rest bleibt, wenn man {{n}} durch 7 teilt?
+    params: { placeholder: "Rest" }
+    answer: { value: "{{mod(n, 7)}}" }
+    hints:
+      - Wie viele volle Wochen passen hinein?
+    explanation: "{{n}} = {{floor(n / 7)}} · 7 + {{mod(n, 7)}}."
+    variants:
+      params: { n: "int[30,365]" }
+      defaults: { n: 100 }
+
+srs:
+  cards_from: [uhrzeit, wochentag]

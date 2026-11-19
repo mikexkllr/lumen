@@ -1,0 +1,56 @@
+id: ai.neural.overfitting
+type: concept
+title: Auswendig gelernt
+summary: Wenn ein Modell nur die Übungsdaten kann.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: klausur
+    widget: choice
+    prompt: Jemand lernt die Probeklausur Wort für Wort auswendig. In der echten Klausur kommen neue Fragen. Was passiert?
+    params:
+      options:
+        - { label: Es läuft schlecht – verstanden wurde nichts., correct: true }
+        - { label: Es läuft perfekt., feedback: "Auswendig Gelerntes hilft nicht bei neuen Fragen." }
+    hints:
+      - Was hat die Person wirklich gelernt?
+    explanation: Genau das passiert Modellen auch. Man nennt es **Überanpassung**.
+
+  - kind: explain
+    body: |
+      Ein Modell kann sich Trainingsdaten samt Zufallsrauschen merken. Darum prüft man es mit **Testdaten**, die es nie gesehen hat.
+
+  - kind: problem
+    id: luecke
+    widget: numeric
+    prompt: "Ein Modell trifft im Training {{tr}} %, im Test nur {{te}} %. Wie groß ist die Lücke?"
+    params: { unit: Prozentpunkte }
+    answer: { value: "{{tr - te}}" }
+    hints:
+      - Ziehe ab.
+    explanation: "{{tr - te}} Prozentpunkte – ein klares Zeichen für Auswendiglernen."
+    variants:
+      params: { tr: "int[95,99]", te: "int[60,80]" }
+      defaults: { tr: 98, te: 71 }
+
+  - kind: problem
+    id: hilft
+    widget: buckets
+    prompt: Was hilft gegen Überanpassung?
+    params:
+      buckets: [{ label: hilft }, { label: hilft nicht }]
+      items:
+        - { label: Mehr Trainingsdaten, bucket: hilft }
+        - { label: Ein einfacheres Modell, bucket: hilft }
+        - { label: Früher aufhören zu trainieren, bucket: hilft }
+        - { label: Noch länger trainieren, bucket: hilft nicht }
+        - { label: Mit den Testdaten trainieren, bucket: hilft nicht }
+    hints:
+      - Was zwingt das Modell, allgemeine Muster zu finden?
+    explanation: Wer mit Testdaten trainiert, misst danach nichts mehr – das ist Schummeln, keine Lösung.
+
+srs:
+  cards_from: [klausur, hilft]

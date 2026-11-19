@@ -1,0 +1,82 @@
+id: stats.conditional.tree
+type: concept
+title: Baumdiagramme
+summary: Entlang multiplizieren, quer addieren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zwei-rot
+    widget: numeric
+    prompt: In einer Tüte liegen eine rote und eine blaue Kugel. Du ziehst, legst zurück und ziehst noch einmal. Wie wahrscheinlich ist zweimal Rot?
+    params: { placeholder: "Bruch, z. B. 1/3" }
+    answer: { value: "1/4" }
+    feedback:
+      - when: "approx(numval(state.input), 1/2)"
+        misconception: single-stage
+        text: Das gilt für einen Zug. Rot muss aber zweimal kommen.
+    hints:
+      - Schreib alle Möglichkeiten auf – RR, RB, BR, BB.
+    explanation: Von vier gleich wahrscheinlichen Ausgängen passt einer – 1/4.
+
+  - kind: explain
+    body: |
+      **Pfadregel:** Entlang eines Pfades im Baum werden Wahrscheinlichkeiten **multipliziert**.
+      Zweimal Rot ist also 1/2 · 1/2 = 1/4.
+
+  - kind: problem
+    id: muenzen
+    widget: numeric
+    prompt: Eine Münze wird {{n}}-mal geworfen. Wie wahrscheinlich ist es, dass jedes Mal Kopf kommt?
+    params: { placeholder: "Bruch" }
+    answer: { value: "1/{{2 ** n}}" }
+    feedback:
+      - when: "approx(numval(state.input), 1 / (2 * n))"
+        misconception: add-instead-multiply
+        text: Entlang des Pfades wird multipliziert, nicht addiert.
+    hints:
+      - "{{n}}-mal den Faktor 1/2."
+    explanation: "(1/2) hoch {{n}} = 1/{{2 ** n}}."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 3 }
+
+  - kind: explain
+    body: |
+      **Summenregel:** Führen mehrere Pfade zum selben Ziel, zählt man ihre Chancen zusammen. Man **addiert** sie.
+
+  - kind: problem
+    id: genau-einmal
+    widget: numeric
+    prompt: Zwei Münzwürfe. Wie wahrscheinlich ist genau einmal Kopf?
+    params: { placeholder: "Bruch" }
+    answer: { value: "1/2" }
+    feedback:
+      - when: "approx(numval(state.input), 1/4)"
+        misconception: one-path
+        text: Kopf kann beim ersten oder beim zweiten Wurf kommen. Das sind zwei Pfade.
+    hints:
+      - KZ und ZK führen beide zum Ziel.
+    explanation: 1/4 + 1/4 = 1/2.
+
+  - kind: problem
+    id: ohne-zuruecklegen
+    widget: numeric
+    prompt: In einer Tüte sind {{r}} rote und {{b}} blaue Kugeln. Du ziehst zwei, ohne zurückzulegen. Wie wahrscheinlich sind beide rot?
+    params: { placeholder: "Bruch" }
+    answer: { value: "{{r * (r - 1)}}/{{(r + b) * (r + b - 1)}}" }
+    feedback:
+      - when: "approx(numval(state.input), (r / (r + b)) ** 2)"
+        misconception: with-replacement
+        text: Das wäre mit Zurücklegen. Nach dem ersten Zug fehlt eine rote Kugel.
+    hints:
+      - "Erster Zug {{r}}/{{r + b}}. Danach sind noch {{r - 1}} rote von {{r + b - 1}} übrig."
+    explanation: "{{r}}/{{r + b}} · {{r - 1}}/{{r + b - 1}} = {{r * (r - 1)}}/{{(r + b) * (r + b - 1)}}."
+    variants:
+      params: { r: "int[2,5]", b: "int[2,4]" }
+      defaults: { r: 3, b: 2 }
+
+srs:
+  cards_from: [muenzen, ohne-zuruecklegen]

@@ -1,0 +1,72 @@
+id: ai.llm.temperature
+type: concept
+title: Temperatur
+summary: Wie mutig das Modell beim Ziehen ist.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.temperature]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: kalt
+    widget: distribution
+    prompt: Stelle die Temperatur so ein, dass »blau« eine Wahrscheinlichkeit von über 80 % hat.
+    params:
+      mode: tokens
+      context: Der Himmel ist heute
+      items: [{ label: blau, logit: 3.0 }, { label: grau, logit: 2.2 }, { label: wolkig, logit: 1.8 }, { label: klar, logit: 1.4 }, { label: grün, logit: -1.0 }]
+      temperature: { min: 0.2, max: 2, step: 0.2, initial: 1 }
+      sample: [1, 10]
+    check: { predicate: "prob('blau') > 0.8" }
+    hints:
+      - Schiebe den Regler und beobachte die Balken.
+      - Niedrige Temperatur macht das wahrscheinlichste Wort noch wahrscheinlicher.
+    explanation: Bei niedriger Temperatur dominiert das wahrscheinlichste Wort.
+
+  - kind: explain
+    body: |
+      Die **Temperatur** steuert, wie mutig das Modell wählt.
+      Niedrig – fast immer das wahrscheinlichste Wort. Hoch – auch seltene Wörter kommen öfter dran. Das ist kreativer, aber fehleranfälliger.
+
+  - kind: problem
+    id: heiss
+    widget: distribution
+    prompt: Stelle die Temperatur so ein, dass auch »grün« mindestens 4 % bekommt.
+    params:
+      mode: tokens
+      context: Der Himmel ist heute
+      items: [{ label: blau, logit: 3.0 }, { label: grau, logit: 2.2 }, { label: wolkig, logit: 1.8 }, { label: klar, logit: 1.4 }, { label: grün, logit: -1.0 }]
+      temperature: { min: 0.2, max: 2, step: 0.2, initial: 1 }
+      sample: [1, 10]
+    check: { predicate: "prob('grün') >= 0.04" }
+    hints:
+      - Seltene Wörter brauchen eine hohe Temperatur.
+    explanation: Erst bei hoher Temperatur bekommt das unwahrscheinliche Wort eine echte Chance.
+    difficulty: 2
+
+  - kind: problem
+    id: wofuer
+    widget: choice
+    prompt: Für eine Matheaufgabe oder ein Kochrezept – welche Temperatur ist besser?
+    params:
+      options:
+        - { label: Niedrig, correct: true }
+        - { label: Hoch, feedback: "Hohe Temperatur bringt Abwechslung – bei Fakten aber auch mehr Fehler." }
+        - { label: Egal, feedback: "Bei Fakten zählt Zuverlässigkeit – das hängt von der Temperatur ab." }
+    hints:
+      - Brauchst du hier Kreativität oder Verlässlichkeit?
+    explanation: Bei Fakten und Rechnungen will man das wahrscheinlichste, verlässlichste Wort.
+
+  - kind: problem
+    id: nahe-null
+    widget: choice
+    prompt: Was passiert bei einer Temperatur nahe 0?
+    params:
+      options:
+        - { label: Es kommt fast immer dieselbe Antwort, correct: true }
+        - { label: Das Modell antwortet gar nicht, feedback: "Es antwortet – nur sehr vorhersehbar." }
+        - { label: Die Antworten werden besonders kreativ, feedback: "Das ist bei hoher Temperatur so." }
+    hints:
+      - Probiere oben die kleinste Temperatur aus.
+    explanation: Fast die ganze Wahrscheinlichkeit liegt dann auf dem häufigsten Wort.

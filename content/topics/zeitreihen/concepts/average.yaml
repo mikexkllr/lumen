@@ -1,0 +1,58 @@
+id: stats.timeseries.average
+type: concept
+title: Gleitende Durchschnitte
+summary: Zacken glätten.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Ein **gleitender Durchschnitt** mittelt immer die letzten paar Werte. Er glättet zufällige Zacken und macht den Verlauf sichtbar – so werden etwa Infektionszahlen über 7 Tage gemittelt.
+
+  - kind: problem
+    id: drei
+    widget: numeric
+    prompt: Die letzten drei Tage hatten {{a}}, {{b}} und {{c}} Besucher. Wie groß ist der 3-Tage-Durchschnitt?
+    params: { unit: Besucher }
+    answer: { value: "{{(a + b + c) / 3}}" }
+    hints:
+      - Alle drei addieren, durch 3 teilen.
+    explanation: "({{a}} + {{b}} + {{c}}) : 3 = {{(a + b + c) / 3}}."
+    variants:
+      params: { a: "int[10,40]", b: "int[10,40]", m: "int[0,2]" }
+      derive: { c: "30 + m - ((a + b + 30 + m) % 3)" }
+      constraints: ["(a + b + c) % 3 == 0"]
+      defaults: { a: 20, b: 25, m: 0 }
+
+  - kind: problem
+    id: geglaettet
+    widget: chart
+    body: "Tageswerte: 4, 8, 6, 10, 8. Der 3-Tage-Durchschnitt ab Tag 3 ist 6, 8, 8."
+    prompt: Stell die geglätteten Werte für die Tage 3 bis 5 ein.
+    params:
+      labels: [Tag 3, Tag 4, Tag 5]
+      values: [0, 0, 0]
+      editable: [0, 1, 2]
+      min: 0
+      max: 12
+    answer: { values: [6, 8, 8] }
+    hints:
+      - Steht schon im Text – übertrage die Werte.
+    explanation: Die geglättete Reihe schwankt viel weniger als die Rohwerte.
+
+  - kind: problem
+    id: verzoegerung
+    widget: choice
+    prompt: Was ist ein Nachteil gleitender Durchschnitte?
+    params:
+      options:
+        - { label: Sie reagieren verzögert auf echte Veränderungen., correct: true }
+        - { label: Sie verfälschen alle Werte zufällig., feedback: "Sie glätten nur – aber sie hinken hinterher." }
+    hints:
+      - Was passiert, wenn plötzlich alles hochschießt?
+    explanation: Weil alte Werte mitzählen, zeigt sich eine Wende erst nach einigen Tagen.
+
+srs:
+  cards_from: [drei, verzoegerung]

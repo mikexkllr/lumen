@@ -1,0 +1,53 @@
+id: ai.rl.explore
+type: concept
+title: Erkunden oder ausnutzen?
+summary: Das Dilemma jedes Lernenden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: restaurant
+    widget: choice
+    prompt: Du kennst ein gutes Restaurant. Gehst du immer dorthin oder probierst du neue aus?
+    params:
+      options:
+        - { label: "Meistens das bekannte, ab und zu ein neues", correct: true }
+        - { label: Immer das bekannte, feedback: "Dann findest du nie heraus, ob es ein besseres gibt." }
+        - { label: Immer ein neues, feedback: "Dann nutzt du nie, was du schon weißt." }
+    hints:
+      - Beides hat Kosten.
+    explanation: Genau diese Mischung brauchen auch lernende Agenten.
+
+  - kind: explain
+    body: |
+      **Ausnutzen** heißt, die bisher beste Aktion zu wählen. **Erkunden** heißt, etwas Neues zu probieren. Eine einfache Strategie: Mit kleiner Wahrscheinlichkeit ε handelt der Agent zufällig, sonst nutzt er sein Wissen.
+
+  - kind: problem
+    id: epsilon
+    widget: numeric
+    prompt: Ein Agent erkundet mit ε = {{e}} %. Wie viele von {{n}} Zügen sind ungefähr zufällig?
+    params: { unit: Züge }
+    answer: { value: "{{n * e / 100}}" }
+    hints:
+      - "{{e}} % von {{n}}."
+    explanation: "{{n}} · {{e}} % = {{n * e / 100}} Züge."
+    variants:
+      params: { e: "choice[5,10,20]", n: "choice[100,200,500]" }
+      defaults: { e: 10, n: 200 }
+
+  - kind: problem
+    id: spaeter
+    widget: choice
+    prompt: Wie sollte sich ε im Laufe des Lernens verändern?
+    params:
+      options:
+        - { label: Es sollte langsam kleiner werden., correct: true }
+        - { label: Es sollte wachsen., feedback: "Mit mehr Wissen lohnt sich Ausprobieren immer weniger." }
+    hints:
+      - Wann weiß der Agent mehr – am Anfang oder später?
+    explanation: Erst viel erkunden, dann immer mehr das Gelernte nutzen.
+
+srs:
+  cards_from: [restaurant, spaeter]

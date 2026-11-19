@@ -1,0 +1,82 @@
+id: math.money.inflation
+type: concept
+title: Inflation und Kaufkraft
+summary: Was dein Geld morgen noch wert ist.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: kaufkraft
+    widget: choice
+    prompt: Die Preise steigen um 5 % im Jahr. Dein Konto bringt 2 % Zinsen. Was passiert mit deiner Kaufkraft?
+    params:
+      options:
+        - { label: Sie sinkt., correct: true }
+        - { label: Sie steigt., feedback: "Du hast zwar mehr Euro – aber alles kostet noch mehr." }
+        - { label: Sie bleibt gleich., feedback: "Zins und Teuerung sind verschieden hoch." }
+    hints:
+      - Was wächst schneller – dein Geld oder die Preise?
+    explanation: Die Preise steigen schneller als dein Guthaben. Du kannst dir weniger kaufen.
+
+  - kind: explain
+    body: |
+      **Inflation** heißt: Dinge werden teurer.
+      Bei 3 % Inflation kostet ein Einkauf für 100 € nach einem Jahr 103 €.
+
+  - kind: problem
+    id: einkauf
+    widget: numeric
+    prompt: Ein Einkauf kostet heute {{p}} €. Was kostet er bei {{i}} % Inflation in 2 Jahren? Runde auf Cent.
+    params: { unit: "€" }
+    answer: { value: "{{round(p * (1 + i / 100) ** 2, 2)}}", tolerance: 0.01 }
+    feedback:
+      - when: "abs(numval(state.input) - p * (1 + 2 * i / 100)) < 0.01"
+        misconception: simple-interest
+        text: Fast. Im zweiten Jahr steigt der schon höhere Preis.
+    hints:
+      - "Nimm {{p}} zweimal mal {{1 + i / 100}}."
+    explanation: "{{p}} · {{1 + i / 100}}² ≈ {{round(p * (1 + i / 100) ** 2, 2)}} €."
+    variants:
+      params: { p: "choice[50,80,100,120]", i: "choice[2,3,4,5]" }
+      defaults: { p: 100, i: 3 }
+
+  - kind: problem
+    id: realzins
+    widget: numeric
+    prompt: Dein Konto bringt {{z}} % Zinsen, die Inflation liegt bei {{i}} %. Wie viel Prozent Kaufkraft gewinnst du ungefähr? Minus heißt Verlust.
+    params: { unit: "%" }
+    answer: { value: "{{z - i}}" }
+    feedback:
+      - when: "numval(state.input) == i - z"
+        misconception: sign
+        text: Das Vorzeichen ist vertauscht. Rechne Zins minus Inflation.
+    hints:
+      - Faustregel – Zins minus Inflation.
+    explanation: "{{z}} % − {{i}} % = {{z - i}} %. Das nennt man **Realzins**."
+    variants:
+      params: { z: "int[0,5]", i: "int[1,6]" }
+      constraints: ["z != i"]
+      defaults: { z: 2, i: 5 }
+
+  - kind: explain
+    body: In wie vielen Jahren halbiert sich die Kaufkraft bei 3,5 % Inflation?
+    reveal:
+      body: In etwa 20 Jahren. Die 70er-Regel gilt auch hier – 70 geteilt durch 3,5 ergibt 20.
+
+  - kind: problem
+    id: kredit
+    widget: choice
+    prompt: Jemand hat einen Kredit über 10 000 € mit festem Zins. Dann steigt die Inflation stark. Wer profitiert?
+    params:
+      options:
+        - { label: Wer den Kredit zurückzahlt, correct: true }
+        - { label: Die Bank, feedback: "Die Bank bekommt feste Euro zurück – die aber weniger wert sind." }
+        - { label: Niemand, feedback: "Die Schuld bleibt gleich hoch, das Geld wird aber weniger wert." }
+    hints:
+      - Die 10 000 € bleiben gleich. Was ist mit ihrem Wert?
+    explanation: Die feste Schuld verliert real an Wert. Das hilft dem, der zurückzahlt.
+
+srs:
+  cards_from: [einkauf, realzins]

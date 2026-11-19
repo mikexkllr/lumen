@@ -1,0 +1,51 @@
+id: stats.bayes.update
+type: concept
+title: Mit Häufigkeiten rechnen
+summary: Bayes ohne Formel.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Bayes geht am einfachsten mit **natürlichen Häufigkeiten**: Stell dir 1000 Menschen vor. 1 % ist krank, also 10. Der Test erkennt 9 davon. Von den 990 Gesunden zeigt er bei 9 % fälschlich positiv.
+
+  - kind: problem
+    id: falsch
+    widget: numeric
+    prompt: Wie viele der 990 Gesunden bekommen ein falsch positives Ergebnis?
+    params: { unit: Menschen }
+    answer: { value: 89, tolerance: 1 }
+    hints:
+      - 9 % von 990.
+    explanation: Rund 89 Gesunde – viel mehr als die 9 echten Kranken.
+
+  - kind: problem
+    id: anteil
+    widget: numeric
+    prompt: Wie viel Prozent der positiv Getesteten sind wirklich krank?
+    params: { unit: "%" }
+    answer: { value: 9, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: confuse-sensitivity
+        text: 90 % sind die erkannten Kranken – gefragt ist der Anteil unter allen Positiven.
+    hints:
+      - 9 echte von 9 + 89 Positiven.
+    explanation: 9 von 98 – nur etwa 9 %.
+
+  - kind: problem
+    id: zweiter
+    widget: choice
+    prompt: Was hilft, wenn ein seltener Test positiv ausfällt?
+    params:
+      options:
+        - { label: "Einen zweiten, unabhängigen Test machen", correct: true }
+        - { label: Den gleichen Test sofort mehrmals wiederholen, feedback: "Wiederholte Fehler desselben Tests sind oft nicht unabhängig." }
+    hints:
+      - Nach dem ersten Test ist die neue Basisrate viel höher.
+    explanation: Der erste Treffer hebt das Vorwissen von 1 % auf 9 % – ein zweiter Test steigert es stark.
+
+srs:
+  cards_from: [anteil, zweiter]

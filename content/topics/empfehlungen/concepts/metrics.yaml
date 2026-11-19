@@ -1,0 +1,56 @@
+id: ai.recommend.metrics
+type: concept
+title: Was gemessen wird, wird optimiert
+summary: Klickraten und ihre Nebenwirkungen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: klickrate
+    widget: numeric
+    prompt: "{{n}} Leute sehen einen Beitrag, {{k}} klicken darauf. Wie hoch ist die Klickrate?"
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - Klicks geteilt durch Aufrufe, mal 100.
+    explanation: "{{k}} : {{n}} = {{p}} %."
+    variants:
+      params: { n: "choice[200,500,1000,2000]", p: "int[2,15]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 1000, p: 4 }
+
+  - kind: problem
+    id: nur-klicks
+    widget: choice
+    prompt: Ein Feed zeigt nur, was am meisten angeklickt wird. Was setzt sich wahrscheinlich durch?
+    params:
+      options:
+        - { label: Reißerische Titel und Aufreger, correct: true }
+        - { label: Die gründlichsten Artikel, feedback: "Gründlich heißt nicht klickstark." }
+    hints:
+      - Was lässt Leute schnell tippen?
+    explanation: Klicks messen Neugier, nicht Qualität. Das System lernt, Neugier zu wecken.
+
+  - kind: explain
+    body: |
+      **Goodharts Gesetz:** Wird eine Kennzahl zum Ziel, taugt sie nicht mehr als Messung. Gute Systeme kombinieren darum mehrere Signale.
+
+  - kind: problem
+    id: signale
+    widget: buckets
+    prompt: Misst das eher kurzfristige Aufmerksamkeit oder echten Nutzen?
+    params:
+      buckets: [{ label: Aufmerksamkeit }, { label: Nutzen }]
+      items:
+        - { label: Klicks, bucket: Aufmerksamkeit }
+        - { label: Die ersten 3 Sekunden geschaut, bucket: Aufmerksamkeit }
+        - { label: Kommt nach einer Woche wieder, bucket: Nutzen }
+        - { label: Bewertung »hat sich gelohnt«, bucket: Nutzen }
+    hints:
+      - Was sagt etwas über die Zeit danach?
+    explanation: Wer wiederkommt oder zufrieden ist, hatte echten Nutzen.
+
+srs:
+  cards_from: [nur-klicks, signale]

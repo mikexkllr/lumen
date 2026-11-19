@@ -1,0 +1,71 @@
+id: ai.vision.filters
+type: concept
+title: Kanten finden
+summary: Ein kleines Fenster rechnet über das Bild.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: differenz
+    widget: numeric
+    body: Ein einfacher Kantenfilter rechnet für jedes Pixel – rechter Nachbar minus linker Nachbar.
+    prompt: Links steht der Wert {{l}}, rechts {{r}}. Was gibt der Filter aus?
+    params: { placeholder: "Wert" }
+    answer: { value: "{{r - l}}" }
+    feedback:
+      - when: "numval(state.input) == l - r"
+        misconception: order
+        text: Rechts minus links – nicht umgekehrt.
+    hints:
+      - "Rechne {{r}} − {{l}}."
+    explanation: "{{r}} − {{l}} = {{r - l}}. Ein großer Wert heißt – hier ist eine Kante."
+    variants:
+      params: { l: "choice[0,10,20]", r: "choice[180,200,255]" }
+      defaults: { l: 10, r: 200 }
+
+  - kind: explain
+    body: |
+      Ein **Filter** schiebt ein kleines Fenster über das Bild und rechnet mit den Zahlen darin.
+      So findet ein Netz Kanten, Ecken und Muster.
+
+  - kind: problem
+    id: kante
+    widget: pixels
+    prompt: Die Zahlen zeigen die Helligkeit. Markiere in jeder Zeile das erste helle Feld nach der Kante.
+    params:
+      labels:
+        - [0, 0, 0, 9, 9, 9]
+        - [0, 0, 9, 9, 9, 9]
+        - [0, 0, 0, 0, 9, 9]
+        - [0, 0, 0, 9, 9, 9]
+    answer: { pattern: ["...#..", "..#...", "....#.", "...#.."] }
+    hints:
+      - Suche in jeder Zeile den Sprung von 0 auf 9.
+    explanation: Genau dort ist der Unterschied zum Nachbarn groß – der Filter schlägt aus.
+
+  - kind: explain
+    body: Wer legt fest, welche Filter ein Netz benutzt?
+    reveal:
+      body: Niemand. Ein Netz **lernt** seine Filter selbst. Frühe Schichten finden Kanten, spätere ganze Augen oder Räder.
+
+  - kind: problem
+    id: schichten
+    widget: order
+    prompt: Was erkennen die Schichten eines Bilder-Netzes nacheinander?
+    params:
+      startLabel: erste Schicht
+      endLabel: letzte Schicht
+      items:
+        - { label: Helle und dunkle Punkte }
+        - { label: Kanten }
+        - { label: Formen wie Kreise und Ecken }
+        - { label: Teile wie Augen oder Räder }
+        - { label: Ganze Dinge wie Katzen oder Autos }
+    hints:
+      - Vom Einfachen zum Komplexen.
+    explanation: Jede Schicht baut aus den Mustern der vorigen größere Muster.
+
+srs:
+  cards_from: [differenz, schichten]

@@ -1,0 +1,55 @@
+id: logic.constraints.order
+type: concept
+title: Reihenfolgen
+summary: Vorher, nachher, direkt daneben.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: haus
+    widget: logic-grid
+    prompt: Wer wohnt auf welcher Etage?
+    params:
+      categories:
+        - { name: Person, items: [Dana, Emil, Fritz, Gina] }
+        - { name: Etage, items: [1. Etage, 2. Etage, 3. Etage, 4. Etage] }
+      ordered: 1
+      clues:
+        - text: Emil wohnt direkt über Dana.
+          rule: { offset: [Dana, Emil, 1] }
+        - text: Gina wohnt ganz oben.
+          rule: { is: [Gina, 4. Etage] }
+        - text: Fritz wohnt nicht in der 1. Etage.
+          rule: { not: [Fritz, 1. Etage] }
+    hints:
+      - Dana und Emil brauchen zwei benachbarte freie Etagen.
+    explanation: Gina oben, Fritz in der 3. – nur so bleiben zwei Nachbaretagen für Dana und Emil.
+
+  - kind: explain
+    body: |
+      Bei Reihenfolgen helfen **Paare**: »direkt über« oder »direkt vor« braucht zwei benachbarte freie Plätze. Oft gibt es dafür nur eine Möglichkeit.
+
+  - kind: problem
+    id: lauf
+    widget: logic-grid
+    prompt: Wer wurde welcher beim Lauf?
+    params:
+      categories:
+        - { name: Person, items: [Lea, Mo, Nia, Ole] }
+        - { name: Platz, items: [1. Platz, 2. Platz, 3. Platz, 4. Platz] }
+      ordered: 1
+      clues:
+        - text: Lea kam direkt vor Mo ins Ziel.
+          rule: { offset: [Lea, Mo, 1] }
+        - text: Nia wurde Erste oder Letzte.
+          rule: { either: [Nia, 1. Platz, 4. Platz] }
+        - text: Ole wurde Zweiter.
+          rule: { is: [Ole, 2. Platz] }
+    hints:
+      - Wo ist noch Platz für zwei direkt aufeinanderfolgende Läufer?
+    explanation: Ole auf 2 lässt für Lea und Mo nur 3 und 4 – Nia ist Erste.
+
+srs:
+  cards_from: [haus, lauf]

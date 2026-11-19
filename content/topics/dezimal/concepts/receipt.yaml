@@ -1,0 +1,60 @@
+id: math.decimals.receipt
+type: concept
+title: Der Kassenbon
+summary: Überschlagen schützt vor Fehlern.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: summe
+    widget: numeric
+    prompt: Brot 2,49 €, Käse 3,79 €, Milch 1,19 €. Was kostet alles zusammen?
+    params: { unit: "€" }
+    answer: { value: 7.47 }
+    hints:
+      - Erst die Euro, dann die Cent addieren.
+    explanation: 2,49 + 3,79 + 1,19 = 7,47 €.
+
+  - kind: explain
+    body: |
+      **Überschlagen:** Runde jeden Betrag grob und addiere im Kopf. Das Ergebnis ist nicht exakt, aber große Fehler fallen sofort auf.
+
+  - kind: problem
+    id: ueberschlag
+    widget: numeric
+    prompt: Überschlage – {{a / 100}} € + {{b / 100}} € + {{c / 100}} € sind ungefähr wie viel?
+    params: { unit: "€" }
+    answer: { value: "{{round(a / 100) + round(b / 100) + round(c / 100)}}", tolerance: 1.5 }
+    hints:
+      - Runde jeden Betrag auf ganze Euro.
+    explanation: "Etwa {{round(a / 100) + round(b / 100) + round(c / 100)}} € – genau sind es {{(a + b + c) / 100}} €."
+    variants:
+      params: { a: "int[105,995]", b: "int[105,995]", c: "int[105,995]" }
+      defaults: { a: 389, b: 512, c: 149 }
+
+  - kind: problem
+    id: rest
+    widget: numberline
+    prompt: Du zahlst 7,50 € mit einem 10-€-Schein. Markiere dein Rückgeld.
+    params: { min: 0, max: 5, ticks: 2, labels: decimals }
+    answer: { value: 2.5 }
+    hints:
+      - Von 7,50 bis 10.
+    explanation: 10 − 7,50 = 2,50 €.
+
+  - kind: problem
+    id: stimmt
+    widget: choice
+    prompt: Vier Artikel kosten je etwa 3 €. Die Kasse zeigt 21,47 €. Stimmt das?
+    params:
+      options:
+        - { label: Nein – etwa 12 € wären richtig., correct: true }
+        - { label: Ja, feedback: "4 · 3 € sind 12 €. 21,47 € ist viel zu viel." }
+    hints:
+      - 4 · 3.
+    explanation: Der Überschlag zeigt sofort – da wurde etwas doppelt gebucht.
+
+srs:
+  cards_from: [ueberschlag, stimmt]

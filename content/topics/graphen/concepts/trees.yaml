@@ -1,0 +1,105 @@
+id: cs.graphs.trees
+type: concept
+title: Günstig verbinden
+summary: Spannbäume und Kruskals Trick.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: glasfaser
+    widget: network
+    prompt: Verbinde alle Häuser mit Glasfaser. Wähle die Leitungen so, dass alles verbunden ist und es am wenigsten kostet.
+    params:
+      mode: select
+      unit: km
+      nodes:
+        - { id: A, x: 8, y: 20 }
+        - { id: B, x: 46, y: 6 }
+        - { id: C, x: 90, y: 24 }
+        - { id: D, x: 72, y: 92 }
+        - { id: E, x: 24, y: 90 }
+      edges:
+        - { a: A, b: B, w: 3 }
+        - { a: B, b: C, w: 4 }
+        - { a: C, b: D, w: 2 }
+        - { a: D, b: E, w: 5 }
+        - { a: E, b: A, w: 4 }
+        - { a: A, b: D, w: 7 }
+        - { a: B, b: E, w: 6 }
+        - { a: B, b: D, w: 6 }
+    hints:
+      - Tippe Leitungen an, um sie zu wählen.
+      - Fang mit den billigsten an.
+    explanation: C–D, A–B, B–C und A–E verbinden alles für 13 km.
+
+  - kind: explain
+    body: |
+      Ein Netz ohne Kreise, das alle Knoten verbindet, heißt **Spannbaum**.
+      Bei n Knoten hat er immer genau n − 1 Kanten.
+
+  - kind: problem
+    id: kanten
+    widget: numeric
+    prompt: Wie viele Leitungen braucht ein Spannbaum für {{n}} Häuser?
+    params: { unit: Leitungen }
+    answer: { value: "{{n - 1}}" }
+    feedback:
+      - when: "numval(state.input) == n"
+        misconception: nodes-equals-edges
+        text: Fast. Ein Baum hat immer eine Kante weniger als Knoten.
+    hints:
+      - Zwei Häuser brauchen eine Leitung, drei Häuser zwei …
+    explanation: "{{n}} Häuser brauchen {{n - 1}} Leitungen."
+    variants:
+      params: { n: "int[6,24]" }
+      defaults: { n: 12 }
+
+  - kind: explain
+    body: |
+      **Kruskals Trick:** Nimm immer die billigste Leitung, die keinen Kreis schließt.
+      Mach weiter, bis alles verbunden ist.
+
+  - kind: problem
+    id: kruskal
+    widget: network
+    prompt: Wende Kruskals Trick an. Verbinde alle sechs Orte so günstig wie möglich.
+    params:
+      mode: select
+      unit: km
+      nodes:
+        - { id: P, x: 4, y: 50 }
+        - { id: Q, x: 35, y: 8 }
+        - { id: R, x: 35, y: 92 }
+        - { id: S, x: 66, y: 8 }
+        - { id: T, x: 66, y: 92 }
+        - { id: U, x: 96, y: 50 }
+      edges:
+        - { a: P, b: Q, w: 2 }
+        - { a: P, b: R, w: 3 }
+        - { a: Q, b: R, w: 4 }
+        - { a: Q, b: S, w: 5 }
+        - { a: R, b: T, w: 1 }
+        - { a: S, b: T, w: 6 }
+        - { a: S, b: U, w: 2 }
+        - { a: T, b: U, w: 7 }
+    hints:
+      - Die Reihenfolge ist 1, 2, 2, 3 … Überspringe alles, was einen Kreis schließt.
+    explanation: R–T, P–Q, S–U, P–R und Q–S – zusammen 13 km.
+
+  - kind: problem
+    id: kreis
+    widget: choice
+    prompt: Warum ist ein Kreis im Kabelnetz überflüssig?
+    params:
+      options:
+        - { label: Eine Leitung im Kreis kann man weglassen – alles bleibt verbunden., correct: true }
+        - { label: Kreise stören das Signal., feedback: "Technisch gibt es Gründe dafür, aber hier geht es um die Verbindung." }
+        - { label: Kreise sind verboten., feedback: "Verboten nicht – nur unnötig teuer." }
+    hints:
+      - Was passiert, wenn du eine Kante aus einem Kreis entfernst?
+    explanation: Im Kreis gibt es zwei Wege zwischen zwei Punkten. Einer davon reicht.
+
+srs:
+  cards_from: [kanten, kreis]

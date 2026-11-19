@@ -1,0 +1,74 @@
+id: sci.energy.power
+type: concept
+title: Watt und Kilowattstunden
+summary: Leistung mal Zeit ist Energie.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: foehn
+    widget: choice
+    prompt: Auf einem Föhn steht 2000 W. Was sagt diese Zahl?
+    params:
+      options:
+        - { label: Wie schnell er Energie verbraucht, correct: true }
+        - { label: Wie viel er insgesamt verbraucht, feedback: "Das hängt davon ab, wie lange er läuft." }
+        - { label: Wie heiß er wird, feedback: "Watt misst Leistung, keine Temperatur." }
+    hints:
+      - Watt ist eine Leistung – Energie pro Zeit.
+    explanation: Watt ist die **Leistung**. Erst mit der Zeit wird daraus verbrauchte Energie.
+
+  - kind: explain
+    body: |
+      **Leistung** (Watt) sagt, wie schnell Energie fließt. **Energie** ist Leistung mal Zeit.
+      1000 Watt eine Stunde lang ergibt 1 **Kilowattstunde** (kWh).
+
+  - kind: problem
+    id: viertelstunde
+    widget: numeric
+    prompt: Ein Föhn mit 2000 W läuft 15 Minuten. Wie viele kWh braucht er?
+    params: { unit: kWh }
+    answer: { value: 0.5 }
+    feedback:
+      - when: "numval(state.input) == 30000"
+        misconception: watt-minutes
+        text: Rechne in Kilowatt und Stunden – 2 kW und eine Viertelstunde.
+    hints:
+      - 2000 W sind 2 kW, 15 Minuten sind 0,25 Stunden.
+    explanation: 2 kW · 0,25 h = 0,5 kWh.
+
+  - kind: problem
+    id: geraet
+    widget: numeric
+    prompt: Ein Gerät mit {{w}} W läuft {{h}} Stunden. Wie viele kWh braucht es?
+    params: { unit: kWh }
+    answer: { value: "{{w * h / 1000}}" }
+    feedback:
+      - when: "numval(state.input) == w * h"
+        misconception: wh-not-kwh
+        text: Das sind Wattstunden. Teile noch durch 1000.
+    hints:
+      - "{{w}} W · {{h}} h, dann durch 1000."
+    explanation: "{{w}} · {{h}} = {{w * h}} Wh = {{w * h / 1000}} kWh."
+    variants:
+      params: { w: "choice[50,100,500,1500]", h: "choice[2,4,6]" }
+      defaults: { w: 100, h: 4 }
+
+  - kind: problem
+    id: leistungen
+    widget: match
+    prompt: Welche Leistung passt ungefähr zu welchem Gerät?
+    params:
+      pairs:
+        - { left: LED-Lampe, right: 8 W }
+        - { left: Laptop, right: 50 W }
+        - { left: Staubsauger, right: 700 W }
+        - { left: Wasserkocher, right: 2000 W }
+    hints:
+      - Was heizt, braucht am meisten.
+    explanation: Heizen und Kochen brauchen am meisten Leistung, Licht am wenigsten.
+
+srs:
+  cards_from: [viertelstunde, geraet]

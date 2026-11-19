@@ -1,0 +1,64 @@
+id: stats.conditional.given
+type: concept
+title: Unter der Bedingung
+summary: P(B | A) ist nicht P(A | B).
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: sport-musik
+    widget: numeric
+    visual: { widget: venn, params: { sets: [Sport, Musik], outside: true, counts: { A: 20, B: 30, AB: 10, O: 40 } } }
+    prompt: 100 Leute wurden befragt. Welcher Anteil der Sportler macht auch Musik?
+    params: { placeholder: "Bruch" }
+    answer: { value: "1/3" }
+    feedback:
+      - when: "approx(numval(state.input), 1/10)"
+        misconception: joint-not-conditional
+        text: 10 von 100 machen beides. Gefragt ist aber nur unter den Sportlern.
+    hints:
+      - Wie viele machen Sport? Wie viele davon auch Musik?
+    explanation: 30 machen Sport, 10 davon auch Musik – 10/30 = 1/3.
+
+  - kind: explain
+    body: |
+      **P(B | A)** heißt: Wahrscheinlichkeit für B, wenn A schon feststeht.
+      Man schaut nur noch auf die Fälle mit A.
+
+  - kind: problem
+    id: musik-sport
+    widget: numeric
+    visual: { widget: venn, params: { sets: [Sport, Musik], outside: true, counts: { A: 20, B: 30, AB: 10, O: 40 } } }
+    prompt: Und andersherum – welcher Anteil der Musiker macht auch Sport?
+    params: { placeholder: "Bruch" }
+    answer: { value: "1/4" }
+    feedback:
+      - when: "approx(numval(state.input), 1/3)"
+        misconception: swap-condition
+        text: Jetzt ist Musik die Bedingung. Wie viele machen Musik?
+    hints:
+      - 40 machen Musik.
+    explanation: 10 von 40 Musikern machen Sport – 1/4. Das ist etwas anderes als eben.
+
+  - kind: explain
+    body: Sind P(A | B) und P(B | A) gleich?
+    reveal:
+      body: Meist nicht. Fast alle Profi-Basketballer sind groß. Aber nur sehr wenige große Menschen spielen Profi-Basketball.
+
+  - kind: problem
+    id: papst
+    widget: choice
+    prompt: Was ist wahrscheinlicher?
+    params:
+      options:
+        - { label: "Katholisch zu sein, wenn man Papst ist", correct: true }
+        - { label: "Papst zu sein, wenn man katholisch ist", feedback: "Unter über einer Milliarde Katholiken gibt es genau einen Papst." }
+        - { label: Beides gleich, feedback: "Die Bedingung macht den Unterschied." }
+    hints:
+      - Wie viele Päpste gibt es – und wie viele Katholiken?
+    explanation: Der Papst ist immer katholisch. Umgekehrt ist es fast unmöglich.
+
+srs:
+  cards_from: [sport-musik, musik-sport]

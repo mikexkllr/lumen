@@ -1,0 +1,54 @@
+id: ai.agents.planning
+type: concept
+title: Große Aufgaben zerlegen
+summary: Ein Plan aus kleinen Schritten.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: reise
+    widget: order
+    prompt: Ein Agent soll eine Reise buchen. Welche Reihenfolge ist sinnvoll?
+    params:
+      items:
+        - { label: Wünsche erfragen }
+        - { label: Flüge suchen }
+        - { label: Angebot zeigen }
+        - { label: Nach Bestätigung buchen }
+    hints:
+      - Gebucht wird ganz am Ende.
+    explanation: Erst klären, dann suchen, dann fragen – und erst danach handeln.
+
+  - kind: problem
+    id: fehler
+    widget: numeric
+    prompt: Jeder Schritt gelingt mit {{p}} % Wahrscheinlichkeit. Wie wahrscheinlich gelingen 2 Schritte hintereinander?
+    params: { unit: "%" }
+    answer: { value: "{{p * p / 100}}", tolerance: 0.5 }
+    hints:
+      - "{{p}} % von {{p}} %."
+    explanation: "{{p}} % · {{p}} % = {{round(p * p / 100, 1)}} % – lange Pläne werden fehleranfällig."
+    variants:
+      params: { p: "choice[80,90,95]" }
+      defaults: { p: 90 }
+
+  - kind: explain
+    body: |
+      Fehler häufen sich mit jedem Schritt. Gute Agenten **prüfen** darum zwischendurch, ob sie noch auf Kurs sind. Wenn nicht, passen sie den Plan an.
+
+  - kind: problem
+    id: anpassen
+    widget: choice
+    prompt: Der gewünschte Flug ist ausgebucht. Was sollte ein guter Agent tun?
+    params:
+      options:
+        - { label: Alternativen suchen und nachfragen, correct: true }
+        - { label: Trotzdem buchen, feedback: "Das scheitert sicher – der Plan muss sich an die Beobachtung anpassen." }
+    hints:
+      - Was sagt die Beobachtung über den Plan?
+    explanation: Beobachtungen ändern den Plan – das ist die Stärke der Schleife.
+
+srs:
+  cards_from: [reise, fehler]

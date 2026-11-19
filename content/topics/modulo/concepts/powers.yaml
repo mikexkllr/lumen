@@ -1,0 +1,54 @@
+id: math.modular.powers
+type: concept
+title: Potenzen im Kreis
+summary: Reste wiederholen sich.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zyklus
+    widget: order
+    prompt: Die Reste von 2, 4, 8, 16, 32 beim Teilen durch 5. Bring sie in die richtige Reihenfolge.
+    params:
+      items:
+        - { label: "2" }
+        - { label: "4" }
+        - { label: "3" }
+        - { label: "1" }
+    hints:
+      - "8 mod 5 = 3, 16 mod 5 = 1."
+    explanation: 2, 4, 3, 1 – danach wiederholt sich alles.
+
+  - kind: problem
+    id: gross
+    widget: numeric
+    prompt: Die Reste von Zweierpotenzen modulo 5 wiederholen sich alle 4 Schritte (2, 4, 3, 1). Welchen Rest lässt 2 hoch {{k}}?
+    params: { placeholder: "Rest" }
+    answer: { value: "{{mod(2 ** k, 5)}}" }
+    hints:
+      - "Welcher Rest bleibt von {{k}} beim Teilen durch 4?"
+    explanation: "Der Zyklus 2, 4, 3, 1 an Stelle {{mod(k - 1, 4) + 1}} – also {{mod(2 ** k, 5)}}."
+    variants:
+      params: { k: "int[5,20]" }
+      defaults: { k: 10 }
+
+  - kind: explain
+    body: |
+      Potenzen modulo n sind leicht zu berechnen, aber schwer umzukehren. Genau darauf baut **RSA**, eine der wichtigsten Verschlüsselungen: Es potenziert riesige Zahlen modulo einer Zahl mit Hunderten Stellen.
+
+  - kind: problem
+    id: rsa
+    widget: choice
+    prompt: Warum ist das Umkehren schwer?
+    params:
+      options:
+        - { label: Die Reste springen scheinbar zufällig herum., correct: true }
+        - { label: Weil Computer nicht dividieren können., feedback: "Dividieren ist leicht – es fehlt eine Abkürzung zurück zum Exponenten." }
+    hints:
+      - Sieht man einem Rest an, welcher Exponent ihn erzeugt hat?
+    explanation: Ohne geheimen Schlüssel bleibt praktisch nur Ausprobieren – bei riesigen Zahlen aussichtslos.
+
+srs:
+  cards_from: [gross, rsa]

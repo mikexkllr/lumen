@@ -1,0 +1,70 @@
+id: math.sequences.everyday
+type: concept
+title: Folgen im Alltag
+summary: Sparpläne, Abos und Reiskörner.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: sparplan
+    widget: numeric
+    prompt: Du legst im ersten Monat {{a}} € zurück und jeden Monat {{d}} € mehr. Wie viel legst du im 12. Monat zurück?
+    params: { unit: "€" }
+    answer: { value: "{{a + 11 * d}}" }
+    feedback:
+      - when: "numval(state.input) == a + 12 * d"
+        misconception: off-by-one
+        text: Bis zum 12. Monat kommen nur 11 Erhöhungen dazu.
+    hints:
+      - Zwischen Monat 1 und Monat 12 liegen 11 Schritte.
+    explanation: "{{a}} + 11 · {{d}} = {{a + 11 * d}} €."
+    variants:
+      params: { a: "choice[20,50,100]", d: "choice[5,10,20]" }
+      defaults: { a: 50, d: 10 }
+
+  - kind: problem
+    id: schach
+    widget: choice
+    prompt: Auf das erste Schachfeld kommt 1 Reiskorn, auf jedes weitere doppelt so viele. Wie viele liegen auf Feld 64?
+    params:
+      options:
+        - { label: "2⁶³ – über 9 Trillionen", correct: true }
+        - { label: "128", feedback: "Das wäre 64 · 2. Hier wird 63-mal verdoppelt." }
+        - { label: "2⁶⁴", feedback: "Feld 1 hat 2⁰ = 1 Korn – Feld 64 also 2⁶³." }
+    hints:
+      - "Feld 1: 2⁰, Feld 2: 2¹, Feld 3: 2² …"
+    explanation: Mehr Reis, als die Menschheit je geerntet hat – geometrisches Wachstum.
+
+  - kind: problem
+    id: nutzer
+    widget: numeric
+    prompt: Eine App hat 1000 Nutzer und wächst jeden Monat um 10 %. Wie viele sind es nach zwei Monaten?
+    params: { unit: Nutzer }
+    answer: { value: 1210 }
+    feedback:
+      - when: "numval(state.input) == 1200"
+        misconception: simple-interest
+        text: Im zweiten Monat wachsen auch die neuen Nutzer mit – 10 % von 1100.
+    hints:
+      - Erst 1000 · 1,1, dann nochmal · 1,1.
+    explanation: 1000 → 1100 → 1210. Jeder Monat multipliziert mit 1,1.
+
+  - kind: problem
+    id: welche
+    widget: buckets
+    prompt: Plus oder mal – welche Art Folge steckt dahinter?
+    params:
+      buckets: [{ label: arithmetisch }, { label: geometrisch }]
+      items:
+        - { label: Jedes Jahr 500 € mehr Gehalt, bucket: arithmetisch }
+        - { label: Kosten eines Abos über die Monate, bucket: arithmetisch }
+        - { label: Zinseszins, bucket: geometrisch }
+        - { label: Bakterien teilen sich stündlich, bucket: geometrisch }
+    hints:
+      - Kommt ein fester Betrag dazu – oder ein fester Anteil?
+    explanation: Fester Betrag – arithmetisch. Fester Prozentsatz – geometrisch.
+
+srs:
+  cards_from: [sparplan, nutzer]

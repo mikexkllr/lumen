@@ -1,0 +1,54 @@
+id: stats.testing.multiple
+type: concept
+title: Wer oft genug sucht
+summary: Viele Tests, falsche Funde.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zwanzig
+    widget: numeric
+    prompt: Forscher testen {{n}} wirkungslose Mittel, jeweils mit der 5-%-Grenze. Wie viele »signifikante« Funde erwartet man rein zufällig?
+    params: { unit: Funde }
+    answer: { value: "{{n / 20}}" }
+    hints:
+      - "5 % von {{n}}."
+    explanation: "{{n}} · 0,05 = {{n / 20}} Zufallsfunde – obwohl keines wirkt."
+    variants:
+      params: { n: "choice[20,40,60,100]" }
+      defaults: { n: 20 }
+
+  - kind: explain
+    body: |
+      Wer viele Hypothesen testet und nur die Treffer berichtet, findet garantiert etwas. Das heißt **p-Hacking**. Darum muss man die Grenze bei vielen Tests verschärfen.
+
+  - kind: problem
+    id: gummibaerchen
+    widget: choice
+    body: Eine Studie testet 20 Farben von Gummibärchen auf Akne. Nur bei Grün ist p < 5 %. Die Schlagzeile lautet »Grüne Gummibärchen verursachen Akne!«
+    prompt: Was ist das Problem?
+    params:
+      options:
+        - { label: Bei 20 Tests ist ein Zufallstreffer zu erwarten., correct: true }
+        - { label: Grün ist eine besondere Farbe., feedback: "Grün hatte einfach Glück im Würfelspiel des Zufalls." }
+    hints:
+      - Wie viele Zufallstreffer erwartet man bei 20 Tests?
+    explanation: Genau einer – und der wurde zur Schlagzeile.
+
+  - kind: problem
+    id: grenze
+    widget: numeric
+    prompt: Eine einfache Korrektur teilt die 5-%-Grenze durch die Zahl der Tests. Welche Grenze gilt bei {{n}} Tests?
+    params: { unit: "%" }
+    answer: { value: "{{5 / n}}" }
+    hints:
+      - "5 : {{n}}."
+    explanation: "5 : {{n}} = {{5 / n}} % – so bleibt die Gesamtquote der Fehlalarme bei 5 %."
+    variants:
+      params: { n: "choice[2,4,5,10]" }
+      defaults: { n: 10 }
+
+srs:
+  cards_from: [zwanzig, gummibaerchen]

@@ -1,0 +1,79 @@
+id: sci.energy.efficiency
+type: concept
+title: Wirkungsgrad
+summary: Wie viel kommt wirklich an?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: gluehbirne
+    widget: choice
+    prompt: Eine Glühbirne mit 60 W ist so hell wie eine LED mit 8 W. Wohin geht der Rest der Energie?
+    params:
+      options:
+        - { label: In Wärme, correct: true }
+        - { label: "In Licht, das man nicht sieht", feedback: "Ein kleiner Teil ist Infrarot – aber das ist eben Wärme." }
+        - { label: Sie geht verloren, feedback: "Energie geht nie verloren. Sie wird nur in eine andere Form umgewandelt." }
+    hints:
+      - Fass eine alte Glühbirne lieber nicht an.
+    explanation: Die meiste Energie wird zu Wärme. Nur ein kleiner Teil wird Licht.
+
+  - kind: explain
+    body: |
+      **Wirkungsgrad** = nutzbare Energie : eingesetzte Energie.
+      Eine Glühbirne macht nur etwa 5 % zu Licht, eine LED rund 40 %.
+
+  - kind: problem
+    id: motor
+    widget: numeric
+    prompt: Ein Motor bekommt {{e}} Joule und liefert {{n}} Joule Bewegung. Wie groß ist sein Wirkungsgrad?
+    params: { unit: "%" }
+    answer: { value: "{{100 * n / e}}" }
+    hints:
+      - "{{n}} geteilt durch {{e}}, mal 100."
+    explanation: "{{n}} : {{e}} = {{n / e}} – also {{100 * n / e}} %."
+    variants:
+      params: { e: "choice[1000,2000,500]", p: "choice[25,40,80,90]" }
+      derive: { n: "e * p / 100" }
+      defaults: { e: 1000, p: 80 }
+
+  - kind: problem
+    id: sparen
+    widget: numeric
+    prompt: Wie viel Prozent Strom spart eine 8-W-LED gegenüber einer 60-W-Glühbirne? Runde auf ganze Prozent.
+    params: { unit: "%" }
+    answer: { value: 87, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 52"
+        misconception: watts-as-percent
+        text: 52 W ist die Ersparnis in Watt. Teile sie durch 60.
+    hints:
+      - Die Ersparnis ist 52 W von 60 W.
+    explanation: "52 : 60 ≈ 0,87 – also rund 87 % weniger."
+
+  - kind: problem
+    id: einordnen
+    widget: buckets
+    prompt: Hoher oder niedriger Wirkungsgrad?
+    params:
+      buckets: [{ label: hoch – über 80 % }, { label: niedrig – unter 40 % }]
+      items:
+        - { label: Elektromotor, bucket: hoch – über 80 % }
+        - { label: Transformator, bucket: hoch – über 80 % }
+        - { label: Akku laden und entladen, bucket: hoch – über 80 % }
+        - { label: Glühbirne, bucket: niedrig – unter 40 % }
+        - { label: Benzinmotor, bucket: niedrig – unter 40 % }
+        - { label: Kochen über offenem Feuer, bucket: niedrig – unter 40 % }
+    hints:
+      - Wo entsteht viel Abwärme?
+    explanation: Elektrische Maschinen sind sehr effizient. Verbrennung verliert viel als Wärme.
+
+  - kind: explain
+    body: Kann ein Wirkungsgrad über 100 % liegen?
+    reveal:
+      body: Nein – Energie entsteht nicht aus dem Nichts. Eine Wärmepumpe liefert zwar mehr Wärme als Strom. Den Rest holt sie aber aus der Umgebung.
+
+srs:
+  cards_from: [motor, sparen]

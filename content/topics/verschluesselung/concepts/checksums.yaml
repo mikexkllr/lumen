@@ -1,0 +1,56 @@
+id: cs.crypto.checksums
+type: concept
+title: Prüfziffern und Hashes
+summary: Fehler erkennen, Passwörter schützen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quersumme
+    widget: numeric
+    body: Eine einfache Prüfziffer – addiere alle Ziffern und nimm die letzte Stelle der Summe.
+    prompt: Welche Prüfziffer hat {{a}}{{b}}{{c}}{{d}}?
+    params: { placeholder: "Ziffer" }
+    answer: { value: "{{mod(a + b + c + d, 10)}}" }
+    hints:
+      - "{{a}} + {{b}} + {{c}} + {{d}} = {{a + b + c + d}}."
+    explanation: "Summe {{a + b + c + d}} – die letzte Stelle ist {{mod(a + b + c + d, 10)}}."
+    variants:
+      params: { a: "int[1,9]", b: "int[0,9]", c: "int[0,9]", d: "int[0,9]" }
+      defaults: { a: 4, b: 7, c: 3, d: 8 }
+
+  - kind: problem
+    id: dreher
+    widget: choice
+    prompt: Jemand tippt 4738 statt 4378. Merkt die Quersummen-Prüfung den Fehler?
+    params:
+      options:
+        - { label: Nein – die Summe bleibt gleich, correct: true }
+        - { label: Ja, feedback: "Vertauschte Ziffern ergeben dieselbe Summe." }
+    hints:
+      - Rechne beide Summen.
+    explanation: Darum gewichten echte Prüfziffern wie bei IBAN oder ISBN jede Stelle anders.
+
+  - kind: explain
+    body: |
+      Ein **Hash** ist eine Art Super-Prüfziffer. Aus beliebigen Daten wird ein kurzer Fingerabdruck. Ändert sich ein Zeichen, ändert sich der ganze Hash – und zurückrechnen geht nicht.
+
+  - kind: problem
+    id: passwort
+    widget: buckets
+    prompt: Was sollte ein Dienst über dein Passwort speichern?
+    params:
+      buckets: [{ label: gut }, { label: schlecht }]
+      items:
+        - { label: Einen Hash mit Salz, bucket: gut }
+        - { label: Das Passwort im Klartext, bucket: schlecht }
+        - { label: Das Passwort mit Caesar verschoben, bucket: schlecht }
+        - { label: Einen langsamen Passwort-Hash, bucket: gut }
+    hints:
+      - Was passiert, wenn die Datenbank gestohlen wird?
+    explanation: Ein gesalzener, langsamer Hash lässt sich kaum zurückrechnen. Klartext und Caesar sind sofort geknackt.
+
+srs:
+  cards_from: [dreher, passwort]

@@ -1,0 +1,54 @@
+id: cs.crypto.publickey
+type: concept
+title: Öffentliche Schlüssel
+summary: Ein Schloss für alle, ein Schlüssel für dich.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Stell dir ein offenes Vorhängeschloss vor. Jeder kann es zudrücken, aber nur du hast den Schlüssel. Das Schloss ist dein **öffentlicher Schlüssel**, der Schlüssel dazu dein **privater**.
+
+  - kind: problem
+    id: wessen
+    widget: choice
+    prompt: Anna will Ben eine geheime Nachricht schicken. Mit welchem Schlüssel verschließt sie?
+    params:
+      options:
+        - { label: Mit Bens öffentlichem Schlüssel, correct: true }
+        - { label: Mit ihrem privaten Schlüssel, feedback: "Dann könnte jeder mit Annas öffentlichem Schlüssel öffnen." }
+        - { label: Mit Bens privatem Schlüssel, feedback: "Den hat nur Ben." }
+    hints:
+      - Wer soll die Nachricht öffnen können?
+    explanation: Nur Ben hat den passenden privaten Schlüssel zum Öffnen.
+
+  - kind: problem
+    id: einweg
+    widget: numeric
+    prompt: Solche Verfahren nutzen Rechnungen, die leicht hin und schwer zurück gehen. Was ist der Rest von $3^{ {{e}} }$ geteilt durch 7?
+    params: { placeholder: "Rest" }
+    answer: { value: "{{mod(3 ** e, 7)}}" }
+    hints:
+      - "$3^{ {{e}} } = {{3 ** e}}$. Teile durch 7."
+    explanation: "{{3 ** e}} = 7 · {{floor(3 ** e / 7)}} + {{mod(3 ** e, 7)}}. Rückwärts – welcher Exponent gibt diesen Rest? – ist bei großen Zahlen fast unmöglich."
+    variants:
+      params: { e: "int[2,6]" }
+      defaults: { e: 4 }
+
+  - kind: problem
+    id: signatur
+    widget: choice
+    prompt: Wie beweist Ben, dass eine Nachricht wirklich von ihm stammt?
+    params:
+      options:
+        - { label: Er signiert mit seinem privaten Schlüssel., correct: true }
+        - { label: Er schreibt seinen Namen darunter., feedback: "Das kann jeder fälschen." }
+        - { label: Er nutzt Annas öffentlichen Schlüssel., feedback: "Den hat jeder – das beweist nichts über Ben." }
+    hints:
+      - Was hat nur Ben?
+    explanation: Mit Bens öffentlichem Schlüssel kann jeder prüfen, dass nur Bens privater Schlüssel die Signatur erzeugt haben kann.
+
+srs:
+  cards_from: [wessen, signatur]

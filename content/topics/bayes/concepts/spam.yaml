@@ -1,0 +1,47 @@
+id: stats.bayes.spam
+type: concept
+title: Der Bayes-Spamfilter
+summary: Wörter als Beweise.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Ein Bayes-Filter fragt: Wie oft kommt ein Wort in Spam vor – und wie oft in normalen Mails? Von 1000 Mails seien 500 Spam. Das Wort »Gewinn« steht in 40 % der Spam-Mails, aber nur in 1 % der normalen.
+
+  - kind: problem
+    id: spam
+    widget: numeric
+    prompt: In wie vielen der 500 Spam-Mails steht »Gewinn«?
+    params: { unit: Mails }
+    answer: { value: 200 }
+    hints:
+      - 40 % von 500.
+    explanation: 200 Spam-Mails enthalten das Wort.
+
+  - kind: problem
+    id: normal
+    widget: numeric
+    prompt: In wie vielen der 500 normalen Mails steht »Gewinn«?
+    params: { unit: Mails }
+    answer: { value: 5 }
+    hints:
+      - 1 % von 500.
+    explanation: Nur 5 normale Mails – das Wort ist ein starkes Spam-Signal.
+
+  - kind: problem
+    id: schluss
+    widget: choice
+    prompt: Eine neue Mail enthält »Gewinn«. Wie wahrscheinlich ist sie Spam?
+    params:
+      options:
+        - { label: Sehr wahrscheinlich – etwa 98 %, correct: true }
+        - { label: Genau 40 %, feedback: "40 % ist der Anteil unter Spam – gefragt ist der Anteil Spam unter allen Gewinn-Mails." }
+    hints:
+      - 200 von 205 Mails mit diesem Wort.
+    explanation: 200 von 205 ≈ 98 %. Echte Filter kombinieren Hunderte Wörter so.
+
+srs:
+  cards_from: [normal, schluss]

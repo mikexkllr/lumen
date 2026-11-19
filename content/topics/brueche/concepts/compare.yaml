@@ -1,0 +1,117 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.compare
+type: concept
+title: Brüche vergleichen
+summary: Größere Zahlen machen einen Bruch nicht automatisch größer.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.compare]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: pizza-vergleich
+    widget: choice
+    prompt: Was ist mehr – 1/3 oder 1/4 einer Pizza?
+    params:
+      options:
+        - label: "1/3"
+          correct: true
+        - label: "1/4"
+          feedback: 4 ist zwar größer als 3. Aber in 4 Teile geschnitten sind die Stücke kleiner.
+        - label: Beides gleich viel
+          feedback: Probiere es aus. Teile eine Pizza in 3 und eine in 4 Stücke – die Stücke sind verschieden groß.
+    hints:
+      - Stell dir vor, die Pizza wird unter 3 oder unter 4 Leuten geteilt.
+    explanation: Je mehr Teile, desto kleiner jedes Teil. 1/3 ist mehr als 1/4.
+
+  - kind: explain
+    body: |
+      Gleicher Zähler: Der Bruch mit dem **kleineren** Nenner ist größer – seine Stücke sind größer.
+      Gleicher Nenner: Der größere Zähler gewinnt.
+
+  - kind: problem
+    id: stammbrueche
+    widget: order
+    prompt: Sortiere von klein nach groß.
+    params:
+      direction: horizontal
+      items: [{ label: "1/8" }, { label: "1/4" }, { label: "1/3" }, { label: "1/2" }]
+      startLabel: klein
+      endLabel: groß
+    hints:
+      - Alle haben den Zähler 1. Welcher Nenner macht die kleinsten Stücke?
+    explanation: Je größer der Nenner, desto kleiner das Stück.
+
+  - kind: problem
+    id: gleicher-nenner
+    widget: order
+    prompt: Sortiere von klein nach groß.
+    params:
+      direction: horizontal
+      items: [{ label: "2/7" }, { label: "3/7" }, { label: "5/7" }, { label: "6/7" }]
+      startLabel: klein
+      endLabel: groß
+    hints:
+      - Alle Stücke sind gleich groß. Zähle, wie viele es jeweils sind.
+    explanation: Gleicher Nenner – der Zähler entscheidet.
+
+  - kind: explain
+    body: |
+      Verschiedene Zähler und Nenner? Mach die Nenner gleich.
+      $\frac{2}{3}$ und $\frac{3}{4}$ werden zu $\frac{8}{12}$ und $\frac{9}{12}$. Jetzt sieht man: 3/4 ist größer.
+
+  - kind: problem
+    id: drei-fuenftel
+    widget: choice
+    prompt: Welcher Bruch ist größer – 3/5 oder 2/3?
+    params:
+      options:
+        - label: "2/3"
+          correct: true
+        - label: "3/5"
+          feedback: Größere Zahlen machen einen Bruch nicht größer. Erweitere beide auf Fünfzehntel – 9/15 und 10/15.
+        - label: Beide sind gleich groß
+          feedback: Erweitere auf Fünfzehntel. Dann siehst du 9/15 und 10/15.
+    hints:
+      - Finde einen gemeinsamen Nenner. 15 passt für 5 und 3.
+      - "3/5 = 9/15 und 2/3 = 10/15."
+    explanation: 10/15 ist mehr als 9/15, also ist 2/3 größer.
+    difficulty: 2
+
+  - kind: problem
+    id: groesserer-markieren
+    widget: numberline
+    prompt: Setze die Markierung auf den größeren der beiden Brüche 5/6 und 3/4.
+    params: { min: 0, max: 1, ticks: 12, labels: none, markers: [{ value: 0, label: "0" }, { value: 1, label: "1" }] }
+    answer: { value: "5/6" }
+    hints:
+      - "Der Strahl ist in Zwölftel geteilt. 5/6 = ?/12 und 3/4 = ?/12."
+      - "5/6 = 10/12 und 3/4 = 9/12."
+    explanation: 5/6 = 10/12 ist größer als 3/4 = 9/12.
+    difficulty: 2
+
+  - kind: problem
+    id: vergleich-variante
+    widget: choice
+    prompt: Welcher Bruch ist größer?
+    params:
+      shuffle: true
+      options:
+        - label: "{{a}}/{{b}}"
+          correct: "{{a * d > c * b}}"
+        - label: "{{c}}/{{d}}"
+          correct: "{{c * b > a * d}}"
+        - label: Beide sind gleich groß
+          correct: false
+    hints:
+      - Mach die Nenner gleich. {{b * d}} passt für {{b}} und {{d}}.
+      - "{{a}}/{{b}} = {{a * d}}/{{b * d}} und {{c}}/{{d}} = {{c * b}}/{{b * d}}."
+    explanation: "Auf {{b * d}}tel erweitert: {{a * d}}/{{b * d}} und {{c * b}}/{{b * d}}."
+    variants:
+      params: { a: "int[1,5]", b: "int[2,9]", c: "int[1,5]", d: "int[2,9]" }
+      constraints: ["a < b", "c < d", "a * d != c * b", "b != d"]
+      defaults: { a: 3, b: 5, c: 2, d: 3 }
+
+srs:
+  cards_from: ["steps[7]", "steps[2]"]

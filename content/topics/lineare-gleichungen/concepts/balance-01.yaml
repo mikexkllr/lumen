@@ -1,0 +1,118 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: alg.linear.balance-01
+type: concept
+title: Gleichungen als Waage
+summary: Was du links tust, tust du auch rechts – dann bleibt alles im Gleichgewicht.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [alg.balance, alg.solve-one-step]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Auf der Waage liegen links eine Kiste **x** und 3 Gewichte. Rechts liegen 7 Gewichte.
+      Die Waage ist im Gleichgewicht: Beide Seiten wiegen gleich viel.
+    visual:
+      widget: balance
+      params: { left: { x: 1, units: 3 }, right: { x: 0, units: 7 } }
+
+  - kind: problem
+    id: kippt
+    widget: choice
+    visual:
+      widget: balance
+      params: { left: { x: 1, units: 3 }, right: { x: 0, units: 7 } }
+    prompt: Was passiert, wenn du nur links ein Gewicht wegnimmst?
+    params:
+      options:
+        - label: Die Waage kippt nach rechts.
+          correct: true
+        - label: Die Waage kippt nach links.
+          feedback: Links wird es leichter, nicht schwerer. Die schwerere Seite sinkt nach unten.
+        - label: Sie bleibt im Gleichgewicht.
+          feedback: Links fehlt dann ein Gewicht, rechts nicht. Das Gleichgewicht ist weg.
+    hints:
+      - Welche Seite ist danach schwerer?
+    explanation: Links fehlt ein Gewicht, rechts nicht. Die rechte Seite ist schwerer und sinkt.
+
+  - kind: problem
+    id: x-allein
+    widget: balance
+    params:
+      left: { x: 1, units: "{{a}}" }
+      right: { x: 0, units: "{{a + b}}" }
+      allow: [remove_unit]
+    prompt: Nimm Gewichte weg, bis die Kiste x allein liegt. Die Waage darf dabei nicht kippen.
+    check:
+      predicate: "state.left.x == 1 && state.left.units == 0 && state.right.units == b && state.balanced"
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage ist gekippt! Du hast nur eine Seite verändert. Nimm immer auf beiden Seiten gleich viel weg.
+    hints:
+      - Nimm auf beiden Seiten gleich viel weg.
+      - Wie viele Gewichte müssen links weg, damit x allein steht? Genauso viele nimmst du rechts weg.
+    explanation: Links liegen {{a}} Gewichte neben x. Nimm auf beiden Seiten {{a}} weg. Rechts bleiben {{b}} – also ist x = {{b}}.
+    variants:
+      params: { a: "int[1,6]", b: "int[1,8]" }
+      defaults: { a: 3, b: 4 }
+
+  - kind: explain
+    body: |
+      Das war eine **Umformung**: Du hast auf beiden Seiten dasselbe getan.
+      Aus $x + 3 = 7$ wurde $x = 4$, weil du auf beiden Seiten 3 weggenommen hast.
+
+  - kind: problem
+    id: kisten-beide-seiten
+    widget: balance
+    params:
+      left: { x: 2, units: 1 }
+      right: { x: 1, units: 6 }
+      allow: [remove_unit, remove_x]
+    prompt: Jetzt liegen auf beiden Seiten Kisten. Bringe eine Kiste x allein auf eine Seite.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage kippt. Auch Kisten nimmst du immer auf beiden Seiten weg.
+    hints:
+      - Auch eine Kiste kannst du auf beiden Seiten wegnehmen.
+      - Nimm zuerst auf beiden Seiten eine Kiste weg. Dann kümmere dich um die Gewichte.
+    explanation: "Aus 2x + 1 = x + 6 wird nach Wegnehmen einer Kiste x + 1 = 6, dann x = 5."
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: "Löse ohne Waage: $x + {{a}} = {{a + b}}$"
+    answer: { value: "{{b}}" }
+    feedback:
+      - when: "numval(state.input) == a + (a + b)"
+        misconception: inverse-op
+        text: Du hast addiert. Damit x allein steht, musst du {{a}} wegnehmen – auf beiden Seiten.
+    hints:
+      - Welche Zahl musst du auf beiden Seiten wegnehmen?
+      - "Rechne {{a + b}} − {{a}}."
+    explanation: "Auf beiden Seiten {{a}} wegnehmen: x = {{a + b}} − {{a}} = {{b}}."
+    difficulty: 2
+    variants:
+      params: { a: "int[2,9]", b: "int[1,9]" }
+      defaults: { a: 5, b: 7 }
+
+  - kind: problem
+    id: welche-umformung
+    widget: choice
+    prompt: Welche Umformung hält die Waage im Gleichgewicht?
+    params:
+      options:
+        - label: Auf beiden Seiten 2 Gewichte wegnehmen
+          correct: true
+        - label: Links 2 wegnehmen, rechts 2 dazulegen
+          feedback: Links wird es leichter, rechts schwerer. Die Waage kippt doppelt.
+        - label: Nur rechts 2 Gewichte wegnehmen
+          feedback: Nur eine Seite zu ändern bringt die Waage immer aus dem Gleichgewicht.
+    hints:
+      - Beide Seiten müssen sich gleich verändern.
+    explanation: Nur wenn beide Seiten gleich viel verlieren (oder bekommen), bleibt die Waage im Gleichgewicht.
+
+srs:
+  cards_from: ["steps[2]", "steps[5]"]

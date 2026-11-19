@@ -1,0 +1,90 @@
+id: sci.circuits.ohm
+type: concept
+title: Spannung, Strom, Widerstand
+summary: Das ohmsche Gesetz U = R · I.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      **Spannung** U (Volt) treibt den Strom an. **Strom** I (Ampere) fließt. **Widerstand** R (Ohm, Ω) bremst.
+      Das **ohmsche Gesetz** sagt: U = R · I.
+
+  - kind: problem
+    id: lampe
+    widget: numeric
+    prompt: Eine Lampe hat 12 Ω und hängt an 6 V. Wie groß ist der Strom?
+    params: { unit: A }
+    answer: { value: 0.5 }
+    feedback:
+      - when: "numval(state.input) == 72"
+        misconception: multiply
+        text: "Umgestellt gilt I = U : R."
+      - when: "numval(state.input) == 2"
+        misconception: inverted
+        text: Andersherum – Spannung geteilt durch Widerstand.
+    hints:
+      - "I = U : R."
+    explanation: "6 V : 12 Ω = 0,5 A."
+
+  - kind: problem
+    id: strom
+    widget: numeric
+    prompt: An einem Widerstand von {{r}} Ω liegen {{u}} V. Wie groß ist der Strom?
+    params: { unit: A }
+    answer: { value: "{{u / r}}", tolerance: 0.01 }
+    feedback:
+      - when: "numval(state.input) == u * r"
+        misconception: multiply
+        text: Teile die Spannung durch den Widerstand.
+    hints:
+      - "I = {{u}} V : {{r}} Ω."
+    explanation: "{{u}} : {{r}} = {{u / r}} A."
+    variants:
+      params: { u: "choice[6,9,12,24]", r: "choice[2,3,4,6]" }
+      defaults: { u: 12, r: 4 }
+
+  - kind: problem
+    id: widerstand
+    widget: numeric
+    prompt: Welcher Widerstand lässt bei 230 V genau {{i}} A fließen?
+    params: { unit: Ω }
+    answer: { value: "{{230 / i}}" }
+    hints:
+      - "R = U : I."
+    explanation: "230 V : {{i}} A = {{230 / i}} Ω."
+    variants:
+      params: { i: "choice[1,2,5,10]" }
+      defaults: { i: 2 }
+
+  - kind: problem
+    id: einheiten
+    widget: match
+    prompt: Verbinde jede Größe mit ihrer Einheit.
+    params:
+      pairs:
+        - { left: Spannung, right: Volt }
+        - { left: Strom, right: Ampere }
+        - { left: Widerstand, right: Ohm }
+        - { left: Leistung, right: Watt }
+    hints:
+      - Alle Einheiten sind nach Forschern benannt.
+    explanation: Volta, Ampère, Ohm und Watt gaben ihnen ihre Namen.
+
+  - kind: problem
+    id: doppelt
+    widget: choice
+    prompt: Die Spannung bleibt gleich, der Widerstand verdoppelt sich. Was passiert mit dem Strom?
+    params:
+      options:
+        - { label: Er halbiert sich., correct: true }
+        - { label: Er verdoppelt sich., feedback: "Mehr Widerstand bremst stärker." }
+        - { label: Er bleibt gleich., feedback: "I = U : R – wenn R wächst, sinkt I." }
+    hints:
+      - "Schau auf I = U : R."
+    explanation: Doppelter Widerstand, halber Strom.
+
+srs:
+  cards_from: [strom, doppelt]

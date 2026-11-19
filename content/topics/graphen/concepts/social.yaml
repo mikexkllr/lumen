@@ -1,0 +1,67 @@
+id: cs.graphs.social
+type: concept
+title: Soziale Netze
+summary: Freunde von Freunden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: kette
+    widget: network
+    prompt: Über möglichst wenige Bekannte zum Star. Tippe die Kette an.
+    params:
+      start: U
+      end: S
+      unit: Schritte
+      nodes:
+        - { id: U, x: 4, y: 50, label: Du }
+        - { id: A, x: 30, y: 12, label: Ali }
+        - { id: B, x: 30, y: 88, label: Bea }
+        - { id: C, x: 55, y: 42, label: Cem }
+        - { id: D, x: 66, y: 90, label: Dana }
+        - { id: E, x: 78, y: 12, label: Eli }
+        - { id: S, x: 96, y: 55, label: Star }
+      edges:
+        - { a: U, b: A }
+        - { a: U, b: B }
+        - { a: A, b: C }
+        - { a: C, b: E }
+        - { a: E, b: S }
+        - { a: B, b: D }
+        - { a: D, b: S }
+        - { a: B, b: C }
+    hints:
+      - Jede Linie ist eine Bekanntschaft. Zähle Schritte.
+    explanation: Du → Bea → Dana → Star – drei Schritte.
+
+  - kind: problem
+    id: freunde
+    widget: numeric
+    prompt: Wie viele direkte Kontakte hat Bea im Netz oben?
+    params: { unit: Kontakte }
+    answer: { value: 3 }
+    hints:
+      - Zähle die Linien an Bea.
+    explanation: Du, Cem und Dana. In der Graphentheorie heißt das der **Grad**.
+
+  - kind: explain
+    body: |
+      In echten Netzen sind fast alle über wenige Schritte verbunden. Der Grund sind **Knoten mit sehr vielen Kontakten** – sie verbinden ferne Gruppen.
+
+  - kind: problem
+    id: wachstum
+    widget: numeric
+    prompt: Jeder kennt {{k}} Leute. Wie viele erreicht man über zwei Schritte höchstens?
+    params: { unit: Leute }
+    answer: { value: "{{k * k}}" }
+    hints:
+      - "{{k}} Freunde mit je {{k}} Freunden."
+    explanation: "{{k}} · {{k}} = {{k * k}} – ohne Überschneidungen. Nach wenigen Schritten ist man bei Millionen."
+    variants:
+      params: { k: "choice[50,100,150,200]" }
+      defaults: { k: 100 }
+
+srs:
+  cards_from: [freunde, wachstum]

@@ -1,0 +1,61 @@
+id: stats.data.outliers
+type: concept
+title: Ausreißer
+summary: Ein Wert, der alles verzerrt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: millionaer
+    widget: choice
+    prompt: In einer Kneipe sitzen 9 Leute mit je 3000 € Einkommen. Eine Milliardärin kommt herein. Was passiert?
+    params:
+      options:
+        - { label: Der Mittelwert explodiert – der Median bleibt fast gleich., correct: true }
+        - { label: Beide steigen stark., feedback: "Der Median ist der mittlere Wert – er bleibt bei 3000 €." }
+        - { label: Nichts ändert sich., feedback: "Der Mittelwert springt auf über 100 Millionen €." }
+    hints:
+      - Der Median ist der mittlere Wert der sortierten Liste.
+    explanation: Ein extremer Wert zieht den Mittelwert, nicht den Median.
+
+  - kind: explain
+    body: |
+      Ein **Ausreißer** ist ein Wert, der weit von den anderen liegt. Er kann ein Messfehler sein – oder echt.
+      Bei Einkommen nennt man darum oft den Median.
+
+  - kind: problem
+    id: ziehen
+    widget: chart
+    prompt: Ziehe die Säule E nach oben und beobachte. Stelle sie so ein, dass der Mittelwert genau 6 ist.
+    params:
+      labels: [A, B, C, D, E]
+      values: [4, 4, 5, 5, 2]
+      editable: [4]
+      min: 0
+      max: 20
+      step: 1
+      show: [mean, median]
+    check: { predicate: "avg == 6" }
+    hints:
+      - Für Mittelwert 6 braucht es die Summe 30.
+    explanation: 4 + 4 + 5 + 5 + 12 = 30. Der Median bleibt bei 5 – er ignoriert den Ausreißer.
+
+  - kind: problem
+    id: wann
+    widget: buckets
+    prompt: Was ist hier aussagekräftiger?
+    params:
+      buckets: [{ label: Median }, { label: Mittelwert }]
+      items:
+        - { label: Typisches Einkommen, bucket: Median }
+        - { label: Typischer Hauspreis, bucket: Median }
+        - { label: Durchschnittsnote ohne Ausreißer, bucket: Mittelwert }
+        - { label: Gesamte Regenmenge pro Tag im Schnitt, bucket: Mittelwert }
+    hints:
+      - Gibt es wenige riesige Werte?
+    explanation: Bei schiefen Daten mit Extremen ist der Median robuster.
+
+srs:
+  cards_from: [millionaer, wann]

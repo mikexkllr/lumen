@@ -1,0 +1,57 @@
+id: math.modular.rules
+type: concept
+title: Teilbarkeitsregeln
+summary: Teilbarkeit ohne Division.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Eine Zahl ist durch 3 teilbar, wenn ihre **Quersumme** durch 3 teilbar ist – weil 10 beim Teilen durch 3 den Rest 1 lässt. Für 9 gilt dasselbe.
+
+  - kind: problem
+    id: quersumme
+    widget: numeric
+    prompt: Wie groß ist die Quersumme von {{n}}?
+    params: { placeholder: "Quersumme" }
+    answer: { value: "{{floor(n / 1000) + mod(floor(n / 100), 10) + mod(floor(n / 10), 10) + mod(n, 10)}}" }
+    hints:
+      - Addiere alle Ziffern.
+    explanation: "Die Quersumme von {{n}} ist {{floor(n / 1000) + mod(floor(n / 100), 10) + mod(floor(n / 10), 10) + mod(n, 10)}}."
+    variants:
+      params: { n: "int[1000,9999]" }
+      defaults: { n: 4725 }
+
+  - kind: problem
+    id: teilbar
+    widget: buckets
+    prompt: Durch 3 teilbar oder nicht?
+    params:
+      buckets: [{ label: teilbar }, { label: nicht teilbar }]
+      items:
+        - { label: "4725", bucket: teilbar }
+        - { label: "1011", bucket: teilbar }
+        - { label: "2024", bucket: nicht teilbar }
+        - { label: "7777", bucket: nicht teilbar }
+    hints:
+      - "4 + 7 + 2 + 5 = 18."
+    explanation: Quersummen 18 und 3 sind durch 3 teilbar, 8 und 28 nicht.
+
+  - kind: problem
+    id: regeln
+    widget: match
+    prompt: Welche Regel gilt für welchen Teiler?
+    params:
+      pairs:
+        - { left: durch 2, right: letzte Ziffer gerade }
+        - { left: durch 5, right: endet auf 0 oder 5 }
+        - { left: durch 9, right: Quersumme durch 9 }
+        - { left: durch 4, right: letzte zwei Ziffern durch 4 }
+    hints:
+      - 100 ist durch 4 teilbar – also zählen nur die letzten zwei Ziffern.
+    explanation: Jede Regel nutzt, welchen Rest Zehnerpotenzen lassen.
+
+srs:
+  cards_from: [teilbar, regeln]

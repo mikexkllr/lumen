@@ -1,0 +1,88 @@
+id: logic.strategy.backwards
+type: concept
+title: Rückwärts denken
+summary: Das Steine-Spiel und seine Gewinnformel.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fuenf
+    widget: numeric
+    body: Spiel – abwechselnd nimmt jeder 1, 2 oder 3 Steine. Wer den letzten nimmt, gewinnt.
+    prompt: Es liegen 5 Steine da und du bist dran. Wie viele nimmst du?
+    params: { unit: Steine }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 2 || numval(state.input) == 3"
+        misconception: greedy
+        text: Dann bleiben 3 oder 2 übrig – und dein Gegner nimmt sie alle.
+    hints:
+      - Wie viele Steine soll dein Gegner vor sich haben?
+    explanation: Bleiben 4 übrig, kannst du immer auf 4 ergänzen und den letzten nehmen.
+
+  - kind: explain
+    body: |
+      **Rückwärts denken:** Wer vor 4 Steinen steht, verliert. Was er auch nimmt, du nimmst den Rest.
+      Lass deinem Gegner also immer ein Vielfaches von 4 übrig.
+
+  - kind: problem
+    id: n-steine
+    widget: numeric
+    prompt: Jetzt liegen {{n}} Steine da. Wie viele nimmst du, um sicher zu gewinnen?
+    params: { unit: Steine }
+    answer: { value: "{{mod(n, 4)}}" }
+    hints:
+      - Welches Vielfache von 4 liegt knapp unter {{n}}?
+    explanation: "Du nimmst {{mod(n, 4)}}. Dann bleiben {{n - mod(n, 4)}} – ein Vielfaches von 4."
+    variants:
+      params: { n: "int[6,23]" }
+      constraints: ["mod(n, 4) != 0"]
+      defaults: { n: 10 }
+
+  - kind: problem
+    id: anfangen
+    widget: choice
+    prompt: Bei welcher Startzahl lässt du lieber den anderen anfangen?
+    params:
+      layout: grid
+      options:
+        - { label: "12", correct: true }
+        - { label: "10", feedback: "Bei 10 nimmst du 2 und gewinnst selbst." }
+        - { label: "13", feedback: "Bei 13 nimmst du 1 und gewinnst." }
+        - { label: "15", feedback: "Bei 15 nimmst du 3 und gewinnst." }
+    hints:
+      - Wann gibt es keinen guten ersten Zug?
+    explanation: Bei Vielfachen von 4 verliert, wer anfängt – wenn der andere richtig spielt.
+
+  - kind: explain
+    body: Was ändert sich, wenn man 1 bis 5 Steine nehmen darf?
+    reveal:
+      body: Dann verlieren die Vielfachen von 6. Allgemein – größter erlaubter Zug plus 1.
+
+  - kind: problem
+    id: bis-fuenf
+    widget: numeric
+    prompt: Man darf 1 bis 5 Steine nehmen. Es liegen 20 da. Wie viele nimmst du?
+    params: { unit: Steine }
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 4"
+        misconception: old-rule
+        text: Das war die alte Regel mit 4. Jetzt zählen Vielfache von 6.
+    hints:
+      - Das nächste Vielfache von 6 unter 20 ist 18.
+    explanation: 20 − 2 = 18, ein Vielfaches von 6.
+
+  - kind: problem
+    id: gegen-computer
+    widget: nim
+    prompt: Jetzt im Ernst – du spielst gegen einen Computer, der keine Fehler macht. 10 Steine, nimm 1 bis 3.
+    params: { piles: [10], maxTake: 3 }
+    hints:
+      - Lass dem Computer immer ein Vielfaches von 4 übrig.
+    explanation: Erst 2 nehmen, dann bleiben 8. Danach ergänzt du jeden Zug auf 4.
+
+srs:
+  cards_from: [n-steine, bis-fuenf]

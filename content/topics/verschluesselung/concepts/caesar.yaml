@@ -1,0 +1,80 @@
+id: cs.crypto.caesar
+type: concept
+title: Die Caesar-Verschiebung
+summary: Jeder Buchstabe rückt weiter.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: hallo
+    widget: choice
+    prompt: Caesar verschob jeden Buchstaben um 3 – aus A wird D, aus B wird E. Was heißt KDOOR?
+    params:
+      layout: grid
+      options:
+        - { label: HALLO, correct: true }
+        - { label: NGRRU, feedback: "Du hast noch einmal um 3 verschoben. Zum Entschlüsseln geht es zurück." }
+        - { label: KALLO, feedback: "Das K musst du auch verschieben." }
+        - { label: HELLO, feedback: "Schau dir den zweiten Buchstaben an – D wird zu A." }
+    hints:
+      - Geh bei jedem Buchstaben 3 Schritte im Alphabet zurück.
+    explanation: K → H, D → A, O → L, O → L, R → O.
+
+  - kind: explain
+    body: |
+      Bei der **Caesar-Verschiebung** rückt jeder Buchstabe um k Stellen weiter.
+      Nach Z geht es wieder mit A los.
+
+  - kind: problem
+    id: schluessel
+    widget: numeric
+    prompt: Aus dem Buchstaben {{p}} wird {{c}}. Um wie viele Stellen wurde verschoben?
+    params: { unit: Stellen }
+    answer: { value: "{{k}}" }
+    hints:
+      - Zähle im Alphabet von {{p}} bis {{c}}.
+    explanation: "{{p}} + {{k}} Stellen = {{c}}."
+    variants:
+      params: { i: "int[0,14]", k: "int[2,9]" }
+      derive: { p: "chr(i)", c: "chr(i + k)" }
+      defaults: { i: 7, k: 3 }
+
+  - kind: problem
+    id: paare
+    widget: match
+    prompt: Verschiebung um 1. Verbinde Klartext und Geheimtext.
+    params:
+      leftTitle: Klartext
+      rightTitle: Geheimtext
+      pairs:
+        - { left: HAL, right: IBM }
+        - { left: KATZE, right: LBUAF }
+        - { left: ZEBRA, right: AFCSB }
+        - { left: ICH, right: JDI }
+    hints:
+      - Achte auf das Z – danach kommt wieder A.
+    explanation: Jeder Buchstabe rückt einen weiter. Aus HAL wird IBM.
+
+  - kind: problem
+    id: anzahl
+    widget: numeric
+    prompt: Wie viele verschiedene Caesar-Schlüssel gibt es, wenn Verschiebung 0 nicht zählt?
+    params: { unit: Schlüssel }
+    answer: { value: 25 }
+    feedback:
+      - when: "numval(state.input) == 26"
+        misconception: count-zero
+        text: Bei 26 Stellen ist man wieder am Anfang. Das ist wie Verschiebung 0.
+    hints:
+      - Das Alphabet hat 26 Buchstaben.
+    explanation: Die Verschiebungen 1 bis 25 sind verschieden. Danach wiederholt es sich.
+
+  - kind: explain
+    body: Wie knackt man Caesar ohne den Schlüssel?
+    reveal:
+      body: Alle 25 Möglichkeiten probieren. Oder zählen – im Deutschen ist E der häufigste Buchstabe. Der häufigste Geheimbuchstabe verrät die Verschiebung.
+
+srs:
+  cards_from: [schluessel, anzahl]

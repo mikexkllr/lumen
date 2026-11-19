@@ -1,0 +1,85 @@
+id: math.growth.decay
+type: concept
+title: Abnahme und Halbwertszeit
+summary: Wenn der Faktor kleiner als 1 ist.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: medikament
+    widget: numeric
+    prompt: Ein Wirkstoff wird alle 4 Stunden zur Hälfte abgebaut. Von {{d}} mg – wie viel ist nach {{h}} Stunden übrig?
+    params: { unit: mg }
+    answer: { value: "{{d / 2 ** (h / 4)}}" }
+    feedback:
+      - when: "numval(state.input) == 0"
+        misconception: linear-decay
+        text: Bei Halbierung bleibt immer etwas übrig. Halbiere Schritt für Schritt.
+    hints:
+      - "{{h}} Stunden sind {{h / 4}} Halbierungen."
+    explanation: "{{d}} mg halbiert {{h / 4}}-mal ergibt {{d / 2 ** (h / 4)}} mg."
+    variants:
+      params: { d: "choice[160,320,400,800]", h: "choice[8,12,16]" }
+      defaults: { d: 200, h: 12 }
+
+  - kind: explain
+    body: |
+      Bei **Abnahme** ist der Faktor kleiner als 1. Minus 20 % heißt mal 0,8.
+      Die **Halbwertszeit** ist die Zeit, bis nur noch die Hälfte da ist.
+
+  - kind: problem
+    id: auto
+    widget: numeric
+    prompt: Ein Auto verliert jedes Jahr 20 % an Wert. Neu kostet es {{p}} €. Was ist es nach 2 Jahren wert?
+    params: { unit: "€" }
+    answer: { value: "{{p * 0.64}}" }
+    feedback:
+      - when: "numval(state.input) == p * 0.6"
+        misconception: add-percents
+        text: Der zweite Verlust rechnet vom schon kleineren Wert.
+    hints:
+      - Nimm den Preis zweimal mal 0,8.
+    explanation: "{{p}} · 0,8 · 0,8 = {{p * 0.64}} €."
+    variants:
+      params: { p: "choice[20000,25000,30000,40000]" }
+      defaults: { p: 25000 }
+
+  - kind: problem
+    id: zerfall
+    widget: chart
+    prompt: Die Halbwertszeit ist 1 Tag. Ziehe die Säulen auf die richtigen Werte.
+    params:
+      title: Menge in Gramm
+      labels: [Tag 0, Tag 1, Tag 2, Tag 3]
+      values: [16, 8, 16, 16]
+      editable: [2, 3]
+      min: 0
+      max: 16
+      step: 1
+    answer: { values: [16, 8, 4, 2] }
+    hints:
+      - Jeden Tag halbiert sich die Menge.
+    explanation: 16, 8, 4, 2 – jede Säule ist halb so hoch wie die davor.
+
+  - kind: problem
+    id: plus-minus
+    widget: choice
+    prompt: Ein Wert steigt erst um 50 % und fällt dann um 50 %. Wo landet er?
+    params:
+      options:
+        - { label: Bei 75 % des Startwerts, correct: true }
+        - { label: Wieder beim Startwert, feedback: "Die 50 % Verlust rechnen vom höheren Wert. Probier es mit 100 €." }
+        - { label: Bei 50 % des Startwerts, feedback: "Zu tief. Rechne 100 € · 1,5 · 0,5." }
+    hints:
+      - Starte mit 100 €.
+    explanation: 100 € · 1,5 = 150 €. Davon die Hälfte sind 75 €.
+
+  - kind: explain
+    body: Warum wirkt exponentielles Wachstum lange so harmlos?
+    reveal:
+      body: Anfangs sind die Zahlen klein. Dann verdoppelt sich plötzlich ein großer Wert. Genau so überraschen uns Pandemien, Zinsen und virale Trends.
+
+srs:
+  cards_from: [auto, medikament]

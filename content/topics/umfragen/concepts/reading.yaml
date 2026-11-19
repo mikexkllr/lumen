@@ -1,0 +1,57 @@
+id: stats.sampling.reading
+type: concept
+title: Prozent oder Prozentpunkte?
+summary: Ein kleines Wort mit großer Wirkung.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: punkte
+    widget: numeric
+    prompt: Eine Partei steigt von {{a}} % auf {{b}} %. Um wie viele Prozentpunkte ist sie gestiegen?
+    params: { unit: Prozentpunkte }
+    answer: { value: "{{b - a}}" }
+    hints:
+      - Prozentpunkte sind einfach die Differenz.
+    explanation: "{{b}} − {{a}} = {{b - a}} Prozentpunkte."
+    variants:
+      params: { a: "choice[10,20,25,40]", d: "choice[2,5,10]" }
+      derive: { b: "a + d" }
+      defaults: { a: 20, d: 5 }
+
+  - kind: problem
+    id: prozent
+    widget: numeric
+    prompt: Und um wie viel Prozent ist sie gewachsen – von 20 % auf 25 %?
+    params: { unit: "%" }
+    answer: { value: 25 }
+    feedback:
+      - when: "numval(state.input) == 5"
+        misconception: points-vs-percent
+        text: 5 sind die Prozentpunkte. Gesucht ist das Wachstum relativ zu 20.
+    hints:
+      - 5 von 20 sind wie viel Prozent?
+    explanation: 5 / 20 = 25 %. Gleiche Änderung, ganz andere Zahl.
+
+  - kind: explain
+    body: |
+      **Prozentpunkte** sind die Differenz zweier Prozentwerte. **Prozent** beschreiben die relative Änderung.
+      Schlagzeilen verwechseln das gern – meist nimmt man die größere Zahl.
+
+  - kind: problem
+    id: risiko
+    widget: choice
+    prompt: »Ein Mittel verdoppelt das Risiko!« Vorher lag es bei 1 von 10 000. Wie groß ist es jetzt?
+    params:
+      options:
+        - { label: 2 von 10 000, correct: true }
+        - { label: 50 %, feedback: "Verdoppeln bezieht sich auf das kleine Ausgangsrisiko." }
+        - { label: 1 von 5000 – also riesig, feedback: "Das ist dasselbe wie 2 von 10 000 – und immer noch winzig." }
+    hints:
+      - Verdoppeln heißt mal 2.
+    explanation: Das relative Risiko klingt dramatisch, das absolute bleibt winzig – 0,02 %.
+
+srs:
+  cards_from: [punkte, risiko]

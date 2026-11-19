@@ -1,0 +1,12 @@
+# Sync server: Node with built-in TypeScript type stripping and node:sqlite.
+FROM node:26-alpine
+WORKDIR /app
+COPY package.json package-lock.json ./
+COPY packages ./packages
+COPY apps ./apps
+RUN npm ci --omit=dev -w @lumen/server && mkdir -p /data && chown node /data
+USER node
+ENV PORT=8787 LUMEN_DB=/data/lumen.sqlite
+EXPOSE 8787
+VOLUME ["/data"]
+CMD ["node", "apps/server/src/main.ts"]

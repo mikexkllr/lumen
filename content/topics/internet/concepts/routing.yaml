@@ -1,0 +1,75 @@
+id: cs.internet.routing
+type: concept
+title: Router und Umwege
+summary: Pakete suchen sich den schnellsten Weg.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: route
+    widget: network
+    prompt: Finde den schnellsten Weg für ein Paket von K nach W. Die Zahlen sind Millisekunden.
+    params:
+      start: K
+      end: W
+      unit: ms
+      nodes:
+        - { id: K, x: 4, y: 40 }
+        - { id: HH, x: 34, y: 6 }
+        - { id: F, x: 30, y: 72 }
+        - { id: B, x: 66, y: 12 }
+        - { id: M, x: 64, y: 90 }
+        - { id: W, x: 96, y: 60 }
+      edges:
+        - { a: K, b: HH, w: 6 }
+        - { a: K, b: F, w: 3 }
+        - { a: F, b: HH, w: 5 }
+        - { a: HH, b: B, w: 4 }
+        - { a: F, b: M, w: 6 }
+        - { a: F, b: B, w: 9 }
+        - { a: B, b: W, w: 8 }
+        - { a: M, b: W, w: 4 }
+    hints:
+      - Rechne beide Routen über B und über M aus.
+    explanation: K → F → M → W kostet 3 + 6 + 4 = 13 ms und ist am schnellsten.
+
+  - kind: explain
+    body: |
+      **Router** sind die Weichen des Internets. Sie kennen ihre Nachbarn und schicken jedes Paket in die beste Richtung weiter.
+      So findet das Netz Wege, ohne dass jemand alles plant.
+
+  - kind: problem
+    id: ausfall
+    widget: choice
+    prompt: Ein Kabel zwischen zwei Städten fällt aus. Was passiert?
+    params:
+      options:
+        - { label: Die Pakete nehmen automatisch einen Umweg., correct: true }
+        - { label: Das Internet fällt in ganz Europa aus., feedback: "Gerade das verhindert die Netzstruktur." }
+        - { label: "Alle Pakete warten, bis das Kabel repariert ist.", feedback: "Router suchen sich sofort eine andere Route." }
+    hints:
+      - Wofür hat ein Netz viele Verbindungen?
+    explanation: Das Internet wurde so gebaut, dass einzelne Ausfälle umgangen werden.
+
+  - kind: problem
+    id: download
+    widget: numeric
+    prompt: Eine Datei hat {{m}} MB. Deine Leitung schafft {{r}} Mbit pro Sekunde. Wie viele Sekunden dauert der Download?
+    body: 1 Byte sind 8 Bit.
+    params: { unit: Sekunden }
+    answer: { value: "{{m * 8 / r}}" }
+    feedback:
+      - when: "numval(state.input) == m / r"
+        misconception: bits-vs-bytes
+        text: MB sind Megabyte, Mbit sind Megabit. Ein Byte hat 8 Bit.
+    hints:
+      - "Erst {{m}} MB in Megabit umrechnen – mal 8."
+    explanation: "{{m}} · 8 = {{m * 8}} Mbit, geteilt durch {{r}} sind {{m * 8 / r}} Sekunden."
+    variants:
+      params: { m: "choice[50,100,250]", r: "choice[25,50,100]" }
+      defaults: { m: 100, r: 50 }
+
+srs:
+  cards_from: [download, ausfall]

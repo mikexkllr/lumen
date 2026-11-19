@@ -1,0 +1,53 @@
+id: stats.bayes.court
+type: concept
+title: Bayes vor Gericht
+summary: Der Fehlschluss des Anklägers.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: treffer
+    widget: numeric
+    body: Eine DNA-Spur passt zufällig nur bei 1 von 1 Million Menschen. In der Region leben {{m}} Millionen Menschen.
+    prompt: Wie viele Menschen in der Region passen rein zufällig zur Spur?
+    params: { unit: Menschen }
+    answer: { value: "{{m}}" }
+    hints:
+      - "Eine Person pro Million, {{m}} Millionen Menschen."
+    explanation: "Etwa {{m}} Menschen – der Angeklagte ist nur einer davon."
+    variants:
+      params: { m: "int[3,9]" }
+      defaults: { m: 5 }
+
+  - kind: problem
+    id: schuld
+    widget: choice
+    prompt: Der Ankläger sagt – die Chance auf einen Zufallstreffer ist eins zu einer Million, also ist der Angeklagte sicher schuldig. Stimmt das?
+    params:
+      options:
+        - { label: Nein – ohne weitere Beweise ist er nur einer von mehreren Kandidaten., correct: true }
+        - { label: Ja, feedback: "Das verwechselt zwei Fragen – wie selten ein Treffer ist und wie wahrscheinlich die Schuld." }
+    hints:
+      - Wie viele Menschen passen insgesamt?
+    explanation: Das ist der **Fehlschluss des Anklägers** – er hat echte Fehlurteile verursacht.
+
+  - kind: explain
+    body: |
+      Ein Beweis macht eine Hypothese wahrscheinlicher – wie stark, hängt vom **Vorwissen** ab. Kommen weitere unabhängige Hinweise dazu, etwa Zeugen oder ein Motiv, steigt die Wahrscheinlichkeit Schritt für Schritt.
+
+  - kind: problem
+    id: kombinieren
+    widget: choice
+    prompt: Was macht ein Urteil am verlässlichsten?
+    params:
+      options:
+        - { label: "Mehrere unabhängige Beweise, die alle in dieselbe Richtung zeigen", correct: true }
+        - { label: Ein einziger sehr seltener Treffer, feedback: "Ein Treffer allein lässt viele Kandidaten übrig." }
+    hints:
+      - Wie viele Kandidaten überstehen mehrere Prüfungen?
+    explanation: Jeder unabhängige Beweis siebt weiter aus – zusammen werden sie stark.
+
+srs:
+  cards_from: [treffer, schuld]

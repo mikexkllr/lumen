@@ -1,0 +1,88 @@
+id: ai.neural.learning
+type: concept
+title: Lernen heißt Fehler verkleinern
+summary: Training, Fehler und Auswendiglernen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: anpassen
+    widget: slider
+    prompt: Stelle die Gerade so ein, dass sie genau durch alle Punkte geht.
+    params:
+      expr: "m*x + b"
+      x: [-3, 5]
+      y: [-2, 4]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Steigung, min: -1, max: 2, step: 0.25, initial: 1.5 }
+        - { id: b, label: Höhe, min: -2, max: 3, step: 0.5, initial: -1 }
+      markers:
+        - { x: -2, y: 0 }
+        - { x: 0, y: 1 }
+        - { x: 2, y: 2 }
+        - { x: 4, y: 3 }
+    answer: { values: { m: 0.5, b: 1 } }
+    hints:
+      - Wo schneidet die Gerade die y-Achse?
+      - Pro Schritt nach rechts geht es einen halben nach oben.
+    explanation: y = 0,5 · x + 1. Genau das macht Training – Regler drehen, bis der Fehler verschwindet.
+
+  - kind: explain
+    body: |
+      Ein Netz lernt aus Beispielen. Es misst den **Fehler** – wie weit liegt es daneben?
+      Dann dreht es jedes Gewicht ein kleines Stück so, dass der Fehler kleiner wird.
+
+  - kind: problem
+    id: fehler
+    widget: numeric
+    prompt: Das Modell sagt 3, 5 und 8 voraus. Richtig wären 4, 5 und 6. Wie groß ist der mittlere Fehler (ohne Vorzeichen)?
+    params: { placeholder: "Fehler" }
+    answer: { value: 1 }
+    feedback:
+      - when: "numval(state.input) == 3"
+        misconception: sum-not-mean
+        text: Das ist der Gesamtfehler. Teile noch durch die Zahl der Beispiele.
+    hints:
+      - Die Abstände sind 1, 0 und 2.
+    explanation: (1 + 0 + 2) / 3 = 1.
+
+  - kind: explain
+    body: |
+      **Überanpassung:** Ein Modell, das die Beispiele auswendig lernt, versagt bei neuen Daten.
+      Darum prüft man es mit Daten, die es nie gesehen hat.
+
+  - kind: problem
+    id: auswendig
+    widget: choice
+    prompt: Ein Modell erkennt 100 % der Trainingsbilder, aber nur 60 % neuer Bilder. Was ist passiert?
+    params:
+      options:
+        - { label: Es hat auswendig gelernt., correct: true }
+        - { label: Die neuen Bilder sind falsch., feedback: "Möglich, aber unwahrscheinlich. Der große Abstand ist ein typisches Warnsignal." }
+        - { label: Es braucht mehr Training mit denselben Bildern., feedback: "Das würde das Auswendiglernen eher verstärken." }
+    hints:
+      - Was bedeutet es, wenn Training und Test so weit auseinanderliegen?
+    explanation: Das ist **Überanpassung**. Mehr verschiedene Daten oder ein einfacheres Modell helfen.
+
+  - kind: problem
+    id: daten
+    widget: buckets
+    prompt: Hilft das dem Training – oder schadet es?
+    params:
+      buckets: [{ label: hilft }, { label: schadet }]
+      items:
+        - { label: Viele verschiedene Beispiele, bucket: hilft }
+        - { label: Testdaten getrennt halten, bucket: hilft }
+        - { label: Beispiele aus allen Gruppen, bucket: hilft }
+        - { label: Nur Fotos bei Sonnenschein, bucket: schadet }
+        - { label: Falsche Beschriftungen, bucket: schadet }
+        - { label: Mit den Testdaten trainieren, bucket: schadet }
+    hints:
+      - Was soll das Modell später können?
+    explanation: Gute Daten sind vielfältig, korrekt beschriftet und vom Test getrennt.
+
+srs:
+  cards_from: [fehler, auswendig]

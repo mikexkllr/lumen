@@ -1,0 +1,66 @@
+id: stats.correlation.trendline
+type: concept
+title: Die Trendlinie
+summary: Eine Gerade durch die Punktwolke.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: anpassen
+    widget: slider
+    prompt: Lege die Gerade so durch die Punkte, dass sie den Trend gut trifft.
+    params:
+      expr: "m*x + b"
+      x: [0, 8]
+      y: [0, 6]
+      showCoordinates: false
+      sliders:
+        - { id: m, label: Steigung, min: -1, max: 2, step: 0.25, initial: 0 }
+        - { id: b, label: Start, min: -2, max: 4, step: 0.5, initial: 3 }
+      markers:
+        - { x: 1, y: 1.5 }
+        - { x: 2, y: 1.5 }
+        - { x: 3, y: 2.5 }
+        - { x: 4, y: 2.5 }
+        - { x: 5, y: 3.5 }
+        - { x: 6, y: 3.5 }
+        - { x: 7, y: 4.5 }
+    check: { predicate: "m >= 0.5 && m <= 0.75 && b >= 0 && b <= 1" }
+    hints:
+      - Pro Schritt nach rechts steigt die Wolke etwa um einen halben.
+    explanation: Etwa y = 0,5 · x + 1. Mit so einer Linie kann man Werte schätzen.
+
+  - kind: explain
+    body: |
+      Eine **Trendlinie** fasst eine Punktwolke zusammen. Ihre Steigung sagt, um wie viel y im Schnitt wächst, wenn x um 1 wächst.
+      Sie gilt nur grob – einzelne Punkte weichen ab.
+
+  - kind: problem
+    id: vorhersage
+    widget: numeric
+    prompt: "Trend: Preis = {{m}} € · Fläche in m² + {{b}} €. Was ist der geschätzte Preis für {{a}} m²?"
+    params: { unit: "€" }
+    answer: { value: "{{m * a + b}}" }
+    hints:
+      - "{{m}} · {{a}} + {{b}}."
+    explanation: "{{m * a}} + {{b}} = {{m * a + b}} €."
+    variants:
+      params: { m: "choice[10,12,15]", b: "choice[100,200]", a: "choice[30,50,80]" }
+      defaults: { m: 12, b: 200, a: 50 }
+
+  - kind: problem
+    id: grenzen
+    widget: choice
+    prompt: Eine Trendlinie über Körpergrößen von Kindern steigt pro Jahr um 6 cm. Was sagt sie über 40-Jährige?
+    params:
+      options:
+        - { label: Nichts – außerhalb der Daten gilt sie nicht., correct: true }
+        - { label: "Sie sind über 2,5 m groß.", feedback: "Erwachsene wachsen nicht weiter. Die Linie gilt nur im gemessenen Bereich." }
+    hints:
+      - Wurden Erwachsene überhaupt gemessen?
+    explanation: Trends über den Datenbereich hinaus zu verlängern ist gefährlich.
+
+srs:
+  cards_from: [vorhersage, grenzen]

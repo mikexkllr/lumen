@@ -1,0 +1,61 @@
+id: cs.recursion.towers
+type: concept
+title: Hanoi rekursiv denken
+summary: Löse n mit Hilfe von n − 1.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Rekursiv gedacht ist Hanoi einfach: Bewege den Turm aus n − 1 Scheiben zur Seite. Dann die größte ans Ziel. Dann den kleinen Turm obendrauf.
+
+  - kind: problem
+    id: vier
+    widget: hanoi
+    prompt: Probier es mit vier Scheiben – denk in Türmen, nicht in Scheiben.
+    params: { disks: 4 }
+    hints:
+      - Erst drei Scheiben nach B. Das ist ein kleineres Hanoi.
+    explanation: Wer rekursiv denkt, muss sich nie mehr als einen Schritt merken.
+
+  - kind: problem
+    id: formel
+    widget: numeric
+    body: Für n Scheiben gilt T(n) = 2 · T(n − 1) + 1.
+    prompt: T({{n}}) ist {{t}}. Wie groß ist T({{n + 1}})?
+    params: { unit: Züge }
+    answer: { value: "{{2 * t + 1}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * t"
+        misconception: forget-plus-one
+        text: Vergiss den einen Zug für die größte Scheibe nicht.
+    hints:
+      - "Zweimal den kleinen Turm, einmal die große Scheibe."
+    explanation: "2 · {{t}} + 1 = {{2 * t + 1}}."
+    variants:
+      params: { n: "int[3,7]" }
+      derive: { t: "2 ** n - 1" }
+      defaults: { n: 4 }
+
+  - kind: problem
+    id: wie-oft
+    widget: choice
+    prompt: Wie oft bewegt sich die größte Scheibe bei der besten Lösung?
+    params:
+      options:
+        - { label: Genau einmal, correct: true }
+        - { label: So oft wie die kleinste, feedback: "Die kleinste bewegt sich ständig. Die größte nur ein einziges Mal." }
+        - { label: Zweimal, feedback: "Ein Zug reicht, wenn der Weg frei ist." }
+    hints:
+      - Wann darf sie überhaupt umziehen?
+    explanation: Die größte Scheibe zieht genau einmal um – wenn alle anderen auf dem Hilfsstab liegen.
+
+  - kind: explain
+    body: Rekursion klingt nach Trick. Wo steckt sie im Alltag?
+    reveal:
+      body: In Ordnern mit Unterordnern, in Sätzen mit Nebensätzen, in Spiegeln, die sich spiegeln. Programme durchsuchen Ordner fast immer rekursiv.
+
+srs:
+  cards_from: [formel, wie-oft]

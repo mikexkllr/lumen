@@ -1,0 +1,52 @@
+id: ai.generative.diffusion
+type: concept
+title: Schritt für Schritt zum Bild
+summary: Wie Text das Rauschen lenkt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Beim Erzeugen entfernt das Modell in jedem Schritt ein wenig Rauschen. Der **Text** lenkt dabei, in welche Richtung: Aus dem Grau wird mal eine Katze, mal ein Leuchtturm.
+
+  - kind: problem
+    id: seed
+    widget: choice
+    prompt: Gleicher Text, aber ein anderer Zufallsstart. Was kommt heraus?
+    params:
+      options:
+        - { label: Ein anderes Bild zum selben Thema, correct: true }
+        - { label: Exakt dasselbe Bild, feedback: "Nur mit gleichem Zufallsstart entsteht dasselbe Bild." }
+    hints:
+      - Wovon hängt das Ergebnis außer dem Text noch ab?
+    explanation: Der Zufallsstart heißt **Seed** – mit ihm lassen sich Bilder exakt wiederholen.
+
+  - kind: problem
+    id: zahlen
+    widget: numeric
+    prompt: Ein Farbbild hat {{s}} × {{s}} Pixel mit je drei Farbwerten. Wie viele Zahlen muss das Modell entrauschen?
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{s * s * 3}}" }
+    hints:
+      - Pixel mal 3.
+    explanation: "{{s * s * 3}} Zahlen – darum arbeiten viele Modelle in einem verkleinerten Raum."
+    variants:
+      params: { s: "choice[64,128,256,512]" }
+      defaults: { s: 256 }
+
+  - kind: problem
+    id: klein
+    widget: choice
+    prompt: Warum entfernt man das Rauschen in vielen kleinen Schritten statt in einem großen?
+    params:
+      options:
+        - { label: Kleine Korrekturen sind viel leichter richtig zu raten., correct: true }
+        - { label: Weil Computer nur kleine Schritte können., feedback: "Es ist eine Frage der Lernbarkeit, nicht der Rechenleistung." }
+    hints:
+      - Ist es leichter, ein ganzes Bild zu erraten oder nur eine kleine Verbesserung?
+    explanation: Viele kleine, gut gelernte Schritte ergeben zusammen ein großes Ergebnis.
+
+srs:
+  cards_from: [seed, klein]

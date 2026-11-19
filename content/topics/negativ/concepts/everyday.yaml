@@ -1,0 +1,60 @@
+id: math.negative.everyday
+type: concept
+title: Temperaturen und Kontostand
+summary: Unterschiede über die Null hinweg.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: temperatur
+    widget: numeric
+    prompt: Nachts waren es {{a}} °C, mittags {{b}} °C. Um wie viel Grad ist es wärmer geworden?
+    params: { unit: "°C" }
+    answer: { value: "{{b - a}}" }
+    feedback:
+      - when: "numval(state.input) == b + a"
+        misconception: ignore-sign
+        text: Zähle über die Null hinweg – erst bis 0, dann weiter.
+    hints:
+      - "Von {{a}} bis 0 sind es {{-a}} Grad, dann noch {{b}}."
+    explanation: "{{b}} − ({{a}}) = {{b - a}} Grad."
+    variants:
+      params: { a: "int[-12,-2]", b: "int[3,15]" }
+      defaults: { a: -5, b: 7 }
+
+  - kind: problem
+    id: punkt
+    widget: numberline
+    prompt: Setze die Markierung auf −3,5.
+    params: { min: -5, max: 2, ticks: 2, labels: integers }
+    answer: { value: -3.5 }
+    hints:
+      - Genau in der Mitte zwischen −4 und −3.
+    explanation: −3,5 liegt zwischen −4 und −3.
+
+  - kind: explain
+    body: |
+      Auf dem Konto heißt Minus: Du schuldest der Bank Geld.
+      Wer bei −200 € steht und 50 € abhebt, steht danach bei −250 €.
+
+  - kind: problem
+    id: konto
+    widget: numeric
+    prompt: Dein Konto steht bei {{k}} €. Dann kommen {{g}} € Gehalt. Wie ist der neue Stand?
+    params: { unit: "€" }
+    answer: { value: "{{k + g}}" }
+    feedback:
+      - when: "numval(state.input) == g - k"
+        misconception: subtract-wrong
+        text: Rechne {{k}} + {{g}}. Die Schulden werden kleiner.
+    hints:
+      - "Starte bei {{k}} und gehe {{g}} nach rechts."
+    explanation: "{{k}} + {{g}} = {{k + g}} €."
+    variants:
+      params: { k: "step[-500,-100,50]", g: "step[200,1500,100]" }
+      defaults: { k: -300, g: 1200 }
+
+srs:
+  cards_from: [temperatur, konto]

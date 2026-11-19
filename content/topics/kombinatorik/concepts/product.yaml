@@ -1,0 +1,64 @@
+id: math.combinatorics.product
+type: concept
+title: Die Produktregel
+summary: Möglichkeiten werden malgenommen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: outfits
+    widget: numeric
+    prompt: Du hast {{h}} Hosen und {{s}} Shirts. Wie viele verschiedene Outfits kannst du anziehen?
+    params: { unit: Outfits }
+    answer: { value: "{{h * s}}" }
+    feedback:
+      - when: "numval(state.input) == h + s"
+        misconception: add-not-multiply
+        text: Zu jeder Hose passt jedes Shirt. Also malnehmen.
+    hints:
+      - Wie viele Shirts passen zu einer einzigen Hose?
+    explanation: "{{h}} · {{s}} = {{h * s}} Outfits."
+    variants:
+      params: { h: "int[2,5]", s: "int[3,7]" }
+      defaults: { h: 3, s: 4 }
+
+  - kind: explain
+    body: |
+      **Produktregel:** Gibt es für den ersten Schritt a Möglichkeiten und für den zweiten b, dann gibt es a · b Kombinationen.
+
+  - kind: problem
+    id: menue
+    widget: numeric
+    prompt: Ein Menü hat 3 Vorspeisen, 4 Hauptgerichte und 2 Desserts. Wie viele Menüs gibt es?
+    params: { unit: Menüs }
+    answer: { value: 24 }
+    feedback:
+      - when: "numval(state.input) == 9"
+        misconception: add-not-multiply
+        text: Jede Vorspeise passt zu jedem Hauptgericht und jedem Dessert. Nimm mal.
+    hints:
+      - 3 · 4 · 2.
+    explanation: 3 · 4 · 2 = 24.
+
+  - kind: problem
+    id: kennzeichen
+    widget: choice
+    prompt: Ein Code hat zwei Buchstaben (A–Z) und danach drei Ziffern. Wie viele Codes gibt es?
+    params:
+      options:
+        - { label: "676 000", correct: true }
+        - { label: "26 000", feedback: "Es sind zwei Buchstaben – also 26 · 26." }
+        - { label: "1 026", feedback: "Nicht addieren. Jede Stelle multipliziert." }
+    hints:
+      - 26 · 26 · 10 · 10 · 10.
+    explanation: 26 · 26 · 1000 = 676 000.
+
+  - kind: explain
+    body: Warum wird so schnell so viel daraus?
+    reveal:
+      body: Jede neue Wahl multipliziert alles, was vorher schon möglich war. Darum explodieren Kombinationen – bei Passwörtern ein Segen, beim Planen ein Fluch.
+
+srs:
+  cards_from: [outfits, menue]

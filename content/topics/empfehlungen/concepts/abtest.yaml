@@ -1,0 +1,53 @@
+id: ai.recommend.abtest
+type: concept
+title: Der A/B-Test
+summary: Wie Apps herausfinden, was wirkt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: rate
+    widget: numeric
+    prompt: Version A – 1000 Besucher, 50 Käufe. Version B – 1000 Besucher, 65 Käufe. Um wie viel Prozent ist B besser?
+    params: { unit: "%" }
+    answer: { value: 30 }
+    feedback:
+      - when: "numval(state.input) == 15"
+        misconception: absolute
+        text: 15 ist der Unterschied in Käufen. Gefragt ist, um wie viel Prozent B mehr hat.
+    hints:
+      - 15 mehr, bezogen auf 50.
+    explanation: "15 : 50 = 0,3 – also 30 % mehr Käufe."
+
+  - kind: explain
+    body: |
+      **A/B-Test:** Besucher werden zufällig auf zwei Versionen verteilt. Nur eine Sache ist verschieden. So zeigt der Vergleich, was diese eine Sache bewirkt.
+
+  - kind: problem
+    id: zufall
+    widget: choice
+    prompt: Warum zufällig verteilen – statt A morgens und B abends zu zeigen?
+    params:
+      options:
+        - { label: Sonst unterscheiden sich die Gruppen in mehr als der Version., correct: true }
+        - { label: Zufall ist billiger., feedback: "Es geht um faire Gruppen, nicht ums Geld." }
+    hints:
+      - Kaufen Leute abends anders als morgens?
+    explanation: Morgen- und Abendkunden sind verschieden. Zufall macht beide Gruppen gleich.
+
+  - kind: problem
+    id: wenig
+    widget: choice
+    prompt: Bei je 40 Besuchern hat B drei Käufe mehr. Ist B damit sicher besser?
+    params:
+      options:
+        - { label: Nein – das kann Zufall sein., correct: true }
+        - { label: Ja, feedback: "Bei so wenigen Besuchern schwanken die Zahlen stark." }
+    hints:
+      - Wie stark schwankt das Ergebnis bei kleinen Gruppen?
+    explanation: Erst große Gruppen trennen echte Wirkung von Zufall.
+
+srs:
+  cards_from: [zufall, wenig]

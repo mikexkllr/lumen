@@ -1,0 +1,85 @@
+id: stats.data.median
+type: concept
+title: Median und Ausreißer
+summary: Der Wert in der Mitte lässt sich von Ausreißern kaum beirren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [data.median]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: mitte
+    widget: numeric
+    visual:
+      widget: chart
+      params: { labels: [A, B, C, D, E], values: [1, 2, 2, 3, 20], min: 0, max: 20, step: 1 }
+    prompt: Wie groß ist der Median dieser fünf Werte?
+    answer: { value: 2 }
+    feedback:
+      - when: "numval(state.input) == 5.6"
+        misconception: mean-vs-median
+        text: Das ist der Mittelwert. Der Median ist der Wert in der Mitte der sortierten Liste.
+    hints:
+      - Sortiere die Werte und nimm den mittleren.
+    explanation: Sortiert 1, 2, 2, 3, 20 – in der Mitte steht 2.
+
+  - kind: explain
+    body: |
+      Der **Median** ist der Wert in der Mitte, wenn man alle sortiert.
+      Ausreißer verschieben ihn kaum – den Mittelwert dagegen stark.
+
+  - kind: problem
+    id: ausreisser
+    widget: chart
+    prompt: Ziehe Säule E so hoch, dass der Mittelwert über 8 liegt. Beobachte dabei den Median.
+    params: { labels: [A, B, C, D, E], values: [3, 5, 6, 7, 4], editable: [4], min: 0, max: 30, show: [mean, median] }
+    check: { predicate: "mean(state.values) > 8" }
+    hints:
+      - Die Summe muss über 40 liegen.
+    explanation: Ab E = 20 liegt der Mittelwert über 8 – der Median bleibt bei 6.
+    difficulty: 2
+
+  - kind: problem
+    id: median-variante
+    widget: numeric
+    prompt: Wie groß ist der Median von {{a}}, {{b}}, {{c}}, {{d}} und {{e}}?
+    answer: { value: "{{median([a, b, c, d, e])}}" }
+    feedback:
+      - when: "numval(state.input) == c && c != median([a, b, c, d, e])"
+        misconception: unsorted-median
+        text: Erst sortieren, dann die Mitte nehmen.
+    hints:
+      - Sortiere die fünf Zahlen.
+    explanation: "Sortiert steht {{median([a, b, c, d, e])}} in der Mitte."
+    variants:
+      params: { a: "int[1,20]", b: "int[1,20]", c: "int[1,20]", d: "int[1,20]", e: "int[1,20]" }
+      defaults: { a: 12, b: 3, c: 15, d: 7, e: 9 }
+
+  - kind: problem
+    id: gerade-anzahl
+    widget: numeric
+    prompt: Wie groß ist der Median von 4, 9, 1 und 7?
+    answer: { value: 5.5 }
+    hints:
+      - Sortiere – 1, 4, 7, 9.
+      - Bei gerader Anzahl nimmst du die Mitte der beiden mittleren Werte.
+    explanation: "(4 + 7) : 2 = 5,5."
+    difficulty: 2
+
+  - kind: problem
+    id: gehaelter
+    widget: choice
+    body: In einer Firma verdienen neun Leute je 3000 €, die Chefin 50 000 €.
+    prompt: Welcher Wert beschreibt das typische Gehalt besser?
+    params:
+      options:
+        - { label: Der Median, correct: true }
+        - { label: Der Mittelwert, feedback: "Das hohe Gehalt zieht den Mittelwert auf 7700 € – das verdient hier niemand." }
+        - { label: Beide gleich gut, feedback: "Rechne beide aus – 3000 € und 7700 €." }
+    hints:
+      - Was verdient die Person in der Mitte?
+    explanation: Der Median ist 3000 €, der Mittelwert 7700 €.
+
+srs:
+  cards_from: ["steps[3]"]

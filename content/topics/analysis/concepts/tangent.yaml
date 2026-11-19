@@ -1,0 +1,63 @@
+id: math.calculus.tangent
+type: concept
+title: Die Steigung in einem Punkt
+summary: Vom Durchschnitt zum Tacho.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Der Tacho zeigt das Tempo **jetzt**, nicht im Schnitt. Dafür rückt der zweite Punkt immer näher – bis die Gerade die Kurve nur noch berührt. Diese Gerade heißt **Tangente**.
+
+  - kind: problem
+    id: beruehren
+    widget: graph
+    prompt: Zieh B so, dass die Gerade die Parabel bei A nur berührt.
+    params:
+      x: [-1, 4]
+      y: [-2, 8]
+      functions: [{ expr: "x*x" }]
+      points:
+        - { id: A, x: 1, y: 1, draggable: false }
+        - { id: B, x: 3, y: 1 }
+      lines: [[A, B]]
+    check: { predicate: "state.points.B.x != 1 && state.points.B.y - 1 == 2 * (state.points.B.x - 1)" }
+    hints:
+      - Die Tangente bei A ist doppelt so steil wie die Diagonale – ein Schritt nach rechts, zwei nach oben.
+    explanation: Die Tangente bei x = 1 hat die Steigung 2 – zum Beispiel durch (2 | 3).
+
+  - kind: problem
+    id: muster
+    widget: choice
+    body: "Die Parabel y = x² hat bei x = 1 die Steigung 2, bei x = 2 die Steigung 4, bei x = 3 die Steigung 6."
+    prompt: Welches Muster steckt dahinter?
+    params:
+      options:
+        - { label: "Steigung = 2 · x", correct: true }
+        - { label: "Steigung = x²", feedback: "Bei x = 3 wäre das 9, nicht 6." }
+        - { label: Die Steigung ist überall gleich, feedback: "Eine Parabel wird immer steiler." }
+    hints:
+      - Vergleiche x mit der Steigung.
+    explanation: Die Steigung ist immer das Doppelte von x.
+
+  - kind: problem
+    id: steil
+    widget: numeric
+    prompt: Wie steil ist die Parabel y = x² bei x = {{a}}?
+    params: { placeholder: "Steigung" }
+    answer: { value: "{{2 * a}}" }
+    feedback:
+      - when: "numval(state.input) == a * a"
+        misconception: value-not-slope
+        text: Das ist die Höhe der Kurve, nicht ihre Steigung.
+    hints:
+      - Steigung = 2 · x.
+    explanation: "2 · {{a}} = {{2 * a}}."
+    variants:
+      params: { a: "int[3,9]" }
+      defaults: { a: 5 }
+
+srs:
+  cards_from: [muster, steil]

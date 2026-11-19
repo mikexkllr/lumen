@@ -1,0 +1,65 @@
+id: logic.constraints.neighbors
+type: concept
+title: Nachbarn
+summary: Wer wohnt neben wem?
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: strasse
+    widget: logic-grid
+    prompt: Wer wohnt in welchem Haus, und wer hat welches Tier?
+    params:
+      categories:
+        - { name: Haus, items: [Haus 1, Haus 2, Haus 3] }
+        - { name: Person, items: [Pia, Quinn, Rosa] }
+        - { name: Tier, items: [Hund, Katze, Vogel] }
+      ordered: 0
+      clues:
+        - text: Pia wohnt in Haus 1.
+          rule: { is: [Pia, Haus 1] }
+        - text: Rosa hat den Vogel.
+          rule: { is: [Rosa, Vogel] }
+        - text: Quinn wohnt nicht in Haus 3.
+          rule: { not: [Quinn, Haus 3] }
+        - text: Pia hat keine Katze.
+          rule: { not: [Pia, Katze] }
+    hints:
+      - Wenn Quinn nicht in Haus 3 und Pia in Haus 1 wohnt …
+    explanation: Quinn in Haus 2, Rosa in Haus 3 mit dem Vogel. Pia hat den Hund, Quinn die Katze.
+
+  - kind: problem
+    id: sitzplan
+    widget: logic-grid
+    prompt: Wer sitzt wo auf der Bank?
+    params:
+      categories:
+        - { name: Person, items: [Tom, Uli, Vera] }
+        - { name: Platz, items: [links, Mitte, rechts] }
+      ordered: 1
+      clues:
+        - text: Uli sitzt direkt rechts von Tom.
+          rule: { offset: [Tom, Uli, 1] }
+        - text: Tom sitzt nicht links.
+          rule: { not: [Tom, links] }
+    hints:
+      - Wenn Tom nicht links sitzt und Uli rechts von ihm …
+    explanation: Tom in der Mitte, Uli rechts, Vera links.
+
+  - kind: problem
+    id: neben
+    widget: choice
+    prompt: Was folgt aus »Der Hund wohnt direkt neben der Katze« bei drei Häusern in einer Reihe?
+    params:
+      options:
+        - { label: Hund und Katze wohnen nicht in Haus 1 und Haus 3 zugleich., correct: true }
+        - { label: Einer von beiden wohnt in Haus 2., feedback: "Das stimmt auch – aber genauer ist: 1 und 3 sind als Paar ausgeschlossen." }
+        - { label: Nichts, feedback: "Nachbarschaft schließt die beiden Randhäuser als Paar aus." }
+    hints:
+      - Welche Paare sind Nachbarn?
+    explanation: Nachbarpaare sind 1–2 und 2–3. Daraus folgt auch, dass Haus 2 beteiligt ist.
+
+srs:
+  cards_from: [strasse, sitzplan]

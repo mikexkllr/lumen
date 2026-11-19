@@ -1,0 +1,55 @@
+id: ai.vision.fooled
+type: concept
+title: Getäuschte Augen
+summary: Kleine Änderungen, große Irrtümer.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: zahlen
+    widget: numeric
+    prompt: Ein Bild hat {{s}} × {{s}} Pixel mit je drei Farbwerten. Wie viele Zahlen sieht das Modell?
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{s * s * 3}}" }
+    hints:
+      - Pixel zählen, dann mal 3.
+    explanation: "{{s}} · {{s}} · 3 = {{s * s * 3}}. Für das Modell ist ein Foto nur eine lange Zahlenliste."
+    variants:
+      params: { s: "choice[32,64,100,128]" }
+      defaults: { s: 64 }
+
+  - kind: problem
+    id: sticker
+    widget: choice
+    prompt: Ein paar Sticker auf einem Stoppschild – und ein Modell sieht ein Tempolimit. Warum?
+    params:
+      options:
+        - { label: "Es achtet auf Muster, die Menschen egal sind.", correct: true }
+        - { label: Das Schild war wirklich unleserlich., feedback: "Menschen erkannten es problemlos." }
+    hints:
+      - Versteht das Modell, was ein Schild bedeutet?
+    explanation: Das Modell rechnet mit Pixelmustern. Gezielte Störungen können es kippen.
+
+  - kind: explain
+    body: |
+      Solche gezielten Störungen heißen **Adversarial Examples**. Oft sind sie für Menschen unsichtbar – und trotzdem ändert sich die Antwort der KI komplett.
+
+  - kind: problem
+    id: wer
+    widget: buckets
+    prompt: Wen täuscht das?
+    params:
+      buckets: [{ label: auch Menschen }, { label: nur die KI }]
+      items:
+        - { label: Gleich lange Linien mit Pfeilspitzen, bucket: auch Menschen }
+        - { label: "Wolken, die wie Gesichter aussehen", bucket: auch Menschen }
+        - { label: Unsichtbares Pixelrauschen, bucket: nur die KI }
+        - { label: Sticker auf einem Stoppschild, bucket: nur die KI }
+    hints:
+      - Würdest du selbst darauf hereinfallen?
+    explanation: Menschen und Maschinen haben verschiedene blinde Flecken.
+
+srs:
+  cards_from: [sticker, wer]

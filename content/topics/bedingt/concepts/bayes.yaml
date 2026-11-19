@@ -1,0 +1,73 @@
+id: stats.conditional.bayes
+type: concept
+title: Der Test-Trugschluss
+summary: Wenn Fehlalarme die Treffer überwiegen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: bauchgefuehl
+    widget: choice
+    body: 1 von 100 Menschen hat eine Krankheit. Ein Test erkennt 90 % der Kranken. Bei 9 % der Gesunden schlägt er falsch an.
+    prompt: Dein Test ist positiv. Wie wahrscheinlich bist du krank?
+    params:
+      options:
+        - { label: Etwa 9 %, correct: true }
+        - { label: Etwa 90 %, feedback: "Das ist die Trefferquote bei Kranken. Es gibt aber viel mehr Gesunde." }
+        - { label: Etwa 50 %, feedback: "Näher dran – aber immer noch zu hoch." }
+        - { label: Etwa 99 %, feedback: "Viel zu hoch. Denk an die vielen Gesunden mit Fehlalarm." }
+    hints:
+      - Stell dir 1000 Menschen vor.
+    explanation: Die wenigen echten Treffer gehen unter vielen Fehlalarmen unter.
+
+  - kind: explain
+    body: |
+      Denk in **Häufigkeiten**. Von 1000 Menschen sind 10 krank – 9 davon testen positiv.
+      Von 990 Gesunden testen trotzdem etwa 89 positiv.
+
+  - kind: problem
+    id: positive
+    widget: numeric
+    prompt: Wie viele der 1000 Menschen testen insgesamt positiv?
+    params: { unit: Menschen }
+    answer: { value: 98, tolerance: 1 }
+    hints:
+      - Zähle die echten Treffer und die Fehlalarme zusammen.
+    explanation: 9 echte plus 89 falsche – rund 98 positive Tests.
+
+  - kind: problem
+    id: anteil
+    widget: numeric
+    prompt: Welcher Anteil der positiv Getesteten ist wirklich krank? In Prozent, gerundet.
+    params: { unit: "%" }
+    answer: { value: 9, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: base-rate-neglect
+        text: 90 % ist die Trefferquote bei Kranken. Hier geht es um alle Positiven.
+    hints:
+      - Rechne 9 geteilt durch 98.
+    explanation: 9 von 98 – etwa 9 %. Die Krankheit ist selten. Darum überwiegen die Fehlalarme.
+
+  - kind: explain
+    body: Was hilft gegen diesen Trugschluss?
+    reveal:
+      body: Ein zweiter, unabhängiger Test. Und die **Basisrate** kennen – je seltener etwas ist, desto mehr Fehlalarme gibt es im Verhältnis.
+
+  - kind: problem
+    id: haeufiger
+    widget: choice
+    prompt: Die Krankheit wird häufiger – 1 von 10 statt 1 von 100. Was passiert mit dem Anteil echter Treffer unter den Positiven?
+    params:
+      options:
+        - { label: Er steigt deutlich., correct: true }
+        - { label: Er sinkt., feedback: "Mehr Kranke heißt mehr echte Treffer – bei gleich vielen Fehlalarmen." }
+        - { label: Er bleibt gleich., feedback: "Der Test bleibt gleich, aber die Basisrate ändert alles." }
+    hints:
+      - Stell dir wieder 1000 Menschen vor – jetzt sind 100 krank.
+    explanation: 90 echte Treffer gegen rund 81 Fehlalarme – jetzt ist gut die Hälfte der Positiven krank.
+
+srs:
+  cards_from: [bauchgefuehl, anteil]

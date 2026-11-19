@@ -1,0 +1,60 @@
+id: cs.internet.speed
+type: concept
+title: Wie schnell ist schnell?
+summary: Bits, Bytes und Ping.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: mbyte
+    widget: numeric
+    prompt: Eine Leitung schafft {{r}} Megabit pro Sekunde. Wie viele Megabyte sind das pro Sekunde?
+    params: { unit: MB/s }
+    answer: { value: "{{r / 8}}" }
+    feedback:
+      - when: "numval(state.input) == r"
+        misconception: bit-byte
+        text: Bit und Byte sind nicht dasselbe – ein Byte hat 8 Bit.
+    hints:
+      - 8 Bit = 1 Byte.
+    explanation: "{{r}} : 8 = {{r / 8}} MB/s."
+    variants:
+      params: { r: "choice[16,40,80,160,400]" }
+      defaults: { r: 80 }
+
+  - kind: problem
+    id: download
+    widget: numeric
+    prompt: Wie viele Sekunden dauert ein Download von {{g}} GB bei 100 Mbit/s?
+    params: { unit: s }
+    answer: { value: "{{g * 80}}" }
+    hints:
+      - 1 GB = 1000 MB = 8000 Megabit.
+    explanation: "{{g}} · 8000 : 100 = {{g * 80}} Sekunden."
+    variants:
+      params: { g: "int[1,9]" }
+      defaults: { g: 3 }
+
+  - kind: explain
+    body: |
+      **Bandbreite** sagt, wie viel pro Sekunde durchpasst. **Ping** sagt, wie lange ein einzelnes Paket hin und zurück braucht. Für manches zählt das eine, für manches das andere.
+
+  - kind: problem
+    id: was-zaehlt
+    widget: buckets
+    prompt: Was ist hier wichtiger?
+    params:
+      buckets: [{ label: Bandbreite }, { label: Ping }]
+      items:
+        - { label: 4K-Film streamen, bucket: Bandbreite }
+        - { label: Großes Update laden, bucket: Bandbreite }
+        - { label: Online-Spiel, bucket: Ping }
+        - { label: Videocall, bucket: Ping }
+    hints:
+      - Geht es um viele Daten oder um schnelle Reaktion?
+    explanation: Große Datenmengen brauchen Bandbreite, Reaktionen brauchen kurzen Ping.
+
+srs:
+  cards_from: [mbyte, was-zaehlt]

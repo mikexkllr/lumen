@@ -1,0 +1,114 @@
+# yaml-language-server: $schema=../../../lumen.schema.json
+id: math.fractions.parts
+type: concept
+title: Was ein Bruch erzählt
+summary: Der Nenner teilt, der Zähler zählt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [frac.part-whole]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: drei-viertel
+    widget: fraction
+    prompt: Färbe 3/4 des Streifens. Tippe dazu auf die Teile.
+    params: { parts: 4 }
+    answer: { fraction: "3/4" }
+    hints:
+      - Der Streifen hat 4 gleich große Teile.
+      - Färbe 3 davon.
+    explanation: 3/4 heißt 3 von 4 gleich großen Teilen.
+
+  - kind: explain
+    body: |
+      Der **Nenner** (unten) sagt, in wie viele gleich große Teile das Ganze geteilt ist.
+      Der **Zähler** (oben) sagt, wie viele Teile du nimmst.
+    visual:
+      widget: fraction
+      params: { parts: 4, shaded: [0, 1, 2] }
+
+  - kind: problem
+    id: faerben-variante
+    widget: fraction
+    prompt: Färbe {{k}}/{{n}} des Streifens.
+    params: { parts: "{{n}}" }
+    answer: { fraction: "{{k}}/{{n}}" }
+    feedback:
+      - when: "shadedCount == n - k && k != n - k"
+        misconception: complement
+        text: Du hast die Teile gefärbt, die übrig bleiben sollen. Gefärbt werden {{k}} Teile.
+    hints:
+      - Der Nenner {{n}} sagt dir, wie viele Teile es gibt.
+      - Der Zähler {{k}} sagt dir, wie viele du färbst.
+    explanation: "{{k}} von {{n}} Teilen färben."
+    variants:
+      params: { n: "choice[3,4,5,6,8]", k: "int[1,7]" }
+      constraints: ["k < n"]
+      defaults: { n: 5, k: 2 }
+
+  - kind: problem
+    id: pizza
+    widget: fraction
+    prompt: Färbe 5/8 der Pizza.
+    params: { parts: 8, shape: circle }
+    answer: { fraction: "5/8" }
+    hints:
+      - Die Pizza ist in 8 gleiche Stücke geschnitten.
+    explanation: 5 von 8 Stücken.
+
+  - kind: problem
+    id: ablesen
+    widget: choice
+    visual:
+      widget: fraction
+      params: { parts: 6, shaded: [0, 1] }
+    prompt: Welcher Bruch ist gefärbt?
+    params:
+      layout: grid
+      options:
+        - label: "2/6"
+          correct: true
+        - label: "2/4"
+          feedback: Du hast gefärbte mit ungefärbten Teilen verglichen. Der Nenner zählt alle Teile.
+        - label: "6/2"
+          feedback: Zähler und Nenner sind vertauscht. Unten steht die Zahl aller Teile.
+        - label: "4/6"
+          feedback: Das ist der Teil, der nicht gefärbt ist.
+    hints:
+      - Wie viele Teile hat der Streifen insgesamt?
+    explanation: 2 von 6 Teilen sind gefärbt, also 2/6.
+
+  - kind: problem
+    id: neu-teilen
+    widget: fraction
+    prompt: Mit 4 Teilen klappt es nicht. Teile den Streifen neu und färbe 1/3.
+    params: { parts: 4, partOptions: [2, 3, 4, 6] }
+    answer: { fraction: "1/3" }
+    hints:
+      - 1/3 heißt, das Ganze in 3 gleiche Teile zu teilen.
+      - Wähle oben »3 Teile« und färbe einen.
+    explanation: In 3 Teile teilen und einen färben. Mit 6 Teilen und 2 gefärbten klappt es auch.
+
+  - kind: problem
+    id: kuchen-rest
+    widget: numeric
+    prompt: Ein Kuchen hat {{n}} gleiche Stücke. {{k}} Stücke sind gegessen. Welcher Bruch ist übrig?
+    params: { placeholder: "z. B. 3/4" }
+    answer: { value: "{{n - k}}/{{n}}" }
+    feedback:
+      - when: "approx(numval(state.input), k / n)"
+        misconception: complement
+        text: Das ist der gegessene Teil. Gefragt ist, was noch übrig ist.
+    hints:
+      - Wie viele Stücke sind noch da?
+      - "Übrig sind {{n}} − {{k}} Stücke von {{n}}."
+    explanation: "{{n - k}} von {{n}} Stücken sind übrig: {{n - k}}/{{n}}."
+    difficulty: 2
+    variants:
+      params: { n: "choice[4,5,6,8,10,12]", k: "int[1,3]" }
+      constraints: ["k < n", "n != 2 * k"]
+      defaults: { n: 8, k: 3 }
+
+srs:
+  cards_from: ["steps[2]", "steps[6]"]

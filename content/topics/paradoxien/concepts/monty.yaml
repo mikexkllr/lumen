@@ -1,0 +1,65 @@
+id: stats.paradoxes.monty
+type: concept
+title: Das Ziegenproblem
+summary: Wechseln verdoppelt die Chance.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: wechseln
+    widget: choice
+    body: Hinter einer von drei Türen steht ein Auto, hinter den anderen Ziegen. Du wählst Tür 1. Der Moderator kennt alles und öffnet Tür 3 – eine Ziege.
+    prompt: Solltest du zu Tür 2 wechseln?
+    params:
+      options:
+        - { label: "Ja – Wechseln gewinnt in 2 von 3 Fällen", correct: true }
+        - { label: "Egal – jetzt steht es 50 zu 50", feedback: "Das denken fast alle. Der Moderator öffnet aber nie das Auto – das ist eine Information." }
+        - { label: "Nein – bleiben ist sicherer", feedback: "Deine erste Wahl hatte nur 1/3 Chance. Daran ändert das Öffnen nichts." }
+    hints:
+      - Wie wahrscheinlich war deine erste Wahl richtig?
+    explanation: Deine Tür hat 1/3. Die restlichen 2/3 stecken jetzt allein in der anderen geschlossenen Tür.
+
+  - kind: explain
+    body: Probier es aus – lass das Spiel 100-mal laufen. Die Balken zeigen, welche Strategie wie oft gewinnt.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items: [{ label: Bleiben, weight: 1 }, { label: Wechseln, weight: 2 }]
+        sample: [10, 100]
+
+  - kind: explain
+    body: Warum fühlt sich 50 zu 50 so richtig an?
+    reveal:
+      body: Weil wir nur die zwei Türen sehen. Wir übersehen, dass der Moderator nicht zufällig öffnet. Er hilft dir – du musst nur wechseln.
+
+  - kind: problem
+    id: hundert
+    widget: numeric
+    prompt: Jetzt 100 Türen. Du wählst eine. Der Moderator öffnet 98 Ziegen-Türen. Wie groß ist deine Gewinnchance beim Wechseln?
+    params: { unit: "%" }
+    answer: { value: 99 }
+    feedback:
+      - when: "numval(state.input) == 50"
+        misconception: equal-chance
+        text: Deine erste Tür hatte nur 1 %. Der Rest wandert zur letzten Tür.
+    hints:
+      - Wie wahrscheinlich hast du beim ersten Mal richtig gewählt?
+    explanation: Deine Tür hat 1 %, die andere 99 %. Hier sieht man den Effekt deutlich.
+
+  - kind: problem
+    id: zufaellig
+    widget: choice
+    prompt: Angenommen, der Moderator öffnet zufällig eine Tür – und zufällig ist es eine Ziege. Lohnt sich Wechseln jetzt?
+    params:
+      options:
+        - { label: "Dann ist es wirklich 50 zu 50", correct: true }
+        - { label: "Wechseln bleibt bei 2/3", feedback: "Der Vorteil kommt allein daher, dass der Moderator Bescheid weiß." }
+    hints:
+      - Woher kam eben der Vorteil?
+    explanation: Ohne sein Wissen verrät die Ziege nichts Besonderes. Dann sind beide Türen gleich gut.
+
+srs:
+  cards_from: [wechseln, hundert]

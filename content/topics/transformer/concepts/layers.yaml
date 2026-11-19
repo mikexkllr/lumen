@@ -1,0 +1,54 @@
+id: ai.transformers.layers
+type: concept
+title: Schicht für Schicht
+summary: Der Aufbau eines Transformers.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: ablauf
+    widget: order
+    prompt: Bring die Verarbeitung in einem Sprachmodell in die richtige Reihenfolge.
+    params:
+      items:
+        - { label: Text in Tokens zerlegen }
+        - { label: Tokens in Embeddings umwandeln }
+        - { label: Viele Attention-Schichten verarbeiten sie }
+        - { label: Wahrscheinlichkeiten für das nächste Token }
+    hints:
+      - Am Ende steht eine Vorhersage.
+    explanation: Dutzende Schichten verfeinern das Verständnis Stück für Stück.
+
+  - kind: explain
+    body: |
+      Ein **Transformer** stapelt viele gleich gebaute Schichten. Jede Schicht hat Attention und ein kleines neuronales Netz. Frühe Schichten erfassen eher Grammatik, spätere eher Bedeutung und Zusammenhänge.
+
+  - kind: problem
+    id: parallel
+    widget: choice
+    prompt: Was war der große Vorteil von Transformern gegenüber älteren Sprachmodellen?
+    params:
+      options:
+        - { label: Sie verarbeiten alle Wörter eines Textes gleichzeitig., correct: true }
+        - { label: Sie brauchen keine Daten., feedback: "Im Gegenteil – sie brauchen riesige Datenmengen." }
+    hints:
+      - Ältere Modelle lasen Wort für Wort nacheinander.
+    explanation: Parallel rechnen passt perfekt zu Grafikchips – so wurden riesige Modelle möglich.
+
+  - kind: problem
+    id: koepfe
+    widget: numeric
+    prompt: Eine Schicht hat {{h}} Attention-Köpfe, das Modell {{l}} Schichten. Wie viele Köpfe gibt es insgesamt?
+    params: { unit: Köpfe }
+    answer: { value: "{{h * l}}" }
+    hints:
+      - Köpfe pro Schicht mal Schichten.
+    explanation: "{{h}} · {{l}} = {{h * l}} – jeder achtet auf andere Zusammenhänge."
+    variants:
+      params: { h: "choice[8,12,16]", l: "choice[12,24,32]" }
+      defaults: { h: 12, l: 24 }
+
+srs:
+  cards_from: [ablauf, parallel]

@@ -1,0 +1,71 @@
+id: logic.strategy.invariants
+type: concept
+title: Was sich nie ändert
+summary: Invarianten beweisen das Unmögliche.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: schachbrett
+    widget: choice
+    prompt: Einem Schachbrett fehlen zwei gegenüberliegende Eckfelder. Kann man es mit Dominosteinen lückenlos belegen? Jeder Stein deckt zwei Nachbarfelder.
+    params:
+      options:
+        - { label: Nein, correct: true }
+        - { label: Ja, feedback: "62 Felder klingen passend. Achte aber auf die Farben der Ecken." }
+    hints:
+      - Welche Farbe haben die beiden fehlenden Ecken?
+    explanation: Beide Ecken haben dieselbe Farbe. Jeder Dominostein deckt aber ein helles und ein dunkles Feld.
+
+  - kind: explain
+    body: |
+      Jeder Dominostein deckt **ein helles und ein dunkles** Feld. Hier fehlen zwei Felder derselben Farbe – das geht nie auf.
+      So etwas heißt **Invariante**: eine Größe, die sich nie ändert.
+
+  - kind: problem
+    id: tafel
+    widget: choice
+    body: An der Tafel stehen die Zahlen 1 bis 10. Du wischst zwei weg und schreibst ihre Differenz hin. Das wiederholst du, bis eine Zahl übrig ist.
+    prompt: Kann am Ende 0 stehen?
+    params:
+      options:
+        - { label: "Nein – das Ergebnis ist immer ungerade.", correct: true }
+        - { label: "Ja, mit der richtigen Reihenfolge.", feedback: "Probier es – die Summe bleibt immer ungerade." }
+    hints:
+      - Schau, ob die Summe aller Zahlen gerade oder ungerade ist – und ob sich das ändert.
+    explanation: Die Summe ist anfangs 55, also ungerade. Jeder Schritt ändert sie um eine gerade Zahl.
+
+  - kind: problem
+    id: schokolade
+    widget: numeric
+    prompt: Eine Tafel Schokolade hat {{a}} × {{b}} Stücke. Wie oft musst du brechen, bis alle Stücke einzeln sind?
+    params: { unit: Brüche }
+    answer: { value: "{{a * b - 1}}" }
+    feedback:
+      - when: "numval(state.input) == a * b"
+        misconception: off-by-one
+        text: Fast. Am Anfang hast du schon ein Stück.
+    hints:
+      - Jeder Bruch macht aus einem Stück zwei.
+    explanation: "Von 1 auf {{a * b}} Stücke braucht man {{a * b - 1}} Brüche – egal wie."
+    variants:
+      params: { a: "int[3,6]", b: "int[4,8]" }
+      defaults: { a: 4, b: 6 }
+
+  - kind: problem
+    id: turnier
+    widget: numeric
+    prompt: In einem K.-o.-Turnier spielen {{n}} Teams. Wie viele Spiele braucht es bis zum Sieger?
+    params: { unit: Spiele }
+    answer: { value: "{{n - 1}}" }
+    hints:
+      - Jedes Spiel scheidet genau ein Team aus.
+    explanation: "Bis auf den Sieger scheiden alle {{n - 1}} anderen aus – ein Spiel pro Team."
+    variants:
+      params: { n: "choice[8,16,20,32,64]" }
+      defaults: { n: 16 }
+
+srs:
+  cards_from: [schokolade, turnier]

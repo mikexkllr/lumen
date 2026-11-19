@@ -1,0 +1,71 @@
+id: sci.circuits.series
+type: concept
+title: Reihe oder parallel?
+summary: Zwei Arten, Geräte zu verbinden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: kette
+    widget: choice
+    prompt: Bei einer Lichterkette geht eine Lampe kaputt – und alle gehen aus. Wie sind sie geschaltet?
+    params:
+      options:
+        - { label: In Reihe – hintereinander, correct: true }
+        - { label: Parallel – nebeneinander, feedback: "Dann würden die anderen weiterleuchten." }
+    hints:
+      - Muss der Strom durch jede Lampe?
+    explanation: In Reihe fließt der Strom durch alle. Eine Lücke unterbricht den ganzen Kreis.
+
+  - kind: problem
+    id: schalter
+    widget: gates
+    prompt: Zwei Schalter parallel – die Lampe brennt, wenn einer von beiden an ist. Welches Gatter passt?
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: g, type: "?", in: [A, B], options: [AND, OR, XOR] }
+      outputs: [{ id: Q, from: g, label: Lampe }]
+    check: { predicate: "table('Q') == [0, 1, 1, 1]" }
+    hints:
+      - Auch wenn beide an sind, brennt sie.
+    explanation: Parallel ist ODER, in Reihe ist UND.
+
+  - kind: explain
+    body: |
+      In **Reihe** addieren sich die Widerstände. **Parallel** bekommt jedes Gerät die volle Spannung – so sind die Steckdosen im Haus geschaltet.
+
+  - kind: problem
+    id: reihe
+    widget: numeric
+    prompt: Zwei Widerstände mit {{a}} Ω und {{b}} Ω liegen in Reihe. Wie groß ist der Gesamtwiderstand?
+    params: { unit: Ω }
+    answer: { value: "{{a + b}}" }
+    hints:
+      - Einfach addieren.
+    explanation: "{{a}} + {{b}} = {{a + b}} Ω."
+    variants:
+      params: { a: "choice[10,47,100,220]", b: "choice[22,33,68,150]" }
+      defaults: { a: 100, b: 68 }
+
+  - kind: problem
+    id: parallel
+    widget: numeric
+    prompt: Zwei gleiche Widerstände mit je {{r}} Ω liegen parallel. Wie groß ist der Gesamtwiderstand?
+    params: { unit: Ω }
+    answer: { value: "{{r / 2}}" }
+    feedback:
+      - when: "numval(state.input) == 2 * r"
+        misconception: parallel-add
+        text: Parallel gibt es zwei Wege – der Widerstand wird kleiner, nicht größer.
+    hints:
+      - Zwei gleiche Wege – der Strom fließt doppelt so leicht.
+    explanation: "Halb so groß – {{r / 2}} Ω."
+    variants:
+      params: { r: "choice[10,20,50,100,220]" }
+      defaults: { r: 100 }
+
+srs:
+  cards_from: [kette, parallel]

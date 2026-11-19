@@ -1,0 +1,58 @@
+id: math.sequences.arithmetic
+type: concept
+title: Immer gleich viel dazu
+summary: Arithmetische Folgen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: weiter
+    widget: numeric
+    prompt: "{{a}}, {{a + d}}, {{a + 2 * d}}, {{a + 3 * d}} – welche Zahl kommt als Nächstes?"
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{a + 4 * d}}" }
+    hints:
+      - Wie groß ist der Abstand zwischen zwei Nachbarn?
+    explanation: "Immer + {{d}} – also {{a + 4 * d}}."
+    variants:
+      params: { a: "int[2,20]", d: "int[3,9]" }
+      defaults: { a: 3, d: 4 }
+
+  - kind: explain
+    body: |
+      Kommt immer dasselbe dazu, heißt die Folge **arithmetisch**. Das n-te Glied ist $a + (n-1) \cdot d$ – Startwert plus n − 1 Schritte.
+
+  - kind: problem
+    id: glied
+    widget: numeric
+    prompt: Eine Folge beginnt bei {{a}} und wächst immer um {{d}}. Wie lautet das {{n}}. Glied?
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{a + (n - 1) * d}}" }
+    feedback:
+      - when: "numval(state.input) == a + n * d"
+        misconception: off-by-one
+        text: Vom 1. bis zum n-ten Glied sind es nur n − 1 Schritte.
+    hints:
+      - "Wie viele Schritte liegen zwischen dem 1. und dem {{n}}. Glied?"
+    explanation: "{{a}} + {{n - 1}} · {{d}} = {{a + (n - 1) * d}}."
+    variants:
+      params: { a: "int[1,20]", d: "int[2,9]", n: "int[10,50]" }
+      defaults: { a: 5, d: 3, n: 20 }
+
+  - kind: problem
+    id: taxi
+    widget: choice
+    prompt: Ein Taxi kostet 4 € Grundgebühr plus 2 € pro Kilometer. Welche Folge zeigt die Preise für 1, 2, 3 km?
+    params:
+      options:
+        - { label: "6 €, 8 €, 10 €, …", correct: true }
+        - { label: "4 €, 8 €, 16 €, …", feedback: "Das wäre Verdoppeln – hier kommt immer gleich viel dazu." }
+        - { label: "2 €, 4 €, 6 €, …", feedback: "Die Grundgebühr fehlt." }
+    hints:
+      - Rechne den Preis für 1 km aus.
+    explanation: 4 + 2 = 6, dann immer 2 € mehr.
+
+srs:
+  cards_from: [glied, taxi]

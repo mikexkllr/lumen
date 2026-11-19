@@ -1,0 +1,82 @@
+id: sci.motion.speed
+type: concept
+title: Geschwindigkeit
+summary: Weg geteilt durch Zeit.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zug
+    widget: numeric
+    prompt: Ein Zug fährt {{d}} km in {{t}} Stunden. Wie schnell ist er im Schnitt?
+    params: { unit: km/h }
+    answer: { value: "{{d / t}}" }
+    feedback:
+      - when: "numval(state.input) == d * t"
+        misconception: multiply
+        text: Geschwindigkeit ist Weg geteilt durch Zeit.
+    hints:
+      - Wie viele Kilometer schafft er in einer Stunde?
+    explanation: "{{d}} km : {{t}} h = {{d / t}} km/h."
+    variants:
+      params: { t: "choice[2,3,4]", v: "choice[80,90,120,150]" }
+      derive: { d: "t * v" }
+      defaults: { t: 2, v: 120 }
+
+  - kind: explain
+    body: |
+      **Geschwindigkeit = Weg : Zeit.** Man misst sie in km/h oder m/s.
+      Umrechnen geht mit 3,6 – 1 m/s sind 3,6 km/h.
+
+  - kind: problem
+    id: sprint
+    widget: numeric
+    prompt: Eine Sprinterin läuft 100 m in 10 Sekunden. Wie viel km/h sind das?
+    params: { unit: km/h }
+    answer: { value: 36 }
+    feedback:
+      - when: "numval(state.input) == 10"
+        misconception: no-conversion
+        text: 10 m/s stimmt. Rechne noch in km/h um – mal 3,6.
+    hints:
+      - Erst m/s, dann mal 3,6.
+    explanation: "100 m : 10 s = 10 m/s. Mal 3,6 ergibt 36 km/h."
+
+  - kind: problem
+    id: diagramm
+    widget: slider
+    prompt: Ein Radfahrer ist nach 2 Sekunden 4 Meter weit. Stelle seine Geschwindigkeit im Weg-Zeit-Diagramm ein.
+    params:
+      expr: "v*x"
+      x: [0, 6]
+      y: [0, 6]
+      sliders: [{ id: v, label: "v in m/s", min: 0, max: 3, step: 0.5, initial: 0.5 }]
+      markers: [{ x: 2, y: 4, label: "2 s, 4 m" }]
+      showCoordinates: false
+    answer: { values: { v: 2 } }
+    hints:
+      - Pro Sekunde muss er 2 Meter schaffen.
+    explanation: 4 m in 2 s – das sind 2 m/s.
+
+  - kind: explain
+    body: |
+      Im **Weg-Zeit-Diagramm** ist die Steigung die Geschwindigkeit.
+      Steiler heißt schneller. Waagerecht heißt – es bewegt sich nichts.
+
+  - kind: problem
+    id: waagerecht
+    widget: choice
+    prompt: Was zeigt eine waagerechte Linie im Weg-Zeit-Diagramm?
+    params:
+      options:
+        - { label: Stillstand, correct: true }
+        - { label: Gleichmäßige Fahrt, feedback: "Bei gleichmäßiger Fahrt steigt die Linie gleichmäßig an." }
+        - { label: Sehr hohe Geschwindigkeit, feedback: "Dann wäre die Linie sehr steil." }
+    hints:
+      - Ändert sich der Weg, wenn die Zeit vergeht?
+    explanation: Die Zeit läuft, aber der Weg bleibt gleich.
+
+srs:
+  cards_from: [zug, sprint]

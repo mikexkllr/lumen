@@ -1,0 +1,59 @@
+id: ai.transformers.limits
+type: concept
+title: Grenzen der Architektur
+summary: Kosten, Kontext und offene Fragen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: quadrat
+    widget: numeric
+    prompt: Bei Attention vergleicht jedes Token jedes andere. Der Text wird {{k}}-mal so lang. Wievielmal mehr Vergleiche sind nötig?
+    params: { unit: "-mal" }
+    answer: { value: "{{k * k}}" }
+    feedback:
+      - when: "numval(state.input) == k"
+        misconception: linear
+        text: Jedes Token mit jedem – das wächst mit dem Quadrat.
+    hints:
+      - "{{k}}-mal so viele Tokens, die je {{k}}-mal so viele andere ansehen."
+    explanation: "{{k}}² = {{k * k}} – darum sind sehr lange Texte teuer."
+    variants:
+      params: { k: "int[2,6]" }
+      defaults: { k: 2 }
+
+  - kind: explain
+    body: |
+      Transformer sind mächtig, aber nicht allwissend. Sie haben ein begrenztes **Kontextfenster**, keinen direkten Zugang zu neuen Fakten und rechnen ohne Werkzeuge oft ungenau.
+
+  - kind: problem
+    id: gut
+    widget: buckets
+    prompt: Stärke oder Schwäche eines reinen Sprachmodells?
+    params:
+      buckets: [{ label: Stärke }, { label: Schwäche }]
+      items:
+        - { label: Texte umformulieren, bucket: Stärke }
+        - { label: Zwischen Sprachen übersetzen, bucket: Stärke }
+        - { label: Exakt mit großen Zahlen rechnen, bucket: Schwäche }
+        - { label: Wissen von heute ohne Suche, bucket: Schwäche }
+    hints:
+      - Was hat mit Sprachmustern zu tun, was mit exakten Fakten?
+    explanation: Mit Werkzeugen wie Taschenrechner und Suche gleichen moderne Systeme Schwächen aus.
+
+  - kind: problem
+    id: werkzeug
+    widget: choice
+    prompt: Wie bekommt ein Sprachmodell zuverlässig das Ergebnis von 4837 · 9281?
+    params:
+      options:
+        - { label: Es ruft einen Rechner als Werkzeug auf., correct: true }
+        - { label: Es rät aus dem Training., feedback: "Raten liefert bei großen Zahlen oft falsche Ziffern." }
+    hints:
+      - Was macht ein Mensch bei so einer Aufgabe?
+    explanation: Gute Systeme kombinieren Sprache mit exakten Werkzeugen.
+
+srs:
+  cards_from: [quadrat, gut]

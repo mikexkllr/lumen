@@ -1,0 +1,58 @@
+id: stats.normal.spread
+type: concept
+title: Gleicher Schnitt, andere Streuung
+summary: Warum der Mittelwert nicht alles sagt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: teams
+    widget: choice
+    body: "Zwei Teams sind im Schnitt 25 Jahre alt. Team A: 24, 25, 25, 26. Team B: 18, 22, 28, 32."
+    prompt: Welches Team streut stärker?
+    params:
+      options:
+        - { label: Team B, correct: true }
+        - { label: Team A, feedback: "In Team A liegen alle höchstens ein Jahr vom Schnitt weg." }
+        - { label: Beide gleich, feedback: "Der Schnitt ist gleich – die Abstände nicht." }
+    hints:
+      - Wie weit liegen die Werte vom Schnitt 25 weg?
+    explanation: In Team B liegen die Alter bis zu 7 Jahre vom Schnitt entfernt.
+
+  - kind: explain
+    body: |
+      Die **Streuung** sagt, wie weit Werte typischerweise vom Mittelwert entfernt sind. Das übliche Maß heißt **Standardabweichung**, kurz σ.
+
+  - kind: problem
+    id: abstand
+    widget: numeric
+    prompt: "Die Werte sind {{m - d}}, {{m - d}}, {{m + d}} und {{m + d}}. Wie weit liegt jeder Wert vom Mittelwert entfernt?"
+    params: { placeholder: "Abstand" }
+    answer: { value: "{{d}}" }
+    hints:
+      - "Der Mittelwert ist {{m}}."
+    explanation: "Jeder Wert liegt genau {{d}} von {{m}} entfernt – hier ist auch σ = {{d}}."
+    variants:
+      params: { m: "int[20,60]", d: "int[2,9]" }
+      defaults: { m: 40, d: 5 }
+
+  - kind: problem
+    id: saeule
+    widget: chart
+    prompt: Stell die letzte Säule so ein, dass der Mittelwert genau 6 ist.
+    params:
+      labels: [Mo, Di, Mi, Do]
+      values: [4, 6, 8, 2]
+      editable: [3]
+      min: 0
+      max: 10
+      show: [mean]
+    answer: { values: [4, 6, 8, 6] }
+    hints:
+      - Alle vier zusammen müssen 24 ergeben.
+    explanation: 4 + 6 + 8 + 6 = 24, geteilt durch 4 ergibt 6.
+
+srs:
+  cards_from: [teams, abstand]

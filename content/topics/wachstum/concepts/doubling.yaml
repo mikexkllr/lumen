@@ -1,0 +1,83 @@
+id: math.growth.doubling
+type: concept
+title: Die Macht des Verdoppelns
+summary: Linear addiert, exponentiell multipliziert.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: seerosen
+    widget: choice
+    prompt: Seerosen verdoppeln ihre Fläche jeden Tag. Nach 30 Tagen ist der Teich voll. Wann war er halb voll?
+    params:
+      layout: grid
+      options:
+        - { label: Am Tag 29, correct: true }
+        - { label: Am Tag 15, feedback: "Das wäre bei gleichmäßigem Wachstum so. Hier verdoppelt sich aber alles." }
+        - { label: Am Tag 20, feedback: "Denk rückwärts. Was war einen Tag vor »voll«?" }
+        - { label: Am Tag 25, feedback: "Am Tag 25 war erst ein Zweiunddreißigstel bedeckt." }
+    hints:
+      - Rechne rückwärts – vom vollen Teich einen Tag zurück.
+    explanation: Einen Tag vor »voll« war es die Hälfte. Exponentielles Wachstum passiert am Ende fast schlagartig.
+
+  - kind: explain
+    body: |
+      **Lineares** Wachstum addiert jedes Mal gleich viel.
+      **Exponentielles** Wachstum multipliziert jedes Mal mit demselben Faktor.
+
+  - kind: problem
+    id: sortieren
+    widget: buckets
+    prompt: Linear oder exponentiell? Ordne zu.
+    params:
+      buckets: [{ label: linear }, { label: exponentiell }]
+      items:
+        - { label: Jeden Monat 50 € mehr sparen, bucket: linear }
+        - { label: Bakterien teilen sich jede Stunde, bucket: exponentiell }
+        - { label: Eine Kerze brennt 1 cm pro Stunde ab, bucket: linear }
+        - { label: Clip-Aufrufe verdoppeln sich täglich, bucket: exponentiell }
+        - { label: Taxi kostet 2 € pro Kilometer, bucket: linear }
+        - { label: Guthaben mit 5 % Zinsen pro Jahr, bucket: exponentiell }
+    hints:
+      - Kommt jedes Mal gleich viel dazu – oder wird malgenommen?
+    explanation: Fester Betrag pro Schritt ist linear. Fester Faktor pro Schritt ist exponentiell.
+
+  - kind: problem
+    id: bakterien
+    widget: numeric
+    prompt: Eine Kultur hat {{s}} Zellen und verdoppelt sich jede Stunde. Wie viele sind es nach {{h}} Stunden?
+    params: { unit: Zellen }
+    answer: { value: "{{s * 2 ** h}}" }
+    feedback:
+      - when: "numval(state.input) == s * 2 * h"
+        misconception: linear-thinking
+        text: Das wäre lineares Wachstum. Jede Stunde wird verdoppelt, nicht nur mal 2 genommen.
+    hints:
+      - "Nach 1 Stunde: {{s * 2}}. Nach 2 Stunden: {{s * 4}} …"
+    explanation: "{{s}} · $2^{ {{h}} }$ = {{s * 2 ** h}}."
+    variants:
+      params: { s: "choice[100,250,500]", h: "int[3,6]" }
+      defaults: { s: 100, h: 5 }
+
+  - kind: explain
+    body: Wie lange dauert das Verdoppeln bei 7 % Wachstum pro Jahr?
+    reveal:
+      body: Etwa 10 Jahre. Die **70er-Regel** – 70 geteilt durch den Prozentsatz ergibt ungefähr die Verdopplungszeit.
+
+  - kind: problem
+    id: siebziger
+    widget: numeric
+    prompt: Nutze die 70er-Regel. Nach wie vielen Jahren verdoppelt sich etwas bei {{p}} % Wachstum pro Jahr?
+    params: { unit: Jahre }
+    answer: { value: "{{70 / p}}", tolerance: 0.5 }
+    hints:
+      - Rechne 70 geteilt durch {{p}}.
+    explanation: "70 : {{p}} = {{70 / p}} Jahre."
+    variants:
+      params: { p: "choice[2,5,7,10,14]" }
+      defaults: { p: 7 }
+
+srs:
+  cards_from: [bakterien, siebziger]

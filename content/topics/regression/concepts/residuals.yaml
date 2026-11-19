@@ -1,0 +1,57 @@
+id: stats.regression.residuals
+type: concept
+title: Abweichungen lesen
+summary: Was die Reste verraten.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      Das **Residuum** ist der Abstand eines Punktes zur Geraden: gemessener Wert minus vorhergesagter Wert. Positiv heißt – der Punkt liegt über der Geraden.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Die Gerade sagt {{p}} voraus, gemessen wurde {{p + r}}. Wie groß ist das Residuum?
+    params: { placeholder: "Residuum" }
+    answer: { value: "{{r}}" }
+    feedback:
+      - when: "numval(state.input) == -r"
+        misconception: sign
+        text: Gemessen minus vorhergesagt – nicht andersherum.
+    hints:
+      - Gemessen minus vorhergesagt.
+    explanation: "{{p + r}} − {{p}} = {{r}}."
+    variants:
+      params: { p: "int[10,40]", r: "int[-6,6]" }
+      constraints: ["r != 0"]
+      defaults: { p: 20, r: 3 }
+
+  - kind: problem
+    id: muster
+    widget: choice
+    prompt: Die Residuen sind erst positiv, dann negativ, dann wieder positiv – wie ein Bogen. Was heißt das?
+    params:
+      options:
+        - { label: Eine Gerade passt nicht – die Daten sind gekrümmt., correct: true }
+        - { label: Alles in Ordnung., feedback: "Zufällige Reste haben kein Muster. Ein Bogen zeigt eine Krümmung." }
+    hints:
+      - Gute Residuen sehen aus wie zufälliges Rauschen.
+    explanation: Ein Muster in den Resten zeigt, dass das Modell etwas Wichtiges übersieht.
+
+  - kind: problem
+    id: summe
+    widget: choice
+    prompt: Was ergibt die Summe aller Residuen bei der besten Geraden?
+    params:
+      options:
+        - { label: Genau null, correct: true }
+        - { label: Immer etwas Positives, feedback: "Die Gerade liegt so, dass sich die Reste genau ausgleichen." }
+    hints:
+      - Die Gerade läuft durch die Mitte der Punktwolke.
+    explanation: Abweichungen nach oben und unten gleichen sich exakt aus.
+
+srs:
+  cards_from: [rechnen, muster]

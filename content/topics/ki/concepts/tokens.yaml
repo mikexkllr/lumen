@@ -1,0 +1,64 @@
+id: ai.llm.tokens
+type: concept
+title: Tokens
+summary: Modelle lesen keine Buchstaben, sondern Wortstücke.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [ai.tokens]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zerlegen
+    widget: choice
+    body: Sprachmodelle zerlegen Text in **Tokens**. Häufige Wörter sind ein Token, seltene werden in Stücke geteilt.
+    prompt: Wie wird »Fahrradschlauch« wahrscheinlich zerlegt?
+    params:
+      options:
+        - { label: "Fahr · rad · schlauch", correct: true }
+        - { label: "F · a · h · r · r · a · d …", feedback: "Einzelne Buchstaben wären viel zu viele Tokens." }
+        - { label: Ein einziges Token, feedback: "Dafür ist das Wort zu selten." }
+    hints:
+      - Welche Teile kommen in vielen Wörtern vor?
+    explanation: Häufige Bausteine wie »Fahr«, »rad«, »schlauch« sind eigene Tokens.
+
+  - kind: problem
+    id: bauen
+    widget: tiles
+    prompt: Setze die Tokens zum Wort »unglaublich« zusammen.
+    params: { tiles: ["glaub", "lich", "un", "bar", "glück"] }
+    answer: { sequence: ["un", "glaub", "lich"] }
+    hints:
+      - Womit fängt das Wort an?
+    explanation: un · glaub · lich.
+
+  - kind: explain
+    body: |
+      Ein Modell sieht also keine Buchstaben, sondern Nummern für Tokens.
+      Darum tut es sich manchmal schwer mit Aufgaben wie »Wie viele e hat Erdbeere?« – die Buchstaben stecken im Token versteckt.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: Ein Token entspricht im Schnitt etwa 0,75 Wörtern. Wie viele Tokens hat ein Text mit 750 Wörtern ungefähr?
+    answer: { value: 1000, tolerance: 20 }
+    feedback:
+      - when: "abs(numval(state.input) - 562.5) < 20"
+        text: Mehr Tokens als Wörter – ein Wort ist oft mehr als ein Token. Teile durch 0,75.
+    hints:
+      - 750 Wörter durch 0,75 Wörter pro Token.
+    explanation: "750 : 0,75 = 1000 Tokens."
+    difficulty: 2
+
+  - kind: problem
+    id: grenze
+    widget: choice
+    prompt: Warum zählt bei Chatbots oft die Zahl der Tokens statt der Wörter?
+    params:
+      options:
+        - { label: Weil das Modell intern nur Tokens verarbeitet, correct: true }
+        - { label: Weil Wörter zu ungenau gezählt werden, feedback: "Wörter lassen sich gut zählen – das Modell rechnet aber in Tokens." }
+        - { label: Weil Tokens immer ganze Sätze sind, feedback: "Tokens sind meist Wortstücke, keine Sätze." }
+    hints:
+      - Was sieht das Modell wirklich?
+    explanation: Rechenzeit und Grenzen eines Modells hängen an der Zahl der Tokens.

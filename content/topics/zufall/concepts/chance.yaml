@@ -1,0 +1,83 @@
+id: stats.prob.chance
+type: concept
+title: Chancen als Anteil
+summary: Günstige durch mögliche Ergebnisse.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [prob.chance]
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: sechs-oder-eins
+    widget: choice
+    prompt: Was ist beim Würfeln wahrscheinlicher – eine 6 oder eine 1?
+    params:
+      options:
+        - { label: Gleich wahrscheinlich, correct: true }
+        - { label: Die 6, feedback: "Die 6 fühlt sich seltener an, weil man oft auf sie wartet. Jede Seite hat aber dieselbe Chance." }
+        - { label: Die 1, feedback: "Ein fairer Würfel bevorzugt keine Seite." }
+    hints:
+      - Hat ein fairer Würfel eine Lieblingsseite?
+    explanation: Jede Seite eines fairen Würfels hat die Chance 1/6.
+
+  - kind: explain
+    body: |
+      Probier es aus – wirf den Würfel 10- oder 100-mal.
+      Die Häufigkeiten schwanken, aber jede Zahl hat die Chance $\frac{1}{6}$.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items: [{ label: "1" }, { label: "2" }, { label: "3" }, { label: "4" }, { label: "5" }, { label: "6" }]
+
+  - kind: problem
+    id: gerade
+    widget: numeric
+    prompt: Wie groß ist die Wahrscheinlichkeit, eine gerade Zahl zu würfeln?
+    params: { placeholder: "z. B. 1/3" }
+    answer: { value: "1/2" }
+    hints:
+      - Welche Augenzahlen sind gerade?
+      - 2, 4 und 6 – drei von sechs.
+    explanation: 3 von 6 Ergebnissen sind gerade – 3/6 = 1/2.
+
+  - kind: explain
+    body: |
+      **Laplace-Regel** – sind alle Ergebnisse gleich wahrscheinlich, gilt
+      $P = \frac{\text{günstige Ergebnisse}}{\text{mögliche Ergebnisse}}$.
+
+  - kind: problem
+    id: kugeln
+    widget: numeric
+    prompt: In einer Tüte sind {{r}} rote und {{b}} blaue Kugeln. Wie groß ist die Wahrscheinlichkeit, blind eine rote zu ziehen?
+    params: { placeholder: "z. B. 2/5" }
+    answer: { value: "{{r}}/{{r + b}}" }
+    feedback:
+      - when: "approx(numval(state.input), r / b) && r != b"
+        misconception: part-to-part
+        text: Du hast Rot mit Blau verglichen. Teile durch alle Kugeln.
+    hints:
+      - "Insgesamt sind es {{r + b}} Kugeln."
+    explanation: "{{r}} günstige von {{r + b}} möglichen – {{r}}/{{r + b}}."
+    variants:
+      params: { r: "int[1,6]", b: "int[1,6]" }
+      constraints: ["r != b"]
+      defaults: { r: 3, b: 5 }
+
+  - kind: problem
+    id: muenze
+    widget: choice
+    body: Eine faire Münze zeigte fünfmal hintereinander Kopf.
+    prompt: Was ist beim sechsten Wurf wahrscheinlicher?
+    params:
+      options:
+        - { label: Beides gleich, correct: true }
+        - { label: "Zahl – die ist jetzt dran", feedback: "Die Münze hat kein Gedächtnis. Jeder Wurf beginnt neu." }
+        - { label: "Kopf – die Serie läuft", feedback: "Eine faire Münze hat keine Serien-Laune. Es bleibt 1/2." }
+    hints:
+      - Weiß die Münze, was vorher passiert ist?
+    explanation: Jeder Wurf ist unabhängig – Kopf und Zahl haben je 1/2.
+
+srs:
+  cards_from: ["steps[4]"]

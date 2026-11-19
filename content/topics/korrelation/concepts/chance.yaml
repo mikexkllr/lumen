@@ -1,0 +1,72 @@
+id: stats.correlation.chance
+type: concept
+title: Zufall und Ausreißer
+summary: Regression zur Mitte und Zufallstreffer.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rekord
+    widget: choice
+    prompt: Ein Team spielt eine Rekordsaison. Im Jahr danach läuft es schlechter. Was ist die wahrscheinlichste Erklärung?
+    params:
+      options:
+        - { label: Im Rekord steckte auch viel Glück., correct: true }
+        - { label: Der Erfolg hat das Team faul gemacht., feedback: "Möglich, aber unnötig. Es gibt eine einfachere Erklärung." }
+        - { label: Ein Fluch liegt auf Meistern., feedback: "Klingt spannend, erklärt aber nichts." }
+    hints:
+      - Wie viel Glück braucht man für einen Rekord?
+    explanation: Extreme enthalten meist Glück. Danach folgen oft normalere Werte.
+
+  - kind: explain
+    body: |
+      **Regression zur Mitte:** Auf extreme Ergebnisse folgen oft normalere.
+      Extreme enthalten meist auch Glück oder Pech – und das wiederholt sich selten.
+
+  - kind: problem
+    id: nachhilfe
+    widget: choice
+    prompt: Die Schüler mit den schlechtesten Noten bekommen Nachhilfe. Danach sind sie besser. Beweist das die Wirkung?
+    params:
+      options:
+        - { label: "Nein – man braucht eine Vergleichsgruppe.", correct: true }
+        - { label: "Ja, sie sind ja besser geworden.", feedback: "Sie wären vermutlich auch ohne Nachhilfe etwas besser geworden – Regression zur Mitte." }
+    hints:
+      - Wären die Schwächsten auch ohne Nachhilfe besser geworden?
+    explanation: Erst ein Vergleich mit Schülern ohne Nachhilfe zeigt die echte Wirkung.
+
+  - kind: explain
+    body: |
+      Wer viel vergleicht, findet **zufällige** Zusammenhänge.
+      Hat jeder Test 5 % Chance auf einen Zufallstreffer, findet man bei 20 Tests im Schnitt einen.
+
+  - kind: problem
+    id: treffer
+    widget: numeric
+    prompt: Jeder Test hat 5 % Chance auf einen Zufallstreffer. Wie viele Treffer erwartest du bei {{n}} Tests, auch wenn nichts dahintersteckt?
+    params: { unit: Treffer }
+    answer: { value: "{{n * 0.05}}" }
+    hints:
+      - "5 % von {{n}}."
+    explanation: "{{n}} · 0,05 = {{n * 0.05}} Zufallstreffer."
+    variants:
+      params: { n: "choice[20,40,60,100]" }
+      defaults: { n: 40 }
+
+  - kind: problem
+    id: frage
+    widget: choice
+    prompt: Welche Frage hilft bei jeder Studie am meisten?
+    params:
+      options:
+        - { label: Gab es eine zufällige Vergleichsgruppe?, correct: true }
+        - { label: Klingt das Ergebnis überraschend?, feedback: "Überraschende Ergebnisse sind spannend – aber öfter Zufall." }
+        - { label: Wurde viel Geld ausgegeben?, feedback: "Teuer heißt nicht richtig." }
+    hints:
+      - Was trennt Ursache von Zufall?
+    explanation: Erst ein fairer Vergleich trennt Wirkung von Zufall und dritten Größen.
+
+srs:
+  cards_from: [rekord, treffer]

@@ -1,0 +1,93 @@
+id: geo.basics.pythagoras
+type: concept
+title: Satz des Pythagoras
+summary: a² + b² = c² im rechtwinkligen Dreieck.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: [geo.pythagoras]
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: drei-vier
+    widget: numeric
+    prompt: Ein rechtwinkliges Dreieck hat die kurzen Seiten 3 cm und 4 cm. Wie lang ist die längste Seite?
+    visual:
+      widget: graph
+      params: { x: [0, 5], y: [0, 4], points: [{ id: A, x: 0, y: 0, draggable: false }, { id: B, x: 4, y: 0, draggable: false }, { id: C, x: 4, y: 3, draggable: false }], segments: [[A, B], [B, C], [C, A]], showCoordinates: false }
+    params: { unit: cm }
+    answer: { value: 5 }
+    feedback:
+      - when: "numval(state.input) == 7"
+        misconception: add-sides
+        text: Die Abkürzung ist kürzer als der Umweg. Seitenlängen addieren sich nicht einfach.
+    hints:
+      - Zähle die Kästchen nicht – denk an Quadrate auf den Seiten.
+      - 3² + 4² = 9 + 16.
+    explanation: 9 + 16 = 25, und √25 = 5.
+
+  - kind: explain
+    body: |
+      Im **rechtwinkligen** Dreieck gilt $a^2 + b^2 = c^2$.
+      c ist die längste Seite, sie liegt gegenüber dem rechten Winkel.
+      $3^2 + 4^2 = 25 = 5^2$.
+
+  - kind: problem
+    id: hypotenuse
+    widget: numeric
+    prompt: Die kurzen Seiten sind {{a}} und {{b}} lang. Wie lang ist die längste Seite?
+    answer: { value: "{{c}}" }
+    feedback:
+      - when: "numval(state.input) == a + b"
+        misconception: add-sides
+        text: Nicht die Seiten addieren, sondern ihre Quadrate.
+    hints:
+      - "{{a}}² + {{b}}² = {{a * a + b * b}}."
+      - "Welche Zahl mal sich selbst ergibt {{a * a + b * b}}?"
+    explanation: "{{a}}² + {{b}}² = {{c * c}} = {{c}}²."
+    difficulty: 2
+    variants:
+      params: { t: "choice[0,1]", k: "choice[1,2,3]" }
+      derive: { a: "t == 0 ? 3 * k : 5 * k", b: "t == 0 ? 4 * k : 12 * k", c: "t == 0 ? 5 * k : 13 * k" }
+      constraints: ["c <= 39"]
+      defaults: { t: 0, k: 2 }
+
+  - kind: problem
+    id: abstand
+    widget: numeric
+    prompt: Wie weit sind A und B voneinander entfernt?
+    visual:
+      widget: graph
+      params: { x: [0, 8], y: [0, 8], points: [{ id: A, x: 0, y: 0, draggable: false }, { id: B, x: 6, y: 8, draggable: false }], segments: [[A, B]] }
+    answer: { value: 10 }
+    hints:
+      - Wie weit geht es nach rechts, wie weit nach oben?
+      - 6 nach rechts und 8 nach oben.
+    explanation: 6² + 8² = 36 + 64 = 100 = 10².
+    difficulty: 2
+
+  - kind: problem
+    id: leiter
+    widget: numeric
+    prompt: Eine 5 m lange Leiter lehnt an einer Wand. Ihr Fuß steht 3 m von der Wand entfernt. Wie hoch reicht sie?
+    params: { unit: m }
+    answer: { value: 4 }
+    hints:
+      - Die Leiter ist die längste Seite.
+      - 3² + h² = 5².
+    explanation: 25 − 9 = 16, und √16 = 4.
+
+  - kind: problem
+    id: rechtwinklig
+    widget: choice
+    prompt: Ist ein Dreieck mit den Seiten 6, 8 und 11 rechtwinklig?
+    params:
+      options:
+        - { label: Nein, correct: true }
+        - { label: Ja, feedback: "Prüfe – 6² + 8² = 100, aber 11² = 121." }
+    hints:
+      - Vergleiche 6² + 8² mit 11².
+    explanation: 36 + 64 = 100 ≠ 121. Also nicht rechtwinklig.
+
+srs:
+  cards_from: ["steps[2]"]

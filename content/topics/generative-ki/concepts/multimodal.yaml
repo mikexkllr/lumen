@@ -1,0 +1,54 @@
+id: ai.generative.multimodal
+type: concept
+title: Text, Bild und Ton
+summary: Modelle, die mehrere Sinne verbinden.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: explain
+    body: |
+      **Multimodale** Modelle übersetzen Text, Bilder und Ton in einen **gemeinsamen Vektorraum**. Ein Foto vom Hund und das Wort »Hund« landen dort nah beieinander.
+
+  - kind: problem
+    id: richtungen
+    widget: match
+    prompt: Was macht das Modell?
+    params:
+      pairs:
+        - { left: Text zu Bild, right: Bildgenerator }
+        - { left: Bild zu Text, right: Bildbeschreibung }
+        - { left: Ton zu Text, right: Spracherkennung }
+        - { left: Text zu Ton, right: Sprachausgabe }
+    hints:
+      - Eingabe zuerst, Ausgabe danach.
+    explanation: Mit einem gemeinsamen Raum lässt sich jede Richtung trainieren.
+
+  - kind: problem
+    id: suche
+    widget: choice
+    prompt: Wie findet eine Foto-App alle Bilder vom »Strand«, ohne dass du sie beschriftet hast?
+    params:
+      options:
+        - { label: Bilder und Wort liegen im gleichen Vektorraum nah beieinander., correct: true }
+        - { label: Sie liest die Dateinamen., feedback: "Die Dateinamen sind meist nur Nummern." }
+    hints:
+      - Wo treffen sich Bild und Wort?
+    explanation: Die App sucht die Bilder, deren Vektoren dem Wort-Vektor am ähnlichsten sind.
+
+  - kind: problem
+    id: video
+    widget: numeric
+    prompt: Ein Video hat 24 Bilder pro Sekunde. Wie viele Bilder hat ein {{s}}-Sekunden-Clip?
+    params: { unit: Bilder }
+    answer: { value: "{{24 * s}}" }
+    hints:
+      - "24 · {{s}}."
+    explanation: "{{24 * s}} Bilder – und alle müssen zueinander passen. Darum ist Video so schwer."
+    variants:
+      params: { s: "int[3,20]" }
+      defaults: { s: 10 }
+
+srs:
+  cards_from: [richtungen, suche]

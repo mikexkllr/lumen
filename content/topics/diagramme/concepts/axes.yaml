@@ -1,0 +1,56 @@
+id: stats.dataviz.axes
+type: concept
+title: Abgeschnittene Achsen
+summary: Wie kleine Unterschiede riesig wirken.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 5
+steps:
+  - kind: problem
+    id: wirkung
+    widget: choice
+    visual:
+      widget: chart
+      params: { labels: [Firma A, Firma B], values: [98, 100], min: 96, max: 101, title: Kundenzufriedenheit }
+    prompt: Wie viel zufriedener sind die Kunden von Firma B wirklich?
+    params:
+      options:
+        - { label: Nur etwa 2 % mehr, correct: true }
+        - { label: Etwa doppelt so zufrieden, feedback: "Schau auf die Achse – sie beginnt bei 96, nicht bei 0." }
+    hints:
+      - Wo beginnt die y-Achse?
+    explanation: 98 gegen 100 – die abgeschnittene Achse bläht den Unterschied auf.
+
+  - kind: explain
+    body: |
+      Säulen müssen **bei null beginnen**, denn ihre Länge steht für die Größe. Bei Liniendiagrammen darf die Achse abgeschnitten sein – solange es klar erkennbar ist.
+
+  - kind: problem
+    id: prozent
+    widget: numeric
+    prompt: Ein Wert steigt von {{a}} auf {{b}}. Um wie viel Prozent ist das?
+    params: { unit: "%" }
+    answer: { value: "{{(b - a) * 100 / a}}" }
+    hints:
+      - Zuwachs geteilt durch den Ausgangswert.
+    explanation: "({{b}} − {{a}}) : {{a}} = {{(b - a) * 100 / a}} %."
+    variants:
+      params: { a: "choice[50,100,200]", p: "choice[2,4,5,10]" }
+      derive: { b: "a + a * p / 100" }
+      defaults: { a: 100, p: 2 }
+
+  - kind: problem
+    id: wann
+    widget: choice
+    prompt: In welchem Fall ist eine Achse, die nicht bei null beginnt, in Ordnung?
+    params:
+      options:
+        - { label: Bei einer Fieberkurve zwischen 36 und 41 °C, correct: true }
+        - { label: "Bei Säulen, die Umsätze vergleichen", feedback: "Bei Säulen täuscht die gekürzte Länge immer." }
+    hints:
+      - Wo ist null gar kein sinnvoller Wert?
+    explanation: 0 °C Körpertemperatur ergibt keinen Sinn – hier zählen die kleinen Schwankungen.
+
+srs:
+  cards_from: [wirkung, wann]

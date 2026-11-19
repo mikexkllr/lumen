@@ -1,0 +1,48 @@
+id: stats.timeseries.season
+type: concept
+title: Saisonmuster
+summary: Was jedes Jahr wiederkommt.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      Viele Zeitreihen haben ein **Saisonmuster**: Eis verkauft sich im Sommer, Heizöl im Winter. Für eine Prognose kombiniert man das Muster mit dem Trend.
+
+  - kind: problem
+    id: eis
+    widget: chart
+    body: Eisverkäufe pro Quartal. Jedes Quartal liegt 2 über dem gleichen Quartal im Vorjahr.
+    prompt: Stell das 3. Quartal des zweiten Jahres ein.
+    params:
+      labels: [Q1, Q2, Q3, Q4, Q1, Q2, Q3]
+      values: [20, 60, 90, 30, 22, 62, 0]
+      editable: [6]
+      min: 0
+      max: 100
+      step: 4
+    answer: { values: [20, 60, 90, 30, 22, 62, 92] }
+    feedback:
+      - when: "values[6] == 64"
+        misconception: ignore-season
+        text: Das ist nur der Trend vom letzten Quartal. Im Sommer liegt das Muster viel höher.
+    hints:
+      - Vorjahres-Q3 plus Wachstum.
+    explanation: 90 + 2 = 92 – Saison plus Trend.
+
+  - kind: problem
+    id: vergleich
+    widget: choice
+    prompt: Ein Laden meldet im Januar 30 % weniger Umsatz als im Dezember. Ist das alarmierend?
+    params:
+      options:
+        - { label: Nicht unbedingt – man sollte mit dem Januar des Vorjahres vergleichen., correct: true }
+        - { label: Ja – der Laden steckt in der Krise., feedback: "Nach Weihnachten fällt der Umsatz fast überall – das ist Saison." }
+    hints:
+      - Was passiert im Dezember?
+    explanation: Bei Saisonmustern vergleicht man mit derselben Zeit im Vorjahr.
+
+srs:
+  cards_from: [eis, vergleich]

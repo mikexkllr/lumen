@@ -1,0 +1,66 @@
+id: ai.vision.classify
+type: concept
+title: Erkennen – und sich irren
+summary: Wölfe, Schnee und gute Trainingsbilder.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: woelfe
+    widget: choice
+    prompt: Ein Netz erkennt Wölfe sehr gut. Später zeigt sich – auf allen Wolf-Fotos lag Schnee. Was hat es wirklich gelernt?
+    params:
+      options:
+        - { label: Schnee zu erkennen, correct: true }
+        - { label: Wölfe zu erkennen, feedback: "Vielleicht ein bisschen. Aber der Schnee war das einfachere Merkmal." }
+        - { label: Gar nichts, feedback: "Es hat etwas gelernt – nur nicht das Richtige." }
+    hints:
+      - Was hatten alle Wolf-Bilder gemeinsam?
+    explanation: Netze nehmen jedes Muster, das hilft – auch ein falsches.
+
+  - kind: explain
+    body: |
+      Netze lernen jedes Muster, das hilft – auch zufällige wie Schnee oder Wasserzeichen.
+      Darum braucht man **vielfältige** Trainingsbilder.
+
+  - kind: problem
+    id: treffer
+    widget: numeric
+    body: Das Netz hält 45 von 50 Katzenfotos für Katzen. Von 50 Hundefotos hält es 10 für Katzen.
+    prompt: Wie viel Prozent der »Katze«-Antworten stimmen? Runde auf ganze Prozent.
+    params: { unit: "%" }
+    answer: { value: 82, tolerance: 1 }
+    feedback:
+      - when: "numval(state.input) == 90"
+        misconception: recall-not-precision
+        text: 90 % der Katzen werden erkannt. Gefragt ist aber, wie oft »Katze« stimmt.
+    hints:
+      - Insgesamt sagt es 45 + 10 = 55-mal »Katze«.
+    explanation: 45 von 55 Antworten stimmen – etwa 82 %.
+
+  - kind: problem
+    id: bilder
+    widget: buckets
+    prompt: Hilft das dem Netz – oder führt es in die Irre?
+    params:
+      buckets: [{ label: hilft }, { label: führt in die Irre }]
+      items:
+        - { label: Fotos aus vielen Ländern, bucket: hilft }
+        - { label: Bilder bei Tag und Nacht, bucket: hilft }
+        - { label: Verschiedene Kameras, bucket: hilft }
+        - { label: Nur Studiofotos, bucket: führt in die Irre }
+        - { label: Immer derselbe Hintergrund, bucket: führt in die Irre }
+        - { label: Falsch beschriftete Bilder, bucket: führt in die Irre }
+    hints:
+      - Sollte das Netz später auch ungewöhnliche Fotos verstehen?
+    explanation: Vielfalt hilft. Einheitliche Hintergründe und falsche Beschriftungen lehren falsche Muster.
+
+  - kind: explain
+    body: Können winzige Störungen ein Netz täuschen?
+    reveal:
+      body: Ja. Ein paar unauffällige Pixel können für ein Netz aus einem Panda einen Affen machen. Das nennt man **adversarial examples**.
+
+srs:
+  cards_from: [treffer, woelfe]

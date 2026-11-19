@@ -1,0 +1,71 @@
+id: cs.recursion.idea
+type: concept
+title: Die Idee der Rekursion
+summary: Ein großes Problem als kleineres derselben Art.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: fak-vier
+    widget: numeric
+    body: "fak(n) = n · fak(n − 1), und fak(1) = 1."
+    prompt: Wenn fak(3) = 6 ist – was ist fak(4)?
+    params: { placeholder: "Ergebnis" }
+    answer: { value: 24 }
+    hints:
+      - fak(4) = 4 · fak(3).
+    explanation: 4 · 6 = 24.
+
+  - kind: explain
+    body: |
+      **Rekursion** heißt: Eine Funktion löst ein Problem, indem sie sich selbst mit einer kleineren Version aufruft.
+      Dazu braucht sie eine **Abbruchbedingung** – sonst hört sie nie auf.
+
+  - kind: problem
+    id: reihenfolge
+    widget: order
+    prompt: fak(4) wird aufgerufen. In welcher Reihenfolge werden die Aufrufe fertig?
+    params:
+      startLabel: zuerst fertig
+      endLabel: zuletzt fertig
+      items:
+        - { label: "fak(1) = 1" }
+        - { label: "fak(2) = 2" }
+        - { label: "fak(3) = 6" }
+        - { label: "fak(4) = 24" }
+    hints:
+      - fak(4) muss auf fak(3) warten, das auf fak(2) …
+    explanation: Der innerste Aufruf ist zuerst fertig. Dann rechnen alle anderen rückwärts weiter.
+
+  - kind: problem
+    id: ohne-abbruch
+    widget: choice
+    prompt: Was passiert, wenn die Abbruchbedingung fehlt?
+    params:
+      options:
+        - { label: Die Funktion ruft sich endlos auf – bis der Speicher voll ist., correct: true }
+        - { label: Sie gibt 0 zurück., feedback: "Ohne Abbruch gibt sie gar nichts zurück." }
+        - { label: Nichts Besonderes., feedback: "Jeder Aufruf belegt Speicher. Irgendwann ist er voll." }
+    hints:
+      - Wann würde die Kette der Aufrufe enden?
+    explanation: Das nennt man einen **Stack Overflow** – den Namen trägt sogar eine bekannte Programmierer-Webseite.
+
+  - kind: problem
+    id: fibonacci
+    widget: numeric
+    body: f(1) = f(2) = 1, und jede weitere Zahl ist die Summe der zwei davor.
+    prompt: Was ist f({{n}})?
+    params: { placeholder: "Zahl" }
+    answer: { value: "{{v}}" }
+    hints:
+      - 1, 1, 2, 3, 5, 8 …
+    explanation: "f({{n}}) = {{v}}."
+    variants:
+      params: { n: "choice[6,7,8,10]" }
+      derive: { v: "n == 6 ? 8 : n == 7 ? 13 : n == 8 ? 21 : 55" }
+      defaults: { n: 7 }
+
+srs:
+  cards_from: [fak-vier, ohne-abbruch]

@@ -1,0 +1,79 @@
+id: math.money.lab
+type: concept
+title: Geld-Labor
+summary: Zinseszins, Sparplan und Rabatt zum Anfassen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zinseszins
+    widget: chart
+    prompt: Ein Betrag wächst jedes Jahr um 50 %. Stell die Säule für Jahr 2 ein.
+    params:
+      labels: [Start, Jahr 1, Jahr 2]
+      values: [100, 150, 100]
+      editable: [2]
+      min: 0
+      max: 300
+      step: 25
+      unit: "€"
+    answer: { values: [100, 150, 225] }
+    feedback:
+      - when: "values[2] == 200"
+        misconception: simple-interest
+        text: 50 % kommen auf den neuen Stand von 150 € – nicht nur auf die ersten 100 €.
+    hints:
+      - Die Hälfte von 150 € kommt dazu.
+    explanation: 150 + 75 = 225 €. Zinsen auf Zinsen – darum wächst die Säule immer schneller.
+
+  - kind: problem
+    id: sparrate
+    widget: slider
+    prompt: Du willst in 12 Monaten 1200 € zusammensparen. Stell die monatliche Sparrate ein.
+    params:
+      expr: "r*x"
+      x: [0, 12]
+      y: [0, 1500]
+      showCoordinates: false
+      sliders: [{ id: r, label: "Sparrate (€)", min: 25, max: 200, step: 25, initial: 50 }]
+      markers:
+        - { x: 12, y: 1200, group: a }
+    check: { predicate: "r == 100" }
+    hints:
+      - Die Linie soll nach 12 Monaten den Punkt treffen.
+    explanation: "1200 € : 12 = 100 € pro Monat."
+
+  - kind: problem
+    id: kosten
+    widget: buckets
+    prompt: Fixkosten oder variable Kosten?
+    params:
+      buckets: [{ label: fix }, { label: variabel }]
+      items:
+        - { label: Miete, bucket: fix }
+        - { label: Handyvertrag, bucket: fix }
+        - { label: Versicherung, bucket: fix }
+        - { label: Lebensmittel, bucket: variabel }
+        - { label: Kino, bucket: variabel }
+        - { label: Tanken, bucket: variabel }
+    hints:
+      - Ist der Betrag jeden Monat gleich?
+    explanation: Beim Sparen setzt man meist zuerst bei den variablen Kosten an.
+
+  - kind: problem
+    id: rabatt
+    widget: tiles
+    prompt: Lege die Rechnung für 25 % Rabatt auf 80 €.
+    params:
+      tiles: ["80", "·", "0,75", "0,25", "=", "60", "20"]
+    answer:
+      sequence: ["80", "·", "0,75", "=", "60"]
+      anyOf: [["0,75", "·", "80", "=", "60"]]
+    hints:
+      - Nach 25 % Rabatt zahlst du noch 75 %.
+    explanation: 80 € · 0,75 = 60 €. Mit dem Faktor rechnet man in einem Schritt.
+
+srs:
+  cards_from: [zinseszins, rabatt]

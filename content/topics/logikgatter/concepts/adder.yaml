@@ -1,0 +1,74 @@
+id: cs.gates.adder
+type: concept
+title: Ein Rechenwerk bauen
+summary: Mit zwei Gattern binär addieren.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 7
+steps:
+  - kind: explain
+    body: |
+      Binär addieren geht wie schriftlich rechnen: 0 + 1 = 1 und 1 + 1 = **10**.
+      Bei 1 + 1 entsteht ein **Übertrag** in die nächste Stelle.
+
+  - kind: problem
+    id: eins-plus-eins
+    widget: numeric
+    prompt: Was ergibt 1 + 1 im Zweiersystem?
+    params: { placeholder: "nur 0 und 1" }
+    answer: { value: 10 }
+    feedback:
+      - when: "numval(state.input) == 2"
+        misconception: decimal
+        text: Das stimmt im Zehnersystem. Wie schreibt man 2 binär?
+    hints:
+      - Die 2 hat binär zwei Stellen.
+    explanation: 2 ist binär 10 – eine 0 in der Stelle und eine 1 als Übertrag.
+
+  - kind: problem
+    id: halbaddierer
+    widget: gates
+    prompt: Baue einen Halbaddierer. S ist die Summenstelle, Ü der Übertrag. Wähle beide Gatter.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: gs, type: "?", in: [A, B], options: [AND, OR, XOR] }
+        - { id: gu, type: "?", in: [A, B], options: [AND, OR, XOR] }
+      outputs: [{ id: S, from: gs, label: S }, { id: U, from: gu, label: Ü }]
+    check: { predicate: "table('S') == [0, 1, 1, 0] && table('U') == [0, 0, 0, 1]" }
+    hints:
+      - Die Summenstelle ist 1, wenn genau ein Eingang 1 ist.
+      - Ein Übertrag entsteht nur bei 1 + 1.
+    explanation: S ist ein XOR, Ü ein UND. Zusammen addieren sie zwei Bits.
+
+  - kind: problem
+    id: uebertrag
+    widget: gates
+    prompt: Stelle die Schalter so, dass ein Übertrag entsteht und die Summenstelle 0 ist.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: gs, type: XOR, in: [A, B] }
+        - { id: gu, type: AND, in: [A, B] }
+      outputs: [{ id: S, from: gs, label: S }, { id: U, from: gu, label: Ü }]
+      goal: { S: 0, U: 1 }
+    hints:
+      - Wann gibt es einen Übertrag?
+    explanation: 1 + 1 = 10 – Summenstelle 0, Übertrag 1.
+
+  - kind: problem
+    id: addieren
+    widget: bits
+    prompt: Rechne binär 0101 + 0011 und stelle das Ergebnis ein.
+    params: { bits: 4, showValue: false }
+    answer: { value: 8 }
+    hints:
+      - Übersetze erst in Dezimalzahlen – 5 und 3.
+    explanation: 5 + 3 = 8, binär 1000. Drei Überträge wandern nach links.
+
+  - kind: explain
+    body: Ein Prozessor enthält Milliarden Transistoren. Im Kern tut er genau das – Gatter schalten und Bits addieren. Nur sehr, sehr schnell.
+
+srs:
+  cards_from: [eins-plus-eins, uebertrag]

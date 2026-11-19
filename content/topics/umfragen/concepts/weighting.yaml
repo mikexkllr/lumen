@@ -1,0 +1,46 @@
+id: stats.sampling.weighting
+type: concept
+title: Gewichten
+summary: Wenn eine Gruppe zu oft gefragt wurde.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: zu-viele
+    widget: choice
+    prompt: In einer Umfrage sind 70 % der Befragten über 60 Jahre alt. In der Bevölkerung sind es 30 %. Was tun?
+    params:
+      options:
+        - { label: Die Antworten gewichten – Ältere zählen weniger., correct: true }
+        - { label: Das Ergebnis einfach so veröffentlichen., feedback: "Dann sprechen Ältere viel zu laut." }
+        - { label: Alle Älteren streichen., feedback: "Dann fehlt ihre Meinung ganz." }
+    hints:
+      - Wie bekommt jede Gruppe ihr richtiges Gewicht?
+    explanation: Man rechnet jede Gruppe auf ihren echten Anteil um.
+
+  - kind: explain
+    body: |
+      Beim **Gewichten** zählt jede Gruppe mit ihrem echten Anteil. Sagen 40 % der Jungen und 60 % der Älteren ja, und beide sind je die Hälfte des Landes, dann sind es 50 %.
+
+  - kind: problem
+    id: rechnen
+    widget: numeric
+    prompt: "{{a}} % der Jüngeren und {{b}} % der Älteren sind dafür. Jüngere sind 60 % der Bevölkerung. Wie viel Prozent sind insgesamt dafür?"
+    params: { unit: "%" }
+    answer: { value: "{{0.6 * a + 0.4 * b}}" }
+    feedback:
+      - when: "numval(state.input) == (a + b) / 2"
+        misconception: unweighted
+        text: Das ist der einfache Schnitt. Die Jüngeren zählen aber mit 60 %.
+    hints:
+      - "0,6 · {{a}} + 0,4 · {{b}}."
+    explanation: "{{0.6 * a}} + {{0.4 * b}} = {{0.6 * a + 0.4 * b}} %."
+    variants:
+      params: { a: "step[20,80,10]", b: "step[20,80,10]" }
+      constraints: ["a != b"]
+      defaults: { a: 40, b: 70 }
+
+srs:
+  cards_from: [zu-viele, rechnen]

@@ -1,0 +1,77 @@
+id: math.combinatorics.choose
+type: concept
+title: Auswählen ohne Reihenfolge
+summary: Handschläge, Teams und Lotto.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: haende
+    widget: numeric
+    prompt: "{{n}} Leute geben sich alle einmal die Hand. Wie viele Handschläge sind das?"
+    params: { unit: Handschläge }
+    answer: { value: "{{n * (n - 1) / 2}}" }
+    feedback:
+      - when: "numval(state.input) == n * (n - 1)"
+        misconception: double-count
+        text: So zählst du jeden Handschlag doppelt – A mit B ist B mit A.
+    hints:
+      - Jeder gibt {{n - 1}} anderen die Hand. Aber jeder Handschlag hat zwei Beteiligte.
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}."
+    variants:
+      params: { n: "int[4,12]" }
+      defaults: { n: 6 }
+
+  - kind: explain
+    body: |
+      Ist die **Reihenfolge egal**, teilt man durch die Zahl der Reihenfolgen.
+      2 aus 5 auswählen: 5 · 4 = 20 geordnet, geteilt durch 2! = 10.
+
+  - kind: problem
+    id: wichtig
+    widget: buckets
+    prompt: Zählt hier die Reihenfolge?
+    params:
+      buckets: [{ label: Reihenfolge zählt }, { label: egal }]
+      items:
+        - { label: PIN-Code, bucket: Reihenfolge zählt }
+        - { label: Siegerpodest, bucket: Reihenfolge zählt }
+        - { label: Wörter aus Buchstaben, bucket: Reihenfolge zählt }
+        - { label: Lottozahlen, bucket: egal }
+        - { label: Pizzabeläge, bucket: egal }
+        - { label: Ein Team aus 3 Leuten, bucket: egal }
+    hints:
+      - Ändert sich etwas, wenn man die Auswahl umsortiert?
+    explanation: Bei PIN und Podest ändert Umsortieren alles, bei Pizza und Teams nichts.
+
+  - kind: problem
+    id: team
+    widget: numeric
+    prompt: Aus 6 Leuten wird ein Team aus 3 gebildet. Wie viele Teams sind möglich?
+    params: { unit: Teams }
+    answer: { value: 20 }
+    feedback:
+      - when: "numval(state.input) == 120"
+        misconception: ordered
+        text: Das sind geordnete Auswahlen. Teile noch durch 3! = 6.
+    hints:
+      - 6 · 5 · 4 geordnet, dann durch 3 · 2 · 1.
+    explanation: 120 / 6 = 20 Teams.
+
+  - kind: problem
+    id: lotto
+    widget: choice
+    prompt: Wie groß ist die Chance auf 6 Richtige im Lotto 6 aus 49?
+    params:
+      options:
+        - { label: Etwa 1 zu 14 Millionen, correct: true }
+        - { label: Etwa 1 zu 49, feedback: "Das wäre für eine einzige Zahl." }
+        - { label: Etwa 1 zu 300 000, feedback: "Noch viel kleiner." }
+    hints:
+      - Es gibt »49 über 6« Möglichkeiten.
+    explanation: 49 über 6 = 13 983 816. Ein Tipp trifft genau einen davon.
+
+srs:
+  cards_from: [haende, team]

@@ -1,0 +1,58 @@
+id: sci.energy.costs
+type: concept
+title: Was kostet Strom?
+summary: Kleine Geräte, die immer laufen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: wasserkocher
+    widget: numeric
+    prompt: Eine kWh kostet 30 Cent. Ein Wasserkocher braucht 0,1 kWh pro Füllung. Was kostet eine Füllung?
+    params: { unit: Cent }
+    answer: { value: 3 }
+    hints:
+      - 0,1 · 30 Cent.
+    explanation: 0,1 kWh · 30 ct = 3 Cent.
+
+  - kind: explain
+    body: |
+      **Kosten = kWh · Preis pro kWh.**
+      Was rund um die Uhr läuft, summiert sich – ein Jahr hat 24 · 365 = 8760 Stunden.
+
+  - kind: problem
+    id: router
+    widget: numeric
+    prompt: Ein Router braucht dauerhaft 10 W. Wie viele kWh sind das im Jahr?
+    params: { unit: kWh }
+    answer: { value: 87.6, tolerance: 0.5 }
+    feedback:
+      - when: "abs(numval(state.input) - 87600) < 10"
+        misconception: wh-not-kwh
+        text: Das sind Wattstunden. Teile durch 1000.
+    hints:
+      - 10 W · 8760 h, dann durch 1000.
+    explanation: 10 · 8760 = 87 600 Wh = 87,6 kWh.
+
+  - kind: problem
+    id: standby
+    widget: numeric
+    prompt: Ein Gerät braucht im Standby {{w}} W – das ganze Jahr. Was kostet das bei 30 Cent pro kWh? In Euro, gerundet.
+    params: { unit: "€" }
+    answer: { value: "{{round(w * 8.76 * 0.3)}}", tolerance: 1 }
+    hints:
+      - "{{w}} W · 8760 h = {{w * 8.76}} kWh."
+    explanation: "{{w * 8.76}} kWh · 0,30 € ≈ {{round(w * 8.76 * 0.3)}} €."
+    variants:
+      params: { w: "choice[5,10,15,20,30]" }
+      defaults: { w: 10 }
+
+  - kind: explain
+    body: Was verbraucht im Haushalt meist am meisten Strom?
+    reveal:
+      body: Alles, was heizt oder kühlt – Warmwasser, Trockner, Herd, Kühlschrank. Kleine Geräte fallen nur auf, wenn sie dauernd laufen.
+
+srs:
+  cards_from: [router, standby]

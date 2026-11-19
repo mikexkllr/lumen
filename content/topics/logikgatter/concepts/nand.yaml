@@ -1,0 +1,60 @@
+id: cs.gates.nand
+type: concept
+title: Ein Gatter für alles
+summary: Mit NAND baut man jeden Chip.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: explain
+    body: |
+      **NAND** heißt »nicht und«. Es gibt nur dann 0 aus, wenn beide Eingänge 1 sind. Das Besondere – aus NAND allein lässt sich jedes andere Gatter bauen.
+
+  - kind: problem
+    id: nicht
+    widget: gates
+    prompt: Baue ein NICHT. Beide Eingänge hängen an A.
+    params:
+      inputs: [{ id: A }]
+      gates:
+        - { id: g, type: "?", in: [A, A], options: [AND, OR, NAND] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [1, 0]" }
+    hints:
+      - Welches Gatter macht aus 1 und 1 eine 0?
+    explanation: NAND(A, A) ist 0 genau dann, wenn A = 1 ist – also NICHT A.
+
+  - kind: problem
+    id: und
+    widget: gates
+    prompt: Baue ein UND aus zwei Gattern. Das erste ist schon ein NAND.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: n, type: NAND, in: [A, B] }
+        - { id: g, type: "?", in: [n, n], options: [AND, OR, NAND] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [0, 0, 0, 1]" }
+    hints:
+      - UND ist »nicht NAND«. Wie baust du NICHT?
+    explanation: Das zweite NAND kehrt das erste um – zusammen ergibt das UND.
+
+  - kind: problem
+    id: oder
+    widget: gates
+    prompt: Jetzt ODER. Wähle die beiden ersten Gatter.
+    params:
+      inputs: [{ id: A }, { id: B }]
+      gates:
+        - { id: x, type: "?", in: [A, A], options: [AND, NAND] }
+        - { id: y, type: "?", in: [B, B], options: [AND, NAND] }
+        - { id: g, type: NAND, in: [x, y] }
+      outputs: [{ id: Q, from: g }]
+    check: { predicate: "table('Q') == [0, 1, 1, 1]" }
+    hints:
+      - Erst beide Eingänge umkehren.
+    explanation: NAND aus »nicht A« und »nicht B« ist »A oder B« – De Morgan in Hardware.
+
+srs:
+  cards_from: [nicht, oder]

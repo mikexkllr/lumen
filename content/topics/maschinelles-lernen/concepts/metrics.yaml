@@ -1,0 +1,55 @@
+id: ai.ml.metrics
+type: concept
+title: Gut oder nur Glück?
+summary: Trefferquote und ihre Fallen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: quote
+    widget: numeric
+    prompt: Ein Modell liegt bei {{k}} von {{n}} Testfällen richtig. Wie hoch ist die Trefferquote?
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - Richtige geteilt durch alle, mal 100.
+    explanation: "{{k}} : {{n}} = {{p}} %."
+    variants:
+      params: { n: "choice[50,200,400]", p: "choice[70,85,90,95]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 200, p: 90 }
+
+  - kind: problem
+    id: falle
+    widget: choice
+    prompt: Nur 1 % aller Zahlungen sind Betrug. Ein Modell sagt einfach immer »kein Betrug«. Wie gut ist es?
+    params:
+      options:
+        - { label: 99 % Trefferquote – und trotzdem nutzlos, correct: true }
+        - { label: Ein sehr gutes Modell, feedback: "Es findet keinen einzigen Betrug." }
+    hints:
+      - Wie viele Betrugsfälle findet es?
+    explanation: Bei seltenen Ereignissen täuscht die Trefferquote gewaltig.
+
+  - kind: explain
+    body: |
+      Darum misst man zusätzlich: Wie viele **echte Fälle** findet das Modell (Trefferrate)? Und wie viele seiner **Alarme** stimmen (Genauigkeit)? Ein guter Detektor braucht beides.
+
+  - kind: problem
+    id: gefunden
+    widget: numeric
+    prompt: Von {{n}} echten Betrugsfällen findet das Modell {{k}}. Welcher Anteil wird gefunden?
+    params: { unit: "%" }
+    answer: { value: "{{p}}" }
+    hints:
+      - "{{k}} geteilt durch {{n}}."
+    explanation: "{{k}} : {{n}} = {{p}} % Trefferrate."
+    variants:
+      params: { n: "choice[20,50]", p: "choice[40,60,80,90]" }
+      derive: { k: "n * p / 100" }
+      defaults: { n: 50, p: 60 }
+
+srs:
+  cards_from: [falle, gefunden]

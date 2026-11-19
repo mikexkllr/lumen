@@ -1,0 +1,75 @@
+id: geo.circles.pi
+type: concept
+title: Die Zahl π
+summary: Jeder Kreis hat dasselbe Verhältnis.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: rad
+    widget: choice
+    prompt: Ein Rad mit 1 m Durchmesser rollt genau eine Umdrehung. Wie weit kommt es?
+    params:
+      layout: grid
+      options:
+        - { label: Gut 3 m, correct: true }
+        - { label: 1 m, feedback: "Der Rand ist viel länger als der Durchmesser. Stell dir das Rad abgerollt vor." }
+        - { label: 2 m, feedback: "Schon näher – aber der Umfang ist mehr als doppelt so lang." }
+        - { label: 6 m, feedback: "Zu viel. Das wäre bei 2 m Durchmesser ungefähr richtig." }
+    hints:
+      - Das Rad legt beim Rollen seinen Umfang zurück.
+    explanation: Der Umfang ist rund 3,14 m – gut dreimal der Durchmesser.
+
+  - kind: explain
+    body: |
+      Bei **jedem** Kreis ist der Umfang etwa 3,14-mal so lang wie der Durchmesser.
+      Diese Zahl heißt **π** (Pi). Sie hat unendlich viele Stellen.
+
+  - kind: problem
+    id: umfang-d
+    widget: numeric
+    prompt: Ein Kreis hat den Durchmesser {{d}} cm. Wie lang ist sein Umfang? Rechne mit π ≈ 3,14.
+    params: { unit: cm }
+    answer: { value: "{{d * 3.14}}", tolerance: 0.1 }
+    feedback:
+      - when: "abs(numval(state.input) - 2 * 3.14 * d) < 0.2"
+        misconception: radius-formula
+        text: Du hast mit 2 · π gerechnet. Das braucht man nur beim Radius.
+    hints:
+      - Umfang = π · Durchmesser.
+    explanation: "3,14 · {{d}} = {{d * 3.14}} cm."
+    variants:
+      params: { d: "int[2,20]" }
+      defaults: { d: 10 }
+
+  - kind: explain
+    body: |
+      **U = π · d = 2 · π · r.**
+      Der Radius r ist der halbe Durchmesser.
+
+  - kind: problem
+    id: umfang-r
+    widget: numeric
+    prompt: Ein Kreis hat den Radius {{r}} cm. Wie lang ist sein Umfang? Rechne mit π ≈ 3,14.
+    params: { unit: cm }
+    answer: { value: "{{2 * 3.14 * r}}", tolerance: 0.1 }
+    feedback:
+      - when: "abs(numval(state.input) - 3.14 * r) < 0.2"
+        misconception: radius-as-diameter
+        text: Du hast den Radius wie den Durchmesser benutzt. Verdopple ihn zuerst.
+    hints:
+      - Der Durchmesser ist doppelt so lang wie der Radius.
+    explanation: "2 · 3,14 · {{r}} = {{2 * 3.14 * r}} cm."
+    variants:
+      params: { r: "int[2,15]" }
+      defaults: { r: 5 }
+
+  - kind: explain
+    body: Wie viele Stellen von π braucht man, um Raumsonden zu steuern?
+    reveal:
+      body: Nur etwa 15. Selbst bei einem Kreis so groß wie unser Sonnensystem liegt der Fehler dann bei wenigen Zentimetern.
+
+srs:
+  cards_from: [umfang-d, umfang-r]

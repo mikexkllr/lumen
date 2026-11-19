@@ -1,0 +1,74 @@
+id: cs.crypto.keys
+type: concept
+title: Passwörter und Schlüssel
+summary: Länge schlägt Sonderzeichen.
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+estimated_minutes: 6
+steps:
+  - kind: problem
+    id: pin
+    widget: numeric
+    prompt: Eine PIN hat {{n}} Ziffern. Wie viele verschiedene PINs gibt es?
+    params: { unit: PINs }
+    answer: { value: "{{10 ** n}}" }
+    feedback:
+      - when: "numval(state.input) == 10 * n"
+        misconception: add-not-multiply
+        text: Jede Stelle multipliziert die Möglichkeiten mit 10.
+    hints:
+      - Jede Stelle hat 10 Möglichkeiten.
+    explanation: "10 hoch {{n}} = {{10 ** n}}."
+    variants:
+      params: { n: "int[3,6]" }
+      defaults: { n: 4 }
+
+  - kind: explain
+    body: |
+      Jedes zusätzliche Zeichen **multipliziert** die Möglichkeiten.
+      Mit 26 Kleinbuchstaben und 8 Stellen gibt es $26^8$ – rund 209 Milliarden Passwörter.
+
+  - kind: problem
+    id: sicherer
+    widget: choice
+    prompt: Was macht ein Passwort am meisten sicherer?
+    params:
+      options:
+        - { label: Mehr Länge, correct: true }
+        - { label: Ein Ausrufezeichen am Ende, feedback: "Das kennen auch Angreifer. Länge bringt viel mehr." }
+        - { label: Den eigenen Namen rückwärts, feedback: "Solche Muster probieren Angreifer zuerst." }
+    hints:
+      - Die Länge steht im Exponenten.
+    explanation: Jedes weitere Zeichen multipliziert die Möglichkeiten. Lange Sätze aus zufälligen Wörtern sind stark.
+
+  - kind: problem
+    id: knacken
+    widget: numeric
+    prompt: Ein Rechner probiert 10 Milliarden Passwörter pro Sekunde. Wie viele Sekunden braucht er für alle 209 Milliarden?
+    params: { unit: Sekunden }
+    answer: { value: 20.9, tolerance: 0.5 }
+    hints:
+      - Rechne 209 durch 10.
+    explanation: Gut 20 Sekunden. Acht Kleinbuchstaben sind also viel zu kurz.
+
+  - kind: explain
+    body: |
+      Heute nutzt man **zwei** Schlüssel. Den öffentlichen darf jeder kennen – damit verschließt man.
+      Öffnen kann nur, wer den privaten hat. Wie bei einem Briefkasten.
+
+  - kind: problem
+    id: briefkasten
+    widget: choice
+    prompt: Was darfst du beim Briefkasten-Prinzip öffentlich teilen?
+    params:
+      options:
+        - { label: Den öffentlichen Schlüssel, correct: true }
+        - { label: Den privaten Schlüssel, feedback: "Wer den privaten Schlüssel hat, kann alles lesen." }
+        - { label: Beide, feedback: "Der private Schlüssel muss geheim bleiben." }
+    hints:
+      - Der Briefschlitz ist für alle da, der Schlüssel zum Leeren nicht.
+    explanation: Der öffentliche Schlüssel verschließt nur. Öffnen kann allein der private.
+
+srs:
+  cards_from: [pin, briefkasten]
