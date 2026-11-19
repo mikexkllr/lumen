@@ -5,7 +5,7 @@ summary: Indizes und SQL-Injection.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Wo steht, auf welcher Seite ein Wort vorkommt?
     explanation: Datenbanken haben auch so ein Verzeichnis.
-
 
   - kind: explain
     id: s1
@@ -67,6 +66,39 @@ steps:
     explanation: Mit Platzhaltern bleiben Eingaben immer reine Daten.
 
   - kind: problem
+    id: mix-c1
+    widget: buckets
+    prompt: Lohnt sich hier ein Index?
+    params:
+      buckets:
+        - id: b1
+          label: Lohnt sich
+        - id: b2
+          label: Lohnt sich nicht
+      items:
+        - label: Spalte, nach der ständig gesucht wird
+          bucket: b1
+        - label: Tabelle mit nur 10 Zeilen
+          bucket: b2
+        - label: Spalte, die nie abgefragt wird
+          bucket: b2
+        - label: Kundennummer in einer Riesentabelle
+          bucket: b1
+    hints:
+      - Ein Index kostet Platz und Pflege.
+    explanation: Er lohnt sich, wo oft und in vielen Zeilen gesucht wird.
+
+  - kind: problem
+    id: mix-c2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ein Index macht das [[Suchen]] schneller, aber das [[Schreiben]] etwas langsamer.
+      distractors:
+        - Zählen
+        - Löschen
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -82,6 +114,32 @@ steps:
     hints:
       - Was muss beim Einfügen einer Zeile mit dem Index passieren?
     explanation: Lesen wird schneller, Schreiben langsamer – ein klassischer Kompromiss.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Eine Tabelle hat eine Million Zeilen. Wie viele Schritte braucht eine Suche mit Index ungefähr?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 20
+      tolerance: 5
+    explanation: Etwa 20 statt einer Million. Jeder Schritt halbiert den Rest.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d2
+    depth: 2
+    widget: numeric
+    prompt: Ohne Index prüft die Datenbank jede Zeile. Im Schnitt findet sie den Treffer nach der Hälfte. Wie viele Zeilen sind das bei 1000 Zeilen?
+    answer:
+      value: 500
+    hints:
+      - Die Hälfte von 1000.
+    explanation: 500 Schritte statt etwa 10 mit Index.
     difficulty: 2
 
   - kind: problem

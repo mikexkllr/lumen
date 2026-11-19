@@ -5,7 +5,7 @@ summary: Hash, salt and password managers.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - What is not stored cannot be stolen.
     explanation: Good services do not know your password themselves.
-
 
   - kind: explain
     id: s1
@@ -66,6 +65,53 @@ steps:
     explanation: One strong master password protects the whole vault.
 
   - kind: problem
+    id: mix-c1
+    widget: buckets
+    prompt: Good or bad storage?
+    params:
+      buckets:
+        - id: b1
+          label: Good
+        - id: b2
+          label: Bad
+      items:
+        - label: Password in plain text
+          bucket: b2
+        - label: Hash with salt
+          bucket: b1
+        - label: Hash without salt
+          bucket: b2
+        - label: Slow hash with salt
+          bucket: b1
+    hints:
+      - What helps a thief of the database least?
+    explanation: Without salt equal passwords have equal hashes. Ready-made lists crack them at once.
+
+  - kind: problem
+    id: mix-c2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Good services store only a [[hash]] with [[salt]] – never the password itself.
+      distractors:
+        - code
+        - sugar
+
+  - kind: problem
+    id: mix-c3
+    widget: order
+    prompt: What happens at login? Order.
+    params:
+      items:
+        - label: You type in your password
+        - label: The service adds your salt
+        - label: It computes the hash from that
+        - label: It compares it with the stored one
+    hints:
+      - First salt, then hash, then compare.
+    explanation: The service checks your password without knowing it.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -81,6 +127,39 @@ steps:
     hints:
       - The list was computed without your salt.
     explanation: The attacker must start from scratch for each person instead of once for all.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d1
+    depth: 2
+    widget: numeric
+    prompt: Two people have the same password but different salt. How many different hashes are stored for them in the database?
+    answer:
+      value: 2
+    hints:
+      - The salt changes the input of the hash.
+    explanation: Two. Nobody can see that the passwords are equal.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d2
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: A password cannot be computed back from a hash.
+          right: true
+        - text: A good service can send you your old password.
+          right: false
+          why: If it can, it stores it in plain text.
+        - text: Salt makes ready-made hash lists useless.
+          right: true
+        - text: With a hash even a short password is safe.
+          right: false
+          why: Short passwords are simply tried one by one.
+      left: "False"
+      right: "True"
     difficulty: 2
 
   - kind: problem

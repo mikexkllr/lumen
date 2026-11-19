@@ -90,6 +90,12 @@ Jede Lektion beginnt so einfach wie möglich und wird Schritt für Schritt schwe
 
 Nach jeder Stufe fragt der Player, ob es tiefer gehen soll oder für heute reicht. Wer aufhört, hat den Kern trotzdem abgeschlossen und steigt beim nächsten Mal auf der nächsten Stufe ein. Die Stufen dürfen nur steigen (`depth.order`), und eine Lektion beginnt mit Stufe 1 (`depth.start`).
 
+### Kurz-Check auf Erklär-Screens
+
+Ein reiner Text-Screen endet nicht mit »Weiter«, sondern mit einem Ein-Tipp-Check: Ein Kernbegriff des Textes wird ausgeblendet, zur Wahl stehen der richtige Begriff und zwei andere Kernbegriffe desselben Kurses. Richtig getippt geht es von selbst weiter; es gibt weder Punkte noch Abzug, und überspringen ist erlaubt.
+
+Dafür muss niemand etwas schreiben – außer **einen Kernbegriff pro Erklär-Screen fett zu setzen**. Als Ziel taugt ein Wort oder eine kurze Wendung (bis vier Wörter). Formeln, Zahlen und bloße Betonungen wie **alle** oder **nicht** überspringt die Engine. Screens mit `reveal` oder interaktivem `visual` bekommen keinen Check; sie sind schon aktiv. `node scripts/audit-lessons.ts` zeigt unter `passive`, welche Screens weder das eine noch das andere haben.
+
 Auf Erklär-Screens bietet Lux vier Wege an: **einfacher**, **Beispiel**, **tiefer** und **Quiz mich**. Dazu kommt Vorlesen. Die Texte dafür muss niemand schreiben.
 
 `{{ausdruck}}` funktioniert in allen Strings von params, answer, prompt, hints, feedback und explanation. Besteht ein String nur aus einer Vorlage, bleibt der Wert eine Zahl bzw. ein Boolean.
@@ -216,7 +222,20 @@ math.fractions.compare:            # bestehende Lektion: Steps anhängen
   srs: [c3, c4, d1]
 ```
 
-Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` und `raw` (voller Step). Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Dabei gilt: Ein Patch ersetzt in einer Lektion nur die Abschnitte, die er selbst nennt. Ein zweiter Patch mit `hook` lässt also `deep` und `expert` eines früheren Patches stehen – zwei Patches, die denselben Abschnitt derselben Lektion füllen, überschreiben sich dagegen. Die Ausgabe nennt, wie viele frühere Schritte ersetzt wurden.
+Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` und `raw` (voller Step). Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Neue Steps landen hinter dem letzten vorhandenen Step, der nicht tiefer ist als sie selbst – ein Kern-Step also vor der Stufe »Tiefer«, auch wenn die Lektion schon eine Experten-Stufe hat.
+
+**Ein Patch ersetzt in einer Lektion nur die Abschnitte, die er selbst nennt.** Ein zweiter Patch mit `hook` lässt `deep` und `expert` eines früheren Patches stehen. Zwei Patches, die denselben Abschnitt derselben Lektion füllen, überschreiben sich dagegen. Wer später etwas nachträgt, gibt dem Patch deshalb einen eigenen Namensraum:
+
+```yaml
+_ns: lab                           # ids werden zu lab-c1, lab-d1 … und gehören nur diesem Patch
+sci.circuits.power:
+  - core
+  - sim: 'Die Lampe soll an 12 V genau 24 W leisten. || The lamp should deliver exactly 24 W at 12 V.'
+    scene: circuit
+    a: { voltage: 12, power: 24 }
+```
+
+Die Ausgabe nennt, wie viele frühere Schritte ersetzt wurden – bei einem neuen Patch muss dort 0 stehen. Danach lohnt ein Blick auf `node scripts/audit-lessons.ts`: Die Gesamtzahl der Steps darf nur wachsen.
 
 ```bash
 node scripts/extend-lessons.ts patch.yaml --dry   # nur prüfen

@@ -20,7 +20,6 @@
 import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse, stringify } from 'yaml';
-import { execFileSync } from 'node:child_process';
 
 type Lang = 0 | 1;
 const SEP = /\s*\|\|\s*/;
@@ -132,17 +131,17 @@ const SECTIONS: Record<string, { depth: number; prefix: string; front: boolean }
 };
 
 /** The sections a patch entry list writes into. A patch owns exactly these in a lesson: only their steps are replaced. */
-function ownedPrefixes(entries: (string | Entry)[]): Set<string> {
+function ownedPrefixes(entries: (string | Entry)[], ns = ''): Set<string> {
   let sec = SECTIONS.core;
   const out = new Set<string>();
   for (const e of entries) {
     if (typeof e === 'string') sec = SECTIONS[e] ?? sec;
-    else out.add(sec.prefix);
+    else out.add(`${ns}:${sec.prefix}`);
   }
   return out;
 }
 
-function build(entries: (string | Entry)[], taken: Set<string>): { front: Entry[]; back: Entry[] } {
+function build(entries: (string | Entry)[], taken: Set<string>, ns = ''): { front: Entry[]; back: Entry[] } {
   let sec = SECTIONS.core;
   const front: Entry[] = [];
   const back: Entry[] = [];
@@ -156,7 +155,7 @@ function build(entries: (string | Entry)[], taken: Set<string>): { front: Entry[
     let id: string;
     do {
       counter[sec.prefix] = (counter[sec.prefix] ?? 0) + 1;
-      id = sec.prefix === 'hook' && counter[sec.prefix] === 1 ? 'hook' : `${sec.prefix}${counter[sec.prefix]}`;
+      id = (ns ? `${ns}-` : '') + (sec.prefix === 'hook' && counter[sec.prefix] === 1 ? 'hook' : `${sec.prefix}${counter[sec.prefix]}`);
     } while (taken.has(id));
     const step = expand(e, sec.depth, id);
     if (taken.has(step.id)) throw new Error(`Duplicate step id ${step.id}`);
@@ -185,16 +184,16 @@ function conceptFiles(): Map<string, string> {
   return map;
 }
 
-const TOOL_ID = /^    id: (hook\d*|[cdx]\d+)\s*$/;
+/** Tool ids: hook, cN, dN, xN – optionally with a patch namespace in front (»lab-d1«). */
+const TOOL_ID = /^    id: ((?:([a-z][a-z0-9]{0,7})-)?(hook\d*|[cdx]\d+))\s*$/;
 
-/** Step ids a file had in the last commit – those are never the tool's own, whatever they look like. */
+/**
+ * Hand-written step ids that merely look like tool ids (»c14« is carbon-14). They are never the tool's own.
+ * Deliberately a fixed list: asking git for "ids of the last commit" stops working the moment tool steps are committed.
+ */
+const FOREIGN: [RegExp, string[]][] = [[/(kernphysik\/concepts\/isotopes|logarithmen\/concepts\/halflife)(\.[a-z]{2})?\.yaml$/, ['c14']]];
 function committedIds(path: string): Set<string> {
-  try {
-    const old = execFileSync('git', ['show', `HEAD:${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-    return new Set((parse(old).steps as { id?: string }[]).map((s) => s.id!).filter(Boolean));
-  } catch {
-    return new Set();
-  }
+  return new Set(FOREIGN.filter(([re]) => re.test(path)).flatMap(([, ids]) => ids));
 }
 
 let replaced = 0;
@@ -208,7 +207,7 @@ function strip(text: string, keep: Set<string> = new Set(), owned?: Set<string>,
   const out: string[] = [];
   for (let i = 0; i < lines.length; ) {
     const m = /^  - kind: /.test(lines[i]) ? TOOL_ID.exec(lines[i + 1] ?? '') : null;
-    if (m && !keep.has(m[1]) && (!owned || owned.has(m[1].startsWith('hook') ? 'hook' : m[1][0]))) {
+    if (m && !keep.has(m[1]) && (!owned || owned.has(`${m[2] ?? ''}:${m[3].startsWith('hook') ? 'hook' : m[3][0]}`))) {
       if (count) replaced++;
       let j = i + 1;
       while (j < lines.length && !/^  - kind: /.test(lines[j]) && !/^\S/.test(lines[j])) j++;
@@ -231,10 +230,27 @@ function patchFile(path: string, front: Entry[], back: Entry[], lang: Lang, dry:
   const head = lines.slice(0, si + 1);
   const body = lines.slice(si + 1, end);
   const rest = lines.slice(end);
+  // existing steps as blocks with their depth; each new step goes behind the last step that is not deeper than itself,
+  // so a later patch can add to the core or the deeper stage of a lesson that already has an expert stage
+  const blocks: { depth: number; text: string }[] = [];
+  for (const l of body) {
+    if (/^  - kind: /.test(l)) blocks.push({ depth: 1, text: l });
+    else if (blocks.length) blocks[blocks.length - 1].text += `\n${l}`;
+    else if (l.trim() !== '') throw new Error(`${path}: unexpected line before the first step: ${l}`);
+  }
+  for (const b of blocks) {
+    b.depth = Number(/^    depth: (\d)\s*$/m.exec(b.text)?.[1] ?? 1);
+    b.text = b.text.replace(/\s+$/, '');
+  }
+  for (const s of loc(back, lang)) {
+    const depth = Number(s.depth ?? 1);
+    let at = blocks.length;
+    while (at > 0 && blocks[at - 1].depth > depth) at--;
+    blocks.splice(at, 0, { depth, text: yamlSteps([s]) });
+  }
   const out = [...head];
   if (front.length) out.push(yamlSteps(loc(front, lang)), '');
-  out.push(...body);
-  if (back.length) out.push('', yamlSteps(loc(back, lang)));
+  out.push(blocks.map((b) => b.text).join('\n\n'));
   out.push(...(rest.length && rest[0].trim() !== '' ? ['', ...rest] : rest));
   let next = out.join('\n');
   const total = (parse(next).steps as unknown[]).length;
@@ -295,7 +311,10 @@ const files = conceptFiles();
 let lessons = 0;
 let added = 0;
 const todo: (() => void)[] = [];
+const ns: string = patch._ns ?? '';
+if (ns && !/^[a-z][a-z0-9]{0,7}$/.test(ns)) throw new Error('_ns: 1–8 lowercase letters or digits');
 for (const [key, value] of Object.entries(patch)) {
+  if (key === '_ns') continue;
   if (key.startsWith('+')) {
     todo.push(() => newLesson(key.slice(1), value, dry));
     lessons++;
@@ -304,9 +323,9 @@ for (const [key, value] of Object.entries(patch)) {
   }
   const path = files.get(key);
   if (!path) throw new Error(`Unknown concept ${key}`);
-  const owned = ownedPrefixes(value);
+  const owned = ownedPrefixes(value, ns);
   const taken = new Set<string>((parse(strip(readFileSync(path, 'utf8'), committedIds(path), owned)).steps as { id?: string }[]).map((s) => s.id!).filter(Boolean));
-  const { front, back } = build(value, taken);
+  const { front, back } = build(value, taken, ns);
   todo.push(() => {
     patchFile(path, front, back, 0, dry, owned);
     const en = path.replace(/\.yaml$/, '.en.yaml');

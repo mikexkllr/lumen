@@ -5,6 +5,7 @@
 import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
+import { recallCheck, recallPool } from '../packages/engine/src/recall.ts';
 
 const root = 'content/topics';
 const rows: any[] = [];
@@ -19,13 +20,16 @@ for (const t of readdirSync(root).sort()) {
     const c = parse(readFileSync(join(dir, f), 'utf8'));
     byId.set(c.id, { ...c, file: join(dir, f) });
   }
+  const pool = recallPool([...byId.values()].flatMap((c) => c.steps));
   for (const u of topic.units) for (const cid of u.concepts) {
     const c = byId.get(cid);
     if (!c) continue;
     const steps = c.steps as any[];
     const problems = steps.filter((s) => s.kind === 'problem');
     const explains = steps.filter((s) => s.kind === 'explain');
-    const passive = explains.filter((s) => !s.reveal && !(s.visual && s.visual.interactive));
+    // passive = plain text with nothing to do: no reveal, no interactive visual and no quick check from its key terms
+    const plain = explains.filter((s) => !s.reveal && !(s.visual && s.visual.interactive));
+    const passive = plain.filter((s) => !recallCheck({ ...s, id: `${cid}/${s.id}` }, pool));
     const widgets: Record<string, number> = {};
     for (const p of problems) widgets[p.widget] = (widgets[p.widget] ?? 0) + 1;
     let maxExplainRun = 0, run = 0;
@@ -33,7 +37,7 @@ for (const t of readdirSync(root).sort()) {
     const choice = widgets.choice ?? 0;
     rows.push({
       area: topic.area, level: topic.level, topic: t, unit: u.id.split('.').pop(), id: cid, file: c.file, title: c.title,
-      steps: steps.length, problems: problems.length, explains: explains.length, passive: passive.length,
+      steps: steps.length, problems: problems.length, explains: explains.length, passive: passive.length, quick: plain.length - passive.length,
       visuals: steps.filter((s) => s.visual).length, reveals: explains.filter((s) => s.reveal).length,
       choice, kinds: Object.keys(widgets).length, widgets,
       firstKind: steps[0].kind, maxExplainRun,
@@ -49,7 +53,7 @@ if (ji >= 0) writeFileSync(args[ji + 1], JSON.stringify(rows, null, 1));
 const sum = (k: string) => rows.reduce((a, r) => a + r[k], 0);
 const W: Record<string, number> = {};
 for (const r of rows) for (const [k, v] of Object.entries(r.widgets)) W[k] = (W[k] ?? 0) + (v as number);
-console.log(`lessons ${rows.length} steps ${sum('steps')} problems ${sum('problems')} explains ${sum('explains')} passive ${sum('passive')} reveals ${sum('reveals')} visuals ${sum('visuals')}`);
+console.log(`lessons ${rows.length} steps ${sum('steps')} problems ${sum('problems')} explains ${sum('explains')} with-quick-check ${sum('quick')} passive ${sum('passive')} reveals ${sum('reveals')} visuals ${sum('visuals')}`);
 console.log('widgets', Object.entries(W).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join(' '));
 const hist = (k: string) => { const h: Record<string, number> = {}; for (const r of rows) h[r[k]] = (h[r[k]] ?? 0) + 1; return Object.entries(h).sort((a, b) => +a[0] - +b[0]).map(([a, b]) => `${a}:${b}`).join(' '); };
 console.log('steps/lesson', hist('steps'));

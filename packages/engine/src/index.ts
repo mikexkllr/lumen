@@ -48,3 +48,4 @@ export { clozeWidget, clozeParts, clozeBank, type ClozeParams, type ClozeState }
 export { teachWidget, teachHits, teachNeeded, TEACH_MAX, type TeachParams, type TeachState } from './widgets/teach.ts';
 export { simWidget, simControls, simOutputs, simCompute, SIM_SCENES, NEURON_POINTS, type SimParams, type SimState, type SimControl, type SimOutput } from './widgets/sim.ts';
 export * from './tutor.ts';
+export * from './recall.ts';

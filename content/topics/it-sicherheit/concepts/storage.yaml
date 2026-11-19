@@ -5,7 +5,7 @@ summary: Hash, Salz und Passwort-Manager.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Was man nicht speichert, kann niemand stehlen.
     explanation: Gute Dienste kennen dein Passwort selbst gar nicht.
-
 
   - kind: explain
     id: s1
@@ -66,6 +65,53 @@ steps:
     explanation: Ein starkes Hauptpasswort schützt den ganzen Tresor.
 
   - kind: problem
+    id: mix-c1
+    widget: buckets
+    prompt: Gute oder schlechte Speicherung?
+    params:
+      buckets:
+        - id: b1
+          label: Gut
+        - id: b2
+          label: Schlecht
+      items:
+        - label: Passwort im Klartext
+          bucket: b2
+        - label: Hash mit Salz
+          bucket: b1
+        - label: Hash ohne Salz
+          bucket: b2
+        - label: Langsamer Hash mit Salz
+          bucket: b1
+    hints:
+      - Was hilft einem Dieb der Datenbank am wenigsten?
+    explanation: Ohne Salz haben gleiche Passwörter gleiche Hashes. Fertige Listen knacken sie sofort.
+
+  - kind: problem
+    id: mix-c2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Gute Dienste speichern nur einen [[Hash]] mit [[Salz]] – nie das Passwort selbst.
+      distractors:
+        - Code
+        - Zucker
+
+  - kind: problem
+    id: mix-c3
+    widget: order
+    prompt: Was passiert beim Login? Ordne.
+    params:
+      items:
+        - label: Du tippst dein Passwort ein
+        - label: Der Dienst hängt dein Salz an
+        - label: Er berechnet daraus den Hash
+        - label: Er vergleicht ihn mit dem gespeicherten
+    hints:
+      - Erst Salz, dann Hash, dann Vergleich.
+    explanation: Der Dienst prüft dein Passwort, ohne es zu kennen.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -81,6 +127,39 @@ steps:
     hints:
       - Die Liste wurde ohne dein Salz berechnet.
     explanation: Der Angreifer muss für jede Person von vorn rechnen statt einmal für alle.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d1
+    depth: 2
+    widget: numeric
+    prompt: Zwei Leute haben dasselbe Passwort, aber verschiedenes Salz. Wie viele verschiedene Hashes stehen dafür in der Datenbank?
+    answer:
+      value: 2
+    hints:
+      - Das Salz ändert die Eingabe für den Hash.
+    explanation: Zwei. Niemand sieht, dass die Passwörter gleich sind.
+    difficulty: 2
+
+  - kind: problem
+    id: mix-d2
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Aus einem Hash lässt sich das Passwort nicht zurückrechnen.
+          right: true
+        - text: Ein guter Dienst kann dir dein altes Passwort zuschicken.
+          right: false
+          why: Kann er das, speichert er es im Klartext.
+        - text: Salz macht fertige Hash-Listen nutzlos.
+          right: true
+        - text: Mit Hash ist auch ein kurzes Passwort sicher.
+          right: false
+          why: Kurze Passwörter probiert man einfach durch.
+      left: Falsch
+      right: Wahr
     difficulty: 2
 
   - kind: problem

@@ -10,6 +10,9 @@ import {
   addDays,
   buildExplainContext,
   buildTutorContext,
+  recallCheck,
+  recallPool,
+  type RecallCheck,
   checkProblem,
   dailyPuzzle,
   dailyQuests,
@@ -55,6 +58,8 @@ interface PlayItem {
   seed: number;
   /** Revisiting an earlier mistake: the learner's wrong answer, Lux explains it first. */
   revisit?: { state: unknown };
+  /** One-tap recall check after a plain explain screen, built from its key terms. */
+  recall?: RecallCheck;
 }
 
 type Phase = 'answering' | 'wrong' | 'correct' | 'revealed';
@@ -154,7 +159,8 @@ export function Player({ mode }: { mode: PlayerMode }) {
         if (mode.kind === 'lesson') {
           const c = await lib.concept(mode.conceptId);
           const topicId = lib.catalog.concepts[c.id].topicId;
-          list = c.steps.map((s) => ({ key: s.id, step: s, conceptId: c.id, topicId, seed: 0 }));
+          const pool = recallPool((await lib.topic(topicId)).concepts.flatMap((x) => x.steps));
+          list = c.steps.map((s) => ({ key: s.id, step: s, conceptId: c.id, topicId, seed: 0, recall: s.kind === 'explain' ? (recallCheck(s, pool) ?? undefined) : undefined }));
           // Coming back to a finished lesson that still has deeper stages: offer to continue there.
           const reached = readDepths()[c.id] ?? 0;
           const maxDepth = Math.max(...list.map(depthOf));
@@ -378,6 +384,10 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
   const headingRef = useRef<HTMLHeadingElement>(null);
   const stepStart = useRef(Date.now());
   const [revealed, setRevealed] = useState(false);
+  const [quiz, setQuiz] = useState<'off' | 'asking' | 'right' | 'wrong'>('off');
+  const [picked, setPicked] = useState<string | null>(null);
+  const quizTimer = useRef<number | null>(null);
+  const finished = useRef(false);
   const [luxOpen, setLuxOpen] = useState(false);
   const [explainAuto, setExplainAuto] = useState<{ intent: LuxOpener; key: string } | null>(null);
   const askCount = useRef(0);
@@ -387,7 +397,7 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
     return buildExplainContext(text, { locale, ...lessonTitles(app, item) });
   });
   useEffect(() => headingRef.current?.focus({ preventScroll: true }), []);
-  useEffect(() => () => { if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); }, []);
+  useEffect(() => () => { if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel(); if (quizTimer.current) clearTimeout(quizTimer.current); }, []);
   const logBase: LogBase = {
     stepId: item.step.id,
     conceptId: item.conceptId,
@@ -399,15 +409,61 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
   if (item.step.kind === 'explain') {
     const s = item.step;
     const needsReveal = !!s.reveal && !revealed;
+    const check = mode.kind === 'lesson' ? item.recall : undefined;
+    const finish = () => {
+      if (finished.current) return;
+      finished.current = true;
+      if (quizTimer.current) clearTimeout(quizTimer.current);
+      app.addEvents([{ type: 'attempt', ...logBase, problem: false, correct: true, final: true, attemptNo: 1, hintsUsed: 0, durationMs: Date.now() - stepStart.current, difficulty: 1 }]);
+      onDone({ problem: false, firstTry: true, correct: true });
+    };
     const go = () => {
       if (needsReveal) {
         setRevealed(true);
         play(settings.sound, 'reveal');
         return;
       }
-      app.addEvents([{ type: 'attempt', ...logBase, problem: false, correct: true, final: true, attemptNo: 1, hintsUsed: 0, durationMs: Date.now() - stepStart.current, difficulty: 1 }]);
-      onDone({ problem: false, firstTry: true, correct: true });
+      // reading becomes retrieval: one tap on the key term before moving on
+      if (check && quiz === 'off') {
+        if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+        setLuxOpen(false);
+        setQuiz('asking');
+        return;
+      }
+      finish();
     };
+    const pick = (opt: string) => {
+      if (!check || quiz !== 'asking') return;
+      const right = opt === check.answer;
+      setPicked(opt);
+      setQuiz(right ? 'right' : 'wrong');
+      play(settings.sound, right ? 'correct' : 'wrong');
+      if (right) quizTimer.current = window.setTimeout(finish, reduce ? 600 : 950);
+    };
+    if (check && quiz !== 'off') {
+      return (
+        <>
+          <Stage reduce={reduce}>
+            <span className="step-chip"><Icon name="zap" size={13} /> {t('recall.chip')}</span>
+            <h1 className="recall-title">{t('recall.prompt')}</h1>
+            <Markdown text={quiz === 'asking' ? check.text : s.body} className="explain-body recall-body" />
+            <div className="recall-opts" role="group" aria-label={t('recall.prompt')}>
+              {check.options.map((opt, i) => (
+                <button key={opt} type="button" className={`recall-opt ${quiz === 'asking' ? '' : opt === check.answer ? 'ok' : opt === picked ? 'bad' : 'dim'}`} disabled={quiz !== 'asking'} onClick={() => pick(opt)} autoFocus={i === 0}>
+                  {opt}
+                </button>
+              ))}
+            </div>
+            {quiz !== 'asking' && <p className={`recall-note ${quiz}`} role="status">{quiz === 'right' ? t('recall.right') : t('recall.wrong', { term: check.answer })}</p>}
+          </Stage>
+          <Footer state="idle" onEnter={quiz === 'asking' ? undefined : finish}>
+            <div className="foot-actions">
+              <button className={`btn grow ${quiz === 'asking' ? 'ghost' : 'primary'}`} onClick={finish}>{quiz === 'asking' ? t('recall.skip') : t('player.continue')}</button>
+            </div>
+          </Footer>
+        </>
+      );
+    }
     return (
       <>
         <Stage reduce={reduce}>
