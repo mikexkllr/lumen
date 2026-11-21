@@ -1,0 +1,208 @@
+id: ee.power.losses
+type: concept
+title: "Leitungsverluste: P = I² · R"
+summary: "Warum doppelte Spannung ein Viertel der Verluste bedeutet – und wann ein Verlängerungskabel heiß wird."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du willst 100 MW über 100 km schicken. Mit welcher Spannung verlierst du am wenigsten?
+    params:
+      options:
+        - label: 380 kV
+          correct: true
+        - label: 110 kV
+          feedback: Höhere Spannung bedeutet weniger Strom und weniger Wärme.
+        - label: Egal, die Leitung ist ja dieselbe
+          feedback: Die Verluste hängen vom Strom ab.
+    hints:
+      - Gleiche Leistung, aber wie viel Strom?
+      - "I = P : U."
+    explanation: Bei 380 kV fließt nur knapp ein Drittel des Stroms wie bei 110 kV. Die Verluste sind dann nur etwa ein Zwölftel.
+
+  - kind: explain
+    id: c1
+    body: "Die **Leitungsverluste** sind P_V = I² · R. Für eine feste Leistung ist I = P : U. Doppelte Spannung halbiert also den Strom und viertelt die Verluste."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Du erhöhst die Übertragungsspannung auf das {{k}}-Fache, die Leistung bleibt gleich. Um welchen Faktor sinken die Verluste?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: linear
+        text: Der Strom sinkt um {{k}}, die Verluste mit dem Quadrat.
+    hints:
+      - Der Strom wird {{k}}-mal kleiner.
+      - Verluste ∝ I².
+    explanation: "{{k}}² = {{k * k}}. Darum lohnen sich riesige Trafos und Isolatoren."
+    variants:
+      params:
+        k: choice[2,3,5,10]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Leitung mit 10 Ω überträgt 100 MW bei 110 kV. Wie viele MW gehen verloren? Vereinfacht wie Gleichstrom gerechnet, auf zwei Nachkommastellen.
+    params:
+      unit: MW
+    answer:
+      value: 8.26
+      tolerance: 0.01
+    hints:
+      - "I = 100 MW : 110 kV ≈ 909 A."
+      - P_V = 909² · 10 Ω.
+    explanation: ≈ 8,26 MW, über 8 % der Leistung.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Dieselbe Leitung, dieselben 100 MW, aber mit 380 kV. Wie viele MW gehen jetzt verloren? Auf zwei Nachkommastellen.
+    params:
+      unit: MW
+    answer:
+      value: 0.69
+      tolerance: 0.006
+    hints:
+      - "I = 100 MW : 380 kV ≈ 263 A."
+      - P_V = 263² · 10 Ω.
+    explanation: "≈ 0,69 MW statt 8,26 MW – zwölfmal weniger, wie (380 : 110)² ≈ 11,9 verspricht."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Der Widerstand eines Drahts ist R = ρ · l : A. Der **spezifische Widerstand** ρ ist eine Materialkonstante. Kupfer hat 0,0175 Ω·mm²/m, Aluminium 0,028. Lang und dünn heißt viel Widerstand."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Verlängerungskabel aus Kupfer ist {{l}} m lang und hat {{a}} mm² Querschnitt. Der Strom muss hin und zurück. Wie groß ist sein Widerstand? Auf drei Nachkommastellen.
+    params:
+      unit: Ω
+    answer:
+      value: "{{0.0175 * 2 * l / a}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.0175 * l / a) < 0.001
+        misconception: one-way
+        text: "Hin und zurück: Die Drahtlänge ist doppelt so groß."
+    hints:
+      - "Drahtlänge: 2 · {{l}} m."
+      - "R = 0,0175 · {{2 * l}} : {{a}}."
+    explanation: R ≈ {{round(0.0175 * 2 * l / a, 3)}} Ω.
+    difficulty: 2
+    variants:
+      params:
+        l: choice[10,25,50]
+        a: choice[1.5,2.5]
+      defaults:
+        l: 25
+        a: 1.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Durch ein Kabel mit 0,583 Ω fließen 16 A für einen Heizlüfter. Wie viel Wärme entsteht im Kabel? Auf ganze Watt.
+    params:
+      unit: W
+    answer:
+      value: 149
+      tolerance: 0.6
+    hints:
+      - P = I² · R.
+      - 256 · 0,583.
+    explanation: ≈ 149 W und dazu 9,3 V weniger am Gerät. Auf 25 m verteilt ist das harmlos – aufgerollt auf einer Trommel nicht.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Warum soll man eine Kabeltrommel bei großer Last ganz abrollen?
+    params:
+      options:
+        - label: Aufgewickelt kann die Wärme nicht weg, das Kabel kann schmelzen
+          correct: true
+        - label: Weil das Kabel aufgerollt mehr Widerstand hat
+          feedback: Der Widerstand ist gleich, aber die Wärme staut sich.
+        - label: Weil sonst ein Magnetfeld entsteht
+          feedback: Hin- und Rückleiter heben sich fast auf.
+    hints:
+      - Die Wärme entsteht gleich, aber wohin kann sie?
+      - Innen in der Trommel wird es immer heißer.
+    explanation: Auf der Trommel steht darum oft »aufgerollt max. 1000 W, abgerollt 3500 W«.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Wechselstrom drängt sich an die Oberfläche. Die Eindringtiefe ist δ = √(ρ : (π f µ₀)). Wie groß ist sie in Kupfer bei 50 Hz, mit ρ = 1,72 · 10⁻⁸ Ω·m und µ₀ = 1,257 · 10⁻⁶? In mm, auf eine Nachkommastelle."
+    params:
+      unit: mm
+    answer:
+      value: 9.3
+      tolerance: 0.06
+    hints:
+      - π · 50 · 1,257 · 10⁻⁶ ≈ 1,97 · 10⁻⁴.
+      - "δ = √(1,72 · 10⁻⁸ : 1,97 · 10⁻⁴) m."
+    explanation: ≈ 9,3 mm. Leiter dicker als etwa 2 cm nutzt man innen kaum. Bei 1 MHz sind es nur noch 0,07 mm.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Freileitungen bestehen meist aus Aluminium mit Stahlkern, obwohl Kupfer besser leitet. Warum?
+    params:
+      options:
+        - label: Aluminium leitet pro Kilogramm besser und ist billiger; der Stahl trägt
+          correct: true
+        - label: Weil Kupfer rostet
+          feedback: Kupfer korrodiert kaum.
+        - label: Weil Aluminium den Skin-Effekt verhindert
+          feedback: Den Skin-Effekt hat jedes Metall.
+    hints:
+      - Masten müssen das Gewicht der Seile tragen.
+      - Aluminium ist dreimal leichter als Kupfer.
+    explanation: Für gleichen Widerstand braucht Aluminium 1,6-mal mehr Querschnitt, wiegt dabei aber nur halb so viel. Der Stahlkern gibt Zugfestigkeit für Spannweiten von 400 m.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum doppelte Spannung die Leitungsverluste viertelt.
+    params:
+      keywords:
+        - - leistung
+          - power
+        - - strom
+          - current
+          - halb
+          - half
+        - - quadrat
+          - square
+          - i²
+          - i^2
+        - - viertel
+          - quarter
+          - verlust
+          - loss
+      sample: Die Leistung ist P = U · I. Bei doppelter Spannung reicht für dieselbe Leistung der halbe Strom. Die Verluste in der Leitung sind I² · R, sie hängen vom Quadrat des Stroms ab. Halber Strom ergibt also ein Viertel der Verluste.
+    explanation: "Kern: I = P : U und P_V = I² · R ergeben P_V = P² · R : U²."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]
