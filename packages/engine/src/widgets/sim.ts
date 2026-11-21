@@ -330,6 +330,7 @@ export const SIM_SCENES: Record<string, SimScene> = {
       { id: 'circular', label: { de: 'Kreisbahn-Tempo', en: 'Circular speed' }, unit: 'km/s', digits: 1 },
       { id: 'escape', label: { de: 'Fluchttempo', en: 'Escape speed' }, unit: 'km/s', digits: 1 },
       { id: 'ecc', label: { de: 'Exzentrizität', en: 'Eccentricity' }, digits: 2 },
+      { id: 'period', label: { de: 'Umlaufzeit', en: 'Orbital period' }, unit: 'h', digits: 2 },
     ],
     // GM_earth = 398600 km³/s², R = 6371 km. Launched sideways at `radius`.
     // kind: −1 falls back to Earth, 0 stays in orbit, 1 escapes. ecc = eccentricity.
@@ -339,7 +340,11 @@ export const SIM_SCENES: Record<string, SimScene> = {
       const ecc = Math.abs(q - 1);
       const peri = q < 1 ? (v.radius / (2 - q)) * (1 - ecc) : v.radius;
       const kind = q >= 2 ? 1 : peri < 1 - 1e-9 ? -1 : 0;
-      return { circular: r(vc, 1), escape: r(vc * Math.SQRT2, 1), ecc: r(ecc, 2), kind };
+      // vis-viva: semi-major axis a = 1 / (2/r − v²/GM); period T = 2π·√(a³/GM), infinite when unbound
+      const rk = 6371 * v.radius;
+      const a = 1 / (2 / rk - (v.speed * v.speed) / 398600);
+      const period = a > 0 ? (2 * Math.PI * Math.sqrt(a ** 3 / 398600)) / 3600 : Infinity;
+      return { circular: r(vc, 1), escape: r(vc * Math.SQRT2, 1), ecc: r(ecc, 2), kind, period: r(period, 2) };
     },
   },
   // ---------- Biologie ----------

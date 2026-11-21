@@ -162,7 +162,7 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `decay` | `halflife`, `time` | `left`, `halvings` |
 | `growth` | `rate`, `years`, `start`* | `value`, `linear`, `factor` |
 | `lens` | `object`, `focal` | `image`, `magnification` |
-| `orbit` | `radius`, `speed` | `circular`, `escape`, `ecc`, `kind` |
+| `orbit` | `radius`, `speed` | `circular`, `escape`, `ecc`, `kind`, `period` (h) |
 | `spring` | `mass`, `stiffness`, `amplitude`* | `period`, `frequency`, `energy` |
 | `population` | `rate`, `capacity`, `gens`, `start`* | `size`, `unlimited`, `share` |
 | `epidemic` (SIR) | `r0`, `vaccinated`, `recovery`* | `peak`, `total`, `herd`, `reff` |
