@@ -532,8 +532,8 @@ function Hardy({ v, o }: SceneProps) {
       <Label x={x0 - 10} y={y0 + a + (size - a) / 2 + 3} anchor="middle">a</Label>
       {[['AA', o.AA, 'var(--accent)'], ['Aa', o.Aa, 'var(--amber)'], ['aa', o.aa, 'var(--ink-3)']].map(([k, val, c], i) => (
         <g key={String(k)}>
-          <rect x="210" y={34 + i * 40} width={Math.max(2, Number(val))} height="18" rx="3" fill={String(c)} opacity="0.85" />
-          <Label x="196" y={47 + i * 40} anchor="end">{String(k)}</Label>
+          <rect x="226" y={34 + i * 40} width={Math.max(2, Number(val))} height="18" rx="3" fill={String(c)} opacity="0.85" />
+          <Label x="218" y={47 + i * 40} anchor="end">{String(k)}</Label>
         </g>
       ))}
     </>
@@ -609,8 +609,6 @@ function Divider({ v, o }: SceneProps) {
       <path d="M60 20 H150 V160 H60" fill="none" stroke="var(--ink-3)" strokeWidth="2.5" />
       <line x1="44" y1="84" x2="76" y2="84" stroke="var(--ink)" strokeWidth="3" />
       <line x1="50" y1="94" x2="70" y2="94" stroke="var(--ink)" strokeWidth="3" />
-      <rect x="40" y="40" width="40" height="40" fill="var(--bg)" />
-      <rect x="40" y="98" width="40" height="40" fill="var(--bg)" />
       <line x1="60" y1="20" x2="60" y2="84" stroke="var(--ink-3)" strokeWidth="2.5" />
       <line x1="60" y1="94" x2="60" y2="160" stroke="var(--ink-3)" strokeWidth="2.5" />
       <Label x="30" y="92" anchor="end">{v.voltage} V</Label>
@@ -657,13 +655,11 @@ function Resonance({ v, o, t }: SceneProps) {
   const e = phase * phase;
   return (
     <>
-      <rect x="60" y="40" width="200" height="100" rx="8" fill="none" stroke="var(--ink-3)" strokeWidth="2.5" />
-      <rect x="40" y="70" width="40" height="40" fill="var(--bg)" />
+      <path d="M60 84 V48 Q60 40 68 40 H252 Q260 40 260 48 V64 M260 116 V132 Q260 140 252 140 H68 Q60 140 60 132 V96" fill="none" stroke="var(--ink-3)" strokeWidth="2.5" />
       <line x1="46" y1="84" x2="74" y2="84" stroke="var(--ink)" strokeWidth="3" />
       <line x1="46" y1="96" x2="74" y2="96" stroke="var(--ink)" strokeWidth="3" />
       <rect x="44" y="84" width="32" height="12" fill="var(--accent)" opacity={e * 0.6} />
       <Label x="30" y="94" anchor="end">C</Label>
-      <rect x="240" y="60" width="40" height="60" fill="var(--bg)" />
       {[0, 1, 2, 3].map((i) => <path key={i} d={`M260 ${64 + i * 13} a8 6.5 0 1 1 0 13`} fill="none" stroke="var(--ink)" strokeWidth="2.5" />)}
       <circle cx="260" cy="90" r="30" fill="var(--amber)" opacity={(1 - e) * 0.3} />
       <Label x="292" y="94">L</Label>
@@ -675,7 +671,7 @@ function Resonance({ v, o, t }: SceneProps) {
 
 function Transformer({ v, o }: SceneProps) {
   const coil = (x: number, n: number) => {
-    const k = clamp(Math.round(n / 100), 1, 14);
+    const k = clamp(Math.round(Math.sqrt(n) / 3), 2, 14);
     return Array.from({ length: k }, (_x, i) => <line key={i} x1={x - 16} y1={44 + (i * 92) / k} x2={x + 16} y2={50 + (i * 92) / k} stroke="var(--amber-deep)" strokeWidth="2.5" />);
   };
   return (
