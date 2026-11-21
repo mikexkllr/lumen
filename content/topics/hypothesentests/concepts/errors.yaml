@@ -5,7 +5,7 @@ summary: Die zwei Fehlerarten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -109,6 +109,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: buckets
+    prompt: Erhöht das die **Power** eines Tests oder senkt es sie?
+    params:
+      buckets:
+        - id: b1
+          label: Mehr Power
+        - id: b2
+          label: Weniger Power
+      items:
+        - label: Mehr Teilnehmer
+          bucket: b1
+        - label: Größerer echter Effekt
+          bucket: b1
+        - label: Genauere Messungen
+          bucket: b1
+        - label: "Strengere Grenze: 1 % statt 5 %"
+          bucket: b2
+        - label: Mehr Rauschen in den Daten
+          bucket: b2
+    hints:
+      - Power ist die Chance, einen echten Effekt zu finden.
+      - Was macht ein Signal leichter vom Rauschen unterscheidbar?
+    explanation: Power wächst mit Stichprobe, Effektgröße und Messgenauigkeit. Eine strengere Grenze senkt Fehlalarme, aber auch die Power.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Die **Effektgröße** (Cohens d) ist der Unterschied der Mittelwerte geteilt durch die Standardabweichung. Gruppe A hat im Schnitt {{a}}, Gruppe B {{b}}, σ = {{s}}. Wie groß ist d?
+    answer:
+      value: "{{(a - b) / s}}"
+    hints:
+      - "Unterschied: {{a - b}}."
+      - Teile durch {{s}}.
+    explanation: "d = {{(a - b) / s}}. Faustregel: 0,2 klein, 0,5 mittel, 0,8 groß. Anders als p hängt d nicht von der Stichprobengröße ab."
+    difficulty: 2
+    variants:
+      params:
+        b: choice[50,100]
+        s: choice[5,10,20]
+        k: choice[1,2,4,8]
+      derive:
+        a: b + k * s / 4
+      defaults:
+        b: 100
+        s: 10
+        k: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -120,6 +172,42 @@ steps:
     hints:
       - 100 % minus die Wahrscheinlichkeit des Fehlers 2. Art.
     explanation: 80 % gelten als Mindestmaß. Viele ältere Studien hatten unter 50 % – ihre Ergebnisse sind kaum verlässlich.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Für d = 0,5 und 80 % Power braucht man etwa 64 Personen pro Gruppe. Wie viele braucht man für d = 0,25?
+    answer:
+      value: 256
+    feedback:
+      - when: numval(state.input) == 128
+        misconception: linear-n
+        text: Die nötige Stichprobe wächst mit 1/d², nicht mit 1/d.
+    hints:
+      - Halber Effekt – wie viel mehr Daten?
+      - Die Fehlerspanne schrumpft mit √n. Halbe Spanne braucht 4-mal so viele.
+    explanation: 4 · 64 = 256 pro Gruppe. Kleine Effekte sicher nachzuweisen ist teuer – darum sind viele Studien zu klein.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Eine kleine Studie (20 pro Gruppe) findet einen signifikanten, riesigen Effekt. Was ist verdächtig?
+    params:
+      options:
+        - label: Bei geringer Power schaffen es nur übertriebene Schätzungen über die Grenze
+          correct: true
+        - label: Nichts – signifikant ist signifikant
+          feedback: Bei wenig Power ist der gefundene Effekt meist zu groß.
+        - label: Die Studie ist zu groß
+          feedback: 20 pro Gruppe ist eher wenig.
+    hints:
+      - Wie groß muss ein zufällig geschätzter Effekt sein, damit eine kleine Studie ihn signifikant findet?
+      - Nur Glückstreffer mit großem Ausschlag kommen durch.
+    explanation: "Das ist der **Fluch des Gewinners**: Bei schwacher Power überschätzen signifikante Ergebnisse den Effekt systematisch. Wiederholungen finden dann kleinere Werte."
     difficulty: 3
 
 srs:

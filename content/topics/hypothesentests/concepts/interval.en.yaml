@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 13
 steps:
   - kind: problem
     id: c1
@@ -133,6 +133,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Mean {{m}}, standard deviation {{s}}, {{n}} measurements. Where is the lower limit of the 95 % range by the rule mean − 2 · s/√n?
+    answer:
+      value: "{{m - 2 * s / sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == m - 2 * s
+        misconception: sd-not-se
+        text: You used the spread of single values. For the mean divide by √n.
+    hints:
+      - "Standard error: {{s}} ÷ √{{n}} = {{s / sqrt(n)}}."
+      - Compute {{m}} − 2 · {{s / sqrt(n)}}.
+    explanation: "{{m}} − {{2 * s / sqrt(n)}} = {{m - 2 * s / sqrt(n)}}. The range goes up to {{m + 2 * s / sqrt(n)}}."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,100,120]
+        s: choice[10,20,30]
+        n: choice[4,25,100]
+      defaults:
+        m: 100
+        s: 20
+        n: 25
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Instead of 95 % you want 99 % confidence. What happens to the interval?
+    params:
+      options:
+        - label: It gets wider – about ± 2.6 instead of ± 2 standard errors
+          correct: true
+        - label: More confidence needs a bigger range.
+          feedback: Mehr Sicherheit verlangt einen größeren Bereich.
+        - label: The width depends directly on the confidence level.
+          feedback: Die Breite hängt direkt am Sicherheitsniveau.
+    hints:
+      - A net that should catch more often must be bigger.
+      - For 99 % you need 2.58 σ.
+    explanation: Confidence costs precision – or more data. A 100 % interval would be infinitely wide and useless.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -186,6 +231,39 @@ steps:
           - sample
           - random
       sample: Every measurement from a sample varies by chance. Only the margin shows how precise the number is – and whether a difference can be real.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: A poll of 600 people measures 40 %. The standard error is √(0.4 · 0.6 ÷ 600) = 0.02. What is the 95 % margin in percentage points (1.96 · SE)? To one decimal.
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    hints:
+      - 1.96 · 0.02 = 0.0392.
+      - "As percentage points: times 100."
+    explanation: ± 3.9 points, so 36.1 % to 43.9 %. The rule of thumb 100/√600 ≈ 4.1 is close.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: In the bootstrap you draw a thousand new samples from your own sample – with replacement. What for?
+    params:
+      options:
+        - label: To see how much a statistic fluctuates, even without a formula
+          correct: true
+        - label: No new information is created.
+          feedback: Neue Information entsteht dabei nicht.
+        - label: Outliers stay in the resamples.
+          feedback: Ausreißer bleiben in den Ziehungen enthalten.
+    hints:
+      - The sample stands in for the whole population.
+      - The spread of the thousand results estimates the standard error.
+    explanation: The bootstrap (Efron, 1979) gives intervals for medians, correlations and much more – wherever no simple formula exists.
     difficulty: 3
 
 srs:

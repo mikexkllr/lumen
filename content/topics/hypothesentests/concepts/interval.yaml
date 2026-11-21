@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 13
 steps:
   - kind: problem
     id: c1
@@ -133,6 +133,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Mittelwert {{m}}, Standardabweichung {{s}}, {{n}} Messungen. Wo liegt die untere Grenze des 95-%-Bereichs nach der Faustregel Mittelwert − 2 · s/√n?
+    answer:
+      value: "{{m - 2 * s / sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == m - 2 * s
+        misconception: sd-not-se
+        text: Du hast die Streuung einzelner Werte genommen. Für den Mittelwert teilt man durch √n.
+    hints:
+      - "Standardfehler: {{s}} : √{{n}} = {{s / sqrt(n)}}."
+      - Rechne {{m}} − 2 · {{s / sqrt(n)}}.
+    explanation: "{{m}} − {{2 * s / sqrt(n)}} = {{m - 2 * s / sqrt(n)}}. Der Bereich reicht bis {{m + 2 * s / sqrt(n)}}."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,100,120]
+        s: choice[10,20,30]
+        n: choice[4,25,100]
+      defaults:
+        m: 100
+        s: 20
+        n: 25
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Statt 95 % willst du 99 % Sicherheit. Was passiert mit dem Intervall?
+    params:
+      options:
+        - label: Es wird breiter – etwa ± 2,6 statt ± 2 Standardfehler
+          correct: true
+        - label: Es wird schmaler
+          feedback: Mehr Sicherheit verlangt einen größeren Bereich.
+        - label: Es bleibt gleich
+          feedback: Die Breite hängt direkt am Sicherheitsniveau.
+    hints:
+      - Ein Netz, das öfter fangen soll, muss größer sein.
+      - Für 99 % braucht man 2,58 σ.
+    explanation: Sicherheit kostet Genauigkeit – oder mehr Daten. Ein 100-%-Intervall wäre unendlich breit und nutzlos.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -186,6 +231,39 @@ steps:
           - sample
           - random
       sample: Jede Messung aus einer Stichprobe schwankt durch Zufall. Erst die Spanne zeigt, wie genau die Zahl ist – und ob ein Unterschied echt sein kann.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Eine Umfrage mit 600 Befragten misst 40 %. Der Standardfehler ist √(0,4 · 0,6 : 600) = 0,02. Wie groß ist die 95-%-Fehlerspanne in Prozentpunkten (1,96 · SE)? Auf eine Stelle."
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    hints:
+      - 1,96 · 0,02 = 0,0392.
+      - "Als Prozentpunkte: mal 100."
+    explanation: ± 3,9 Punkte, also 36,1 % bis 43,9 %. Die Faustregel 100/√600 ≈ 4,1 liegt nahe dran.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Beim **Bootstrap** zieht man aus der eigenen Stichprobe tausendmal neue Stichproben – mit Zurücklegen. Wozu?
+    params:
+      options:
+        - label: Um zu sehen, wie stark eine Kennzahl schwankt, auch ohne Formel
+          correct: true
+        - label: Um mehr echte Daten zu bekommen
+          feedback: Neue Information entsteht dabei nicht.
+        - label: Um Ausreißer zu entfernen
+          feedback: Ausreißer bleiben in den Ziehungen enthalten.
+    hints:
+      - Die Stichprobe dient als Ersatz für die ganze Bevölkerung.
+      - Die Streuung der tausend Ergebnisse schätzt den Standardfehler.
+    explanation: Der Bootstrap (Efron, 1979) liefert Intervalle für Median, Korrelation und vieles mehr – überall dort, wo keine einfache Formel existiert.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: And what it does not mean.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -151,6 +151,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A measurement lies 2 standard deviations from the null hypothesis value. Within ± 2σ lie 95.4 %. What is the two-sided p-value in percent?
+    answer:
+      value: 4.6
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 2.3) < 0.1
+        misconception: one-sided
+        text: That is only one side. Two-sided counts both tails.
+    hints:
+      - The rest lies outside ± 2σ.
+      - 100 − 95.4.
+    explanation: p ≈ 4.6 % – just under 5 %. A z-score of 1.96 gives exactly 5 %.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: A study reports p = 1 %. What follows?
+    params:
+      options:
+        - label: If there were no effect, data this extreme would be rare
+          correct: true
+        - label: p is P(data | H₀), not P(H₀ | data).
+          feedback: p ist P(Daten | H₀), nicht P(H₀ | Daten).
+        - label: Tiny effects too become significant with lots of data.
+          feedback: Auch winzige Effekte werden mit vielen Daten signifikant.
+        - label: The chance of a successful replication is much lower.
+          feedback: Die Chance auf eine erfolgreiche Wiederholung ist viel kleiner.
+    hints:
+      - In which world is the p-value computed?
+      - It assumes H₀ – it does not rate it.
+    explanation: The p-value is a statement about the data under H₀. How likely H₀ itself is, only Bayes can say – with a prior.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -166,6 +205,33 @@ steps:
     hints:
       - "What does a patient want to know: whether it works – or how strongly?"
     explanation: An interval shows size **and** uncertainty at a glance.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Of 1000 tested ideas, 500 are true. Power 80 %, threshold 5 %. What percent of the significant results are false? To one decimal.
+    answer:
+      value: 5.9
+      tolerance: 0.1
+    hints:
+      - "True hits: 80 % of 500 = 400. False alarms: 5 % of 500 = 25."
+      - Compute 25 ÷ 425.
+    explanation: 25/425 ≈ 5.9 %. With only 10 % true ideas it would be 36 %. How reliable »significant« is depends on the field's prior.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: If the null hypothesis is true, the p-value is uniformly distributed between 0 and 1. How often is p < 0.2 then? In percent.
+    answer:
+      value: 20
+    hints:
+      - "Uniform means: every stretch of equal length is equally likely."
+      - The stretch from 0 to 0.2 is a fifth.
+    explanation: 20 %. That is exactly why p < 0.05 happens in 5 % of cases under H₀. A pile of p-values just under 0.05 is therefore suspicious.
     difficulty: 3
 
 srs:
