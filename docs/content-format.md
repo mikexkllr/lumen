@@ -104,7 +104,7 @@ Auf Erklär-Screens bietet Lux vier Wege an: **einfacher**, **Beispiel**, **tief
 
 Sicher ausgewertet, ohne `eval`. Unterstützt werden `+ - * / % **`, Vergleiche, `&& || !`, `?:`, Arrays und Objekte, `.length`, `.includes()`, `.indexOf()`, `.join()`, `.slice()`. `==` vergleicht strukturell und toleriert Rundungsfehler bei Zahlen.
 
-Funktionen: `abs min max round floor ceil sqrt pow sign gcd lcm mod bin hex chr ord len sum count keys values sorted int num str isInt approx numval mean median`. `bin(5)` → "101", `chr(0)` → "A", `ord("C")` → 2.
+Funktionen: `abs min max round floor ceil sqrt exp ln log10 log2 pow sign gcd lcm mod bin hex chr ord len sum count keys values sorted int num str isInt approx numval mean median`. `bin(5)` → "101", `chr(0)` → "A", `ord("C")` → 2.
 
 `numval("3/4")` liest Eingaben wie `3/4`, `0,75` oder `1 1/2`.
 

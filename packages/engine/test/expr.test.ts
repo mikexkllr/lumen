@@ -98,3 +98,13 @@ describe('math input', () => {
     expect(isFactored(parseMath('2x+6'))).toBe(false);
   });
 });
+
+describe('exponential and logarithm functions', () => {
+  it('evaluates exp, ln, log10 and log2', () => {
+    expect(evaluate('exp(0)')).toBe(1);
+    expect(evaluate('round(ln(exp(2)), 6)')).toBe(2);
+    expect(evaluate('log10(1000)')).toBe(3);
+    expect(evaluate('log2(8)')).toBe(3);
+    expect(evaluate('round(20 * log10(0.5), 1)')).toBe(-6);
+  });
+});
