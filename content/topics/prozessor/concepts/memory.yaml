@@ -1,0 +1,209 @@
+id: cs.cpu.memory
+type: concept
+title: "Register und Speicher"
+summary: "Wie ein Computer sich Bits merkt – vom Flipflop bis zum Arbeitsspeicher."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Milliarden Bits passen in 16 GB Arbeitsspeicher?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 128
+      within: 25
+    explanation: 16 Milliarden Byte · 8 = 128 Milliarden Bits – und jedes einzelne hat eine Adresse.
+
+  - kind: explain
+    id: c1
+    body: Ein **Flipflop** speichert ein Bit. Zwei Gatter halten sich über Kreuz gegenseitig fest. Ein kurzer Puls auf »Setzen« schreibt eine 1, auf »Löschen« eine 0. Danach bleibt der Wert stehen.
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: Ein Register besteht aus 8 Flipflops. Speichere darin die Zahl {{n}}.
+    params:
+      bits: 8
+      showValue: false
+    answer:
+      value: "{{n}}"
+    hints:
+      - Passt 128 in {{n}}? Dann ist das linke Bit an.
+      - Zieh jede passende Zweierpotenz ab.
+    explanation: "{{n}} = {{bin(n)}}. Register sind die schnellsten Speicher im Rechner – direkt im Rechenwerk."
+    variants:
+      params:
+        n: int[20,250]
+      defaults:
+        n: 42
+
+  - kind: explain
+    id: c3
+    body: Der Arbeitsspeicher ist eine lange Reihe nummerierter Fächer zu je einem Byte. Die Nummer heißt **Speicheradresse**. Wer die Adresse kennt, kann sofort lesen oder schreiben.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Prozessor hat {{k}}-Bit-Adressen. Wie viele Byte kann er ansprechen?
+    answer:
+      value: "{{2 ** k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k - 1
+        misconception: off-by-one
+        text: Das ist die höchste Adresse. Mit der 0 sind es eins mehr.
+    hints:
+      - Jedes Adressbit verdoppelt die Zahl der Fächer.
+      - 2 hoch {{k}}.
+    explanation: $2^{ {{k}} }$ = {{2 ** k}} Byte. Mit 32 Bit wären es gut 4 Milliarden – genau 4 GiB.
+    variants:
+      params:
+        k: int[8,20]
+      defaults:
+        k: 16
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Wo liegt das am besten?
+    params:
+      buckets:
+        - id: b1
+          label: Register
+        - id: b2
+          label: Arbeitsspeicher
+        - id: b3
+          label: SSD
+      items:
+        - label: Zwischenergebnis einer Addition
+          bucket: b1
+        - label: Der geöffnete Browser
+          bucket: b2
+        - label: Urlaubsfotos von 2019
+          bucket: b3
+        - label: Zähler der innersten Schleife
+          bucket: b1
+        - label: Ein Spiel, das gerade läuft
+          bucket: b2
+        - label: Installierte Programme
+          bucket: b3
+    hints:
+      - "Register: winzig und blitzschnell. SSD: riesig und dauerhaft."
+      - Der Arbeitsspeicher vergisst alles ohne Strom.
+    explanation: Je näher am Rechenwerk, desto schneller, kleiner und teurer. Diese Speicherhierarchie ist das Grundmuster jedes Rechners.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein alter 32-Bit-Rechner hat 8 GB Arbeitsspeicher eingebaut. Wie viele GiB davon kann er direkt adressieren?
+    params:
+      unit: GiB
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: ignore-limit
+        text: 32 Bit reichen nur für $2^{32}$ Byte.
+    hints:
+      - $2^{32}$ Byte sind wie viele GiB?
+      - 1 GiB = $2^{30}$ Byte.
+    explanation: $2^{32}$ / $2^{30}$ = 4 GiB. Der Rest bleibt ungenutzt – ein Hauptgrund für den Umstieg auf 64 Bit.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Die Zahl 0x1234 belegt zwei Bytes. Ein Little-Endian-Prozessor wie x86 legt an die kleinere Adresse …
+    params:
+      options:
+        - label: 0x34 – das niedrige Byte zuerst
+          correct: true
+        - label: 0x12 – das hohe Byte zuerst
+          feedback: So machen es Big-Endian-Systeme.
+        - label: Beides in ein Fach
+          feedback: Ein Fach hat nur 8 Bit.
+    hints:
+      - "Little heißt: das kleine Ende kommt zuerst."
+      - Das kleine Ende ist 0x34.
+    explanation: Little-Endian speichert 34 12, Big-Endian 12 34. Netzwerkprotokolle nutzen Big-Endian – Programme müssen deshalb oft umdrehen.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: "**DRAM** speichert jedes Bit als winzige Ladung in einem Kondensator. Die Ladung versickert langsam. Darum frischt der Rechner den ganzen Speicher etwa alle 64 Millisekunden auf."
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Speicherbus überträgt 64 Bit pro Übertragung, 3200 Millionen Übertragungen pro Sekunde (DDR4-3200). Wie viele GB pro Sekunde sind das? Runde auf eine Stelle.
+    params:
+      unit: GB/s
+    answer:
+      value: 25.6
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 204.8) < 0.1
+        misconception: bits-bytes
+        text: Das sind Gigabit. Teile durch 8 für Byte.
+    hints:
+      - 64 Bit = 8 Byte pro Übertragung.
+      - 8 · 3,2 Milliarden.
+    explanation: 8 Byte · 3,2 · $10^9$ = 25,6 GB/s pro Kanal. Der Prozessor könnte trotzdem schneller rechnen, als Daten nachkommen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Caches bestehen aus SRAM mit 6 Transistoren pro Bit, der Arbeitsspeicher aus DRAM mit einem. Warum nicht alles aus SRAM?
+    params:
+      options:
+        - label: SRAM ist schnell, braucht aber viel mehr Platz und kostet viel mehr pro Bit
+          correct: true
+        - label: SRAM vergisst seine Daten sofort
+          feedback: SRAM hält Daten, solange Strom da ist – ohne Auffrischen.
+        - label: SRAM ist langsamer
+          feedback: Es ist sogar deutlich schneller.
+    hints:
+      - Vergleiche 6 Transistoren mit einem.
+      - Wie viele GB passen auf ein Stück Silizium?
+    explanation: Schnell, groß und billig zugleich gibt es nicht. Darum kombiniert jeder Rechner wenig schnellen mit viel langsamem Speicher.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Computer sich eine Zahl merkt und wiederfindet.
+    params:
+      keywords:
+        - - flipflop
+          - bit
+          - gatter
+          - gate
+          - ladung
+          - charge
+        - - register
+          - speicher
+          - memory
+        - - adresse
+          - address
+          - fach
+          - slot
+          - nummer
+          - number
+      sample: Jedes Bit sitzt in einem Flipflop oder als Ladung im Speicher. Acht Bits bilden ein Byte, mehrere Bytes ein Register. Der Arbeitsspeicher ist eine Reihe von Fächern, und jedes Fach hat eine Nummer, die Adresse. Damit findet der Prozessor jede Zahl wieder.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1", "x1"]

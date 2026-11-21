@@ -1,0 +1,223 @@
+id: cs.cpu.clock
+type: concept
+title: "Clock and speed"
+summary: "Gigahertz, pipelines, caches and many cores."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many centimetres does light travel during a single tick of a 3 GHz processor?"
+    params:
+      min: 0.1
+      max: 1000
+      scale: log
+      unit: cm
+    answer:
+      value: 10
+      within: 25
+    explanation: "300,000 km/s divided by 3 billion ticks: 10 cm. Signals in a chip are even slower – that is why chips are so small."
+
+  - kind: explain
+    id: c1
+    body: The **clock** is the processor's heartbeat. At 3 GHz it beats three billion times per second. With every beat all registers take on their new values at once.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many nanoseconds does one tick last at {{f}} GHz?
+    params:
+      unit: ns
+    answer:
+      value: "{{1 / f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: reciprocal
+        text: More GHz means shorter ticks – it is the reciprocal.
+    hints:
+      - 1 GHz is $10^9$ ticks per second, so 1 ns per tick.
+      - Divide 1 by {{f}}.
+    explanation: 1 / {{f}} = {{1 / f}} ns.
+    variants:
+      params:
+        f: choice[2,4,5,10]
+      defaults:
+        f: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A core runs at 3 GHz and averages 2 instructions per tick. How many billion instructions per second is that?
+    answer:
+      value: 6
+    hints:
+      - Ticks per second times instructions per tick.
+      - 3 · 2.
+    explanation: "6 billion per second. That is why the GHz figure alone says little: a chip with fewer ticks but more instructions per tick can be faster."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why can the clock not be raised indefinitely?
+    params:
+      options:
+        - label: Signals need time through the gates, and heat rises sharply
+          correct: true
+        - label: Because programs cannot keep up
+          feedback: Programs know nothing about the clock.
+        - label: Because electricity cannot flow faster
+          feedback: It is about switching times and heat.
+    hints:
+      - What must be finished within one tick?
+      - Every switch costs energy.
+    explanation: The longest gate path must fit into one tick. And power rises with the clock and the voltage it needs – chips would glow.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "A **pipeline** works like an assembly line: while one instruction executes, the next is already being decoded and the one after fetched. Each instruction takes as long as before, but far more get finished."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A pipeline has 4 stages of 1 ns each. How many ns does it need for 100 instructions?
+    params:
+      unit: ns
+    answer:
+      value: 103
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: no-pipeline
+        text: That is how long it takes without the assembly line. With a pipeline one instruction finishes every ns.
+      - when: numval(state.input) == 100
+        misconception: fill-time
+        text: The first instruction needs all 4 stages before it is done.
+    hints:
+      - The first instruction is done after 4 ns.
+      - After that another one comes out every ns.
+    explanation: 4 + 99 = 103 ns instead of 400 ns – almost four times as fast.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: At a conditional jump the pipeline does not yet know how to continue. What do modern processors do?
+    params:
+      options:
+        - label: They guess where it goes and throw away the started work if the guess is wrong
+          correct: true
+        - label: They wait every time
+          feedback: That would keep draining the pipeline.
+        - label: They run both paths completely
+          feedback: With many jumps in a row that would be unaffordable.
+    hints:
+      - Loops almost always jump the same way.
+      - A good guess is right more than 95 % of the time.
+    explanation: Branch prediction is usually right over 95 % of the time. A miss costs about 15 to 20 ticks – that is why sorted data in loops is often faster.
+    difficulty: 2
+
+  - kind: explain
+    id: d4
+    depth: 2
+    body: "A main-memory access takes about 100 ns – hundreds of ticks. That is why the processor has a **cache**: a small, fast store for recently used data."
+
+  - kind: problem
+    id: d5
+    depth: 2
+    widget: numeric
+    prompt: 95 % of accesses hit the cache and take 1 ns, the rest take 100 ns. How many ns does an access take on average?
+    params:
+      unit: ns
+    answer:
+      value: 5.95
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 50.5) < 0.1
+        misconception: unweighted
+        text: Not the average of 1 and 100 – hits are far more common.
+    hints:
+      - 0.95 · 1 ns + 0.05 · 100 ns.
+      - 0.95 + 5.
+    explanation: 0.95 + 5 = 5.95 ns. The rare misses cost more than all hits together.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Since about 2005 clock rates have barely risen. How do processors still get faster?
+    params:
+      options:
+        - label: More cores, more instructions per tick and wider ALUs
+          correct: true
+        - label: Not at all any more
+          feedback: They got much faster – just differently.
+        - label: Through bigger fans
+          feedback: Cooling alone does not allow a much higher clock.
+    hints:
+      - If one cook cannot go faster …
+      - … you hire more cooks.
+    explanation: More transistors keep coming – they go into cores, caches and vector units. But programs must work in parallel to use them.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: 90 % of a program can be parallelised. At most how many times faster can it get – even with infinitely many cores?
+    answer:
+      value: 10
+    hints:
+      - The remaining 10 % always run sequentially.
+      - If only that part is left, it takes 1/10 of the time.
+    explanation: "At most 1 / 0.1 = 10 times. This is Amdahl's law: the serial remainder limits everything."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: And with 10 cores? The time is 0.1 + 0.9 / 10 of the old. How many times faster is that? Round to two decimals.
+    answer:
+      value: 5.26
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-speedup
+        text: 10 cores do not give tenfold – the serial part slows things down.
+    hints:
+      - 0.1 + 0.09 = 0.19.
+      - 1 / 0.19.
+    explanation: 1 / 0.19 ≈ 5.26 – with 10 cores only just over five times faster.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a processor with more GHz is not always faster.
+    params:
+      keywords:
+        - - pro takt
+          - per tick
+          - befehle
+          - instructions
+        - - speicher
+          - memory
+          - cache
+          - warten
+          - wait
+        - - kerne
+          - cores
+          - parallel
+      sample: GHz only counts ticks. It also matters how many instructions finish per tick, how often the processor has to wait for memory – a big cache helps there – and how many cores work in parallel.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x2"]

@@ -1,0 +1,185 @@
+id: cs.cpu.cycle
+type: concept
+title: "Holen, Decodieren, Ausführen"
+summary: "Der Takt, in dem jeder Prozessor arbeitet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: order
+    prompt: Ein Koch arbeitet ein Rezept Zeile für Zeile ab. Bring seine Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Die nächste Zeile lesen
+        - label: Verstehen, was zu tun ist
+        - label: Es tun
+        - label: Mit dem Finger eine Zeile weiter
+    hints:
+      - Was muss passieren, bevor er etwas tun kann?
+      - Erst lesen, dann verstehen.
+    explanation: Genau so arbeitet ein Prozessor – nur ohne Pause, Milliarden Mal pro Sekunde.
+
+  - kind: explain
+    id: c1
+    body: "Jeder Prozessor läuft im **Befehlszyklus**: Befehl aus dem Speicher holen, decodieren, ausführen – und wieder von vorn. Das passiert Milliarden Mal pro Sekunde."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring einen Durchlauf des Befehlszyklus in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Befehl an der Adresse im Befehlszähler holen
+        - label: Befehlszähler um eins erhöhen
+        - label: Befehl decodieren
+        - label: Befehl ausführen
+    hints:
+      - Woher weiß der Prozessor, welcher Befehl dran ist?
+      - Der Zähler rückt gleich nach dem Holen weiter.
+    explanation: Weil der Zähler schon weitergerückt ist, kann ein Sprungbefehl ihn beim Ausführen einfach überschreiben.
+
+  - kind: explain
+    id: c3
+    body: Der **Befehlszähler** merkt sich die Adresse des nächsten Befehls. Nach jedem Holen zählt er weiter. Ein Sprungbefehl setzt ihn auf eine andere Adresse – so entstehen Schleifen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Der Befehlszähler steht bei 10. Es laufen drei normale Befehle, dann »springe zu 4«, dann noch ein normaler Befehl. Wo steht der Befehlszähler jetzt?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: stop-at-jump
+        text: Nach dem Sprung läuft noch ein Befehl – der Zähler rückt weiter.
+      - when: numval(state.input) == 15
+        misconception: ignore-jump
+        text: Der Sprung setzt den Zähler zurück auf 4.
+    hints:
+      - 10 → 11 → 12 → 13. Bei 13 steht der Sprung.
+      - Der Sprung setzt auf 4, der Befehl dort zählt auf 5.
+    explanation: Drei Befehle bringen den Zähler auf 13. Der Sprung setzt ihn auf 4, der nächste Befehl auf 5.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Was passiert, wenn der Befehlszähler versehentlich auf Daten zeigt, etwa auf ein Foto?
+    params:
+      options:
+        - label: Der Prozessor deutet die Bytes als Befehle – meist Unsinn oder ein Absturz
+          correct: true
+        - label: Er erkennt das Foto und überspringt es
+          feedback: Ein Byte sieht man nicht an, ob es Befehl oder Bild ist.
+        - label: Er zeigt das Foto an
+          feedback: Anzeigen ist eine Aufgabe für Programme, nicht für den Zähler.
+    hints:
+      - Befehle und Daten sind beides nur Zahlen.
+      - Der Prozessor holt, was an der Adresse liegt.
+    explanation: Genau das nutzen manche Angriffe aus. Moderne Systeme markieren darum Datenbereiche als »nicht ausführbar«.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In der **Von-Neumann-Architektur** liegen Programm und Daten im selben Speicher. Ein Programm ist auch nur eine Folge von Zahlen. Darum kann ein Programm, etwa ein Compiler, andere Programme schreiben.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Prozessor mit 3 GHz schafft einen Befehl pro Takt. Wie viele Befehle sind das in einer Millisekunde?
+    answer:
+      value: 3000000
+    hints:
+      - 3 GHz sind 3 Milliarden Takte pro Sekunde.
+      - Eine Millisekunde ist ein Tausendstel davon.
+    explanation: 3 Millionen Befehle in der Zeit, in der ein Blitz aufleuchtet. Moderne Kerne schaffen sogar mehrere pro Takt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Befehle und Daten teilen sich dieselbe Leitung zum Speicher. Was folgt daraus?
+    params:
+      options:
+        - label: Ein Engpass – beides muss nacheinander durch die Leitung
+          correct: true
+        - label: Doppelte Geschwindigkeit
+          feedback: Geteilt heißt eher halbiert.
+        - label: Gar nichts
+          feedback: Bei Milliarden Zugriffen pro Sekunde spürt man jeden Engpass.
+    hints:
+      - Wer darf zuerst durch die eine Tür?
+      - Rechnen geht schneller, als Daten nachkommen.
+    explanation: Das heißt Von-Neumann-Flaschenhals. Caches und getrennte Befehls- und Daten-Caches mildern ihn.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Du drückst eine Taste, während der Prozessor rechnet. Wie erfährt er davon?
+    params:
+      options:
+        - label: "Durch einen Interrupt: Er unterbricht, merkt sich den Befehlszähler und springt zur Tastatur-Routine"
+          correct: true
+        - label: Er fragt die Tastatur nach jedem Befehl
+          feedback: Das wäre enorme Verschwendung.
+        - label: Gar nicht, bis das Programm fertig ist
+          feedback: Dann reagierte der Rechner oft minutenlang nicht.
+    hints:
+      - Die Tastatur meldet sich von selbst.
+      - Danach muss der Prozessor genau dort weitermachen, wo er war.
+    explanation: Ein Interrupt ist ein Sprung, den die Hardware auslöst. Mit dem gemerkten Befehlszähler geht es danach weiter, als wäre nichts gewesen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Manche kleine Chips haben zwei getrennte Speicher für Programm und Daten. Was bringt das?
+    params:
+      options:
+        - label: Befehle und Daten können gleichzeitig geladen werden
+          correct: true
+        - label: Mehr Speicher
+          feedback: Die Gesamtgröße ändert sich nicht.
+        - label: Programme können sich selbst ändern
+          feedback: Gerade das wird schwerer.
+    hints:
+      - Zwei Leitungen statt einer.
+      - Was war der Von-Neumann-Flaschenhals?
+    explanation: "Zwei getrennte Wege beseitigen den Engpass. Moderne PCs mischen beides: ein gemeinsamer Speicher, aber getrennte Caches für Befehle und Daten."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Befehlszyklus eines Prozessors.
+    params:
+      keywords:
+        - - hol
+          - fetch
+          - laden
+          - load
+        - - decod
+          - versteh
+          - interpret
+        - - ausführ
+          - führt
+          - execut
+          - rechn
+        - - zähler
+          - counter
+          - nächst
+          - next
+      sample: Der Prozessor holt den Befehl, auf den der Befehlszähler zeigt, aus dem Speicher. Dann decodiert er ihn, also findet heraus, was zu tun ist, und führt ihn aus. Der Zähler zeigt nun auf den nächsten Befehl, und alles beginnt von vorn.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "x1"]

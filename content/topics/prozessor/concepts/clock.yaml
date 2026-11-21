@@ -1,0 +1,223 @@
+id: cs.cpu.clock
+type: concept
+title: "Takt und Tempo"
+summary: "Gigahertz, Pipelines, Caches und viele Kerne."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Zentimeter legt Licht während eines einzigen Takts eines 3-GHz-Prozessors zurück?"
+    params:
+      min: 0.1
+      max: 1000
+      scale: log
+      unit: cm
+    answer:
+      value: 10
+      within: 25
+    explanation: "300 000 km/s geteilt durch 3 Milliarden Takte: 10 cm. Signale im Chip sind noch langsamer – darum sind Chips so klein."
+
+  - kind: explain
+    id: c1
+    body: Der **Takt** ist der Herzschlag des Prozessors. Bei 3 GHz schlägt er drei Milliarden Mal pro Sekunde. Mit jedem Schlag übernehmen alle Register gleichzeitig ihre neuen Werte.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie viele Nanosekunden dauert ein Takt bei {{f}} GHz?
+    params:
+      unit: ns
+    answer:
+      value: "{{1 / f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: reciprocal
+        text: Mehr GHz heißt kürzere Takte – es ist der Kehrwert.
+    hints:
+      - 1 GHz sind $10^9$ Takte pro Sekunde, also 1 ns pro Takt.
+      - Teile 1 durch {{f}}.
+    explanation: 1 / {{f}} = {{1 / f}} ns.
+    variants:
+      params:
+        f: choice[2,4,5,10]
+      defaults:
+        f: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Kern läuft mit 3 GHz und schafft im Schnitt 2 Befehle pro Takt. Wie viele Milliarden Befehle pro Sekunde sind das?
+    answer:
+      value: 6
+    hints:
+      - Takte pro Sekunde mal Befehle pro Takt.
+      - 3 · 2.
+    explanation: "6 Milliarden pro Sekunde. Darum sagt die GHz-Zahl allein wenig: Ein Chip mit weniger Takt, aber mehr Befehlen pro Takt kann schneller sein."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum kann man den Takt nicht beliebig erhöhen?
+    params:
+      options:
+        - label: Signale brauchen Zeit durch die Gatter, und die Wärme steigt stark an
+          correct: true
+        - label: Weil Programme das nicht mitmachen
+          feedback: Programme merken vom Takt nichts.
+        - label: Weil Strom nicht schneller fließt
+          feedback: Es geht um Schaltzeiten und Wärme.
+    hints:
+      - Was muss in einem Takt fertig werden?
+      - Jedes Umschalten kostet Energie.
+    explanation: Der längste Gatterweg muss in einen Takt passen. Und die Leistung steigt mit dem Takt und der nötigen Spannung – Chips würden glühen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Eine **Pipeline** arbeitet wie ein Fließband: Während ein Befehl ausgeführt wird, wird der nächste schon decodiert und der übernächste geholt. Jeder Befehl dauert gleich lang, aber es werden viel mehr fertig."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Pipeline hat 4 Stufen zu je 1 ns. Wie viele ns braucht sie für 100 Befehle?
+    params:
+      unit: ns
+    answer:
+      value: 103
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: no-pipeline
+        text: So lange dauerte es ohne Fließband. Mit Pipeline wird jede ns ein Befehl fertig.
+      - when: numval(state.input) == 100
+        misconception: fill-time
+        text: Der erste Befehl braucht alle 4 Stufen, bevor er fertig ist.
+    hints:
+      - Der erste Befehl ist nach 4 ns fertig.
+      - Danach kommt jede ns ein weiterer heraus.
+    explanation: 4 + 99 = 103 ns statt 400 ns – fast viermal so schnell.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Bei einem bedingten Sprung weiß die Pipeline noch nicht, wie es weitergeht. Was tun moderne Prozessoren?
+    params:
+      options:
+        - label: Sie raten, wohin es geht, und verwerfen bei falschem Tipp die angefangene Arbeit
+          correct: true
+        - label: Sie warten jedes Mal ab
+          feedback: Das würde die Pipeline ständig leer laufen lassen.
+        - label: Sie führen beide Wege komplett aus
+          feedback: Das wäre bei vielen Sprüngen hintereinander unbezahlbar.
+    hints:
+      - Schleifen springen fast immer gleich.
+      - Ein guter Tipp liegt über 95 % richtig.
+    explanation: Sprungvorhersage trifft meist über 95 %. Ein Fehltipp kostet etwa 15 bis 20 Takte – darum sind sortierte Daten in Schleifen oft schneller.
+    difficulty: 2
+
+  - kind: explain
+    id: d4
+    depth: 2
+    body: "Ein Zugriff auf den Arbeitsspeicher dauert rund 100 ns – Hunderte Takte. Darum hat der Prozessor einen **Cache**: einen kleinen, schnellen Zwischenspeicher für zuletzt genutzte Daten."
+
+  - kind: problem
+    id: d5
+    depth: 2
+    widget: numeric
+    prompt: 95 % der Zugriffe treffen den Cache und dauern 1 ns, der Rest dauert 100 ns. Wie viele ns dauert ein Zugriff im Schnitt?
+    params:
+      unit: ns
+    answer:
+      value: 5.95
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 50.5) < 0.1
+        misconception: unweighted
+        text: Nicht der Mittelwert von 1 und 100 – die Treffer sind viel häufiger.
+    hints:
+      - 0,95 · 1 ns + 0,05 · 100 ns.
+      - 0,95 + 5.
+    explanation: 0,95 + 5 = 5,95 ns. Die seltenen Fehlgriffe kosten mehr als alle Treffer zusammen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Seit etwa 2005 steigen die Taktraten kaum noch. Wie werden Prozessoren trotzdem schneller?
+    params:
+      options:
+        - label: Mehr Kerne, mehr Befehle pro Takt und breitere Rechenwerke
+          correct: true
+        - label: Gar nicht mehr
+          feedback: Sie wurden deutlich schneller – nur anders.
+        - label: Durch größere Lüfter
+          feedback: Kühlung allein erlaubt keinen viel höheren Takt.
+    hints:
+      - Wenn ein Koch nicht schneller kann …
+      - … stellt man mehr Köche ein.
+    explanation: Mehr Transistoren gibt es weiter – sie fließen in Kerne, Caches und Vektor-Rechenwerke. Programme müssen dafür aber parallel arbeiten.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: 90 % eines Programms lassen sich parallelisieren. Wievielmal schneller wird es höchstens – selbst mit unendlich vielen Kernen?
+    answer:
+      value: 10
+    hints:
+      - Die übrigen 10 % laufen immer nacheinander.
+      - Bleibt nur dieser Teil übrig, dauert es 1/10 der Zeit.
+    explanation: "Höchstens 1 / 0,1 = 10-mal. Das ist das Gesetz von Amdahl: Der serielle Rest begrenzt alles."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Und mit 10 Kernen? Die Zeit ist 0,1 + 0,9 / 10 der alten. Wievielmal schneller ist das? Runde auf zwei Stellen.
+    answer:
+      value: 5.26
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-speedup
+        text: 10 Kerne bringen nicht 10-fach – der serielle Teil bremst.
+    hints:
+      - 0,1 + 0,09 = 0,19.
+      - 1 / 0,19.
+    explanation: 1 / 0,19 ≈ 5,26 – mit 10 Kernen nur gut fünfmal schneller.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Prozessor mit mehr GHz nicht immer schneller ist.
+    params:
+      keywords:
+        - - pro takt
+          - per tick
+          - befehle
+          - instructions
+        - - speicher
+          - memory
+          - cache
+          - warten
+          - wait
+        - - kerne
+          - cores
+          - parallel
+      sample: GHz zählt nur die Takte. Wichtig ist auch, wie viele Befehle pro Takt fertig werden, wie oft der Prozessor auf den Speicher warten muss – da hilft ein großer Cache – und wie viele Kerne parallel arbeiten.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x2"]

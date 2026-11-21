@@ -1,0 +1,185 @@
+id: cs.cpu.cycle
+type: concept
+title: "Fetch, decode, execute"
+summary: "The rhythm every processor works in."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: order
+    prompt: A cook works through a recipe line by line. Put the steps in the right order.
+    params:
+      items:
+        - label: Read the next line
+        - label: Understand what to do
+        - label: Do it
+        - label: Move the finger down one line
+    hints:
+      - What must happen before he can do anything?
+      - First read, then understand.
+    explanation: A processor works exactly like this – just without a break, billions of times per second.
+
+  - kind: explain
+    id: c1
+    body: "Every processor runs the **instruction cycle**: fetch an instruction from memory, decode it, execute it – and start again. This happens billions of times per second."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Put one round of the instruction cycle in the right order.
+    params:
+      items:
+        - label: Fetch the instruction at the address in the program counter
+        - label: Increase the program counter by one
+        - label: Decode the instruction
+        - label: Execute the instruction
+    hints:
+      - How does the processor know which instruction is next?
+      - The counter moves on right after fetching.
+    explanation: Because the counter has already moved on, a jump instruction can simply overwrite it while executing.
+
+  - kind: explain
+    id: c3
+    body: The **program counter** remembers the address of the next instruction. After each fetch it counts on. A jump instruction sets it to another address – that is how loops arise.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The program counter is at 10. Three normal instructions run, then »jump to 4«, then one more normal instruction. Where is the program counter now?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: stop-at-jump
+        text: One more instruction runs after the jump – the counter moves on.
+      - when: numval(state.input) == 15
+        misconception: ignore-jump
+        text: The jump sets the counter back to 4.
+    hints:
+      - 10 → 11 → 12 → 13. The jump is at 13.
+      - The jump sets 4, the instruction there counts on to 5.
+    explanation: Three instructions take the counter to 13. The jump sets it to 4, the next instruction to 5.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: What happens if the program counter accidentally points to data, such as a photo?
+    params:
+      options:
+        - label: The processor reads the bytes as instructions – usually nonsense or a crash
+          correct: true
+        - label: It recognises the photo and skips it
+          feedback: You cannot tell from a byte whether it is an instruction or a picture.
+        - label: It displays the photo
+          feedback: Displaying is a job for programs, not the counter.
+    hints:
+      - Instructions and data are both just numbers.
+      - The processor fetches whatever is at the address.
+    explanation: Some attacks exploit exactly this. Modern systems therefore mark data areas as »not executable«.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In the **von Neumann architecture** program and data live in the same memory. A program is just a sequence of numbers too. That is why a program such as a compiler can write other programs.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A 3 GHz processor completes one instruction per clock tick. How many instructions is that in one millisecond?
+    answer:
+      value: 3000000
+    hints:
+      - 3 GHz is 3 billion ticks per second.
+      - A millisecond is a thousandth of that.
+    explanation: 3 million instructions in the time a flash of light lasts. Modern cores even do several per tick.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Instructions and data share the same line to memory. What follows from that?
+    params:
+      options:
+        - label: A bottleneck – both have to pass through the line one after another
+          correct: true
+        - label: Double speed
+          feedback: Shared means halved, if anything.
+        - label: Nothing at all
+          feedback: With billions of accesses per second every bottleneck is felt.
+    hints:
+      - Who gets through the single door first?
+      - Computing is faster than the data supply.
+    explanation: This is called the von Neumann bottleneck. Caches and separate instruction and data caches soften it.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: You press a key while the processor is computing. How does it find out?
+    params:
+      options:
+        - label: "Through an interrupt: it pauses, saves the program counter and jumps to the keyboard routine"
+          correct: true
+        - label: It asks the keyboard after every instruction
+          feedback: That would be a huge waste.
+        - label: Not at all until the program finishes
+          feedback: Then the computer would often not react for minutes.
+    hints:
+      - The keyboard reports by itself.
+      - Afterwards the processor must continue exactly where it left off.
+    explanation: An interrupt is a jump triggered by hardware. With the saved program counter everything continues afterwards as if nothing had happened.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Some small chips keep program and data in two separate memories. What do they gain?
+    params:
+      options:
+        - label: Instructions and data can be loaded at the same time
+          correct: true
+        - label: More memory
+          feedback: The total size does not change.
+        - label: Programs can modify themselves
+          feedback: That actually gets harder.
+    hints:
+      - Two lines instead of one.
+      - What was the von Neumann bottleneck?
+    explanation: "Two separate paths remove the bottleneck. Modern PCs mix both: one shared memory but separate caches for instructions and data."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux a processor's instruction cycle.
+    params:
+      keywords:
+        - - hol
+          - fetch
+          - laden
+          - load
+        - - decod
+          - versteh
+          - interpret
+        - - ausführ
+          - führt
+          - execut
+          - rechn
+        - - zähler
+          - counter
+          - nächst
+          - next
+      sample: The processor fetches the instruction the program counter points to from memory. Then it decodes it, working out what to do, and executes it. The counter now points to the next instruction, and it all starts again.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "x1"]

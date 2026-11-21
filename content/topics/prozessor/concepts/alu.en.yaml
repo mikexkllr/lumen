@@ -1,0 +1,232 @@
+id: cs.cpu.alu
+type: concept
+title: "The arithmetic logic unit"
+summary: "A circuit that computes, compares and selects."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many additions can a single modern processor core do per second?"
+    params:
+      min: 1000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 10000000000
+      within: 90
+    explanation: "About $10^{10}$: roughly 3 billion clock ticks per second, and several additions side by side in each tick."
+
+  - kind: explain
+    id: c1
+    body: The **arithmetic logic unit** (ALU) receives two numbers and a command such as »add« or »AND«. Inside, all circuits compute at once. A switch picks the result that was asked for.
+
+  - kind: problem
+    id: c2
+    widget: gates
+    prompt: "A 1-bit ALU: with S = 0 it computes A AND B, with S = 1 it computes A XOR B. A is fixed at 1. Make it compute XOR and light the lamp."
+    params:
+      inputs:
+        - id: A
+          value: 1
+          fixed: true
+        - id: B
+        - id: S
+      gates:
+        - id: und
+          type: AND
+          in:
+            - A
+            - B
+        - id: xor
+          type: XOR
+          in:
+            - A
+            - B
+        - id: ns
+          type: NOT
+          in:
+            - S
+        - id: m1
+          type: AND
+          in:
+            - und
+            - ns
+        - id: m2
+          type: AND
+          in:
+            - xor
+            - S
+        - id: q
+          type: OR
+          in:
+            - m1
+            - m2
+      outputs:
+        - id: Q
+          from: q
+    check:
+      predicate: inputs.S == 1 && Q == 1
+    hints:
+      - First S = 1 so that the XOR branch gets through.
+      - 1 XOR B is 1 when B = 0.
+    explanation: S = 1 selects XOR, and 1 XOR 0 = 1. A real ALU has 64 bits instead of one and chooses among dozens of operations.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Which operation gives which result?
+    params:
+      pairs:
+        - left: 1100 AND 1010
+          right: "1000"
+        - left: 1100 OR 1010
+          right: "1110"
+        - left: 1100 XOR 1010
+          right: "0110"
+        - left: 0110 + 0011
+          right: "1001"
+    hints:
+      - AND needs two ones, OR just one.
+      - "XOR: exactly one 1."
+    explanation: "Bitwise operations work digit by digit, with no carry. Addition, by contrast, passes carries on: 6 + 3 = 9."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: An unsigned 8-bit ALU adds 200 + 100. Which number is in the 8-bit result afterwards?
+    answer:
+      value: 44
+    feedback:
+      - when: numval(state.input) == 300
+        misconception: no-overflow
+        text: 300 does not fit in 8 bits – 255 at most.
+    hints:
+      - 8 bits go up to 255. What happens to the rest?
+      - 300 − 256.
+    explanation: 300 − 256 = 44. The ninth bit lands in the carry flag – that is how the program notices the overflow.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: How does the ALU compute 9 − 4 if it only has an adder?
+    params:
+      options:
+        - label: It adds 9 and the two's complement of 4
+          correct: true
+        - label: It cannot – that needs a subtractor
+          feedback: Two's complement turns subtraction into addition.
+        - label: It counts back from 9 four times
+          feedback: That would be far too slow.
+    hints:
+      - How do you write −4 in binary?
+      - Flip the bits, add 1 – then add.
+    explanation: 9 + (−4) = 5. A NOT before each input of B and a carry-in of 1 are enough – almost for free.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Alongside the result the ALU sets **flags**: zero flag for result 0, carry flag on overflow, sign flag for a negative result. Jump instructions read these flags – that is how decisions arise."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: bits
+    prompt: A shift to the left doubles. Shift 0011 two places to the left and set the result.
+    params:
+      bits: 4
+      initial: "0011"
+      showValue: false
+    answer:
+      value: 12
+    hints:
+      - Each place to the left is times 2.
+      - 3 · 4 = 12.
+    explanation: "0011 → 0110 → 1100 = 12. The ALU builds multiplication from such shifts and additions: 3 · 5 = 3 · 4 + 3 · 1."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: How does an ALU check whether a is less than b?
+    params:
+      options:
+        - label: It computes a − b and looks at the flags
+          correct: true
+        - label: It compares the numbers as text
+          feedback: It works with bits, not text.
+        - label: It needs a separate chip
+          feedback: Subtraction is enough.
+    hints:
+      - When is a − b negative?
+      - The result itself is not even needed – only the flags.
+    explanation: A comparison is a subtraction whose result is thrown away. Zero flag means equal, sign or carry flag means less.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A signed 8-bit ALU computes 100 + 50. Which number is in the result afterwards?
+    answer:
+      value: -106
+    feedback:
+      - when: numval(state.input) == 150
+        misconception: no-overflow
+        text: With a sign, 8 bits only go up to 127.
+    hints:
+      - 150 is 10010110 in binary – the left bit counts −128.
+      - 150 − 256.
+    explanation: 150 − 256 = −106. Two positive numbers give a negative result – the overflow flag raises the alarm.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why does the ALU compute every operation at once and only then choose?
+    params:
+      options:
+        - label: Gates compute all the time anyway – selecting is faster than rewiring
+          correct: true
+        - label: To save power
+          feedback: Extra computing costs power, if anything.
+        - label: Because it does not know which command is coming
+          feedback: The command is known – it is about speed.
+    hints:
+      - Can a circuit change its wiring in a nanosecond?
+      - A selector is only a few gates deep.
+    explanation: Hardware is parallel. All sub-circuits deliver results, a multiplexer lets one through. Modern chips switch off unused parts to save power.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a processor's arithmetic logic unit does.
+    params:
+      keywords:
+        - - zwei zahlen
+          - two numbers
+          - eingabe
+          - input
+          - operand
+        - - befehl
+          - operation
+          - wählt
+          - auswahl
+          - select
+          - choose
+        - - flag
+          - ergebnis
+          - result
+      sample: The ALU gets two numbers as input and a command, such as add or AND. It computes everything in parallel and selects the matching result. It also sets flags, for zero or overflow for example.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2", "x1"]
