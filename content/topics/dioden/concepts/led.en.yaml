@@ -1,0 +1,205 @@
+id: ee.semiconductors.led
+type: concept
+title: "LEDs and the series resistor"
+summary: "Why an LED dies without a resistor and how to calculate it."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You hold a red LED straight onto a 9 V battery. What happens?
+    params:
+      options:
+        - label: It flashes brightly and soon dies
+          correct: true
+        - label: It glows nicely bright forever
+          feedback: Without a limit far too much current flows.
+        - label: Nothing, 9 V is too little
+          feedback: A red LED needs only about 2 V.
+    hints:
+      - "An LED is a diode: above its forward voltage the current rises steeply."
+      - What limits the current then?
+    explanation: Only the battery’s internal resistance holds it back. Many times the allowed 20 mA flows. An LED always needs current limiting.
+
+  - kind: explain
+    id: c1
+    body: "The **series resistor** takes up the excess voltage and so limits the current. Work out R = (U − U_F) ÷ I. U_F is the LED’s forward voltage: about 2 V for red, about 3 V for blue and white."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: An LED with U_F = {{f}} V should run on {{u}} V at 20 mA. What series resistor do you need?
+    params:
+      unit: Ω
+    answer:
+      value: "{{(u - f) / 0.02}}"
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - u / 0.02) < 0.5
+        misconception: ignore-vf
+        text: First subtract the LED’s voltage.
+    hints:
+      - The resistor gets {{u}} − {{f}} V.
+      - "{{u - f}} V ÷ 0.02 A."
+    explanation: "{{u - f}} V ÷ 0.02 A = {{(u - f) / 0.02}} Ω."
+    variants:
+      params:
+        u: choice[5,9,12]
+        f: choice[2,3]
+      defaults:
+        u: 5
+        f: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Light of wavelength λ has photon energy E ≈ 1240 ÷ λ, with λ in nm and E in eV. How many eV does red light of {{l}} nm have? To two decimal places.
+    params:
+      unit: eV
+    answer:
+      value: "{{1240 / l}}"
+      tolerance: 0.006
+    hints:
+      - E = 1240 ÷ λ.
+      - 1240 ÷ {{l}}.
+    explanation: "≈ {{round(1240 / l, 2)}} eV. That is why a red LED needs about 2 V: each electron must bring at least one photon’s worth of energy."
+    variants:
+      params:
+        l: choice[620,630,650]
+      defaults:
+        l: 620
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Sort the LEDs by forward voltage, smallest first.
+    params:
+      items:
+        - label: Infrared (remote control)
+        - label: Red
+        - label: Yellow
+        - label: Blue
+        - label: Ultraviolet
+    hints:
+      - Shorter wavelength, more energy per photon.
+      - Infrared has the longest wavelength.
+    explanation: About 1.2 V · 2 V · 2.1 V · 3 V · 3.5 V. The voltage follows the photon energy.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: For 9 V and a red LED (2 V) you calculated 350 Ω. You use the next larger standard value, 390 Ω. What current flows? In mA, to one decimal place.
+    params:
+      unit: mA
+    answer:
+      value: 17.9
+      tolerance: 0.06
+    hints:
+      - I = 7 V ÷ 390 Ω.
+      - "In mA: times 1000."
+    explanation: 7 ÷ 390 ≈ 17.9 mA – a bit less, but safer. The eye can hardly see the difference.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: How much power does the 350 Ω series resistor dissipate at 20 mA? In W, to two decimal places.
+    params:
+      unit: W
+    answer:
+      value: 0.14
+      tolerance: 0.005
+    hints:
+      - P = I² × R.
+      - 0.0004 × 350.
+    explanation: 0.14 W – a normal 0.25 W resistor is enough. The LED itself only gets 2 V × 20 mA = 0.04 W.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Three red LEDs (2 V each) are in series on 12 V and should carry 20 mA. How large is the series resistor?
+    params:
+      unit: Ω
+    answer:
+      value: 300
+    hints:
+      - Together the LEDs need 6 V.
+      - (12 − 6) V ÷ 0.02 A.
+    explanation: 6 V ÷ 20 mA = 300 Ω. In series less is wasted than with three separate resistors.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: estimate
+    prompt: An incandescent bulb gives about 12 lumens of light per watt. How many lumens per watt does a good LED bulb manage?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 150
+      within: 40
+    explanation: Good LED bulbs reach 100 to 200 lm/W, about ten times as much. The incandescent bulb mostly makes heat.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why are powerful LEDs driven by a constant-current source instead of a series resistor?
+    params:
+      options:
+        - label: The resistor wastes a lot, and the current would depend strongly on voltage and temperature
+          correct: true
+        - label: Because resistors are banned for LEDs
+          feedback: For small LEDs they are completely normal.
+        - label: Because LEDs need AC
+          feedback: LEDs need DC.
+    hints:
+      - Getting warmer, U_F falls – the current rises.
+      - A regulator holds the current fixed regardless.
+    explanation: A switching LED driver regulates the current at over 90 % efficiency. A series resistor at 12 V for a 3 V LED wastes three quarters of the power.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to calculate an LED’s series resistor.
+    params:
+      keywords:
+        - - durchlass
+          - forward
+          - u_f
+          - led-spannung
+          - led voltage
+        - - abzieh
+          - subtract
+          - minus
+          - rest
+          - übrig
+          - left
+        - - strom
+          - current
+          - 20 ma
+          - ma
+        - - teil
+          - divid
+          - ohm
+          - widerstand
+          - resistor
+      sample: "Subtract the LED’s forward voltage, about 2 V for red, from the supply. The rest must drop across the resistor. Divide this remaining voltage by the desired current, usually 20 mA. At 9 V: 7 V ÷ 0.02 A = 350 Ω."
+    explanation: "The core: R = (U − U_F) ÷ I, then pick the next larger standard value."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d3"]

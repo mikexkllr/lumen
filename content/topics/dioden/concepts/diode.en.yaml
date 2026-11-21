@@ -1,0 +1,182 @@
+id: ee.semiconductors.diode
+type: concept
+title: "The diode: a valve for current"
+summary: "The pn junction lets current flow one way only – from about 0.7 V."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: For current, a diode behaves like …
+    params:
+      options:
+        - label: a check valve in a water pipe
+          correct: true
+        - label: a tap you turn on
+          feedback: You cannot adjust a diode.
+        - label: a narrow pipe
+          feedback: A narrow pipe resists both ways.
+    hints:
+      - One way it flows, the other way it doesn’t.
+      - Which part in a pipe lets water only go forward?
+    explanation: Like a check valve the diode only opens in the forward direction – and needs a little pressure for that, about 0.7 V.
+
+  - kind: explain
+    id: c1
+    body: At the **pn junction** p-type and n-type silicon meet. Electrons wander into the holes, forming a depletion layer with no free charges. Only a forward voltage breaks it down.
+
+  - kind: explain
+    id: c2
+    body: A silicon diode conducts from about 0.7 V. This **forward voltage** always drops across it, almost regardless of the current. In reverse, practically nothing flows.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A {{u}} V source, a silicon diode (0.7 V) and {{r}} kΩ are in series. What current flows, in mA?
+    params:
+      unit: mA
+    answer:
+      value: "{{(u - 0.7) / r}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - u / r) < 0.01
+        misconception: ignore-vf
+        text: The 0.7 V across the diode is missing for the resistor.
+    hints:
+      - The resistor gets {{u}} − 0.7 V.
+      - I = {{u - 0.7}} V ÷ {{r}} kΩ.
+    explanation: "{{u - 0.7}} V ÷ {{r}} kΩ ≈ {{round((u - 0.7) / r, 2)}} mA."
+    variants:
+      params:
+        u: choice[3,5,9,12]
+        r: choice[1,2,10]
+      defaults:
+        u: 5
+        r: 1
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Does the lamp light? 9 V battery, a diode in series.
+    params:
+      cards:
+        - text: Diode with its band toward minus
+          right: true
+        - text: Diode with its band toward plus
+          right: false
+        - text: Two diodes back to back
+          right: false
+        - text: Two diodes in the same direction
+          right: true
+      left: Off
+      right: On
+    explanation: The band marks the cathode. Current flows from plus through the diode toward the band. Back to back, one always blocks.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The diode current grows about tenfold for every 60 mV more voltage. How much more voltage do you need for {{k}} times the current?
+    params:
+      unit: mV
+    answer:
+      value: "{{60 * n}}"
+    feedback:
+      - when: numval(state.input) == 60 * k
+        misconception: linear
+        text: "Not proportional: each factor of ten adds only 60 mV."
+    hints:
+      - How many factors of ten are in {{k}}?
+      - 60 mV per factor of ten.
+    explanation: "This follows from I = I_S × e^(U/U_T) with U_T ≈ 26 mV: 26 mV × ln 10 ≈ 60 mV. That is why “0.7 V” is a good rule of thumb."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1,2,3]
+      derive:
+        k: 10 ** n
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A Zener diode holds 5.1 V in reverse. It is fed from 12 V through a series resistor and should carry 10 mA. How large is the resistor?
+    params:
+      unit: Ω
+    answer:
+      value: 690
+    hints:
+      - The resistor gets 12 − 5.1 V.
+      - 6.9 V ÷ 0.01 A.
+    explanation: 6.9 V ÷ 10 mA = 690 Ω. The Zener diode uses breakdown deliberately as a voltage reference.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A silicon diode’s forward voltage falls by about 2 mV per kelvin. By how many volts does it fall when the diode gets 50 K warmer?
+    params:
+      unit: V
+    answer:
+      value: 0.1
+      tolerance: 0.001
+    hints:
+      - 50 × 2 mV.
+      - 100 mV in V.
+    explanation: 0.1 V. Many chips measure their own temperature with exactly this effect.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A Schottky diode has only 0.3 V forward voltage. Why does that matter in a 5 V, 3 A power supply?
+    params:
+      options:
+        - label: It wastes only 0.9 W instead of 2.1 W
+          correct: true
+        - label: It breaks sooner
+          feedback: Less heat rather spares it.
+        - label: Because 0.7 V is dangerous
+          feedback: It is about losses.
+    hints:
+      - Loss = U_F × I.
+      - 0.3 × 3 and 0.7 × 3.
+    explanation: "At low voltages every tenth of a volt counts: 0.7 V is 14 % of 5 V. MOSFETs as “active rectifiers” do even better."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a diode passes current in only one direction.
+    params:
+      keywords:
+        - - pn
+          - p-
+          - n-
+        - - sperrschicht
+          - depletion
+          - grenz
+          - junction
+        - - richtung
+          - direction
+          - durchlass
+          - forward
+        - - 0,7
+          - "0.7"
+          - spannung
+          - voltage
+      sample: In the diode p-type and n-type silicon meet. At the boundary a depletion layer forms with no free carriers. In the forward direction about 0.7 V pushes electrons and holes in and removes it. The other way the depletion layer just gets wider.
+    explanation: "The core: a depletion layer at the pn junction, removed in one direction only."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d2"]

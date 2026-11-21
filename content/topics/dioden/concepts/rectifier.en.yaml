@@ -1,0 +1,182 @@
+id: ee.semiconductors.rectifier
+type: concept
+title: "The rectifier"
+summary: "Four diodes turn AC into a pulsing DC voltage."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: The socket supplies AC, a battery needs DC. So what is in every charger?
+    params:
+      options:
+        - label: Diodes that let current through in one direction only
+          correct: true
+        - label: A capacitor that converts AC into DC
+          feedback: A capacitor smooths, but reverses no direction.
+        - label: A small battery
+          feedback: The charger only converts.
+    hints:
+      - Which part passes current in only one direction?
+      - The valve for current.
+    explanation: Diodes sort the half-waves. Then a capacitor smooths and a regulator holds the voltage steady.
+
+  - kind: explain
+    id: c1
+    body: A **rectifier** lets only one current direction reach the load. A single diode cuts off the negative half-waves. Four diodes as a bridge flip them upward. That way every half-wave is used.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Half-wave or bridge rectifier?
+    params:
+      buckets:
+        - id: b1
+          label: One diode (half-wave)
+        - id: b2
+          label: Four diodes (bridge)
+      items:
+        - label: Uses only every other half-wave
+          bucket: b1
+        - label: Pulses at 100 Hz
+          bucket: b2
+        - label: Pulses at 50 Hz
+          bucket: b1
+        - label: Loses 0.7 V twice
+          bucket: b2
+        - label: Needs twice the smoothing capacitor
+          bucket: b1
+    hints:
+      - In a bridge the current always passes two diodes.
+      - A bridge turns 50 Hz AC into 100 pulses per second.
+    explanation: The bridge uses both half-waves and pulses twice as fast. In return there are always two diodes in the path.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A transformer supplies 12 V RMS to a bridge rectifier. What is the peak voltage at the output? 0.7 V per diode. To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: 15.57
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 10.6) < 0.01
+        misconception: rms-as-peak
+        text: The peak is 12 × √2, not 12 V.
+      - when: abs(numval(state.input) - 16.27) < 0.01
+        misconception: one-diode
+        text: In a bridge the current passes two diodes.
+    hints:
+      - "Peak: 12 × 1.414 ≈ 16.97 V."
+      - Subtract 0.7 V twice.
+    explanation: 16.97 − 1.4 ≈ 15.57 V. A smoothing capacitor charges to about this value.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: After the bridge, {{c}} µF supply {{i}} A. The ripple is ΔU ≈ I ÷ (100 Hz × C). How large is it? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{i * 10000 / c}}"
+      tolerance: 0.006
+    hints:
+      - "C in farads: {{c / 1000000}} F."
+      - "{{i}} ÷ (100 × {{c / 1000000}})."
+    explanation: ≈ {{round(i * 10000 / c, 2)}} V. A voltage regulator after it irons out the rest.
+    difficulty: 2
+    variants:
+      params:
+        c: choice[1000,2200,4700]
+        i: choice[0.1,0.5,1]
+      defaults:
+        c: 4700
+        i: 1
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Put the stages of a classic power supply in order.
+    params:
+      items:
+        - label: "Transformer: 230 V down to 12 V"
+        - label: Bridge rectifier
+        - label: Smoothing capacitor
+        - label: Voltage regulator
+        - label: Load
+    hints:
+      - First the voltage must get smaller.
+      - You can only smooth once everything points one way.
+    explanation: Transformer, rectifier, smoothing, regulator. Power supplies were built like this until the 1990s – heavy because of the 50 Hz transformer.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Modern chargers are tiny. They rectify 230 V directly and chop it at about 100 kHz. Why does that save so much space?
+    params:
+      options:
+        - label: At high frequency a much smaller transformer handles the same power
+          correct: true
+        - label: Because DC needs no transformer
+          feedback: A transformer is still needed for isolation from mains.
+        - label: Because 100 kHz carries less energy
+          feedback: The power is the same.
+    hints:
+      - Induced voltage ∝ turns × flux × frequency.
+      - 2000 times the frequency, 2000 times less flux needed.
+    explanation: At higher frequency the core needs far less flux for the same voltage, so far less iron. Capacitors shrink too. These are switched-mode power supplies.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: In a switched-mode supply, after rectification the mains peak sits on the capacitor. How many volts is that for 230 V? To the nearest volt.
+    params:
+      unit: V
+    answer:
+      value: 325
+      tolerance: 1
+    hints:
+      - Rectified and smoothed, the peak remains.
+      - 230 × √2, minus 1.4 V for the diodes.
+    explanation: About 325 V DC, even for a while after unplugging. That is why you don’t open power supplies.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a bridge rectifier turns AC into DC.
+    params:
+      keywords:
+        - - diode
+        - - vier
+          - four
+          - brücke
+          - bruecke
+          - bridge
+        - - halbwelle
+          - half-wave
+          - half wave
+          - negativ
+          - negative
+        - - richtung
+          - direction
+          - gleich
+          - same
+      sample: Four diodes form a bridge. In the positive half-wave two of them conduct, in the negative half-wave the other two. Both times the current flows the same way through the load. The negative half-waves are flipped upward.
+    explanation: "The core: two paths through the bridge, both with the same direction in the load."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x2"]

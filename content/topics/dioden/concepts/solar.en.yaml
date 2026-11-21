@@ -1,0 +1,195 @@
+id: ee.semiconductors.solar
+type: concept
+title: "The solar cell"
+summary: "A big diode that turns light into electricity."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: How much power does the summer midday sun deliver onto one square metre? In watts.
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 1000
+      within: 30
+    explanation: About 1000 W per m². Solar modules are rated with exactly this value.
+
+  - kind: explain
+    id: c1
+    body: A **solar cell** is a large-area pn junction. Light knocks electrons out of their bonds. The field of the depletion layer separates electrons and holes, and current flows. A silicon cell delivers about 0.5 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A module has {{n}} cells in series, each at 0.5 V at its working point. What voltage does it deliver?
+    params:
+      unit: V
+    answer:
+      value: "{{n * 0.5}}"
+    hints:
+      - In series the voltages add.
+      - "{{n}} × 0.5 V."
+    explanation: "{{n * 0.5}} V. The current stays that of a single cell, about 10 A in full sun."
+    variants:
+      params:
+        n: choice[36,60,72,120]
+      defaults:
+        n: 60
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A module has {{a}} m² and an efficiency of {{e}} %. How many watts does it deliver at 1000 W/m²?
+    params:
+      unit: W
+    answer:
+      value: "{{a * 10 * e}}"
+      tolerance: 0.5
+    hints:
+      - "Incoming power: {{a}} × 1000 W."
+      - "{{e}} % of it."
+    explanation: "{{a * 1000}} W × {{e / 100}} = {{a * 10 * e}} W. The rest becomes heat."
+    variants:
+      params:
+        a: choice[1.7,2,2.6]
+        e: choice[18,20,22]
+      defaults:
+        a: 1.7
+        e: 20
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Does the module deliver more or less power?
+    params:
+      cards:
+        - text: Hot summer day instead of a cool spring day
+          right: false
+          why: Heat lowers the cell voltage.
+        - text: Sun shines straight onto the module
+          right: true
+        - text: A leaf lies on one cell
+          right: false
+          why: In series the weakest cell holds back all.
+        - text: Cold, clear winter midday
+          right: true
+          why: Cold raises the voltage, though the day is short.
+      left: Less
+      right: More
+    explanation: Solar cells like lots of light and cold. Heat costs about 0.4 % of power per kelvin.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: In Germany, 1 kW of module power yields about 950 kWh per year. How many kWh does a {{p}} kW system yield?
+    params:
+      unit: kWh
+    answer:
+      value: "{{950 * p}}"
+    hints:
+      - 950 kWh per kW.
+      - 950 × {{p}}.
+    explanation: "{{950 * p}} kWh per year. A 0.8 kW balcony system thus covers about a fifth of a household."
+    difficulty: 2
+    variants:
+      params:
+        p: choice[0.8,5,10]
+      defaults:
+        p: 10
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: One cell in a module is shaded. Why does almost the whole string’s output collapse – and what helps?
+    params:
+      options:
+        - label: In series the weakest cell sets the current; bypass diodes route around it
+          correct: true
+        - label: The shadow cools the module
+          feedback: Cooling would rather help.
+        - label: The inverter switches off
+          feedback: It keeps working but gets less current.
+    hints:
+      - In a series circuit the same current flows everywhere.
+      - A diode across a group of cells opens a detour.
+    explanation: The shaded cell gives hardly any current and holds back all the others. Bypass diodes short out the affected group. Then only a third of the module is lost.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Single-junction silicon cells can convert at most about 33 % of sunlight. Where does that limit come from?
+    params:
+      options:
+        - label: Photons below the band gap pass through, excess energy above it becomes heat
+          correct: true
+        - label: From dirt on the glass
+          feedback: The limit also applies to perfectly clean cells.
+        - label: Because silicon reflects light
+          feedback: Anti-reflective coatings almost solve that.
+    hints:
+      - Each photon can lift at most one electron across the band gap.
+      - A blue photon has far more energy than 1.12 eV.
+    explanation: This is the Shockley–Queisser limit. Tandem cells with several layers of different band gaps beat it, in the lab at over 40 %.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A cell gives 0.65 V open circuit and 10 A short circuit. The best power is at 0.53 V and 9.4 A. How many watts is that? To two decimal places.
+    params:
+      unit: W
+    answer:
+      value: 4.98
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - 6.5) < 0.01
+        misconception: voc-isc
+        text: Open-circuit voltage and short-circuit current never occur at the same time.
+    hints:
+      - P = U × I at the best point.
+      - 0.53 × 9.4.
+    explanation: "0.53 × 9.4 ≈ 4.98 W. The inverter keeps searching for this best point: MPP tracking."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a solar cell makes electricity from light.
+    params:
+      keywords:
+        - - licht
+          - light
+          - photon
+        - - elektron
+          - electron
+          - loch
+          - hole
+        - - pn
+          - sperrschicht
+          - depletion
+          - feld
+          - field
+          - diode
+        - - trenn
+          - separat
+          - strom
+          - current
+      sample: "A photon knocks an electron out of its bond, leaving a hole. At the pn junction the built-in field separates the two: electrons go to the n side, holes to the p side. Connect the sides and current flows."
+    explanation: "The core: light energy creates pairs, the depletion field separates them."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

@@ -1,0 +1,182 @@
+id: ee.semiconductors.rectifier
+type: concept
+title: "Der Gleichrichter"
+summary: "Vier Dioden machen aus Wechsel- eine pulsierende Gleichspannung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Die Steckdose liefert Wechselstrom, ein Akku braucht Gleichstrom. Was steckt deshalb in jedem Ladegerät?
+    params:
+      options:
+        - label: Dioden, die nur eine Stromrichtung durchlassen
+          correct: true
+        - label: Ein Kondensator, der Wechsel- in Gleichstrom verwandelt
+          feedback: Ein Kondensator glättet, aber dreht keine Richtung um.
+        - label: Eine kleine Batterie
+          feedback: Das Ladegerät wandelt nur um.
+    hints:
+      - Welches Bauteil lässt Strom nur in eine Richtung?
+      - Das Ventil für Strom.
+    explanation: Dioden sortieren die Halbwellen. Danach glättet ein Kondensator, und ein Regler hält die Spannung fest.
+
+  - kind: explain
+    id: c1
+    body: Ein **Gleichrichter** lässt nur eine Stromrichtung zum Verbraucher. Eine einzelne Diode schneidet die negativen Halbwellen ab. Vier Dioden als Brücke klappen sie nach oben. So wird jede Halbwelle genutzt.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Einweg- oder Brückengleichrichter?
+    params:
+      buckets:
+        - id: b1
+          label: Eine Diode (Einweg)
+        - id: b2
+          label: Vier Dioden (Brücke)
+      items:
+        - label: Nutzt nur jede zweite Halbwelle
+          bucket: b1
+        - label: Pulsiert mit 100 Hz
+          bucket: b2
+        - label: Pulsiert mit 50 Hz
+          bucket: b1
+        - label: Verliert zweimal 0,7 V
+          bucket: b2
+        - label: Braucht mehr Kapazität zum Glätten
+          bucket: b1
+    hints:
+      - Bei der Brücke fließt der Strom immer durch zwei Dioden.
+      - Aus 50 Hz Wechselstrom werden bei der Brücke 100 Pulse pro Sekunde.
+    explanation: Die Brücke nutzt beide Halbwellen und pulsiert doppelt so schnell. Dafür liegen immer zwei Dioden im Weg.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Trafo liefert 12 V Effektivwert an einen Brückengleichrichter. Wie hoch ist die Spitzenspannung am Ausgang? Je Diode 0,7 V. Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: 15.57
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 10.6) < 0.01
+        misconception: rms-as-peak
+        text: Die Spitze ist 12 · √2, nicht 12 V.
+      - when: abs(numval(state.input) - 16.27) < 0.01
+        misconception: one-diode
+        text: Bei der Brücke fließt der Strom durch zwei Dioden.
+    hints:
+      - "Scheitelwert: 12 · 1,414 ≈ 16,97 V."
+      - Davon zweimal 0,7 V ab.
+    explanation: 16,97 − 1,4 ≈ 15,57 V. Ein Glättungskondensator lädt sich auf etwa diesen Wert auf.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Hinter der Brücke liefern {{c}} µF einen Strom von {{i}} A. Die Restwelligkeit ist ΔU ≈ I : (100 Hz · C). Wie groß ist sie? Auf zwei Nachkommastellen."
+    params:
+      unit: V
+    answer:
+      value: "{{i * 10000 / c}}"
+      tolerance: 0.006
+    hints:
+      - "C in Farad: {{c / 1000000}} F."
+      - "{{i}} : (100 · {{c / 1000000}})."
+    explanation: ≈ {{round(i * 10000 / c, 2)}} V. Ein nachgeschalteter Spannungsregler bügelt den Rest glatt.
+    difficulty: 2
+    variants:
+      params:
+        c: choice[1000,2200,4700]
+        i: choice[0.1,0.5,1]
+      defaults:
+        c: 4700
+        i: 1
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Bring die Stufen eines klassischen Netzteils in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "Trafo: 230 V auf 12 V"
+        - label: Brückengleichrichter
+        - label: Glättungskondensator
+        - label: Spannungsregler
+        - label: Verbraucher
+    hints:
+      - Zuerst muss die Spannung kleiner werden.
+      - Glätten kann man erst, wenn alles in eine Richtung zeigt.
+    explanation: Trafo, Gleichrichter, Glättung, Regler. So waren Netzteile bis in die 1990er gebaut – schwer wegen des 50-Hz-Trafos.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Moderne Ladegeräte sind winzig. Sie richten die 230 V direkt gleich und zerhacken sie mit etwa 100 kHz. Warum spart das so viel Platz?
+    params:
+      options:
+        - label: Bei hoher Frequenz reicht ein viel kleinerer Trafo für dieselbe Leistung
+          correct: true
+        - label: Weil Gleichstrom keinen Trafo braucht
+          feedback: Zur Trennung vom Netz braucht es weiter einen Trafo.
+        - label: Weil 100 kHz weniger Energie haben
+          feedback: Die Leistung ist dieselbe.
+    hints:
+      - Induzierte Spannung ∝ Windungen · Fluss · Frequenz.
+      - 2000-mal höhere Frequenz, 2000-mal weniger Fluss nötig.
+    explanation: Mit höherer Frequenz braucht der Kern viel weniger Fluss für dieselbe Spannung, also viel weniger Eisen. Dazu kommen kleinere Kondensatoren. Das sind Schaltnetzteile.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Im Schaltnetzteil liegt nach dem Gleichrichten die Netzspitze am Kondensator. Wie viel Volt sind das bei 230 V? Auf ganze Volt.
+    params:
+      unit: V
+    answer:
+      value: 325
+      tolerance: 1
+    hints:
+      - Gleichgerichtet und geglättet bleibt die Spitze.
+      - 230 · √2, minus 1,4 V für die Dioden.
+    explanation: Rund 325 V Gleichspannung, auch nach dem Ausstecken noch eine Weile. Darum öffnet man Netzteile nicht.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Brückengleichrichter aus Wechselstrom Gleichstrom macht.
+    params:
+      keywords:
+        - - diode
+        - - vier
+          - four
+          - brücke
+          - bruecke
+          - bridge
+        - - halbwelle
+          - half-wave
+          - half wave
+          - negativ
+          - negative
+        - - richtung
+          - direction
+          - gleich
+          - same
+      sample: Vier Dioden bilden eine Brücke. In der positiven Halbwelle leiten zwei von ihnen, in der negativen die anderen zwei. Beide Male fließt der Strom in derselben Richtung durch den Verbraucher. Die negativen Halbwellen werden so nach oben geklappt.
+    explanation: "Kern: zwei Wege durch die Brücke, beide mit derselben Richtung im Verbraucher."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x2"]
