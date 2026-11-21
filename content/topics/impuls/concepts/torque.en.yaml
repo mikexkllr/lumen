@@ -1,0 +1,209 @@
+id: sci.momentum.torque
+type: concept
+title: "Torque and moment of inertia"
+summary: "Why it is not just the mass that matters, but where it sits."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two rods weigh the same. On one the weight sits at the ends, on the other in the middle. Which is easier to set spinning about its centre?
+    params:
+      options:
+        - label: The one with the weight in the middle.
+          correct: true
+        - label: The one with the weight at the ends.
+          feedback: Mass far out has to run round a big circle – that is harder.
+        - label: Both the same, the mass is equal.
+          feedback: In rotation it is not just mass that counts but also its distance from the axis.
+    hints:
+      - How fast does mass far out have to move?
+      - Far out the path per turn is longer.
+    explanation: Mass far out has to move much faster. Rotational inertia therefore grows with the square of the distance.
+
+  - kind: explain
+    id: c1
+    body: The **moment of inertia** J measures how hard a body is to set spinning. For point masses $J = \sum m \cdot r^2$. So mass far out counts much more than mass near the axis.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A light rod carries two balls of 1 kg each, both {{r}} m from the axis. What is the moment of inertia in kg·m²?
+    params:
+      unit: kg·m²
+    answer:
+      value: "{{2 * r * r}}"
+    feedback:
+      - when: abs(numval(state.input) - 2 * r) < 0.001
+        misconception: not-squared
+        text: The distance enters **squared**.
+    hints:
+      - "Each ball: m · r² = 1 · {{r * r}}."
+      - Add both balls.
+    explanation: J = 2 · 1 · {{r * r}} = {{2 * r * r}} kg·m². Double the distance means four times the moment of inertia.
+    variants:
+      params:
+        r: choice[0.5,2,3]
+      defaults:
+        r: 0.5
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: On the right hang 5 kg at a distance of 2 m. On the left only 4 kg are allowed. At what distance do they balance?
+    params:
+      scene: lever
+      controls:
+        m1:
+          value: 4
+          fixed: true
+        m2:
+          value: 5
+          fixed: true
+        d2:
+          value: 2
+          fixed: true
+        d1:
+          value: 1
+    answer:
+      tilt: 0
+    explanation: "Torques equal: 4 · d = 5 · 2, so d = 2.5 m. Torque is force times lever arm."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A bolt is stuck. Why does a pipe slipped over the spanner help?
+    params:
+      options:
+        - label: The longer lever turns the same force into a larger torque.
+          correct: true
+        - label: The pipe makes the spanner sturdier.
+          feedback: It is not about sturdiness but about the distance to the bolt.
+        - label: You can then grip with both hands.
+          feedback: Even one hand at the end of the pipe works – because of the lever arm.
+    hints:
+      - Torque = force · distance from the axis.
+      - What does the pipe change?
+    explanation: "Double the distance, double the torque. Careful: that also makes it easy to snap bolts."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "For rotation there is a counterpart to F = m · a: $M = J \\cdot \\alpha$. The **torque** M produces an angular acceleration α – the smaller, the larger the moment of inertia J."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A wheel with J = 2 kg·m² is driven by a torque of 10 Nm. What is its angular acceleration in 1/s²?
+    params:
+      unit: 1/s²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: multiply
+        text: "Divide, do not multiply: α = M ÷ J."
+    hints:
+      - M = J · α.
+      - α = 10 ÷ 2.
+    explanation: α = 5 per s². After 2 s it spins at 10 rad/s – just over 1.5 turns per second.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A solid cylinder and a hollow cylinder – same mass, same radius – roll down a ramp at the same time. Which reaches the bottom first?
+    params:
+      options:
+        - label: The solid cylinder.
+          correct: true
+        - label: The hollow cylinder.
+          feedback: Its mass sits on the outside. It has to put more energy into spinning.
+        - label: Both at the same time.
+          feedback: In free fall yes – but in rolling the moment of inertia counts.
+    hints:
+      - Potential energy turns into motion **and** rotation.
+      - Which needs more energy for spinning?
+    explanation: The hollow cylinder puts half its energy into spinning, the solid one only a third. So the solid one has more left for moving forward.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "When a body rolls, its energy is in two parts: $E = \\frac{1}{2} m v^2 + \\frac{1}{2} J \\omega^2$. For a solid cylinder $J = \\frac{1}{2} m r^2$ and $\\omega = v / r$. This gives $v = \\sqrt{\\frac{4}{3} g h}$ – **rolling** is slower than sliding."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A solid cylinder rolls down a 1.2 m high ramp. How fast is it at the bottom? v = √(4/3 · g · h), g = 10 m/s².
+    params:
+      unit: m/s
+    answer:
+      value: 4
+    feedback:
+      - when: abs(numval(state.input) - 4.9) < 0.1
+        misconception: no-rotation
+        text: That would be frictionless sliding. When rolling, part of the energy goes into spinning.
+    hints:
+      - 4/3 · 10 · 1.2 = 16.
+      - √16 = ?
+    explanation: v = 4 m/s instead of 4.9 m/s when sliding. A third of the energy spins the cylinder.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: A flywheel store has J = 10 kg·m² and spins at ω = 300 per second. How much energy does it store – in kJ?
+    params:
+      unit: kJ
+    answer:
+      value: 450
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: not-squared
+        text: "The angular velocity is squared: E = ½ · J · ω²."
+    hints:
+      - E = ½ · 10 · 300².
+      - 300² = 90,000.
+    explanation: E = 450,000 J = 450 kJ. Some buses and racing cars store braking energy this way in fast-spinning wheels.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a tightrope walker carries a long pole.
+    params:
+      keywords:
+        - - trägheitsmoment
+          - moment of inertia
+          - trägheit
+          - inertia
+        - - außen
+          - far out
+          - weit
+          - lang
+          - long
+          - abstand
+          - distance
+        - - langsam
+          - slow
+          - kippen
+          - tip
+          - zeit
+          - time
+          - drehung
+          - rotation
+      sample: The mass of the pole sits far out. That makes the moment of inertia large. When the walker starts to tip, he rotates only slowly – he has more time to correct.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

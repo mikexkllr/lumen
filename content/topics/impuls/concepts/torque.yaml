@@ -1,0 +1,209 @@
+id: sci.momentum.torque
+type: concept
+title: "Drehmoment und Trägheitsmoment"
+summary: "Warum es nicht nur auf die Masse ankommt, sondern darauf, wo sie sitzt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Stangen sind gleich schwer. Bei der einen sitzt das Gewicht an den Enden, bei der anderen in der Mitte. Welche lässt sich leichter um ihre Mitte in Drehung versetzen?
+    params:
+      options:
+        - label: Die mit dem Gewicht in der Mitte.
+          correct: true
+        - label: Die mit dem Gewicht an den Enden.
+          feedback: Masse weit außen muss beim Drehen einen großen Kreis laufen – das ist schwerer.
+        - label: Beide gleich, die Masse ist ja gleich.
+          feedback: Beim Drehen zählt nicht nur die Masse, sondern auch ihr Abstand zur Achse.
+    hints:
+      - Wie schnell muss sich Masse weit außen bewegen?
+      - Außen ist der Weg pro Umdrehung länger.
+    explanation: Masse weit außen muss viel schneller laufen. Drehträgheit wächst darum mit dem Quadrat des Abstands.
+
+  - kind: explain
+    id: c1
+    body: Das **Trägheitsmoment** J misst, wie schwer sich ein Körper in Drehung versetzen lässt. Für Punktmassen gilt $J = \sum m \cdot r^2$. Masse weit außen zählt also viel stärker als Masse nahe der Achse.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: An einer leichten Stange sitzen zwei Kugeln mit je 1 kg, beide {{r}} m von der Drehachse. Wie groß ist das Trägheitsmoment in kg·m²?
+    params:
+      unit: kg·m²
+    answer:
+      value: "{{2 * r * r}}"
+    feedback:
+      - when: abs(numval(state.input) - 2 * r) < 0.001
+        misconception: not-squared
+        text: Der Abstand geht im **Quadrat** ein.
+    hints:
+      - "Jede Kugel: m · r² = 1 · {{r * r}}."
+      - Zwei Kugeln addieren.
+    explanation: J = 2 · 1 · {{r * r}} = {{2 * r * r}} kg·m². Doppelter Abstand heißt vierfaches Trägheitsmoment.
+    variants:
+      params:
+        r: choice[0.5,2,3]
+      defaults:
+        r: 0.5
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Rechts hängen 5 kg im Abstand 2 m. Links sind nur 4 kg erlaubt. In welchem Abstand bringen sie das Gleichgewicht?
+    params:
+      scene: lever
+      controls:
+        m1:
+          value: 4
+          fixed: true
+        m2:
+          value: 5
+          fixed: true
+        d2:
+          value: 2
+          fixed: true
+        d1:
+          value: 1
+    answer:
+      tilt: 0
+    explanation: "Drehmomente gleich: 4 · d = 5 · 2, also d = 2,5 m. Drehmoment ist Kraft mal Hebelarm."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Eine Schraube sitzt fest. Warum hilft ein Rohr, das man über den Schraubenschlüssel schiebt?
+    params:
+      options:
+        - label: Der längere Hebel macht aus derselben Kraft ein größeres Drehmoment.
+          correct: true
+        - label: Das Rohr macht den Schlüssel stabiler.
+          feedback: Es geht nicht um Stabilität, sondern um den Abstand zur Schraube.
+        - label: Man kann dann mit beiden Händen greifen.
+          feedback: Auch mit einer Hand am Rohrende wirkt es – wegen des Hebelarms.
+    hints:
+      - Drehmoment = Kraft · Abstand zur Achse.
+      - Was ändert das Rohr?
+    explanation: "Doppelter Abstand, doppeltes Drehmoment. Vorsicht: So kann man Schrauben auch leicht abreißen."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Für Drehungen gilt ein Gegenstück zu F = m · a: $M = J \\cdot \\alpha$. Das **Drehmoment** M ruft eine Winkelbeschleunigung α hervor – umso kleiner, je größer das Trägheitsmoment J ist."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Rad mit J = 2 kg·m² wird mit einem Drehmoment von 10 Nm angetrieben. Wie groß ist seine Winkelbeschleunigung in 1/s²?
+    params:
+      unit: 1/s²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: multiply
+        text: "Teilen, nicht malnehmen: α = M : J."
+    hints:
+      - M = J · α.
+      - "α = 10 : 2."
+    explanation: α = 5 pro s². Nach 2 s dreht es sich mit 10 rad/s – gut 1,5 Umdrehungen pro Sekunde.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Vollzylinder und ein Hohlzylinder – gleiche Masse, gleicher Radius – rollen gleichzeitig eine Rampe hinab. Wer ist zuerst unten?
+    params:
+      options:
+        - label: Der Vollzylinder.
+          correct: true
+        - label: Der Hohlzylinder.
+          feedback: Seine Masse sitzt außen. Er muss mehr Energie in die Drehung stecken.
+        - label: Beide gleichzeitig.
+          feedback: Beim freien Fall ja – beim Rollen zählt das Trägheitsmoment.
+    hints:
+      - Die Lageenergie wird zu Bewegung **und** Drehung.
+      - Wer braucht mehr Energie für die Drehung?
+    explanation: Der Hohlzylinder steckt die Hälfte seiner Energie in die Drehung, der Vollzylinder nur ein Drittel. Darum bleibt dem Vollzylinder mehr fürs Vorwärtskommen.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Rollt ein Körper, steckt seine Energie in zwei Teilen: $E = \\frac{1}{2} m v^2 + \\frac{1}{2} J \\omega^2$. Beim Vollzylinder ist $J = \\frac{1}{2} m r^2$ und $\\omega = v / r$. Daraus folgt $v = \\sqrt{\\frac{4}{3} g h}$ – das **Rollen** ist langsamer als Gleiten."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Vollzylinder rollt eine 1,2 m hohe Rampe hinab. Wie schnell ist er unten? v = √(4/3 · g · h), g = 10 m/s².
+    params:
+      unit: m/s
+    answer:
+      value: 4
+    feedback:
+      - when: abs(numval(state.input) - 4.9) < 0.1
+        misconception: no-rotation
+        text: Das wäre reibungsfreies Gleiten. Beim Rollen steckt ein Teil der Energie in der Drehung.
+    hints:
+      - 4/3 · 10 · 1,2 = 16.
+      - √16 = ?
+    explanation: v = 4 m/s statt 4,9 m/s beim Gleiten. Ein Drittel der Energie dreht den Zylinder.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Schwungrad-Speicher hat J = 10 kg·m² und dreht sich mit ω = 300 pro Sekunde. Wie viel Energie speichert er – in kJ?
+    params:
+      unit: kJ
+    answer:
+      value: 450
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: not-squared
+        text: "Die Winkelgeschwindigkeit wird quadriert: E = ½ · J · ω²."
+    hints:
+      - E = ½ · 10 · 300².
+      - 300² = 90 000.
+    explanation: E = 450 000 J = 450 kJ. Manche Busse und Rennautos speichern Bremsenergie so in schnell drehenden Rädern.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Seiltänzer eine lange Stange trägt.
+    params:
+      keywords:
+        - - trägheitsmoment
+          - moment of inertia
+          - trägheit
+          - inertia
+        - - außen
+          - far out
+          - weit
+          - lang
+          - long
+          - abstand
+          - distance
+        - - langsam
+          - slow
+          - kippen
+          - tip
+          - zeit
+          - time
+          - drehung
+          - rotation
+      sample: Die Masse der Stange sitzt weit außen. Das macht das Trägheitsmoment groß. Wenn der Seiltänzer zu kippen beginnt, dreht er sich darum nur langsam – er hat mehr Zeit zum Ausgleichen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]
