@@ -1,0 +1,235 @@
+id: sci.oscillations.harmonic
+type: concept
+title: "Die Sinusschwingung"
+summary: "Amplitude, Frequenz und Phase – und warum Kreise und Federn dieselbe Kurve malen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Ball läuft gleichmäßig auf einem Kreis. Du schaust genau von der Seite. Wie bewegt sich sein Schatten an der Wand?
+    params:
+      options:
+        - label: Hin und her – in der Mitte schnell, außen langsam.
+          correct: true
+        - label: Gleichmäßig hin und her.
+          feedback: Außen kehrt der Schatten um und steht kurz fast still.
+        - label: Er steht still.
+          feedback: Von der Seite gesehen bewegt sich der Ball auf und ab.
+    hints:
+      - Wo bewegt sich der Ball fast genau auf dich zu?
+      - Dort ändert der Schatten kaum seine Lage.
+    explanation: Der Schatten macht genau dieselbe Bewegung wie eine Masse an einer Feder. Beide folgen einer Sinuskurve.
+
+  - kind: explain
+    id: c1
+    body: Eine **Sinusschwingung** ist $x(t) = A \sin(\omega t)$. A ist die Amplitude, der größte Ausschlag. ω = 2π · f ist die Kreisfrequenz. In einer Periode wächst ωt um eine volle Runde, 2π.
+
+  - kind: problem
+    id: c2
+    widget: slider
+    prompt: Stelle die Amplitude so ein, dass deine Schwingung zur gestrichelten passt.
+    params:
+      expr: a*sin(3*x)
+      x:
+        - 0
+        - 6
+      y:
+        - -3
+        - 3
+      sliders:
+        - id: a
+          label: Amplitude A
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 1
+      target:
+        expr: 2*sin(3*x)
+    answer:
+      matchTarget: true
+    hints:
+      - Vergleiche, wie hoch die Berge reichen.
+      - Die gestrichelte Kurve reicht bis 2.
+    explanation: A = 2. Die Amplitude bestimmt nur die Höhe, nicht den Takt.
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: "Jetzt der Takt: Stelle ω so ein, dass deine Schwingung zur gestrichelten passt."
+    params:
+      expr: 2*sin(w*x)
+      x:
+        - 0
+        - 6
+      y:
+        - -3
+        - 3
+      sliders:
+        - id: w
+          label: Kreisfrequenz ω
+          min: 1
+          max: 4
+          step: 0.5
+          initial: 1
+      target:
+        expr: 2*sin(2.5*x)
+    answer:
+      matchTarget: true
+    hints:
+      - Zähl die Berge im Bild.
+      - Größeres ω, dichtere Berge.
+    explanation: ω = 2,5. Doppeltes ω heißt doppelt so viele Schwingungen in derselben Zeit.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Schwingung hat die Frequenz {{f}} Hz. Wie groß ist ihre Kreisfrequenz ω = 2π · f? Auf zwei Stellen.
+    params:
+      unit: 1/s
+    answer:
+      value: "{{6.2832 * f}}"
+      tolerance: 0.02
+    feedback:
+      - when: abs(numval(state.input) - 3.1416 * f) < 0.02
+        misconception: half-turn
+        text: Eine volle Runde ist 2π, nicht π.
+    hints:
+      - 2π ≈ 6,283.
+      - 6,283 · {{f}} = ?
+    explanation: ω = 2π · {{f}} ≈ {{6.2832 * f}} pro Sekunde. Pro Schwingung läuft der Kreis-Schatten einmal ganz herum.
+    variants:
+      params:
+        f: choice[0.5,1,2,5]
+      defaults:
+        f: 2
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Immer wenn die Rückstellkraft proportional zur Auslenkung ist, $F = -D x$, entsteht eine Sinusschwingung. Solche Schwingungen heißen **harmonisch**. Ihr Takt hängt dann nicht von der Amplitude ab.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Ist diese Bewegung (fast) harmonisch?
+    params:
+      buckets:
+        - id: b1
+          label: harmonisch
+        - id: b2
+          label: nicht harmonisch
+      items:
+        - label: Federpendel
+          bucket: b1
+        - label: Fadenpendel mit kleinem Ausschlag
+          bucket: b1
+        - label: Stimmgabel
+          bucket: b1
+        - label: Hüpfender Ball
+          bucket: b2
+        - label: Pendel mit 90° Ausschlag
+          bucket: b2
+        - label: Herzschlag
+          bucket: b2
+    hints:
+      - "Harmonisch heißt: Rückstellkraft proportional zur Auslenkung."
+      - Ein hüpfender Ball spürt die ganze Zeit dieselbe Kraft – egal wo er ist.
+    explanation: Feder, kleines Pendel und Stimmgabel folgen F = −Dx. Der Ball fällt mit konstanter Kraft, das große Pendel verlässt die Näherung, der Herzschlag hat eine ganz eigene Form.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Zwei gleiche Pendel schwingen. Das zweite startet eine Viertelperiode später. Um wie viel Grad ist es phasenverschoben?
+    params:
+      unit: °
+    answer:
+      value: 90
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: percent
+        text: Eine Periode entspricht 360°, nicht 100.
+    hints:
+      - "Eine ganze Periode ist eine volle Runde: 360°."
+      - Ein Viertel davon?
+    explanation: "360° : 4 = 90°. Ist das eine Pendel ganz außen, geht das andere gerade durch die Mitte."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Newton liefert die Gleichung $m \ddot{x} = -D x$. Ihre Lösung ist $x = A\sin(\omega t + \varphi)$ mit $\omega = \sqrt{D/m}$. Zweimal abgeleitet gibt der Sinus sich selbst mit Minus zurück – darum passt er als **Lösung**.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Eine Feder mit D = 100 N/m trägt 1 kg. Wie lange dauert eine Schwingung? T = 2π : ω mit ω = √(D/m). Auf zwei Stellen."
+    params:
+      unit: s
+    answer:
+      value: 0.63
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 10) < 0.01
+        misconception: omega-vs-period
+        text: "Das ist ω. Die Periode ist 2π : ω."
+    hints:
+      - ω = √100 = 10 pro Sekunde.
+      - "T = 6,28 : 10."
+    explanation: T ≈ 0,63 s. Das Labor der vorigen Lektion rechnet genau so.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Warum tauchen harmonische Schwingungen in der Physik fast überall auf – bei Atomen, Brücken und Molekülen?
+    params:
+      options:
+        - label: Nahe jedem stabilen Gleichgewicht ist die Rückstellkraft in erster Näherung proportional zur Auslenkung.
+          correct: true
+        - label: Weil alles aus Federn besteht.
+          feedback: Es gibt keine winzigen Federn. Es ist eine mathematische Eigenschaft kleiner Auslenkungen.
+        - label: Weil Sinuskurven am schönsten sind.
+          feedback: Die Natur wählt nicht nach Schönheit. Es folgt aus der Form der Kraft nahe dem Gleichgewicht.
+    hints:
+      - Zeichne eine Energiemulde. Wie sieht ihr Boden aus der Nähe aus?
+      - Jede glatte Mulde sieht unten wie eine Parabel aus.
+    explanation: Am Boden jeder glatten Energiemulde passt eine Parabel, und eine Parabel-Energie heißt F = −Dx. Darum schwingt bei kleinen Störungen fast alles harmonisch.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Kreisbewegung mit einer schwingenden Feder zu tun hat.
+    params:
+      keywords:
+        - - kreis
+          - circle
+          - rund
+          - round
+        - - schatten
+          - shadow
+          - seite
+          - side
+          - projekt
+        - - sinus
+          - sine
+          - gleich
+          - same
+          - hin
+          - back
+      sample: Schaut man von der Seite auf einen Punkt, der gleichmäßig im Kreis läuft, bewegt sich sein Schatten hin und her. Diese Bewegung ist eine Sinuskurve – genau wie bei der Masse an der Feder.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d3", "x2"]

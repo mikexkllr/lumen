@@ -1,0 +1,201 @@
+id: sci.oscillations.damping
+type: concept
+title: "Damped oscillation"
+summary: "Friction eats oscillation energy – sometimes a nuisance, often exactly what you want."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A swing is moving, but no one pushes any more. What happens to how far it swings?
+    params:
+      options:
+        - label: It gets a little smaller with every swing.
+          correct: true
+        - label: It stays the same forever.
+          feedback: Air and friction at the hinge brake a little all the time.
+        - label: It stays the same but the rhythm slows down.
+          feedback: The rhythm stays almost the same. The swing gets smaller.
+    hints:
+      - Where does the energy of the swing go?
+      - Friction turns motion into heat.
+    explanation: Each swing loses some energy to air and bearings. The swing shrinks until it stops.
+
+  - kind: explain
+    id: c1
+    body: Friction constantly drains energy from an oscillation. With this **damping** the amplitude shrinks by the same factor in equal times – it falls exponentially. With weak damping the rhythm hardly changes.
+
+  - kind: problem
+    id: c2
+    widget: slider
+    prompt: The dashed oscillation dies away. Set the damping d so your curve matches exactly.
+    params:
+      expr: 2*exp(-d*x)*cos(4*x)
+      x:
+        - 0
+        - 6
+      y:
+        - -2.5
+        - 2.5
+      sliders:
+        - id: d
+          label: Damping d
+          min: 0
+          max: 1
+          step: 0.1
+          initial: 0
+      target:
+        expr: 2*exp(-0.5*x)*cos(4*x)
+    answer:
+      matchTarget: true
+    hints:
+      - Without damping all crests stay equally high.
+      - How fast does the dashed envelope shrink?
+    explanation: d = 0.5. The larger d, the faster the envelope 2 · e to the (−d · t) shrinks.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The swing halves with every oscillation. At the start it is 16 cm. How large is it after 3 oscillations?
+    params:
+      unit: cm
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-decay
+        text: That would be a fixed amount less per swing. Here it is a fixed **factor**.
+    hints:
+      - 16 → 8 → …
+      - Halve three times.
+    explanation: 16 → 8 → 4 → 2 cm. The same factor per time – that is exponential decay.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A car has springs. Why does it also need shock absorbers?
+    params:
+      options:
+        - label: So it does not keep bouncing for a long time after a pothole.
+          correct: true
+        - label: So it springs more softly.
+          feedback: The springs set the softness. Dampers stop the bouncing.
+        - label: So the springs do not rust.
+          feedback: Dampers have nothing to do with rust. They turn oscillation into heat.
+    hints:
+      - What does a spring do with no brake at all?
+      - Dampers push oil through narrow channels.
+    explanation: Without dampers the car would bob for a long time after every bump and the tyres would lose grip. The damper turns the oscillation energy into heat in the oil.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: With very strong damping nothing oscillates any more – the system creeps back slowly. It comes to rest fastest without overshooting exactly in between, in the **critically damped** case.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Does it ring on for a long time – or settle without oscillating?
+    params:
+      buckets:
+        - id: b1
+          label: rings on
+        - id: b2
+          label: settles without ringing
+      items:
+        - label: Bell
+          bucket: b1
+        - label: Guitar string
+          bucket: b1
+        - label: Tuning fork
+          bucket: b1
+        - label: Door closer
+          bucket: b2
+        - label: Needle of a good scale
+          bucket: b2
+        - label: Pendulum in honey
+          bucket: b2
+    hints:
+      - With instruments the sound should last.
+      - Doors and instruments should settle quickly.
+    explanation: "Instruments are lightly damped so they ring. Door closers and scales are built near critical damping: quickly at rest, no wobbling. Honey even overdamps."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The amplitude of an oscillation halves. To what fraction does its energy fall?
+    answer:
+      value: 1/4
+    feedback:
+      - when: abs(numval(state.input) - 0.5) < 0.01
+        misconception: linear-energy
+        text: "Energy grows with the **square** of the amplitude: E = ½ k A²."
+    hints:
+      - E = ½ · k · A².
+      - (½)² = ?
+    explanation: A quarter. That is why a note with half the amplitude already sounds clearly quieter – a quarter of the energy is about 6 dB less.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The **quality factor** Q tells how well an oscillation keeps its energy: Q = 2π · stored energy ÷ loss per cycle. A tuning fork has a Q of thousands, a car damper about 1."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A tuning fork loses 0.1 % of its energy per oscillation. What is its quality factor Q = 2π ÷ 0.001? To whole numbers.
+    answer:
+      value: 6283
+      tolerance: 5
+    hints:
+      - 2π ≈ 6.283.
+      - Dividing by 0.001 means times 1000.
+    explanation: Q ≈ 6283. At 440 Hz it rings for several seconds. Quartz crystals in watches reach quality factors over 10,000 – that is why they are so precise.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: The amplitude falls as e to the (−δ · t) with δ = 0.5 per second. After how many seconds is it halved? t = ln 2 ÷ δ. To two decimals.
+    params:
+      unit: s
+    answer:
+      value: 1.39
+      tolerance: 0.02
+    hints:
+      - ln 2 ≈ 0.693.
+      - 0.693 ÷ 0.5 = ?
+    explanation: t ≈ 1.39 s – a half-life just as in radioactive decay. Exponential decay looks the same everywhere.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: choice
+    prompt: Why does a bell ring on for a long time, while a wooden board of the same shape only briefly?
+    params:
+      options:
+        - label: Metal has little internal friction – the bell has a high quality factor.
+          correct: true
+        - label: Wood does not oscillate at all.
+          feedback: Wood does oscillate – violins are made of wood. But it damps more strongly.
+        - label: The bell is louder, so you hear it longer.
+          feedback: Even a quiet bell rings long. It is about the loss per cycle.
+    hints:
+      - Where does the energy go in each cycle?
+      - Wood fibres rub against each other and make heat.
+    explanation: In wood, fibres rub together and swallow the energy within a few cycles. Bronze loses only a tiny fraction per cycle. Instrument makers choose wood for a warm, short sound.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3", "x3"]

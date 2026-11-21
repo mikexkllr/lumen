@@ -1,0 +1,207 @@
+id: sci.oscillations.spring
+type: concept
+title: "Die Feder schwingt"
+summary: "Hookes Gesetz und das Federpendel: Masse und Härte bestimmen den Takt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Ein Auto fährt durch ein Schlagloch und federt nach. Wie oft pro Sekunde schwingt die Karosserie dabei auf und ab?"
+    params:
+      min: 0.1
+      max: 10
+    answer:
+      value: 1.2
+      tolerance: 0.6
+    explanation: Etwa 1 bis 1,5 Mal pro Sekunde. Ingenieure stimmen die Federn so ab – ungefähr der Takt beim Gehen. Das empfinden wir als angenehm.
+
+  - kind: explain
+    id: c1
+    body: "Eine Feder zieht umso stärker zurück, je weiter du sie dehnst. Das **Hookesche Gesetz** sagt: F = D · x. D ist die Federhärte in N/m, x die Dehnung."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Feder mit D = {{d}} N/m wird um {{x}} cm gedehnt. Mit welcher Kraft zieht sie zurück – in N?
+    params:
+      unit: N
+    answer:
+      value: "{{d * x / 100}}"
+    feedback:
+      - when: abs(numval(state.input) - d * x) < 0.01
+        misconception: cm-vs-m
+        text: "Die Dehnung muss in Metern stehen: {{x}} cm = {{x / 100}} m."
+    hints:
+      - F = D · x, mit x in Metern.
+      - "{{d}} · {{x / 100}} = ?"
+    explanation: "{{d}} N/m · {{x / 100}} m = {{d * x / 100}} N. Doppelte Dehnung, doppelte Kraft – solange die Feder nicht überdehnt wird."
+    variants:
+      params:
+        d: choice[20,50,100,200]
+        x: choice[2,5,10]
+      defaults:
+        d: 50
+        x: 10
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: An der Feder hängt 1 kg. Stell die Federhärte so ein, dass eine Schwingung genau 1 Sekunde dauert.
+    params:
+      scene: spring
+      controls:
+        mass:
+          value: 1
+          fixed: true
+    answer:
+      period:
+        - 0.98
+        - 1.02
+    explanation: Bei etwa 39 bis 40 N/m. Härtere Federn schwingen schneller, weichere langsamer.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Du hängst an dieselbe Feder die doppelte Masse. Was passiert mit der Dauer einer Schwingung?
+    params:
+      options:
+        - label: Sie wird etwa 1,4-mal so lang.
+          correct: true
+        - label: Sie verdoppelt sich.
+          feedback: Die Masse steht unter einer Wurzel. Doppelte Masse heißt √2-fache Periode.
+        - label: Sie bleibt gleich.
+          feedback: Beim Fadenpendel wäre das so. Hier bremst die träge Masse die Feder.
+    hints:
+      - Probier es im Labor mit 1 kg und 2 kg.
+      - T wächst mit der Wurzel aus der Masse.
+    explanation: √2 ≈ 1,41. Mehr Masse ist träger und kehrt langsamer um – aber nicht im gleichen Maß.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ein Federpendel braucht 0,5 s für eine Schwingung. Wie viele Schwingungen macht es pro Sekunde?
+    params:
+      unit: Hz
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: period-vs-frequency
+        text: Das ist die Periode. Die Frequenz ist ihr Kehrwert.
+    hints:
+      - "Frequenz = 1 : Periode."
+      - "1 : 0,5 = ?"
+    explanation: "1 : 0,5 s = 2 Hz. Periode und Frequenz sind zwei Seiten derselben Sache."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Für das Federpendel gilt $T = 2\pi\sqrt{m / D}$. Mehr Masse macht es langsamer, eine härtere Feder schneller. Die **Periode** hängt nicht davon ab, wie weit es ausschlägt.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Die Federhärte ist fest bei 40 N/m. Finde die Masse, mit der eine Schwingung 2 Sekunden dauert.
+    params:
+      scene: spring
+      controls:
+        stiffness:
+          value: 40
+          fixed: true
+        mass:
+          value: 1
+    answer:
+      period:
+        - 1.97
+        - 2.03
+    explanation: "m = D · (T : 2π)² ≈ 40 · 0,101 ≈ 4 kg. Doppelte Periode braucht die vierfache Masse."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Ein Gewicht dehnt eine Feder im Ruhezustand um 25 cm. Wie lange dauert eine Schwingung? Es gilt D = m · g : x, also T = 2π · √(x : g). g = 10 m/s². Auf zwei Stellen."
+    params:
+      unit: s
+    answer:
+      value: 0.99
+      tolerance: 0.02
+    hints:
+      - "x : g = 0,25 : 10 = 0,025."
+      - √0,025 ≈ 0,158. Mal 2π.
+    explanation: T ≈ 0,99 s – ganz ohne Masse oder Federhärte zu kennen. Je weiter ein Gewicht die Feder dehnt, desto langsamer schwingt es.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "In der gedehnten Feder steckt die Energie $E = \\frac{1}{2} D A^2$. Beim Schwingen wandert sie hin und her: Außen ist alles **Spannenergie**, in der Mitte alles Bewegungsenergie."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: sim
+    prompt: Die Auslenkung ist fest bei 10 cm. Stell die Feder so ein, dass in der Schwingung genau 0,2 J Energie stecken.
+    params:
+      scene: spring
+    answer:
+      energy: 0.2
+    explanation: E = ½ · D · 0,1² = 0,005 · D. Für 0,2 J braucht es D = 40 N/m. Die Masse spielt für die Energie keine Rolle.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: "Ein Federpendel schwingt 10 cm weit aus und braucht 1 s pro Schwingung. Wie schnell ist es in der Mitte? Es gilt v = A · 2π : T. In m/s, auf zwei Stellen."
+    params:
+      unit: m/s
+    answer:
+      value: 0.63
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.4) < 0.01
+        misconception: average-speed
+        text: Das wäre der Durchschnitt auf dem Weg. In der Mitte ist es am schnellsten.
+    hints:
+      - A = 0,1 m.
+      - "0,1 · 6,28 : 1 = ?"
+    explanation: v = 0,1 · 2π ≈ 0,63 m/s. Wie beim Schatten eines Punkts, der mit Radius A im Kreis läuft.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum beim Federpendel die Masse zählt, beim Fadenpendel aber nicht.
+    params:
+      keywords:
+        - - feder
+          - spring
+          - kraft
+          - force
+          - fest
+          - fixed
+        - - schwer
+          - gravity
+          - schwerkraft
+          - weight
+          - gewicht
+        - - träg
+          - inertia
+          - masse
+          - mass
+          - kürzt
+          - cancel
+      sample: Beim Fadenpendel zieht die Schwerkraft, und sie wächst mit der Masse. Die größere Trägheit wird genau ausgeglichen, die Masse kürzt sich. Bei der Feder ist die Kraft fest, mehr Masse ist nur träger – also schwingt sie langsamer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

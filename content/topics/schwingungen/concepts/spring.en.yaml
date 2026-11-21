@@ -1,0 +1,207 @@
+id: sci.oscillations.spring
+type: concept
+title: "The bouncing spring"
+summary: "Hooke's law and the mass on a spring: mass and stiffness set the beat."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a car hits a pothole and bounces. How many times per second does the body bob up and down?"
+    params:
+      min: 0.1
+      max: 10
+    answer:
+      value: 1.2
+      tolerance: 0.6
+    explanation: About 1 to 1.5 times per second. Engineers tune the springs to that – roughly the rhythm of walking. We find it comfortable.
+
+  - kind: explain
+    id: c1
+    body: "A spring pulls back harder the farther you stretch it. **Hooke's law** says: F = k · x. k is the spring constant in N/m, x the stretch."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A spring with k = {{d}} N/m is stretched by {{x}} cm. With what force does it pull back – in N?
+    params:
+      unit: N
+    answer:
+      value: "{{d * x / 100}}"
+    feedback:
+      - when: abs(numval(state.input) - d * x) < 0.01
+        misconception: cm-vs-m
+        text: "The stretch must be in metres: {{x}} cm = {{x / 100}} m."
+    hints:
+      - F = k · x, with x in metres.
+      - "{{d}} · {{x / 100}} = ?"
+    explanation: "{{d}} N/m · {{x / 100}} m = {{d * x / 100}} N. Double the stretch, double the force – as long as the spring is not overstretched."
+    variants:
+      params:
+        d: choice[20,50,100,200]
+        x: choice[2,5,10]
+      defaults:
+        d: 50
+        x: 10
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: 1 kg hangs on the spring. Set the spring constant so that one oscillation takes exactly 1 second.
+    params:
+      scene: spring
+      controls:
+        mass:
+          value: 1
+          fixed: true
+    answer:
+      period:
+        - 0.98
+        - 1.02
+    explanation: At about 39 to 40 N/m. Stiffer springs oscillate faster, softer ones slower.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You hang twice the mass on the same spring. What happens to the time of one oscillation?
+    params:
+      options:
+        - label: It gets about 1.4 times as long.
+          correct: true
+        - label: It doubles.
+          feedback: The mass is under a square root. Double the mass means √2 times the period.
+        - label: It stays the same.
+          feedback: That would be true for a string pendulum. Here the inert mass slows the spring.
+    hints:
+      - Try it in the lab with 1 kg and 2 kg.
+      - T grows with the square root of the mass.
+    explanation: √2 ≈ 1.41. More mass is more sluggish and turns round more slowly – but not in proportion.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A mass on a spring takes 0.5 s per oscillation. How many oscillations does it make per second?
+    params:
+      unit: Hz
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: period-vs-frequency
+        text: That is the period. The frequency is its reciprocal.
+    hints:
+      - Frequency = 1 ÷ period.
+      - 1 ÷ 0.5 = ?
+    explanation: 1 ÷ 0.5 s = 2 Hz. Period and frequency are two sides of the same thing.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: For a mass on a spring $T = 2\pi\sqrt{m / k}$. More mass makes it slower, a stiffer spring faster. The **period** does not depend on how far it swings.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: The spring constant is fixed at 40 N/m. Find the mass for which one oscillation takes 2 seconds.
+    params:
+      scene: spring
+      controls:
+        stiffness:
+          value: 40
+          fixed: true
+        mass:
+          value: 1
+    answer:
+      period:
+        - 1.97
+        - 2.03
+    explanation: m = k · (T ÷ 2π)² ≈ 40 · 0.101 ≈ 4 kg. Double the period needs four times the mass.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A weight stretches a spring by 25 cm at rest. How long does one oscillation take? We have k = m · g ÷ x, so T = 2π · √(x ÷ g). g = 10 m/s². To two decimals.
+    params:
+      unit: s
+    answer:
+      value: 0.99
+      tolerance: 0.02
+    hints:
+      - x ÷ g = 0.25 ÷ 10 = 0.025.
+      - √0.025 ≈ 0.158. Times 2π.
+    explanation: T ≈ 0.99 s – without knowing the mass or the spring constant. The farther a weight stretches the spring, the slower it oscillates.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The stretched spring stores the energy $E = \\frac{1}{2} k A^2$. During oscillation it moves back and forth: at the ends it is all **elastic energy**, in the middle all kinetic energy."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: sim
+    prompt: The amplitude is fixed at 10 cm. Set the spring so that the oscillation holds exactly 0.2 J.
+    params:
+      scene: spring
+    answer:
+      energy: 0.2
+    explanation: E = ½ · k · 0.1² = 0.005 · k. For 0.2 J you need k = 40 N/m. The mass does not matter for the energy.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: A mass on a spring swings 10 cm out and takes 1 s per oscillation. How fast is it in the middle? We have v = A · 2π ÷ T. In m/s, to two decimals.
+    params:
+      unit: m/s
+    answer:
+      value: 0.63
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.4) < 0.01
+        misconception: average-speed
+        text: That would be the average along the way. In the middle it is fastest.
+    hints:
+      - A = 0.1 m.
+      - 0.1 · 6.28 ÷ 1 = ?
+    explanation: v = 0.1 · 2π ≈ 0.63 m/s. Like the shadow of a point going round a circle of radius A.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why mass matters for a spring but not for a string pendulum.
+    params:
+      keywords:
+        - - feder
+          - spring
+          - kraft
+          - force
+          - fest
+          - fixed
+        - - schwer
+          - gravity
+          - schwerkraft
+          - weight
+          - gewicht
+        - - träg
+          - inertia
+          - masse
+          - mass
+          - kürzt
+          - cancel
+      sample: In a string pendulum gravity pulls, and it grows with the mass. The larger inertia is exactly balanced, so mass cancels. With a spring the force is fixed; more mass is just more inertia – so it oscillates more slowly.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]
