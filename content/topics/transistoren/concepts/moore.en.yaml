@@ -1,0 +1,170 @@
+id: ee.transistors.moore
+type: concept
+title: "Billions on one chip"
+summary: "Moore’s law, tiny structures, and why clock speeds stopped rising."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: How many transistors are in the main chip of a current smartphone?
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 20000000000
+      within: 50
+    explanation: About 20 billion. The first microprocessor, Intel’s 4004 from 1971, had 2300.
+
+  - kind: explain
+    id: c1
+    body: "**Moore’s law** is an observation by Gordon Moore: the number of transistors per chip doubles about every two years. It held for a remarkably long time, around five decades."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: By what factor does the transistor count grow in {{y}} years if it doubles every 2 years?
+    answer:
+      value: "{{2 ** (y / 2)}}"
+    feedback:
+      - when: numval(state.input) == y
+        misconception: linear
+        text: "Not linear: each doubling multiplies."
+    hints:
+      - "{{y}} years are {{y / 2}} doublings."
+      - 2 to the power {{y / 2}}.
+    explanation: "2^{{y / 2}} = {{2 ** (y / 2)}}. Exponential growth: a thousandfold after 20 years."
+    variants:
+      params:
+        y: choice[10,20,30]
+      defaults:
+        y: 20
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Starting from 2300 transistors in 1971: how many billion would there be after 50 years, doubling every 2 years? To the nearest billion."
+    params:
+      unit: billion
+    answer:
+      value: 77
+      tolerance: 0.6
+    hints:
+      - "50 years are 25 doublings: 2²⁵ ≈ 33.5 million."
+      - 2300 × 33,554,432.
+    explanation: About 77 billion. Today’s largest chips really are in this range.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Put the chips in time order, oldest first.
+    params:
+      items:
+        - label: Intel 4004 (2300 transistors)
+        - label: Intel 8086 (29,000)
+        - label: Pentium (3.1 million)
+        - label: Chip in the first iPhone
+        - label: Today’s phone chip (20 billion)
+    hints:
+      - More transistors usually means newer.
+      - The first iPhone came out in 2007.
+    explanation: 1971, 1978, 1993, 2007, today. Every generation brought many times more transistors.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: A chip is made in a “3 nm process”. What does that mean?
+    params:
+      options:
+        - label: It is a name for a technology generation, not a measured size
+          correct: true
+        - label: Each transistor is 3 nm wide
+          feedback: The real pitches are much larger, around 20 to 50 nm.
+        - label: The wires are 3 nm long
+          feedback: Wires are much longer.
+    hints:
+      - In the past the number matched the gate length.
+      - Today it is a marketing name.
+    explanation: The number kept counting down over the years, even as structures shrank differently. A silicon atom is only about 0.2 nm from its neighbour.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Around 2005 clock speeds stalled at a few GHz although transistors kept shrinking. Why?
+    params:
+      options:
+        - label: The voltage could not be lowered further, and heat per area grew too large
+          correct: true
+        - label: Because higher clocks are banned
+          feedback: It is a physics problem.
+        - label: Because nobody needed faster chips
+          feedback: Demand kept rising.
+    hints:
+      - P = α × C × U² × f.
+      - Before, U shrank with each generation, compensating for higher f.
+    explanation: "The end of this Dennard scaling led to multicore processors: more cores instead of higher clocks."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Light travels about 30 cm in 1 ns. How many centimetres does it cover in one clock cycle at 3 GHz?
+    params:
+      unit: cm
+    answer:
+      value: 10
+      tolerance: 0.1
+    hints:
+      - One cycle lasts 1 ÷ 3 GHz ≈ 0.33 ns.
+      - 30 cm × 0.33.
+    explanation: 10 cm. Signals on a chip are considerably slower still. So chip size limits how far a signal gets per cycle.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: estimate
+    prompt: A channel is 20 nm long. Silicon atoms sit about 0.235 nm apart. How many atomic spacings is that?
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 85
+      within: 15
+    explanation: 20 ÷ 0.235 ≈ 85. With so few atoms every single dopant counts, and electrons tunnel through thin layers.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why chips keep getting more transistors but hardly faster clocks.
+    params:
+      keywords:
+        - - transistor
+        - - wärme
+          - waerme
+          - heat
+          - leistung
+          - power
+        - - spannung
+          - voltage
+        - - kern
+          - core
+          - parallel
+      sample: Smaller transistors pack more densely, so their number keeps doubling. In the past the voltage also fell, allowing higher clocks. Today the voltage can hardly be lowered. A higher clock would bring too much heat. So the transistors go into more cores working in parallel.
+    explanation: "The core: heat limits the clock. More transistors go into parallelism and special units."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "x1"]

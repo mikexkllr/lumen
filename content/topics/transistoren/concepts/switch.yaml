@@ -1,0 +1,199 @@
+id: ee.transistors.switch
+type: concept
+title: "Der Transistor als Schalter"
+summary: "Ein kleiner Strom schaltet einen großen – ganz ohne Mechanik."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Mikrocontroller-Pin liefert höchstens 20 mA. Ein Motor braucht 1 A. Wie schaltest du ihn trotzdem mit dem Chip?
+    params:
+      options:
+        - label: Mit einem Transistor, der den großen Strom steuert
+          correct: true
+        - label: Mehrere Pins parallel
+          feedback: Selbst 10 Pins schaffen kein Ampere und sind schnell überlastet.
+        - label: Einen größeren Widerstand davor
+          feedback: Ein Widerstand senkt den Strom noch weiter.
+    hints:
+      - Gesucht ist ein elektrisch gesteuerter Schalter.
+      - Ein Relais ginge auch, aber es gibt ein Bauteil ohne Mechanik.
+    explanation: Der Chip steuert nur den kleinen Basisstrom, der Transistor schaltet den großen Motorstrom.
+
+  - kind: explain
+    id: c1
+    body: Ein **Transistor** hat drei Anschlüsse. Beim bipolaren Transistor heißen sie Basis, Kollektor und Emitter. Ein kleiner Basisstrom öffnet den Weg vom Kollektor zum Emitter für einen viel größeren Strom.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Transistor verstärkt den Strom um β = {{b}}. Wie groß ist der Kollektorstrom bei {{i}} mA Basisstrom, in mA?
+    params:
+      unit: mA
+    answer:
+      value: "{{b * i}}"
+    hints:
+      - I_C = β · I_B.
+      - "{{b}} · {{i}} mA."
+    explanation: "{{b}} · {{i}} = {{b * i}} mA. Das gilt, solange der Lastkreis so viel Strom überhaupt zulässt."
+    variants:
+      params:
+        b: choice[50,100,200]
+        i: choice[0.1,0.5,1,2]
+      defaults:
+        b: 100
+        i: 1
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein 5-V-Pin soll 2 mA in die Basis schicken. Die Basis-Emitter-Strecke ist eine Diode mit 0,7 V. Welcher Basiswiderstand passt?
+    params:
+      unit: Ω
+    answer:
+      value: 2150
+    feedback:
+      - when: numval(state.input) == 2500
+        misconception: ignore-vbe
+        text: Die 0,7 V an der Basis fehlen dem Widerstand.
+    hints:
+      - Am Widerstand liegen 5 − 0,7 V.
+      - "4,3 V : 0,002 A."
+    explanation: "4,3 V : 2 mA = 2150 Ω. Man nimmt den Normwert 2,2 kΩ."
+
+  - kind: problem
+    id: c4
+    widget: gates
+    prompt: Zwei Transistoren in Reihe schalten eine Lampe. Jeder leitet nur, wenn sein Eingang an ist. Welche Logik ergibt das?
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: g
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: Q
+          from: g
+          label: Lampe
+    check:
+      predicate: table('Q') == [0, 0, 0, 1]
+    hints:
+      - Der Strom muss durch beide Transistoren.
+      - Nur wenn A und B an sind.
+    explanation: "In Reihe: UND. Parallel wären sie ODER. Aus solchen Schaltern sind alle Logikgatter gebaut."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Transistor schaltet 1 A. Ganz durchgeschaltet liegen nur 0,2 V an ihm. Halb offen sind es 6 V bei 0,5 A. Um welchen Faktor heizt er halb offen mehr?
+    answer:
+      value: 15
+    hints:
+      - P = U · I in beiden Fällen.
+      - 0,2 W gegen 3 W.
+    explanation: "3 W : 0,2 W = 15. Darum schalten Transistoren in der Leistungselektronik nur ganz an oder ganz aus – nie halb."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Transistor schaltet ein Relais. Beim Abschalten geht der Transistor kaputt. Was fehlt?
+    params:
+      options:
+        - label: Eine Freilaufdiode über der Relaisspule
+          correct: true
+        - label: Ein größerer Basiswiderstand
+          feedback: Der Basisstrom ist nicht das Problem.
+        - label: Eine zweite Batterie
+          feedback: Das Problem ist die Induktionsspitze.
+    hints:
+      - Was macht eine Spule, wenn ihr Strom abreißt?
+      - Die Spannungsspitze erreicht hunderte Volt.
+    explanation: Die Selbstinduktion der Spule erzeugt eine hohe Spitze. Die Diode lässt den Strom gefahrlos ausklingen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Motor braucht 500 mA. Der Transistor hat β = 100. Wie viel Basisstrom braucht er mindestens, in mA?
+    params:
+      unit: mA
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 50000
+        misconception: multiply
+        text: "Teilen, nicht multiplizieren: I_B = I_C : β."
+    hints:
+      - "I_B = I_C : β."
+      - "500 mA : 100."
+    explanation: 5 mA. Für sicheres Durchschalten gibt man meist das Zwei- bis Dreifache, denn β streut stark.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum sind npn-Transistoren meist schneller als gleich große pnp-Transistoren?
+    params:
+      options:
+        - label: Im npn leiten vor allem Elektronen, und die sind in Silizium etwa dreimal beweglicher als Löcher
+          correct: true
+        - label: Weil npn mehr Silizium enthält
+          feedback: Bei gleicher Größe ist es gleich viel.
+        - label: Weil n vor p im Alphabet steht
+          feedback: Es liegt an den Ladungsträgern.
+    hints:
+      - Welche Ladungsträger fließen durch die Basis eines npn?
+      - Löcher sind Lücken, in die Elektronen nachrücken müssen.
+    explanation: "Die Beweglichkeit von Elektronen in Silizium ist rund 1400, die von Löchern rund 450 cm²/(V·s). Das betrifft auch MOSFETs: pMOS werden breiter gebaut."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Transistor als Schalter funktioniert.
+    params:
+      keywords:
+        - - basis
+          - base
+          - gate
+          - steuer
+          - control
+        - - klein
+          - small
+        - - groß
+          - gross
+          - large
+          - big
+          - last
+          - load
+        - - an
+          - on
+          - aus
+          - off
+          - schalt
+          - switch
+      sample: Ein kleiner Steuerstrom in die Basis öffnet den Weg vom Kollektor zum Emitter. Dann fließt dort ein viel größerer Laststrom, zum Beispiel für einen Motor. Ohne Basisstrom sperrt der Transistor. So schaltet ein Chip große Lasten an und aus.
+    explanation: "Kern: kleiner Steuerstrom, großer Laststrom, ganz an oder ganz aus."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

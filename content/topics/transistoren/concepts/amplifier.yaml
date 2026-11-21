@@ -1,0 +1,205 @@
+id: ee.transistors.amplifier
+type: concept
+title: "Der Transistor als Verstärker"
+summary: "Halb offen gehalten macht er aus kleinen Schwankungen große."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Mikrofon liefert etwa 10 mV. Ein Lautsprecher braucht etwa 10 V. Um welchen Faktor muss die Spannung verstärkt werden?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 1000
+      within: 20
+    explanation: "10 V : 0,01 V = 1000. Dafür braucht es meist mehrere Verstärkerstufen hintereinander."
+
+  - kind: explain
+    id: c1
+    body: Als **Verstärker** hält man den Transistor halb offen. Kleine Änderungen an der Basis ändern den Kollektorstrom stark. Am Kollektorwiderstand wird daraus eine große Spannungsänderung.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Verstärker macht aus {{e}} mV am Eingang {{a}} V am Ausgang. Wie groß ist die Verstärkung?
+    answer:
+      value: "{{a * 1000 / e}}"
+    feedback:
+      - when: abs(numval(state.input) - a / e) < 0.001
+        misconception: units
+        text: "Erst in dieselbe Einheit umrechnen: {{a}} V = {{a * 1000}} mV."
+    hints:
+      - "Verstärkung = Ausgang : Eingang."
+      - "{{a * 1000}} mV : {{e}} mV."
+    explanation: "{{a * 1000}} : {{e}} = {{a * 1000 / e}}. Die Verstärkung hat keine Einheit."
+    variants:
+      params:
+        e: choice[5,10,20,50]
+        a: choice[1,2,5]
+      defaults:
+        e: 10
+        a: 2
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum stellt man den Verstärker so ein, dass der Transistor ohne Signal halb offen ist?
+    params:
+      options:
+        - label: Damit das Signal nach oben und nach unten Platz hat
+          correct: true
+        - label: Damit er weniger Strom braucht
+          feedback: Halb offen braucht er sogar mehr Ruhestrom.
+        - label: Weil er sonst nicht leitet
+          feedback: Er soll gerade in beide Richtungen reagieren.
+    hints:
+      - Ein Tonsignal schwingt positiv und negativ.
+      - Ganz zu oder ganz offen könnte er nur in eine Richtung reagieren.
+    explanation: "Diese Ruhelage heißt Arbeitspunkt. Liegt er falsch, werden die Spitzen abgeschnitten: Das Signal klingt verzerrt."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Zwei Verstärkerstufen hintereinander: die erste mit {{a}}-facher, die zweite mit {{b}}-facher Verstärkung. Wie groß ist die Gesamtverstärkung?"
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: add
+        text: "Verstärkungen multiplizieren sich: Die zweite Stufe verstärkt das schon verstärkte Signal."
+    hints:
+      - Die zweite Stufe bekommt das Ausgangssignal der ersten.
+      - "{{a}} · {{b}}."
+    explanation: "{{a}} · {{b}} = {{a * b}}. Darum rechnet man Verstärkungen gern in Dezibel: Dann darf man addieren."
+    variants:
+      params:
+        a: choice[10,20,50]
+        b: choice[10,20,100]
+      defaults:
+        a: 10
+        b: 100
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "In einer Emitterschaltung mit Gegenkopplung ist die Verstärkung etwa R_C : R_E. Wie groß ist sie bei R_C = {{c}} kΩ und R_E = {{e}} kΩ?"
+    answer:
+      value: "{{c / e}}"
+    hints:
+      - "Verstärkung ≈ R_C : R_E."
+      - "{{c}} : {{e}}."
+    explanation: "{{c}} : {{e}} ≈ {{round(c / e, 2)}}. Das Ausgangssignal ist dabei umgekehrt: Steigt die Basis, sinkt der Kollektor."
+    difficulty: 2
+    variants:
+      params:
+        c: choice[4.7,10,22]
+        e: choice[0.47,1,2.2]
+      constraints:
+        - c / e > 2
+      defaults:
+        c: 10
+        e: 1
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Warum baut man den Emitterwiderstand ein, obwohl er die Verstärkung senkt?
+    params:
+      options:
+        - label: Die Verstärkung hängt dann von zwei Widerständen ab, nicht vom streuenden β
+          correct: true
+        - label: Weil sonst kein Strom fließt
+          feedback: Ohne R_E fließt sogar mehr.
+        - label: Weil der Transistor sonst rückwärts läuft
+          feedback: Die Richtung ändert sich nicht.
+    hints:
+      - β schwankt zwischen Exemplaren und mit der Temperatur stark.
+      - Widerstände sind genau und stabil.
+    explanation: "Das ist Gegenkopplung: Ein Teil des Ausgangs wirkt gegen den Eingang. Man tauscht Verstärkung gegen Stabilität. Dasselbe Prinzip steckt im Operationsverstärker."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Arbeitet der Transistor hier als Schalter oder als Verstärker?
+    params:
+      cards:
+        - text: Mikrofon-Vorverstärker
+          right: true
+        - text: LED blinken lassen
+          right: false
+        - text: Relais ansteuern
+          right: false
+        - text: Radioempfänger
+          right: true
+        - text: Motor per Pulsbreite steuern
+          right: false
+        - text: Gitarrenverstärker
+          right: true
+      left: Schalter
+      right: Verstärker
+    explanation: Für analoge Signale hält man den Transistor halb offen. Für Leistung und Logik schaltet man ganz an oder aus.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Die Steilheit eines Bipolartransistors ist g_m = I_C : U_T mit U_T ≈ 25,85 mV. Wie groß ist sie bei I_C = {{i}} mA, in mS? Auf eine Nachkommastelle."
+    params:
+      unit: mS
+    answer:
+      value: "{{i / 0.02585}}"
+      tolerance: 0.06
+    hints:
+      - "g_m = {{i}} mA : 25,85 mV."
+      - "mA : mV = S, also mal 1000 für mS."
+    explanation: "g_m ≈ {{round(i / 0.02585, 1)}} mS. Ohne Emitterwiderstand wäre die Verstärkung g_m · R_C: bei 1 mA und 10 kΩ etwa 387."
+    difficulty: 3
+    variants:
+      params:
+        i: choice[0.5,1,2]
+      defaults:
+        i: 1
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Transistor ein schwaches Signal verstärkt.
+    params:
+      keywords:
+        - - halb
+          - half
+          - arbeitspunkt
+          - operating point
+        - - basis
+          - base
+          - eingang
+          - input
+          - klein
+          - small
+        - - kollektor
+          - collector
+          - strom
+          - current
+        - - widerstand
+          - resistor
+          - spannung
+          - voltage
+      sample: Der Transistor wird im Arbeitspunkt halb offen gehalten. Das kleine Signal an der Basis lässt den Kollektorstrom stark schwanken. Durch den Kollektorwiderstand fließt dieser Strom, und dort entsteht eine viel größere Spannungsschwankung.
+    explanation: "Kern: kleine Steuergröße, große Stromänderung, am Widerstand eine große Spannungsänderung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]
