@@ -7,7 +7,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [alg.solve-one-step, alg.solve-two-step]
-estimated_minutes: 9
+estimated_minutes: 14
 steps:
   - kind: problem
     id: zwei-kisten
@@ -169,6 +169,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: balance
+    params:
+      left:
+        x: 4
+        units: 1
+      right:
+        x: 2
+        units: 9
+      allow:
+        - remove_unit
+        - remove_x
+        - divide
+    prompt: "Löse auf der Waage: $4x + 1 = 2x + 9$. Am Ende soll eine Kiste x allein liegen."
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage kippt. Verändere beide Seiten gleich.
+    hints:
+      - Nimm auf beiden Seiten 2 Kisten weg.
+      - Dann 1 Gewicht weg und durch 2 teilen.
+    explanation: $2x + 1 = 9$ → $2x = 8$ → $x = 4$.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Löse: ${{a}}x + {{u}} = {{c}}x + {{(a - c) * b + u}}$"
+    answer:
+      value: "{{b}}"
+    hints:
+      - "Bring alle x auf eine Seite: minus {{c}}x."
+      - ${{a - c}}x = {{(a - c) * b}}$.
+    explanation: ${{a - c}}x + {{u}} = {{(a - c) * b + u}}$, also ${{a - c}}x = {{(a - c) * b}}$ und x = {{b}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[3,6]
+        c: int[1,2]
+        b: int[1,6]
+        u: int[1,9]
+      defaults:
+        a: 5
+        c: 2
+        b: 3
+        u: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Löse: $(x + 4) : 3 = 5$"
+    answer:
+      value: 11
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: wrong-order
+        text: Erst mal 3, dann minus 4 – die umgekehrte Reihenfolge.
+    hints:
+      - "Mach das Teilen zuerst rückgängig: mal 3."
+      - $x + 4 = 15$.
+    explanation: "x + 4 = 15, also x = 11. Probe: 15 : 3 = 5."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -179,6 +246,41 @@ steps:
       - Multipliziere beide Seiten mit 6.
     explanation: 3x + 2x = 60, also x = 12. Mit dem Hauptnenner malnehmen räumt Brüche weg.
     difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Löse: $0{,}5x + 1{,}5 = 0{,}2x + 3$"
+    answer:
+      value: 5
+    hints:
+      - "Mal 10 macht alles ganzzahlig: $5x + 15 = 2x + 30$."
+      - $3x = 15$.
+    explanation: "x = 5. Probe: 2,5 + 1,5 = 4 und 1 + 3 = 4."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Kino-Abo kostet 20 € plus 4 € pro Film. Ohne Abo zahlst du 9 € pro Film. Bei wie vielen Filmen kostet beides gleich viel?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: difference-only
+        text: Das ist der Preisunterschied pro Film. Teile die 20 € dadurch.
+    hints:
+      - "Gleichung: $20 + 4x = 9x$."
+      - $20 = 5x$.
+    explanation: "x = 4 Filme: beides 36 €. Ab dem 5. Film lohnt sich das Abo."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: Bei $a \cdot x = b$ darf man nur durch a teilen, wenn a nicht 0 ist. Sonst gibt es keine oder unendlich viele Lösungen. Diese **Fallunterscheidung** taucht in der Mathematik ständig auf.
 
 srs:
   cards_from: ["erst-weg-dann-teilen", "zwei-schritte"]

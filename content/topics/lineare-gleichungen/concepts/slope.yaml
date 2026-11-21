@@ -7,7 +7,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [alg.slope]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: durch-punkt
@@ -139,6 +139,81 @@ steps:
     explanation: y = 2x + 1.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Die Steigung aus zwei Punkten liefert das **Steigungsdreieck**: $m = (y_2 - y_1) : (x_2 - x_1)$. Von (1 | 3) nach (4 | 9) geht es 6 hoch und 3 nach rechts: m = 2."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Gerade geht durch ({{a}} | {{b}}) und ({{a + d}} | {{b - m * d}}). Wie groß ist ihre Steigung?
+    answer:
+      value: "{{0 - m}}"
+    feedback:
+      - when: numval(state.input) == m
+        misconception: sign
+        text: Die Gerade fällt – die Steigung ist negativ.
+    hints:
+      - "Unterschied in y: {{0 - m * d}}. In x: {{d}}."
+      - "{{0 - m * d}} : {{d}} = ?"
+    explanation: "m = {{0 - m * d}} : {{d}} = {{0 - m}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[-3,3]
+        b: int[2,8]
+        d: int[1,4]
+        m: int[1,3]
+      defaults:
+        a: 1
+        b: 6
+        d: 2
+        m: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: slider
+    prompt: Stelle m und b so ein, dass die Gerade $y = mx + b$ durch beide Punkte geht.
+    params:
+      expr: m*x + b
+      x:
+        - -2
+        - 4
+      y:
+        - -4
+        - 6
+      showCoordinates: true
+      sliders:
+        - id: m
+          label: m
+          min: -3
+          max: 3
+          step: 0.5
+          initial: 0
+        - id: b
+          label: b
+          min: -4
+          max: 4
+          step: 1
+          initial: 2
+      markers:
+        - x: 0
+          y: -1
+        - x: 2
+          y: 3
+    answer:
+      values:
+        m: 2
+        b: -1
+    hints:
+      - b ist die Höhe bei x = 0.
+      - "Von (0 | −1) nach (2 | 3): 4 hoch, 2 nach rechts."
+    explanation: "b = −1 und m = 4 : 2 = 2. Die Gerade ist $y = 2x - 1$."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -149,6 +224,71 @@ steps:
     hints:
       - Das Produkt der beiden Steigungen ist −1.
     explanation: 2 · (−1/2) = −1. Senkrechte Geraden haben den negativen Kehrwert als Steigung.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Zwei Geraden schneiden sich dort, wo beide Gleichungen gleichzeitig gelten. Das ist ein **Gleichungssystem**. Mit vielen Unbekannten schreibt man es als Matrix – so rechnen Computer.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Wo schneiden sich $y = 2x + 1$ und $y = -x + 7$? Gib die x-Koordinate an.
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: y-not-x
+        text: Das ist die y-Koordinate des Schnittpunkts.
+    hints:
+      - "Setze beide gleich: $2x + 1 = -x + 7$."
+      - $3x = 6$.
+    explanation: x = 2, dann y = 5. Der Schnittpunkt ist (2 | 5).
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Schnittpunkte haben $y = 3x + 2$ und $y = 3x - 5$?
+    answer:
+      value: 0
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: parallel
+        text: "Gleiche Steigung, verschiedene Höhe: Die Geraden sind parallel."
+    hints:
+      - Vergleiche die Steigungen.
+      - Gleichsetzen ergibt 2 = −5.
+    explanation: Parallele Geraden treffen sich nie. Das Gleichungssystem hat keine Lösung.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Steigung m einer Geraden bedeutet.
+    params:
+      keywords:
+        - - rechts
+          - right
+          - schritt
+          - step
+        - - hoch
+          - oben
+          - up
+          - steigt
+          - rises
+        - - negativ
+          - fällt
+          - negative
+          - falls
+          - steil
+          - steep
+      sample: Die Steigung sagt, wie viel die Gerade pro Schritt nach rechts nach oben geht. Bei m = 2 geht es pro Schritt 2 hoch. Ist m negativ, fällt die Gerade.
+    explanation: "Kernidee: m = Änderung in y pro Schritt in x."
     difficulty: 3
 
 srs:

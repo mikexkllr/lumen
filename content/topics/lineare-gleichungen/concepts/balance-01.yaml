@@ -7,8 +7,21 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [alg.balance, alg.solve-one-step]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Bauchgefühl: Eine Kiste und 3 Gewichte wiegen so viel wie 7 Gewichte. Wie viele Gewichte wiegt die Kiste?"
+    params:
+      min: 0
+      max: 10
+      step: 1
+    answer:
+      value: 4
+      tolerance: 0
+    explanation: 3 + 4 = 7. Die Kiste wiegt 4. Gleich siehst du, wie eine Waage solche Rätsel löst.
+
   - kind: explain
     id: s1
     body: |
@@ -143,6 +156,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: balance
+    params:
+      left:
+        x: 3
+        units: 2
+      right:
+        x: 1
+        units: 8
+      allow:
+        - remove_unit
+        - remove_x
+        - divide
+    prompt: Links 3 Kisten und 2 Gewichte, rechts 1 Kiste und 8 Gewichte. Bringe eine Kiste x allein auf die Waage.
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: Die Waage kippt! Tu auf beiden Seiten dasselbe.
+    hints:
+      - Nimm erst auf beiden Seiten eine Kiste weg.
+      - Dann die Gewichte, dann teilen.
+    explanation: 3x + 2 = x + 8 → 2x + 2 = 8 → 2x = 6 → x = 3.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: "Eine **Probe** zeigt, ob eine Lösung stimmt: Setze sie in die Gleichung ein. Bei x + 3 = 7 und x = 4 ergibt die linke Seite 7 – passt."
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Ist x = 5 die Lösung von $3x - 4 = 2x + 2$? Berechne die linke Seite für x = 5.
+    answer:
+      value: 11
+    hints:
+      - 3 · 5 − 4.
+      - Die rechte Seite ergibt 2 · 5 + 2 = 12.
+    explanation: Links 11, rechts 12 – das passt nicht. x = 5 ist keine Lösung. Richtig wäre x = 6.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -158,6 +215,57 @@ steps:
     hints:
       - Nimm auf beiden Seiten x weg. Was bleibt?
     explanation: Es bleibt 3 = 5 – immer falsch. Eine Gleichung kann keine, eine oder unendlich viele Lösungen haben.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: Wie viele Lösungen hat $2(x + 1) = 2x + 2$?
+    params:
+      options:
+        - label: Keine
+          feedback: "Setze x = 0 ein: 2 = 2. Es gibt also mindestens eine."
+        - label: Genau eine
+          feedback: Probiere x = 0 und x = 7. Beide passen.
+        - label: Unendlich viele – jede Zahl
+          correct: true
+    hints:
+      - Multipliziere die linke Seite aus.
+      - "Beide Seiten sind gleich: 2x + 2."
+    explanation: Links und rechts steht derselbe Term. Die Gleichung stimmt für jedes x.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Lineare Gleichungen haben keine, eine oder unendlich viele Lösungen. Bleibt nach dem Umformen 0 = 2 stehen, gibt es keine. Bleibt 0 = 0, passt jede Zahl. Das heißt **Identität**.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Lösung einer Gleichung ist.
+    params:
+      keywords:
+        - - einsetz
+          - setzt
+          - plug
+          - substitut
+          - put in
+        - - beide seiten
+          - gleich
+          - both sides
+          - equal
+          - same
+        - - wahr
+          - stimmt
+          - "true"
+          - holds
+          - balance
+          - gleichgewicht
+      sample: Eine Lösung ist eine Zahl, die man für x einsetzt, sodass beide Seiten gleich groß sind. Die Gleichung wird dann wahr – die Waage bleibt im Gleichgewicht.
+    explanation: "Kernidee: Lösung = Zahl, die beim Einsetzen beide Seiten gleich macht."
     difficulty: 3
 
 srs:

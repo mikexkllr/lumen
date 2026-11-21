@@ -7,8 +7,21 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [alg.balance, alg.solve-one-step]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Gut feeling: a box and 3 weights weigh as much as 7 weights. How many weights does the box weigh?"
+    params:
+      min: 0
+      max: 10
+      step: 1
+    answer:
+      value: 4
+      tolerance: 0
+    explanation: 3 + 4 = 7. The box weighs 4. Next you will see how a balance solves such puzzles.
+
   - kind: explain
     id: s1
     body: |
@@ -143,6 +156,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: balance
+    params:
+      left:
+        x: 3
+        units: 2
+      right:
+        x: 1
+        units: 8
+      allow:
+        - remove_unit
+        - remove_x
+        - divide
+    prompt: "Left: 3 boxes and 2 weights. Right: 1 box and 8 weights. Get a single box x alone on the balance."
+    feedback:
+      - when: "!state.balanced"
+        misconception: only-one-side
+        text: The balance tips! Do the same on both sides.
+    hints:
+      - First take one box off each side.
+      - Then the weights, then divide.
+    explanation: 3x + 2 = x + 8 → 2x + 2 = 8 → 2x = 6 → x = 3.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: "A **check** shows whether a solution is right: put it into the equation. For x + 3 = 7 and x = 4 the left side gives 7 – it fits."
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Is x = 5 the solution of $3x - 4 = 2x + 2$? Work out the left side for x = 5.
+    answer:
+      value: 11
+    hints:
+      - 3 · 5 − 4.
+      - The right side gives 2 · 5 + 2 = 12.
+    explanation: Left 11, right 12 – no match. x = 5 is not a solution. The right one is x = 6.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -158,6 +215,57 @@ steps:
     hints:
       - Take x away on both sides. What is left?
     explanation: What remains is 3 = 5 – always false. An equation can have no, one or infinitely many solutions.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: How many solutions does $2(x + 1) = 2x + 2$ have?
+    params:
+      options:
+        - label: "Plug in x = 0: 2 = 2. So there is at least one."
+          feedback: "Setze x = 0 ein: 2 = 2. Es gibt also mindestens eine."
+        - label: Try x = 0 and x = 7. Both work.
+          feedback: Probiere x = 0 und x = 7. Beide passen.
+        - label: Infinitely many – every number
+          correct: true
+    hints:
+      - Expand the left side.
+      - "Both sides are the same: 2x + 2."
+    explanation: The same term is on both sides. The equation holds for every x.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Linear equations have no solution, one, or infinitely many. If you end up with 0 = 2, there is none. If you end up with 0 = 0, every number fits. That is called an **identity**.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a solution of an equation is.
+    params:
+      keywords:
+        - - einsetz
+          - setzt
+          - plug
+          - substitut
+          - put in
+        - - beide seiten
+          - gleich
+          - both sides
+          - equal
+          - same
+        - - wahr
+          - stimmt
+          - "true"
+          - holds
+          - balance
+          - gleichgewicht
+      sample: A solution is a number you plug in for x so that both sides are equal. The equation becomes true – the balance stays level.
+    explanation: "Key idea: solution = a number that makes both sides equal when plugged in."
     difficulty: 3
 
 srs:
