@@ -5,7 +5,7 @@ summary: Three building blocks for every decision.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: und
@@ -115,6 +115,93 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: Pick the gate that lights up only when both switches are off.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: g
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - NAND
+            - NOR
+      outputs:
+        - id: Q
+          from: g
+    check:
+      predicate: table('Q') == [1, 0, 0, 0]
+    hints:
+      - Try each gate with both switches off.
+      - It is the opposite of OR.
+    explanation: "NOR means »not or«: it lights up only when neither input is on."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: gates
+    prompt: Q = (A AND B) OR C. Switch C is stuck at 0. Make the lamp light up anyway.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+          value: 0
+          fixed: true
+      gates:
+        - id: g1
+          type: AND
+          in:
+            - A
+            - B
+        - id: g2
+          type: OR
+          in:
+            - g1
+            - C
+      outputs:
+        - id: Q
+          from: g2
+      goal:
+        Q: 1
+    hints:
+      - If C is off, the other input of the OR must be on.
+      - The AND needs both switches.
+    explanation: A = 1 and B = 1 make the AND 1 – and so the OR as well.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: A **truth table** lists every combination of inputs with the result. With n inputs it has $2^n$ rows. It describes a circuit completely.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Q = (A AND B) OR C. In how many of the 8 rows of the truth table is Q on?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: missed-case
+        text: Those are just the rows with C = 1. One more comes in.
+    hints:
+      - If C = 1, Q is always on. In how many rows is C = 1?
+      - If C = 0, it needs A = B = 1.
+    explanation: 4 rows with C = 1, plus the row A = 1, B = 1, C = 0. Together 5.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -124,6 +211,84 @@ steps:
     hints:
       - The table has 4 rows, and each holds 0 or 1.
     explanation: 2⁴ = 16. AND, OR, XOR, NAND are just four of them.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: gates
+    prompt: "Build a NOR from two gates: the lamp lights only when both switches are off. Pick the first gate."
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: g1
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: g2
+          type: NOT
+          in:
+            - g1
+      outputs:
+        - id: Q
+          from: g2
+    check:
+      predicate: table('Q') == [1, 0, 0, 0]
+    hints:
+      - The NOT flips the result of the first gate.
+      - Which gate is off only at 0, 0?
+    explanation: NOT (A OR B) is NOR. By De Morgan this equals (NOT A) AND (NOT B).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: How many different gates with 3 inputs can there be – that is, different truth tables?
+    answer:
+      value: 256
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: two-inputs
+        text: That is for 2 inputs. With 3 inputs the table has 8 rows.
+      - when: numval(state.input) == 8
+        misconception: rows-vs-tables
+        text: Those are the rows. Each row can give 0 or 1.
+    hints:
+      - The table has 8 rows. Each holds 0 or 1.
+      - $2^8$.
+    explanation: "8 rows, 2 options each: $2^8$ = 256. In general there are $2^{2^n}$ gates with n inputs."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what AND, OR and NOT do – with an everyday example.
+    params:
+      keywords:
+        - - beide
+          - both
+          - alle
+          - all
+        - - einer
+          - mindestens
+          - either
+          - at least
+          - one of
+        - - umdreh
+          - gegenteil
+          - invert
+          - opposite
+          - flip
+      sample: AND is on only if both inputs are on – like a car that starts only with the key and a foot on the brake. OR is on as soon as at least one is on – like a bell with two buttons. NOT flips the value to its opposite.
     difficulty: 3
 
 srs:

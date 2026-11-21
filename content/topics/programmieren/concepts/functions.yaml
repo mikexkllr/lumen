@@ -5,7 +5,7 @@ summary: Einmal schreiben, oft nutzen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -76,6 +76,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: f(x) gibt x + 1 zurück. g(x) gibt 2 · f(x) zurück. Was ergibt g(f({{a}}))?
+    answer:
+      value: "{{2 * (a + 2)}}"
+    feedback:
+      - when: numval(state.input) == 2 * (a + 1)
+        misconception: missed-inner-call
+        text: g ruft selbst noch einmal f auf – es kommt zweimal 1 dazu.
+    hints:
+      - "Rechne von innen nach außen: Erst f({{a}})."
+      - f({{a}}) = {{a + 1}}. Dann g({{a + 1}}) = 2 · f({{a + 1}}).
+    explanation: f({{a}}) = {{a + 1}}, f({{a + 1}}) = {{a + 2}}, mal 2 ergibt {{2 * (a + 2)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,9]
+      defaults:
+        a: 4
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Ein **Parameter** ist der Platzhalter in der Funktion, das Argument der Wert beim Aufruf. In `doppelt(x)` ist x der Parameter, in `doppelt(7)` ist 7 das Argument.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: Was passiert bei drucke(doppelt(plus1(3)))? Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: plus1(3) liefert 4
+        - label: doppelt(4) liefert 8
+        - label: drucke(8) zeigt 8 an
+    hints:
+      - Ein Aufruf braucht erst den Wert seines Arguments.
+      - Von innen nach außen.
+    explanation: Erst werden die Argumente ausgerechnet, dann die Funktion aufgerufen. Darum läuft die innerste zuerst.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: x = 5. Die Funktion setze() macht in sich x = 9. Danach druckst du x außerhalb. Was erscheint, wenn das x in der Funktion lokal ist?
+    params:
+      options:
+        - label: 5 – das innere x ist eine eigene Variable
+          correct: true
+        - label: "9"
+          feedback: Das wäre so, wenn die Funktion das äußere x ändern dürfte.
+        - label: Ein Fehler
+          feedback: Zwei Variablen mit gleichem Namen in verschiedenen Bereichen sind erlaubt.
+    hints:
+      - "Lokal heißt: nur innerhalb der Funktion sichtbar."
+      - Das äußere x wird nie angefasst.
+    explanation: Jede Funktion hat ihren eigenen Gültigkeitsbereich. So stören sich Funktionen nicht gegenseitig.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +179,66 @@ steps:
           - änder
           - change
       sample: Eine Funktion ist ein Baustein mit einem Namen. Man schreibt den Code nur einmal und kann ihn überall wiederverwenden – und muss Fehler nur an einer Stelle ändern.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: zweimal(f, x) gibt f(f(x)) zurück. Was ergibt zweimal(doppelt, {{a}})?
+    answer:
+      value: "{{4 * a}}"
+    feedback:
+      - when: numval(state.input) == 2 * a
+        misconception: once
+        text: doppelt wird zweimal angewendet, nicht einmal.
+    hints:
+      - zweimal bekommt eine Funktion als Argument.
+      - doppelt(doppelt({{a}})).
+    explanation: doppelt({{a}}) = {{2 * a}}, doppelt({{2 * a}}) = {{4 * a}}. Funktionen, die Funktionen bekommen, heißen höherer Ordnung.
+    difficulty: 3
+    variants:
+      params:
+        a: int[3,12]
+      defaults:
+        a: 5
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Was ergibt map(quadrat, [1, 2, 3])?
+    params:
+      options:
+        - label: "[1, 4, 9]"
+          correct: true
+        - label: "14"
+          feedback: Das wäre die Summe der Quadrate. map gibt eine Liste zurück.
+        - label: "[1, 2, 3, 1, 2, 3]"
+          feedback: map wendet die Funktion auf jedes Element an.
+    hints:
+      - map wendet eine Funktion auf jedes Element an.
+      - quadrat(2) = 4.
+    explanation: map baut eine neue Liste aus f(x) für jedes x. Das ersetzt viele Schleifen – kürzer und schwerer falsch zu machen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Eine Funktion zählt bei jedem Aufruf einen globalen Zähler hoch und gibt ihn zurück. Warum macht das Tests schwer?
+    params:
+      options:
+        - label: Das Ergebnis hängt davon ab, wie oft sie vorher lief
+          correct: true
+        - label: Weil Zähler langsam sind
+          feedback: Ein Zähler kostet kaum Zeit.
+        - label: Weil globale Variablen verboten sind
+          feedback: Erlaubt sind sie – sie machen das Verhalten nur unberechenbar.
+    hints:
+      - Rufe sie zweimal mit gleicher Eingabe auf.
+      - Eine reine Funktion gibt bei gleicher Eingabe immer dasselbe.
+    explanation: Solche Seiteneffekte koppeln Teile eines Programms unsichtbar aneinander. Reine Funktionen lassen sich einzeln prüfen.
     difficulty: 3
 
 srs:

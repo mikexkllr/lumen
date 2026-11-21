@@ -5,7 +5,7 @@ summary: Jede Zahl direkt an ihren Platz.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: frei
@@ -74,6 +74,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Vergleiche braucht Selection-Sort für {{n}} Zahlen?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: swaps-vs-comparisons
+        text: Das ist die Zahl der Tausche. Für jedes Minimum muss man aber viele Zahlen vergleichen.
+    hints:
+      - Runde 1 vergleicht {{n - 1}}-mal, Runde 2 einmal weniger.
+      - "{{n - 1}} + {{n - 2}} + … + 1."
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} Vergleiche – immer, auch wenn die Liste schon sortiert ist."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: Selection-Sort auf 5, 3, 4, 1, 2. Wie sieht die Liste nach zwei Runden aus?
+    params:
+      items:
+        - label: "1"
+        - label: "2"
+        - label: "4"
+        - label: "5"
+        - label: "3"
+      direction: horizontal
+    hints:
+      - "Runde 1: Die 1 tauscht mit der 5."
+      - "Runde 2: Die 2 tauscht mit dem, was auf Platz 2 steht."
+    explanation: "Runde 1: 1, 3, 4, 5, 2. Runde 2: Die 2 tauscht mit der 3: 1, 2, 4, 5, 3. Vorn wächst der sortierte Teil."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Wie viele Vergleiche braucht Selection-Sort bei einer Liste, die schon sortiert ist?
+    params:
+      options:
+        - label: Genauso viele wie sonst – er sucht jedes Minimum vollständig
+          correct: true
+        - label: Keinen
+          feedback: Woher sollte er wissen, dass sie sortiert ist?
+        - label: n − 1
+          feedback: So viele braucht ein einziger Kontrolldurchlauf – Selection-Sort macht aber keinen.
+    hints:
+      - Woher weiß er, dass die vorderste Zahl das Minimum ist?
+      - Nur durch Vergleichen mit allen anderen.
+    explanation: Selection-Sort merkt nicht, dass nichts zu tun ist. Er braucht immer n · (n − 1) / 2 Vergleiche.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -89,6 +149,47 @@ steps:
     hints:
       - Du sortierst erst nach Vorname, dann nach Nachname. Was soll bei gleichem Nachnamen gelten?
     explanation: Mit stabilen Verfahren kann man nacheinander nach mehreren Spalten sortieren. Selection-Sort ist nicht stabil.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Beim **Insertion-Sort** nimmt man eine Karte nach der anderen und schiebt sie an ihren Platz im schon sortierten Teil – wie beim Kartenspielen. Bei fast sortierten Listen ist er sehr schnell.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Insertion-Sort bekommt eine schon sortierte Liste mit 100 Zahlen. Wie viele Vergleiche braucht er?
+    answer:
+      value: 99
+    feedback:
+      - when: numval(state.input) == 4950
+        misconception: worst-case
+        text: Das wäre der schlimmste Fall. Hier passt jede Karte sofort.
+    hints:
+      - Jede neue Karte wird mit ihrem linken Nachbarn verglichen.
+      - Passt sie, ist sie fertig. Wie viele neue Karten gibt es?
+    explanation: 99 Vergleiche, kein einziger Tausch. Darum nutzen schnelle Sortierverfahren für kleine Stücke oft Insertion-Sort.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Selection-Sort auf 2a, 2b, 1 (zwei gleiche Zweien, a vor b). Was kommt heraus?
+    params:
+      options:
+        - label: 1, 2b, 2a – die Zweien sind vertauscht
+          correct: true
+        - label: 1, 2a, 2b
+          feedback: Die 1 tauscht mit dem vordersten Element. Wohin wandert 2a?
+        - label: 2a, 2b, 1
+          feedback: Die 1 ist das Minimum und muss nach vorn.
+    hints:
+      - "Runde 1: Die 1 tauscht mit dem vordersten Element."
+      - Das vorderste Element ist 2a. Es springt ans Ende.
+    explanation: Der weite Sprung reißt 2a an 2b vorbei. Selection-Sort ist also nicht stabil – anders als Bubble- und Insertion-Sort.
     difficulty: 3
 
 srs:

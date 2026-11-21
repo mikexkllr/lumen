@@ -5,7 +5,7 @@ summary: Write once, use often.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -76,6 +76,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: f(x) returns x + 1. g(x) returns 2 · f(x). What is g(f({{a}}))?
+    answer:
+      value: "{{2 * (a + 2)}}"
+    feedback:
+      - when: numval(state.input) == 2 * (a + 1)
+        misconception: missed-inner-call
+        text: g calls f once more itself – 1 is added twice.
+    hints:
+      - "Work from the inside out: first f({{a}})."
+      - f({{a}}) = {{a + 1}}. Then g({{a + 1}}) = 2 · f({{a + 1}}).
+    explanation: f({{a}}) = {{a + 1}}, f({{a + 1}}) = {{a + 2}}, times 2 gives {{2 * (a + 2)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,9]
+      defaults:
+        a: 4
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: A **parameter** is the placeholder inside the function, the argument is the value in the call. In `double(x)`, x is the parameter; in `double(7)`, 7 is the argument.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: What happens in print(double(plus1(3)))? Put the steps in the right order.
+    params:
+      items:
+        - label: plus1(3) returns 4
+        - label: double(4) returns 8
+        - label: print(8) shows 8
+    hints:
+      - A call first needs the value of its argument.
+      - From the inside out.
+    explanation: First the arguments are evaluated, then the function is called. That is why the innermost runs first.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: x = 5. The function set() does x = 9 inside. Afterwards you print x outside. What appears if the x inside the function is local?
+    params:
+      options:
+        - label: 5 – the inner x is a separate variable
+          correct: true
+        - label: "9"
+          feedback: That would happen if the function could change the outer x.
+        - label: An error
+          feedback: Two variables with the same name in different scopes are allowed.
+    hints:
+      - "Local means: visible only inside the function."
+      - The outer x is never touched.
+    explanation: Every function has its own scope. That way functions do not interfere with each other.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +179,66 @@ steps:
           - änder
           - change
       sample: A function is a building block with a name. You write the code only once and can reuse it everywhere – and need to change bugs in just one place.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: twice(f, x) returns f(f(x)). What is twice(double, {{a}})?
+    answer:
+      value: "{{4 * a}}"
+    feedback:
+      - when: numval(state.input) == 2 * a
+        misconception: once
+        text: double is applied twice, not once.
+    hints:
+      - twice receives a function as its argument.
+      - double(double({{a}})).
+    explanation: double({{a}}) = {{2 * a}}, double({{2 * a}}) = {{4 * a}}. Functions that take functions are called higher-order.
+    difficulty: 3
+    variants:
+      params:
+        a: int[3,12]
+      defaults:
+        a: 5
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: What does map(square, [1, 2, 3]) give?
+    params:
+      options:
+        - label: "[1, 4, 9]"
+          correct: true
+        - label: "14"
+          feedback: That would be the sum of squares. map returns a list.
+        - label: "[1, 2, 3, 1, 2, 3]"
+          feedback: map applies the function to each element.
+    hints:
+      - map applies a function to every element.
+      - square(2) = 4.
+    explanation: map builds a new list of f(x) for every x. That replaces many loops – shorter and harder to get wrong.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: A function bumps a global counter on every call and returns it. Why does that make testing hard?
+    params:
+      options:
+        - label: The result depends on how often it ran before
+          correct: true
+        - label: Because counters are slow
+          feedback: A counter costs hardly any time.
+        - label: Because global variables are forbidden
+          feedback: They are allowed – they just make behaviour unpredictable.
+    hints:
+      - Call it twice with the same input.
+      - A pure function always gives the same output for the same input.
+    explanation: Such side effects invisibly tie parts of a program together. Pure functions can be checked on their own.
     difficulty: 3
 
 srs:

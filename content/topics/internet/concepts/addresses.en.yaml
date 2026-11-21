@@ -5,7 +5,7 @@ summary: Addresses, phone book and sealed envelopes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: begriffe
@@ -85,6 +85,52 @@ steps:
     explanation: 96 extra bits – 2⁹⁶ times as many addresses. Enough for every grain of sand on Earth.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "A **subnet** such as 192.168.1.0/24 means: the first 24 bits of the address are the same for every device in it. The remaining 8 bits tell the devices apart."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: A network ends in /{{p}}. How many addresses does it cover?
+    answer:
+      value: "{{2 ** (32 - p)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** p
+        misconception: fixed-vs-free
+        text: The {{p}} bits are fixed. The remaining {{32 - p}} are free.
+    hints:
+      - IPv4 addresses have 32 bits. How many of them are free?
+      - With {{32 - p}} free bits there are 2 to the {{32 - p}} addresses.
+    explanation: "32 − {{p}} = {{32 - p}} free bits, so {{2 ** (32 - p)}} addresses. Two are reserved: the network address and the broadcast address."
+    difficulty: 2
+    variants:
+      params:
+        p: int[20,30]
+      defaults:
+        p: 24
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: You open bank.de/account/history over HTTPS. What can someone on the same Wi-Fi still see?
+    params:
+      options:
+        - label: That you are connected to bank.de – but not the page or content
+          correct: true
+        - label: Everything, including your password
+          feedback: HTTPS encrypts all the content.
+        - label: Nothing at all
+          feedback: The destination must stay visible, or no packet finds its way.
+    hints:
+      - Routers must know where a packet is going.
+      - The path /account/history is in the encrypted part.
+    explanation: The IP address and usually the server name remain visible. Path, forms and content are encrypted.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -101,6 +147,56 @@ steps:
     hints:
       - The router keeps a table of ongoing connections.
     explanation: "**NAT** has delayed the exhaustion of IPv4 addresses by decades."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: IPv6 has $2^{128}$ addresses, about 3.4 · 10 to the what? Give the exponent.
+    answer:
+      value: 38
+    hints:
+      - $2^{10}$ is about $10^3$.
+      - 128 bits are 12.8 times 10 bits – so about 10 to the 38.
+    explanation: $2^{128}$ ≈ 3.4 · $10^{38}$. That is billions of addresses for every grain of sand on Earth.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: How does your browser know it is really talking to bank.de and not to a fraudster?
+    params:
+      options:
+        - label: bank.de shows a certificate signed by a trusted authority
+          correct: true
+        - label: From the green logo on the page
+          feedback: Anyone can copy a logo.
+        - label: From the padlock alone
+          feedback: The padlock shows encryption – the check happens via the certificate.
+    hints:
+      - Who vouches that a key belongs to bank.de?
+      - The browser knows a list of trusted certificate authorities.
+    explanation: "A certificate authority signs: »This key belongs to bank.de.« The browser checks the signature. A fraudster cannot get such a certificate."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: order
+    prompt: This is how an HTTPS connection starts. Put the steps in the right order.
+    params:
+      items:
+        - label: The browser greets the server
+        - label: The server sends its certificate
+        - label: The browser checks the signature
+        - label: Both agree on a shared key
+        - label: Encrypted data flows
+    hints:
+      - First check who is there – then exchange secrets.
+      - Without a shared key there is no encrypted data.
+    explanation: That is the TLS handshake in short. The shared key comes from a key exchange such as Diffie–Hellman.
     difficulty: 3
 
 srs:

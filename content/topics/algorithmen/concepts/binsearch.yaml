@@ -5,7 +5,7 @@ summary: Binäre Suche in wenigen Schritten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: erster
@@ -76,6 +76,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: Du suchst die 52 in 2, 5, 8, 11, 17, 23, 31, 40, 52. Die Mitte wird abgerundet. Bring die Zahlen, die du nacheinander ansiehst, in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "17"
+        - label: "31"
+        - label: "40"
+        - label: "52"
+      direction: horizontal
+    hints:
+      - Die Mitte der 9 Zahlen ist die 5. Zahl.
+      - Dann bleibt 23 bis 52 – deren Mitte, abgerundet?
+    explanation: 17 → rechts weiter, 31 → rechts weiter, 40 → rechts weiter, 52. Vier Vergleiche für neun Zahlen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Jetzt suchst du die 20 in derselben Liste. Nach wie vielen Vergleichen weißt du sicher, dass sie fehlt?
+    answer:
+      value: 3
+    hints:
+      - Erst 17, dann rechts davon die Mitte von 23 bis 52.
+      - Nach 17, 31 und 23 ist der Bereich leer.
+    explanation: 17 ist zu klein, 31 zu groß, 23 zu groß – zwischen 17 und 23 ist nichts mehr. Auch erfolglose Suche dauert nur log₂ n Schritte.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Die Liste 3, 7, 7, 7, 9 hat die 7 dreimal. Die einfache Suche findet irgendeine 7. Wie findet man die erste?
+    params:
+      options:
+        - label: Bei einem Treffer nicht aufhören, sondern links weitersuchen
+          correct: true
+        - label: Vom Treffer aus Schritt für Schritt nach links laufen
+          feedback: Das klappt, kann aber bei vielen gleichen Werten linear langsam werden.
+        - label: Das geht nicht
+          feedback: Es geht – mit einer kleinen Änderung der Suche.
+    hints:
+      - Was weißt du nach einem Treffer über die erste 7?
+      - Sie liegt hier oder weiter links.
+    explanation: Man merkt sich den Treffer und halbiert weiter nach links. So bleibt es bei log₂ n Schritten. In Bibliotheken heißt das oft lower_bound.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -91,6 +141,66 @@ steps:
     hints:
       - Was passiert, wenn links + rechts größer ist als die größte speicherbare Zahl?
     explanation: Richtig ist links + (rechts − links) / 2. Selbst einfache Algorithmen bergen Fallen.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Halbieren klappt auch ohne Liste. Gesucht ist √2 zwischen 1 und 2: Ist 1,5² zu groß? Ja, also liegt √2 links. Jede Frage halbiert das Intervall. Das heißt **Bisektion**."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Halbierungen braucht die Bisektion, um √2 zwischen 1 und 2 auf 0,001 genau einzugrenzen?
+    answer:
+      value: 10
+    hints:
+      - Nach k Halbierungen ist das Intervall $1/2^k$ breit.
+      - $2^{10}$ = 1024.
+    explanation: $1/2^{10}$ ≈ 0,00098 < 0,001. Zehn Fragen für drei Nachkommastellen – das nutzen Rechner beim Lösen von Gleichungen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Lohnt sich binäre Suche in einer verketteten Liste, in der jedes Element nur seinen Nachfolger kennt?
+    params:
+      options:
+        - label: Nein – um zur Mitte zu kommen, muss man schon die halbe Liste ablaufen
+          correct: true
+        - label: Ja, genauso wie im Array
+          feedback: Im Array springt man direkt zur Mitte, hier nicht.
+        - label: Nur wenn die Liste kurz ist
+          feedback: Gerade bei langen Listen wird das Laufen teuer.
+    hints:
+      - Wie kommst du in einer Kette zum mittleren Glied?
+      - Die Suche braucht direkten Zugriff.
+    explanation: Binäre Suche braucht Sprünge in O(1). Für verkettete Daten nimmt man Suchbäume.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die binäre Suche nur in sortierten Listen funktioniert.
+    params:
+      keywords:
+        - - sortiert
+          - sorted
+          - ordnung
+          - order
+        - - mitte
+          - middle
+        - - hälfte
+          - halb
+          - half
+          - ausschließ
+          - rule out
+          - wegfallen
+          - discard
+      sample: "Ich schaue in die Mitte. Weil die Liste sortiert ist, weiß ich: Ist die gesuchte Zahl größer, kann sie nur rechts liegen. Die ganze linke Hälfte fällt weg. Ohne Ordnung wüsste ich das nicht."
     difficulty: 3
 
 srs:

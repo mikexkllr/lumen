@@ -5,7 +5,7 @@ summary: First come, first served.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -89,6 +89,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: choice
+    prompt: enqueue A, enqueue B, dequeue, enqueue C, enqueue D, dequeue. Who is at the front now?
+    params:
+      options:
+        - label: C
+          correct: true
+        - label: D
+          feedback: D came last – it is at the back.
+        - label: B
+          feedback: B was served at the second dequeue.
+    hints:
+      - Write down the queue after every command.
+      - "[A, B] → [B] → [B, C] → [B, C, D] → …"
+    explanation: After the second dequeue, [C, D] is left. C is at the front.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: A **ring buffer** stores a queue in a fixed array. The pointers for front and back run in a circle – using modulo. So nobody ever has to move up.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: A ring buffer has 8 slots (0 to 7). The back pointer is at {{p}}. Where is it after {{k}} new entries?
+    answer:
+      value: "{{mod(p + k, 8)}}"
+    feedback:
+      - when: numval(state.input) == p + k
+        misconception: no-wrap
+        text: After slot 7 it wraps round to 0.
+    hints:
+      - "Count on: {{p}}, {{p + 1}}, …"
+      - Compute ({{p}} + {{k}}) mod 8.
+    explanation: ({{p}} + {{k}}) mod 8 = {{mod(p + k, 8)}}.
+    difficulty: 2
+    variants:
+      params:
+        p: int[3,7]
+        k: int[2,7]
+      constraints:
+        - p + k > 8
+      defaults:
+        p: 6
+        k: 5
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: Which data structure does breadth-first search use, visiting all neighbours first, then theirs?
+    params:
+      options:
+        - label: A queue – whoever is discovered first is explored first
+          correct: true
+        - label: A stack
+          feedback: A stack makes the search dive deep first – that is depth-first search.
+        - label: A hash table
+          feedback: It remembers what was visited – it does not decide the order.
+    hints:
+      - First what is near, then what is far – fairly in turn.
+      - Newly found nodes join at the back.
+    explanation: The queue makes sure every node at distance 1 comes before those at distance 2. That is how breadth-first search finds paths with the fewest steps.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,6 +170,56 @@ steps:
     hints:
       - Arrival rate divided by service rate.
     explanation: 2/3 ≈ 67%. As utilisation approaches 100%, waiting times explode – as **queueing theory** shows.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: On average 3 customers per minute enter a shop. Each stays 4 minutes. How many customers are inside at the same time on average?
+    answer:
+      value: 12
+    hints:
+      - How many come in while one is inside?
+      - Arrivals per minute times time spent.
+    explanation: "3 · 4 = 12. This is Little's law: L = λ · W. It holds for almost any stable queue – from supermarkets to servers."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: A checkout is {{p}} % busy. With random arrivals there are on average ρ / (1 − ρ) customers, with ρ = {{p / 100}}. How many is that?
+    answer:
+      value: "{{p / (100 - p)}}"
+    hints:
+      - "Plug in ρ: {{p / 100}} / (1 − {{p / 100}})."
+      - 1 − {{p / 100}} = {{(100 - p) / 100}}.
+    explanation: "{{p / 100}} / {{(100 - p) / 100}} = {{p / (100 - p)}}. Near 100 % the queue explodes: at 95 % it is already 19."
+    difficulty: 3
+    variants:
+      params:
+        p: choice[50,75,80,90,95]
+      defaults:
+        p: 75
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: What happens if more customers keep arriving than can be served?
+    params:
+      options:
+        - label: The queue grows without limit
+          correct: true
+        - label: It settles at a fixed length
+          feedback: That only happens if fewer arrive than are served.
+        - label: The waiting time stays the same
+          feedback: Each new customer waits longer than the last.
+    hints:
+      - Each minute more is added than leaves.
+      - It is like a bathtub whose drain is too small.
+    explanation: With load above 100 % there is no steady state. Servers then reject requests instead of collecting them forever.
     difficulty: 3
 
 srs:

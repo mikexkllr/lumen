@@ -5,7 +5,7 @@ summary: Wie Text in Bits passt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -77,6 +77,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: Hier steht »A« (65). Mach daraus ein kleines »a« – schalte genau ein Bit um.
+    params:
+      bits: 8
+      initial: "01000001"
+    answer:
+      value: 97
+    hints:
+      - »a« hat die Nummer 97. Wie groß ist der Abstand zu 65?
+      - Der Abstand 32 ist genau ein Bit.
+    explanation: 65 + 32 = 97. In ASCII unterscheidet ein einziges Bit Groß und Klein.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: In ASCII hat die Ziffer »0« die Nummer 48. Welche Nummer hat die Ziffer »{{d}}«?
+    answer:
+      value: "{{48 + d}}"
+    feedback:
+      - when: numval(state.input) == d
+        misconception: char-vs-number
+        text: Das Zeichen »{{d}}« ist nicht die Zahl {{d}}. Seine Nummer beginnt bei 48.
+    hints:
+      - Die Ziffern stehen der Reihe nach.
+      - 48 + {{d}}.
+    explanation: »{{d}}« hat die Nummer {{48 + d}}. Wer aus Text eine Zahl macht, zieht 48 ab.
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,9]
+      defaults:
+        d: 7
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "**UTF-8** speichert ASCII-Zeichen in 1 Byte. Umlaute wie ä brauchen 2 Bytes, die meisten chinesischen Zeichen 3 und Emojis 4."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Bytes braucht das Wort »Grüße« in UTF-8?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: chars-vs-bytes
+        text: Das sind die Zeichen. ü und ß sind keine ASCII-Zeichen.
+    hints:
+      - G, r und e sind ASCII. Und ü, ß?
+      - ü und ß brauchen je 2 Bytes.
+    explanation: 1 + 1 + 2 + 2 + 1 = 7 Bytes für 5 Zeichen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -118,6 +178,55 @@ steps:
           - 0 und 1
           - 0 and 1
       sample: "Alles wird in Zahlen übersetzt: Jeder Buchstabe hat eine Nummer in einer Tabelle, jedes Pixel drei Farbwerte. Diese Zahlen schreibt der Computer binär mit Bits."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ein UTF-8-Byte, das mit [[0]] beginnt, ist ein ASCII-Zeichen. Folgebytes beginnen immer mit [[10]]. Ein Startbyte mit 1110 kündigt [[drei]] Bytes an.
+      distractors:
+        - "11"
+        - zwei
+        - vier
+    hints:
+      - Folgebytes müssen sich von Startbytes unterscheiden.
+      - Die Zahl der Einsen vorn im Startbyte ist die Länge.
+    explanation: 0xxxxxxx ist ASCII, 110 startet 2 Bytes, 1110 startet 3, 11110 startet 4, 10 heißt »Folgebyte«. So findet man auch mitten im Text den Anfang eines Zeichens.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Webseite zeigt »GrÃ¼ÃŸe« statt »Grüße«. Was ist passiert?
+    params:
+      options:
+        - label: UTF-8-Bytes wurden als alte 8-Bit-Codierung gelesen – jedes Byte als eigenes Zeichen
+          correct: true
+        - label: Die Datei ist kaputt
+          feedback: Die Bytes sind in Ordnung, nur falsch gedeutet.
+        - label: Die Schrift kennt kein ü
+          feedback: Dann sähe man ein Ersatzkästchen, nicht zwei Zeichen.
+    hints:
+      - ü braucht in UTF-8 zwei Bytes. Wie viele Zeichen siehst du statt ü?
+      - Zwei Zeichen pro Umlaut – also wurde jedes Byte einzeln übersetzt.
+    explanation: ü ist C3 BC. In Windows-1252 ist C3 »Ã« und BC »¼«. Dieses Zeichensalat-Phänomen heißt Mojibake.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Unicode-Nummern reichen bis 0x10FFFF, also 1 114 111. Wie viele Bits braucht man mindestens, um jede davon zu speichern?
+    answer:
+      value: 21
+    hints:
+      - $2^{20}$ ist 1 048 576. Reicht das?
+      - Knapp nicht – also ein Bit mehr.
+    explanation: $2^{20}$ < 1 114 111 < $2^{21}$. 21 Bits – genau so viele trägt das längste UTF-8-Muster mit 4 Bytes.
     difficulty: 3
 
 srs:

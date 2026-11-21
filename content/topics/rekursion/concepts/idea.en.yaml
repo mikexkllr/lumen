@@ -5,7 +5,7 @@ summary: A big problem as a smaller one of the same kind.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: fak-vier
@@ -91,6 +91,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "ds(n): if n < 10, return n. Otherwise return ds(n without its last digit) + last digit. What is ds({{n}})?"
+    answer:
+      value: "{{s}}"
+    hints:
+      - ds({{n}}) = ds({{floor(n / 10)}}) + {{mod(n, 10)}}.
+      - Peel off digit by digit until a single one is left.
+    explanation: "The function computes the digit sum: {{s}}. Each call makes the number one digit shorter – eventually the base case kicks in."
+    difficulty: 2
+    variants:
+      params:
+        n: int[100,9999]
+      derive:
+        s: mod(n, 10) + mod(floor(n / 10), 10) + mod(floor(n / 100), 10) + floor(n / 1000)
+      defaults:
+        n: 4096
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: fact(n) is called recursively for n = 1000. How many calls are on the stack at once while fact(1) is computing?
+    answer:
+      value: 1000
+    hints:
+      - None of the calls has finished before fact(1) answers.
+      - fact(1000), fact(999), …, fact(1).
+    explanation: All 1000 wait on top of each other. That is why deep recursion can blow the stack – a loop needs only one variable.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: bin(n) writes bin(n // 2) and appends n mod 2. bin(1) is »1«. What is bin(6)?
+    params:
+      options:
+        - label: "110"
+          correct: true
+        - label: "011"
+          feedback: The last digit is appended at the end, not the front.
+        - label: "101"
+          feedback: That is 5.
+    hints:
+      - bin(6) = bin(3) + »0«.
+      - bin(3) = bin(1) + »1« = »11«.
+    explanation: »11« + »0« = 110 = 6. The recursion yields the digits in the right order because it appends after the call.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +158,74 @@ steps:
     hints:
       - How does the computer itself implement recursion?
     explanation: Both are equally powerful. Recursion is often more elegant, loops often more economical.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Why is a recursion correct? As with **induction**: the base case is right. And if the call for n − 1 is right, so is the one for n. So it is right for every n."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: f(n) = f(n − 2) + 1, and f(0) = 0. What happens with f(5)?
+    params:
+      options:
+        - label: "It never ends: 5, 3, 1, −1 … – 0 is skipped"
+          correct: true
+        - label: It returns 3
+          feedback: For that it would have to reach 0.
+        - label: It returns 2.5
+          feedback: Nothing is divided here.
+    hints:
+      - Which numbers does n pass through?
+      - Odd numbers minus 2 stay odd.
+    explanation: "A base case only helps if every chain actually reaches it. Fix: add f(1) = 0 or stop at »n ≤ 0«."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: In »return sum(n − 1, acc + n)« the recursive call is the very last thing. What can a compiler make of it?
+    params:
+      options:
+        - label: A loop – the stack no longer grows
+          correct: true
+        - label: Nothing – recursion stays recursion
+          feedback: Many compilers transform such calls.
+        - label: A faster algorithm
+          feedback: The algorithm stays the same; only memory use drops.
+    hints:
+      - Does the caller have anything left to do after the call?
+      - If not, its slot on the stack is no longer needed.
+    explanation: This is called tail recursion. The compiler replaces the call with a jump to the start – O(1) memory instead of O(n).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how fact(4) computes.
+    params:
+      keywords:
+        - - fak(3)
+          - fact(3)
+          - fak 3
+          - fact 3
+          - 3!
+        - - fak(1)
+          - fact(1)
+          - basis
+          - base
+          - abbruch
+        - - zurück
+          - return
+          - ergebnis
+          - result
+          - "24"
+      sample: "fact(4) needs fact(3), which needs fact(2), which needs fact(1). fact(1) is the base case and returns 1. Then it goes back up: 2 · 1 = 2, 3 · 2 = 6, 4 · 6 = 24 is the result."
     difficulty: 3
 
 srs:

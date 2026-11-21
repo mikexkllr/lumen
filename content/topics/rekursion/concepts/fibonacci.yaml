@@ -5,7 +5,7 @@ summary: Jede Zahl aus den zwei davor.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: folge
@@ -58,6 +58,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Naives fib mit fib(1) = fib(2) = 1 als Basisfall. Wie viele Aufrufe gibt es für fib({{n}}), den ersten mitgezählt? Es gilt: Aufrufe = 2 · fib(n) − 1, und fib({{n}}) = {{f}}."
+    answer:
+      value: "{{2 * f - 1}}"
+    hints:
+      - Setz fib({{n}}) = {{f}} ein.
+      - 2 · {{f}} − 1.
+    explanation: 2 · {{f}} − 1 = {{2 * f - 1}}. Die Aufrufe wachsen so schnell wie die Fibonacci-Zahlen selbst – exponentiell.
+    difficulty: 2
+    variants:
+      params:
+        n: int[8,20]
+      derive:
+        f: round(((1 + sqrt(5)) / 2) ** n / sqrt(5))
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "Mit Merken: Wie viele verschiedene Werte fib(1) bis fib(n) muss man für fib(50) höchstens ausrechnen?"
+    answer:
+      value: 50
+    hints:
+      - Jeder Wert wird nur einmal berechnet.
+      - Welche Werte kommen überhaupt vor?
+    explanation: Nur fib(1) bis fib(50) – 50 Werte statt rund 25 Milliarden Aufrufe. Merken macht aus exponentiell linear.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Teilt man eine Fibonacci-Zahl durch die vorige, nähert sich das dem **Goldenen Schnitt** φ ≈ 1,618. Darum wächst fib(n) etwa wie φ hoch n – jedes Glied ist gut 1,6-mal so groß wie das vorige.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Berechne 89 / 55 auf drei Nachkommastellen.
+    answer:
+      value: 1.618
+      tolerance: 0.001
+    hints:
+      - "Teile schriftlich oder schätze: 55 · 1,6 = 88."
+      - 89 / 55 = 1,61818…
+    explanation: 1,618 – auf drei Stellen schon der Goldene Schnitt (1 + √5) / 2.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -73,6 +125,87 @@ steps:
     hints:
       - fib(48) wird immer wieder neu berechnet. Muss das sein?
     explanation: "**Memoisation** macht aus Milliarden Aufrufen 50. Die Grundidee der **dynamischen Programmierung**."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Aufrufe braucht das naive fib(50)?"
+    params:
+      min: 1000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 25000000000
+      within: 40
+    explanation: 2 · fib(50) − 1 ≈ 2,5 · $10^{10}$ Aufrufe – bei einer Milliarde pro Sekunde eine halbe Minute. fib(80) bräuchte schon Jahrhunderte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Treppe, Schritte über 1 oder 2 Stufen: Stufe 1 hat 1 Weg, Stufe 2 hat 2. Wie viele Wege führen auf Stufe 10?"
+    answer:
+      value: 89
+    feedback:
+      - when: numval(state.input) == 55
+        misconception: index-shift
+        text: "Das ist fib(10). Die Treppe ist eins verschoben: Wege(n) = fib(n + 1)."
+    hints:
+      - Wege(n) = Wege(n − 1) + Wege(n − 2).
+      - 1, 2, 3, 5, 8, 13, …
+    explanation: 1, 2, 3, 5, 8, 13, 21, 34, 55, 89. Wege(n) ist fib(n + 1).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: fib(n) lässt sich sogar in O(log n) Schritten berechnen. Wie?
+    params:
+      options:
+        - label: Mit Potenzen einer 2 × 2-Matrix und wiederholtem Quadrieren
+          correct: true
+        - label: Mit einer größeren Tabelle
+          feedback: Eine Tabelle braucht n Einträge – das ist linear.
+        - label: Gar nicht, linear ist das Minimum
+          feedback: Quadrieren überspringt viele Schritte.
+    hints:
+      - Wie berechnet man $x^{64}$ mit nur 6 Multiplikationen?
+      - Die Fibonacci-Regel lässt sich als Matrix schreiben.
+    explanation: Die Matrix [[1, 1], [1, 0]] hoch n enthält fib(n + 1) und fib(n). Quadrieren halbiert den Exponenten – log₂ n Schritte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die naive Fibonacci-Rekursion so langsam ist – und wie man sie rettet.
+    params:
+      keywords:
+        - - immer wieder
+          - mehrfach
+          - doppelt
+          - again
+          - repeated
+          - twice
+          - same
+        - - zwei aufrufe
+          - verzweig
+          - baum
+          - two calls
+          - branch
+          - tree
+        - - merk
+          - memo
+          - speicher
+          - store
+          - cache
+          - tabelle
+          - table
+      sample: Jeder Aufruf startet zwei neue Aufrufe, so entsteht ein riesiger Baum. Darin werden dieselben Werte immer wieder berechnet, fib(3) etwa tausendfach. Merkt man sich jedes Ergebnis in einer Tabelle, rechnet man jeden Wert nur einmal.
     difficulty: 3
 
 srs:

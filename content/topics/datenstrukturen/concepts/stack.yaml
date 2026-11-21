@@ -5,7 +5,7 @@ summary: Zuletzt rein, zuerst raus.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -123,6 +123,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: push 4, push 7, pop, push 2, push 9, pop, pop. Welche Zahl liegt jetzt oben auf dem Stapel?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: miscount-pop
+        text: "Zähl die pops nach: Nach der 9 wird zweimal etwas heruntergenommen."
+    hints:
+      - Schreib den Stapel nach jedem Befehl auf.
+      - "[4, 7] → [4] → [4, 2] → [4, 2, 9] → …"
+    explanation: "[4, 2, 9] → pop → [4, 2] → pop → [4]. Oben liegt die 4."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: push A, push B, pop, push C, pop, pop. In welcher Reihenfolge kommen die Elemente heraus?
+    params:
+      items:
+        - label: B
+        - label: C
+        - label: A
+      direction: horizontal
+    hints:
+      - Der erste pop nimmt das, was zuletzt hineinkam.
+      - Nach B kommt C hinein – und gleich wieder heraus.
+    explanation: B, dann C, dann A. Zuletzt rein, zuerst raus – auch wenn sich push und pop abwechseln.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: "Prüfe »( ( [ ] ) ( )« mit einem Stapel: Öffnende Klammern kommen drauf, passende schließende nehmen eine herunter. Wie viele liegen am Ende noch drauf?"
+    answer:
+      value: 1
+    hints:
+      - Geh Zeichen für Zeichen durch.
+      - Nach »( ( [ ]« liegen noch zwei runde Klammern drauf.
+    explanation: "Am Ende bleibt eine »(« übrig. Ein leerer Stapel hieße: alles passt. Hier fehlt also eine schließende Klammer."
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Rechnen in **Postfix** braucht keine Klammern: »3 4 + 2 ·« heißt (3 + 4) · 2. Zahlen kommen auf den Stapel. Ein Rechenzeichen nimmt die oberen zwei, rechnet und legt das Ergebnis zurück."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -138,6 +190,84 @@ steps:
     hints:
       - Wo merkt sich der Computer, wohin er nach einem Aufruf zurückkehren soll?
     explanation: "Der **Aufrufstapel**: Jeder Aufruf kommt obendrauf und wird erst beim Zurückkehren entfernt."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Was ergibt der Postfix-Ausdruck »5 1 2 + 4 · + 3 −«?
+    answer:
+      value: 14
+    hints:
+      - "Stapel: 5, 1, 2. Das + macht aus 1 und 2 eine 3."
+      - Dann 3 · 4 = 12, 5 + 12 = 17, 17 − 3.
+    explanation: 5 + (1 + 2) · 4 − 3 = 14. Taschenrechner und die Java-Maschine rechnen intern genau so.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Was ergibt »{{a}} {{b}} + {{c}} ·« in Postfix?
+    answer:
+      value: "{{(a + b) * c}}"
+    feedback:
+      - when: numval(state.input) == a + b * c
+        misconception: precedence
+        text: In Postfix wird zuerst addiert – das + steht vor dem ·.
+    hints:
+      - Das + nimmt {{a}} und {{b}}.
+      - Dann liegen {{a + b}} und {{c}} oben.
+    explanation: ({{a}} + {{b}}) · {{c}} = {{(a + b) * c}}. Die Reihenfolge der Zeichen ersetzt die Klammern.
+    difficulty: 3
+    variants:
+      params:
+        a: int[2,9]
+        b: int[2,9]
+        c: int[2,6]
+      defaults:
+        a: 3
+        b: 4
+        c: 2
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Wie lange dauern push und pop bei einem Stapel mit einer Million Elementen?
+    params:
+      options:
+        - label: Immer gleich kurz – O(1)
+          correct: true
+        - label: Proportional zur Größe – O(n)
+          feedback: Man arbeitet nur oben, der Rest bleibt liegen.
+        - label: O(log n) wie bei der binären Suche
+          feedback: Gesucht wird hier gar nicht.
+    hints:
+      - Wo arbeitet ein Stapel?
+      - Ganz oben – egal, wie viel darunter liegt.
+    explanation: Ein Zeiger auf das oberste Element reicht. Darum sind Stapel so schnell und stecken in jedem Prozessor.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Computer mit einem Stapel prüft, ob Klammern stimmen.
+    params:
+      keywords:
+        - - öffn
+          - open
+        - - schließ
+          - clos
+        - - oben
+          - top
+          - letzte
+          - last
+        - - leer
+          - empty
+      sample: Jede öffnende Klammer kommt oben auf den Stapel. Bei einer schließenden muss oben die passende öffnende liegen – dann nimmt man sie herunter. Ist der Stapel am Ende leer, stimmen alle Klammern.
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.sequence]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: geradeaus
@@ -92,6 +92,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: Ein Labyrinth. Finde den Weg zur Flagge – mit höchstens 10 Blöcken.
+    params:
+      grid:
+        - S.#.G
+        - "#...#"
+        - ..#..
+      blocks:
+        - forward
+        - left
+        - right
+      maxBlocks: 10
+    hints:
+      - Rechts von dir geht es nur ein Feld weit. Wohin dann?
+      - "Unten herum: vorwärts, rechts, vorwärts, links – dann weiter nach rechts und hoch."
+    explanation: vorwärts, rechts, vorwärts, links, vorwärts, vorwärts, links, vorwärts, rechts, vorwärts.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Der Roboter schaut nach Norden. Er dreht sich rechts, rechts, links. Wohin schaut er jetzt?
+    params:
+      options:
+        - label: Nach Osten
+          correct: true
+        - label: Nach Westen
+          feedback: Zweimal rechts ist Süden, dann einmal links.
+        - label: Nach Süden
+          feedback: Nach zweimal rechts – aber dann kommt noch links.
+    hints:
+      - Geh die Drehungen einzeln durch.
+      - Norden, rechts → Osten, rechts → Süden, links → ?
+    explanation: "Norden → Osten → Süden → Osten. Rechts und links heben sich auf: Netto bleibt eine Rechtsdrehung."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Der Roboter dreht sich {{k}}-mal nach rechts. Mit wie wenigen Rechtsdrehungen schaut er genauso?
+    answer:
+      value: "{{mod(k, 4)}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: full-turns
+        text: Das sind alle Drehungen. Volle Runden aus vier Drehungen kannst du weglassen.
+    hints:
+      - Vier Rechtsdrehungen sind eine volle Runde.
+      - Zieh so oft 4 ab, wie es geht.
+    explanation: "{{k}} mod 4 = {{mod(k, 4)}}. Volle Runden ändern die Blickrichtung nicht – das ist Modulo-Rechnen."
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,15]
+      constraints:
+        - mod(k, 4) != 0
+      defaults:
+        k: 7
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Ein **Algorithmus** ist ein Rezept, das immer funktioniert: endlich viele, eindeutige Schritte, die bei jeder passenden Eingabe zum Ziel führen. Ein Programm schreibt ihn für einen Computer auf."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,4 +170,68 @@ steps:
     hints:
       - An jeder der 4 Stellen stehen 3 Befehle zur Wahl.
     explanation: 3⁴ = 81. Mit 20 Befehlen wären es schon 3,5 Milliarden – darum kann man Programme nicht einfach durchprobieren.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Der Roboter kennt 3 Befehle. Wie viele verschiedene Programme gibt es mit 1 bis 4 Befehlen?
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 81
+        misconception: only-longest
+        text: Das sind nur die Programme mit genau 4 Befehlen. Dazu kommen die kürzeren.
+    hints:
+      - "Zähle jede Länge einzeln: 3, dann 3 · 3 …"
+      - 3 + 9 + 27 + 81.
+    explanation: 3 + 9 + 27 + 81 = 120. Mit jedem Befehl mehr verdreifacht sich die Zahl – die längsten Programme stellen die Mehrheit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Zwei verschiedene Programme bringen den Roboter zur selben Flagge. Was stimmt?
+    params:
+      options:
+        - label: Beide können richtig sein – meist gibt es viele Lösungen
+          correct: true
+        - label: Eines muss falsch sein
+          feedback: Ein Ziel, viele Wege – das ist normal.
+        - label: Das kürzere ist immer besser
+          feedback: Kürzer ist oft schöner, aber lesbarer Code zählt auch.
+    hints:
+      - Denk an Wege durch eine Stadt.
+      - Gibt es nur einen Weg zum Bahnhof?
+    explanation: Zu einer Aufgabe gibt es viele korrekte Programme. Man vergleicht sie nach Länge, Tempo und Lesbarkeit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Computer so genaue Befehle braucht.
+    params:
+      keywords:
+        - - genau
+          - eindeutig
+          - exact
+          - precise
+          - unambiguous
+          - klar
+          - clear
+        - - reihenfolge
+          - nacheinander
+          - order
+          - sequence
+          - one after
+        - - versteh
+          - raten
+          - mitdenken
+          - guess
+          - understand
+          - think
+      sample: Ein Computer denkt nicht mit und kann nicht raten. Er führt jeden Befehl genau so aus, wie er dasteht – nacheinander, in fester Reihenfolge. Ist ein Befehl ungenau oder fehlt einer, landet er woanders.
     difficulty: 3

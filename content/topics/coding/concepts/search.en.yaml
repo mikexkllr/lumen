@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.search]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 30
       tolerance: 6
     explanation: Only 30. Each question halves – and 2³⁰ is just over a billion.
-
 
   - kind: problem
     id: raten
@@ -90,6 +89,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: The secret number is 70, between 1 and 100. You always guess the middle, rounded down. Put your guesses in order.
+    params:
+      items:
+        - label: "50"
+        - label: "75"
+        - label: "62"
+        - label: "68"
+        - label: "71"
+        - label: "69"
+        - label: "70"
+      direction: horizontal
+    hints:
+      - The middle of 1 and 100 is 50. Then 51 to 100 is left.
+      - The middle of 51 and 100 is 75 – too big. Continue with 51 to 74.
+    explanation: 50 → 75 → 62 → 68 → 71 → 69 → 70. Seven questions – exactly the maximum for 100 options.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: How many questions does binary search need at most with {{n}} possibilities?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: one-short
+        text: "Close: {{k - 1}} questions only tell {{2 ** (k - 1)}} options apart."
+    hints:
+      - With k questions you can tell $2^k$ options apart.
+      - Find the smallest power of two that is at least {{n}}.
+    explanation: $2^{ {{k - 1}} }$ = {{2 ** (k - 1)}} is not enough, $2^{ {{k}} }$ = {{2 ** k}} is. So {{k}} questions.
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,12]
+        r: int[1,900]
+      derive:
+        n: 2 ** (k - 1) + 1 + mod(r, 2 ** (k - 1))
+      defaults:
+        k: 10
+        r: 487
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many yes/no questions does it take at most to find one of 8 billion people?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 33
+      tolerance: 4
+    explanation: $2^{32}$ is 4.3 billion, $2^{33}$ is 8.6 billion. 33 questions for all of humanity.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,4 +165,45 @@ steps:
     hints:
       - The first step halves 2 million to 1 million.
     explanation: "The effort grows **logarithmically**: log₂(n). That makes search engines and databases possible."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Binary search keeps an **invariant**: if the number is there at all, it lies between left and right. Every question shrinks this range but never makes it wrong. Once it is empty, the number is surely missing."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: After »bigger« a program sets left = middle instead of left = middle + 1. What can happen?
+    params:
+      options:
+        - label: With two numbers left it can get stuck forever
+          correct: true
+        - label: Nothing – it just takes one step longer
+          feedback: Check left = 69, right = 70, target 70.
+        - label: It finds a wrong number
+          feedback: Nothing goes wrong – it just stops making progress.
+    hints:
+      - "Play it through: left = 69, right = 70, target is 70."
+      - The middle is 69. Afterwards left is 69 again …
+    explanation: "The range no longer shrinks: an endless loop. The invariant alone is not enough – the range must actually get smaller."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: How many possibilities can 20 yes/no questions tell apart at most?
+    answer:
+      value: 1048576
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: add-vs-multiply
+        text: Each question doubles – it does not add 2.
+    hints:
+      - Each question doubles the number of distinguishable cases.
+      - $2^{20}$.
+    explanation: $2^{20}$ = 1,048,576 – just over a million. That is why the game »20 questions« works so often.
     difficulty: 3

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.debug]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: bug-eins
@@ -94,6 +94,77 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: Das Programm soll den Roboter zur Flagge bringen, bleibt aber ein Feld davor stehen. Repariere es – höchstens 3 Blöcke.
+    params:
+      grid:
+        - S.....G
+      blocks:
+        - forward
+        - repeat
+        - end
+      repeatCounts:
+        - 4
+        - 5
+        - 6
+        - 7
+      maxBlocks: 3
+      program:
+        - op: repeat
+          n: 5
+        - op: forward
+        - op: end
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 6
+          - op: forward
+          - op: end
+    hints:
+      - Zähle die Felder bis zur Flagge.
+      - Die Schleife läuft einmal zu wenig. Tausche »Wiederhole 5×« gegen 6×.
+    explanation: "Ein Off-by-one-Fehler: 6 Felder, aber nur 5 Durchläufe."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Programm soll von 1 bis 5 zählen: »x = 1. Solange x < 5: drucke x, dann x = x + 1.« Wie viele Zahlen druckt es?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: off-by-one
+        text: "Prüf genau: Bei x = 5 gilt »x < 5« nicht mehr."
+    hints:
+      - "Schreib die Werte von x auf: 1, 2, …"
+      - Was passiert, wenn x = 5 ist?
+    explanation: Es druckt 1, 2, 3, 4 – die 5 fehlt. Richtig wäre »x ≤ 5«. Ein klassischer Off-by-one-Fehler.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: Bring die Schritte beim Debuggen in eine sinnvolle Reihenfolge.
+    params:
+      items:
+        - label: Fehler zuverlässig nachstellen
+        - label: Eine Vermutung aufstellen
+        - label: Gezielt prüfen, etwa Werte ausgeben
+        - label: Den Fehler beheben
+        - label: Noch einmal alles testen
+    hints:
+      - Was musst du können, bevor du suchst?
+      - Erst verstehen, dann ändern, dann kontrollieren.
+    explanation: Wer den Fehler nicht nachstellen kann, weiß nie, ob er weg ist. Und der letzte Test zeigt, dass die Reparatur nichts anderes kaputt gemacht hat.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,4 +180,88 @@ steps:
     hints:
       - Dieselbe Idee wie bei der Zahlenraten-Suche.
     explanation: "Binäre Suche fürs Debuggen: höchstens 10 Prüfungen statt 1000. Werkzeuge wie »git bisect« machen genau das."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Fehler steckt in einer von 1000 Programmversionen – irgendwo kam er dazu. Wie viele Versionen musst du höchstens testen, wenn du immer halbierst?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 500
+        misconception: linear-search
+        text: Das wäre im Schnitt, wenn du der Reihe nach testest. Halbieren geht viel schneller.
+    hints:
+      - Jeder Test halbiert die verdächtigen Versionen.
+      - $2^{10}$ = 1024.
+    explanation: 10 Tests reichen, denn $2^{10}$ > 1000. Das Werkzeug git bisect macht genau das.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Programm besteht 100 Tests. Was weißt du jetzt sicher?
+    params:
+      options:
+        - label: Dass es für diese 100 Eingaben stimmt – mehr nicht
+          correct: true
+        - label: Dass es fehlerfrei ist
+          feedback: Tests zeigen Fehler, aber nie, dass keine da sind.
+        - label: Dass es zu 99 % fehlerfrei ist
+          feedback: Ein Prozentwert lässt sich daraus nicht ablesen.
+    hints:
+      - Gibt es Eingaben, die nie getestet wurden?
+      - Für Sicherheit bräuchte man einen Beweis.
+    explanation: "Edsger Dijkstra: Testen kann die Anwesenheit von Fehlern zeigen, nie ihre Abwesenheit. Für Gewissheit braucht man Beweise."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Warum hilft es, einer Gummiente den Code Zeile für Zeile zu erklären?
+    params:
+      options:
+        - label: Beim Erklären prüfst du jeden Schritt und stolperst über falsche Annahmen
+          correct: true
+        - label: Die Ente kennt die Lösung
+          feedback: Die Ente schweigt – das Erklären selbst hilft.
+        - label: Es hilft gar nicht
+          feedback: Viele Profis schwören darauf.
+    hints:
+      - Wer erklärt, muss langsam denken.
+      - Wo sagst du »und hier passiert dann irgendwie …«?
+    explanation: Im Kopf überspringt man Schritte. Laut erklärt fällt auf, wo man nur glaubt, was der Code tut.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie du einen Fehler in einem langen Programm findest.
+    params:
+      keywords:
+        - - halbier
+          - mitte
+          - half
+          - middle
+          - bisect
+          - eingrenz
+          - narrow
+        - - erwart
+          - soll
+          - vergleich
+          - expected
+          - compare
+          - should
+        - - schritt
+          - step
+          - stück
+          - piece
+          - teil
+          - part
+      sample: "Ich vergleiche, was passieren soll, mit dem, was passiert. Dann grenze ich ein: Ich prüfe in der Mitte, ob bis dahin alles stimmt, und halbiere so den verdächtigen Teil – Schritt für Schritt, bis der Fehler übrig bleibt."
     difficulty: 3

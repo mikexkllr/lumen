@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: c1
@@ -105,6 +105,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "You walk from the top-left to the bottom-right corner of a grid: {{a}} steps right and {{b}} down, mixed in any order. How many paths are there?"
+    answer:
+      value: "{{c}}"
+    hints:
+      - "Fill a table: each cell = paths from above + paths from the left."
+      - Every cell on the edge has exactly 1 path.
+    explanation: "There are {{c}} paths. That is »{{a + b}} choose {{a}}«: you choose which of the {{a + b}} steps go right."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[2,3,4]
+        b: int[2,4]
+      derive:
+        n: a + b
+        c: "a == 2 ? n * (n - 1) / 2 : a == 3 ? n * (n - 1) * (n - 2) / 6 : n * (n - 1) * (n - 2) * (n - 3) / 24"
+      defaults:
+        a: 3
+        b: 3
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "What is the minimum number of edits from »KATZE« to »SATZ«? Allowed: insert, delete or replace a letter."
+    answer:
+      value: 2
+    hints:
+      - One letter must go – the lengths differ.
+      - K becomes S, the E is dropped.
+    explanation: "Replace and delete: 2. Fewer is impossible, since the lengths and the first letter both differ. This edit distance is computed by DP – that is how spell checkers work."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -134,6 +170,70 @@ steps:
     hints:
       - What did remembering save with Fibonacci?
     explanation: It trades memory for time. That is how programs compare DNA and fix typos.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "DP needs two ingredients. First, **optimal substructure**: the best solution is built from best partial solutions. Second, overlapping subproblems that keep coming up."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Coins of 1, 10 and 25 cents. What is the minimum number of coins for 30 cents?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: greedy
+        text: That is the greedy answer 25 + 5 · 1. Without the 25 it gets better.
+    hints:
+      - Try it without the 25.
+      - 10 + 10 + 10.
+    explanation: 3 · 10 = 30 with 3 coins. Greedy gives 25 + 1 + 1 + 1 + 1 + 1 = 6 coins. The DP table finds 3 because it knows the best answer for every smaller amount.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: The coin table has one entry per amount up to B. For each, k coin types are checked. How many steps does it take?
+    params:
+      options:
+        - label: About B · k
+          correct: true
+        - label: About $k^B$
+          feedback: That would be trying every combination.
+        - label: About B + k
+          feedback: For every amount all k types are checked.
+    hints:
+      - Count table entries times work per entry.
+      - B entries, k comparisons each.
+    explanation: "B · k steps. Careful: that is polynomial in B, but B has only log₂ B digits. Such methods are called pseudo-polynomial."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: what does DP do that plain recursion does not?"
+    params:
+      keywords:
+        - - merk
+          - tabelle
+          - speicher
+          - table
+          - store
+          - memo
+        - - einmal
+          - nur einmal
+          - once
+        - - klein
+          - small
+          - teilproblem
+          - subproblem
+      sample: Naive recursion recomputes the same subproblems over and over. Dynamic programming solves each small subproblem only once, stores the result in a table and builds the big solutions from it.
     difficulty: 3
 
 srs:

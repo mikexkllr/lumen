@@ -5,7 +5,7 @@ summary: Loops with several commands.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -68,6 +68,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: How many single commands does the robot carry out? »Repeat {{a}}× ( Repeat {{b}}× forward, then right )«
+    answer:
+      value: "{{a * (b + 1)}}"
+    feedback:
+      - when: numval(state.input) == a * b
+        misconception: forgot-outer
+        text: That is only the »forward«s. The »right« comes on top in every outer round.
+      - when: numval(state.input) == a + b + 1
+        misconception: add-loops
+        text: Nested loops multiply – they do not add.
+    hints:
+      - What happens in one outer round?
+      - "{{b}} times forward plus one right – and that {{a}} times."
+    explanation: "{{a}} · ({{b}} + 1) = {{a * (b + 1)}} commands."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: int[2,6]
+      defaults:
+        a: 4
+        b: 3
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: "»For i from 1 to 3: for j from 1 to 2: print i-j.« In what order do the outputs appear?"
+    params:
+      items:
+        - label: 1-1
+        - label: 1-2
+        - label: 2-1
+        - label: 2-2
+        - label: 3-1
+        - label: 3-2
+      direction: horizontal
+    hints:
+      - The inner loop runs all the way through before i moves on.
+      - For i = 1, j = 1 and j = 2 come first.
+    explanation: "Like a clock: the inner counter j spins fast, the outer i slowly. 3 · 2 = 6 outputs."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: What does »Repeat 5× (forward, right 144°)« draw?
+    params:
+      options:
+        - label: A five-pointed star
+          correct: true
+        - label: A pentagon
+          feedback: That would need 72° per corner.
+        - label: Nothing closed
+          feedback: 5 · 144° = 720° – two full turns, the shape closes.
+    hints:
+      - How far does it turn in total?
+      - 720° is two turns. A pentagon takes one.
+    explanation: "5 · 144° = 720°: the robot circles the middle twice and draws a star."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -83,6 +149,67 @@ steps:
     hints:
       - "At the end the robot has turned once all the way: 360°."
     explanation: 360° ÷ 6 = 60°. For an n-gon you always turn by 360°/n.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Three nested loops with 10 iterations each. How often does the innermost line run?
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: add-loops
+        text: Nested loops multiply.
+    hints:
+      - Two loops would give 10 · 10.
+      - Times 10 once more.
+    explanation: 10 · 10 · 10 = 1000. Each extra level multiplies – that is where O(n³) comes from.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: The robot draws a regular {{n}}-gon. By how many degrees must it turn at each corner?
+    params:
+      unit: °
+    answer:
+      value: "{{360 / n}}"
+    feedback:
+      - when: numval(state.input) == 180 - 360 / n
+        misconception: interior-angle
+        text: That is the interior angle. The robot turns by the exterior angle.
+    hints:
+      - After all corners it has turned round once.
+      - 360° shared among {{n}} corners.
+    explanation: 360° / {{n}} = {{360 / n}}°. In total it turns round exactly once.
+    difficulty: 3
+    variants:
+      params:
+        n: choice[3,5,6,8,9,10,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the iterations of inner loops multiply.
+    params:
+      keywords:
+        - - jede
+          - jeden
+          - each
+          - every
+        - - mal
+          - multipl
+          - times
+        - - innen
+          - innere
+          - inner
+      sample: The inner loop runs completely in every round of the outer one. If the outer runs 3 times and the inner 4 times, that is 3 times 4 = 12 iterations.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Each number from the two before it.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: folge
@@ -58,6 +58,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Naive fib with fib(1) = fib(2) = 1 as base case. How many calls are there for fib({{n}}), counting the first? Calls = 2 · fib(n) − 1, and fib({{n}}) = {{f}}.
+    answer:
+      value: "{{2 * f - 1}}"
+    hints:
+      - Plug in fib({{n}}) = {{f}}.
+      - 2 · {{f}} − 1.
+    explanation: 2 · {{f}} − 1 = {{2 * f - 1}}. The calls grow as fast as the Fibonacci numbers themselves – exponentially.
+    difficulty: 2
+    variants:
+      params:
+        n: int[8,20]
+      derive:
+        f: round(((1 + sqrt(5)) / 2) ** n / sqrt(5))
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "With memoisation: how many different values fib(1) to fib(n) do you need to compute at most for fib(50)?"
+    answer:
+      value: 50
+    hints:
+      - Each value is computed only once.
+      - Which values occur at all?
+    explanation: Only fib(1) to fib(50) – 50 values instead of about 25 billion calls. Memoisation turns exponential into linear.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Divide a Fibonacci number by the one before and you approach the **golden ratio** φ ≈ 1.618. So fib(n) grows roughly like φ to the n – each term is about 1.6 times the previous one.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Compute 89 / 55 to three decimal places.
+    answer:
+      value: 1.618
+      tolerance: 0.001
+    hints:
+      - "Divide by hand or estimate: 55 · 1.6 = 88."
+      - 89 / 55 = 1.61818…
+    explanation: 1.618 – already the golden ratio (1 + √5) / 2 to three places.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -73,6 +125,87 @@ steps:
     hints:
       - fib(48) is recomputed again and again. Is that necessary?
     explanation: "**Memoisation** turns billions of calls into 50. The basic idea of **dynamic programming**."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many calls does naive fib(50) make?"
+    params:
+      min: 1000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 25000000000
+      within: 40
+    explanation: 2 · fib(50) − 1 ≈ 2.5 · $10^{10}$ calls – half a minute at a billion per second. fib(80) would take centuries.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Stairs, steps of 1 or 2: stair 1 has 1 way, stair 2 has 2. How many ways lead to stair 10?"
+    answer:
+      value: 89
+    feedback:
+      - when: numval(state.input) == 55
+        misconception: index-shift
+        text: "That is fib(10). The stairs are shifted by one: ways(n) = fib(n + 1)."
+    hints:
+      - ways(n) = ways(n − 1) + ways(n − 2).
+      - 1, 2, 3, 5, 8, 13, …
+    explanation: 1, 2, 3, 5, 8, 13, 21, 34, 55, 89. ways(n) is fib(n + 1).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: fib(n) can even be computed in O(log n) steps. How?
+    params:
+      options:
+        - label: With powers of a 2 × 2 matrix and repeated squaring
+          correct: true
+        - label: With a bigger table
+          feedback: A table needs n entries – that is linear.
+        - label: Not at all, linear is the minimum
+          feedback: Squaring skips many steps.
+    hints:
+      - How do you compute $x^{64}$ with only 6 multiplications?
+      - The Fibonacci rule can be written as a matrix.
+    explanation: The matrix [[1, 1], [1, 0]] to the n contains fib(n + 1) and fib(n). Squaring halves the exponent – log₂ n steps.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the naive Fibonacci recursion is so slow – and how to rescue it.
+    params:
+      keywords:
+        - - immer wieder
+          - mehrfach
+          - doppelt
+          - again
+          - repeated
+          - twice
+          - same
+        - - zwei aufrufe
+          - verzweig
+          - baum
+          - two calls
+          - branch
+          - tree
+        - - merk
+          - memo
+          - speicher
+          - store
+          - cache
+          - tabelle
+          - table
+      sample: Each call starts two new calls, building a huge tree. In it the same values are computed again and again, fib(3) thousands of times. Store each result in a table and every value is computed only once.
     difficulty: 3
 
 srs:

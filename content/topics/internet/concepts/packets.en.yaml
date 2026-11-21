@@ -5,7 +5,7 @@ summary: Everything is cut into small pieces.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 15
       tolerance: 8
     explanation: Usually 10 to 20 – and that within a few hundredths of a second.
-
 
   - kind: problem
     id: wie-viele
@@ -84,6 +83,65 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: A packet is 1500 bytes. 40 bytes of it are the header with addresses and number. What percentage is that? Round to one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 2.7
+      tolerance: 0.05
+    hints:
+      - Divide 40 by 1500.
+      - Times 100 gives a percentage.
+    explanation: 40 / 1500 ≈ 0.027 = 2.7 %. Almost the whole packet is payload – only a small part is overhead.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: "A **protocol** is a fixed agreement. On the net several are stacked: IP takes packets to the right address. TCP makes sure everything arrives complete and in order. HTTP says what is inside."
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: match
+    prompt: Which layer takes care of what?
+    params:
+      pairs:
+        - left: HTTP
+          right: Which web page do I want?
+        - left: TCP
+          right: Complete and in order
+        - left: IP
+          right: Address and route through the net
+        - left: Wi-Fi
+          right: To the next device
+    hints:
+      - "From top to bottom: from content to radio wave."
+      - TCP numbers and acknowledges packets.
+    explanation: Each layer uses the one below without knowing its details. That is why HTTP works over Wi-Fi just as over fibre.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: order
+    prompt: Before TCP sends data, both sides make an agreement. Put this handshake in the right order.
+    params:
+      items:
+        - label: SYN – »I want to talk«
+        - label: SYN-ACK – »Got it, me too«
+        - label: ACK – »Got it«
+        - label: Data flows
+    hints:
+      - Who starts?
+      - Each side acknowledges the other once.
+    explanation: The three-way handshake. Afterwards both know the starting numbers of the packets.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +157,89 @@ steps:
     hints:
       - What use is a word that arrives two seconds late?
     explanation: Reliable or fast – every protocol is a trade-off for its purpose.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: TCP sends at most 64 KB and then waits for an acknowledgement. A ping takes 100 ms. How many KB per second can the connection manage at most?
+    params:
+      unit: KB/s
+    answer:
+      value: 640
+    feedback:
+      - when: numval(state.input) == 6.4
+        misconception: divide-wrong
+        text: Ten pings fit into one second, not a tenth of one.
+    hints:
+      - How many rounds of sending and waiting fit into one second?
+      - 1 s / 0.1 s = 10 rounds of 64 KB each.
+    explanation: 10 · 64 KB = 640 KB/s – no matter how fat the line. That is why modern connections may have much more data »in flight«.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Why split data into packets at all instead of sending it in one piece?
+    params:
+      options:
+        - label: Many users can share the lines, and after an error only a small piece is resent
+          correct: true
+        - label: Small packets travel faster than light
+          feedback: Packets also travel at most at light speed.
+        - label: Because routers only know small files
+          feedback: Routers do not know files at all – only packets.
+    hints:
+      - Think of a motorway with many small cars.
+      - What happens if one huge block gets damaged on the way?
+    explanation: Packet switching shares lines fairly and makes errors cheap. The old phone network reserved a whole line per call.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: TCP resends lost packets.
+          right: true
+          why: If an acknowledgement is missing, TCP sends again.
+        - text: UDP guarantees the order.
+          right: false
+          why: UDP just sends – without order checks or resending.
+        - text: For live video UDP is often better.
+          right: true
+          why: A late frame is worthless – better show the next one.
+        - text: Every packet takes the same route.
+          right: false
+          why: Routers decide per packet. Routes may change on the way.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a file arrives complete even though packets get lost on the way.
+    params:
+      keywords:
+        - - nummer
+          - number
+          - reihenfolge
+          - order
+          - sequence
+        - - bestätig
+          - ack
+          - quittung
+          - confirm
+        - - neu
+          - erneut
+          - resend
+          - again
+          - wieder
+      sample: Every packet gets a number. The receiver confirms what has arrived and sorts by number. If a confirmation is missing, the sender sends that packet again.
     difficulty: 3
 
 srs:

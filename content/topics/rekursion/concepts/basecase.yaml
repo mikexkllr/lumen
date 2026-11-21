@@ -5,7 +5,7 @@ summary: Ohne Abbruch läuft Rekursion ewig.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: fehlt
@@ -65,6 +65,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: pow(b, 1) = b. Ist n gerade, gilt pow(b, n) = pow(b, n/2) · pow(b, n/2) – einmal berechnet, dann quadriert. Wie viele Multiplikationen braucht pow(2, 16)?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: linear-power
+        text: So viele braucht das schlichte b · b · …. Quadrieren halbiert n jedes Mal.
+    hints:
+      - 16 → 8 → 4 → 2 → 1.
+      - Jeder Pfeil ist ein Quadrieren.
+    explanation: "Vier Quadrierungen: $2^2$, $2^4$, $2^8$, $2^{16}$. Schnelles Potenzieren braucht etwa log₂ n Schritte – das macht RSA erst möglich."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "countdown(n): drucke n, dann countdown(n − 1). Basisfall: Bei n = 0 drucke »Start!«. Wie viele Zeilen druckt countdown({{n}})?"
+    answer:
+      value: "{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: forgot-base
+        text: Der Basisfall druckt auch eine Zeile.
+    hints:
+      - Zähle die Zahlen {{n}}, {{n - 1}}, …, 1.
+      - Und dann noch »Start!«.
+    explanation: "{{n}} Zahlen plus »Start!« = {{n + 1}} Zeilen."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: f(n) = f(n − 1) + 1 mit f(0) = 0 endet für jedes n ≥ 0.
+          right: true
+          why: n sinkt in Einerschritten genau bis 0.
+        - text: g(n) = g(n + 1) mit g(10) = 0 endet für n = 12.
+          right: false
+          why: Ab 12 geht es nach oben – an der 10 kommt sie nie vorbei.
+        - text: h(n) = h(n / 2) mit h(1) = 1 endet für n = 8.
+          right: true
+          why: 8, 4, 2, 1.
+        - text: h(n) = h(n / 2) mit h(1) = 1 endet für n = 6, wenn genau geteilt wird.
+          right: false
+          why: 6, 3, 1,5, 0,75 … – die 1 wird nie getroffen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -91,6 +151,61 @@ steps:
           - end
           - base
       sample: Ein Ordner enthält Dateien und Unterordner, die selbst wieder Ordner sind. Um alle Dateien zu zählen, zählt man jeden Unterordner auf dieselbe Weise – bis ein Ordner keine Unterordner mehr hat, dann ist Schluss.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Was garantiert sicher, dass eine Rekursion endet?
+    params:
+      options:
+        - label: Eine natürliche Zahl sinkt bei jedem Aufruf – unendlich oft geht das nicht
+          correct: true
+        - label: Dass es einen Basisfall gibt
+          feedback: Ein Basisfall hilft nur, wenn er auch erreicht wird.
+        - label: Dass der Code kurz ist
+          feedback: Kurze Rekursionen können ewig laufen.
+    hints:
+      - Denk an f(n) = f(n − 2) + 1 bei ungeradem n.
+      - Man braucht eine Größe, die nicht ewig sinken kann.
+    explanation: Natürliche Zahlen kennen keine unendlich lange fallende Kette. Mathematiker nennen so etwas wohlfundiert.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Die Ackermann-Funktion hat Basisfälle und endet immer. Doch A(4, 2) hat 19 729 Stellen. Was zeigt das?
+    params:
+      options:
+        - label: Endlich heißt nicht schnell
+          correct: true
+        - label: Die Funktion ist fehlerhaft
+          feedback: Sie ist korrekt – nur unvorstellbar schnell wachsend.
+        - label: Rekursion ist immer langsam
+          feedback: Viele Rekursionen sind sehr schnell, etwa die binäre Suche.
+    hints:
+      - Sie endet – aber wann?
+      - Ein Beweis fürs Enden sagt nichts über die Dauer.
+    explanation: A(4, 2) = $2^{65536}$ − 3. Die Ackermann-Funktion ist berechenbar, wächst aber schneller als jede Schleifenkonstruktion mit fester Tiefe.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: gerade(n) ruft ungerade(n − 1) auf, ungerade(n) ruft gerade(n − 1) auf. gerade(0) = wahr, ungerade(0) = falsch. Wie viele Aufrufe gibt es insgesamt für gerade(5)?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-base
+        text: Zähle den letzten Aufruf mit n = 0 mit.
+    hints:
+      - gerade(5) → ungerade(4) → gerade(3) → …
+      - Bis zum Aufruf mit 0.
+    explanation: "gerade(5), ungerade(4), gerade(3), ungerade(2), gerade(1), ungerade(0) = falsch: 6 Aufrufe – und 5 ist richtig als ungerade erkannt."
     difficulty: 3
 
 srs:

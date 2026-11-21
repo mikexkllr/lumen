@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.loops]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: lange-strecke
@@ -86,6 +86,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "x = {{s}}. Wiederhole {{n}}×: x = x · 2. Welchen Wert hat x danach?"
+    answer:
+      value: "{{s * 2 ** n}}"
+    feedback:
+      - when: numval(state.input) == s + 2 * n
+        misconception: add-vs-multiply
+        text: Die Schleife verdoppelt, sie zählt nicht 2 dazu.
+    hints:
+      - Schreib x nach jedem Durchlauf auf.
+      - "{{s}}, {{s * 2}}, {{s * 4}}, …"
+    explanation: "{{n}}-mal verdoppeln heißt mal $2^{ {{n}} }$: {{s}} · {{2 ** n}} = {{s * 2 ** n}}."
+    difficulty: 2
+    variants:
+      params:
+        s: int[1,5]
+        n: int[3,7]
+      defaults:
+        s: 3
+        n: 4
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "summe = 0. Für i von 1 bis {{n}}: summe = summe + i. Welchen Wert hat summe am Ende?"
+    answer:
+      value: "{{n * (n + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: last-value
+        text: Das ist der letzte Wert von i. Die Schleife zählt aber alle i zusammen.
+    hints:
+      - Die Schleife rechnet 1 + 2 + … + {{n}}.
+      - "Paare bilden: 1 + {{n}}, 2 + {{n - 1}} …"
+    explanation: 1 + 2 + … + {{n}} = {{n}} · {{n + 1}} / 2 = {{n * (n + 1) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: "»Für i von 1 bis 4: Ist i gerade, drucke i, sonst drucke i · 10.« Bring die Ausgaben in die Reihenfolge, in der sie erscheinen."
+    params:
+      items:
+        - label: "10"
+        - label: "2"
+        - label: "30"
+        - label: "4"
+      direction: horizontal
+    hints:
+      - Geh i = 1, 2, 3, 4 einzeln durch.
+      - i = 1 ist ungerade – also 1 · 10.
+    explanation: 1 → 10, 2 → 2, 3 → 30, 4 → 4. Wer Code von Hand durchspielt, nennt das Tracing.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -101,4 +165,94 @@ steps:
     hints:
       - "Schreib die Werte auf: 7, 5, 3, 1, …"
     explanation: Eine **Endlosschleife**. Sicherer ist die Bedingung »solange x größer als 0«.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Eine **Schleifeninvariante** ist eine Aussage, die vor und nach jedem Durchlauf stimmt. Bei der Summenschleife gilt immer: summe = 1 + 2 + … + i. Endet die Schleife, folgt daraus das richtige Ergebnis."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "x = 0, y = 10. Solange y > 0: x = x + 1, y = y − 1. Was gilt vor und nach jedem Durchlauf?"
+    params:
+      options:
+        - label: x + y = 10
+          correct: true
+        - label: x = y
+          feedback: Das gilt nur in einem einzigen Moment, bei x = y = 5.
+        - label: x < y
+          feedback: Am Ende ist x = 10 und y = 0.
+    hints:
+      - Was passiert mit der Summe x + y in einem Durchlauf?
+      - Eins dazu, eins weg.
+    explanation: Jeder Durchlauf gibt x eins und nimmt y eins – die Summe bleibt 10. Am Ende ist y = 0, also x = 10.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: "Solange n > 1: n = n / 2, abgerundet. n startet bei {{n}}. Wie viele Durchläufe macht die Schleife?"
+    answer:
+      value: "{{k}}"
+    hints:
+      - Halbiere {{n}} immer wieder und zähle mit.
+      - Wie oft passt der Faktor 2 hinein, bis 1 übrig ist?
+    explanation: "Es sind {{k}} Durchläufe – so oft lässt sich {{n}} halbieren. Halbieren ist logarithmisch: $2^{ {{k}} }$ ≤ {{n}} < $2^{ {{k + 1}} }$."
+    difficulty: 3
+    variants:
+      params:
+        k: int[4,9]
+        r: int[0,400]
+      derive:
+        n: 2 ** k + mod(r, 2 ** k)
+      defaults:
+        k: 6
+        r: 36
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Woran erkennt man sicher, dass eine Schleife irgendwann endet?
+    params:
+      options:
+        - label: Eine ganze Zahl sinkt bei jedem Durchlauf und kann nicht unter 0 fallen
+          correct: true
+        - label: Sie ist kurz geschrieben
+          feedback: Auch eine Zeile kann ewig laufen.
+        - label: Sie lief beim Testen schnell durch
+          feedback: Andere Eingaben könnten hängen bleiben.
+    hints:
+      - Bei der Endlosschleife sprang x über die 0.
+      - Man sucht eine Größe, die stetig kleiner wird – aber nicht ewig.
+    explanation: So eine Größe heißt Variante oder Terminierungsfunktion. Eine natürliche Zahl kann nur endlich oft sinken.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x5
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man prüft, ob eine Schleife das Richtige tut und auch endet.
+    params:
+      keywords:
+        - - invariant
+          - immer gilt
+          - always true
+          - always holds
+        - - kleiner
+          - sinkt
+          - abnehm
+          - decreas
+          - smaller
+          - shrink
+        - - endet
+          - ende
+          - stop
+          - terminat
+          - halt
+      sample: Ich suche eine Invariante, die vor und nach jedem Durchlauf gilt – daraus folgt am Ende das Ergebnis. Und ich suche eine Zahl, die bei jedem Durchlauf kleiner wird, aber nicht unter 0 fällt. Dann endet die Schleife sicher.
     difficulty: 3

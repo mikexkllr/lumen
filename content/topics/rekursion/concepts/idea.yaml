@@ -5,7 +5,7 @@ summary: Ein großes Problem als kleineres derselben Art.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: fak-vier
@@ -91,6 +91,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "qs(n): Ist n < 10, gib n zurück. Sonst gib qs(n ohne letzte Ziffer) + letzte Ziffer zurück. Was ist qs({{n}})?"
+    answer:
+      value: "{{s}}"
+    hints:
+      - qs({{n}}) = qs({{floor(n / 10)}}) + {{mod(n, 10)}}.
+      - Schäle Ziffer für Ziffer ab, bis eine einzige übrig ist.
+    explanation: "Die Funktion bildet die Quersumme: {{s}}. Jeder Aufruf macht die Zahl eine Stelle kürzer – irgendwann greift der Basisfall."
+    difficulty: 2
+    variants:
+      params:
+        n: int[100,9999]
+      derive:
+        s: mod(n, 10) + mod(floor(n / 10), 10) + mod(floor(n / 100), 10) + floor(n / 1000)
+      defaults:
+        n: 4096
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: fak(n) wird rekursiv für n = 1000 aufgerufen. Wie viele Aufrufe liegen gleichzeitig auf dem Stapel, wenn gerade fak(1) rechnet?
+    answer:
+      value: 1000
+    hints:
+      - Keiner der Aufrufe ist fertig, bevor fak(1) antwortet.
+      - fak(1000), fak(999), …, fak(1).
+    explanation: Alle 1000 warten übereinander. Darum kann tiefe Rekursion den Stapel sprengen – die Schleife braucht nur eine Variable.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: bin(n) schreibt bin(n // 2) und hängt n mod 2 an. bin(1) ist »1«. Was ergibt bin(6)?
+    params:
+      options:
+        - label: "110"
+          correct: true
+        - label: "011"
+          feedback: Die letzte Ziffer kommt zuletzt dazu – hinten, nicht vorn.
+        - label: "101"
+          feedback: Das ist 5.
+    hints:
+      - bin(6) = bin(3) + »0«.
+      - bin(3) = bin(1) + »1« = »11«.
+    explanation: »11« + »0« = 110 = 6. Die Rekursion liefert die Ziffern in der richtigen Reihenfolge, weil sie erst nach dem Aufruf anhängt.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +158,74 @@ steps:
     hints:
       - Wie setzt der Computer selbst Rekursion um?
     explanation: Beides ist gleich mächtig. Rekursion ist oft eleganter, Schleifen oft sparsamer.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Warum ist eine Rekursion richtig? Wie bei der **Induktion**: Der Basisfall stimmt. Und wenn der Aufruf für n − 1 stimmt, stimmt auch der für n. Also stimmt er für jedes n."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: f(n) = f(n − 2) + 1, und f(0) = 0. Was passiert bei f(5)?
+    params:
+      options:
+        - label: "Sie endet nie: 5, 3, 1, −1 … – die 0 wird übersprungen"
+          correct: true
+        - label: Sie gibt 3 zurück
+          feedback: Dafür müsste sie bei 0 ankommen.
+        - label: Sie gibt 2,5 zurück
+          feedback: Hier wird nichts geteilt.
+    hints:
+      - Welche Zahlen durchläuft n?
+      - Ungerade Zahlen minus 2 bleiben ungerade.
+    explanation: "Ein Basisfall nützt nur, wenn jede Kette ihn auch erreicht. Abhilfe: zusätzlich f(1) = 0 oder »n ≤ 0« als Abbruch."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: In »gib summe(n − 1, acc + n) zurück« ist der rekursive Aufruf das Allerletzte. Was kann ein Compiler daraus machen?
+    params:
+      options:
+        - label: Eine Schleife – der Stapel wächst nicht mehr
+          correct: true
+        - label: Nichts – Rekursion bleibt Rekursion
+          feedback: Viele Compiler wandeln solche Aufrufe um.
+        - label: Einen schnelleren Algorithmus
+          feedback: Der Algorithmus bleibt gleich, nur der Speicherbedarf sinkt.
+    hints:
+      - Muss der Aufrufer nach dem Aufruf noch etwas tun?
+      - Wenn nicht, braucht man seinen Platz auf dem Stapel nicht mehr.
+    explanation: Das heißt Endrekursion. Der Compiler ersetzt den Aufruf durch einen Sprung an den Anfang – Speicher O(1) statt O(n).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie fak(4) rechnet.
+    params:
+      keywords:
+        - - fak(3)
+          - fact(3)
+          - fak 3
+          - fact 3
+          - 3!
+        - - fak(1)
+          - fact(1)
+          - basis
+          - base
+          - abbruch
+        - - zurück
+          - return
+          - ergebnis
+          - result
+          - "24"
+      sample: "fak(4) braucht fak(3), das braucht fak(2), das braucht fak(1). fak(1) ist der Basisfall und gibt 1 zurück. Dann geht es zurück: 2 · 1 = 2, 3 · 2 = 6, 4 · 6 = 24."
     difficulty: 3
 
 srs:

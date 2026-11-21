@@ -5,7 +5,7 @@ summary: Links kleiner, rechts größer.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -101,6 +101,105 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: Ein größerer Suchbaum. Wo steckt die 35? Tippe den Suchweg von der Wurzel 50 an.
+    params:
+      start: n50
+      end: n35
+      aspect: 0.7
+      nodes:
+        - id: n50
+          x: 50
+          y: 6
+          label: "50"
+        - id: n30
+          x: 26
+          y: 36
+          label: "30"
+        - id: n70
+          x: 74
+          y: 36
+          label: "70"
+        - id: n20
+          x: 10
+          y: 66
+          label: "20"
+        - id: n40
+          x: 40
+          y: 66
+          label: "40"
+        - id: n60
+          x: 60
+          y: 66
+          label: "60"
+        - id: n80
+          x: 90
+          y: 66
+          label: "80"
+        - id: n35
+          x: 30
+          y: 96
+          label: "35"
+      edges:
+        - a: n50
+          b: n30
+        - a: n50
+          b: n70
+        - a: n30
+          b: n20
+        - a: n30
+          b: n40
+        - a: n70
+          b: n60
+        - a: n70
+          b: n80
+        - a: n40
+          b: n35
+    hints:
+      - 35 ist kleiner als 50 – also links.
+      - "Bei 30: größer, also rechts. Bei 40: kleiner, also links."
+    explanation: 50 → 30 → 40 → 35. Drei Entscheidungen, und jede schließt einen ganzen Teilbaum aus.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Du fügst 1, 2, 3, …, 1000 der Reihe nach in einen einfachen Suchbaum ein. Wie viele Ebenen hat er danach?
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: assume-balanced
+        text: So wäre es bei einem ausgewogenen Baum. Hier hängt jede neue Zahl rechts unten an.
+    hints:
+      - Wohin kommt die 2, wenn die 1 die Wurzel ist? Wohin die 3?
+      - Jede Zahl ist größer als alle davor.
+    explanation: "Der Baum wird zur langen Kette: 1000 Ebenen. Suchen kostet dann O(n) wie in einer Liste."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Du liest einen Suchbaum in der Reihenfolge »linker Teilbaum – Knoten – rechter Teilbaum«. Was kommt heraus?
+    params:
+      options:
+        - label: Alle Werte sortiert
+          correct: true
+        - label: Die Werte in Einfügereihenfolge
+          feedback: Die Form des Baums vergisst die Einfügereihenfolge.
+        - label: Erst alle Blätter, dann die Wurzel
+          feedback: Das wäre eine andere Reihenfolge.
+    hints:
+      - Links ist alles kleiner, rechts alles größer.
+      - "Probier es am Baum oben: 20, 30, 35, 40 …"
+    explanation: Diese In-Order-Reihenfolge liefert sortierte Werte. Ein Suchbaum ist also eine Liste, die immer sortiert bleibt.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -130,6 +229,69 @@ steps:
           - strength
           - trade
       sample: "Jede Struktur ist bei etwas anderem schnell: Listen beim Zugriff, Stapel beim Rückgängigmachen, Hash-Tabellen beim Suchen. Man wählt je nach Aufgabe den besten Kompromiss."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Ausgewogene Bäume wie **AVL-Bäume** drehen sich beim Einfügen selbst zurecht. So bleibt die Höhe immer bei etwa log₂ n – auch wenn die Zahlen sortiert ankommen.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Datenbanken nutzen B-Bäume mit bis zu 100 Kindern pro Knoten. Wie viele Ebenen braucht man für 100 Millionen Einträge?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 27
+        misconception: binary
+        text: So viele bräuchte ein Binärbaum. Mit 100 Kindern pro Knoten geht es viel flacher.
+    hints:
+      - Jede Ebene verhundertfacht die Zahl der erreichbaren Einträge.
+      - $100^4$ = $10^8$.
+    explanation: $100^4$ = 100 Millionen. Vier Ebenen heißt vier Festplattenzugriffe – darum sind B-Bäume das Herz fast jeder Datenbank.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: "Ein Heap speichert einen Binärbaum in einem Array: Die Kinder von Platz i liegen bei 2i + 1 und 2i + 2. Wo liegt das linke Kind von Platz {{i}}?"
+    answer:
+      value: "{{2 * i + 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * i + 2
+        misconception: left-right
+        text: Das ist das rechte Kind.
+    hints:
+      - Setze i = {{i}} in 2i + 1 ein.
+      - 2 · {{i}} + 1.
+    explanation: 2 · {{i}} + 1 = {{2 * i + 1}}. Ganz ohne Zeiger – die Form des Baums steckt in der Rechnung. So arbeiten Prioritätswarteschlangen.
+    difficulty: 3
+    variants:
+      params:
+        i: int[2,40]
+      defaults:
+        i: 6
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Wie löscht man einen Knoten mit zwei Kindern aus einem Suchbaum?
+    params:
+      options:
+        - label: Man ersetzt ihn durch den nächstgrößeren Wert – das kleinste Element im rechten Teilbaum
+          correct: true
+        - label: Man löscht den ganzen Teilbaum
+          feedback: Dann gingen auch alle anderen Werte darin verloren.
+        - label: Man hängt beide Kinder an die Wurzel
+          feedback: Dann stimmt die Ordnung links kleiner, rechts größer nicht mehr.
+    hints:
+      - Der Ersatz muss größer als alles links und kleiner als alles rechts sein.
+      - Der Nachfolger in der sortierten Reihenfolge passt genau.
+    explanation: Der Nachfolger hat höchstens ein Kind und lässt sich leicht entfernen. Die Ordnung des Baums bleibt erhalten.
     difficulty: 3
 
 srs:

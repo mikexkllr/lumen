@@ -5,7 +5,7 @@ summary: XOR, NAND and the stairwell light.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: kette
@@ -94,6 +94,90 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: "Majority vote: the lamp should light up when at least two of three switches are on. Pick the first three gates."
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: g1
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: g2
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: g3
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g4
+          type: OR
+          in:
+            - g1
+            - g2
+            - g3
+      outputs:
+        - id: Q
+          from: g4
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - Each of the three gates checks one pair of switches.
+      - A pair counts only if both are on.
+    explanation: "(A AND B) OR (A AND C) OR (B AND C): as soon as any pair is on, two have agreed."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: How many of the 16 rows of A XOR B XOR C XOR D give 1?
+    answer:
+      value: 8
+    hints:
+      - An XOR chain is 1 when an odd number of inputs are on.
+      - Exactly half of all rows have an odd number of ones.
+    explanation: Flipping A flips the result. So the rows come in pairs of 0 and 1 – 8 out of 16.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Which simpler expression equals A OR (A AND B)?
+    params:
+      options:
+        - label: A
+          correct: true
+        - label: A AND B
+          feedback: At A = 1, B = 0 the expression is 1, but A AND B is 0.
+        - label: B
+          feedback: At A = 1, B = 0 the expression is 1, but B is 0.
+    hints:
+      - Try all four rows.
+      - If A = 1, everything is 1. If A = 0, A AND B is 0 too.
+    explanation: This is the absorption law. Rules like this save gates, power and space in chips.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +193,67 @@ steps:
     hints:
       - Try all four combinations.
     explanation: "That is why XOR is used for encryption: apply the key to encrypt, the same key again to decrypt."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: "XOR swap: a = 6 (110), b = 3 (011). The first step computes a = a XOR b. What is a afterwards?"
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: xor-as-add
+        text: "XOR is not addition: 1 XOR 1 gives 0, with no carry."
+    hints:
+      - "Compare digit by digit: equal gives 0, different gives 1."
+      - 110 XOR 011 = 101.
+    explanation: a = 101 = 5. Then b = a XOR b = 101 XOR 011 = 110 = 6 and a = 101 XOR 110 = 011 = 3. Swapped – without a helper variable.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Can you build a NOT from AND and OR gates alone, without any NOT?
+    params:
+      options:
+        - label: No – with all inputs at 0 they always output 0
+          correct: true
+        - label: Yes, with enough gates
+          feedback: "However many: AND and OR never turn 0 into 1."
+        - label: Yes, with an XOR
+          feedback: XOR is not AND or OR.
+    hints:
+      - What does AND(0, 0) give? And OR(0, 0)?
+      - NOT must turn 0 into 1.
+    explanation: "AND and OR are monotone: more ones at the input never produce fewer ones at the output. NOT is not monotone – so it is needed on its own."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the stairway light with two switches works.
+    params:
+      keywords:
+        - - xor
+          - entweder
+          - either
+          - genau einer
+          - exactly one
+        - - umschalt
+          - wechsel
+          - toggle
+          - flip
+          - ändert
+          - change
+        - - beide
+          - zwei schalter
+          - two switches
+          - both
+      sample: "The light is an XOR of both switches: it is on when exactly one is up. Whichever switch you flip, the result changes every time. If both are the same, it is off."
     difficulty: 3
 
 srs:

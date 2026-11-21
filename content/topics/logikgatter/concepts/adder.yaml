@@ -5,7 +5,7 @@ summary: Mit zwei Gattern binär addieren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -16,7 +16,6 @@ steps:
     hints:
       - Eine neue Stelle beginnt – wie bei 9 + 1 im Zehnersystem.
     explanation: 1 + 1 = 10. Dieser Übertrag ist der Kern jedes Rechenwerks.
-
 
   - kind: explain
     id: s1
@@ -98,6 +97,137 @@ steps:
     explanation: 11 + 6 = 17 = 10001. Der Übertrag wandert durch drei Stellen.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Ein **Volladdierer** addiert drei Bits: A, B und den Übertrag von rechts. Er besteht aus zwei Halbaddierern und einem ODER, das ihre Überträge zusammenfasst."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: gates
+    prompt: Vervollständige den Volladdierer. C ist der Übertrag von rechts. Wähle die beiden offenen Gatter.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+          label: Cin
+      gates:
+        - id: x1
+          type: XOR
+          in:
+            - A
+            - B
+        - id: s
+          type: "?"
+          in:
+            - x1
+            - C
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: a1
+          type: AND
+          in:
+            - A
+            - B
+        - id: a2
+          type: "?"
+          in:
+            - x1
+            - C
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: co
+          type: OR
+          in:
+            - a1
+            - a2
+      outputs:
+        - id: S
+          from: s
+          label: S
+        - id: U
+          from: co
+          label: Cout
+    check:
+      predicate: table('S') == [0, 1, 1, 0, 1, 0, 0, 1] && table('U') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - Die Summe ist 1, wenn ungerade viele der drei Bits an sind.
+      - Der zweite Übertrag entsteht nur, wenn x1 und C beide 1 sind.
+    explanation: S = A XOR B XOR C. Der Übertrag kommt aus A UND B oder aus (A XOR B) UND C.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: gates
+    prompt: Stelle A, B und den Eingangs-Übertrag so ein, dass S = 1 und der Ausgangs-Übertrag = 1 ist.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+          label: Cin
+      gates:
+        - id: x1
+          type: XOR
+          in:
+            - A
+            - B
+        - id: s
+          type: XOR
+          in:
+            - x1
+            - C
+        - id: a1
+          type: AND
+          in:
+            - A
+            - B
+        - id: a2
+          type: AND
+          in:
+            - x1
+            - C
+        - id: co
+          type: OR
+          in:
+            - a1
+            - a2
+      outputs:
+        - id: S
+          from: s
+          label: S
+        - id: U
+          from: co
+          label: Cout
+      goal:
+        S: 1
+        U: 1
+    hints:
+      - Welche Summe dreier Bits ergibt binär 11?
+      - 1 + 1 + 1 = 3 = 11.
+    explanation: "Alle drei an: 1 + 1 + 1 = 3, binär 11 – Summenbit 1, Übertrag 1."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Ein 8-Bit-Addierwerk rechnet 11111111 + 1. Wie viele Stellen kippen dabei von 1 auf 0?
+    answer:
+      value: 8
+    hints:
+      - Wie beim Zehnersystem 999 + 1.
+      - Der Übertrag läuft durch jede Stelle.
+    explanation: Alle 8 Stellen kippen, der Übertrag fällt links heraus. Ergebnis 00000000 – ein Überlauf. Für das Addierwerk ist das der langsamste Fall.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -114,6 +244,56 @@ steps:
     hints:
       - Was musst du beim schriftlichen Addieren ab der zweiten Stelle mitrechnen?
     explanation: Ein **Volladdierer** hat drei Eingänge. 64 davon hintereinander addieren 64-Bit-Zahlen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Jeder Volladdierer braucht 2 ns, bis sein Übertrag fertig ist. Wie viele ns braucht ein 64-Bit-Addierer, wenn der Übertrag durch alle Stellen läuft?
+    params:
+      unit: ns
+    answer:
+      value: 128
+    hints:
+      - Jede Stelle wartet auf den Übertrag von rechts.
+      - 64 · 2 ns.
+    explanation: 64 · 2 ns = 128 ns – bei 3 GHz wären das fast 400 Takte. Echte Prozessoren berechnen die Überträge darum vorausschauend und parallel (Carry-Lookahead).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: bits
+    prompt: Das Addierwerk rechnet 7 − 3 als 0111 + 1101 (das ist −3 im Zweierkomplement). Stelle das 4-Bit-Ergebnis ein – der Übertrag fällt weg.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: 4
+    hints:
+      - 0111 + 1101 = 10100.
+      - Nur die rechten 4 Stellen zählen.
+    explanation: 0111 + 1101 = 1 0100. Ohne den Übertrag bleibt 0100 = 4. Darum braucht ein Prozessor kein eigenes Subtrahierwerk.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Wie viele Volladdierer braucht ein Addierwerk, das zwei 32-Bit-Zahlen in einem Rutsch addiert?
+    params:
+      options:
+        - label: 32 – einen pro Stelle
+          correct: true
+        - label: "64"
+          feedback: Jede Stelle verarbeitet ein Bit aus jeder Zahl gleichzeitig.
+        - label: 1, der 32-mal rechnet
+          feedback: Das ginge, wäre aber 32-mal langsamer.
+    hints:
+      - Ein Volladdierer verarbeitet A, B und den Übertrag einer Stelle.
+      - Wie viele Stellen haben die Zahlen?
+    explanation: 32 Volladdierer in einer Kette. Ganz rechts genügt sogar ein Halbaddierer, weil dort kein Übertrag hereinkommt.
     difficulty: 3
 
 srs:

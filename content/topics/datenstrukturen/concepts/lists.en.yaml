@@ -5,7 +5,7 @@ summary: Jump instead of search.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -126,6 +126,55 @@ steps:
     explanation: "Array and linked list trade strengths: fast access versus fast insertion."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Why is access so fast? The **address** of every element can be computed: start + index · size. A calculation instead of a search – however long the list."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: An array starts at address 1000 and each element is 4 bytes. At what address is element no. {{i}}? Counting starts at 0.
+    answer:
+      value: "{{1000 + 4 * i}}"
+    feedback:
+      - when: numval(state.input) == 1000 + 4 * (i - 1)
+        misconception: off-by-one
+        text: "Counting starts at 0: element 0 is at 1000."
+      - when: numval(state.input) == 1000 + i
+        misconception: forgot-size
+        text: Each element takes 4 bytes, not one.
+    hints:
+      - Element 0 is at 1000, element 1 at 1004.
+      - 1000 + {{i}} · 4.
+    explanation: "1000 + {{i}} · 4 = {{1000 + 4 * i}}. That is why many languages count from 0: the index is the offset from the start."
+    difficulty: 2
+    variants:
+      params:
+        i: int[3,50]
+      defaults:
+        i: 10
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: You read the 1000th element very often and rarely insert anything. Which structure fits?
+    params:
+      options:
+        - label: An array
+          correct: true
+        - label: A linked list
+          feedback: To reach the 1000th element you would follow 999 links.
+        - label: It does not matter
+          feedback: The difference is O(1) versus O(n).
+    hints:
+      - What can an array do especially fast?
+      - What can a linked list do especially fast?
+    explanation: Arrays are strong at access, linked lists at insertion. The right structure depends on what you do often.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -142,6 +191,63 @@ steps:
     hints:
       - How often would you copy if you added just one slot each time?
     explanation: For a million elements you copy only 20 times instead of a million. This is called **amortised** running time.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: "An array doubles in size whenever it is full: 1, 2, 4, 8 … How many elements are copied in total until it has grown to 1024 slots?"
+    answer:
+      value: 1023
+    hints:
+      - Growing from 1 to 2 copies 1 element, from 2 to 4 two …
+      - 1 + 2 + 4 + … + 512.
+    explanation: 1 + 2 + … + 512 = 1023 – less than one copy per element. On average appending costs O(1), even though single steps are expensive.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: In practice arrays are often faster than linked lists – even for a simple pass through. Why?
+    params:
+      options:
+        - label: The elements sit side by side, so the processor loads them into the cache in blocks
+          correct: true
+        - label: Because linked lists have more elements
+          feedback: Both store the same elements.
+        - label: Because arrays are sorted
+          feedback: Arrays are not sorted by themselves.
+    hints:
+      - Where do the links of a linked list sit in memory?
+      - Scattered – every jump can miss the cache.
+    explanation: A cache miss costs about 100 times as much as a hit. Data lying side by side is therefore much faster, even with the same O.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between an array and a linked list.
+    params:
+      keywords:
+        - - nummer
+          - index
+          - position
+          - adresse
+          - address
+        - - nachfolger
+          - zeiger
+          - next
+          - pointer
+          - verweis
+          - link
+        - - einfüg
+          - insert
+          - aufrück
+          - shift
+      sample: "In an array all elements sit side by side. From the index you compute the address and jump straight there, but inserting at the front makes everyone shift. In a linked list each element points to its next one: inserting is quick, jumping is not."
     difficulty: 3
 
 srs:

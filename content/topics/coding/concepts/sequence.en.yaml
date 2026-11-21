@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.sequence]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: geradeaus
@@ -92,6 +92,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: A maze. Find the way to the flag – with at most 10 blocks.
+    params:
+      grid:
+        - S.#.G
+        - "#...#"
+        - ..#..
+      blocks:
+        - forward
+        - left
+        - right
+      maxBlocks: 10
+    hints:
+      - To your right there is only one free square. Where next?
+      - "Go round below: forward, right, forward, left – then on to the right and up."
+    explanation: forward, right, forward, left, forward, forward, left, forward, right, forward.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: The robot faces north. It turns right, right, left. Which way does it face now?
+    params:
+      options:
+        - label: East
+          correct: true
+        - label: West
+          feedback: Right twice is south, then one left.
+        - label: South
+          feedback: After two rights – but then comes a left.
+    hints:
+      - Go through the turns one by one.
+      - North, right → east, right → south, left → ?
+    explanation: "North → east → south → east. A right and a left cancel: one right turn remains."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: The robot turns right {{k}} times. What is the fewest right turns that leave it facing the same way?
+    answer:
+      value: "{{mod(k, 4)}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: full-turns
+        text: That is every turn. You can drop full circles of four turns.
+    hints:
+      - Four right turns make a full circle.
+      - Subtract 4 as often as you can.
+    explanation: "{{k}} mod 4 = {{mod(k, 4)}}. Full circles do not change the direction – that is modular arithmetic."
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,15]
+      constraints:
+        - mod(k, 4) != 0
+      defaults:
+        k: 7
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "An **algorithm** is a recipe that always works: finitely many unambiguous steps that reach the goal for every suitable input. A program writes it down for a computer."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,4 +170,68 @@ steps:
     hints:
       - Each of the 4 positions offers 3 commands.
     explanation: 3⁴ = 81. With 20 commands it would be 3.5 billion – that is why you cannot simply try out programs.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: The robot knows 3 commands. How many different programs have 1 to 4 commands?
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 81
+        misconception: only-longest
+        text: Those are only the programs with exactly 4 commands. Add the shorter ones.
+    hints:
+      - "Count each length separately: 3, then 3 · 3 …"
+      - 3 + 9 + 27 + 81.
+    explanation: 3 + 9 + 27 + 81 = 120. Each extra command triples the count – the longest programs are the majority.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Two different programs take the robot to the same flag. What is true?
+    params:
+      options:
+        - label: Both can be correct – there are usually many solutions
+          correct: true
+        - label: One of them must be wrong
+          feedback: One goal, many paths – that is normal.
+        - label: The shorter one is always better
+          feedback: Shorter is often nicer, but readable code counts too.
+    hints:
+      - Think of routes through a town.
+      - Is there only one way to the station?
+    explanation: A task has many correct programs. You compare them by length, speed and readability.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a computer needs such precise commands.
+    params:
+      keywords:
+        - - genau
+          - eindeutig
+          - exact
+          - precise
+          - unambiguous
+          - klar
+          - clear
+        - - reihenfolge
+          - nacheinander
+          - order
+          - sequence
+          - one after
+        - - versteh
+          - raten
+          - mitdenken
+          - guess
+          - understand
+          - think
+      sample: A computer does not think along and cannot guess. It carries out each command exactly as written, in order. If a command is vague or missing, it ends up somewhere else.
     difficulty: 3

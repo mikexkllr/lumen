@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: c1
@@ -105,6 +105,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Du gehst von der linken oberen zur rechten unteren Ecke eines Gitters: {{a}} Schritte nach rechts, {{b}} nach unten, beliebig gemischt. Wie viele Wege gibt es?"
+    answer:
+      value: "{{c}}"
+    hints:
+      - "Fülle eine Tabelle: Jedes Feld = Wege von oben + Wege von links."
+      - Der Rand hat überall genau 1 Weg.
+    explanation: "Es sind {{c}} Wege. Das ist »{{a + b}} über {{a}}«: Man wählt, welche der {{a + b}} Schritte nach rechts gehen."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[2,3,4]
+        b: int[2,4]
+      derive:
+        n: a + b
+        c: "a == 2 ? n * (n - 1) / 2 : a == 3 ? n * (n - 1) * (n - 2) / 6 : n * (n - 1) * (n - 2) * (n - 3) / 24"
+      defaults:
+        a: 3
+        b: 3
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "Wie viele Änderungen braucht man mindestens von »KATZE« zu »SATZ«? Erlaubt: Buchstabe einfügen, löschen oder ersetzen."
+    answer:
+      value: 2
+    hints:
+      - Ein Buchstabe muss weg – die Längen unterscheiden sich.
+      - K wird zu S, das E fällt weg.
+    explanation: "Ersetzen und Löschen: 2. Weniger geht nicht, weil schon die Längen und der erste Buchstabe verschieden sind. Diese Editierdistanz berechnet man per DP – so arbeiten Rechtschreibprüfungen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -134,6 +170,70 @@ steps:
     hints:
       - Was hat das Merken bei Fibonacci gespart?
     explanation: Sie tauscht Speicher gegen Zeit. So vergleichen Programme DNA und korrigieren Tippfehler.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "DP braucht zwei Zutaten. Erstens **optimale Teilstruktur**: Die beste Lösung setzt sich aus besten Teillösungen zusammen. Zweitens überlappende Teilprobleme, die immer wieder auftauchen."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Münzen zu 1, 10 und 25 Cent. Wie viele Münzen braucht man mindestens für 30 Cent?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: greedy
+        text: Das ist die gierige Lösung 25 + 5 · 1. Ohne die 25 geht es besser.
+    hints:
+      - Probier es ohne die 25.
+      - 10 + 10 + 10.
+    explanation: 3 · 10 = 30 mit 3 Münzen. Gierig gäbe 25 + 1 + 1 + 1 + 1 + 1 = 6 Münzen. Die DP-Tabelle findet die 3, weil sie für jeden kleineren Betrag die beste Lösung kennt.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Die Münz-Tabelle hat einen Eintrag pro Betrag bis B. Für jeden prüft man k Münzsorten. Wie viele Schritte braucht sie?
+    params:
+      options:
+        - label: Etwa B · k
+          correct: true
+        - label: Etwa $k^B$
+          feedback: Das wäre bloßes Ausprobieren aller Kombinationen.
+        - label: Etwa B + k
+          feedback: Für jeden Betrag prüft man alle k Sorten.
+    hints:
+      - Zähle Tabelleneinträge mal Arbeit pro Eintrag.
+      - B Einträge, je k Vergleiche.
+    explanation: "B · k Schritte. Vorsicht: Das ist polynomiell in B, aber B hat nur log₂ B Stellen. Solche Verfahren heißen pseudopolynomiell."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Was macht DP anders als eine schlichte Rekursion?"
+    params:
+      keywords:
+        - - merk
+          - tabelle
+          - speicher
+          - table
+          - store
+          - memo
+        - - einmal
+          - nur einmal
+          - once
+        - - klein
+          - small
+          - teilproblem
+          - subproblem
+      sample: Die naive Rekursion rechnet dieselben Teilprobleme immer wieder neu. Dynamische Programmierung löst jedes kleine Teilproblem nur einmal, merkt sich das Ergebnis in einer Tabelle und baut daraus die großen Lösungen.
     difficulty: 3
 
 srs:

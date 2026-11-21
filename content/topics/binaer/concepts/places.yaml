@@ -5,7 +5,7 @@ summary: Jede Stelle ist doppelt so viel wert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 1023
       tolerance: 150
     explanation: Bis 1023 – statt nur bis 10. Jeder Finger verdoppelt die Möglichkeiten.
-
 
   - kind: problem
     id: fuenf
@@ -108,6 +107,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: Stelle {{n}} mit acht Bits ein – diesmal ohne Anzeige.
+    params:
+      bits: 8
+      showValue: false
+    answer:
+      value: "{{n}}"
+    hints:
+      - "Fang links an: Passt 128 hinein?"
+      - Zieh jede passende Zweierpotenz ab und mach mit dem Rest weiter.
+    explanation: "{{n}} ist binär {{bin(n)}}."
+    variants:
+      params:
+        n: int[100,250]
+      defaults:
+        n: 182
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Welche ist die größte Zahl, die in {{k}} Bits passt?
+    answer:
+      value: "{{2 ** k - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k
+        misconception: off-by-one
+        text: Das ist die Zahl der Werte. Die 0 zählt mit – die größte Zahl ist eins kleiner.
+    hints:
+      - Wie viele verschiedene Werte gibt es mit {{k}} Bits?
+      - Der kleinste Wert ist 0. Der größte ist also 2 hoch {{k}} minus 1.
+    explanation: "Alle {{k}} Bits an: $2^{ {{k}} } - 1 = {{2 ** k - 1}}$."
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,16]
+      defaults:
+        k: 10
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Warum ist 1111 genau eins weniger als 10000?
+    reveal:
+      body: Zähl eins dazu. Alle Einsen kippen auf 0, der Übertrag läuft ganz nach links. Darum gilt 1 + 2 + 4 + 8 = 16 − 1.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Jede ungerade Zahl endet binär auf 1.
+          right: true
+          why: Die letzte Stelle zählt 1 – nur sie macht eine Zahl ungerade.
+        - text: Binär 1000 bedeutet tausend.
+          right: false
+          why: Binär 1000 ist 8.
+        - text: Eine 5-stellige Binärzahl ohne führende Null ist mindestens 16.
+          right: true
+          why: Die vorderste Stelle zählt 16.
+        - text: Mit 8 Bits kommt man bis 256.
+          right: false
+          why: Bis 255 – zusammen mit der 0 sind das 256 Werte.
+        - text: Hängt man rechts eine 1 an, wird aus n die Zahl 2n + 1.
+          right: true
+          why: Anhängen verdoppelt, die neue 1 zählt eins dazu.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -123,6 +196,77 @@ steps:
     hints:
       - Jede Stelle rutscht eins nach links – und ist dort doppelt so viel wert.
     explanation: "Computer multiplizieren mit 2, indem sie Bits verschieben: ein **Shift**. Das ist blitzschnell."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Die Zahl {{n}} ist binär {{bin(n)}}. Du streichst die letzte Stelle. Welche Zahl bleibt?
+    answer:
+      value: "{{floor(n / 2)}}"
+    feedback:
+      - when: numval(state.input) == n * 2
+        misconception: shift-direction
+        text: Anhängen verdoppelt – streichen macht das Gegenteil.
+    hints:
+      - Rechts eine Stelle anhängen verdoppelt. Was macht das Streichen?
+      - Halbieren und abrunden – die gestrichene 1 geht verloren.
+    explanation: "Streichen ist eine Verschiebung nach rechts: geteilt durch 2, abgerundet. Aus {{bin(n)}} wird {{bin(floor(n / 2))}}."
+    difficulty: 3
+    variants:
+      params:
+        n: int[21,99]
+      constraints:
+        - n % 2 == 1
+      defaults:
+        n: 45
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Binärstellen braucht die Zahl {{n}}?
+    answer:
+      value: "{{k}}"
+    hints:
+      - Welche ist die größte Zweierpotenz, die in {{n}} passt?
+      - Die höchste Stelle ist {{2 ** (k - 1)}} wert. Zähl die Stellen von 1 bis dahin.
+    explanation: $2^{ {{k - 1}} } = {{2 ** (k - 1)}}$ passt, $2^{ {{k}} } = {{2 ** k}}$ nicht mehr. Also {{k}} Stellen.
+    difficulty: 3
+    variants:
+      params:
+        k: int[6,11]
+        r: int[0,500]
+      derive:
+        n: 2 ** (k - 1) + mod(r, 2 ** (k - 1))
+      defaults:
+        k: 10
+        r: 488
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum ergeben n Bits genau 2ⁿ verschiedene Werte?"
+    params:
+      keywords:
+        - - verdoppel
+          - doppelt
+          - double
+          - mal 2
+          - times 2
+        - - bit
+          - stelle
+          - digit
+          - place
+        - - zwei zustände
+          - 0 oder 1
+          - null oder eins
+          - two states
+          - 0 or 1
+          - zero or one
+      sample: "Jedes Bit ist 0 oder 1 – zwei Zustände. Ein neues Bit verdoppelt die Möglichkeiten: Jede alte Kombination gibt es einmal mit 0 und einmal mit 1 davor. n Bits heißt n-mal verdoppeln, also 2ⁿ."
     difficulty: 3
 
 srs:

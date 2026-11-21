@@ -5,7 +5,7 @@ summary: Logarithmisch, linear, quadratisch.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: telefonbuch
@@ -89,6 +89,86 @@ steps:
     explanation: 10² = 100-mal so lange.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Die **O-Notation** fasst Wachstum zusammen: Konstante Faktoren und kleine Terme fallen weg. 3n² + 5n + 7 ist O(n²), denn für großes n zählt nur der n²-Teil."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: Welches Wachstum passt?
+    params:
+      buckets:
+        - id: b1
+          label: O(1)
+        - id: b2
+          label: O(log n)
+        - id: b3
+          label: O(n)
+        - id: b4
+          label: O(n²)
+      items:
+        - label: Element Nr. 5 einer Liste lesen
+          bucket: b1
+        - label: Binäre Suche
+          bucket: b2
+        - label: Maximum einer Liste finden
+          bucket: b3
+        - label: Alle Paare vergleichen
+          bucket: b4
+        - label: Summe einer Liste bilden
+          bucket: b3
+        - label: Im ausgewogenen Suchbaum suchen
+          bucket: b2
+        - label: Bubble-Sort
+          bucket: b4
+        - label: Hash-Tabelle nachschlagen (im Schnitt)
+          bucket: b1
+    hints:
+      - Muss man jedes Element ansehen? Dann mindestens O(n).
+      - Halbieren ergibt log n, alle Paare n².
+    explanation: Direkter Zugriff ist O(1), Halbieren O(log n), einmal alles ansehen O(n), jedes Paar O(n²).
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Verfahren braucht n · log₂ n Schritte. Wie viele Millionen Schritte sind es für n = 1 048 576 = $2^{20}$? Runde auf ganze Millionen.
+    answer:
+      value: 21
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 1) < 0.1
+        misconception: forgot-log
+        text: Das ist n allein. Mal log₂ n = 20 kommt dazu.
+    hints:
+      - log₂ von $2^{20}$ ist 20.
+      - 1 048 576 · 20.
+    explanation: 1 048 576 · 20 ≈ 21 Millionen. Ein n²-Verfahren bräuchte über eine Billion Schritte.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: "»Für i von 1 bis n: für j von i bis n: zähle eins.« Welches Wachstum hat das?"
+    params:
+      options:
+        - label: O(n²) – es sind n · (n + 1) / 2 Schritte
+          correct: true
+        - label: O(n) – die innere Schleife wird ja kürzer
+          feedback: Sie wird kürzer, aber im Schnitt läuft sie n/2-mal.
+        - label: O(n log n)
+          feedback: Hier wird nichts halbiert.
+    hints:
+      - "Zähle für n = 4: 4 + 3 + 2 + 1."
+      - Die Summe 1 + … + n wächst wie n² / 2.
+    explanation: "n + (n − 1) + … + 1 = n · (n + 1) / 2. Der Faktor 1/2 fällt weg: O(n²)."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -105,6 +185,89 @@ steps:
     hints:
       - Setz n = 10 und n = 1000 ein.
     explanation: "Die **O-Notation** ignoriert Vorfaktoren: Für große n zählt nur die Wachstumsart."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Computer schafft $10^9$ Schritte pro Sekunde. Wie groß darf n höchstens sein, damit ein n²-Verfahren in einer Sekunde fertig ist?
+    answer:
+      value: 31623
+      tolerance: 100
+    feedback:
+      - when: abs(numval(state.input) - 1000000000) < 1
+        misconception: linear
+        text: Das ginge mit einem n-Verfahren. Bei n² zählt die Wurzel.
+    hints:
+      - Gesucht ist n mit n² = $10^9$.
+      - Die Wurzel aus $10^9$.
+    explanation: √($10^9$) ≈ 31 623. Mit n · log₂ n schafft man in derselben Sekunde rund 40 Millionen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Was heißt genau »f ist O(g)«?
+    params:
+      options:
+        - label: Ab einem n₀ gilt f(n) ≤ c · g(n) für eine feste Zahl c
+          correct: true
+        - label: f und g sind immer gleich groß
+          feedback: O ist nur eine obere Schranke.
+        - label: f ist für jedes n kleiner als g
+          feedback: Für kleine n darf f größer sein – und um einen Faktor auch.
+    hints:
+      - Konstanten sollen keine Rolle spielen.
+      - Kleine n sollen auch keine Rolle spielen.
+    explanation: Zum Beispiel ist 3n² + 5n ≤ 4n² für alle n ≥ 5. Also ist 3n² + 5n in O(n²) mit c = 4 und n₀ = 5.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein O(n²)-Verfahren braucht für n = 1000 genau 1 Sekunde. Wie viele Sekunden braucht es für n = {{n}}?
+    params:
+      unit: s
+    answer:
+      value: "{{(n / 1000) ** 2}}"
+    feedback:
+      - when: numval(state.input) == n / 1000
+        misconception: linear
+        text: Linear gedacht. Bei n² wächst die Zeit mit dem Quadrat des Faktors.
+    hints:
+      - Um welchen Faktor wächst n?
+      - Die Zeit wächst mit dem Quadrat dieses Faktors.
+    explanation: n wächst um den Faktor {{n / 1000}}, die Zeit um {{n / 1000}}² = {{(n / 1000) ** 2}}.
+    difficulty: 3
+    variants:
+      params:
+        n: choice[2000,3000,5000,10000,30000]
+      defaults:
+        n: 5000
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was O(n²) bedeutet und warum Konstanten dabei egal sind.
+    params:
+      keywords:
+        - - wachs
+          - grow
+        - - verdoppel
+          - doppelt
+          - double
+          - vierfach
+          - quadrup
+          - four times
+        - - konstant
+          - faktor
+          - constant
+          - factor
+      sample: "O(n²) beschreibt, wie der Aufwand wächst: Verdoppelt sich die Eingabe, vervierfacht sich die Zeit. Ein konstanter Faktor wie 3 ändert nur das Tempo, nicht das Wachstum – darum lässt man ihn weg."
     difficulty: 3
 
 srs:

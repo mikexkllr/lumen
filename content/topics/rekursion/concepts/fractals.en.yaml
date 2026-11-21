@@ -5,7 +5,7 @@ summary: Patterns that contain themselves.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: explain
     id: s1
@@ -79,6 +79,79 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: pixels
+    prompt: "Rule: a cell is on if exactly one of the two cells above it is on – directly above or above-left. Fill in the last row."
+    params:
+      cells:
+        - "#...."
+        - "##..."
+        - "#.#.."
+        - "####."
+        - .....
+      locked:
+        - xxxxx
+        - xxxxx
+        - xxxxx
+        - xxxxx
+        - .....
+    answer:
+      pattern:
+        - "#...."
+        - "##..."
+        - "#.#.."
+        - "####."
+        - "#...#"
+    hints:
+      - The row above is full except for the last cell.
+      - Two full cells above give off. Only far left and far right have exactly one on.
+    explanation: This is Pascal's triangle with the odd numbers coloured. Continued, it becomes the Sierpinski triangle.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: The Koch curve starts at 1 m and grows by a factor of 4/3 each step. How long is it after 5 steps? Round to two decimals.
+    params:
+      unit: m
+    answer:
+      value: 4.21
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 2.67) < 0.02
+        misconception: linear-growth
+        text: "That would be linear: 1 + 5 · 1/3. But the length is multiplied each time."
+    hints:
+      - Compute $(4/3)^5$.
+      - $4^5$ = 1024, $3^5$ = 243.
+    explanation: 1024 / 243 ≈ 4.21 m. After 100 steps it would be longer than the way to the Moon – inside a 1 m box.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: The Koch snowflake starts as a triangle of 3 segments. Each step turns every segment into 4. How many segments does it have after {{n}} steps?
+    answer:
+      value: "{{3 * 4 ** n}}"
+    feedback:
+      - when: numval(state.input) == 4 ** n
+        misconception: forgot-start
+        text: You started with one segment. The flake has three.
+    hints:
+      - Each step multiplies by 4.
+      - 3 · $4^{ {{n}} }$.
+    explanation: "3 · $4^{ {{n}} }$ = {{3 * 4 ** n}} segments. A program draws it recursively: segment = four smaller segments."
+    difficulty: 2
+    variants:
+      params:
+        n: int[1,6]
+      defaults:
+        n: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +162,77 @@ steps:
     hints:
       - log 3 ≈ 0.477 and log 2 ≈ 0.301.
     explanation: 1.58 – more than a line, less than a surface. Fractals have fractional dimensions.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: The Koch curve consists of 4 copies, each scaled down by a factor of 3. What is its fractal dimension log 4 / log 3? Round to two decimals.
+    answer:
+      value: 1.26
+      tolerance: 0.01
+    hints:
+      - log 4 ≈ 0.602, log 3 ≈ 0.477.
+      - Divide the two numbers.
+    explanation: 0.602 / 0.477 ≈ 1.26. More than a line (1), less than an area (2).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "The Sierpinski carpet: a square is cut into 9 parts and the middle one removed. 8 copies at a factor of 3 remain. What is its dimension? Round to two decimals."
+    answer:
+      value: 1.89
+      tolerance: 0.01
+    hints:
+      - Dimension = log(copies) / log(factor).
+      - log 8 / log 3 ≈ 0.903 / 0.477.
+    explanation: log 8 / log 3 ≈ 1.89 – almost an area, but not quite.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: In the Sierpinski triangle a quarter of the area is removed each step. What is left after infinitely many steps?
+    params:
+      options:
+        - label: Area 0 – even though infinitely many points remain
+          correct: true
+        - label: A quarter of the area
+          feedback: Another quarter is removed every step.
+        - label: Nothing at all
+          feedback: All corners and edges remain.
+    hints:
+      - After n steps $(3/4)^n$ of the area is left.
+      - What happens to $(3/4)^n$ for large n?
+    explanation: $(3/4)^n$ tends to 0. The fractal has no area – and yet infinitely many points. That is why its dimension lies between 1 and 2.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a fractal is.
+    params:
+      keywords:
+        - - selbst
+          - self
+          - kopie
+          - copy
+          - sich
+        - - kleiner
+          - smaller
+          - verklein
+          - scale
+        - - immer wieder
+          - unendlich
+          - forever
+          - infinit
+          - again
+      sample: A fractal contains smaller copies of itself. Each copy again consists of even smaller copies – again and again, in principle infinitely. That is why it can be drawn recursively.
     difficulty: 3
 
 srs:

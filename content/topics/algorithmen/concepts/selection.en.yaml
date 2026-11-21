@@ -5,7 +5,7 @@ summary: Send each number straight to its place.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: frei
@@ -74,6 +74,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: How many comparisons does selection sort need for {{n}} numbers?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: swaps-vs-comparisons
+        text: That is the number of swaps. But each minimum takes many comparisons.
+    hints:
+      - Round 1 compares {{n - 1}} times, round 2 one fewer.
+      - "{{n - 1}} + {{n - 2}} + … + 1."
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} comparisons – always, even if the list is already sorted."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: Selection sort on 5, 3, 4, 1, 2. What does the list look like after two rounds?
+    params:
+      items:
+        - label: "1"
+        - label: "2"
+        - label: "4"
+        - label: "5"
+        - label: "3"
+      direction: horizontal
+    hints:
+      - "Round 1: the 1 swaps with the 5."
+      - "Round 2: the 2 swaps with whatever is in place 2."
+    explanation: "Round 1: 1, 3, 4, 5, 2. Round 2: the 2 swaps with the 3: 1, 2, 4, 5, 3. The sorted part grows at the front."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: How many comparisons does selection sort need for a list that is already sorted?
+    params:
+      options:
+        - label: Just as many as usual – it searches every minimum completely
+          correct: true
+        - label: None
+          feedback: How would it know the list is sorted?
+        - label: n − 1
+          feedback: That is what one check pass takes – but selection sort does not make one.
+    hints:
+      - How does it know the first number is the minimum?
+      - Only by comparing with all the others.
+    explanation: Selection sort does not notice that there is nothing to do. It always needs n · (n − 1) / 2 comparisons.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -89,6 +149,47 @@ steps:
     hints:
       - You sort first by first name, then by surname. What should hold for equal surnames?
     explanation: With stable methods you can sort by several columns in turn. Selection sort is not stable.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "**Insertion sort** takes one card after another and slides it into place in the already sorted part – like sorting a hand of cards. On nearly sorted lists it is very fast."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Insertion sort gets an already sorted list of 100 numbers. How many comparisons does it need?
+    answer:
+      value: 99
+    feedback:
+      - when: numval(state.input) == 4950
+        misconception: worst-case
+        text: That would be the worst case. Here every card fits at once.
+    hints:
+      - Each new card is compared with its left neighbour.
+      - If it fits, it is done. How many new cards are there?
+    explanation: 99 comparisons, not a single shift. That is why fast sorting methods often use insertion sort for small pieces.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Selection sort on 2a, 2b, 1 (two equal twos, a before b). What comes out?
+    params:
+      options:
+        - label: 1, 2b, 2a – the twos have swapped
+          correct: true
+        - label: 1, 2a, 2b
+          feedback: The 1 swaps with the front element. Where does 2a go?
+        - label: 2a, 2b, 1
+          feedback: The 1 is the minimum and must go to the front.
+    hints:
+      - "Round 1: the 1 swaps with the front element."
+      - The front element is 2a. It jumps to the end.
+    explanation: The long jump carries 2a past 2b. So selection sort is not stable – unlike bubble and insertion sort.
     difficulty: 3
 
 srs:

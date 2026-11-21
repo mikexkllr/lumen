@@ -5,7 +5,7 @@ summary: Alarm system, comparator, check bit.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: alarm
@@ -76,6 +76,121 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: "A comparator: the lamp should light when A is greater than B – that is, A = 1 and B = 0. Pick the second gate."
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: nb
+          type: NOT
+          in:
+            - B
+        - id: g
+          type: "?"
+          in:
+            - A
+            - nb
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: Q
+          from: g
+    check:
+      predicate: table('Q') == [0, 0, 1, 0]
+    hints:
+      - The NOT gives 1 when B is off.
+      - A must be on, and NOT B as well.
+    explanation: A AND (NOT B). Chains of such comparators compare whole numbers – bit by bit from the left.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: gates
+    prompt: "A switch (multiplexer): if S = 0 the lamp shows A, if S = 1 it shows B. Pick the two AND candidates."
+    params:
+      inputs:
+        - id: S
+        - id: A
+        - id: B
+      gates:
+        - id: ns
+          type: NOT
+          in:
+            - S
+        - id: g1
+          type: "?"
+          in:
+            - A
+            - ns
+          options:
+            - AND
+            - OR
+        - id: g2
+          type: "?"
+          in:
+            - B
+            - S
+          options:
+            - AND
+            - OR
+        - id: g3
+          type: OR
+          in:
+            - g1
+            - g2
+      outputs:
+        - id: Q
+          from: g3
+    check:
+      predicate: table('Q') == [0, 0, 1, 1, 0, 1, 0, 1]
+    hints:
+      - g1 should let A through only when S = 0.
+      - "Letting through means: A AND permission."
+    explanation: (A AND NOT S) OR (B AND S). This is how a processor chooses between results.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: bits
+    prompt: "The first 7 bits are data, the right one is the parity bit. Set it correctly: 1 for an odd number of ones in the data, otherwise 0."
+    params:
+      bits: 8
+      initial: "{{bin(n)}}{{1 - p}}"
+      locked:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      showValue: false
+      placeValues: false
+    answer:
+      value: "{{2 * n + p}}"
+    hints:
+      - Count the ones in the first seven bits.
+      - Odd count → parity bit 1, even → 0.
+    explanation: The data {{bin(n)}} has {{c}} ones, so parity bit {{p}}. Afterwards the number of ones is always even.
+    variants:
+      params:
+        n: int[65,127]
+      derive:
+        c: mod(n, 2) + mod(floor(n / 2), 2) + mod(floor(n / 4), 2) + mod(floor(n / 8), 2) + mod(floor(n / 16), 2) + mod(floor(n / 32), 2) + mod(floor(n / 64), 2)
+        p: mod(c, 2)
+      defaults:
+        n: 89
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -104,6 +219,47 @@ steps:
           - carry
           - bit
       sample: Switches are connected into logic gates such as AND, OR and XOR. Combined cleverly, gates can add two bits and produce a carry – many of them calculate with whole numbers.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: A parity bit detects an error but cannot locate it. The **Hamming code** uses several overlapping parity bits. From the pattern of wrong parity bits you read off the error position and flip it back.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Hamming(7,4): 4 data bits, 3 parity bits. The 3 parity bits form $2^3$ patterns, one of them meaning »no error«. How many error positions can they tell apart?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: forgot-ok
+        text: One pattern is reserved for »all fine«.
+    hints:
+      - How many patterns are left for errors?
+      - 8 − 1.
+    explanation: "7 patterns for 7 positions – exactly the length of the code. No accident: Hamming codes use every pattern."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Why do servers usually have memory with error correction (ECC)?
+    params:
+      options:
+        - label: Radiation and interference occasionally flip bits – ECC fixes them silently
+          correct: true
+        - label: Because server programs have more bugs
+          feedback: ECC fixes hardware bits, not programming errors.
+        - label: To make memory faster
+          feedback: ECC costs a little speed, if anything.
+    hints:
+      - What happens if a bit occasionally flips in millions of machines?
+      - A Hamming-like code sits in every memory word.
+    explanation: Cosmic rays really do flip bits. Across thousands of servers this happens daily. ECC corrects single errors and reports double ones.
     difficulty: 3
 
 srs:

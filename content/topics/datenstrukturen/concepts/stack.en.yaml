@@ -5,7 +5,7 @@ summary: Last in, first out.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -123,6 +123,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: push 4, push 7, pop, push 2, push 9, pop, pop. Which number is now on top of the stack?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: miscount-pop
+        text: "Count the pops again: after the 9, two items come off."
+    hints:
+      - Write down the stack after every command.
+      - "[4, 7] → [4] → [4, 2] → [4, 2, 9] → …"
+    explanation: "[4, 2, 9] → pop → [4, 2] → pop → [4]. The 4 is on top."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: push A, push B, pop, push C, pop, pop. In what order do the elements come out?
+    params:
+      items:
+        - label: B
+        - label: C
+        - label: A
+      direction: horizontal
+    hints:
+      - The first pop takes whatever came in last.
+      - After B, C goes in – and straight out again.
+    explanation: B, then C, then A. Last in, first out – even when push and pop alternate.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: "Check »( ( [ ] ) ( )« with a stack: opening brackets go on, matching closing ones take one off. How many are left on it at the end?"
+    answer:
+      value: 1
+    hints:
+      - Go through character by character.
+      - After »( ( [ ]« two round brackets are still on.
+    explanation: One »(« is left over at the end. An empty stack would mean all is well. So a closing bracket is missing.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Computing in **postfix** needs no brackets: »3 4 + 2 ·« means (3 + 4) · 2. Numbers go onto the stack. An operator takes the top two, computes and puts the result back."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -138,6 +190,84 @@ steps:
     hints:
       - Where does the computer remember where to return after a call?
     explanation: "The **call stack**: every call goes on top and is only removed on return."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: What does the postfix expression »5 1 2 + 4 · + 3 −« evaluate to?
+    answer:
+      value: 14
+    hints:
+      - "Stack: 5, 1, 2. The + turns 1 and 2 into 3."
+      - Then 3 · 4 = 12, 5 + 12 = 17, 17 − 3.
+    explanation: 5 + (1 + 2) · 4 − 3 = 14. Calculators and the Java virtual machine compute exactly like this inside.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: What does »{{a}} {{b}} + {{c}} ·« give in postfix?
+    answer:
+      value: "{{(a + b) * c}}"
+    feedback:
+      - when: numval(state.input) == a + b * c
+        misconception: precedence
+        text: In postfix the addition comes first – the + is before the ·.
+    hints:
+      - The + takes {{a}} and {{b}}.
+      - Then {{a + b}} and {{c}} are on top.
+    explanation: ({{a}} + {{b}}) · {{c}} = {{(a + b) * c}}. The order of symbols replaces the brackets.
+    difficulty: 3
+    variants:
+      params:
+        a: int[2,9]
+        b: int[2,9]
+        c: int[2,6]
+      defaults:
+        a: 3
+        b: 4
+        c: 2
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: How long do push and pop take on a stack with a million elements?
+    params:
+      options:
+        - label: Always equally short – O(1)
+          correct: true
+        - label: Proportional to the size – O(n)
+          feedback: You only work at the top, the rest stays put.
+        - label: O(log n) like binary search
+          feedback: There is no searching at all.
+    hints:
+      - Where does a stack do its work?
+      - At the very top – however much lies below.
+    explanation: A pointer to the top element is enough. That is why stacks are so fast and sit inside every processor.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer uses a stack to check that brackets match.
+    params:
+      keywords:
+        - - öffn
+          - open
+        - - schließ
+          - clos
+        - - oben
+          - top
+          - letzte
+          - last
+        - - leer
+          - empty
+      sample: Every opening bracket goes on top of the stack. At a closing one, the matching opening bracket must be on top – then it comes off. If the stack is empty at the end, all brackets match.
     difficulty: 3
 
 srs:

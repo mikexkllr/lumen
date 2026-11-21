@@ -5,7 +5,7 @@ summary: Calculate the slot directly.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Buckets 0 to 6, bucket = key mod 7. If a bucket is taken, use the next free one. You insert 10, 17 and 24 in turn. In which bucket does 24 end up?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: ignore-collision
+        text: 24 mod 7 is indeed 3 – but 10 is already there.
+    hints:
+      - All three keys give the same 3 mod 7.
+      - 10 takes bucket 3, 17 slides to 4 …
+    explanation: 10 → 3, 17 → 4, 24 → 5. This sliding on is called linear probing. Collisions clump together this way.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: The **load factor** is the number of entries divided by the number of buckets. When it rises above about 0.75, many tables double their buckets and redistribute everything. That keeps lookups fast.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: A hash table has 365 buckets and keys spread at random. From how many entries on is a collision more likely than none?
+    answer:
+      value: 23
+    feedback:
+      - when: numval(state.input) >= 180
+        misconception: birthday-intuition
+        text: "Far fewer: every pair counts, and pairs add up fast."
+    hints:
+      - This is the birthday problem.
+      - With n entries there are n · (n − 1) / 2 pairs.
+    explanation: From 23 entries on the chance is above 50 %. Collisions are therefore normal – every hash table must handle them.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: A table uses only the first letter of the name as the bucket. What is the problem?
+    params:
+      options:
+        - label: Many names start alike – some buckets overflow while others stay empty
+          correct: true
+        - label: There are too many buckets
+          feedback: 26 buckets are, if anything, too few.
+        - label: None at all
+          feedback: Thousands would sit under S – searching there would be slow.
+    hints:
+      - How many names start with S, how many with X?
+      - A good hash function spreads evenly.
+    explanation: A good hash function mixes in every character so that similar keys land far apart.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +164,65 @@ steps:
     hints:
       - A good hash function is a one-way street.
     explanation: At login the input is hashed and compared. The server never knows the password itself.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: An attacker sends a server lots of keys that all land in the same bucket. What happens?
+    params:
+      options:
+        - label: Lookups become as slow as a list – O(n) instead of O(1)
+          correct: true
+        - label: The table shrinks
+          feedback: The size stays the same; only one bucket grows huge.
+        - label: Nothing, hash tables are always O(1)
+          feedback: Only on average – and only with well-spread keys.
+    hints:
+      - What is inside a bucket with many entries?
+      - A long list that has to be searched.
+    explanation: That is why languages like Python randomise their hash function at every start. Without that seed nobody can craft collisions on purpose.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "As many entries as buckets, spread at random. About what percentage of buckets stays empty? Hint: (1 − 1/n)ⁿ ≈ 1/e. Round to a whole percent."
+    params:
+      unit: "%"
+    answer:
+      value: 37
+      tolerance: 1
+    hints:
+      - A given bucket is missed by each entry with probability 1 − 1/n.
+      - 1/e ≈ 0.368.
+    explanation: About 37 % stay empty, while some buckets get two or three entries. Randomness never spreads perfectly evenly.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a hash table finds things without searching.
+    params:
+      keywords:
+        - - rechn
+          - berechn
+          - comput
+          - calculat
+          - funktion
+          - function
+        - - fach
+          - bucket
+          - platz
+          - slot
+        - - kollision
+          - collision
+          - gleiche fach
+          - same bucket
+      sample: "A hash function computes the bucket number straight from the key. You look there – without searching. If two keys land in the same bucket, that is a collision: the bucket then holds a short list."
     difficulty: 3
 
 srs:

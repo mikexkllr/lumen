@@ -5,7 +5,7 @@ summary: Remembering and changing values.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "a = 4, b = 7. Then: a = b, after that b = a. What is b at the end?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: simultaneous-swap
+        text: After the first line a is already 7 – the 4 is gone.
+    hints:
+      - Go line by line. What is in a after a = b?
+      - The old 4 was overwritten.
+    explanation: a = b makes a 7. b = a then writes 7 into b. Both are 7 – swapping needs a helper variable.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: x = {{a}}. Then x = x · 2, then x = x − {{b}}, finally x = x · x. What is x?
+    answer:
+      value: "{{(2 * a - b) ** 2}}"
+    hints:
+      - Write down the new value after each line.
+      - "{{a}} → {{2 * a}} → {{2 * a - b}} → ?"
+    explanation: "{{a}} → {{2 * a}} → {{2 * a - b}} → {{(2 * a - b) ** 2}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[3,9]
+        b: int[1,5]
+      defaults:
+        a: 5
+        b: 3
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Every variable has a **data type**. 3 + 4 gives 7. But "3" + "4" gives "34" in many languages – text is simply glued together.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: In `x = x + 1` the sign = does not mean »equals« but [[gets]]. First the right side is [[computed]], then the result is [[stored]] on the left.
+      distractors:
+        - compares
+        - guessed
+    hints:
+      - In maths x = x + 1 would be impossible.
+      - Read it as a command, not a claim.
+    explanation: "Assignment is a command: compute a new value, overwrite the old one. Some languages therefore write x := x + 1."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +160,69 @@ steps:
     hints:
       - Both read 100 **before** the other has written.
     explanation: A **race condition**. Such bugs occur only sometimes and are notoriously hard to find.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: An unsigned 32-bit variable holds 4,294,967,295. You add 1. What does it hold afterwards?
+    answer:
+      value: 0
+    feedback:
+      - when: numval(state.input) == 4294967296
+        misconception: no-overflow
+        text: That number would need 33 bits. The top bit falls off.
+    hints:
+      - 4,294,967,295 is $2^{32}$ − 1 – all 32 bits are 1.
+      - Like an odometer rolling over from 999999.
+    explanation: "All bits flip to 0 and the carry no longer fits: 0. Such overflows lie behind many bugs, like the year-2038 problem."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Two programs change the same balance at once. How do you stop a deposit from getting lost?
+    params:
+      options:
+        - label: Lock reading, computing and writing into one indivisible step
+          correct: true
+        - label: Compute faster
+          feedback: Even a fast machine can be interrupted at the wrong moment.
+        - label: Save twice
+          feedback: Saving twice does not fix a value read at the wrong time.
+    hints:
+      - The problem arises between reading and writing.
+      - While one computes, the other must wait.
+    explanation: A lock or a transaction makes the three steps indivisible. The other program waits until the balance has been written.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux exactly what happens in `x = x + 1`.
+    params:
+      keywords:
+        - - alt
+          - old
+          - vorher
+          - before
+          - aktuell
+          - current
+        - - rechn
+          - plus
+          - add
+          - comput
+          - calculat
+        - - speicher
+          - ablegen
+          - store
+          - save
+          - überschreib
+          - overwrite
+      sample: The computer reads the old value of x, adds 1 and stores the result back in x. The old value is overwritten.
     difficulty: 3
 
 srs:

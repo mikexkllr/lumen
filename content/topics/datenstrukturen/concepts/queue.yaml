@@ -5,7 +5,7 @@ summary: Wer zuerst kommt, ist zuerst dran.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -89,6 +89,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: choice
+    prompt: enqueue A, enqueue B, dequeue, enqueue C, enqueue D, dequeue. Wer steht jetzt vorne?
+    params:
+      options:
+        - label: C
+          correct: true
+        - label: D
+          feedback: D kam zuletzt – es steht hinten.
+        - label: B
+          feedback: B wurde beim zweiten dequeue bedient.
+    hints:
+      - Schreib die Schlange nach jedem Befehl auf.
+      - "[A, B] → [B] → [B, C] → [B, C, D] → …"
+    explanation: Nach dem zweiten dequeue bleibt [C, D]. Vorne steht C.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Ein **Ringpuffer** speichert eine Schlange in einem festen Feld. Die Zeiger für vorne und hinten laufen im Kreis – mit Modulo. So muss nie jemand aufrücken.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Ringpuffer hat 8 Plätze (0 bis 7). Der Hinten-Zeiger steht bei {{p}}. Wo steht er nach {{k}} neuen Einträgen?
+    answer:
+      value: "{{mod(p + k, 8)}}"
+    feedback:
+      - when: numval(state.input) == p + k
+        misconception: no-wrap
+        text: Nach Platz 7 geht es wieder bei 0 weiter.
+    hints:
+      - "Zähle weiter: {{p}}, {{p + 1}}, …"
+      - Rechne ({{p}} + {{k}}) mod 8.
+    explanation: ({{p}} + {{k}}) mod 8 = {{mod(p + k, 8)}}.
+    difficulty: 2
+    variants:
+      params:
+        p: int[3,7]
+        k: int[2,7]
+      constraints:
+        - p + k > 8
+      defaults:
+        p: 6
+        k: 5
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: Welche Datenstruktur nutzt die Breitensuche, die in einem Netz erst alle Nachbarn, dann deren Nachbarn besucht?
+    params:
+      options:
+        - label: Eine Warteschlange – wer zuerst entdeckt wird, wird zuerst untersucht
+          correct: true
+        - label: Ein Stapel
+          feedback: Mit einem Stapel taucht die Suche erst tief hinab – das ist Tiefensuche.
+        - label: Eine Hash-Tabelle
+          feedback: Sie merkt sich, was schon besucht ist – die Reihenfolge regelt sie nicht.
+    hints:
+      - Erst die Nähe, dann die Ferne – fair der Reihe nach.
+      - Neu entdeckte Knoten stellen sich hinten an.
+    explanation: Die Schlange sorgt dafür, dass alle Knoten mit Abstand 1 vor denen mit Abstand 2 drankommen. So findet die Breitensuche kürzeste Wege in Schritten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,6 +170,56 @@ steps:
     hints:
       - Ankunftsrate geteilt durch Bedienrate.
     explanation: 2/3 ≈ 67 %. Steigt die Auslastung Richtung 100 %, explodieren die Wartezeiten – das zeigt die **Warteschlangentheorie**.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: In einen Laden kommen im Schnitt 3 Kunden pro Minute. Jeder bleibt 4 Minuten. Wie viele Kunden sind im Schnitt gleichzeitig drin?
+    answer:
+      value: 12
+    hints:
+      - Wie viele kommen herein, während einer drin ist?
+      - Ankünfte pro Minute mal Verweildauer.
+    explanation: "3 · 4 = 12. Das ist das Gesetz von Little: L = λ · W. Es gilt für fast jede stabile Warteschlange – vom Supermarkt bis zum Server."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Kasse ist zu {{p}} % ausgelastet. Bei zufälligen Ankünften sind im Schnitt ρ / (1 − ρ) Kunden da, mit ρ = {{p / 100}}. Wie viele sind das?
+    answer:
+      value: "{{p / (100 - p)}}"
+    hints:
+      - "Setze ρ ein: {{p / 100}} / (1 − {{p / 100}})."
+      - 1 − {{p / 100}} = {{(100 - p) / 100}}.
+    explanation: "{{p / 100}} / {{(100 - p) / 100}} = {{p / (100 - p)}}. Nahe 100 % explodiert die Schlange: Bei 95 % sind es schon 19."
+    difficulty: 3
+    variants:
+      params:
+        p: choice[50,75,80,90,95]
+      defaults:
+        p: 75
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Was passiert, wenn dauerhaft mehr Kunden kommen, als bedient werden können?
+    params:
+      options:
+        - label: Die Schlange wächst ohne Grenze
+          correct: true
+        - label: Sie pendelt sich bei einer festen Länge ein
+          feedback: Das passiert nur, wenn weniger kommen, als bedient werden.
+        - label: Die Wartezeit bleibt gleich
+          feedback: Jeder neue Kunde wartet länger als der vorige.
+    hints:
+      - Pro Minute kommt mehr dazu, als weggeht.
+      - Das ist wie bei einer Badewanne, deren Abfluss zu klein ist.
+    explanation: Bei Auslastung über 100 % gibt es keinen Gleichgewichtszustand. Server lehnen dann Anfragen ab, statt sie ewig zu sammeln.
     difficulty: 3
 
 srs:
