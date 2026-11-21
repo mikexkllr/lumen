@@ -1,0 +1,206 @@
+id: ee.control.pid
+type: concept
+title: "P, I und D: der PID-Regler"
+summary: "Gegenwart, Vergangenheit und Zukunft des Fehlers – drei Knöpfe für fast jede Regelung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein einfacher Tempomat gibt umso mehr Gas, je weiter das Auto unter 100 km/h ist. Am Berg pendelt es sich bei 97 km/h ein. Warum nicht bei 100?
+    params:
+      options:
+        - label: Ohne Abweichung gäbe er gar kein Gas – ein Rest muss bleiben
+          correct: true
+        - label: Weil der Motor zu schwach ist
+          feedback: Mit mehr Gas würde es gehen.
+        - label: Weil der Tacho falsch geht
+          feedback: Das Problem liegt im Regelgesetz.
+    hints:
+      - Gas = Faktor · Abweichung.
+      - Am Berg braucht das Auto dauerhaft mehr Gas.
+    explanation: Ein reiner P-Regler braucht eine Abweichung, um überhaupt zu wirken. Darum bleibt ein Rest.
+
+  - kind: explain
+    id: c1
+    body: "Der **P-Regler** reagiert proportional: Stellgröße u = K_P · e. Großes K_P heißt kräftiges Eingreifen schon bei kleinem Fehler. Er reagiert nur auf die Gegenwart."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein P-Regler hat K_P = {{k}}. Die Regelabweichung ist {{e}}. Wie groß ist die Stellgröße?
+    answer:
+      value: "{{k * e}}"
+      tolerance: 0.001
+    hints:
+      - u = K_P · e.
+      - "{{k}} · {{e}}."
+    explanation: "u = {{k * e}}. Ein negativer Fehler ergibt eine negative Stellgröße: weniger heizen, bremsen."
+    variants:
+      params:
+        k: choice[0.5,2,5,10]
+        e: choice[-2,1.5,3,4]
+      defaults:
+        k: 2
+        e: 3
+
+  - kind: explain
+    id: c3
+    body: "Weil der P-Regler einen Fehler braucht, bleibt eine **bleibende Regelabweichung**. Mit der Kreisverstärkung K bleibt der Anteil 1 : (1 + K) des Sprungs übrig. Größeres K verkleinert ihn, macht den Kreis aber unruhiger."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Die Kreisverstärkung ist K = {{k}}. Wie viel Prozent des Sollwertsprungs bleiben als Fehler übrig?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / (1 + k)}}"
+      tolerance: 0.01
+    hints:
+      - "Fehler = 1 : (1 + K)."
+      - "100 : {{1 + k}}."
+    explanation: "{{round(100 / (1 + k), 2)}} %. Ganz weg bekommt man ihn mit P allein nie."
+    variants:
+      params:
+        k: choice[1,4,9,19,99]
+      defaults:
+        k: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Der **I-Anteil** summiert den Fehler über die Zeit auf. Solange ein Rest bleibt, wächst seine Stellgröße weiter. Erst bei Fehler null hört sie auf zu wachsen. So verschwindet die bleibende Abweichung.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein I-Regler hat K_I = {{k}} pro Sekunde. Ein Fehler von {{e}} bleibt {{t}} s lang bestehen. Wie groß ist der I-Anteil danach, wenn er bei 0 startet?
+    answer:
+      value: "{{k * e * t}}"
+      tolerance: 0.001
+    hints:
+      - I-Anteil = K_I · Fehler · Zeit (bei konstantem Fehler).
+      - "{{k}} · {{e}} · {{t}}."
+    explanation: "{{k * e * t}}. Bei konstantem Fehler wächst der I-Anteil wie eine Rampe – wie beim Integrator mit OPV."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[0.1,0.5,2]
+        e: choice[1,2,4]
+        t: choice[2,4,10]
+      defaults:
+        k: 0.5
+        e: 2
+        t: 4
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: match
+    prompt: Welcher Anteil reagiert worauf?
+    params:
+      pairs:
+        - left: P
+          right: Fehler jetzt
+        - left: I
+          right: Summe der Fehler bisher
+        - left: D
+          right: Wie schnell sich der Fehler ändert
+      leftTitle: Anteil
+      rightTitle: Reagiert auf
+    hints:
+      - I steht für Integral, D für Differential.
+      - Die Ableitung sagt, wohin der Trend geht.
+    explanation: "P ist die Gegenwart, I die Vergangenheit, D ein Blick in die Zukunft. Zusammen: der PID-Regler."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Der Temperaturfühler rauscht stark. Warum macht das vor allem dem D-Anteil Probleme?
+    params:
+      options:
+        - label: Rauschen ändert sich schnell, die Ableitung macht daraus große Ausschläge
+          correct: true
+        - label: Weil der D-Anteil Rauschen aufsummiert
+          feedback: Aufsummieren macht der I-Anteil, und der glättet eher.
+        - label: Gar nicht, D ignoriert Rauschen
+          feedback: Gerade schnelle Änderungen verstärkt D.
+    hints:
+      - Was ist die Steigung einer zappelnden Kurve?
+      - Kleine, schnelle Zacken haben riesige Steigungen.
+    explanation: Darum filtert man den D-Anteil oder lässt ihn weg. Viele Regler in der Praxis sind reine PI-Regler.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: PID-Regler mit K_P = 2, K_I = 0,5, K_D = 1. Jetzt ist e = 3, die Summe Σ = 10 und de/dt = −1. Wie groß ist u = K_P e + K_I Σ + K_D de/dt?
+    answer:
+      value: 10
+    hints:
+      - "P: 2 · 3, I: 0,5 · 10, D: 1 · (−1)."
+      - 6 + 5 − 1.
+    explanation: 6 + 5 − 1 = 10. Der D-Anteil bremst, weil der Fehler schon kleiner wird.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Das Heizventil ist schon ganz offen, trotzdem ist es noch zu kalt. Der I-Anteil wächst immer weiter. Was passiert, wenn der Raum endlich warm ist?
+    params:
+      options:
+        - label: Der aufgeblähte I-Anteil heizt noch lange weiter – starkes Überschwingen
+          correct: true
+        - label: Der Regler stoppt sofort
+          feedback: Der I-Anteil muss erst wieder abgebaut werden.
+        - label: Nichts Besonderes
+          feedback: Dieser Effekt hat einen eigenen Namen.
+    hints:
+      - Der I-Anteil schrumpft erst, wenn der Fehler negativ wird.
+      - Er heißt Integrator-Windup.
+    explanation: Gegen Windup begrenzt man den I-Anteil, solange das Stellglied am Anschlag ist (Anti-Windup).
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wozu ein Regler den I-Anteil braucht.
+    params:
+      keywords:
+        - - bleibend
+          - steady
+          - rest
+          - remain
+        - - summ
+          - sum
+          - integral
+          - aufaddier
+          - add
+        - - zeit
+          - time
+          - wächst
+          - waechst
+          - grow
+        - - "null"
+          - zero
+          - verschwind
+          - vanish
+          - weg
+          - gone
+      sample: Ein P-Regler braucht einen Fehler, um zu wirken, darum bleibt ein Rest. Der I-Anteil summiert diesen Rest über die Zeit auf. Solange der Fehler nicht null ist, wächst er weiter und drückt stärker. So verschwindet die bleibende Abweichung.
+    explanation: "Kern: Integrieren bis der Fehler null ist. Der Preis: langsamer und neigt zum Überschwingen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

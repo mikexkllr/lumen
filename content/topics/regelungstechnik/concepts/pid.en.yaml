@@ -1,0 +1,206 @@
+id: ee.control.pid
+type: concept
+title: "P, I and D: the PID controller"
+summary: "Present, past and future of the error – three knobs for almost any control loop."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A simple cruise control gives more throttle the further the car is below 100 km/h. On a hill it settles at 97 km/h. Why not 100?
+    params:
+      options:
+        - label: With no error it would give no throttle at all – some error must remain
+          correct: true
+        - label: Because the engine is too weak
+          feedback: With more throttle it would work.
+        - label: Because the speedometer is wrong
+          feedback: The problem lies in the control law.
+    hints:
+      - Throttle = factor × error.
+      - On a hill the car needs extra throttle permanently.
+    explanation: A pure P controller needs an error to act at all. So a remainder stays.
+
+  - kind: explain
+    id: c1
+    body: "The **P controller** reacts proportionally: control signal u = K_P × e. A large K_P means acting strongly even on a small error. It only reacts to the present."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A P controller has K_P = {{k}}. The error is {{e}}. What is the control signal?
+    answer:
+      value: "{{k * e}}"
+      tolerance: 0.001
+    hints:
+      - u = K_P × e.
+      - "{{k}} × {{e}}."
+    explanation: "u = {{k * e}}. A negative error gives a negative control signal: heat less, brake."
+    variants:
+      params:
+        k: choice[0.5,2,5,10]
+        e: choice[-2,1.5,3,4]
+      defaults:
+        k: 2
+        e: 3
+
+  - kind: explain
+    id: c3
+    body: Because the P controller needs an error, a **steady-state error** remains. With loop gain K, the share 1 ÷ (1 + K) of the step is left. A larger K shrinks it but makes the loop more restless.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The loop gain is K = {{k}}. What percentage of the setpoint step remains as error?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / (1 + k)}}"
+      tolerance: 0.01
+    hints:
+      - Error = 1 ÷ (1 + K).
+      - 100 ÷ {{1 + k}}.
+    explanation: "{{round(100 / (1 + k), 2)}} %. P alone never removes it completely."
+    variants:
+      params:
+        k: choice[1,4,9,19,99]
+      defaults:
+        k: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: The **I term** adds up the error over time. As long as some remains, its output keeps growing. Only at zero error does it stop growing. That removes the steady-state error.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An I controller has K_I = {{k}} per second. An error of {{e}} persists for {{t}} s. How large is the I term afterwards, starting from 0?
+    answer:
+      value: "{{k * e * t}}"
+      tolerance: 0.001
+    hints:
+      - I term = K_I × error × time (for a constant error).
+      - "{{k}} × {{e}} × {{t}}."
+    explanation: "{{k * e * t}}. With a constant error the I term ramps up – just like the op-amp integrator."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[0.1,0.5,2]
+        e: choice[1,2,4]
+        t: choice[2,4,10]
+      defaults:
+        k: 0.5
+        e: 2
+        t: 4
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: match
+    prompt: Which term responds to what?
+    params:
+      pairs:
+        - left: P
+          right: Error now
+        - left: I
+          right: Sum of past errors
+        - left: D
+          right: How fast the error changes
+      leftTitle: Term
+      rightTitle: Responds to
+    hints:
+      - I stands for integral, D for derivative.
+      - The derivative tells where the trend is heading.
+    explanation: "P is the present, I the past, D a look into the future. Together: the PID controller."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: The temperature sensor is very noisy. Why is that a problem mainly for the D term?
+    params:
+      options:
+        - label: Noise changes fast, and the derivative turns it into big spikes
+          correct: true
+        - label: Because the D term sums the noise
+          feedback: Summing is what the I term does, and that rather smooths.
+        - label: Not at all, D ignores noise
+          feedback: D amplifies exactly the fast changes.
+    hints:
+      - What is the slope of a jittery curve?
+      - Small, fast spikes have huge slopes.
+    explanation: That is why the D term is filtered or left out. Many controllers in practice are plain PI controllers.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: PID controller with K_P = 2, K_I = 0.5, K_D = 1. Now e = 3, the sum Σ = 10 and de/dt = −1. What is u = K_P e + K_I Σ + K_D de/dt?
+    answer:
+      value: 10
+    hints:
+      - "P: 2 × 3, I: 0.5 × 10, D: 1 × (−1)."
+      - 6 + 5 − 1.
+    explanation: 6 + 5 − 1 = 10. The D term brakes because the error is already shrinking.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: The heating valve is already fully open, yet it is still too cold. The I term keeps growing. What happens when the room is finally warm?
+    params:
+      options:
+        - label: The bloated I term keeps heating for a long time – strong overshoot
+          correct: true
+        - label: The controller stops at once
+          feedback: The I term must first wind down.
+        - label: Nothing special
+          feedback: This effect has its own name.
+    hints:
+      - The I term only shrinks when the error turns negative.
+      - It is called integrator windup.
+    explanation: To prevent windup, the I term is limited while the actuator is saturated (anti-windup).
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a controller needs the I term.
+    params:
+      keywords:
+        - - bleibend
+          - steady
+          - rest
+          - remain
+        - - summ
+          - sum
+          - integral
+          - aufaddier
+          - add
+        - - zeit
+          - time
+          - wächst
+          - waechst
+          - grow
+        - - "null"
+          - zero
+          - verschwind
+          - vanish
+          - weg
+          - gone
+      sample: A P controller needs an error to act, so a remainder stays. The I term adds up this remainder over time. As long as the error isn’t zero, it keeps growing and pushing harder. That makes the steady-state error vanish.
+    explanation: "The core: integrate until the error is zero. The price: slower and prone to overshoot."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

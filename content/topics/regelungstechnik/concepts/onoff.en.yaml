@@ -1,0 +1,198 @@
+id: ee.control.onoff
+type: concept
+title: "The on/off controller"
+summary: "Only on or off: thermostats, fridges and pulse-width modulation."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A fridge clicks: the compressor runs a few minutes, then all is quiet. Why doesn’t it simply run all the time at low power?"
+    params:
+      options:
+        - label: A simple controller only knows on or off – cheap and robust
+          correct: true
+        - label: Because the compressor would explode
+          feedback: It can run continuously; it is about simple technology.
+        - label: Because fridges switch off at night
+          feedback: It switches day and night.
+    hints:
+      - What control actions does a bimetal switch know?
+      - Modern inverter fridges actually regulate continuously.
+    explanation: The classic fridge has an on/off controller. Inverter appliances run the compressor at variable speed and save energy.
+
+  - kind: explain
+    id: c1
+    body: "An **on/off controller** only switches fully on or fully off. So it doesn’t click constantly, it has two thresholds: on below 20 °C, off above 22 °C. The temperature swings between them."
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: Thermostat with thresholds 20 °C (on) and 22 °C (off). Is the heater on?
+    params:
+      cards:
+        - text: 19.5 °C
+          right: true
+        - text: 22.5 °C
+          right: false
+        - text: 21 °C, room currently heating up
+          right: true
+        - text: 21 °C, room currently cooling down
+          right: false
+      left: Off
+      right: On
+    explanation: Between the thresholds the old state remains. It is the same hysteresis as in a Schmitt trigger.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The heater raises the temperature by 0.5 K per minute; without it, the temperature falls by 0.25 K per minute. The thresholds are {{h}} K apart. How many minutes does one full cycle take?
+    params:
+      unit: min
+    answer:
+      value: "{{6 * h}}"
+      tolerance: 0.001
+    hints:
+      - "Heating: {{h}} ÷ 0.5 min. Cooling: {{h}} ÷ 0.25 min."
+      - Add both times.
+    explanation: "{{2 * h}} min on + {{4 * h}} min off = {{6 * h}} min."
+    variants:
+      params:
+        h: choice[0.5,1,2]
+      defaults:
+        h: 1
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You halve the gap between the thresholds. What happens?
+    params:
+      options:
+        - label: The temperature varies less, but it switches twice as often
+          correct: true
+        - label: It switches less often
+          feedback: The distance between thresholds is shorter.
+        - label: Nothing changes
+          feedback: Cycle time depends directly on the hysteresis.
+    hints:
+      - Look at the cycle time from the previous task.
+      - Half the distance, half the time.
+    explanation: "Accuracy versus wear: every switching cycle stresses relays and compressors."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: The **duty cycle** is the share of time the output is on. On average an on/off controller delivers the duty cycle times full power. That turns “on–off” into a smooth average power.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A 2 kW heater is on for 2 minutes in every 6-minute cycle. What average power does it deliver? To the nearest watt.
+    params:
+      unit: W
+    answer:
+      value: 667
+      tolerance: 0.6
+    hints:
+      - "Duty cycle: 2 ÷ 6 = ⅓."
+      - 2000 W × ⅓.
+    explanation: ≈ 667 W. That is exactly how much heat the room loses on average.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Pulse-width modulation (PWM) switches 12 V thousands of times a second. At a {{d}} % duty cycle: what average voltage does a motor see?"
+    params:
+      unit: V
+    answer:
+      value: "{{12 * d / 100}}"
+      tolerance: 0.001
+    hints:
+      - Average = duty cycle × 12 V.
+      - "{{d / 100}} × 12."
+    explanation: "{{12 * d / 100}} V. The transistor is always fully on or off and wastes hardly anything."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[10,25,50,75]
+      defaults:
+        d: 25
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why is PWM for LEDs and motors clocked at several kilohertz and not 1 Hz?
+    params:
+      options:
+        - label: The eye and the motor’s inertia only smooth fast pulses into an average
+          correct: true
+        - label: Because 1 Hz is forbidden
+          feedback: It is a matter of perception and physics.
+        - label: Because slow PWM uses more current
+          feedback: The average would be the same – but you would see blinking.
+    hints:
+      - What do you see with an LED blinking once a second?
+      - The pulses must be faster than the receiver’s inertia.
+    explanation: The eye averages above about 100 Hz, a motor through its inductance and mass. Too high a frequency, though, raises switching losses.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: An LED is dimmed to 30 % with 1 kHz PWM. How long is it on in each period, in ms?
+    params:
+      unit: ms
+    answer:
+      value: 0.3
+      tolerance: 0.001
+    hints:
+      - "Period at 1 kHz: 1 ms."
+      - 30 % of 1 ms.
+    explanation: 0.3 ms on, 0.7 ms off – a thousand times a second.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a thermostat has two switching thresholds.
+    params:
+      keywords:
+        - - zwei
+          - two
+          - schwelle
+          - threshold
+        - - ständig
+          - staendig
+          - constant
+          - oft
+          - often
+          - flatter
+          - chatter
+          - klick
+        - - hysterese
+          - hysteresis
+          - abstand
+          - gap
+        - - schwank
+          - swing
+          - pendel
+          - oscillat
+          - verschleiß
+          - verschleiss
+          - wear
+      sample: With only one threshold the thermostat would switch on and off at every tiny wobble of the temperature. With two thresholds, hysteresis, it heats up to the upper one and then waits for the lower one. The temperature swings a little, but it switches less often and there is less wear.
+    explanation: "The core: hysteresis trades a little accuracy for infrequent switching."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

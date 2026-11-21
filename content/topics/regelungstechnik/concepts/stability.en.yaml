@@ -1,0 +1,246 @@
+id: ee.control.stability
+type: concept
+title: "Stability and overshoot"
+summary: "Control too hard and everything oscillates – damping, dead time and the edge of instability."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: In a hotel the warm water takes three seconds to arrive. You turn it far up, then it is too hot, you turn far down … Why does it swing back and forth?
+    params:
+      options:
+        - label: You react too strongly to a state that is already out of date
+          correct: true
+        - label: Because the tap is broken
+          feedback: With patience it works.
+        - label: Because hot water fluctuates
+          feedback: The swinging comes from your turning.
+    hints:
+      - Three seconds pass between turning and feeling.
+      - In that time you have already turned further.
+    explanation: Delay plus forceful action makes oscillations. Turning gently and waiting helps.
+
+  - kind: explain
+    id: c1
+    body: When the actual value runs past the setpoint before settling, that is **overshoot**. It is given as a percentage of the step. A little overshoot is often wanted, because it makes the loop fast.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The temperature should step from 0 to {{w}} °C. It briefly reaches {{p}} °C. What percentage overshoot is that?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (p - w) / w}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - (p - w)) < 0.01
+        misconception: absolute
+        text: That is in kelvin. The question asks for the share of the step in percent.
+    hints:
+      - Overshoot = (peak − setpoint) ÷ setpoint.
+      - ({{p}} − {{w}}) ÷ {{w}}, times 100.
+    explanation: "{{p - w}} ÷ {{w}} = {{round(100 * (p - w) / w, 2)}} %."
+    variants:
+      params:
+        w: choice[40,50]
+        o: choice[2,5,6,10]
+      derive:
+        p: w + o
+      defaults:
+        w: 50
+        o: 6
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: The curve shows a control loop’s response to a step to 1. Set the damping z so the overshoot stays below 10 % (dots at 1.1) – but as fast as possible.
+    params:
+      expr: 1 - exp(-2*z*x)*(cos(2*sqrt(1-z^2)*x) + z/sqrt(1-z^2)*sin(2*sqrt(1-z^2)*x))
+      x:
+        - 0
+        - 6
+      y:
+        - 0
+        - 2
+      showCoordinates: false
+      sliders:
+        - id: z
+          label: Damping z
+          min: 0.1
+          max: 0.9
+          step: 0.1
+          initial: 0.2
+      markers:
+        - x: 1
+          y: 1.1
+          group: b
+        - x: 3
+          y: 1.1
+          group: b
+        - x: 5
+          y: 1.1
+          group: b
+    check:
+      predicate: z > 0.55 && z < 0.65
+    hints:
+      - More damping, less overshoot – but slower.
+      - At z = 0.5 it is about 16 %, at 0.6 about 9.5 %.
+    explanation: "z = 0.6: just under 10 % overshoot. The overshoot is e^(−zπ/√(1 − z²)). Many controllers are tuned to about this value."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Does this make a control loop more restless?
+    params:
+      buckets:
+        - id: b1
+          label: More restless
+        - id: b2
+          label: Calmer
+      items:
+        - label: Higher controller gain
+          bucket: b1
+        - label: More dead time
+          bucket: b1
+        - label: Slow sensor
+          bucket: b1
+        - label: More damping from a D term
+          bucket: b2
+        - label: Lower gain
+          bucket: b2
+    hints:
+      - Delays make the controller react to stale values.
+      - The D term brakes when the error changes fast.
+    explanation: Gain and delay drive oscillations, damping brakes them. Tuning means finding a good compromise.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "**Dead time** is the delay before an action has any effect: water in the pipe, heat in the wall. During that time the controller sees nothing. The longer the dead time, the more gently it must act."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A dead time T shifts an oscillation of frequency f by 360° × f × T. At which frequency does a dead time of {{t}} s shift by exactly 180°?
+    params:
+      unit: Hz
+    answer:
+      value: "{{0.5 / t}}"
+      tolerance: 0.001
+    hints:
+      - 180° = 360° × f × {{t}} s.
+      - f = 0.5 ÷ {{t}}.
+    explanation: f = {{0.5 / t}} Hz. At this frequency negative feedback turns into positive feedback – that is the danger.
+    difficulty: 2
+    variants:
+      params:
+        t: choice[0.1,0.25,0.5,2]
+      defaults:
+        t: 0.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A loop has a 180° phase shift at some frequency, with a loop gain of exactly 1 there. What happens?
+    params:
+      options:
+        - label: It oscillates indefinitely – exactly how oscillators are built
+          correct: true
+        - label: It is especially stable
+          feedback: At 180° the feedback reinforces the deviation.
+        - label: It shuts down at once
+          feedback: The oscillation sustains itself.
+    hints:
+      - A 180° shift flips the sign.
+      - Negative feedback becomes positive.
+    explanation: That is the Barkhausen oscillation condition. Wanted in an oscillator, a nightmare in a control loop. Above 1 the oscillation grows.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A control loop just reaches the stability limit at K = {{k}}. Engineers want a gain margin of a factor of 2. Which K do they set?
+    answer:
+      value: "{{k / 2}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 2 * k) < 0.001
+        misconception: direction
+        text: A margin means further from the limit, so smaller.
+    hints:
+      - At the limit K = {{k}}.
+      - Half the gain leaves a margin.
+    explanation: K = {{k / 2}}. The plant may then change by a factor of 2 before the loop goes unstable.
+    difficulty: 3
+    variants:
+      params:
+        k: choice[4,6,10,20]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In control theory every natural mode has the form e^(s t) with a complex number s. When is the loop stable?
+    params:
+      options:
+        - label: When every s has a negative real part – they lie in the left half-plane
+          correct: true
+        - label: When every s is real
+          feedback: Complex s are allowed; they mean damped oscillations.
+        - label: When every s is positive
+          feedback: Then e^(s t) grows without bound.
+    hints:
+      - e^(−2t) dies away, e^(+2t) grows.
+      - The imaginary part only makes it oscillate.
+    explanation: The poles of the transfer function must lie in the left half-plane. The real part sets the decay, the imaginary part the oscillation frequency.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why a controller set too hard starts to swing.
+    params:
+      keywords:
+        - - verzöger
+          - verzoeger
+          - delay
+          - totzeit
+          - dead time
+          - träg
+          - traeg
+          - lag
+        - - stark
+          - strong
+          - verstärk
+          - verstaerk
+          - gain
+          - kräftig
+          - kraeftig
+          - aggress
+        - - über
+          - ueber
+          - over
+          - zu weit
+          - too far
+        - - schwing
+          - oscillat
+          - pendel
+          - swing
+      sample: Every loop has delays. A strong controller reacts hard to an error it only sees late. By the time the effect arrives it has already turned too far, and the actual value overshoots. Then it corrects back just as hard, and the loop swings back and forth.
+    explanation: "The core: high gain plus delay leads to overshoot and eventually instability."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

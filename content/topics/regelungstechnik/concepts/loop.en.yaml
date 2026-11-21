@@ -1,0 +1,229 @@
+id: ee.control.loop
+type: concept
+title: "The feedback loop"
+summary: "Measure, compare, act – and measure again."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You are in the shower. The water is too cold, you turn toward warm, check, and adjust again. What are you in this system?
+    params:
+      options:
+        - label: The controller
+          correct: true
+        - label: The disturbance
+          feedback: A disturbance would be, say, cold water from the mains.
+        - label: The setpoint
+          feedback: The setpoint is the desired temperature in your head.
+    hints:
+      - Who compares wish and reality?
+      - Who decides how far to turn?
+    explanation: You measure with your skin, compare with your wish and act on the tap. That is exactly what every technical controller does.
+
+  - kind: explain
+    id: c1
+    body: In a **feedback loop** a sensor measures the actual value y. The controller compares it with the setpoint w. From the error e = w − y it works out how hard the actuator should act. Then it measures again.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Put one pass of the heating control in the right order.
+    params:
+      items:
+        - label: Sensor measures the room temperature
+        - label: Controller compares with the setpoint
+        - label: Controller computes the control signal
+        - label: Radiator valve opens further
+        - label: Room gets warmer
+    hints:
+      - It starts with a measurement.
+      - First compare, then act.
+    explanation: Then the sensor measures again – the loop closes. Hence the name feedback loop.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Match the terms to the heating system.
+    params:
+      pairs:
+        - left: Setpoint
+          right: 21 °C on the thermostat
+        - left: Actual value
+          right: Measured room temperature
+        - left: Actuator
+          right: Radiator valve
+        - left: Plant
+          right: The room itself
+        - left: Disturbance
+          right: Open window
+      leftTitle: Term
+      rightTitle: Heating
+    hints:
+      - The plant is what is being controlled.
+      - A disturbance acts from outside, uninvited.
+    explanation: With these terms cruise control, autopilot and blood sugar can all be described the same way.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The setpoint is {{w}} °C and {{y}} °C is measured. What is the error e = w − y?
+    params:
+      unit: K
+    answer:
+      value: "{{w - y}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - (y - w)) < 0.001
+        misconception: sign
+        text: "The other way round: setpoint minus actual value."
+    hints:
+      - e = setpoint − actual.
+      - "{{w}} − {{y}}."
+    explanation: e = {{w - y}} K. Positive means too cold, so heat. Negative means too warm.
+    variants:
+      params:
+        w: choice[20,21,22]
+        y: choice[18.5,19,21.5,23]
+      constraints:
+        - w != y
+      defaults:
+        w: 21
+        y: 18.5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Without feeding back a measurement it is called **open-loop control**. A toaster with a timer is open loop: it never checks whether the bread is brown. Closed-loop control measures and corrects. That is why it compensates for disturbances."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Open-loop or closed-loop?
+    params:
+      buckets:
+        - id: b1
+          label: Open-loop
+        - id: b2
+          label: Closed-loop
+      items:
+        - label: Toaster with a timer
+          bucket: b1
+        - label: Cruise control
+          bucket: b2
+        - label: Traffic light on a fixed cycle
+          bucket: b1
+        - label: Fridge thermostat
+          bucket: b2
+        - label: Washing machine program
+          bucket: b1
+        - label: Camera autofocus
+          bucket: b2
+    hints:
+      - Is the result measured and fed back?
+      - Cruise control constantly measures the speed.
+    explanation: Closed loops have a sensor for the result. Open loops run their program blind.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A microphone is too close to the loudspeaker. It squeals louder and louder. What kind of feedback is that?
+    params:
+      options:
+        - label: "Positive feedback: the loop amplifies the deviation"
+          correct: true
+        - label: Negative feedback
+          feedback: Negative feedback would damp the squeal.
+        - label: None at all
+          feedback: The sound runs from the speaker back into the mic.
+    hints:
+      - Does a small noise get smaller or bigger?
+      - Controllers need feedback with the opposite sign.
+    explanation: With positive feedback every deviation grows until something hits its limit. Control loops need negative feedback.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A heating system also measures the outside temperature and heats ahead before it gets cold inside. What is that called?
+    params:
+      options:
+        - label: "Feedforward: the disturbance is measured before it takes effect"
+          correct: true
+        - label: Positive feedback
+          feedback: The deviation isn’t amplified.
+        - label: Pure open-loop control
+          feedback: The room temperature is still regulated.
+    hints:
+      - The cold outside is a disturbance.
+      - You react before it changes the actual value.
+    explanation: The feedback loop then corrects the rest. Together they are faster than feedback alone.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A control loop has loop gain K. A disturbance is then pushed down to 1 ÷ (1 + K). What percentage is left at K = {{k}}?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / (1 + k)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 100 / k) < 0.01
+        misconception: missing-one
+        text: "Close: the denominator is 1 + K."
+    hints:
+      - 100 % ÷ (1 + {{k}}).
+      - 1 + {{k}} = {{1 + k}}.
+    explanation: "{{round(100 / (1 + k), 2)}} %. The same law makes the op-amp with feedback so precise."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[1,4,9,19,99]
+      defaults:
+        k: 9
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between open-loop and closed-loop control with an example.
+    params:
+      keywords:
+        - - mess
+          - measur
+          - sensor
+        - - rückführ
+          - rueckfuehr
+          - feedback
+          - zurück
+          - zurueck
+          - back
+        - - vergleich
+          - compar
+          - soll
+          - setpoint
+        - - störung
+          - stoerung
+          - disturb
+          - beispiel
+          - example
+          - toaster
+          - heizung
+          - heating
+      sample: "Open-loop control runs a program without measuring the result, like a toaster with a timer. Closed-loop control measures the result, compares it with the setpoint and corrects. Feeding back the measurement is the difference: only the closed loop notices disturbances such as an open window."
+    explanation: "The core: measurement, comparison and correction in a loop."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "x2"]

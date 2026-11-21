@@ -1,0 +1,229 @@
+id: ee.control.loop
+type: concept
+title: "Der Regelkreis"
+summary: "Messen, vergleichen, eingreifen – und wieder messen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du stehst unter der Dusche. Das Wasser ist zu kalt, du drehst Richtung warm, prüfst und drehst nach. Was bist du in diesem System?
+    params:
+      options:
+        - label: Der Regler
+          correct: true
+        - label: Die Störung
+          feedback: Die Störung wäre zum Beispiel kaltes Wasser aus der Leitung.
+        - label: Der Sollwert
+          feedback: Der Sollwert ist die Wunschtemperatur in deinem Kopf.
+    hints:
+      - Wer vergleicht Wunsch und Wirklichkeit?
+      - Wer entscheidet, wie weit gedreht wird?
+    explanation: Du misst mit der Haut, vergleichst mit dem Wunsch und greifst am Hahn ein. Genau das macht jeder technische Regler.
+
+  - kind: explain
+    id: c1
+    body: Im **Regelkreis** misst ein Sensor den Istwert y. Der Regler vergleicht ihn mit dem Sollwert w. Aus der Regelabweichung e = w − y berechnet er, wie stark das Stellglied eingreift. Dann wird wieder gemessen.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring einen Durchlauf der Heizungsregelung in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Fühler misst die Raumtemperatur
+        - label: Regler vergleicht mit dem Sollwert
+        - label: Regler berechnet die Stellgröße
+        - label: Ventil am Heizkörper öffnet weiter
+        - label: Raum wird wärmer
+    hints:
+      - Am Anfang steht eine Messung.
+      - Erst wird verglichen, dann gehandelt.
+    explanation: Danach misst der Fühler wieder – der Kreis schließt sich. Daher der Name Regelkreis.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Ordne die Begriffe der Heizung zu.
+    params:
+      pairs:
+        - left: Sollwert
+          right: 21 °C am Thermostat
+        - left: Istwert
+          right: Gemessene Raumtemperatur
+        - left: Stellglied
+          right: Heizkörperventil
+        - left: Regelstrecke
+          right: Der Raum selbst
+        - left: Störgröße
+          right: Offenes Fenster
+      leftTitle: Begriff
+      rightTitle: Heizung
+    hints:
+      - Die Strecke ist das, was geregelt wird.
+      - Eine Störgröße wirkt von außen, ungefragt.
+    explanation: Mit diesen Begriffen lassen sich Tempomat, Autopilot und Blutzuckerspiegel gleich beschreiben.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Der Sollwert ist {{w}} °C, gemessen werden {{y}} °C. Wie groß ist die Regelabweichung e = w − y?
+    params:
+      unit: K
+    answer:
+      value: "{{w - y}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - (y - w)) < 0.001
+        misconception: sign
+        text: "Andersherum: Sollwert minus Istwert."
+    hints:
+      - e = Soll − Ist.
+      - "{{w}} − {{y}}."
+    explanation: "e = {{w - y}} K. Positiv heißt: zu kalt, also heizen. Negativ heißt: zu warm."
+    variants:
+      params:
+        w: choice[20,21,22]
+        y: choice[18.5,19,21.5,23]
+      constraints:
+        - w != y
+      defaults:
+        w: 21
+        y: 18.5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ohne Messung zurück spricht man von **Steuerung**. Ein Toaster mit Zeitschaltuhr steuert: Er prüft nicht, ob das Brot braun ist. Eine Regelung misst und korrigiert. Darum gleicht sie Störungen aus."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Steuerung oder Regelung?
+    params:
+      buckets:
+        - id: b1
+          label: Steuerung
+        - id: b2
+          label: Regelung
+      items:
+        - label: Toaster mit Zeitschaltuhr
+          bucket: b1
+        - label: Tempomat im Auto
+          bucket: b2
+        - label: Ampel mit festem Takt
+          bucket: b1
+        - label: Kühlschrank-Thermostat
+          bucket: b2
+        - label: Waschmaschinenprogramm
+          bucket: b1
+        - label: Autofokus der Kamera
+          bucket: b2
+    hints:
+      - Wird das Ergebnis gemessen und zurückgemeldet?
+      - Der Tempomat misst ständig das Tempo.
+    explanation: Regelungen haben einen Sensor für das Ergebnis. Steuerungen laufen blind ihr Programm ab.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Mikrofon steht zu nah am Lautsprecher. Es pfeift immer lauter. Was für eine Rückkopplung ist das?
+    params:
+      options:
+        - label: "Mitkopplung: Die Rückführung verstärkt die Abweichung"
+          correct: true
+        - label: Gegenkopplung
+          feedback: Gegenkopplung würde das Pfeifen dämpfen.
+        - label: Gar keine
+          feedback: Der Schall läuft vom Lautsprecher zurück ins Mikrofon.
+    hints:
+      - Wird ein kleines Geräusch kleiner oder größer?
+      - Regler brauchen eine Rückführung mit umgekehrtem Vorzeichen.
+    explanation: Bei Mitkopplung wächst jede Abweichung, bis etwas an seine Grenze stößt. Regelkreise brauchen Gegenkopplung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Eine Heizung misst zusätzlich die Außentemperatur und heizt vor, bevor es drinnen kalt wird. Wie nennt man das?
+    params:
+      options:
+        - label: "Störgrößenaufschaltung: Die Störung wird gemessen, bevor sie wirkt"
+          correct: true
+        - label: Mitkopplung
+          feedback: Es wird nicht die Abweichung verstärkt.
+        - label: Reine Steuerung
+          feedback: Die Raumtemperatur wird weiterhin geregelt.
+    hints:
+      - Die Kälte draußen ist eine Störgröße.
+      - Man reagiert, bevor sie den Istwert ändert.
+    explanation: Die Regelung korrigiert danach den Rest. Beide zusammen sind schneller als eine Regelung allein.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Regelkreis hat die Kreisverstärkung K. Eine Störung wird dann auf 1 : (1 + K) gedrückt. Wie viel Prozent bleiben bei K = {{k}} übrig?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / (1 + k)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 100 / k) < 0.01
+        misconception: missing-one
+        text: "Fast: Im Nenner steht 1 + K."
+    hints:
+      - "100 % : (1 + {{k}})."
+      - 1 + {{k}} = {{1 + k}}.
+    explanation: "{{round(100 / (1 + k), 2)}} %. Dasselbe Gesetz macht den gegengekoppelten OPV so genau."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[1,4,9,19,99]
+      defaults:
+        k: 9
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Steuerung und Regelung mit einem Beispiel.
+    params:
+      keywords:
+        - - mess
+          - measur
+          - sensor
+        - - rückführ
+          - rueckfuehr
+          - feedback
+          - zurück
+          - zurueck
+          - back
+        - - vergleich
+          - compar
+          - soll
+          - setpoint
+        - - störung
+          - stoerung
+          - disturb
+          - beispiel
+          - example
+          - toaster
+          - heizung
+          - heating
+      sample: "Eine Steuerung führt ein Programm aus, ohne das Ergebnis zu messen, wie ein Toaster mit Zeitschaltuhr. Eine Regelung misst das Ergebnis, vergleicht es mit dem Sollwert und greift nach. Die Rückführung der Messung macht den Unterschied: Nur die Regelung bemerkt Störungen wie ein offenes Fenster."
+    explanation: "Kern: Messung, Vergleich, Korrektur in einer Schleife."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "x2"]
