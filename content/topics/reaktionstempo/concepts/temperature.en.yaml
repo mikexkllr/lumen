@@ -1,0 +1,174 @@
+id: chem.kinetics.temperature
+type: concept
+title: "Heat speeds things up"
+summary: "From the rule of thumb to the Arrhenius equation."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: in the fridge (4 °C) instead of at 24 °C – about how many times longer does fresh milk keep?"
+    params:
+      min: 1
+      max: 20
+      unit: times
+    answer:
+      value: 4
+      tolerance: 1
+    explanation: "About four times: 20 degrees colder, half the speed twice over. That is why milk lasts days in the fridge instead of hours."
+
+  - kind: explain
+    id: c1
+    body: "The **10-degree rule** is a rule of thumb: 10 degrees warmer makes many reactions two to four times as fast."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A reaction gets {{q}} times as fast per 10 degrees. How many times faster does it run at {{10 * k}} degrees more?
+    answer:
+      value: "{{q ** k}}"
+    feedback:
+      - when: q ** k != q * k && numval(state.input) == q * k
+        misconception: linear-growth
+        text: "The factors multiply: {{q}} · {{q}} · … – do not add them."
+    hints:
+      - "{{10 * k}} degrees is {{k}} steps of ten."
+      - Work out {{q}} to the power {{k}}.
+    explanation: "{{q}} to the {{k}} = {{q ** k}}. Temperature acts exponentially."
+    variants:
+      params:
+        q: choice[2,3]
+        k: int[1,3]
+      defaults:
+        q: 2
+        k: 3
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Potatoes take 20 minutes at 100 °C. In a pressure cooker the water is at 120 °C. Roughly how many minutes do they take there? (Factor 2 per 10 degrees)
+    params:
+      unit: min
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: one-step
+        text: Two steps of ten – so halve it twice.
+    hints:
+      - 120 − 100 = 20 degrees.
+      - 20 ÷ 2 ÷ 2.
+    explanation: "Four times faster: 5 minutes. The extra pressure raises the boiling point – saving time and energy."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The **Arrhenius equation** describes it more precisely: $k = A \\cdot e^{-E_a / (R T)}$. k is the rate constant. The larger the activation energy Eₐ, the more strongly k depends on T."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "For two temperatures: k₂ ÷ k₁ = e to the [Eₐ/R · (1/T₁ − 1/T₂)]. What is the factor for Eₐ = 50 kJ/mol from 300 K to 310 K? Give one decimal place."
+    answer:
+      value: 1.9
+      tolerance: 0.06
+    hints:
+      - Eₐ/R = 50,000 ÷ 8.314 ≈ 6014 K. 1/300 − 1/310 ≈ 0.0001075.
+      - Exponent ≈ 0.65. e to the 0.65 = ?
+    explanation: About 1.9 – almost exactly the rule of thumb. So the 10-degree rule fits activation energies of around 50 kJ/mol.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Reaction A has Eₐ = 30 kJ/mol, reaction B 90 kJ/mol. Which one is sped up more by heating?
+    params:
+      options:
+        - label: B, the one with the higher energy hill
+          correct: true
+        - label: A, because it is faster anyway
+          feedback: Fast does not mean sensitive.
+        - label: Both equally
+          feedback: Eₐ sits in the exponent – it matters a lot.
+    hints:
+      - Eₐ sits in the exponent of the Arrhenius equation.
+      - "A high hill: heat then helps especially much."
+    explanation: The higher the hill, the more heat gains you. That is why some medicines break down rapidly in the heat.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A reaction doubles its rate between 300 K and 310 K. What is its activation energy? Use Eₐ = R · ln 2 ÷ (1/300 − 1/310) with ln 2 ≈ 0.693. Round to whole kJ/mol.
+    params:
+      unit: kJ/mol
+    answer:
+      value: 54
+      tolerance: 1
+    hints:
+      - 1/300 − 1/310 ≈ 0.0001075 per K.
+      - 8.314 · 0.693 ÷ 0.0001075 ≈ 53,600 J/mol.
+    explanation: "About 54 kJ/mol. This is how activation energies are measured: rate at two temperatures, then calculate."
+    difficulty: 3
+
+  - kind: explain
+    id: x2
+    depth: 3
+    body: Plot ln k against 1/T and you get a straight line. Its slope is −Eₐ/R. This is the **Arrhenius plot** – the standard tool in a kinetics lab.
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: In an Arrhenius plot the line has a slope of −{{s}} K. What is Eₐ? (R = 8.314 J/(mol·K)) Round to whole kJ/mol.
+    params:
+      unit: kJ/mol
+    answer:
+      value: "{{round(s * 8.314 / 1000)}}"
+      tolerance: 1
+    hints:
+      - Eₐ = −slope · R.
+      - Work out {{s}} · 8.314 J/mol.
+    explanation: "{{s}} · 8.314 ≈ {{round(s * 8.314)}} J/mol, so about {{round(s * 8.314 / 1000)}} kJ/mol."
+    difficulty: 3
+    variants:
+      params:
+        s: step[4000,12000,1000]
+      defaults:
+        s: 6000
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why even a little heat can make a reaction much faster.
+    params:
+      keywords:
+        - - anteil
+          - share
+          - fraction
+          - mehr teilchen
+          - more particles
+        - - aktivierung
+          - activation
+          - berg
+          - barrier
+          - hill
+        - - exponent
+          - exponentiell
+          - exponential
+          - verdopp
+          - doubl
+      sample: Only a small share of particles has enough energy for the activation barrier. If it gets a bit warmer, that share grows exponentially – it can double with just 10 degrees.
+    explanation: It is not about slightly faster particles but about many more particles over the hill.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

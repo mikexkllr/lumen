@@ -1,0 +1,205 @@
+id: chem.kinetics.rate
+type: concept
+title: "Measuring rate"
+summary: "How to measure the speed of a reaction."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how long does an airbag take to inflate chemically after a crash?"
+    params:
+      min: 0.001
+      max: 100
+      scale: log
+      unit: s
+    answer:
+      value: 0.03
+      tolerance: 0.015
+    explanation: About 30 milliseconds. A solid breaks down in a flash into nitrogen gas. Rust needs years for the same mass.
+
+  - kind: explain
+    id: c1
+    body: "The **reaction rate** tells you how fast a concentration changes: by how many moles per litre each second."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The concentration of a substance falls by {{d}} mol/L in {{t}} seconds. What is the average rate in mol/(L·s)?
+    answer:
+      value: "{{d / t}}"
+      tolerance: 1e-7
+    feedback:
+      - when: abs(numval(state.input) - t / d) < 0.001
+        misconception: inverted-rate
+        text: "The other way round: change divided by time."
+    hints:
+      - Rate = change ÷ time.
+      - Work out {{d}} ÷ {{t}}.
+    explanation: "{{d}} ÷ {{t}} = {{d / t}} mol/(L·s)."
+    variants:
+      params:
+        d: choice[0.2,0.4,0.6]
+        t: choice[10,20,40]
+      defaults:
+        d: 0.4
+        t: 20
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Fast or slow?
+    params:
+      buckets:
+        - id: b1
+          label: in seconds or faster
+        - id: b2
+          label: over days to years
+      items:
+        - label: Oxyhydrogen explodes
+          bucket: b1
+        - label: Acid meets base
+          bucket: b1
+        - label: A silver salt precipitates
+          bucket: b1
+        - label: Iron rusts
+          bucket: b2
+        - label: Wood rots in the forest
+          bucket: b2
+        - label: Rock weathers
+          bucket: b2
+    hints:
+      - Ions in solution often react in a flash.
+      - You only see rust and weathering after a long time.
+    explanation: Reactions span over 20 powers of ten in speed – from femtoseconds to millions of years.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Marble reacts with hydrochloric acid, fizzing out CO₂. What is the simplest way to measure the rate?
+    params:
+      options:
+        - label: Measure the gas volume or mass loss per minute
+          correct: true
+        - label: Watch the colour
+          feedback: No colour changes here.
+        - label: Taste the solution
+          feedback: You never taste acid.
+    hints:
+      - What escapes from the flask?
+      - A gas can be collected, or weighed as lost mass.
+    explanation: "You measure a quantity that changes with conversion: gas, mass, colour, conductivity or pH."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: At first it fizzes hard, later ever more weakly. Why does the reaction slow down?
+    params:
+      options:
+        - label: The acid gets used up – fewer particles, fewer collisions
+          correct: true
+        - label: The CO₂ slows the reaction
+          feedback: It escapes.
+        - label: The marble gets harder
+          feedback: It only gets smaller.
+    hints:
+      - What decreases as the reaction goes on?
+      - Rate depends on concentration.
+    explanation: "So the gas-volume curve gets ever flatter until it is level: the reaction is finished."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: After 30 s, 60 ml of CO₂ has formed; after 60 s, 90 ml. What is the average rate between 30 and 60 s in ml per second?
+    params:
+      unit: ml/s
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: wrong-interval
+        text: That is the rate from the start. Only the second interval is asked for.
+    hints:
+      - How much gas was added in that interval?
+      - 30 ml in 30 s.
+    explanation: 30 ml ÷ 30 s = 1 ml/s. In the first 30 s it was still 2 ml/s.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: 2 N₂O₅ → 4 NO₂ + O₂. N₂O₅ disappears at 0.02 mol/(L·s). How fast does NO₂ form?
+    params:
+      unit: mol/(L·s)
+    answer:
+      value: 0.04
+      tolerance: 0.0001
+    feedback:
+      - when: abs(numval(state.input) - 0.02) < 0.0001
+        misconception: ratio-ignored
+        text: 2 N₂O₅ give 4 NO₂ – twice as many.
+    hints:
+      - Compare the numbers in front of N₂O₅ and NO₂.
+      - 4 ÷ 2 = 2.
+    explanation: "NO₂ forms twice as fast: 0.04 mol/(L·s). Each substance has its own rate."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Divide each rate by the number in front of the substance and you get one reaction rate for all. The rate at a single instant is the slope of the tangent: the **instantaneous rate**."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: For 2 N₂O₅ → 4 NO₂ + O₂, N₂O₅ disappears at 0.02 mol/(L·s). What is the reaction rate v, divided by the coefficients?
+    params:
+      unit: mol/(L·s)
+    answer:
+      value: 0.01
+      tolerance: 0.0001
+    hints:
+      - v = rate of N₂O₅ ÷ 2.
+      - "Check: NO₂ 0.04 ÷ 4 – the same?"
+    explanation: v = 0.02 ÷ 2 = 0.04 ÷ 4 = 0.01 mol/(L·s). O₂ also forms at 0.01.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what reaction rate is and how it is measured.
+    params:
+      keywords:
+        - - konzentration
+          - menge
+          - concentration
+          - amount
+        - - zeit
+          - sekunde
+          - minute
+          - time
+          - second
+        - - mess
+          - gas
+          - volumen
+          - farbe
+          - measure
+          - volume
+          - colour
+          - color
+      sample: The reaction rate is the change in concentration per unit of time. You measure something that changes as it happens, such as gas volume or colour, every few seconds.
+    explanation: Rate = change over time – like with a car, only with concentrations.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x2"]

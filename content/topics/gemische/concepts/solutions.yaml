@@ -5,7 +5,7 @@ summary: Wie viel passt hinein?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: prozent
@@ -79,6 +79,74 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Gramm Zucker lösen sich bei 20 °C in 100 g Wasser?"
+    params:
+      min: 0
+      max: 500
+      unit: g
+    answer:
+      value: 204
+      tolerance: 40
+    explanation: Rund 200 g – das Doppelte der Wassermasse! Bei Salz sind es nur 36 g.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{s}} g Salz werden in {{total - s}} g Wasser gelöst. Wie viel Prozent Salz enthält die Lösung?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * s / total}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 100 * s / (total - s)) < 0.05
+        misconception: percent-of-solvent
+        text: Teile durch die Masse der ganzen Lösung – Wasser plus Salz.
+    hints:
+      - "Die Lösung wiegt Salz plus Wasser: {{total}} g."
+      - "Rechne {{s}} : {{total}} · 100."
+    explanation: "{{s}} g von {{total}} g sind {{100 * s / total}} %."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[5,10,20,25]
+        total: choice[100,200]
+      defaults:
+        s: 10
+        total: 200
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: Du mischst 100 g Salzlösung mit {{p1}} % und 300 g mit {{p2}} %. Wie viel Prozent Salz hat die Mischung?
+    params:
+      unit: "%"
+    answer:
+      value: "{{(p1 + 3 * p2) / 4}}"
+    feedback:
+      - when: numval(state.input) == (p1 + p2) / 2
+        misconception: unweighted-mean
+        text: Die größere Portion zählt stärker – das ist kein einfacher Mittelwert.
+    hints:
+      - "Rechne erst die Gramm Salz aus: {{p1}} g und {{3 * p2}} g."
+      - Teile das Salz durch 400 g.
+    explanation: ({{p1}} + {{3 * p2}}) g Salz in 400 g Lösung sind {{(p1 + 3 * p2) / 4}} %.
+    difficulty: 2
+    variants:
+      params:
+        p1: step[4,12,4]
+        p2: step[20,28,4]
+      defaults:
+        p1: 8
+        p2: 24
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +162,49 @@ steps:
     hints:
       - Bei Feststoffen ist es umgekehrt als bei Gasen.
     explanation: "Darum bekommen Fische in warmem Wasser schlechter Luft: Es enthält weniger Sauerstoff."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Beim Lösen zerren Wassermoleküle die Ionen aus dem Salzkristall. Jedes Ion wird von Wasser umringt. Diese Hülle heißt **Hydrathülle**.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Kühlpack wird beim Lösen von Ammoniumnitrat kalt, Ätznatron in Wasser dagegen heiß. Woran liegt das?
+    params:
+      options:
+        - label: Am Unterschied zwischen der Energie zum Aufbrechen des Kristalls und der Energie der Hydrathüllen
+          correct: true
+        - label: Am Unterschied der Wassertemperatur
+          feedback: Beide starten mit gleich warmem Wasser.
+        - label: Ammoniumnitrat ist von Anfang an kalt
+          feedback: Es hat Raumtemperatur, bis es sich löst.
+    hints:
+      - "Lösen hat zwei Schritte: Gitter aufbrechen und Ionen umhüllen."
+      - Der eine Schritt kostet Energie, der andere liefert welche.
+    explanation: Kostet das Aufbrechen mehr, als die Hydrathüllen liefern, wird es kalt. Liefern die Hüllen mehr, wird es warm.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Salzwasser gefriert erst unter 0 °C. Zucker hat denselben Effekt. Worauf kommt es dabei an?
+    params:
+      options:
+        - label: Auf die Zahl der gelösten Teilchen, nicht auf ihre Sorte
+          correct: true
+        - label: Darauf, dass der Stoff salzig ist
+          feedback: Auch Zucker oder Alkohol senken den Gefrierpunkt.
+        - label: Auf die Farbe der Lösung
+          feedback: Die Farbe spielt keine Rolle.
+    hints:
+      - Gelöste Teilchen stören die Wassermoleküle beim Bilden des Eisgitters.
+      - Ein NaCl zerfällt in zwei Ionen, ein Zucker bleibt ein Teilchen.
+    explanation: "Solche Effekte heißen **kolligativ**: Sie hängen nur von der Teilchenzahl ab. Darum wirkt Streusalz pro Mol etwa doppelt so stark wie Zucker."
     difficulty: 3
 
 srs:

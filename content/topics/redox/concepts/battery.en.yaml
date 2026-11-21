@@ -5,7 +5,7 @@ summary: Redox, spatially separated.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 15
       tolerance: 6
     explanation: About 15 Wh. An electric car battery has about 60,000 Wh – as much as 4000 phones.
-
 
   - kind: explain
     id: s1
@@ -79,6 +78,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: A battery has {{v}} V and {{c}} mAh. How many watt-hours does it store?
+    params:
+      unit: Wh
+    answer:
+      value: "{{v * c / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - v * c) < 0.01
+        misconception: milli
+        text: mAh are milliamp-hours – divide by 1000.
+    hints:
+      - Energy = voltage · charge.
+      - "{{c}} mAh = {{c / 1000}} Ah."
+    explanation: "{{v}} V · {{c / 1000}} Ah = {{v * c / 1000}} Wh."
+    difficulty: 2
+    variants:
+      params:
+        v: choice[1.2,3.7]
+        c: step[1000,5000,500]
+      defaults:
+        v: 3.7
+        c: 3000
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: match
+    prompt: Which chemistry is inside which battery?
+    params:
+      pairs:
+        - left: Alkaline battery (AA)
+          right: zinc and manganese dioxide
+        - left: Car starter battery
+          right: lead, lead dioxide, sulfuric acid
+        - left: Phone battery
+          right: lithium ions, graphite, metal oxide
+        - left: Hearing-aid button cell
+          right: zinc and oxygen from air
+    hints:
+      - The heavy car battery is also called a lead-acid battery.
+      - Hearing-aid cells have tiny air holes.
+    explanation: "All use the same principle: one substance gives away electrons, another takes them – separated by an ion conductor."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Why does a phone battery give up faster outside in winter?
+    params:
+      options:
+        - label: In the cold, the reactions and the movement of ions slow down
+          correct: true
+        - label: Cold destroys the lithium
+          feedback: Afterwards the battery recovers in the warm.
+        - label: The electrons freeze
+          feedback: The electrons in the wire are not the problem.
+    hints:
+      - What does cold do to the rate of reaction?
+      - Inside the battery, ions must travel through a liquid.
+    explanation: The internal resistance rises and the voltage drops under load. Back in the warm, the charge returns.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +160,60 @@ steps:
     hints:
       - Much voltage for little weight.
     explanation: The lowest potential of the series (−3.04 V) and only 7 g per mole – that gives the highest energy density.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: A battery cell (type 18650) has 3.6 V and 3 Ah and weighs 47 g. How many watt-hours does it store per kilogram? Round to a whole number.
+    params:
+      unit: Wh/kg
+    answer:
+      value: 230
+      tolerance: 1
+    hints:
+      - "First the energy: 3.6 V · 3 Ah = 10.8 Wh."
+      - "Then scale up to 1000 g: 10.8 ÷ 47 · 1000."
+    explanation: About 230 Wh/kg. This is the **energy density** – crucial for the range and weight of electric cars.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Petrol stores about 12,000 Wh per kilogram, a lithium battery about 250. Why do electric cars still go far?
+    params:
+      options:
+        - label: Electric motors use about 90% of the energy, combustion engines only about a third
+          correct: true
+        - label: Batteries recharge while driving
+          feedback: Braking recovers only a small part.
+        - label: The numbers are about equal
+          feedback: Per kilo, petrol stores almost fifty times more.
+    hints:
+      - What matters is how much energy reaches the wheels.
+      - A combustion engine mostly makes heat.
+    explanation: Efficiency makes up part of the gap. Still, a battery for 500 km weighs a few hundred kilos – petrol for 500 km only about 25.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Why should you never damage a lithium battery or charge it far too much?
+    params:
+      options:
+        - label: An internal short circuit can heat the cell so much that the flammable electrolyte catches fire
+          correct: true
+        - label: They simply drain
+          feedback: The danger is the heat, not running empty.
+        - label: Lithium then becomes radioactive
+          feedback: Lithium is not radioactive.
+    hints:
+      - The battery contains an organic, flammable liquid.
+      - Heat speeds up the reactions – which make even more heat.
+    explanation: "This is called thermal runaway: the reaction keeps heating itself up. That is why batteries have protection circuits."
     difficulty: 3
 
 srs:

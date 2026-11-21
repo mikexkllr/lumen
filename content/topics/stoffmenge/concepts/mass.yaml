@@ -5,7 +5,7 @@ summary: Die molare Masse.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -100,6 +100,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: Kalk CaCO₃ hat die molare Masse 100 g/mol. Wie viel Mol sind {{m}} g Kalk?
+    params:
+      unit: mol
+    answer:
+      value: "{{m / 100}}"
+    feedback:
+      - when: numval(state.input) == 100 * m
+        misconception: inverted-formula
+        text: "Teilen, nicht malnehmen: n = m : M."
+    hints:
+      - "n = m : M."
+      - "Rechne {{m}} : 100."
+    explanation: "{{m}} g : 100 g/mol = {{m / 100}} mol."
+    difficulty: 2
+    variants:
+      params:
+        m: step[25,500,25]
+      defaults:
+        m: 250
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Welche molare Masse hat Schwefelsäure H₂SO₄? (H = 1, S = 32, O = 16)
+    params:
+      unit: g/mol
+    answer:
+      value: 98
+    feedback:
+      - when: numval(state.input) == 49
+        misconception: subscript-ignored
+        text: "Zähle alle Atome: zwei H, ein S, vier O."
+    hints:
+      - 2 · 1 + 32 + 4 · 16.
+      - 2 + 32 + 64.
+    explanation: 2 + 32 + 64 = 98 g/mol.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: Ammoniumnitrat NH₄NO₃ (80 g/mol) ist ein Dünger. Wie viel Prozent seiner Masse ist Stickstoff (N = 14)?
+    answer:
+      value: 35
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 17.5) < 0.5
+        misconception: atom-count
+        text: In der Formel stehen zwei N-Atome.
+    hints:
+      - "Zähle die N-Atome: eins in NH₄, eins in NO₃."
+      - "28 : 80 · 100."
+    explanation: 28 von 80 sind 35 %. Darum ist Ammoniumnitrat ein besonders kräftiger Stickstoffdünger.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -112,6 +173,42 @@ steps:
     hints:
       - 2 g von 18 g.
     explanation: "2 : 18 ≈ 11 %. Zwei Drittel der Atome sind Wasserstoff – aber nur ein Neuntel der Masse."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Stoff besteht zu 75 % aus C und zu 25 % aus H (Massenanteile). Wie viele H-Atome kommen auf ein C-Atom?
+    answer:
+      value: 4
+    feedback:
+      - when: abs(numval(state.input) - 1/3) < 0.01
+        misconception: mass-not-moles
+        text: "Rechne in Mol um: 75 g C sind 6,25 mol, 25 g H sind 25 mol."
+    hints:
+      - "Nimm 100 g an: 75 g C und 25 g H."
+      - "75 : 12 = 6,25 mol C, 25 : 1 = 25 mol H."
+    explanation: "25 : 6,25 = 4. Die Verhältnisformel ist CH₄ – Methan. So bestimmt man Formeln aus Messdaten."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Chlor hat die mittlere Atommasse 35,45 u – keine ganze Zahl. Woher kommt das?
+    params:
+      options:
+        - label: Es ist ein Gemisch aus rund 76 % Cl-35 und 24 % Cl-37
+          correct: true
+        - label: Ein Chloratom hat 35,45 Neutronen
+          feedback: Teilchen gibt es nur ganz.
+        - label: Die Elektronen wiegen 0,45 u
+          feedback: 17 Elektronen wiegen nur etwa 0,01 u.
+    hints:
+      - Chlor hat zwei stabile Isotope.
+      - 0,76 · 35 + 0,24 · 37 ≈ ?
+    explanation: 0,76 · 35 + 0,24 · 37 ≈ 35,5. Die Atommassen im Periodensystem sind gewichtete Mittelwerte der Isotope.
     difficulty: 3
 
 srs:

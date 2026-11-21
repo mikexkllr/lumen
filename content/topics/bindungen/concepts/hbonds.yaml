@@ -5,7 +5,7 @@ summary: Kleine Kräfte, große Wirkung.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: siedepunkt
@@ -78,6 +78,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Bei wie viel Grad Celsius würde Wasser sieden, wenn es keine Wasserstoffbrücken gäbe?"
+    params:
+      min: -150
+      max: 150
+      unit: °C
+    answer:
+      value: -80
+      tolerance: 25
+    explanation: Verlängert man die Reihe H₂Te, H₂Se, H₂S, landet man bei etwa −80 °C. Ohne Brücken gäbe es auf der Erde kein flüssiges Wasser.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Können die Moleküle untereinander Wasserstoffbrücken bilden?
+    params:
+      buckets:
+        - id: b1
+          label: ja
+        - id: b2
+          label: nein
+      items:
+        - label: Wasser H₂O
+          bucket: b1
+        - label: Ammoniak NH₃
+          bucket: b1
+        - label: Fluorwasserstoff HF
+          bucket: b1
+        - label: Ethanol C₂H₅OH
+          bucket: b1
+        - label: Methan CH₄
+          bucket: b2
+        - label: Wasserstoff H₂
+          bucket: b2
+        - label: Kohlendioxid CO₂
+          bucket: b2
+    hints:
+      - Nötig ist ein H am stark elektronegativen N, O oder F.
+      - Im CH₄ hängt das H am C – das reicht nicht.
+    explanation: Wasserstoffbrücken brauchen ein stark positives H (an N, O oder F) und ein freies Paar am Nachbarn. CO₂ hat gar kein H.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: order
+    prompt: Ordne nach dem Siedepunkt – den höchsten zuerst.
+    params:
+      items:
+        - label: Wasser H₂O (+100 °C)
+        - label: Fluorwasserstoff HF (+20 °C)
+        - label: Ammoniak NH₃ (−33 °C)
+        - label: Methan CH₄ (−162 °C)
+    hints:
+      - Die Temperaturen stehen dabei.
+      - Wasser kann pro Molekül die meisten Brücken bilden.
+    explanation: Wasser bildet bis zu vier Brücken pro Molekül, HF und NH₃ im Mittel weniger. Methan hat gar keine – und siedet weit unten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -101,6 +165,56 @@ steps:
           - anzieh
           - attract
       sample: Bei der Ionenbindung wird ein Elektron übertragen – es entstehen geladene Ionen, die sich anziehen. Bei der Elektronenpaarbindung teilen sich zwei Atome ein Elektronenpaar.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein DNA-Stück hat {{at}} Basenpaare A–T (je 2 Brücken) und {{gc}} Paare G–C (je 3 Brücken). Wie viele Wasserstoffbrücken halten die Stränge?
+    answer:
+      value: "{{2 * at + 3 * gc}}"
+    feedback:
+      - when: numval(state.input) == 3 * at + 2 * gc
+        misconception: pair-swap
+        text: "Vertauscht: A–T hat 2, G–C hat 3 Brücken."
+    hints:
+      - Rechne beide Sorten einzeln.
+      - "{{at}} · 2 + {{gc}} · 3."
+    explanation: "{{2 * at}} + {{3 * gc}} = {{2 * at + 3 * gc}}. DNA mit viel G–C trennt sich erst bei höherer Temperatur."
+    difficulty: 3
+    variants:
+      params:
+        at: int[4,12]
+        gc: int[3,12]
+      constraints:
+        - at != gc
+      defaults:
+        at: 10
+        gc: 5
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: Auch unpolare Moleküle ziehen sich an. Ihre Elektronenwolken schwanken ständig und bilden kurze Mini-Dipole, die Nachbarn mitziehen. Das sind die **London-Kräfte**. Je größer das Molekül, desto stärker wirken sie.
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Ein Gecko läuft an einer glatten Glasscheibe hoch – ohne Kleber und ohne Saugnäpfe. Was hält ihn?
+    params:
+      options:
+        - label: Milliarden feinster Härchen, die über London-Kräfte am Glas haften
+          correct: true
+        - label: Wasserstoffbrücken
+          feedback: Die Haftung klappt sogar auf wasserabweisenden Flächen.
+        - label: Ionenbindungen
+          feedback: Weder Fuß noch Glas geben dabei Elektronen ab.
+    hints:
+      - Jede einzelne Anziehung ist winzig.
+      - Viele Kontakte auf kleinster Distanz summieren sich.
+    explanation: Schwache Kräfte werden stark, wenn es genug von ihnen gibt. Forscher bauen danach Klebebänder ohne Klebstoff.
     difficulty: 3
 
 srs:

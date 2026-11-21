@@ -5,7 +5,7 @@ summary: Ketten, Ringe, Millionen Moleküle.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: vielfalt
@@ -81,6 +81,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Alkan, Alken oder Alkin? Achte auf die Wasserstoffe.
+    params:
+      buckets:
+        - id: b1
+          label: Alkan (nur Einfachbindungen)
+        - id: b2
+          label: Alken (eine C=C)
+        - id: b3
+          label: Alkin (eine C≡C)
+      items:
+        - label: Ethan C₂H₆
+          bucket: b1
+        - label: Propan C₃H₈
+          bucket: b1
+        - label: Ethen C₂H₄
+          bucket: b2
+        - label: Propen C₃H₆
+          bucket: b2
+        - label: Ethin C₂H₂
+          bucket: b3
+    hints:
+      - "Alkane: CₙH₂ₙ₊₂, Alkene: CₙH₂ₙ, Alkine: CₙH₂ₙ₋₂."
+      - Jede weitere Bindung zwischen C-Atomen kostet zwei H.
+    explanation: Ethin heißt auch Acetylen – es brennt beim Schweißen über 3000 °C heiß.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein kettenförmiges Alkin hat eine Dreifachbindung und {{n}} C-Atome. Wie viele H-Atome hat es?
+    answer:
+      value: "{{2 * n - 2}}"
+    feedback:
+      - when: numval(state.input) == 2 * n + 2
+        misconception: saturated
+        text: Das wäre das Alkan. Die Dreifachbindung kostet vier H.
+    hints:
+      - "Alkine: CₙH₂ₙ₋₂."
+      - Rechne 2 · {{n}} − 2.
+    explanation: 2 · {{n}} − 2 = {{2 * n - 2}} H-Atome.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,10]
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: ch-d3
+    depth: 2
+    body: Ein C-Atom mit vier Einfachbindungen zeigt in die vier Ecken eines **Tetraeders**. Darum ist eine Alkankette keine gerade Linie, sondern ein Zickzack – und frei drehbar.
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -90,6 +147,56 @@ steps:
     hints:
       - Gerade Kette, eine Verzweigung, zwei Verzweigungen am selben C.
     explanation: Drei. Bei C₁₀ sind es schon 75, bei C₂₀ über 366 000 – darum gibt es so viele organische Stoffe.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Gleiche Formel, andere Verknüpfung: Das sind **Isomere**. Mit jedem C-Atom wächst ihre Zahl rasant – Decan C₁₀H₂₂ hat schon 75 Isomere."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele verschiedene Ketten-Isomere hat Hexan C₆H₁₄?
+    answer:
+      value: 5
+    hints:
+      - Gerade Kette, dann eine Methylgruppe an Platz 2 oder 3.
+      - "Dann zwei Methylgruppen: 2,2 und 2,3."
+    explanation: Hexan, 2-Methylpentan, 3-Methylpentan, 2,2-Dimethylbutan und 2,3-Dimethylbutan. Alle C₆H₁₄, alle mit eigenem Siedepunkt.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: "Jeder Ring und jede Doppelbindung kostet zwei H. Die Zahl der »Ungesättigtheiten« ist (2C + 2 − H) : 2. Wie groß ist sie für Benzol C₆H₆?"
+    answer:
+      value: 4
+    hints:
+      - Setze C = 6 und H = 6 ein.
+      - "(12 + 2 − 6) : 2."
+    explanation: 4 = ein Ring und drei Doppelbindungen. So rät man aus einer Summenformel, wie ein Molekül gebaut sein kann.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: Von But-2-en CH₃–CH=CH–CH₃ gibt es eine cis- und eine trans-Form. Beim Butan gibt es das nicht. Warum?
+    params:
+      options:
+        - label: Um die Doppelbindung kann sich nichts drehen – die Lage der Gruppen ist eingefroren
+          correct: true
+        - label: Butan hat zu wenige C-Atome
+          feedback: Beide haben vier C-Atome.
+        - label: Die Doppelbindung ist länger
+          feedback: Sie ist sogar kürzer – entscheidend ist die Starrheit.
+    hints:
+      - Einfachbindungen sind frei drehbar.
+      - Bei cis stehen beide CH₃ auf derselben Seite.
+    explanation: Solche cis/trans-Paare haben verschiedene Eigenschaften. Trans-Fette in gehärteten Ölen sind ein bekanntes, ungesundes Beispiel.
     difficulty: 3
 
 srs:

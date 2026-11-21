@@ -5,8 +5,21 @@ summary: Molmassen einstellen und vergleichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel wiegt ein Mol Goldatome?"
+    params:
+      min: 1
+      max: 1000
+      unit: g
+    answer:
+      value: 197
+      tolerance: 30
+    explanation: 197 g – ein Würfel von nur 2,2 cm Kantenlänge. Ein Mol Wasserstoffatome wiegt dagegen nur 1 g.
+
   - kind: problem
     id: saeulen
     widget: chart
@@ -56,6 +69,102 @@ steps:
     explanation: Mit drei Zahlen – 1, 12, 16 – lassen sich alle vier berechnen.
 
   - kind: problem
+    id: ch-c1
+    widget: numeric
+    prompt: 3 mol eines Gases wiegen {{3 * M}} g. Welche molare Masse hat es?
+    params:
+      unit: g/mol
+    answer:
+      value: "{{M}}"
+    feedback:
+      - when: numval(state.input) == 9 * M
+        misconception: inverted-formula
+        text: "Teilen, nicht malnehmen: M = m : n."
+    hints:
+      - Molare Masse = Masse pro Mol.
+      - "Rechne {{3 * M}} : 3."
+    explanation: "{{3 * M}} g : 3 mol = {{M}} g/mol."
+    variants:
+      params:
+        M: choice[16,28,32,44]
+      defaults:
+        M: 32
+
+  - kind: problem
+    id: ch-c2
+    widget: buckets
+    prompt: Luft hat im Mittel 29 g/mol. Steigt das Gas in Luft auf oder sinkt es ab?
+    params:
+      buckets:
+        - id: b1
+          label: steigt auf
+        - id: b2
+          label: sinkt ab
+      items:
+        - label: Wasserstoff H₂
+          bucket: b1
+        - label: Helium He
+          bucket: b1
+        - label: Methan CH₄
+          bucket: b1
+        - label: Ammoniak NH₃
+          bucket: b1
+        - label: Kohlendioxid CO₂
+          bucket: b2
+        - label: Argon Ar
+          bucket: b2
+        - label: Propan C₃H₈
+          bucket: b2
+    hints:
+      - Rechne jede molare Masse aus und vergleiche mit 29.
+      - "Propan: 3 · 12 + 8 = 44 g/mol."
+    explanation: Gleiches Volumen heißt gleich viele Teilchen. Leichte Teilchen machen das Gas leichter als Luft. Propan sinkt – darum sind Gaslecks in Kellern und Booten gefährlich.
+
+  - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: sim
+    prompt: Temperatur und Volumen sind fest. Stell die Stoffmenge so ein, dass der Druck etwa 250 kPa erreicht.
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+        volume:
+          value: 5
+          fixed: true
+        amount:
+          fixed: false
+    answer:
+      pressure:
+        - 245
+        - 255
+    explanation: Mit 0,5 mol sind es rund 249 kPa. Der Druck wächst genau mit der Teilchenzahl.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Bei fester Temperatur und festem Volumen erzeugen 0,2 mol Gas 100 kPa. Welchen Druck erzeugen {{n}} mol?
+    params:
+      unit: kPa
+    answer:
+      value: "{{500 * n}}"
+      tolerance: 0.01
+    hints:
+      - Wievielmal so viel Gas ist {{n}} mol gegenüber 0,2 mol?
+      - Der Druck wächst im selben Verhältnis.
+    explanation: "{{n}} : 0,2 = {{5 * n}}-mal so viel Gas, also {{500 * n}} kPa."
+    difficulty: 2
+    variants:
+      params:
+        n: step[0.3,1,0.1]
+      defaults:
+        n: 0.7
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -81,6 +190,45 @@ steps:
           - mass
           - gram
       sample: "Ein Mol ist eine feste, riesige Anzahl von Teilchen – wie ein Dutzend, nur viel größer. Damit kann man Atome zählen, indem man sie wiegt: Ein Mol hat so viele Gramm, wie die Atommasse angibt."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: "Zwei gleich große Ballons bei gleichem Druck und gleicher Temperatur: Einer enthält Helium, einer CO₂. Welcher enthält mehr Teilchen?"
+    params:
+      options:
+        - label: Beide gleich viele
+          correct: true
+        - label: Der Heliumballon
+          feedback: Helium-Atome sind leichter, aber nicht zahlreicher.
+        - label: Der CO₂-Ballon
+          feedback: Größere Moleküle brauchen nicht mehr Platz – die Abstände dominieren.
+    hints:
+      - Im Gas sind die Teilchen winzig gegenüber ihren Abständen.
+      - pV = nRT enthält keine Teilchengröße.
+    explanation: "Das ist das Gesetz von Avogadro: Gleiche Volumen idealer Gase enthalten gleich viele Teilchen. Der CO₂-Ballon ist trotzdem elfmal so schwer."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Mol Gas nimmt bei Raumtemperatur etwa 24 L ein. Wie viel Gramm wiegt ein Liter CO₂ (44 g/mol)? Auf zwei Nachkommastellen.
+    params:
+      unit: g/L
+    answer:
+      value: 1.83
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.55) < 0.01
+        misconception: inverted-ratio
+        text: "Umgekehrt: Masse durch Volumen, also 44 : 24."
+    hints:
+      - "Dichte = Masse : Volumen."
+      - 44 g in 24 L.
+    explanation: "44 : 24 ≈ 1,83 g/L. Luft hat etwa 1,2 g/L – CO₂ ist also rund anderthalbmal so dicht."
     difficulty: 3
 
 srs:

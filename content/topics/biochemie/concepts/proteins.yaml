@@ -1,0 +1,231 @@
+id: chem.biochem.proteins
+type: concept
+title: "Aminosäuren und Proteine"
+summary: "Zwanzig Bausteine, unendlich viele Formen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Aus wie vielen verschiedenen Aminosäuren bauen fast alle Lebewesen ihre Proteine?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 20
+      tolerance: 2
+    explanation: Aus 20 – bei Bakterien bis Elefanten dieselben. Mit diesem Alphabet entstehen Haare, Muskeln, Enzyme und Antikörper.
+
+  - kind: explain
+    id: c1
+    body: "Eine **Aminosäure** hat an einem C-Atom vier Partner: eine Aminogruppe NH₂, eine Säuregruppe COOH, ein H und eine Seitenkette R. Nur die Seitenkette ist bei allen 20 verschieden."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Protein besteht aus {{n}} Aminosäuren in einer Kette. Wie viele Peptidbindungen hat es?
+    answer:
+      value: "{{n - 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: fencepost
+        text: Zwischen {{n}} Perlen einer Kette gibt es nur {{n - 1}} Verbindungen.
+    hints:
+      - Zwei Aminosäuren haben eine Bindung, drei haben zwei.
+      - Rechne {{n}} − 1.
+    explanation: "{{n - 1}} Peptidbindungen – und dabei wurden {{n - 1}} Wassermoleküle frei."
+    variants:
+      params:
+        n: int[20,300]
+      defaults:
+        n: 51
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Zwei Aminosäuren verknüpfen sich zur Peptidbindung. Welches kleine Molekül wird dabei frei?
+    params:
+      options:
+        - label: Wasser
+          correct: true
+        - label: Kohlendioxid
+          feedback: Die COOH-Gruppe bleibt als C=O erhalten.
+        - label: Ammoniak
+          feedback: Der Stickstoff bleibt in der Kette.
+    hints:
+      - –COOH trifft auf –NH₂.
+      - Ein OH und ein H gehen zusammen weg.
+    explanation: Die Peptidbindung –CO–NH– ist eine Amidbindung. Bei der Verdauung wird sie mit Wasser wieder gespalten.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Ist die Seitenkette polar oder unpolar?
+    params:
+      buckets:
+        - id: b1
+          label: unpolar
+        - id: b2
+          label: polar oder geladen
+      items:
+        - label: Alanin (–CH₃)
+          bucket: b1
+        - label: Leucin (verzweigte CH-Kette)
+          bucket: b1
+        - label: Phenylalanin (Benzolring)
+          bucket: b1
+        - label: Serin (–CH₂OH)
+          bucket: b2
+        - label: Lysin (–NH₂ am Ende)
+          bucket: b2
+        - label: Asparaginsäure (–COOH)
+          bucket: b2
+    hints:
+      - "Nur C und H: unpolar."
+      - OH, NH₂ oder COOH machen polar.
+    explanation: Unpolare Seitenketten verstecken sich beim Falten im Inneren, polare zeigen nach außen ins Wasser.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Die Abfolge der Aminosäuren heißt **Primärstruktur**. Sie bestimmt, wie sich die Kette über Wasserstoffbrücken und Seitenketten zu einer festen Form faltet.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Ordne die Strukturebenen eines Proteins vom Einfachen zum Komplexen.
+    params:
+      items:
+        - label: "Primärstruktur: Reihenfolge der Bausteine"
+        - label: "Sekundärstruktur: Helix und Faltblatt"
+        - label: "Tertiärstruktur: die ganze Kette gefaltet"
+        - label: "Quartärstruktur: mehrere Ketten zusammen"
+    hints:
+      - Erst die Kette, dann ihre Windungen.
+      - Hämoglobin besteht aus vier Ketten.
+    explanation: Helix und Faltblatt halten über Wasserstoffbrücken zwischen C=O und N–H. Die Gesamtform bestimmen die Seitenketten.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viele verschiedene Ketten aus {{n}} Aminosäuren lassen sich mit den 20 Aminosäuren bauen?
+    answer:
+      value: "{{20 ** n}}"
+    feedback:
+      - when: numval(state.input) == 20 * n
+        misconception: add-not-multiply
+        text: An jeder Stelle gibt es 20 Möglichkeiten – multiplizieren, nicht addieren.
+    hints:
+      - Für jede Stelle gibt es 20 Möglichkeiten.
+      - Rechne 20 hoch {{n}}.
+    explanation: 20 hoch {{n}} = {{20 ** n}}. Für ein Protein mit 300 Bausteinen ist die Zahl größer als die Zahl der Atome im Universum.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,4]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Beim Braten wird Eiweiß weiß und fest. Was passiert mit den Proteinen?
+    params:
+      options:
+        - label: Die Faltung bricht auf, die Ketten verklumpen – die Abfolge bleibt erhalten
+          correct: true
+        - label: Die Peptidbindungen zerfallen
+          feedback: Die Kette selbst hält.
+        - label: Es verdampft Eiweiß
+          feedback: Es verdampft nur etwas Wasser.
+    hints:
+      - Wärme bricht Wasserstoffbrücken.
+      - Das nennt man Denaturierung.
+    explanation: Die Ketten entfalten sich und verhaken untereinander. Darum wird ein gekochtes Ei nie wieder roh.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In Wasser mit pH 7 liegt eine Aminosäure kaum als NH₂–CHR–COOH vor. Wie dann?
+    params:
+      options:
+        - label: "Als Zwitterion: NH₃⁺–CHR–COO⁻"
+          correct: true
+        - label: Als Gas
+          feedback: Aminosäuren sind Feststoffe.
+        - label: Als NH₂–CHR–COOH wie gezeichnet
+          feedback: Die Säuregruppe gibt ihr H⁺ an die Aminogruppe ab.
+    hints:
+      - COOH ist eine Säure, NH₂ eine Base.
+      - Im selben Molekül wandert ein H⁺.
+    explanation: Das Zwitterion trägt Plus und Minus zugleich. Darum schmelzen Aminosäuren erst über 200 °C – wie Salze.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Insulin besteht aus 51 Aminosäuren. Ein Baustein in der Kette wiegt im Mittel 110 g/mol. Wie groß ist die molare Masse etwa?
+    params:
+      unit: g/mol
+    answer:
+      value: 5610
+      tolerance: 10
+    hints:
+      - Masse ≈ Zahl der Bausteine · mittlere Masse.
+      - 51 · 110.
+    explanation: Etwa 5600 g/mol – gemessen sind 5808. Kleine Proteine wiegen Tausende, große Millionen g/mol.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: "Bei der Sichelzellkrankheit ist im Hämoglobin nur eine Aminosäure vertauscht: Glutaminsäure (geladen) wird zu Valin (unpolar). Warum ist das so folgenreich?"
+    params:
+      options:
+        - label: Die unpolare Stelle an der Oberfläche lässt Hämoglobin-Moleküle zu langen Fasern verkleben
+          correct: true
+        - label: Das Hämoglobin verliert sein Eisen
+          feedback: Das Eisen bleibt gebunden.
+        - label: Valin ist giftig
+          feedback: Valin ist eine ganz normale Aminosäure.
+    hints:
+      - Unpolare Flächen meiden Wasser und suchen einander.
+      - Viele verklebte Moleküle verformen die Zelle.
+    explanation: Ein Atomgrüppchen ändert Polarität – und damit die Form ganzer Blutzellen. Chemie entscheidet über Gesundheit.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie aus einer Kette von Aminosäuren ein Protein mit fester Form wird.
+    params:
+      keywords:
+        - - peptid
+          - kette
+          - chain
+        - - falt
+          - fold
+        - - wasserstoffbrück
+          - hydrogen bond
+          - seitenkette
+          - side chain
+          - polar
+      sample: "Aminosäuren verbinden sich über Peptidbindungen zu einer Kette. Diese faltet sich durch Wasserstoffbrücken zu Helix und Faltblatt. Die Seitenketten bestimmen die endgültige Form: Unpolare liegen innen, polare außen."
+    explanation: Die Reihenfolge enthält schon die Bauanleitung für die Form.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x2"]

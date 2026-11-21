@@ -5,7 +5,7 @@ summary: Mit Strom Stoffe zerlegen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -84,6 +84,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Strom von {{i}} A fließt {{s}} Sekunden. Wie viel Mol Elektronen sind das? (1 mol Elektronen = 96 500 C)
+    params:
+      unit: mol
+    answer:
+      value: "{{k / 10}}"
+      tolerance: 0.001
+    hints:
+      - Ladung Q = I · t = {{i}} · {{s}} C.
+      - Teile {{9650 * k}} C durch 96 500 C/mol.
+    explanation: "{{9650 * k}} C : 96 500 C/mol = {{k / 10}} mol Elektronen. Das ist das Gesetz von Faraday."
+    difficulty: 2
+    variants:
+      params:
+        i: choice[2,5,10]
+        k: int[1,9]
+      derive:
+        s: 9650 * k / i
+      defaults:
+        i: 5
+        k: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Cu²⁺ + 2 e⁻ → Cu. Wie viel Gramm Kupfer (63,5 g/mol) scheidet 1 mol Elektronen ab? Auf eine Nachkommastelle.
+    answer:
+      value: 31.8
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 63.5) < 0.1
+        misconception: charge-ignored
+        text: Jedes Kupfer-Ion braucht zwei Elektronen.
+    hints:
+      - 1 mol Elektronen reicht für ein halbes Mol Cu²⁺.
+      - "Rechne 63,5 : 2."
+    explanation: "63,5 : 2 ≈ 31,8 g. Bei Silber (Ag⁺) wären es volle 107,9 g."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Bei der Elektrolyse von Kochsalzlösung entstehen drei wichtige Grundstoffe der Chemie. Welche?
+    params:
+      options:
+        - label: Chlor, Wasserstoff und Natronlauge
+          correct: true
+        - label: Natrium, Chlor und Wasser
+          feedback: Natrium-Metall entsteht nur aus geschmolzenem Salz ohne Wasser.
+        - label: Sauerstoff, Salz und Zucker
+          feedback: Zucker entsteht hier nicht.
+    hints:
+      - Am Pluspol werden Cl⁻ zu Cl₂ oxidiert.
+      - Am Minuspol wird Wasser zu H₂ und OH⁻ reduziert.
+    explanation: 2 NaCl + 2 H₂O → Cl₂ + H₂ + 2 NaOH. Dieses Verfahren ist einer der größten Stromverbraucher der Chemieindustrie.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -130,6 +192,44 @@ steps:
           - outside
       min: 3
       sample: An einem Pol gibt ein Stoff Elektronen ab, am anderen nimmt ein Stoff sie auf. Weil beide getrennt sind, müssen die Elektronen außen durch das Gerät fließen – das ist der Strom.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Theoretisch zerlegt schon 1,23 V Wasser. In der Praxis braucht man 1,8 bis 2 V. Die Differenz heißt **Überspannung**: Die Elektroden müssen die Reaktion erst in Gang bringen."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: 1 kg Wasserstoff sind 500 mol H₂ und brauchen 1000 mol Elektronen. Wie viele Kilowattstunden kostet das mindestens bei 1,23 V? (96 485 C/mol, 1 kWh = 3,6 · 10⁶ J) Auf ganze Zahlen.
+    answer:
+      value: 33
+      tolerance: 0.5
+    hints:
+      - Energie = Ladung · Spannung = 1000 · 96 485 · 1,23 J.
+      - Das sind rund 1,19 · 10⁸ J. Teile durch 3,6 · 10⁶.
+    explanation: Mindestens rund 33 kWh. Echte Elektrolyseure brauchen etwa 50 – wegen der Überspannung und Wärmeverlusten.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Aluminium-Recycling spart rund 95 % der Energie der Neuherstellung. Warum so viel?
+    params:
+      options:
+        - label: Neues Aluminium muss man aus dem Oxid per Elektrolyse herausholen – Schrott muss man nur einschmelzen
+          correct: true
+        - label: Altes Aluminium ist leichter
+          feedback: Die Masse ist dieselbe.
+        - label: Beim Recycling entsteht Strom
+          feedback: Einschmelzen kostet Energie, nur viel weniger.
+    hints:
+      - Aluminium ist sehr unedel – im Oxid sitzt es fest.
+      - Die Redoxarbeit ist beim Schrott schon erledigt.
+    explanation: Pro Kilo neues Aluminium braucht die Elektrolyse etwa 13 bis 15 kWh. Eine Getränkedose ist darum ein kleiner Energiespeicher.
     difficulty: 3
 
 srs:

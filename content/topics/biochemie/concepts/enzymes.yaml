@@ -1,0 +1,224 @@
+id: chem.biochem.enzymes
+type: concept
+title: "Enzyme – Katalysatoren des Lebens"
+summary: "Aktives Zentrum, Sättigung und Hemmstoffe im Enzym-Labor."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Kaust du Brot lange, schmeckt es süß. Fleisch wird im Mund nicht süß. Warum?
+    params:
+      options:
+        - label: Das Speichel-Enzym spaltet nur Stärke in Zucker – Eiweiß passt nicht
+          correct: true
+        - label: Fleisch enthält Salz
+          feedback: Es fehlt die Stärke, nicht der Zucker-Geschmack.
+        - label: Speichel ist im Fleisch zu sauer
+          feedback: Der pH ist derselbe.
+    hints:
+      - Brot besteht großteils aus Stärke.
+      - Enzyme sind wählerisch.
+    explanation: Amylase im Speichel zerlegt Stärke in Malzzucker. Jedes Enzym passt nur zu bestimmten Molekülen.
+
+  - kind: explain
+    id: c1
+    body: Ein Enzym ist ein gefaltetes Protein mit einer Tasche, dem **aktiven Zentrum**. Nur Moleküle mit passender Form und Ladung binden dort. Das Enzym verbiegt sie so, dass sie leicht reagieren.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: "Im Enzym-Labor: Stell das Substrat so ein, dass das Enzym mit halber Höchstgeschwindigkeit arbeitet."
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+        substrate:
+          value: 20
+    answer:
+      rate:
+        - 49
+        - 51
+    explanation: Bei [S] = 5 mM, also genau Kₘ, ist die Hälfte der Enzyme besetzt.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Welches Enzym spaltet welchen Stoff?
+    params:
+      pairs:
+        - left: Amylase
+          right: Stärke
+        - left: Lipase
+          right: Fett
+        - left: Pepsin
+          right: Eiweiß
+        - left: Lactase
+          right: Milchzucker
+        - left: Katalase
+          right: Wasserstoffperoxid
+    hints:
+      - Die Namen enden oft auf -ase und verraten das Substrat.
+      - Lipos heißt Fett, Amylon heißt Stärke.
+    explanation: Wem Lactase fehlt, verträgt Milchzucker schlecht. Ein einziges fehlendes Enzym ändert den Speiseplan.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Bei hohem Fieber über 42 °C wird es lebensgefährlich. Was passiert mit den Enzymen?
+    params:
+      options:
+        - label: Ihre Faltung beginnt sich zu lösen – das aktive Zentrum verliert seine Form
+          correct: true
+        - label: Sie werden schneller und verbrauchen alles
+          feedback: Zu Beginn ja, dann denaturieren sie.
+        - label: Sie verdampfen
+          feedback: Proteine verdampfen nicht.
+    hints:
+      - Wärme bricht Wasserstoffbrücken.
+      - Ohne Form keine Passung.
+    explanation: "Enzyme haben ein Temperatur-Optimum: Erst beschleunigt Wärme, dann zerstört sie die Form."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Das Tempo eines Enzyms folgt der Gleichung $v = v_{max} \\cdot \\frac{[S]}{K_m + [S]}$. Die **Michaelis-Konstante** Kₘ ist die Substratmenge für halbes Tempo. Kleines Kₘ heißt: Das Enzym greift schon wenig Substrat fest."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Kₘ ist 5 mM. Bring das Enzym auf mindestens 90 % seiner Höchstgeschwindigkeit.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+    answer:
+      rate:
+        - 90
+        - 100
+    explanation: Dafür braucht es [S] = 45 mM, das Neunfache von Kₘ. Ganz 100 % erreicht man nie – die Enzyme sind gesättigt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Das Substrat ist {{k}}-mal so hoch wie Kₘ. Mit wie viel Prozent seiner Höchstgeschwindigkeit arbeitet das Enzym?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * k / (1 + k)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: saturation-full
+        text: Ganz 100 % erreicht ein Enzym nie – Kₘ bleibt immer im Nenner.
+    hints:
+      - Setze [S] = {{k}} · Kₘ ein.
+      - "v = {{k}} : ({{1 + k}}) · 100 %."
+    explanation: "{{k}} : {{1 + k}} = {{100 * k / (1 + k)}} %. Die Kurve flacht ab – mehr Substrat bringt immer weniger."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,3,4,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Pepsin verdaut Eiweiß im Magen bei pH 2. Im Darm bei pH 8 arbeitet es kaum noch. Warum?
+    params:
+      options:
+        - label: Der pH ändert die Ladungen der Seitenketten – Form und aktives Zentrum stimmen dann nicht mehr
+          correct: true
+        - label: Bei pH 8 gibt es kein Eiweiß mehr
+          feedback: Eiweiß ist im Darm reichlich vorhanden.
+        - label: Basen zerstören jedes Enzym
+          feedback: Darm-Enzyme lieben pH 8.
+    hints:
+      - COOH- und NH₂-Gruppen geben oder nehmen je nach pH ein H⁺.
+      - Andere Ladungen, andere Wasserstoffbrücken, andere Form.
+    explanation: "Jedes Enzym hat sein pH-Optimum: Pepsin bei etwa 2, Trypsin im Darm bei etwa 8."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: Ein kompetitiver Hemmstoff verdreifacht das wirksame Kₘ. Stell das Substrat so ein, dass das Enzym trotzdem halbe Höchstgeschwindigkeit erreicht.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+        inhibitor:
+          value: 3
+          fixed: true
+    answer:
+      rate:
+        - 49
+        - 51
+    explanation: Mit [S] = 15 mM klappt es. Der Hemmstoff besetzt das aktive Zentrum nur zeitweise – viel Substrat verdrängt ihn.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Bei einer Methanol-Vergiftung gibt man im Krankenhaus Ethanol. Warum?
+    params:
+      options:
+        - label: Ethanol konkurriert um dasselbe Enzym – so entsteht viel weniger giftiges Formaldehyd
+          correct: true
+        - label: Ethanol neutralisiert Methanol
+          feedback: Beide sind Alkohole, keine Säure und Base.
+        - label: Ethanol betäubt die Schmerzen
+          feedback: Es geht um die Chemie in der Leber.
+    hints:
+      - Ein Enzym der Leber oxidiert beide Alkohole.
+      - Wer das aktive Zentrum besetzt, blockiert den anderen.
+    explanation: Ethanol wirkt als kompetitiver Hemmstoff. Das Methanol wird langsam unverändert ausgeschieden, statt zu giftigen Stoffen oxidiert zu werden.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Enzym nicht beliebig schneller wird, wenn man mehr Substrat zugibt.
+    params:
+      keywords:
+        - - aktiv
+          - active
+          - zentrum
+          - site
+          - tasche
+          - pocket
+        - - besetzt
+          - gesättigt
+          - saturat
+          - occupied
+          - voll
+          - full
+        - - höchst
+          - maximal
+          - maximum
+          - top speed
+          - vmax
+      sample: Jedes Enzym hat ein aktives Zentrum, das immer nur ein Substrat bearbeitet. Bei viel Substrat sind fast alle Zentren besetzt – das Enzym ist gesättigt. Dann erreicht es seine Höchstgeschwindigkeit und wird nicht schneller.
+    explanation: "Wie eine Kasse im Supermarkt: Mehr Kunden machen die Kasse nicht schneller."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

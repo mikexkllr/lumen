@@ -1,0 +1,204 @@
+id: chem.electrochem.liion
+type: concept
+title: "Der Lithium-Ionen-Akku"
+summary: "Lithium-Ionen schaukeln zwischen Graphit und Metalloxid."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele volle Ladezyklen schafft ein typischer Handy-Akku, bis er nur noch 80 % seiner Kapazität hat?"
+    params:
+      min: 10
+      max: 100000
+      scale: log
+    answer:
+      value: 700
+      tolerance: 400
+    explanation: Meist 500 bis 1000 Zyklen. Wer selten unter 20 % entlädt und nicht dauernd auf 100 % lädt, schont ihn.
+
+  - kind: explain
+    id: c1
+    body: "Im Akku pendeln Lithium-Ionen zwischen zwei Schichtstoffen: Graphit und einem Metalloxid. Sie schlüpfen zwischen die Schichten wie Bücher ins Regal. Das heißt **Interkalation**."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Ordne, was beim Entladen passiert.
+    params:
+      items:
+        - label: Lithium im Graphit gibt ein Elektron ab
+        - label: Das Elektron fließt durch dein Handy
+        - label: Das Li⁺ wandert durch den Elektrolyten
+        - label: Li⁺ und Elektron treffen sich im Metalloxid
+    hints:
+      - Elektron und Ion nehmen verschiedene Wege.
+      - Am Ende sind beide auf der Oxid-Seite.
+    explanation: "Man nennt das auch Schaukelstuhl-Prinzip: Beim Laden geht alles den umgekehrten Weg."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Akku mit {{c}} mAh wird mit {{i}} mA geladen. Wie viele Stunden dauert das im Idealfall?
+    params:
+      unit: h
+    answer:
+      value: "{{c / i}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - c * i) < 1
+        misconception: inverted
+        text: "Teilen, nicht malnehmen: Ladung durch Strom ergibt Zeit."
+    hints:
+      - "Zeit = Ladung : Strom."
+      - "Rechne {{c}} : {{i}}."
+    explanation: "{{c}} mAh : {{i}} mA = {{c / i}} h. In echt dauern die letzten 20 % länger, weil das Ladegerät drosselt."
+    variants:
+      params:
+        c: step[2000,6000,1000]
+        i: choice[1000,2000]
+      defaults:
+        c: 4000
+        i: 2000
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Wohin wandern die Lithium-Ionen, wenn du den Akku lädst?
+    params:
+      options:
+        - label: Zurück in den Graphit
+          correct: true
+        - label: Ins Metalloxid
+          feedback: Dorthin wandern sie beim Entladen.
+        - label: Sie verlassen den Akku
+          feedback: Die Ionen bleiben immer im Akku.
+    hints:
+      - Laden kehrt das Entladen um.
+      - Das Ladegerät drückt die Elektronen zurück zum Graphit.
+    explanation: Der Strom des Ladegeräts zwingt die Reaktion bergauf. So wird elektrische Energie wieder chemisch gespeichert.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Im vollen Graphit sitzt ein Lithium auf sechs Kohlenstoffe: LiC₆. Wie viel Gramm Graphit (C = 12 g/mol) braucht man für 1 mol Lithium?"
+    params:
+      unit: g
+    answer:
+      value: 72
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: ratio-ignored
+        text: Es braucht sechs C-Atome pro Lithium.
+    hints:
+      - 1 mol Li braucht 6 mol C.
+      - 6 · 12 g.
+    explanation: 72 g Graphit speichern 1 mol Lithium – und damit 1 mol Elektronen, also 96 485 C.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: 72 g Graphit speichern 96 485 C. Wie viele mAh pro Gramm sind das? (1 mAh = 3,6 C) Auf ganze Zahlen.
+    params:
+      unit: mAh/g
+    answer:
+      value: 372
+      tolerance: 1
+    hints:
+      - "Erst pro Gramm: 96 485 : 72 ≈ 1340 C/g."
+      - Dann durch 3,6.
+    explanation: Etwa 372 mAh/g – die theoretische Kapazität von Graphit. Silicium schafft rund zehnmal mehr, quillt aber stark auf.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Viele E-Autos nutzen inzwischen Lithium-Eisenphosphat (LFP) statt Nickel-Kobalt-Oxid. Was spricht dafür?
+    params:
+      options:
+        - label: Es ist sicherer, langlebiger und braucht kein Kobalt – speichert aber etwas weniger Energie
+          correct: true
+        - label: Es speichert doppelt so viel
+          feedback: Die Energiedichte ist sogar niedriger.
+        - label: Es braucht kein Lithium
+          feedback: "Der Name verrät es: Lithium ist drin."
+    hints:
+      - Eisen und Phosphat sind billig und häufig.
+      - Die Phosphat-Bindung gibt Sauerstoff schwer frei.
+    explanation: Weil LFP kaum Sauerstoff abgibt, brennt es viel schwerer. Für Stadtautos und Speicher ist das oft wichtiger als Reichweite.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum verliert ein Akku mit den Jahren Kapazität, auch wenn er gut behandelt wird?
+    params:
+      options:
+        - label: An der Graphit-Oberfläche wächst eine Schicht, die nach und nach Lithium bindet
+          correct: true
+        - label: Die Elektronen nutzen sich ab
+          feedback: Elektronen verschleißen nicht.
+        - label: Lithium verdunstet
+          feedback: Der Akku ist dicht verschlossen.
+    hints:
+      - Der Elektrolyt reagiert leicht mit dem geladenen Graphit.
+      - Gebundenes Lithium kann nicht mehr pendeln.
+    explanation: Diese Grenzschicht (SEI) schützt zwar vor weiterem Zerfall, schluckt aber dauerhaft Lithium. Hitze und volle Ladung lassen sie schneller wachsen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Reines Lithium-Metall statt Graphit würde viel mehr Energie speichern. Warum nutzt man es kaum?
+    params:
+      options:
+        - label: Beim Laden wachsen Lithium-Nadeln, die den Akku kurzschließen können
+          correct: true
+        - label: Lithium leitet keinen Strom
+          feedback: Es ist ein gutes Metall.
+        - label: Lithium ist zu schwer
+          feedback: Es ist das leichteste Metall.
+    hints:
+      - Das Metall scheidet sich nicht glatt ab.
+      - Die Nadeln heißen Dendriten.
+    explanation: Dendriten durchstechen die Trennschicht. Festkörper-Akkus sollen das Problem mit einem festen Elektrolyten lösen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was beim Laden und Entladen in einem Lithium-Ionen-Akku passiert.
+    params:
+      keywords:
+        - - lithium
+          - li⁺
+          - li+
+          - ion
+        - - graphit
+          - graphite
+        - - oxid
+          - oxide
+          - metalloxid
+        - - elektron
+          - electron
+          - gerät
+          - device
+          - strom
+          - current
+      sample: Beim Entladen wandern Lithium-Ionen vom Graphit durch den Elektrolyten ins Metalloxid. Die Elektronen nehmen den Weg durch das Gerät – das ist der Strom. Beim Laden drückt das Ladegerät beides zurück in den Graphit.
+    explanation: Ionen innen, Elektronen außen – hin und zurück.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d2"]

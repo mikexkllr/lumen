@@ -5,7 +5,7 @@ summary: Ein Gasgemisch mit Überraschungen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 21
       tolerance: 5
     explanation: 21 %. Der größte Teil der Luft – 78 % – ist Stickstoff.
-
 
   - kind: problem
     id: ordnen
@@ -77,6 +76,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: choice
+    prompt: Stickstoff und Sauerstoff sind die Nummer 1 und 2 der Luft. Welches Gas ist Nummer 3?
+    params:
+      options:
+        - label: Argon
+          correct: true
+        - label: Kohlendioxid
+          feedback: CO₂ hat nur 0,04 %, Argon fast 1 %.
+        - label: Wasserstoff
+          feedback: Freier Wasserstoff ist in der Luft fast nicht vorhanden.
+    hints:
+      - Es ist ein Edelgas.
+      - Es macht knapp 1 % der Luft aus.
+    explanation: Argon hat 0,93 % – über zwanzigmal mehr als CO₂. Es entsteht aus radioaktivem Kalium im Gestein.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Luft enthält 420 ppm CO₂. Wie viele Milliliter CO₂ stecken in {{v}} Litern Luft?
+    params:
+      unit: ml
+    answer:
+      value: "{{0.42 * v}}"
+      tolerance: 0.01
+    hints:
+      - ppm heißt Teile pro Million. {{v}} Liter sind {{1000 * v}} ml.
+      - "Rechne {{1000 * v}} ml · 420 : 1 000 000."
+    explanation: "{{1000 * v}} ml · 0,00042 = {{0.42 * v}} ml. Ein Fingerhut voll in einem großen Koffer Luft."
+    difficulty: 2
+    variants:
+      params:
+        v: step[10,100,10]
+      defaults:
+        v: 50
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viel wiegt die Luftsäule über einem Quadratmeter Boden – bis ganz nach oben?"
+    params:
+      min: 1
+      max: 100000
+      scale: log
+      unit: kg
+    answer:
+      value: 10000
+      tolerance: 2500
+    explanation: Rund 10 Tonnen! Dieser Druck von etwa 1 bar drückt ständig auf dich – von allen Seiten, darum spürst du ihn nicht.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -92,6 +147,62 @@ steps:
     hints:
       - N₂ und O₂ bestehen aus zwei gleichen Atomen – völlig symmetrisch.
     explanation: Infrarotlicht regt Schwingungen an – aber nur, wenn sich dabei ein elektrischer **Dipol** ändert.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Luft besteht grob aus 78 % N₂ (28 g/mol), 21 % O₂ (32 g/mol) und 1 % Ar (40 g/mol). Welche mittlere molare Masse hat sie? Auf ganze g/mol.
+    answer:
+      value: 29
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 33.3) < 0.5
+        misconception: unweighted-mean
+        text: Nicht einfach mitteln – gewichte mit den Anteilen.
+    hints:
+      - "Gewichtetes Mittel: 0,78 · 28 + 0,21 · 32 + 0,01 · 40."
+      - 21,8 + 6,7 + 0,4.
+    explanation: Etwa 29 g/mol. Gase mit kleinerer molarer Masse steigen in Luft auf, schwerere sinken ab.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Bei der Weingärung entsteht CO₂ (44 g/mol). Warum ist es in Weinkellern gefährlich, sich zu bücken?
+    params:
+      options:
+        - label: CO₂ ist schwerer als Luft und sammelt sich am Boden
+          correct: true
+        - label: CO₂ steigt nach oben
+          feedback: Mit 44 g/mol gegen 29 g/mol sinkt es ab.
+        - label: Am Boden ist es kälter
+          feedback: Die Temperatur ist nicht das Problem.
+    hints:
+      - Vergleiche 44 g/mol mit der Luft.
+      - Schwere Gase fließen wie unsichtbares Wasser nach unten.
+    explanation: "Am Boden kann sich eine Schicht mit wenig Sauerstoff bilden. Früher nahm man eine Kerze mit: Erlosch sie, hieß es raus."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Argon ist ein einzelnes Atom. Kann es Wärmestrahlung schlucken wie CO₂?
+    params:
+      options:
+        - label: Nein – ein einzelnes Atom hat keine Bindung, die schwingen könnte
+          correct: true
+        - label: Ja, es ist ja ein Edelgas
+          feedback: Edelgas sein hilft dabei gar nicht.
+        - label: Ja, sogar stärker als CO₂
+          feedback: Argon wirkt gar nicht als Treibhausgas.
+    hints:
+      - Treibhausgase schlucken Infrarot über Schwingungen ihrer Bindungen.
+      - Wo keine Bindung ist, schwingt nichts.
+    explanation: Infrarot wird nur geschluckt, wenn eine Schwingung die Ladung im Molekül verschiebt. Atome und symmetrische Paare wie N₂ können das nicht.
     difficulty: 3
 
 srs:

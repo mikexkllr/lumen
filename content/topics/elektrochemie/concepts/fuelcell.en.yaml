@@ -1,0 +1,230 @@
+id: chem.electrochem.fuelcell
+type: concept
+title: "The fuel cell"
+summary: "The hydrogen–oxygen reaction without the bang – electricity from hydrogen and oxygen."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A bus runs on a hydrogen fuel cell. What comes out of its exhaust?
+    params:
+      options:
+        - label: Water vapour
+          correct: true
+        - label: Carbon dioxide
+          feedback: There is no carbon in hydrogen.
+        - label: Hydrogen
+          feedback: It is used up in the cell.
+    hints:
+      - Hydrogen burns to …?
+      - Only H and O are involved.
+    explanation: Water is the only product. Whether it is climate-friendly depends on how the hydrogen was made.
+
+  - kind: explain
+    id: c1
+    body: "A **fuel cell** is a galvanic cell that is constantly refilled: hydrogen flows to the anode, oxygen to the cathode. They react apart – without a flame."
+
+  - kind: problem
+    id: c2
+    widget: tiles
+    prompt: Build the overall reaction of the hydrogen fuel cell.
+    params:
+      tiles:
+        - "2"
+        - "2"
+        - H₂
+        - O₂
+        - H₂O
+        - +
+        - →
+        - H₂O₂
+    answer:
+      anyOf:
+        - - "2"
+          - H₂
+          - +
+          - O₂
+          - →
+          - "2"
+          - H₂O
+        - - O₂
+          - +
+          - "2"
+          - H₂
+          - →
+          - "2"
+          - H₂O
+    hints:
+      - Two H₂ react with one O₂.
+      - On the right you count 4 H and 2 O.
+    explanation: 2 H₂ + O₂ → 2 H₂O – the same reaction as oxyhydrogen, only tamed.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: What happens where in the fuel cell?
+    params:
+      pairs:
+        - left: Anode
+          right: H₂ → 2 H⁺ + 2 e⁻
+        - left: Cathode
+          right: O₂ + 4 H⁺ + 4 e⁻ → 2 H₂O
+        - left: Membrane
+          right: lets only H⁺ through
+        - left: Outer wire
+          right: carries the electrons
+    hints:
+      - Hydrogen is oxidised.
+      - Water forms where the oxygen is.
+    explanation: The membrane keeps the gases apart but lets protons through. The electrons must take the detour through the motor.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Battery or fuel cell?
+    params:
+      buckets:
+        - id: b1
+          label: Battery
+        - id: b2
+          label: Fuel cell
+      items:
+        - label: stores its substances inside
+          bucket: b1
+        - label: is charged at a socket
+          bucket: b1
+        - label: is fed substances from outside
+          bucket: b2
+        - label: is refuelled in minutes
+          bucket: b2
+    hints:
+      - Does the device need a tank?
+      - A battery is run backwards to charge it.
+    explanation: The battery is store and converter at once. The fuel cell only converts – storage is in the tank.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: With 2 electrons per H₂ the reaction yields ΔG = −237 kJ/mol. What is the cell's maximum voltage? (E = −ΔG ÷ (n · F), F = 96,485 C/mol)
+    params:
+      unit: V
+    answer:
+      value: 1.23
+      tolerance: 0.005
+    feedback:
+      - when: abs(numval(state.input) - 2.46) < 0.01
+        misconception: n-ignored
+        text: Two electrons move per H₂ – divide by 2 as well.
+    hints:
+      - 237,000 J ÷ (2 · 96,485 C).
+      - Joules per coulomb are volts.
+    explanation: About 1.23 V – exactly the minimum voltage needed to split water.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The reaction releases ΔH = −286 kJ/mol, of which at most ΔG = −237 kJ/mol is usable as electricity. What is the theoretical efficiency? Round to whole percent.
+    params:
+      unit: "%"
+    answer:
+      value: 83
+      tolerance: 0.5
+    hints:
+      - Efficiency = ΔG ÷ ΔH.
+      - 237 ÷ 286.
+    explanation: About 83%. Entropy demands the rest as heat. A combustion engine sits far below, held back by the Carnot limit.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Under load, a real cell delivers only about 0.7 V instead of 1.23 V. Why?
+    params:
+      options:
+        - label: Overpotential at the electrodes and the membrane's resistance cost voltage
+          correct: true
+        - label: The hydrogen is impure
+          feedback: It happens with pure H₂ too.
+        - label: The cell is built the wrong way round
+          feedback: Then no current would flow at all.
+    hints:
+      - The reduction of oxygen in particular is sluggish.
+      - The more current flows, the greater the losses.
+    explanation: "That is why expensive platinum sits in the electrodes: it lowers the overpotential. Lost voltage turns into heat."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A car's drive needs about 300 V. Each cell delivers 0.7 V under load. At least how many cells must be connected in series?
+    answer:
+      value: 429
+    feedback:
+      - when: numval(state.input) == 428
+        misconception: round-down
+        text: With 428 cells a little is still missing – round up.
+    hints:
+      - Divide 300 V by 0.7 V.
+      - 428.6 – and then?
+    explanation: 429 cells. A pile like this is called a stack – like a stack of pancakes.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Power to hydrogen and back: electrolysis keeps about 70%, the fuel cell about 50%. How much power comes back? A battery gives back 90%."
+    params:
+      options:
+        - label: About 35% – much less than with a battery
+          correct: true
+        - label: About 120%
+          feedback: More than 100% is impossible.
+        - label: About 60%
+          feedback: "Efficiencies multiply: 0.7 · 0.5."
+    hints:
+      - Efficiencies in a row are multiplied.
+      - 0.7 · 0.5 = ?
+    explanation: About 35%. Hydrogen pays off where large amounts must be stored for a long time or refuelled quickly.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a fuel cell makes electricity and how it differs from a battery.
+    params:
+      keywords:
+        - - wasserstoff
+          - hydrogen
+          - h₂
+        - - sauerstoff
+          - oxygen
+          - o₂
+        - - elektron
+          - electron
+          - strom
+          - current
+        - - nachfüll
+          - tank
+          - zugeführt
+          - refill
+          - refuel
+          - supplied
+          - fed
+      sample: At the anode hydrogen gives up electrons; at the cathode oxygen takes them and forms water. The electrons flow in between as current. Unlike a battery, the cell is constantly refilled from outside, from a tank.
+    explanation: The same redox idea as in a battery – only with resupply.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d2"]

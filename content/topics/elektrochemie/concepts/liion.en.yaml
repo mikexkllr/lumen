@@ -1,0 +1,204 @@
+id: chem.electrochem.liion
+type: concept
+title: "The lithium-ion battery"
+summary: "Lithium ions rock back and forth between graphite and metal oxide."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many full charge cycles does a typical phone battery manage before it is down to 80% of its capacity?"
+    params:
+      min: 10
+      max: 100000
+      scale: log
+    answer:
+      value: 700
+      tolerance: 400
+    explanation: Usually 500 to 1000 cycles. Rarely dropping below 20% and not always charging to 100% helps it last.
+
+  - kind: explain
+    id: c1
+    body: "In the battery, lithium ions shuttle between two layered materials: graphite and a metal oxide. They slip between the layers like books onto a shelf. This is called **intercalation**."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Order what happens during discharge.
+    params:
+      items:
+        - label: Lithium in the graphite gives up an electron
+        - label: The electron flows through your phone
+        - label: The Li⁺ travels through the electrolyte
+        - label: Li⁺ and electron meet again in the metal oxide
+    hints:
+      - The electron and the ion take different routes.
+      - At the end both are on the oxide side.
+    explanation: "This is also called the rocking-chair principle: charging sends everything back the other way."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A {{c}} mAh battery is charged at {{i}} mA. How many hours does that take, ideally?
+    params:
+      unit: h
+    answer:
+      value: "{{c / i}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - c * i) < 1
+        misconception: inverted
+        text: "Divide, do not multiply: charge divided by current gives time."
+    hints:
+      - Time = charge ÷ current.
+      - Work out {{c}} ÷ {{i}}.
+    explanation: "{{c}} mAh ÷ {{i}} mA = {{c / i}} h. In reality the last 20% take longer because the charger slows down."
+    variants:
+      params:
+        c: step[2000,6000,1000]
+        i: choice[1000,2000]
+      defaults:
+        c: 4000
+        i: 2000
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Where do the lithium ions travel when you charge the battery?
+    params:
+      options:
+        - label: Back into the graphite
+          correct: true
+        - label: Into the metal oxide
+          feedback: That is where they go during discharge.
+        - label: They leave the battery
+          feedback: The ions always stay inside.
+    hints:
+      - Charging reverses discharging.
+      - The charger pushes the electrons back to the graphite.
+    explanation: The charger's current forces the reaction uphill. That stores electrical energy chemically again.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "In fully loaded graphite, one lithium sits on six carbons: LiC₆. How many grams of graphite (C = 12 g/mol) are needed for 1 mol of lithium?"
+    params:
+      unit: g
+    answer:
+      value: 72
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: ratio-ignored
+        text: It takes six C atoms per lithium.
+    hints:
+      - 1 mol of Li needs 6 mol of C.
+      - 6 · 12 g.
+    explanation: 72 g of graphite store 1 mol of lithium – and so 1 mol of electrons, that is 96,485 C.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: 72 g of graphite store 96,485 C. How many mAh per gram is that? (1 mAh = 3.6 C) Round to a whole number.
+    params:
+      unit: mAh/g
+    answer:
+      value: 372
+      tolerance: 1
+    hints:
+      - "First per gram: 96,485 ÷ 72 ≈ 1340 C/g."
+      - Then divide by 3.6.
+    explanation: About 372 mAh/g – the theoretical capacity of graphite. Silicon manages about ten times more but swells badly.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Many electric cars now use lithium iron phosphate (LFP) instead of nickel cobalt oxide. What speaks for it?
+    params:
+      options:
+        - label: It is safer, lasts longer and needs no cobalt – but stores a bit less energy
+          correct: true
+        - label: It stores twice as much
+          feedback: Its energy density is actually lower.
+        - label: It needs no lithium
+          feedback: "The name gives it away: lithium is inside."
+    hints:
+      - Iron and phosphate are cheap and plentiful.
+      - The phosphate holds on to its oxygen tightly.
+    explanation: Because LFP hardly releases oxygen, it burns far less easily. For city cars and storage this often matters more than range.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why does a battery lose capacity over the years, even when treated well?
+    params:
+      options:
+        - label: A layer grows on the graphite surface that gradually locks up lithium
+          correct: true
+        - label: The electrons wear out
+          feedback: Electrons do not wear out.
+        - label: Lithium evaporates
+          feedback: The battery is tightly sealed.
+    hints:
+      - The electrolyte reacts slightly with the charged graphite.
+      - Locked-up lithium can no longer shuttle.
+    explanation: This interface layer (SEI) protects against further breakdown but permanently swallows lithium. Heat and full charge make it grow faster.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Pure lithium metal instead of graphite would store much more energy. Why is it hardly used?
+    params:
+      options:
+        - label: During charging, lithium needles grow that can short-circuit the battery
+          correct: true
+        - label: Lithium does not conduct electricity
+          feedback: It is a good metal.
+        - label: Lithium is too heavy
+          feedback: It is the lightest metal.
+    hints:
+      - The metal does not plate out smoothly.
+      - The needles are called dendrites.
+    explanation: Dendrites pierce the separator. Solid-state batteries aim to solve this with a solid electrolyte.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what happens when a lithium-ion battery is charged and discharged.
+    params:
+      keywords:
+        - - lithium
+          - li⁺
+          - li+
+          - ion
+        - - graphit
+          - graphite
+        - - oxid
+          - oxide
+          - metalloxid
+        - - elektron
+          - electron
+          - gerät
+          - device
+          - strom
+          - current
+      sample: When discharging, lithium ions travel from the graphite through the electrolyte into the metal oxide. The electrons take the route through the device – that is the current. When charging, the charger pushes both back into the graphite.
+    explanation: Ions inside, electrons outside – back and forth.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d2"]

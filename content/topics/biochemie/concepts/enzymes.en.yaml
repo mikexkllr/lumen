@@ -1,0 +1,224 @@
+id: chem.biochem.enzymes
+type: concept
+title: "Enzymes – the catalysts of life"
+summary: "Active site, saturation and inhibitors in the enzyme lab."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Chew bread for a long time and it tastes sweet. Meat does not turn sweet in your mouth. Why?
+    params:
+      options:
+        - label: The enzyme in saliva only splits starch into sugar – protein does not fit
+          correct: true
+        - label: Meat contains salt
+          feedback: What is missing is starch, not sweetness.
+        - label: Saliva is too acidic in meat
+          feedback: The pH is the same.
+    hints:
+      - Bread is mostly starch.
+      - Enzymes are picky.
+    explanation: Amylase in saliva breaks starch down into malt sugar. Each enzyme fits only certain molecules.
+
+  - kind: explain
+    id: c1
+    body: An enzyme is a folded protein with a pocket, the **active site**. Only molecules of the right shape and charge bind there. The enzyme bends them so that they react easily.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: "In the enzyme lab: set the substrate so that the enzyme works at half its top speed."
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+        substrate:
+          value: 20
+    answer:
+      rate:
+        - 49
+        - 51
+    explanation: At [S] = 5 mM, exactly Kₘ, half the enzymes are occupied.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Which enzyme splits which substance?
+    params:
+      pairs:
+        - left: Amylase
+          right: starch
+        - left: Lipase
+          right: fat
+        - left: Pepsin
+          right: protein
+        - left: Lactase
+          right: milk sugar
+        - left: Catalase
+          right: hydrogen peroxide
+    hints:
+      - The names often end in -ase and reveal the substrate.
+      - Lipos means fat, amylon means starch.
+    explanation: People who lack lactase cannot digest milk sugar well. A single missing enzyme changes what you can eat.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: With a fever above 42 °C, life is in danger. What happens to the enzymes?
+    params:
+      options:
+        - label: Their folding starts to come undone – the active site loses its shape
+          correct: true
+        - label: They speed up and use everything up
+          feedback: At first yes, then they denature.
+        - label: They evaporate
+          feedback: Proteins do not evaporate.
+    hints:
+      - Heat breaks hydrogen bonds.
+      - No shape, no fit.
+    explanation: "Enzymes have an optimum temperature: heat first speeds them up, then destroys their shape."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: An enzyme's rate follows $v = v_{max} \cdot \frac{[S]}{K_m + [S]}$. The **Michaelis constant** Kₘ is the substrate level for half speed. A small Kₘ means the enzyme grabs even a little substrate tightly.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Kₘ is 5 mM. Get the enzyme to at least 90% of its top speed.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+    answer:
+      rate:
+        - 90
+        - 100
+    explanation: That takes [S] = 45 mM, nine times Kₘ. You never quite reach 100% – the enzymes are saturated.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The substrate is {{k}} times as high as Kₘ. At what percentage of its top speed does the enzyme work?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * k / (1 + k)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: saturation-full
+        text: An enzyme never quite reaches 100% – Kₘ always stays in the denominator.
+    hints:
+      - Put in [S] = {{k}} · Kₘ.
+      - v = {{k}} ÷ ({{1 + k}}) · 100%.
+    explanation: "{{k}} ÷ {{1 + k}} = {{100 * k / (1 + k)}}%. The curve flattens – more substrate brings less and less."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,3,4,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Pepsin digests protein in the stomach at pH 2. In the gut at pH 8 it barely works. Why?
+    params:
+      options:
+        - label: pH changes the charges on the side chains – shape and active site no longer fit
+          correct: true
+        - label: At pH 8 there is no protein left
+          feedback: There is plenty of protein in the gut.
+        - label: Bases destroy every enzyme
+          feedback: Gut enzymes love pH 8.
+    hints:
+      - COOH and NH₂ groups give or take H⁺ depending on pH.
+      - Different charges, different hydrogen bonds, different shape.
+    explanation: "Every enzyme has its own optimum pH: pepsin at about 2, trypsin in the gut at about 8."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: A competitive inhibitor triples the apparent Kₘ. Set the substrate so that the enzyme still reaches half its top speed.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 5
+          fixed: true
+        inhibitor:
+          value: 3
+          fixed: true
+    answer:
+      rate:
+        - 49
+        - 51
+    explanation: With [S] = 15 mM it works. The inhibitor only occupies the active site some of the time – lots of substrate pushes it out.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In methanol poisoning, hospitals give ethanol. Why?
+    params:
+      options:
+        - label: Ethanol competes for the same enzyme – so far less toxic formaldehyde forms
+          correct: true
+        - label: Ethanol neutralises methanol
+          feedback: Both are alcohols, not an acid and a base.
+        - label: Ethanol numbs the pain
+          feedback: It is about chemistry in the liver.
+    hints:
+      - A liver enzyme oxidises both alcohols.
+      - Whatever occupies the active site blocks the other.
+    explanation: Ethanol acts as a competitive inhibitor. The methanol is slowly excreted unchanged instead of being oxidised into toxic substances.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why an enzyme does not keep getting faster as you add more substrate.
+    params:
+      keywords:
+        - - aktiv
+          - active
+          - zentrum
+          - site
+          - tasche
+          - pocket
+        - - besetzt
+          - gesättigt
+          - saturat
+          - occupied
+          - voll
+          - full
+        - - höchst
+          - maximal
+          - maximum
+          - top speed
+          - vmax
+      sample: Each enzyme has an active site that handles only one substrate at a time. With lots of substrate almost all sites are occupied – the enzyme is saturated. Then it reaches its top speed and gets no faster.
+    explanation: "Like a supermarket checkout: more customers do not make the checkout faster."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

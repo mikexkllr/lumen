@@ -5,7 +5,7 @@ summary: Chemical equilibrium.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -90,6 +90,58 @@ steps:
     explanation: "8 mol of B and 2 mol of A: 8/2 = 4."
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: "At equilibrium the **law of mass action** holds: K = [products] ÷ [reactants], each concentration raised to its number in the equation. K depends only on temperature."
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: A ⇌ B has K = {{K}}. At the start there are {{a}} mol of A and no B. How many moles of B are there at equilibrium?
+    params:
+      unit: mol
+    answer:
+      value: "{{K * m}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: complete-reaction
+        text: Not everything converts – some A is left over.
+    hints:
+      - "B : A = {{K}} and A + B = {{a}}."
+      - "Split {{a}} in the ratio {{K}} : 1."
+    explanation: "B = {{a}} · {{K}}/{{K + 1}} = {{K * m}} mol, A = {{m}} mol. Check: {{K * m}} ÷ {{m}} = {{K}}."
+    difficulty: 2
+    variants:
+      params:
+        K: choice[1,3,4,9]
+        m: int[1,5]
+      derive:
+        a: (1 + K) * m
+      defaults:
+        K: 3
+        m: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: A reaction has K = 10¹⁰. What is present at equilibrium?
+    params:
+      options:
+        - label: Almost only products
+          correct: true
+        - label: Almost only reactants
+          feedback: That would be the case for a very small K.
+        - label: Half and half
+          feedback: That is roughly K = 1.
+    hints:
+      - K stands for products over reactants.
+      - Ten billion to one.
+    explanation: "Large K: the reaction runs practically to completion. Small K: it barely gets going."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +158,68 @@ steps:
     hints:
       - "As in a full department store: as many go in as come out."
     explanation: A **dynamic equilibrium**. Labelled atoms prove the constant exchange.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: H₂ + I₂ ⇌ 2 HI. At equilibrium [HI] = 0.8 mol/L and [H₂] = [I₂] = 0.1 mol/L. What is K?
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: exponent-ignored
+        text: HI has a 2 in the equation – so square it.
+      - when: numval(state.input) == 8
+        misconception: exponent-ignored
+        text: Square [HI] and multiply the concentrations below.
+    hints:
+      - K = [HI]² ÷ ([H₂] · [I₂]).
+      - 0.64 ÷ 0.01.
+    explanation: K = 0.64 ÷ 0.01 = 64. The coefficients become exponents.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: "K and the **standard free energy** are linked: $\\Delta G^\\circ = -R \\cdot T \\cdot \\ln K$. Every 5.7 kJ/mol more negative at 25 °C makes K ten times larger."
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: A reaction has ΔG° = −11.4 kJ/mol at 298 K. Roughly how big is K? (Each −5.7 kJ/mol is a factor of 10)
+    answer:
+      value: 100
+      tolerance: 3
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: add-not-multiply
+        text: "The factors multiply: 10 · 10."
+    hints:
+      - −11.4 is twice −5.7.
+      - Twice a factor of 10.
+    explanation: K ≈ 10 · 10 = 100. Small differences in ΔG make huge differences at equilibrium.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: You compare the current quotient Q with K. Here Q < K. Which way does the reaction run?
+    params:
+      options:
+        - label: Towards the products, until Q = K
+          correct: true
+        - label: Towards the reactants
+          feedback: That happens when Q > K.
+        - label: Not at all
+          feedback: It only rests when Q = K.
+    hints:
+      - Q has the same formula as K, but with the current values.
+      - Too little product on top means more has to form.
+    explanation: "Q points the way to equilibrium: Q < K means forwards, Q > K backwards."
     difficulty: 3
 
 srs:

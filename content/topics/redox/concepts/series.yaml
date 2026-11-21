@@ -5,7 +5,7 @@ summary: Die Spannungsreihe.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -84,6 +84,89 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: "Spannungsreihe: Mg −2,37 · Al −1,66 · Zn −0,76 · Fe −0,44 · Cu +0,34 · Ag +0,80 V. Welche Spannung liefert eine Zelle aus {{a}} und {{b}}?"
+    params:
+      unit: V
+    answer:
+      value: "{{eb - ea}}"
+      tolerance: 0.005
+    feedback:
+      - when: ea < 0 && eb > 0 && abs(numval(state.input) - (eb + ea)) < 0.005
+        misconception: potential-sign
+        text: "Das Vorzeichen zählt: Ziehe den kleineren Wert vom größeren ab."
+    hints:
+      - Die Spannung ist der Abstand in der Reihe.
+      - Rechne {{eb}} − ({{ea}}).
+    explanation: "{{eb}} − ({{ea}}) = {{eb - ea}} V. {{a}} ist der Minuspol, denn es gibt seine Elektronen leichter ab."
+    difficulty: 2
+    variants:
+      params:
+        i: int[0,4]
+        j: int[1,5]
+      constraints:
+        - i < j
+      derive:
+        a: '["Mg", "Al", "Zn", "Fe", "Cu", "Ag"][i]'
+        b: '["Mg", "Al", "Zn", "Fe", "Cu", "Ag"][j]'
+        ea: "[-2.37, -1.66, -0.76, -0.44, 0.34, 0.80][i]"
+        eb: "[-2.37, -1.66, -0.76, -0.44, 0.34, 0.80][j]"
+      defaults:
+        i: 2
+        j: 5
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Wasserstoff steht in der Spannungsreihe bei 0 V. Welche Metalle lösen sich in Salzsäure unter Bläschen auf?
+    params:
+      buckets:
+        - id: b1
+          label: löst sich, H₂ perlt
+        - id: b2
+          label: bleibt blank
+      items:
+        - label: Magnesium
+          bucket: b1
+        - label: Zink
+          bucket: b1
+        - label: Eisen
+          bucket: b1
+        - label: Kupfer
+          bucket: b2
+        - label: Silber
+          bucket: b2
+        - label: Gold
+          bucket: b2
+    hints:
+      - Nur Metalle unter 0 V können H⁺ Elektronen geben.
+      - Kupfer steht bei +0,34 V.
+    explanation: Unedle Metalle reduzieren H⁺ zu H₂-Gas. Edle Metalle bleiben in Salzsäure blank.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kupferdraht hängt in einer farblosen Silbernitrat-Lösung. Was beobachtest du nach einer Stunde?
+    params:
+      options:
+        - label: Silberkristalle wachsen am Draht, die Lösung färbt sich blau
+          correct: true
+        - label: Nichts – Kupfer ist ein edles Metall
+          feedback: Silber ist noch edler.
+        - label: Kupfer scheidet sich aus der Lösung ab
+          feedback: In der Lösung ist anfangs gar kein Kupfer.
+    hints:
+      - Vergleiche Cu (+0,34 V) und Ag (+0,80 V).
+      - Cu²⁺-Ionen färben Wasser blau.
+    explanation: Cu + 2 Ag⁺ → Cu²⁺ + 2 Ag. Das edlere Metall scheidet sich ab, das unedlere geht in Lösung.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -95,6 +178,51 @@ steps:
     hints:
       - "Differenz: edel minus unedel."
     explanation: 0,80 − (−2,37) = 3,17 V. Je weiter die Metalle auseinanderstehen, desto höher die Spannung.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Die Werte der Spannungsreihe heißen **Standardpotenziale**. Sie sind gegen eine Wasserstoffelektrode gemessen, die man auf 0 V festlegt – bei 25 °C, 1 mol/L und 1 bar.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Die freie Energie einer Zelle ist ΔG = −n · F · E. Für die Zink-Kupfer-Zelle gilt n = 2, F = 96 485 C/mol, E = 1,10 V. Wie groß ist ΔG in kJ/mol? Auf ganze Zahlen.
+    answer:
+      value: -212
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 212) < 1
+        misconception: dg-sign
+        text: "Das Minus gehört dazu: Die Reaktion läuft freiwillig und gibt Energie ab."
+      - when: abs(numval(state.input) + 106) < 1
+        misconception: n-ignored
+        text: Pro Formelumsatz wandern zwei Elektronen – n = 2.
+    hints:
+      - 2 · 96 485 · 1,10 ergibt Joule pro Mol.
+      - Teile durch 1000 und setze das Minus davor.
+    explanation: "ΔG ≈ −212 kJ/mol. Negatives ΔG heißt: Die Reaktion läuft von selbst. Positive Zellspannung und negatives ΔG sind dasselbe in zwei Sprachen."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Lithium hat mit −3,04 V das negativste Standardpotenzial. Trotzdem reagiert Cäsium viel heftiger mit Wasser. Wie passt das zusammen?
+    params:
+      options:
+        - label: Das Potenzial sagt, wie viel Energie frei wird – nicht, wie schnell es geht
+          correct: true
+        - label: Die Tabelle ist falsch
+          feedback: Die Werte sind gut gemessen.
+        - label: Cäsium ist edler als Lithium
+          feedback: Beide sind extrem unedel.
+    hints:
+      - Thermodynamik und Kinetik sind zwei verschiedene Fragen.
+      - Das winzige Li⁺ wird besonders stark vom Wasser umhüllt. Das macht viel Energie frei.
+    explanation: Lithium schmilzt nicht und reagiert gemächlich. Cäsium schmilzt bei 28 °C, die Oberfläche bleibt frisch – es explodiert fast.
     difficulty: 3
 
 srs:

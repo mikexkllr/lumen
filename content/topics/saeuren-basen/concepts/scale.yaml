@@ -5,8 +5,20 @@ summary: Jede Stufe zählt zehnfach.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Schätz mal: Welchen pH-Wert hat Cola?"
+    params:
+      min: 0
+      max: 14
+    answer:
+      value: 2.5
+      tolerance: 0.7
+    explanation: Etwa 2,5 – fast so sauer wie Zitronensaft. Der Zucker überdeckt die Phosphorsäure.
+
   - kind: problem
     id: faktor
     widget: numeric
@@ -51,6 +63,26 @@ steps:
       - Welches Gas ist immer in der Luft?
     explanation: Kohlensäure senkt den pH auf etwa 5,6.
 
+  - kind: explain
+    id: ch-c1
+    body: "Der pH-Wert ist die Hochzahl der H⁺-Konzentration, ohne Minus: 0,001 mol/L sind $10^{-3}$ mol/L, also pH 3. Eine solche Skala heißt **logarithmisch**."
+
+  - kind: problem
+    id: ch-c2
+    widget: numberline
+    prompt: Blut ist ganz leicht basisch. Markiere seinen pH-Wert von 7,4 auf der Skala.
+    params:
+      min: 4
+      max: 10
+      ticks: 5
+      labels: integers
+    answer:
+      value: 7.4
+    hints:
+      - Neutral ist 7.
+      - Jeder kleine Strich ist 0,2. Zwei Striche rechts von der 7.
+    explanation: pH 7,4. Schon bei 7,0 oder 7,8 wird es lebensgefährlich.
+
   - kind: problem
     id: d1
     depth: 2
@@ -64,6 +96,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: choice
+    prompt: Eine Lösung enthält 0,002 mol/L H⁺, also 2 · 10⁻³. Wo liegt ihr pH-Wert?
+    params:
+      options:
+        - label: Zwischen 2 und 3, näher an 3
+          correct: true
+        - label: Genau bei 2
+          feedback: Für pH 2 bräuchte es 0,01 mol/L.
+        - label: Zwischen 3 und 4
+          feedback: Mehr H⁺ als bei pH 3 heißt saurer, also kleiner als 3.
+    hints:
+      - pH 3 heißt 0,001 mol/L, pH 2 heißt 0,01 mol/L.
+      - 0,002 liegt dazwischen – aber viel näher an 0,001.
+    explanation: "Genau: pH = −log(0,002) ≈ 2,7. Auf der logarithmischen Skala ist »doppelt so viel« nur 0,3 Stufen."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Natronlauge mit 0,1 mol/L OH⁻ ist eine starke Lauge. Welchen pH-Wert hat sie?
+    answer:
+      value: 13
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: poh-for-ph
+        text: Das ist der pOH. Der pH ist 14 minus pOH.
+    hints:
+      - 0,1 = 10⁻¹, also pOH 1.
+      - pH + pOH = 14.
+    explanation: pOH 1, also pH 13. Darum ätzt Natronlauge so stark.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: Der pH-Wert fällt um {{d}} Stufen. Um welchen Faktor steigt die H⁺-Konzentration?
+    answer:
+      value: "{{10 ** d}}"
+    feedback:
+      - when: d > 1 && numval(state.input) == 10 * d
+        misconception: linear-scale
+        text: "Nicht mal 10, sondern hoch: Jede Stufe multipliziert noch einmal mit 10."
+    hints:
+      - Jede Stufe ist ein Faktor 10.
+      - Multipliziere {{d}}-mal mit 10.
+    explanation: "{{d}} Stufen = 10 hoch {{d}} = {{10 ** d}}-mal mehr H⁺."
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,5]
+      defaults:
+        d: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -73,6 +163,74 @@ steps:
     hints:
       - pOH = 2.
     explanation: 14 − 2 = 12. Selbst reines Wasser enthält je 10⁻⁷ mol/L H⁺ und OH⁻ – darum ist pH 7 neutral.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Schwache Säuren wie Essigsäure geben ihr H⁺ nur teilweise ab. Wie bereitwillig, sagt der **pKs-Wert**: je kleiner, desto stärker die Säure. Essigsäure hat 4,75, Salzsäure etwa −6."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Salzsäure mit 0,1 mol/L hat pH 1, Essigsäure mit 0,1 mol/L pH 2,9. Wie viel weniger H⁺ hat die Essigsäure ungefähr?
+    params:
+      options:
+        - label: Etwa 80-mal weniger
+          correct: true
+        - label: Etwa 2-mal weniger
+          feedback: Fast 2 pH-Stufen sind fast der Faktor 100.
+        - label: Gleich viel – beide haben 0,1 mol/L
+          feedback: Nur die Salzsäure gibt alle H⁺ ab.
+    hints:
+      - Der Unterschied ist 1,9 Stufen.
+      - 10 hoch 1,9 ist knapp unter 100.
+    explanation: 10^1,9 ≈ 79. Nur gut 1 % der Essigsäure-Moleküle gibt ihr H⁺ ab. Gleiche Konzentration heißt nicht gleich sauer.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: "Für schwache Säuren gilt grob: pH = ½ · (pKs − log c). Welchen pH hat Essigsäure (pKs 4,75) mit c = 0,01 mol/L? Auf eine Nachkommastelle."
+    answer:
+      value: 3.4
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 1.4) < 0.06
+        misconception: log-sign
+        text: log 0,01 ist −2 – minus minus 2 ergibt plus 2.
+    hints:
+      - log 0,01 = −2.
+      - ½ · (4,75 + 2) = ?
+    explanation: ½ · 6,75 = 3,375 ≈ 3,4. Zehnfach verdünnt steigt der pH einer schwachen Säure nur um eine halbe Stufe.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Lösung mit pH 2 hundertmal saurer ist als eine mit pH 4.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+          - faktor
+          - factor
+        - - stufe
+          - step
+          - logarith
+        - - h⁺
+          - h+
+          - wasserstoff
+          - hydrogen
+          - ion
+          - konzentration
+          - concentration
+      sample: "Der pH ist logarithmisch: Jede Stufe bedeutet zehnmal mehr H⁺-Ionen. Von pH 4 zu pH 2 sind es zwei Stufen, also 10 · 10 = 100-mal mehr H⁺."
+    explanation: Zwei Stufen, zweimal Faktor 10.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Redox, räumlich getrennt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 15
       tolerance: 6
     explanation: Etwa 15 Wh. Ein E-Auto-Akku hat rund 60 000 Wh – so viel wie 4000 Handys.
-
 
   - kind: explain
     id: s1
@@ -79,6 +78,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Akku hat {{v}} V und {{c}} mAh. Wie viele Wattstunden speichert er?
+    params:
+      unit: Wh
+    answer:
+      value: "{{v * c / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - v * c) < 0.01
+        misconception: milli
+        text: mAh sind Milliamperestunden – teile durch 1000.
+    hints:
+      - Energie = Spannung · Ladung.
+      - "{{c}} mAh = {{c / 1000}} Ah."
+    explanation: "{{v}} V · {{c / 1000}} Ah = {{v * c / 1000}} Wh."
+    difficulty: 2
+    variants:
+      params:
+        v: choice[1.2,3.7]
+        c: step[1000,5000,500]
+      defaults:
+        v: 3.7
+        c: 3000
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: match
+    prompt: Welche Chemie steckt in welcher Batterie?
+    params:
+      pairs:
+        - left: Alkali-Batterie (AA)
+          right: Zink und Mangandioxid
+        - left: Autobatterie
+          right: Blei, Bleidioxid, Schwefelsäure
+        - left: Handy-Akku
+          right: Lithium-Ionen, Graphit, Metalloxid
+        - left: Knopfzelle im Hörgerät
+          right: Zink und Luftsauerstoff
+    hints:
+      - Die schwere Autobatterie heißt auch Bleiakku.
+      - Hörgeräte-Zellen haben kleine Luftlöcher.
+    explanation: "Alle nutzen dasselbe Prinzip: ein Stoff gibt Elektronen ab, ein anderer nimmt sie auf – getrennt durch einen Ionenleiter."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Warum lässt ein Handy-Akku im Winter draußen schneller nach?
+    params:
+      options:
+        - label: Bei Kälte laufen die Reaktionen und die Ionenwanderung langsamer
+          correct: true
+        - label: Kälte zerstört das Lithium
+          feedback: Danach erholt sich der Akku im Warmen wieder.
+        - label: Die Elektronen frieren ein
+          feedback: Die Elektronen im Draht sind nicht das Problem.
+    hints:
+      - Was macht Kälte mit dem Reaktionstempo?
+      - Im Akku müssen Ionen durch eine Flüssigkeit wandern.
+    explanation: Der Innenwiderstand steigt, die Spannung bricht unter Last ein. Im Warmen ist die Ladung wieder da.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +160,60 @@ steps:
     hints:
       - Viel Spannung bei wenig Gewicht.
     explanation: Niedrigstes Potenzial der Spannungsreihe (−3,04 V) und nur 7 g pro Mol – das ergibt die höchste Energiedichte.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Akkuzelle (Typ 18650) hat 3,6 V und 3 Ah und wiegt 47 g. Wie viele Wattstunden speichert sie pro Kilogramm? Auf ganze Zahlen.
+    params:
+      unit: Wh/kg
+    answer:
+      value: 230
+      tolerance: 1
+    hints:
+      - "Erst die Energie: 3,6 V · 3 Ah = 10,8 Wh."
+      - "Dann auf 1000 g hochrechnen: 10,8 : 47 · 1000."
+    explanation: Etwa 230 Wh/kg. Das ist die **Energiedichte** – entscheidend für Reichweite und Gewicht von E-Autos.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Benzin speichert rund 12 000 Wh pro Kilogramm, ein Lithium-Akku etwa 250. Warum fahren E-Autos trotzdem weit?
+    params:
+      options:
+        - label: Elektromotoren nutzen rund 90 % der Energie, Verbrenner nur etwa ein Drittel
+          correct: true
+        - label: Akkus werden beim Fahren nachgeladen
+          feedback: Bremsen gewinnt nur einen kleinen Teil zurück.
+        - label: Die Zahlen sind gleich groß
+          feedback: Benzin speichert pro Kilo fast fünfzigmal mehr.
+    hints:
+      - Wichtig ist, wie viel Energie am Rad ankommt.
+      - Ein Verbrenner macht vor allem Wärme.
+    explanation: Der Wirkungsgrad gleicht einen Teil aus. Trotzdem wiegt ein Akku für 500 km ein paar hundert Kilo – Benzin für 500 km nur rund 25.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Warum soll man Lithium-Akkus nicht beschädigen oder stark überladen?
+    params:
+      options:
+        - label: Ein Kurzschluss im Inneren kann die Zelle so stark erhitzen, dass der brennbare Elektrolyt Feuer fängt
+          correct: true
+        - label: Sie laufen dann einfach leer
+          feedback: Gefährlich ist die Wärme, nicht die Leere.
+        - label: Lithium wird dann radioaktiv
+          feedback: Lithium ist nicht radioaktiv.
+    hints:
+      - Im Akku steckt eine organische, brennbare Flüssigkeit.
+      - Wärme beschleunigt die Reaktionen – die erzeugen noch mehr Wärme.
+    explanation: "Man spricht vom thermischen Durchgehen: Die Reaktion heizt sich selbst immer weiter auf. Darum haben Akkus Schutzschaltungen."
     difficulty: 3
 
 srs:

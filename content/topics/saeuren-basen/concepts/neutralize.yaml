@@ -5,7 +5,7 @@ summary: Säure plus Base gibt Salz plus Wasser.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -90,6 +90,101 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: tiles
+    prompt: "Lege die Gleichung: Salzsäure reagiert mit Natronlauge."
+    params:
+      tiles:
+        - HCl
+        - NaOH
+        - +
+        - +
+        - →
+        - NaCl
+        - H₂O
+        - Cl₂
+        - H₂
+    answer:
+      anyOf:
+        - - HCl
+          - +
+          - NaOH
+          - →
+          - NaCl
+          - +
+          - H₂O
+        - - NaOH
+          - +
+          - HCl
+          - →
+          - NaCl
+          - +
+          - H₂O
+        - - HCl
+          - +
+          - NaOH
+          - →
+          - H₂O
+          - +
+          - NaCl
+        - - NaOH
+          - +
+          - HCl
+          - →
+          - H₂O
+          - +
+          - NaCl
+    hints:
+      - Säure plus Lauge ergibt Salz plus Wasser.
+      - H⁺ und OH⁻ werden zu H₂O, Na⁺ und Cl⁻ bleiben als Salz.
+    explanation: HCl + NaOH → NaCl + H₂O. Cl₂ und H₂ entstehen dabei nicht.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Calciumhydroxid Ca(OH)₂ liefert zwei OH⁻. Wie viel Mol HCl neutralisieren {{n}} mol Ca(OH)₂?
+    params:
+      unit: mol
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: ratio-ignored
+        text: Jedes Ca(OH)₂ bringt zwei OH⁻ mit – es braucht doppelt so viel HCl.
+    hints:
+      - Ca(OH)₂ + 2 HCl → CaCl₂ + 2 H₂O.
+      - Rechne {{n}} · 2.
+    explanation: "{{n}} mol Ca(OH)₂ liefern {{2 * n}} mol OH⁻ – dafür braucht es {{2 * n}} mol H⁺."
+    difficulty: 2
+    variants:
+      params:
+        n: int[1,9]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Schwefelsäure H₂SO₄ reagiert mit Kalilauge KOH. Welches Salz entsteht?
+    params:
+      options:
+        - label: K₂SO₄ – zwei K⁺ für ein SO₄²⁻
+          correct: true
+        - label: KSO₄
+          feedback: SO₄²⁻ ist doppelt geladen und braucht zwei K⁺.
+        - label: KOH₂
+          feedback: Das Salz besteht aus dem Metall und dem Säurerest.
+    hints:
+      - Der Säurerest von H₂SO₄ ist SO₄²⁻.
+      - Gleiche die Ladung mit K⁺ aus.
+    explanation: H₂SO₄ + 2 KOH → K₂SO₄ + 2 H₂O. Kaliumsulfat ist ein wichtiger Dünger.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,6 +200,50 @@ steps:
     hints:
       - Bindungen zu bilden setzt Energie frei.
     explanation: "Die Reaktion ist **exotherm**: rund 57 kJ pro Mol Wasser – immer gleich, egal welche starke Säure und Base."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Jedes Mol Wasser, das aus H⁺ und OH⁻ entsteht, setzt rund 57 kJ frei – bei jeder starken Säure und Lauge gleich viel. Das ist die **Neutralisationswärme**.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "{{n}} mol Salzsäure werden mit {{n}} mol Natronlauge neutralisiert. Wie viel Wärme wird frei?"
+    params:
+      unit: kJ
+    answer:
+      value: "{{57 * n}}"
+    hints:
+      - Es entstehen {{n}} mol Wasser.
+      - Rechne {{n}} · 57 kJ.
+    explanation: "{{n}} · 57 kJ = {{57 * n}} kJ. Darum gießt man konzentrierte Säure langsam und unter Kühlung."
+    difficulty: 3
+    variants:
+      params:
+        n: step[0.5,3,0.5]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Natriumacetat ist das Salz aus Essigsäure und Natronlauge. Gelöst ist es leicht basisch. Warum?
+    params:
+      options:
+        - label: Das Acetat-Ion ist eine schwache Base und holt sich H⁺ aus dem Wasser
+          correct: true
+        - label: Es ist noch Natronlauge übrig
+          feedback: Auch reines, sauberes Natriumacetat reagiert basisch.
+        - label: Salze sind immer basisch
+          feedback: Ammoniumchlorid zum Beispiel ist leicht sauer.
+    hints:
+      - Essigsäure ist schwach – ihr Rest will das H⁺ gern zurück.
+      - CH₃COO⁻ + H₂O ⇌ CH₃COOH + OH⁻.
+    explanation: Der Rest einer schwachen Säure ist eine Base. Darum liegt der Neutralpunkt nicht immer bei pH 7.
     difficulty: 3
 
 srs:

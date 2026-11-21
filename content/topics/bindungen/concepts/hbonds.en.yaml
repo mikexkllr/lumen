@@ -5,7 +5,7 @@ summary: Small forces, big effects.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: siedepunkt
@@ -78,6 +78,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: at what temperature in Celsius would water boil if there were no hydrogen bonds?"
+    params:
+      min: -150
+      max: 150
+      unit: °C
+    answer:
+      value: -80
+      tolerance: 25
+    explanation: Extending the series H₂Te, H₂Se, H₂S lands at about −80 °C. Without these bonds there would be no liquid water on Earth.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Can these molecules form hydrogen bonds with each other?
+    params:
+      buckets:
+        - id: b1
+          label: yes
+        - id: b2
+          label: no
+      items:
+        - label: Water H₂O
+          bucket: b1
+        - label: Ammonia NH₃
+          bucket: b1
+        - label: Hydrogen fluoride HF
+          bucket: b1
+        - label: Ethanol C₂H₅OH
+          bucket: b1
+        - label: Methane CH₄
+          bucket: b2
+        - label: Hydrogen H₂
+          bucket: b2
+        - label: Carbon dioxide CO₂
+          bucket: b2
+    hints:
+      - You need an H on a strongly electronegative N, O or F.
+      - In CH₄ the H is on a C – that is not enough.
+    explanation: Hydrogen bonds need a strongly positive H (on N, O or F) and a lone pair on the neighbour. CO₂ has no H at all.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: order
+    prompt: Order by boiling point – the highest first.
+    params:
+      items:
+        - label: Water H₂O (+100 °C)
+        - label: Hydrogen fluoride HF (+20 °C)
+        - label: Ammonia NH₃ (−33 °C)
+        - label: Methane CH₄ (−162 °C)
+    hints:
+      - The temperatures are given.
+      - Water can form the most bonds per molecule.
+    explanation: Water forms up to four bonds per molecule, HF and NH₃ fewer on average. Methane has none – and boils far below.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -101,6 +165,56 @@ steps:
           - anzieh
           - attract
       sample: In an ionic bond an electron is transferred – charged ions form that attract each other. In a covalent bond two atoms share an electron pair.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: A piece of DNA has {{at}} A–T base pairs (2 bonds each) and {{gc}} G–C pairs (3 bonds each). How many hydrogen bonds hold the strands together?
+    answer:
+      value: "{{2 * at + 3 * gc}}"
+    feedback:
+      - when: numval(state.input) == 3 * at + 2 * gc
+        misconception: pair-swap
+        text: "Swapped: A–T has 2, G–C has 3 bonds."
+    hints:
+      - Work out each kind separately.
+      - "{{at}} · 2 + {{gc}} · 3."
+    explanation: "{{2 * at}} + {{3 * gc}} = {{2 * at + 3 * gc}}. DNA rich in G–C only separates at higher temperatures."
+    difficulty: 3
+    variants:
+      params:
+        at: int[4,12]
+        gc: int[3,12]
+      constraints:
+        - at != gc
+      defaults:
+        at: 10
+        gc: 5
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: Even non-polar molecules attract each other. Their electron clouds keep fluctuating and form brief mini-dipoles that tug on their neighbours. These are **London forces**. The bigger the molecule, the stronger they are.
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: A gecko runs up a smooth pane of glass – without glue or suction cups. What holds it?
+    params:
+      options:
+        - label: Billions of tiny hairs that cling to the glass through London forces
+          correct: true
+        - label: Hydrogen bonds
+          feedback: The grip even works on water-repellent surfaces.
+        - label: Ionic bonds
+          feedback: Neither foot nor glass gives away electrons here.
+    hints:
+      - Each single attraction is tiny.
+      - Many contacts at the smallest distance add up.
+    explanation: Weak forces become strong if there are enough of them. Researchers copy this to make tape with no glue.
     difficulty: 3
 
 srs:

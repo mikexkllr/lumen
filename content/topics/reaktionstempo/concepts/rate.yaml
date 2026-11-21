@@ -1,0 +1,205 @@
+id: chem.kinetics.rate
+type: concept
+title: "Tempo messen"
+summary: "Wie man die Geschwindigkeit einer Reaktion misst."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie lange braucht ein Airbag, um sich nach dem Aufprall chemisch aufzublasen?"
+    params:
+      min: 0.001
+      max: 100
+      scale: log
+      unit: s
+    answer:
+      value: 0.03
+      tolerance: 0.015
+    explanation: Etwa 30 Millisekunden. Ein Feststoff zerfällt blitzartig zu Stickstoffgas. Rost braucht für dieselbe Masse Jahre.
+
+  - kind: explain
+    id: c1
+    body: "Die **Reaktionsgeschwindigkeit** sagt, wie schnell sich eine Konzentration ändert: um wie viel mol pro Liter in jeder Sekunde."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die Konzentration eines Stoffs fällt in {{t}} Sekunden um {{d}} mol/L. Wie groß ist die mittlere Geschwindigkeit in mol/(L·s)?
+    answer:
+      value: "{{d / t}}"
+      tolerance: 1e-7
+    feedback:
+      - when: abs(numval(state.input) - t / d) < 0.001
+        misconception: inverted-rate
+        text: "Umgekehrt: Änderung geteilt durch Zeit."
+    hints:
+      - "Geschwindigkeit = Änderung : Zeit."
+      - "Rechne {{d}} : {{t}}."
+    explanation: "{{d}} : {{t}} = {{d / t}} mol/(L·s)."
+    variants:
+      params:
+        d: choice[0.2,0.4,0.6]
+        t: choice[10,20,40]
+      defaults:
+        d: 0.4
+        t: 20
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Schnell oder langsam?
+    params:
+      buckets:
+        - id: b1
+          label: in Sekunden oder schneller
+        - id: b2
+          label: über Tage bis Jahre
+      items:
+        - label: Knallgas explodiert
+          bucket: b1
+        - label: Säure trifft auf Lauge
+          bucket: b1
+        - label: Silbersalz fällt als Niederschlag aus
+          bucket: b1
+        - label: Eisen rostet
+          bucket: b2
+        - label: Holz verrottet im Wald
+          bucket: b2
+        - label: Gestein verwittert
+          bucket: b2
+    hints:
+      - Ionen in Lösung reagieren oft blitzschnell.
+      - Rost und Verwittern siehst du erst nach langer Zeit.
+    explanation: Reaktionen umspannen über 20 Zehnerpotenzen an Tempo – von Femtosekunden bis Jahrmillionen.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Marmor reagiert mit Salzsäure und sprudelt CO₂. Wie misst du am einfachsten das Tempo?
+    params:
+      options:
+        - label: Das Gasvolumen oder den Massenverlust pro Minute messen
+          correct: true
+        - label: Die Farbe beobachten
+          feedback: Hier ändert sich keine Farbe.
+        - label: Die Lösung abschmecken
+          feedback: Säure kostet man nie.
+    hints:
+      - Was entweicht aus dem Gefäß?
+      - Ein Gas lässt sich auffangen oder wegwiegen.
+    explanation: "Man misst eine Größe, die sich mit dem Umsatz ändert: Gas, Masse, Farbe, Leitfähigkeit oder pH."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Am Anfang sprudelt es heftig, später immer schwächer. Warum wird die Reaktion langsamer?
+    params:
+      options:
+        - label: Die Säure wird verbraucht – weniger Teilchen, weniger Zusammenstöße
+          correct: true
+        - label: Das CO₂ bremst die Reaktion
+          feedback: Es entweicht ja.
+        - label: Der Marmor wird härter
+          feedback: Er wird nur kleiner.
+    hints:
+      - Was nimmt im Lauf der Reaktion ab?
+      - Tempo hängt von der Konzentration ab.
+    explanation: "Die Kurve des Gasvolumens wird darum immer flacher, bis sie waagerecht ist: Die Reaktion ist fertig."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Nach 30 s sind 60 ml CO₂ entstanden, nach 60 s 90 ml. Wie groß ist das mittlere Tempo zwischen 30 und 60 s in ml pro Sekunde?
+    params:
+      unit: ml/s
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: wrong-interval
+        text: Das ist das Tempo ab dem Start. Gefragt ist nur der zweite Abschnitt.
+    hints:
+      - Wie viel Gas kam im Abschnitt dazu?
+      - 30 ml in 30 s.
+    explanation: "30 ml : 30 s = 1 ml/s. In den ersten 30 s waren es noch 2 ml/s."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: 2 N₂O₅ → 4 NO₂ + O₂. N₂O₅ verschwindet mit 0,02 mol/(L·s). Wie schnell entsteht NO₂?
+    params:
+      unit: mol/(L·s)
+    answer:
+      value: 0.04
+      tolerance: 0.0001
+    feedback:
+      - when: abs(numval(state.input) - 0.02) < 0.0001
+        misconception: ratio-ignored
+        text: Aus 2 N₂O₅ entstehen 4 NO₂ – doppelt so viele.
+    hints:
+      - Vergleiche die Zahlen vor N₂O₅ und NO₂.
+      - "4 : 2 = 2."
+    explanation: "NO₂ entsteht doppelt so schnell: 0,04 mol/(L·s). Jeder Stoff hat ein eigenes Tempo."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Teilt man jedes Tempo durch die Zahl vor dem Stoff, erhält man **eine** Reaktionsgeschwindigkeit für alle. Das Tempo in einem Augenblick ist die Steigung der Tangente: die **Momentangeschwindigkeit**."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Für 2 N₂O₅ → 4 NO₂ + O₂ verschwindet N₂O₅ mit 0,02 mol/(L·s). Wie groß ist die Reaktionsgeschwindigkeit v, geteilt durch die Koeffizienten?
+    params:
+      unit: mol/(L·s)
+    answer:
+      value: 0.01
+      tolerance: 0.0001
+    hints:
+      - "v = Tempo von N₂O₅ : 2."
+      - "Probe: NO₂ 0,04 : 4 – gleich?"
+    explanation: "v = 0,02 : 2 = 0,04 : 4 = 0,01 mol/(L·s). Auch O₂ entsteht mit 0,01."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Reaktionsgeschwindigkeit ist und wie man sie misst.
+    params:
+      keywords:
+        - - konzentration
+          - menge
+          - concentration
+          - amount
+        - - zeit
+          - sekunde
+          - minute
+          - time
+          - second
+        - - mess
+          - gas
+          - volumen
+          - farbe
+          - measure
+          - volume
+          - colour
+          - color
+      sample: Die Reaktionsgeschwindigkeit ist die Änderung der Konzentration pro Zeit. Man misst etwas, das sich dabei ändert, zum Beispiel das Gasvolumen oder die Farbe, in festen Abständen von Sekunden.
+    explanation: Tempo = Änderung durch Zeit – wie beim Auto, nur mit Konzentrationen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x2"]

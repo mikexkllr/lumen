@@ -1,0 +1,236 @@
+id: chem.biochem.dna
+type: concept
+title: "The building blocks of DNA"
+summary: "Sugar, phosphate and four bases – chemistry as a data store."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how long would the DNA from a single human cell be if you unrolled it?"
+    params:
+      min: 0.001
+      max: 1000
+      scale: log
+      unit: m
+    answer:
+      value: 2
+      tolerance: 0.8
+    explanation: About 2 metres – packed into a nucleus a few thousandths of a millimetre across.
+
+  - kind: explain
+    id: c1
+    body: "DNA is a chain of **nucleotides**. Each consists of a sugar (deoxyribose), a phosphate group and one of four bases: A, T, G or C. Sugar and phosphate form the backbone."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: What belongs together?
+    params:
+      pairs:
+        - left: Adenine (A)
+          right: thymine (T), 2 bonds
+        - left: Guanine (G)
+          right: cytosine (C), 3 bonds
+        - left: Phosphate and sugar
+          right: backbone of the strand
+        - left: Uracil (U)
+          right: replaces T in RNA
+    hints:
+      - The base pairs fit like puzzle pieces.
+      - G–C holds with three hydrogen bonds.
+    explanation: "A large base always pairs with a small one: A with T, G with C. That keeps the gap between the strands constant."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In a DNA, {{a}}% of the bases are adenine. What percentage is guanine?
+    params:
+      unit: "%"
+    answer:
+      value: "{{50 - a}}"
+    feedback:
+      - when: numval(state.input) == 100 - a
+        misconception: pairing-ignored
+        text: Thymine is also {{a}}%. The rest is split between G and C.
+    hints:
+      - A = T and G = C.
+      - A + T = {{2 * a}}%. The rest is G + C.
+    explanation: 100 − {{2 * a}} = {{100 - 2 * a}}% for G and C, so {{50 - a}}% guanine. Erwin Chargaff found this rule in 1950.
+    variants:
+      params:
+        a: int[15,35]
+      defaults:
+        a: 30
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: What holds the two strands of the double helix together?
+    params:
+      options:
+        - label: Hydrogen bonds between the bases
+          correct: true
+        - label: Ionic bonds between the phosphates
+          feedback: The phosphates actually repel each other.
+        - label: Covalent bonds right across the helix
+          feedback: The strands are in fact easy to separate.
+    hints:
+      - For copying, the strands must be able to open.
+      - Weak forces, but millions of them.
+    explanation: Along a strand, strong covalent bonds hold; between the strands, weak hydrogen bonds. So DNA is stable yet readable.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A gene has {{3 * n}} base pairs. Every three bases code for one amino acid. How many amino acids does it code for?
+    answer:
+      value: "{{n}}"
+    hints:
+      - Divide by 3.
+      - Work out {{3 * n}} ÷ 3.
+    explanation: "{{3 * n}} ÷ 3 = {{n}} amino acids (not counting the stop signal here)."
+    difficulty: 2
+    variants:
+      params:
+        n: step[100,600,50]
+      defaults:
+        n: 400
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In the gel used for DNA analysis, DNA pieces always travel to the positive pole. Why?
+    params:
+      options:
+        - label: The phosphate groups in the backbone are negatively charged
+          correct: true
+        - label: The bases are positive
+          feedback: They are largely uncharged.
+        - label: DNA is magnetic
+          feedback: It is about electric charge.
+    hints:
+      - DNA is an acid – hence deoxyribonucleic acid.
+      - Acidic groups give up H⁺ and become negative.
+    explanation: Small pieces slip through the gel faster than big ones. That is how DNA is sorted by length – for a genetic fingerprint, for example.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb for short DNA pieces: the strands separate at T = 2 · (A + T) + 4 · (G + C) in °C. What is T for {{at}} A/T and {{gc}} G/C?"
+    params:
+      unit: °C
+    answer:
+      value: "{{2 * at + 4 * gc}}"
+    feedback:
+      - when: numval(state.input) == 4 * at + 2 * gc
+        misconception: pair-swap
+        text: "Swapped: G–C with three bonds counts four times."
+    hints:
+      - A/T counts 2 degrees, G/C counts 4.
+      - 2 · {{at}} + 4 · {{gc}}.
+    explanation: "{{2 * at}} + {{4 * gc}} = {{2 * at + 4 * gc}} °C. PCR tests use this to choose the right temperature."
+    difficulty: 2
+    variants:
+      params:
+        at: int[6,12]
+        gc: int[6,12]
+      constraints:
+        - at != gc
+      defaults:
+        at: 10
+        gc: 8
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: UV light can join two neighbouring thymines in a strand firmly together. Why is that dangerous?
+    params:
+      options:
+        - label: The strand kinks and copying makes mistakes – mutations, up to skin cancer
+          correct: true
+        - label: The DNA becomes radioactive
+          feedback: UV light makes nothing radioactive.
+        - label: The DNA dissolves in water
+          feedback: It stays one molecule.
+    hints:
+      - UV has enough energy to open C=C double bonds.
+      - Two adjacent bases get linked into a ring.
+    explanation: This is photochemistry in your skin. Repair enzymes usually cut the dimers out – sunscreen lowers how many form.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: RNA uses ribose, which has one more OH group than DNA's deoxyribose. Why does DNA store genetic information better?
+    params:
+      options:
+        - label: The extra OH group attacks its own backbone – RNA breaks down more easily
+          correct: true
+        - label: RNA has fewer bases
+          feedback: Both have four.
+        - label: Deoxyribose is sweeter
+          feedback: Taste has nothing to do with it.
+    hints:
+      - '"Deoxy" means one oxygen fewer.'
+      - The OH group sits right next to the phosphate link.
+    explanation: RNA is a short-lived working copy, DNA the lasting archive. One missing O atom makes the difference.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Each base carries 2 bits of information (four options). How many megabytes do the 3.1 billion base pairs of a genome store? (1 MB = 8 million bits)
+    params:
+      unit: MB
+    answer:
+      value: 775
+      tolerance: 5
+    feedback:
+      - when: abs(numval(state.input) - 1550) < 10
+        misconception: double-count
+        text: "A base pair counts once: the second strand is a copy."
+    hints:
+      - 3.1 · 10⁹ · 2 bits = 6.2 · 10⁹ bits.
+      - Divide by 8 · 10⁶.
+    explanation: About 775 MB – just over one CD. One gram of DNA could in theory store more than 200 million gigabytes.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how DNA is built chemically.
+    params:
+      keywords:
+        - - zucker
+          - sugar
+          - desoxyribose
+          - deoxyribose
+        - - phosphat
+          - phosphate
+        - - base
+          - basen
+          - adenin
+          - adenine
+        - - wasserstoffbrück
+          - hydrogen bond
+          - paar
+          - pair
+      sample: DNA is made of nucleotides containing sugar, phosphate and a base. Sugar and phosphate form the backbone of each strand. The bases A–T and G–C pair up through hydrogen bonds and hold the two strands together.
+    explanation: A firm backbone, releasable bonds – an ideal archive.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d3"]

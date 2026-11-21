@@ -5,7 +5,7 @@ summary: Warum Spurengase die Erde wärmen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: ablauf
@@ -77,6 +77,71 @@ steps:
     explanation: 140 Tonnen **CO₂-Äquivalente**. So macht man Gase vergleichbar.
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: Die heiße Sonne strahlt vor allem sichtbares Licht ab. Die kühle Erde strahlt dagegen unsichtbares **Infrarot** ab. Treibhausgase lassen das Licht durch, halten aber einen Teil des Infrarots zurück.
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie warm wäre es auf der Erde im Mittel, wenn es keinen Treibhauseffekt gäbe?"
+    params:
+      min: -60
+      max: 40
+      unit: °C
+    answer:
+      value: -18
+      tolerance: 6
+    explanation: Etwa −18 °C. Heute sind es im Mittel rund +15 °C. Der natürliche Treibhauseffekt macht die Erde erst bewohnbar.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: Ohne Treibhauseffekt läge die Mitteltemperatur bei −18 °C, heute sind es +15 °C. Um wie viel Kelvin wärmt der Effekt?
+    answer:
+      value: 33
+    feedback:
+      - when: numval(state.input) == -3 || numval(state.input) == 3
+        misconception: negative-difference
+        text: "Von −18 bis +15 ist es weiter: Rechne 15 − (−18)."
+    hints:
+      - Ein Unterschied von 1 °C ist auch 1 K.
+      - 18 bis null, dann 15 weiter.
+    explanation: "15 − (−18) = 33 K. Der menschengemachte Anteil kommt oben drauf: bisher rund 1,2 bis 1,3 K."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d4
+    depth: 2
+    widget: buckets
+    prompt: Verstärkt oder bremst der Vorgang die Erwärmung?
+    params:
+      buckets:
+        - id: b1
+          label: verstärkt
+        - id: b2
+          label: bremst
+      items:
+        - label: Eis schmilzt, dunkler Boden wird frei
+          bucket: b1
+        - label: Wärmere Luft hält mehr Wasserdampf
+          bucket: b1
+        - label: Tauender Permafrost setzt Methan frei
+          bucket: b1
+        - label: Eine wärmere Erde strahlt mehr Wärme ab
+          bucket: b2
+        - label: Pflanzen wachsen mit mehr CO₂ schneller
+          bucket: b2
+    hints:
+      - "Frag dich: Gibt es danach mehr oder weniger Treibhauseffekt?"
+      - Warme Körper strahlen stärker – das kühlt.
+    explanation: Die stärkere Abstrahlung ist die wichtigste Bremse – ohne sie liefe das Klima davon. Die Verstärker machen die Erwärmung aber mehr als doppelt so groß.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -93,6 +158,48 @@ steps:
     hints:
       - Mehr Wärme, mehr Dampf, mehr Wärme …
     explanation: "**Positive Rückkopplung**: Sie verdoppelt etwa die Wirkung des CO₂ allein."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Mehr CO₂ hält mehr Wärme zurück – aber nicht linear. Die Wirkung wächst mit dem **Logarithmus** der Konzentration: Jede Verdopplung bringt etwa gleich viel zusätzliche Heizleistung."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Die zusätzliche Heizleistung durch CO₂ ist grob ΔF = 5,35 · ln(C/C₀) in W/m². Wie groß ist sie bei einer Verdopplung? (ln 2 ≈ 0,693) Auf eine Nachkommastelle.
+    answer:
+      value: 3.7
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 10.7) < 0.1
+        misconception: log-ignored
+        text: "Nicht 5,35 · 2: Es zählt ln 2, nicht die 2."
+    hints:
+      - Bei Verdopplung ist C/C₀ = 2.
+      - Rechne 5,35 · 0,693.
+    explanation: 5,35 · 0,693 ≈ 3,7 W/m² – auf jedem Quadratmeter der Erde, Tag und Nacht. Das entspricht einer kleinen Lampe pro Quadratmeter.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: "Wie stark erwärmt sich die Erde langfristig, wenn sich CO₂ gegenüber vorindustriell verdoppelt? Nach dem Weltklimarat:"
+    params:
+      options:
+        - label: Etwa 3 °C, wahrscheinlich zwischen 2,5 und 4 °C
+          correct: true
+        - label: Etwa 0,1 °C
+          feedback: Das wäre viel weniger, als wir schon gemessen haben.
+        - label: Etwa 15 °C
+          feedback: So viel zeigen weder Messungen noch Modelle.
+    hints:
+      - Allein durch CO₂ wäre es gut 1 °C – Rückkopplungen kommen dazu.
+      - Wasserdampf und schmelzendes Eis verstärken den Effekt.
+    explanation: Diese Zahl heißt Klimasensitivität. Sie stammt aus Messungen, Erdgeschichte und Modellen, die alle in denselben Bereich zeigen.
     difficulty: 3
 
 srs:

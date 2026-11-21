@@ -1,0 +1,187 @@
+id: chem.electrochem.electrolysis
+type: concept
+title: "Electrolysis in industry"
+summary: "Faraday calculates, aluminium is made, metals shine."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how much current flows through a modern aluminium smelting cell?"
+    params:
+      min: 1
+      max: 10000000
+      scale: log
+      unit: A
+    answer:
+      value: 400000
+      tolerance: 200000
+    explanation: About 300,000 to 600,000 amps! A kettle needs about 10 A. That is why aluminium smelters sit next to power stations.
+
+  - kind: explain
+    id: c1
+    body: In electrolysis, a power source forces the redox reaction. At the negative pole, the **cathode**, particles are reduced. At the positive pole, the anode, they are oxidised.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: What forms at which pole?
+    params:
+      buckets:
+        - id: b1
+          label: Cathode (negative pole)
+        - id: b2
+          label: Anode (positive pole)
+      items:
+        - label: Copper from CuCl₂ solution
+          bucket: b1
+        - label: Hydrogen from water
+          bucket: b1
+        - label: Sodium from molten salt
+          bucket: b1
+        - label: Chlorine from CuCl₂ solution
+          bucket: b2
+        - label: Oxygen from water
+          bucket: b2
+    hints:
+      - Positive ions move to the negative pole and pick up electrons.
+      - Negative ions give up electrons at the positive pole.
+    explanation: Metals and hydrogen form at the cathode, non-metals like chlorine and oxygen at the anode.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A current of {{i}} A flows for {{h}} h through copper sulfate solution. How many grams of copper (63.5 g/mol, Cu²⁺) are deposited? (F = 96,485 C/mol) Give one decimal place.
+    params:
+      unit: g
+    answer:
+      value: "{{i * h * 3600 * 63.5 / (2 * 96485)}}"
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - i * h * 3600 * 63.5 / 96485) < 0.1
+        misconception: charge-ignored
+        text: Each Cu²⁺ needs two electrons – divide by 2.
+    hints:
+      - Charge Q = {{i}} A · {{3600 * h}} s.
+      - Moles of copper = Q ÷ (2 · 96,485). Then times 63.5.
+    explanation: About {{round(10 * i * h * 3600 * 63.5 / (2 * 96485)) / 10}} g of copper. Mass and charge are strictly proportional – that is Faraday's law.
+    variants:
+      params:
+        i: choice[1,2,5]
+        h: choice[1,2,3]
+      defaults:
+        i: 2
+        h: 1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In **electroplating**, a workpiece is made the cathode. Metal ions from the solution deposit on it as a wafer-thin layer – this is how chrome taps and silver-plated cutlery are made.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A spoon with an area of 100 cm² gets 10 µm of silver (density 10.5 g/cm³). How many grams of silver is that?
+    params:
+      unit: g
+    answer:
+      value: 1.05
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 1050) < 1
+        misconception: unit
+        text: 10 µm is 0.001 cm, not 10 cm.
+    hints:
+      - Volume = 100 cm² · 0.001 cm.
+      - 0.1 cm³ · 10.5 g/cm³.
+    explanation: Just over 1 g of silver is enough for a spoon. That takes about 940 coulombs – a good quarter of an hour at 1 A.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Aluminium oxide only melts at 2050 °C. Why is it dissolved in molten cryolite for electrolysis?
+    params:
+      options:
+        - label: The melt is liquid at about 950 °C already – which saves an enormous amount of energy
+          correct: true
+        - label: Cryolite supplies the aluminium
+          feedback: The aluminium comes from the oxide.
+        - label: It would also work in water
+          feedback: In water only hydrogen would form at the cathode.
+    hints:
+      - A mixture often melts lower than the pure substances.
+      - Without a melt the ions cannot move.
+    explanation: The Hall–Héroult process of 1886 made aluminium cheap. Before that it cost more than silver.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "The carbon anode burns away too: 2 Al₂O₃ + 3 C → 4 Al + 3 CO₂. At least how many kg of carbon (12 g/mol) does 1 kg of aluminium (27 g/mol) use up? Give two decimal places."
+    params:
+      unit: kg
+    answer:
+      value: 0.33
+      tolerance: 0.005
+    hints:
+      - 4 Al need 3 C.
+      - (3 · 12) ÷ (4 · 27).
+    explanation: 36 ÷ 108 ≈ 0.33 kg. In practice it is just over 0.4 kg – plus about 1.5 kg of CO₂ per kg of aluminium.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: 1 kg of aluminium needs 111 mol of electrons. The cell runs at 4.2 V. How many kWh does 1 kg of aluminium cost? (F = 96,485 C/mol, 1 kWh = 3.6 · 10⁶ J) Give one decimal place.
+    params:
+      unit: kWh
+    answer:
+      value: 12.5
+      tolerance: 0.1
+    hints:
+      - Energy = charge · voltage = 111 · 96,485 · 4.2 J.
+      - That is about 4.5 · 10⁷ J. Divide by 3.6 · 10⁶.
+    explanation: About 12.5 kWh – as much as a fridge uses in two months. That is why recycling pays off so much.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what happens at the two poles during electrolysis.
+    params:
+      keywords:
+        - - minus
+          - kathode
+          - cathode
+          - negativ
+          - negative
+        - - plus
+          - anode
+          - positiv
+          - positive
+        - - redu
+          - oxid
+          - elektron
+          - electron
+        - - erzwing
+          - spannung
+          - strom
+          - force
+          - voltage
+          - current
+      sample: A power source forces the reaction. At the negative pole, the cathode, ions take up electrons and are reduced. At the positive pole, the anode, particles give up electrons and are oxidised.
+    explanation: Electrolysis is a battery driven backwards.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

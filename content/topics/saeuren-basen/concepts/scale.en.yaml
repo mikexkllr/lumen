@@ -5,8 +5,20 @@ summary: Each step counts tenfold.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Take a guess: what pH does cola have?"
+    params:
+      min: 0
+      max: 14
+    answer:
+      value: 2.5
+      tolerance: 0.7
+    explanation: About 2.5 – nearly as acidic as lemon juice. The sugar masks the phosphoric acid.
+
   - kind: problem
     id: faktor
     widget: numeric
@@ -51,6 +63,26 @@ steps:
       - Which gas is always in the air?
     explanation: Carbonic acid lowers the pH to about 5.6.
 
+  - kind: explain
+    id: ch-c1
+    body: "The pH is the exponent of the H⁺ concentration, without the minus: 0.001 mol/L is $10^{-3}$ mol/L, so pH 3. A scale like this is called **logarithmic**."
+
+  - kind: problem
+    id: ch-c2
+    widget: numberline
+    prompt: Blood is very slightly basic. Mark its pH of 7.4 on the scale.
+    params:
+      min: 4
+      max: 10
+      ticks: 5
+      labels: integers
+    answer:
+      value: 7.4
+    hints:
+      - Neutral is 7.
+      - Each small tick is 0.2. Two ticks to the right of 7.
+    explanation: pH 7.4. Even 7.0 or 7.8 is life-threatening.
+
   - kind: problem
     id: d1
     depth: 2
@@ -64,6 +96,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: choice
+    prompt: A solution contains 0.002 mol/L of H⁺, that is 2 · 10⁻³. Where does its pH lie?
+    params:
+      options:
+        - label: Between 2 and 3, closer to 3
+          correct: true
+        - label: Exactly at 2
+          feedback: pH 2 would need 0.01 mol/L.
+        - label: Between 3 and 4
+          feedback: More H⁺ than at pH 3 means more acidic, so below 3.
+    hints:
+      - pH 3 means 0.001 mol/L, pH 2 means 0.01 mol/L.
+      - 0.002 lies in between – but much closer to 0.001.
+    explanation: 'Precisely: pH = −log(0.002) ≈ 2.7. On a logarithmic scale, "twice as much" is only 0.3 steps.'
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Caustic soda with 0.1 mol/L of OH⁻ is a strong base. What pH does it have?
+    answer:
+      value: 13
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: poh-for-ph
+        text: That is the pOH. The pH is 14 minus pOH.
+    hints:
+      - 0.1 = 10⁻¹, so pOH 1.
+      - pH + pOH = 14.
+    explanation: pOH 1, so pH 13. That is why caustic soda burns so badly.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: The pH drops by {{d}} steps. By what factor does the H⁺ concentration rise?
+    answer:
+      value: "{{10 ** d}}"
+    feedback:
+      - when: d > 1 && numval(state.input) == 10 * d
+        misconception: linear-scale
+        text: "Not times 10 but to the power: each step multiplies by 10 once more."
+    hints:
+      - Each step is a factor of 10.
+      - Multiply by 10, {{d}} times.
+    explanation: "{{d}} steps = 10 to the {{d}} = {{10 ** d}} times more H⁺."
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,5]
+      defaults:
+        d: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -73,6 +163,74 @@ steps:
     hints:
       - pOH = 2.
     explanation: 14 − 2 = 12. Even pure water contains 10⁻⁷ mol/L each of H⁺ and OH⁻ – that is why pH 7 is neutral.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Weak acids like acetic acid only partly give up their H⁺. How willingly is told by the **pKa value**: the smaller, the stronger the acid. Acetic acid has 4.75, hydrochloric acid about −6."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: 0.1 mol/L hydrochloric acid has pH 1, 0.1 mol/L acetic acid has pH 2.9. Roughly how much less H⁺ does the acetic acid have?
+    params:
+      options:
+        - label: About 80 times less
+          correct: true
+        - label: About 2 times less
+          feedback: Almost 2 pH steps is almost a factor of 100.
+        - label: The same – both are 0.1 mol/L
+          feedback: Only the hydrochloric acid gives up all its H⁺.
+    hints:
+      - The difference is 1.9 steps.
+      - 10 to the 1.9 is just under 100.
+    explanation: 10^1.9 ≈ 79. Only just over 1% of the acetic acid molecules give up their H⁺. Same concentration does not mean equally acidic.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: "For weak acids, roughly: pH = ½ · (pKa − log c). What pH does acetic acid (pKa 4.75) at c = 0.01 mol/L have? Give one decimal place."
+    answer:
+      value: 3.4
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 1.4) < 0.06
+        misconception: log-sign
+        text: log 0.01 is −2 – minus minus 2 makes plus 2.
+    hints:
+      - log 0.01 = −2.
+      - ½ · (4.75 + 2) = ?
+    explanation: ½ · 6.75 = 3.375 ≈ 3.4. Diluted tenfold, a weak acid's pH rises only half a step.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a solution at pH 2 is a hundred times more acidic than one at pH 4.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+          - faktor
+          - factor
+        - - stufe
+          - step
+          - logarith
+        - - h⁺
+          - h+
+          - wasserstoff
+          - hydrogen
+          - ion
+          - konzentration
+          - concentration
+      sample: "The pH is logarithmic: each step means ten times more H⁺ ions. From pH 4 to pH 2 is two steps, so 10 · 10 = 100 times more H⁺."
+    explanation: Two steps, two factors of 10.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: The pH value.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -105,6 +105,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: match
+    prompt: Red cabbage juice changes colour with pH. Roughly which colour does it show?
+    params:
+      pairs:
+        - left: Lemon juice (pH 2)
+          right: red
+        - left: Tap water (pH 7)
+          right: purple
+        - left: Baking soda in water (pH 8–9)
+          right: blue
+        - left: Drain cleaner (pH 14)
+          right: yellow
+    hints:
+      - The more acidic, the redder.
+      - Strongly basic, the juice turns green to yellow.
+    explanation: "The dye in red cabbage is an **indicator**: it changes its shape, and so its colour, depending on how many H⁺ are present."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: You dilute an acid with pH {{p}} to {{10 ** k}} times its volume. What is its pH afterwards?
+    answer:
+      value: "{{p + k}}"
+    feedback:
+      - when: numval(state.input) == p - k
+        misconception: dilute-direction
+        text: Diluting makes it less acidic – the pH goes up.
+    hints:
+      - Every factor of 10 in dilution is one pH step.
+      - Count the zeros in {{10 ** k}}.
+    explanation: "Diluted {{10 ** k}}-fold means {{k}} steps: pH {{p}} + {{k}} = {{p + k}}."
+    difficulty: 2
+    variants:
+      params:
+        p: int[1,3]
+        k: int[1,3]
+      constraints:
+        - p + k <= 6
+      defaults:
+        p: 2
+        k: 1
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: You keep diluting vinegar with more and more water. Does it ever become basic?
+    params:
+      options:
+        - label: No – the pH approaches 7 but does not rise above it
+          correct: true
+        - label: Yes, with enough water
+          feedback: Water itself is neutral. It cannot make anything basic.
+        - label: No, it stays just as acidic
+          feedback: Diluting does lower the H⁺ per litre.
+    hints:
+      - What pH does pure water have?
+      - In the end the glass holds almost only water.
+    explanation: "Diluted acid gets ever closer to water: pH 7. It only turns basic if you add a base."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +186,72 @@ steps:
     hints:
       - A pair of substances that can take up **and** release H⁺.
     explanation: A **buffer** keeps pH stable. A deviation of just 0.4 would be life-threatening.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: The pH measures how many **hydrogen ions** H⁺ float in one litre. pH 1 means 0.1 mol per litre, pH 2 only 0.01 mol. Each step is one tenth.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: At pH 3 there are 0.001 mol of H⁺ in one litre. How many mol of H⁺ per litre are there at pH 5?
+    answer:
+      value: 0.00001
+      tolerance: 1e-7
+    feedback:
+      - when: numval(state.input) == 0.1
+        misconception: ph-direction
+        text: Higher pH means less H⁺, not more.
+    hints:
+      - Two steps higher – divide by 10 twice.
+      - At pH 5 the 1 sits in the fifth decimal place.
+    explanation: "0.001 ÷ 100 = 0.00001 mol per litre. In short: 10 to the minus 5."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Acid or lye in the eye – which is more dangerous?
+    params:
+      options:
+        - label: Both are dangerous – but strong lyes often penetrate deeper into tissue
+          correct: true
+        - label: Only acids are corrosive
+          feedback: Strong lyes destroy tissue too.
+        - label: Lyes are harmless, they only feel soapy
+          feedback: It feels soapy because the lye is attacking your skin.
+    hints:
+      - Think of drain cleaner at pH 14.
+      - Lyes dissolve fats and proteins.
+    explanation: "Lyes turn the fats in cells into soap and keep advancing. So: wear goggles, and rinse for a long time straight away."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what "pH 3" means – and why pH 3 is ten times more acidic than pH 4.
+    params:
+      keywords:
+        - - h+
+          - wasserstoff
+          - hydrogen
+          - ion
+        - - zehn
+          - "10"
+          - ten
+          - faktor
+          - factor
+        - - sauer
+          - acid
+          - unter 7
+          - below 7
+      sample: pH 3 is acidic because it is below 7. The pH counts the H⁺ ions. Each step down means ten times more H⁺ – so pH 3 is ten times more acidic than pH 4.
+    explanation: A pH below 7 means acidic. One step lower means ten times more H⁺.
     difficulty: 3
 
 srs:

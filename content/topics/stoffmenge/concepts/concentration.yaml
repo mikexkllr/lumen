@@ -5,7 +5,7 @@ summary: Wie viel steckt in einem Liter?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -83,6 +83,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: Du verdünnst {{v1}} ml einer Lösung mit {{c1}} mol/L auf {{v2}} ml. Welche Konzentration hat sie danach?
+    params:
+      unit: mol/L
+    answer:
+      value: "{{c1 / f}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - c1 * f) < 0.001
+        misconception: dilution-direction
+        text: Verdünnen macht die Lösung schwächer, nicht stärker.
+    hints:
+      - "Die Stoffmenge bleibt gleich: c₁ · V₁ = c₂ · V₂."
+      - Das Volumen wird {{f}}-mal so groß.
+    explanation: "{{c1}} · {{v1}} = c₂ · {{v2}}, also c₂ = {{c1 / f}} mol/L."
+    difficulty: 2
+    variants:
+      params:
+        v1: choice[10,20,50]
+        c1: choice[1,2,5]
+        f: choice[2,4,5,10]
+      derive:
+        v2: v1 * f
+      defaults:
+        v1: 20
+        c1: 2
+        f: 5
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Infusionen enthalten 9 g Kochsalz NaCl (58,5 g/mol) pro Liter. Welche Konzentration ist das in mol/L? Auf drei Nachkommastellen.
+    answer:
+      value: 0.154
+      tolerance: 0.001
+    hints:
+      - "Rechne zuerst die Stoffmenge: 9 g : 58,5 g/mol."
+      - Das steckt in genau einem Liter.
+    explanation: "9 : 58,5 ≈ 0,154 mol/L. Diese »physiologische Kochsalzlösung« hat etwa denselben Salzgehalt wie Blut."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Du mischst 1 Liter Lösung mit 1 mol/L und 1 Liter mit 3 mol/L desselben Stoffs. Welche Konzentration hat die Mischung?
+    params:
+      options:
+        - label: 2 mol/L
+          correct: true
+        - label: 4 mol/L
+          feedback: Die Stoffmengen addieren sich – aber das Volumen auch.
+        - label: 3 mol/L
+          feedback: Die schwächere Lösung verdünnt die stärkere.
+    hints:
+      - Zusammen sind es 4 mol in 2 Litern.
+      - "c = n : V."
+    explanation: "4 mol : 2 L = 2 mol/L. Bei gleichen Volumen ist es der Mittelwert."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -95,6 +159,52 @@ steps:
       - c₁ · V₁ = c₂ · V₂.
     explanation: "0,2 · 500 : 2 = 50 ml, aufgefüllt auf 500 ml. Die Stoffmenge bleibt beim Verdünnen gleich."
     difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Trinkwasser darf bis zu 50 mg Nitrat NO₃⁻ (62 g/mol) pro Liter enthalten. Wie viel Millimol pro Liter sind das? Auf zwei Nachkommastellen.
+    params:
+      unit: mmol/L
+    answer:
+      value: 0.81
+      tolerance: 0.01
+    hints:
+      - mg durch g/mol ergibt mmol.
+      - "Rechne 50 : 62."
+    explanation: "50 : 62 ≈ 0,81 mmol/L. Zu viel Nitrat stammt oft aus Gülle und Dünger."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: "Für viele Effekte zählt nicht die Stoffmenge, sondern die Zahl gelöster Teilchen. Salze zerfallen dabei in Ionen: NaCl in zwei, CaCl₂ in drei. Man spricht von der **Teilchenkonzentration**."
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viel Mol gelöste Teilchen pro Liter enthält eine Lösung von {{c}} mol/L Calciumchlorid CaCl₂?
+    params:
+      unit: mol/L
+    answer:
+      value: "{{3 * c}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - c) < 0.001
+        misconception: no-dissociation
+        text: CaCl₂ zerfällt in Ca²⁺ und zwei Cl⁻ – drei Teilchen.
+    hints:
+      - CaCl₂ → Ca²⁺ + 2 Cl⁻.
+      - Rechne {{c}} · 3.
+    explanation: "{{c}} · 3 = {{3 * c}} mol/L Teilchen. Darum taut CaCl₂ Eis noch stärker als NaCl."
+    difficulty: 3
+    variants:
+      params:
+        c: step[0.1,1,0.1]
+      defaults:
+        c: 0.5
 
 srs:
   cards_from: [rechnen, verduennen]

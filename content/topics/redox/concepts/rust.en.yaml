@@ -5,7 +5,7 @@ summary: Slow oxidation in everyday life.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: braun
@@ -105,6 +105,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Five iron nails sit in jars for a week. Which ones rust?
+    params:
+      buckets:
+        - id: b1
+          label: rusts
+        - id: b2
+          label: barely rusts
+      items:
+        - label: in tap water
+          bucket: b1
+        - label: in salt water
+          bucket: b1
+        - label: wrapped in copper wire, in water
+          bucket: b1
+        - label: in dry air with a drying agent
+          bucket: b2
+        - label: in boiled water under oil
+          bucket: b2
+        - label: galvanised, in water
+          bucket: b2
+    hints:
+      - Rust needs water and oxygen at the same time.
+      - Boiled water holds hardly any dissolved oxygen, and the oil keeps new oxygen out.
+    explanation: More noble copper speeds rusting up, less noble zinc prevents it. Salt makes the water more conductive – which speeds it up too.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: "Simplified: 4 Fe + 3 O₂ → 2 Fe₂O₃. How many O₂ molecules are needed for {{4 * k}} iron atoms?"
+    answer:
+      value: "{{3 * k}}"
+    feedback:
+      - when: numval(state.input) == 4 * k
+        misconception: ratio-ignored
+        text: The ratio is 4 Fe to 3 O₂, not 1 to 1.
+    hints:
+      - Every 4 Fe need 3 O₂.
+      - Work out {{4 * k}} ÷ 4 · 3.
+    explanation: "{{4 * k}} ÷ 4 · 3 = {{3 * k}} O₂."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,15]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: How many grams of Fe₂O₃ (160 g/mol) form from 112 g of iron (56 g/mol)?
+    params:
+      unit: g
+    answer:
+      value: 160
+    feedback:
+      - when: numval(state.input) == 320
+        misconception: atom-count
+        text: One Fe₂O₃ contains two Fe atoms.
+      - when: numval(state.input) == 112
+        misconception: mass-ignored
+        text: Rust weighs more than the iron – the oxygen is added.
+    hints:
+      - 112 g of Fe is 2 mol.
+      - One Fe₂O₃ needs 2 Fe.
+    explanation: 2 mol of Fe give 1 mol of Fe₂O₃ = 160 g. A rusting car actually gets heavier!
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +194,65 @@ steps:
     hints:
       - Rust flakes off. Aluminium oxide does not.
     explanation: "**Passivation**: the layer is only millionths of a millimetre thick but dense. Stainless steel uses the same principle with chromium."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: Rusting reinforcing steel can burst concrete from the inside. How?
+    params:
+      options:
+        - label: Rust takes up several times the volume of iron and pushes the concrete apart
+          correct: true
+        - label: Rust is acidic and dissolves concrete
+          feedback: The problem is the space it needs, not acid.
+        - label: The steel heats up as it rusts
+          feedback: Rusting is far too slow to warm anything noticeably.
+    hints:
+      - Rust is loose and contains a lot of water.
+      - More volume inside solid concrete creates pressure.
+    explanation: Depending on the type of rust, the volume grows two to six times. That is why old bridges and balconies crumble.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Stainless steel contains at least 10.5% chromium and hardly rusts. Why?
+    params:
+      options:
+        - label: Chromium forms a wafer-thin, dense oxide layer on the surface that heals itself
+          correct: true
+        - label: Chromium is more noble than gold
+          feedback: Chromium is actually less noble than iron.
+        - label: Chromium repels water
+          feedback: It is about an oxide layer, not about water beading off.
+    hints:
+      - Think of aluminium, which does not rust through despite being reactive.
+      - The layer is only a few nanometres thick.
+    explanation: This **passivation** protects as long as enough oxygen reaches it. Scratches close up again by themselves.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what happens to iron when it rusts.
+    params:
+      keywords:
+        - - oxid
+          - elektron
+          - electron
+        - - sauerstoff
+          - oxygen
+          - o₂
+        - - wasser
+          - water
+          - feucht
+          - moist
+      sample: "When rusting, iron is oxidised: it gives away electrons. Oxygen takes them. This needs water – so iron barely rusts in dry air."
+    explanation: Iron, oxygen and water – take one away and rusting stops.
     difficulty: 3
 
 srs:

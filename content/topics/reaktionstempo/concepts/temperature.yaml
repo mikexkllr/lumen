@@ -1,0 +1,174 @@
+id: chem.kinetics.temperature
+type: concept
+title: "Wärme beschleunigt"
+summary: "Von der Faustregel zur Arrhenius-Gleichung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Im Kühlschrank (4 °C) statt bei 24 °C – wievielmal länger hält frische Milch etwa?"
+    params:
+      min: 1
+      max: 20
+      unit: -mal
+    answer:
+      value: 4
+      tolerance: 1
+    explanation: "Etwa viermal: 20 Grad kälter, zweimal halbes Tempo. Darum hält Milch im Kühlschrank Tage statt Stunden."
+
+  - kind: explain
+    id: c1
+    body: "Die **RGT-Regel** ist eine Faustregel: 10 Grad wärmer macht viele Reaktionen zwei- bis viermal so schnell. RGT steht für Reaktionsgeschwindigkeit und Temperatur."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Reaktion wird pro 10 Grad {{q}}-mal so schnell. Wievielmal schneller läuft sie bei {{10 * k}} Grad mehr?
+    answer:
+      value: "{{q ** k}}"
+    feedback:
+      - when: q ** k != q * k && numval(state.input) == q * k
+        misconception: linear-growth
+        text: "Die Faktoren multiplizieren sich: {{q}} · {{q}} · … – nicht addieren."
+    hints:
+      - "{{10 * k}} Grad sind {{k}} Zehnerschritte."
+      - Rechne {{q}} hoch {{k}}.
+    explanation: "{{q}} hoch {{k}} = {{q ** k}}. Temperatur wirkt exponentiell."
+    variants:
+      params:
+        q: choice[2,3]
+        k: int[1,3]
+      defaults:
+        q: 2
+        k: 3
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Kartoffeln brauchen bei 100 °C 20 Minuten. Im Schnellkochtopf ist das Wasser 120 °C heiß. Wie viele Minuten brauchen sie dort etwa? (Faktor 2 pro 10 Grad)
+    params:
+      unit: min
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: one-step
+        text: Zwei Zehnerschritte – also zweimal halbieren.
+    hints:
+      - 120 − 100 = 20 Grad.
+      - "20 : 2 : 2."
+    explanation: "Viermal schneller: 5 Minuten. Der Überdruck hebt den Siedepunkt – das spart Zeit und Energie."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Genauer beschreibt das die **Arrhenius-Gleichung**: $k = A \\cdot e^{-E_a / (R T)}$. k ist die Geschwindigkeitskonstante. Je größer die Aktivierungsenergie Eₐ, desto stärker hängt k von T ab."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Für zwei Temperaturen gilt: k₂ : k₁ = e hoch [Eₐ/R · (1/T₁ − 1/T₂)]. Wie groß ist der Faktor für Eₐ = 50 kJ/mol von 300 K auf 310 K? Auf eine Nachkommastelle."
+    answer:
+      value: 1.9
+      tolerance: 0.06
+    hints:
+      - "Eₐ/R = 50 000 : 8,314 ≈ 6014 K. 1/300 − 1/310 ≈ 0,0001075."
+      - Exponent ≈ 0,65. e hoch 0,65 = ?
+    explanation: Etwa 1,9 – fast genau die Faustregel. Die RGT-Regel passt also zu Aktivierungsenergien um 50 kJ/mol.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Reaktion A hat Eₐ = 30 kJ/mol, Reaktion B 90 kJ/mol. Welche wird durch Erwärmen stärker beschleunigt?
+    params:
+      options:
+        - label: B, die mit dem höheren Energieberg
+          correct: true
+        - label: A, weil sie ohnehin schneller ist
+          feedback: Schnell heißt nicht empfindlich.
+        - label: Beide gleich
+          feedback: Eₐ steht im Exponenten – sie zählt stark.
+    hints:
+      - Eₐ steht in der Arrhenius-Gleichung im Exponenten.
+      - "Ein hoher Berg: Wärme hilft dann besonders viel."
+    explanation: Je höher der Berg, desto mehr gewinnt man durch Wärme. Darum zerfallen manche Medikamente in der Hitze rasant.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Eine Reaktion verdoppelt ihr Tempo zwischen 300 K und 310 K. Wie groß ist ihre Aktivierungsenergie? Nutze Eₐ = R · ln 2 : (1/300 − 1/310) mit ln 2 ≈ 0,693. Auf ganze kJ/mol."
+    params:
+      unit: kJ/mol
+    answer:
+      value: 54
+      tolerance: 1
+    hints:
+      - 1/300 − 1/310 ≈ 0,0001075 pro K.
+      - "8,314 · 0,693 : 0,0001075 ≈ 53 600 J/mol."
+    explanation: "Etwa 54 kJ/mol. So misst man Aktivierungsenergien: Tempo bei zwei Temperaturen, dann rechnen."
+    difficulty: 3
+
+  - kind: explain
+    id: x2
+    depth: 3
+    body: Trägt man ln k gegen 1/T auf, ergibt sich eine Gerade. Ihre Steigung ist −Eₐ/R. Das ist die **Arrhenius-Auftragung** – das Standardwerkzeug im Kinetik-Labor.
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: In einer Arrhenius-Auftragung hat die Gerade die Steigung −{{s}} K. Wie groß ist Eₐ? (R = 8,314 J/(mol·K)) Auf ganze kJ/mol.
+    params:
+      unit: kJ/mol
+    answer:
+      value: "{{round(s * 8.314 / 1000)}}"
+      tolerance: 1
+    hints:
+      - Eₐ = −Steigung · R.
+      - Rechne {{s}} · 8,314 J/mol.
+    explanation: "{{s}} · 8,314 ≈ {{round(s * 8.314)}} J/mol, also etwa {{round(s * 8.314 / 1000)}} kJ/mol."
+    difficulty: 3
+    variants:
+      params:
+        s: step[4000,12000,1000]
+      defaults:
+        s: 6000
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum schon wenig Wärme eine Reaktion viel schneller machen kann.
+    params:
+      keywords:
+        - - anteil
+          - share
+          - fraction
+          - mehr teilchen
+          - more particles
+        - - aktivierung
+          - activation
+          - berg
+          - barrier
+          - hill
+        - - exponent
+          - exponentiell
+          - exponential
+          - verdopp
+          - doubl
+      sample: Nur ein kleiner Anteil der Teilchen hat genug Energie für den Aktivierungsberg. Wird es etwas wärmer, wächst dieser Anteil exponentiell – er kann sich schon bei 10 Grad verdoppeln.
+    explanation: Es geht nicht um etwas schnellere Teilchen, sondern um viel mehr Teilchen über dem Berg.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

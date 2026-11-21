@@ -5,8 +5,21 @@ summary: Set molar masses and compare them.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Take a guess: how much does one mole of gold atoms weigh?"
+    params:
+      min: 1
+      max: 1000
+      unit: g
+    answer:
+      value: 197
+      tolerance: 30
+    explanation: 197 g – a cube only 2.2 cm along each edge. One mole of hydrogen atoms, by contrast, weighs just 1 g.
+
   - kind: problem
     id: saeulen
     widget: chart
@@ -56,6 +69,102 @@ steps:
     explanation: With three numbers – 1, 12, 16 – you can calculate all four.
 
   - kind: problem
+    id: ch-c1
+    widget: numeric
+    prompt: 3 mol of a gas weigh {{3 * M}} g. What is its molar mass?
+    params:
+      unit: g/mol
+    answer:
+      value: "{{M}}"
+    feedback:
+      - when: numval(state.input) == 9 * M
+        misconception: inverted-formula
+        text: "Divide, do not multiply: M = m ÷ n."
+    hints:
+      - Molar mass = mass per mole.
+      - Work out {{3 * M}} ÷ 3.
+    explanation: "{{3 * M}} g ÷ 3 mol = {{M}} g/mol."
+    variants:
+      params:
+        M: choice[16,28,32,44]
+      defaults:
+        M: 32
+
+  - kind: problem
+    id: ch-c2
+    widget: buckets
+    prompt: Air averages 29 g/mol. Does the gas rise or sink in air?
+    params:
+      buckets:
+        - id: b1
+          label: rises
+        - id: b2
+          label: sinks
+      items:
+        - label: Hydrogen H₂
+          bucket: b1
+        - label: Helium He
+          bucket: b1
+        - label: Methane CH₄
+          bucket: b1
+        - label: Ammonia NH₃
+          bucket: b1
+        - label: Carbon dioxide CO₂
+          bucket: b2
+        - label: Argon Ar
+          bucket: b2
+        - label: Propane C₃H₈
+          bucket: b2
+    hints:
+      - Work out each molar mass and compare it with 29.
+      - "Propane: 3 · 12 + 8 = 44 g/mol."
+    explanation: The same volume means the same number of particles. Light particles make the gas lighter than air. Propane sinks – which is why gas leaks in cellars and boats are dangerous.
+
+  - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: sim
+    prompt: Temperature and volume are fixed. Set the amount of gas so that the pressure reaches about 250 kPa.
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+        volume:
+          value: 5
+          fixed: true
+        amount:
+          fixed: false
+    answer:
+      pressure:
+        - 245
+        - 255
+    explanation: With 0.5 mol it is about 249 kPa. The pressure grows exactly with the number of particles.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: At fixed temperature and volume, 0.2 mol of gas produce 100 kPa. What pressure do {{n}} mol produce?
+    params:
+      unit: kPa
+    answer:
+      value: "{{500 * n}}"
+      tolerance: 0.01
+    hints:
+      - How many times as much gas is {{n}} mol compared with 0.2 mol?
+      - The pressure grows in the same ratio.
+    explanation: "{{n}} ÷ 0.2 = {{5 * n}} times as much gas, so {{500 * n}} kPa."
+    difficulty: 2
+    variants:
+      params:
+        n: step[0.3,1,0.1]
+      defaults:
+        n: 0.7
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -81,6 +190,45 @@ steps:
           - mass
           - gram
       sample: "A mole is a fixed, huge number of particles – like a dozen, only much larger. It lets you count atoms by weighing them: one mole has as many grams as the atomic mass states."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: "Two balloons of equal size at the same pressure and temperature: one holds helium, the other CO₂. Which holds more particles?"
+    params:
+      options:
+        - label: Both the same number
+          correct: true
+        - label: The helium balloon
+          feedback: Helium atoms are lighter, but not more numerous.
+        - label: The CO₂ balloon
+          feedback: Bigger molecules do not need more room – the gaps dominate.
+    hints:
+      - In a gas, the particles are tiny compared with the gaps between them.
+      - pV = nRT contains no particle size.
+    explanation: "This is Avogadro's law: equal volumes of ideal gases contain equal numbers of particles. The CO₂ balloon is still eleven times as heavy."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: One mole of gas takes up about 24 L at room temperature. How many grams does one litre of CO₂ (44 g/mol) weigh? Give two decimal places.
+    params:
+      unit: g/L
+    answer:
+      value: 1.83
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.55) < 0.01
+        misconception: inverted-ratio
+        text: "The other way round: mass divided by volume, so 44 ÷ 24."
+    hints:
+      - Density = mass ÷ volume.
+      - 44 g in 24 L.
+    explanation: 44 ÷ 24 ≈ 1.83 g/L. Air is about 1.2 g/L – so CO₂ is about one and a half times as dense.
     difficulty: 3
 
 srs:

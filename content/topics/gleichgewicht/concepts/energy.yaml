@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: c1
@@ -105,6 +105,63 @@ steps:
     explanation: Ein leichterer Weg, gleiche Bilanz. Hin- und Rückreaktion werden beide schneller.
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: "Die Wärme, die eine Reaktion bei gleichem Druck abgibt oder aufnimmt, heißt **Enthalpie** ΔH. Gibt sie Wärme ab, ist ΔH negativ: Das System verliert Energie an die Umgebung."
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Ist ΔH negativ oder positiv?
+    params:
+      buckets:
+        - id: b1
+          label: ΔH < 0 (exotherm)
+        - id: b2
+          label: ΔH > 0 (endotherm)
+      items:
+        - label: Holz verbrennt
+          bucket: b1
+        - label: Knallgas explodiert
+          bucket: b1
+        - label: Säure trifft auf Lauge
+          bucket: b1
+        - label: Eis schmilzt
+          bucket: b2
+        - label: Fotosynthese
+          bucket: b2
+        - label: Kalk wird zu Branntkalk gebrannt
+          bucket: b2
+    hints:
+      - Wird es dabei warm, ist ΔH negativ.
+      - Schmelzen und Kalkbrennen brauchen ständig Wärme.
+    explanation: "Das Vorzeichen zählt aus Sicht der Reaktion: Was sie abgibt, ist minus."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: "Satz von Hess: C + O₂ → CO₂ hat ΔH = −394 kJ. CO + ½ O₂ → CO₂ hat ΔH = −283 kJ. Wie groß ist ΔH für C + ½ O₂ → CO?"
+    params:
+      unit: kJ
+    answer:
+      value: -111
+    feedback:
+      - when: numval(state.input) == 111
+        misconception: sign
+        text: "Das Vorzeichen: Auch CO-Bildung gibt Wärme ab."
+      - when: numval(state.input) == -677
+        misconception: hess-reverse
+        text: Die zweite Reaktion muss umgedreht werden – ihr Vorzeichen auch.
+    hints:
+      - "Weg 1: C direkt zu CO₂. Weg 2: erst zu CO, dann zu CO₂."
+      - "Beide Wege liefern zusammen −394 kJ: x + (−283) = −394."
+    explanation: x = −394 + 283 = −111 kJ. Die Energie hängt nur von Start und Ziel ab, nicht vom Weg.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -159,6 +216,66 @@ steps:
           - kalt
           - cold
       sample: Eine exotherme Reaktion gibt Energie ab, die Umgebung wird warm. Eine endotherme Reaktion nimmt Energie auf, es wird kalt.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Ob eine Reaktion von selbst läuft, entscheidet die **freie Enthalpie**: $\\Delta G = \\Delta H - T \\cdot \\Delta S$. Ist ΔG negativ, läuft sie freiwillig. Wärme abgeben und Unordnung schaffen helfen beide."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ammoniumnitrat löst sich in Wasser: ΔH = +25,7 kJ/mol, ΔS = +0,1087 kJ/(mol·K). Wie groß ist ΔG bei 298 K? Auf eine Nachkommastelle."
+    answer:
+      value: -6.7
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 58.1) < 0.2
+        misconception: gibbs-sign
+        text: Minus T mal ΔS – nicht plus.
+    hints:
+      - T · ΔS = 298 · 0,1087 ≈ 32,4 kJ/mol.
+      - ΔG = 25,7 − 32,4.
+    explanation: "ΔG ≈ −6,7 kJ/mol: Es löst sich freiwillig, obwohl es Wärme schluckt. Die Entropie gewinnt – so funktioniert das Kühlpack."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: "Kalk zerfällt: CaCO₃ → CaO + CO₂ mit ΔH = +178 kJ/mol und ΔS = +0,161 kJ/(mol·K). Ab welcher Temperatur wird ΔG negativ? Auf ganze Kelvin."
+    params:
+      unit: K
+    answer:
+      value: 1106
+      tolerance: 3
+    hints:
+      - An der Grenze ist ΔG = 0, also ΔH = T · ΔS.
+      - "T = 178 : 0,161."
+    explanation: T ≈ 1106 K, also gut 830 °C. Darum laufen Kalköfen bei rund 900 °C.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: match
+    prompt: ΔG = ΔH − T·ΔS. Wann läuft die Reaktion von selbst?
+    params:
+      pairs:
+        - left: ΔH < 0 und ΔS > 0
+          right: immer
+        - left: ΔH > 0 und ΔS < 0
+          right: nie
+        - left: ΔH < 0 und ΔS < 0
+          right: nur bei tiefer Temperatur
+        - left: ΔH > 0 und ΔS > 0
+          right: nur bei hoher Temperatur
+    hints:
+      - Je höher T, desto mehr zählt der Entropie-Teil.
+      - "Wasser gefriert: ΔH < 0, ΔS < 0 – nur in der Kälte."
+    explanation: Die Temperatur gewichtet die Entropie. Darum kehren sich manche Reaktionen beim Erhitzen um.
     difficulty: 3
 
 srs:

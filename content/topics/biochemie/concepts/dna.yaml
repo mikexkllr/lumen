@@ -1,0 +1,236 @@
+id: chem.biochem.dna
+type: concept
+title: "Die Bausteine der DNA"
+summary: "Zucker, Phosphat und vier Basen – Chemie als Speicher."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie lang wäre die DNA aus einer einzigen menschlichen Zelle, wenn man sie ausrollt?"
+    params:
+      min: 0.001
+      max: 1000
+      scale: log
+      unit: m
+    answer:
+      value: 2
+      tolerance: 0.8
+    explanation: Rund 2 Meter – verpackt in einen Kern von wenigen Tausendstel Millimetern.
+
+  - kind: explain
+    id: c1
+    body: "DNA ist eine Kette aus **Nukleotiden**. Jedes besteht aus einem Zucker (Desoxyribose), einer Phosphatgruppe und einer von vier Basen: A, T, G oder C. Zucker und Phosphat bilden das Rückgrat."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Was gehört zusammen?
+    params:
+      pairs:
+        - left: Adenin (A)
+          right: Thymin (T), 2 Brücken
+        - left: Guanin (G)
+          right: Cytosin (C), 3 Brücken
+        - left: Phosphat und Zucker
+          right: Rückgrat des Strangs
+        - left: Uracil (U)
+          right: ersetzt T in der RNA
+    hints:
+      - Die Basenpaare passen wie Puzzleteile.
+      - G–C hält mit drei Wasserstoffbrücken.
+    explanation: "Eine große Base passt immer zu einer kleinen: A zu T, G zu C. So bleibt der Abstand zwischen den Strängen gleich."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In einer DNA sind {{a}} % der Basen Adenin. Wie viel Prozent sind Guanin?
+    params:
+      unit: "%"
+    answer:
+      value: "{{50 - a}}"
+    feedback:
+      - when: numval(state.input) == 100 - a
+        misconception: pairing-ignored
+        text: Thymin ist auch {{a}} %. Der Rest teilt sich auf G und C.
+    hints:
+      - A = T und G = C.
+      - A + T = {{2 * a}} %. Der Rest ist G + C.
+    explanation: 100 − {{2 * a}} = {{100 - 2 * a}} % für G und C, also {{50 - a}} % Guanin. Diese Regel fand Erwin Chargaff 1950.
+    variants:
+      params:
+        a: int[15,35]
+      defaults:
+        a: 30
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Was hält die beiden Stränge der Doppelhelix zusammen?
+    params:
+      options:
+        - label: Wasserstoffbrücken zwischen den Basen
+          correct: true
+        - label: Ionenbindungen zwischen den Phosphaten
+          feedback: Die Phosphate stoßen sich sogar ab.
+        - label: Elektronenpaarbindungen quer durch die Helix
+          feedback: Die Stränge lassen sich gerade leicht trennen.
+    hints:
+      - Beim Kopieren müssen sich die Stränge öffnen lassen.
+      - Schwache Kräfte, aber Millionen davon.
+    explanation: Im Strang halten feste Elektronenpaarbindungen, zwischen den Strängen schwache Brücken. So ist die DNA stabil und trotzdem lesbar.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Gen hat {{3 * n}} Basenpaare. Je drei Basen codieren eine Aminosäure. Wie viele Aminosäuren codiert es?
+    answer:
+      value: "{{n}}"
+    hints:
+      - Teile durch 3.
+      - "Rechne {{3 * n}} : 3."
+    explanation: "{{3 * n}} : 3 = {{n}} Aminosäuren (das Stopp-Signal hier nicht mitgezählt)."
+    difficulty: 2
+    variants:
+      params:
+        n: step[100,600,50]
+      defaults:
+        n: 400
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Im Gel bei der DNA-Analyse wandern DNA-Stücke immer zum Pluspol. Warum?
+    params:
+      options:
+        - label: Die Phosphatgruppen im Rückgrat sind negativ geladen
+          correct: true
+        - label: Die Basen sind positiv
+          feedback: Sie sind weitgehend ungeladen.
+        - label: DNA ist magnetisch
+          feedback: Es geht um elektrische Ladung.
+    hints:
+      - DNA ist eine Säure – darum heißt sie Desoxyribonukleinsäure.
+      - Saure Gruppen geben H⁺ ab und werden negativ.
+    explanation: Kleine Stücke schlüpfen schneller durchs Gel als große. So trennt man DNA nach Länge – etwa für einen genetischen Fingerabdruck.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Faustregel für kurze DNA-Stücke: Die Stränge trennen sich bei T = 2 · (A + T) + 4 · (G + C) in °C. Wie hoch ist T für {{at}} A/T und {{gc}} G/C?"
+    params:
+      unit: °C
+    answer:
+      value: "{{2 * at + 4 * gc}}"
+    feedback:
+      - when: numval(state.input) == 4 * at + 2 * gc
+        misconception: pair-swap
+        text: "Vertauscht: G–C mit drei Brücken zählt vierfach."
+    hints:
+      - A/T zählt 2 Grad, G/C zählt 4 Grad.
+      - 2 · {{at}} + 4 · {{gc}}.
+    explanation: "{{2 * at}} + {{4 * gc}} = {{2 * at + 4 * gc}} °C. Für PCR-Tests wählt man so die passende Temperatur."
+    difficulty: 2
+    variants:
+      params:
+        at: int[6,12]
+        gc: int[6,12]
+      constraints:
+        - at != gc
+      defaults:
+        at: 10
+        gc: 8
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: UV-Licht kann zwei benachbarte Thymine in einem Strang fest miteinander verbinden. Warum ist das gefährlich?
+    params:
+      options:
+        - label: Der Strang knickt, beim Kopieren entstehen Fehler – Mutationen bis hin zu Hautkrebs
+          correct: true
+        - label: Die DNA wird radioaktiv
+          feedback: UV-Licht macht nichts radioaktiv.
+        - label: Die DNA löst sich in Wasser auf
+          feedback: Sie bleibt ein Molekül.
+    hints:
+      - UV hat genug Energie, um C=C-Doppelbindungen zu öffnen.
+      - Zwei Basen nebeneinander werden zu einem Ring verknüpft.
+    explanation: Das ist Fotochemie in der Haut. Reparatur-Enzyme schneiden die Dimere meist heraus – Sonnencreme senkt ihre Zahl.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: RNA nutzt Ribose mit einer OH-Gruppe mehr als die Desoxyribose der DNA. Warum speichert die DNA Erbgut besser?
+    params:
+      options:
+        - label: Die zusätzliche OH-Gruppe greift das eigene Rückgrat an – RNA zerfällt leichter
+          correct: true
+        - label: RNA hat weniger Basen
+          feedback: Beide haben vier.
+        - label: Desoxyribose ist süßer
+          feedback: Mit Geschmack hat das nichts zu tun.
+    hints:
+      - "»Desoxy« heißt: ein Sauerstoff weniger."
+      - Die OH-Gruppe sitzt direkt neben der Phosphat-Bindung.
+    explanation: RNA ist eine kurzlebige Arbeitskopie, DNA das dauerhafte Archiv. Ein fehlendes O-Atom macht den Unterschied.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Jede Base trägt 2 Bit Information (vier Möglichkeiten). Wie viele Megabyte speichern 3,1 Milliarden Basenpaare eines Erbguts? (1 MB = 8 Millionen Bit)
+    params:
+      unit: MB
+    answer:
+      value: 775
+      tolerance: 5
+    feedback:
+      - when: abs(numval(state.input) - 1550) < 10
+        misconception: double-count
+        text: "Ein Basenpaar zählt nur einmal: Der zweite Strang ist eine Kopie."
+    hints:
+      - 3,1 · 10⁹ · 2 Bit = 6,2 · 10⁹ Bit.
+      - Teile durch 8 · 10⁶.
+    explanation: Etwa 775 MB – gut eine CD. Ein Gramm DNA könnte theoretisch über 200 Millionen Gigabyte speichern.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die DNA chemisch aufgebaut ist.
+    params:
+      keywords:
+        - - zucker
+          - sugar
+          - desoxyribose
+          - deoxyribose
+        - - phosphat
+          - phosphate
+        - - base
+          - basen
+          - adenin
+          - adenine
+        - - wasserstoffbrück
+          - hydrogen bond
+          - paar
+          - pair
+      sample: DNA besteht aus Nukleotiden mit Zucker, Phosphat und einer Base. Zucker und Phosphat bilden das Rückgrat jedes Strangs. Die Basen A–T und G–C paaren sich über Wasserstoffbrücken und halten die zwei Stränge zusammen.
+    explanation: Festes Rückgrat, lösbare Brücken – ein ideales Archiv.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d3"]

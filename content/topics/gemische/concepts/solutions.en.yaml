@@ -5,7 +5,7 @@ summary: How much fits in?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: prozent
@@ -79,6 +79,74 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many grams of sugar dissolve in 100 g of water at 20 °C?"
+    params:
+      min: 0
+      max: 500
+      unit: g
+    answer:
+      value: 204
+      tolerance: 40
+    explanation: About 200 g – twice the mass of the water! For salt it is only 36 g.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{s}} g of salt are dissolved in {{total - s}} g of water. What percentage of the solution is salt?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * s / total}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 100 * s / (total - s)) < 0.05
+        misconception: percent-of-solvent
+        text: Divide by the mass of the whole solution – water plus salt.
+    hints:
+      - "The solution weighs salt plus water: {{total}} g."
+      - Work out {{s}} ÷ {{total}} · 100.
+    explanation: "{{s}} g out of {{total}} g is {{100 * s / total}}%."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[5,10,20,25]
+        total: choice[100,200]
+      defaults:
+        s: 10
+        total: 200
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: You mix 100 g of a {{p1}}% salt solution with 300 g of a {{p2}}% one. What percentage of salt does the mixture have?
+    params:
+      unit: "%"
+    answer:
+      value: "{{(p1 + 3 * p2) / 4}}"
+    feedback:
+      - when: numval(state.input) == (p1 + p2) / 2
+        misconception: unweighted-mean
+        text: The bigger portion counts more – this is not a simple average.
+    hints:
+      - "First work out the grams of salt: {{p1}} g and {{3 * p2}} g."
+      - Divide the salt by 400 g.
+    explanation: ({{p1}} + {{3 * p2}}) g of salt in 400 g of solution is {{(p1 + 3 * p2) / 4}}%.
+    difficulty: 2
+    variants:
+      params:
+        p1: step[4,12,4]
+        p2: step[20,28,4]
+      defaults:
+        p1: 8
+        p2: 24
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +162,49 @@ steps:
     hints:
       - For solids it is the reverse of gases.
     explanation: "That is why fish struggle to breathe in warm water: it holds less oxygen."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: When salt dissolves, water molecules pull the ions out of the crystal. Each ion gets surrounded by water. This shell is called a **hydration shell**.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: A cold pack gets cold when ammonium nitrate dissolves, while caustic soda in water gets hot. Why?
+    params:
+      options:
+        - label: At the difference between the energy needed to break up the crystal and the energy released by the hydration shells
+          correct: true
+        - label: At the difference in water temperature
+          feedback: Both start with water of the same temperature.
+        - label: Ammonium nitrate is cold to begin with
+          feedback: It is at room temperature until it dissolves.
+    hints:
+      - "Dissolving has two steps: breaking the lattice and wrapping the ions."
+      - One step costs energy, the other releases some.
+    explanation: If breaking up costs more than the shells release, it gets cold. If the shells release more, it gets warm.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Salt water only freezes below 0 °C. Sugar does the same. What matters for this effect?
+    params:
+      options:
+        - label: On the number of dissolved particles, not on their kind
+          correct: true
+        - label: On the substance being salty
+          feedback: Sugar or alcohol lower the freezing point too.
+        - label: On the colour of the solution
+          feedback: Colour plays no part.
+    hints:
+      - Dissolved particles get in the way of water molecules forming the ice lattice.
+      - One NaCl splits into two ions, one sugar stays one particle.
+    explanation: "Such effects are called **colligative**: they depend only on the number of particles. So road salt works about twice as strongly per mole as sugar."
     difficulty: 3
 
 srs:

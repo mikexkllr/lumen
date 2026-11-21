@@ -5,7 +5,7 @@ summary: Ein Mol Gas, rund 24 Liter.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: sim
+    prompt: Das Volumen bleibt bei 5 L. Heize das Gas so auf, dass der Druck 150 kPa erreicht.
+    params:
+      scene: gas
+      controls:
+        volume:
+          value: 5
+          fixed: true
+    answer:
+      pressure:
+        - 148
+        - 152
+    explanation: "Bei festem Volumen wächst der Druck im selben Verhältnis wie die Temperatur in Kelvin: 450 K gibt das Anderthalbfache von 300 K."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Gas nimmt bei 100 kPa {{v}} L ein. Welches Volumen hat es bei {{100 * f}} kPa und gleicher Temperatur?
+    params:
+      unit: L
+    answer:
+      value: "{{v / f}}"
+    feedback:
+      - when: numval(state.input) == v * f
+        misconception: boyle-direction
+        text: Mehr Druck presst das Gas zusammen – das Volumen wird kleiner.
+    hints:
+      - p · V bleibt gleich.
+      - "{{f}}-facher Druck, ein {{f}}-tel des Volumens."
+    explanation: 100 · {{v}} = {{100 * f}} · V, also V = {{v / f}} L. Das ist das Gesetz von Boyle und Mariotte.
+    difficulty: 2
+    variants:
+      params:
+        v: step[6,24,6]
+        f: choice[2,3]
+      defaults:
+        v: 12
+        f: 3
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Eine verschlossene Chipstüte bläht sich auf der Fahrt in die Berge auf. Warum?
+    params:
+      options:
+        - label: Außen sinkt der Luftdruck, das Gas in der Tüte dehnt sich aus
+          correct: true
+        - label: Es wird oben wärmer
+          feedback: In den Bergen ist es eher kälter.
+        - label: Die Chips geben Gas ab
+          feedback: Die Gasmenge in der Tüte bleibt gleich.
+    hints:
+      - Was ändert sich mit der Höhe am meisten?
+      - Weniger Druck von außen – mehr Platz für das Gas.
+    explanation: Auf 2000 m ist der Luftdruck schon etwa ein Fünftel kleiner. Das Gas drückt die Tüte auseinander, bis innen und außen gleich ist.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -104,6 +167,52 @@ steps:
     hints:
       - "V = nRT : p = 8,314 · 300 : 100."
     explanation: 24,9 Liter – daher die Faustregel »rund 24 Liter pro Mol«.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: "Mit pV = nRT (R = 8,314): Welches Volumen hat 1 mol Gas bei 0 °C (273,15 K) und 101,325 kPa? Auf eine Nachkommastelle in Litern."
+    answer:
+      value: 22.4
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: celsius
+        text: Rechne in Kelvin, nicht in °C.
+    hints:
+      - "V = nRT : p."
+      - "8,314 · 273,15 : 101,325."
+    explanation: V ≈ 22,4 L – das molare Volumen unter Normbedingungen. Bei Raumtemperatur sind es die bekannten rund 24 L.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: sim
+    prompt: Heize den Kolben auf 600 K. Stell dann das Volumen so ein, dass der Druck trotzdem nur etwa 100 kPa beträgt.
+    params:
+      scene: gas
+    check:
+      predicate: temperature == 600 && pressure >= 97 && pressure <= 103
+    explanation: "Doppelte Temperatur bei gleichem Druck braucht doppeltes Volumen: rund 10 L statt 5 L. Das ist das Gesetz von Gay-Lussac."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: Auf dem Mount Everest beträgt der Luftdruck 33 kPa. Sauerstoff macht 21 % der Luft aus. Wie groß ist sein Teildruck dort? Auf eine Nachkommastelle.
+    params:
+      unit: kPa
+    answer:
+      value: 6.9
+      tolerance: 0.05
+    hints:
+      - Jedes Gas trägt seinen Anteil zum Gesamtdruck bei.
+      - Rechne 33 · 0,21.
+    explanation: 33 · 0,21 ≈ 6,9 kPa – ein Drittel des Werts am Meer. Die Lunge bekommt pro Atemzug viel weniger Sauerstoff.
     difficulty: 3
 
 srs:

@@ -5,8 +5,21 @@ summary: Dressing, Schorle, Granit.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Prozent von Kuhmilch sind Wasser?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 87
+      tolerance: 4
+    explanation: Rund 87 %. Der Rest sind Fett, Eiweiß, Milchzucker und Mineralstoffe – fein verteilt.
+
   - kind: problem
     id: art
     widget: buckets
@@ -52,6 +65,23 @@ steps:
       defaults: { v: 1000 }
 
   - kind: problem
+    id: ch-c1
+    widget: choice
+    prompt: Bei Orangensaft mit Fruchtfleisch steht »Vor Gebrauch schütteln«. Warum?
+    params:
+      options:
+        - label: Das Fruchtfleisch sinkt mit der Zeit nach unten
+          correct: true
+        - label: Der Saft wird sonst sauer
+          feedback: Schütteln ändert den Geschmack nicht.
+        - label: Damit sich der Zucker löst
+          feedback: Der Zucker ist längst gelöst.
+    hints:
+      - Fruchtstücke sind fest und schwerer als Saft.
+      - Feste Teilchen in Flüssigkeit setzen sich ab.
+    explanation: "Saft mit Fruchtfleisch ist eine **Suspension**: Feste Teilchen schweben nur, bis sie sich absetzen."
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -68,6 +98,62 @@ steps:
       - Ein Molekül mit einem wasserliebenden und einem fettliebenden Ende.
     explanation: Lecithin hält die **Emulsion** stabil – nach demselben Prinzip wie Seife.
     difficulty: 2
+
+  - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Lösung, Emulsion oder Suspension?
+    params:
+      buckets:
+        - id: b1
+          label: Lösung
+        - id: b2
+          label: Emulsion
+        - id: b3
+          label: Suspension
+      items:
+        - label: Salzwasser
+          bucket: b1
+        - label: Tee mit Zucker
+          bucket: b1
+        - label: Milch
+          bucket: b2
+        - label: Mayonnaise
+          bucket: b2
+        - label: Schlamm
+          bucket: b3
+        - label: Kakao mit Pulver am Boden
+          bucket: b3
+    hints:
+      - "Lösung: völlig klar. Emulsion: Tröpfchen. Suspension: feste Krümel."
+      - In Mayonnaise sind Öltröpfchen verteilt.
+    explanation: Lösungen setzen sich nie ab, Suspensionen schon. Emulsionen entmischen sich ohne Emulgator.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Dressing besteht aus 3 Teilen Öl und 1 Teil Essig. Wie viele Milliliter Öl brauchst du für {{v}} ml Dressing?
+    params:
+      unit: ml
+    answer:
+      value: "{{3 * v / 4}}"
+    feedback:
+      - when: numval(state.input) == v / 3
+        misconception: ratio-parts
+        text: Insgesamt sind es 4 Teile, nicht 3.
+    hints:
+      - 3 + 1 = 4 Teile insgesamt.
+      - Ein Teil sind {{v / 4}} ml.
+    explanation: "{{v}} : 4 · 3 = {{3 * v / 4}} ml Öl."
+    difficulty: 2
+    variants:
+      params:
+        v: step[80,400,40]
+      defaults:
+        v: 200
 
   - kind: problem
     id: x1
@@ -94,6 +180,49 @@ steps:
           - neu
           - new
       sample: In einem Gemisch liegen die Stoffe nur nebeneinander und lassen sich physikalisch trennen, etwa durch Filtern. In einer Verbindung sind die Atome chemisch gebunden und haben neue Eigenschaften.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Ein **Emulgator** hat ein wasserliebendes und ein fettliebendes Ende. Er setzt sich zwischen Öl und Wasser und hält die Tröpfchen getrennt. Im Eigelb ist das Lecithin.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Homogenisierte Milch bildet keine Rahmschicht mehr. Was wurde mit ihr gemacht?
+    params:
+      options:
+        - label: Die Fetttröpfchen wurden unter Hochdruck winzig klein zerteilt
+          correct: true
+        - label: Das Fett wurde entfernt
+          feedback: Dann wäre es Magermilch.
+        - label: Es wurde Zucker zugesetzt
+          feedback: Zucker hält Fett nicht in der Schwebe.
+    hints:
+      - Fett ist leichter als Wasser und steigt auf.
+      - Sehr kleine Tröpfchen steigen kaum noch.
+    explanation: Je kleiner ein Tröpfchen, desto langsamer steigt es. Homogenisieren zerteilt sie auf unter einen Mikrometer.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Luft ist ein Gemisch, Wasser eine Verbindung. Woran sieht man das?
+    params:
+      options:
+        - label: Luft lässt sich durch Verflüssigen und Destillieren trennen, Wasser nur durch eine Reaktion
+          correct: true
+        - label: Luft ist ein Gas, Wasser flüssig
+          feedback: Der Zustand verrät nicht, ob Gemisch oder Verbindung.
+        - label: Wasser enthält nur eine Atomsorte
+          feedback: Wasser enthält Wasserstoff und Sauerstoff.
+    hints:
+      - Bei einem Gemisch genügt ein physikalisches Verfahren.
+      - "Wasser zerlegt man mit Strom: Elektrolyse."
+    explanation: Flüssige Luft trennt sich beim Destillieren in Stickstoff und Sauerstoff. Wasser bleibt beim Sieden Wasser.
     difficulty: 3
 
 srs:

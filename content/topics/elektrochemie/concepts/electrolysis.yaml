@@ -1,0 +1,187 @@
+id: chem.electrochem.electrolysis
+type: concept
+title: "Elektrolyse in der Industrie"
+summary: "Faraday rechnet, Aluminium entsteht, Metalle glänzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Strom fließt durch eine moderne Zelle zur Aluminium-Herstellung?"
+    params:
+      min: 1
+      max: 10000000
+      scale: log
+      unit: A
+    answer:
+      value: 400000
+      tolerance: 200000
+    explanation: Rund 300 000 bis 600 000 Ampere! Ein Wasserkocher braucht etwa 10 A. Aluminiumhütten stehen darum neben Kraftwerken.
+
+  - kind: explain
+    id: c1
+    body: Bei der Elektrolyse erzwingt eine Spannungsquelle die Redoxreaktion. Am Minuspol, der **Kathode**, werden Teilchen reduziert. Am Pluspol, der Anode, werden sie oxidiert.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Was entsteht an welchem Pol?
+    params:
+      buckets:
+        - id: b1
+          label: Kathode (Minuspol)
+        - id: b2
+          label: Anode (Pluspol)
+      items:
+        - label: Kupfer aus CuCl₂-Lösung
+          bucket: b1
+        - label: Wasserstoff aus Wasser
+          bucket: b1
+        - label: Natrium aus Salzschmelze
+          bucket: b1
+        - label: Chlor aus CuCl₂-Lösung
+          bucket: b2
+        - label: Sauerstoff aus Wasser
+          bucket: b2
+    hints:
+      - Positive Ionen wandern zum Minuspol und holen sich Elektronen.
+      - Negative Ionen geben am Pluspol Elektronen ab.
+    explanation: Metalle und Wasserstoff entstehen an der Kathode, Nichtmetalle wie Chlor und Sauerstoff an der Anode.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Strom von {{i}} A fließt {{h}} h durch Kupfersulfat-Lösung. Wie viel Gramm Kupfer (63,5 g/mol, Cu²⁺) scheiden sich ab? (F = 96 485 C/mol) Auf eine Nachkommastelle.
+    params:
+      unit: g
+    answer:
+      value: "{{i * h * 3600 * 63.5 / (2 * 96485)}}"
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - i * h * 3600 * 63.5 / 96485) < 0.1
+        misconception: charge-ignored
+        text: Jedes Cu²⁺ braucht zwei Elektronen – teile durch 2.
+    hints:
+      - Ladung Q = {{i}} A · {{3600 * h}} s.
+      - "Mol Kupfer = Q : (2 · 96 485). Dann mal 63,5."
+    explanation: Etwa {{round(10 * i * h * 3600 * 63.5 / (2 * 96485)) / 10}} g Kupfer. Masse und Ladung sind streng verhältnisgleich – das ist das Gesetz von Faraday.
+    variants:
+      params:
+        i: choice[1,2,5]
+        h: choice[1,2,3]
+      defaults:
+        i: 2
+        h: 1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Beim **Galvanisieren** wird ein Werkstück zur Kathode. Metall-Ionen aus der Lösung scheiden sich als hauchdünne Schicht darauf ab – so entstehen Chrom-Armaturen und versilbertes Besteck.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Löffel mit 100 cm² Fläche bekommt 10 µm Silber (Dichte 10,5 g/cm³). Wie viel Gramm Silber sind das?
+    params:
+      unit: g
+    answer:
+      value: 1.05
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 1050) < 1
+        misconception: unit
+        text: 10 µm sind 0,001 cm, nicht 10 cm.
+    hints:
+      - Volumen = 100 cm² · 0,001 cm.
+      - 0,1 cm³ · 10,5 g/cm³.
+    explanation: Gut 1 g Silber genügt für einen Löffel. Dafür fließen rund 940 Coulomb – bei 1 A eine gute Viertelstunde.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Aluminiumoxid schmilzt erst bei 2050 °C. Warum löst man es für die Elektrolyse in geschmolzenem Kryolith?
+    params:
+      options:
+        - label: Die Schmelze ist schon bei rund 950 °C flüssig – das spart enorm Energie
+          correct: true
+        - label: Kryolith liefert das Aluminium
+          feedback: Das Aluminium stammt aus dem Oxid.
+        - label: In Wasser ginge es auch
+          feedback: In Wasser entstünde an der Kathode nur Wasserstoff.
+    hints:
+      - Ein Gemisch schmilzt oft tiefer als die reinen Stoffe.
+      - Ohne Schmelze können die Ionen nicht wandern.
+    explanation: Das Hall-Héroult-Verfahren von 1886 machte Aluminium billig. Vorher war es teurer als Silber.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Die Kohle-Anode verbrennt mit: 2 Al₂O₃ + 3 C → 4 Al + 3 CO₂. Wie viel kg Kohlenstoff (12 g/mol) verbraucht 1 kg Aluminium (27 g/mol) mindestens? Auf zwei Nachkommastellen."
+    params:
+      unit: kg
+    answer:
+      value: 0.33
+      tolerance: 0.005
+    hints:
+      - Für 4 Al braucht man 3 C.
+      - "(3 · 12) : (4 · 27)."
+    explanation: "36 : 108 ≈ 0,33 kg. In der Praxis sind es gut 0,4 kg – und dazu kommen rund 1,5 kg CO₂ pro kg Aluminium."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: 1 kg Aluminium braucht 111 mol Elektronen. Die Zelle läuft mit 4,2 V. Wie viele kWh kostet 1 kg Aluminium? (F = 96 485 C/mol, 1 kWh = 3,6 · 10⁶ J) Auf eine Nachkommastelle.
+    params:
+      unit: kWh
+    answer:
+      value: 12.5
+      tolerance: 0.1
+    hints:
+      - Energie = Ladung · Spannung = 111 · 96 485 · 4,2 J.
+      - Das sind etwa 4,5 · 10⁷ J. Teile durch 3,6 · 10⁶.
+    explanation: Etwa 12,5 kWh – so viel wie ein Kühlschrank in zwei Monaten. Darum lohnt sich Recycling so sehr.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was bei einer Elektrolyse an den beiden Polen passiert.
+    params:
+      keywords:
+        - - minus
+          - kathode
+          - cathode
+          - negativ
+          - negative
+        - - plus
+          - anode
+          - positiv
+          - positive
+        - - redu
+          - oxid
+          - elektron
+          - electron
+        - - erzwing
+          - spannung
+          - strom
+          - force
+          - voltage
+          - current
+      sample: Eine Spannungsquelle erzwingt die Reaktion. Am Minuspol, der Kathode, nehmen Ionen Elektronen auf und werden reduziert. Am Pluspol, der Anode, geben Teilchen Elektronen ab und werden oxidiert.
+    explanation: Elektrolyse ist eine Batterie, die man rückwärts antreibt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

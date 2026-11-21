@@ -5,7 +5,7 @@ summary: Wie viel kommt heraus?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -72,6 +72,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: order
+    prompt: Ordne die Schritte, mit denen man ausrechnet, wie viel Produkt entsteht.
+    params:
+      items:
+        - label: Gleichung aufstellen und ausgleichen
+        - label: Gegebene Masse in Mol umrechnen
+        - label: Mit dem Verhältnis aus der Gleichung umrechnen
+        - label: Mol des Produkts in Gramm umrechnen
+    hints:
+      - Rechnen kann man nur mit einer ausgeglichenen Gleichung.
+      - Die Gleichung spricht in Mol, die Waage in Gramm.
+    explanation: Gramm → Mol → Mol → Gramm. Dieser Weg funktioniert für jede Reaktion.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: 2 H₂ + O₂ → 2 H₂O. Du hast {{a}} mol H₂ und {{b}} mol O₂. Wie viel Mol Wasser entstehen höchstens?
+    params:
+      unit: mol
+    answer:
+      value: "{{min(a, 2 * b)}}"
+    feedback:
+      - when: numval(state.input) == max(a, 2 * b)
+        misconception: limiting-reagent
+        text: Der Stoff, der zuerst aufgebraucht ist, begrenzt die Reaktion.
+    hints:
+      - "{{a}} mol H₂ reichen für {{a}} mol Wasser, {{b}} mol O₂ für {{2 * b}} mol."
+      - Der kleinere Wert zählt.
+    explanation: Höchstens {{min(a, 2 * b)}} mol Wasser. Vom anderen Stoff bleibt ein Rest übrig.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,10]
+        b: int[1,6]
+      constraints:
+        - a != 2 * b
+      defaults:
+        a: 6
+        b: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: 2 H₂ + O₂ → 2 H₂O. Wie viel Gramm Wasser entstehen aus {{m}} g Wasserstoff?
+    params:
+      unit: g
+    answer:
+      value: "{{9 * m}}"
+    feedback:
+      - when: numval(state.input) == m
+        misconception: mass-ignored
+        text: Der Sauerstoff kommt mit seiner Masse dazu.
+    hints:
+      - "{{m}} g H₂ sind {{m / 2}} mol, daraus werden {{m / 2}} mol H₂O."
+      - Ein Mol Wasser wiegt 18 g.
+    explanation: "{{m / 2}} mol · 18 g/mol = {{9 * m}} g. Wasser wiegt neunmal so viel wie der Wasserstoff darin."
+    difficulty: 2
+    variants:
+      params:
+        m: int[1,10]
+      defaults:
+        m: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -83,6 +152,101 @@ steps:
     hints:
       - 3 mol H₂ reichen nur für 1 mol N₂.
     explanation: Der Wasserstoff ist der **begrenzende Reaktant**. 1 mol N₂ bleibt übrig.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Theoretisch könnten {{t}} g Produkt entstehen, du erhältst {{e}} g. Wie viel Prozent beträgt die Ausbeute?
+    params:
+      unit: "%"
+    answer:
+      value: "{{p}}"
+      tolerance: 0.01
+    hints:
+      - "Ausbeute = erhalten : möglich · 100."
+      - "Rechne {{e}} : {{t}} · 100."
+    explanation: "{{e}} : {{t}} = {{p / 100}}, also {{p}} %. Verluste entstehen durch Nebenreaktionen, Gleichgewichte und beim Reinigen."
+    difficulty: 3
+    variants:
+      params:
+        t: choice[40,80,200]
+        p: step[50,95,5]
+      derive:
+        e: t * p / 100
+      defaults:
+        t: 80
+        p: 75
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: N₂ + 3 H₂ → 2 NH₃. Wie viel Kilogramm Ammoniak (17 g/mol) entstehen höchstens aus 28 kg Stickstoff (28 g/mol)?
+    params:
+      unit: kg
+    answer:
+      value: 34
+    feedback:
+      - when: numval(state.input) == 17
+        misconception: coefficient-ignored
+        text: Aus einem N₂ entstehen zwei NH₃.
+    hints:
+      - 28 kg N₂ sind 1 kmol.
+      - Daraus werden 2 kmol NH₃.
+    explanation: 2 kmol · 17 kg/kmol = 34 kg. Der Wasserstoff liefert die restlichen 6 kg.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: 2 Mg + O₂ → 2 MgO. Du verbrennst {{m}} g Magnesium (24 g/mol). Wie viel wiegt das Magnesiumoxid (40 g/mol)?
+    params:
+      unit: g
+    answer:
+      value: "{{20 * k}}"
+    feedback:
+      - when: numval(state.input) == m
+        misconception: mass-ignored
+        text: Die Asche wiegt mehr – der Sauerstoff ist jetzt eingebaut.
+    hints:
+      - "{{m}} g Mg sind {{m / 24}} mol."
+      - Gleich viel Mol MgO, je 40 g.
+    explanation: "{{m / 24}} mol · 40 g/mol = {{20 * k}} g. Verbranntes Metall wird schwerer – das brachte Lavoisier auf den Sauerstoff."
+    difficulty: 3
+    variants:
+      params:
+        k: int[1,6]
+      derive:
+        m: 12 * k
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man aus einer Reaktionsgleichung ausrechnet, wie viel Produkt entsteht.
+    params:
+      keywords:
+        - - mol
+          - stoffmenge
+          - amount
+        - - verhältnis
+          - faktor
+          - koeffizient
+          - ratio
+          - coefficient
+        - - masse
+          - gramm
+          - mass
+          - gram
+          - molare
+          - molar
+      sample: Man rechnet die Masse des Ausgangsstoffs mit der molaren Masse in Mol um. Die Zahlen in der Gleichung geben das Verhältnis der Stoffmengen. Mit der molaren Masse des Produkts rechnet man zurück in Gramm.
+    explanation: Die Gleichung zählt Teilchen in Mol – Gramm braucht man nur am Anfang und am Ende.
     difficulty: 3
 
 srs:

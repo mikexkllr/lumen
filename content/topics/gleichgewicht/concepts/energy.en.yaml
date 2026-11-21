@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: c1
@@ -105,6 +105,63 @@ steps:
     explanation: An easier path, the same balance. Forward and reverse reaction both get faster.
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: "The heat a reaction gives off or takes in at constant pressure is called the **enthalpy** ΔH. If it gives off heat, ΔH is negative: the system loses energy to its surroundings."
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Is ΔH negative or positive?
+    params:
+      buckets:
+        - id: b1
+          label: ΔH < 0 (exothermic)
+        - id: b2
+          label: ΔH > 0 (endothermic)
+      items:
+        - label: Wood burns
+          bucket: b1
+        - label: Oxyhydrogen explodes
+          bucket: b1
+        - label: Acid meets base
+          bucket: b1
+        - label: Ice melts
+          bucket: b2
+        - label: Photosynthesis
+          bucket: b2
+        - label: Limestone is burnt to quicklime
+          bucket: b2
+    hints:
+      - If it gets warm, ΔH is negative.
+      - Melting and lime burning constantly need heat.
+    explanation: "The sign counts from the reaction's point of view: what it gives away is minus."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: "Hess's law: C + O₂ → CO₂ has ΔH = −394 kJ. CO + ½ O₂ → CO₂ has ΔH = −283 kJ. What is ΔH for C + ½ O₂ → CO?"
+    params:
+      unit: kJ
+    answer:
+      value: -111
+    feedback:
+      - when: numval(state.input) == 111
+        misconception: sign
+        text: "Mind the sign: forming CO also releases heat."
+      - when: numval(state.input) == -677
+        misconception: hess-reverse
+        text: The second reaction must be reversed – and its sign too.
+    hints:
+      - "Route 1: C straight to CO₂. Route 2: first to CO, then to CO₂."
+      - "Both routes give −394 kJ in total: x + (−283) = −394."
+    explanation: x = −394 + 283 = −111 kJ. The energy depends only on start and finish, not on the route.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -159,6 +216,66 @@ steps:
           - kalt
           - cold
       sample: If a reaction gives off energy, it gets warm. That is exothermic. If it takes in energy, it gets cold. That is endothermic.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Whether a reaction runs by itself is decided by the **Gibbs free energy**: $\\Delta G = \\Delta H - T \\cdot \\Delta S$. If ΔG is negative, it runs spontaneously. Releasing heat and creating disorder both help."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ammonium nitrate dissolves in water: ΔH = +25.7 kJ/mol, ΔS = +0.1087 kJ/(mol·K). What is ΔG at 298 K? Give one decimal place."
+    answer:
+      value: -6.7
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 58.1) < 0.2
+        misconception: gibbs-sign
+        text: Minus T times ΔS – not plus.
+    hints:
+      - T · ΔS = 298 · 0.1087 ≈ 32.4 kJ/mol.
+      - ΔG = 25.7 − 32.4.
+    explanation: "ΔG ≈ −6.7 kJ/mol: it dissolves spontaneously even though it absorbs heat. Entropy wins – that is how the cold pack works."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: "Limestone breaks down: CaCO₃ → CaO + CO₂ with ΔH = +178 kJ/mol and ΔS = +0.161 kJ/(mol·K). Above what temperature does ΔG turn negative? Round to whole kelvin."
+    params:
+      unit: K
+    answer:
+      value: 1106
+      tolerance: 3
+    hints:
+      - At the threshold ΔG = 0, so ΔH = T · ΔS.
+      - T = 178 ÷ 0.161.
+    explanation: T ≈ 1106 K, so just over 830 °C. That is why lime kilns run at about 900 °C.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: match
+    prompt: ΔG = ΔH − T·ΔS. When does the reaction run by itself?
+    params:
+      pairs:
+        - left: ΔH < 0 and ΔS > 0
+          right: always
+        - left: ΔH > 0 and ΔS < 0
+          right: never
+        - left: ΔH < 0 and ΔS < 0
+          right: only at low temperature
+        - left: ΔH > 0 and ΔS > 0
+          right: only at high temperature
+    hints:
+      - The higher T, the more the entropy term counts.
+      - "Water freezes: ΔH < 0, ΔS < 0 – only in the cold."
+    explanation: Temperature weights the entropy. That is why some reactions reverse when heated.
     difficulty: 3
 
 srs:

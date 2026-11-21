@@ -5,7 +5,7 @@ summary: Measuring the amount of acid.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -82,6 +82,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: order
+    prompt: Put the steps of a titration in order.
+    params:
+      items:
+        - label: Measure the acid exactly and add indicator
+        - label: Fill the burette with base and read the level
+        - label: Add base drop by drop and swirl
+        - label: Stop as soon as the colour changes
+        - label: Read off the volume used and calculate
+    hints:
+      - Prepare first, then add drops.
+      - You can only calculate once you know the volume used.
+    explanation: "The colour change marks the equivalence point: exactly as much base has been added as there was acid."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: 10 ml of sulfuric acid H₂SO₄ need {{w}} ml of 0.1 mol/L caustic soda. What is the concentration of the sulfuric acid?
+    params:
+      unit: mol/L
+    answer:
+      value: "{{0.005 * w}}"
+      tolerance: 0.0001
+    feedback:
+      - when: abs(numval(state.input) - 0.01 * w) < 0.0001
+        misconception: diprotic-ignored
+        text: H₂SO₄ gives up two H⁺ – halve the result.
+    hints:
+      - "Base used: {{w}} ml · 0.1 mol/L = {{0.1 * w}} mmol OH⁻."
+      - Each H₂SO₄ takes two OH⁻. Then divide by 10 ml.
+    explanation: "{{0.1 * w}} mmol OH⁻ ÷ 2 = {{0.05 * w}} mmol of H₂SO₄ in 10 ml, so {{0.005 * w}} mol/L."
+    difficulty: 2
+    variants:
+      params:
+        w: step[10,40,10]
+      defaults:
+        w: 20
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Phenolphthalein is colourless in acid and turns pink above pH 8.2. You titrate hydrochloric acid with caustic soda. What do you see at the end?
+    params:
+      options:
+        - label: One single extra drop turns the solution pink
+          correct: true
+        - label: The solution slowly turns pinker and pinker
+          feedback: At the equivalence point the pH jumps very steeply.
+        - label: It turns pink before everything is neutralised
+          feedback: It stays colourless up to pH 8.2.
+    hints:
+      - Near the equivalence point the pH jumps several steps.
+      - Only one drop separates pH 7 from pH 8.2.
+    explanation: The jump is so steep that the indicator need not change at exactly 7. The error stays smaller than one drop.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +159,78 @@ steps:
     hints:
       - From pH 3 to pH 4 you use up 90% of the remaining acid. And from 6 to 7?
     explanation: Each pH step needs only a tenth of the alkali of the previous one. Hence the steep **titration curve**.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: You titrate acetic acid with caustic soda. At what pH is the equivalence point?
+    params:
+      options:
+        - label: Above 7, at about 8.7
+          correct: true
+        - label: Exactly at 7
+          feedback: Then only sodium acetate is present – and that is basic.
+        - label: Below 7
+          feedback: There is no acid left.
+    hints:
+      - At the equivalence point all the acetic acid has become acetate.
+      - Acetate is a weak base.
+    explanation: For weak acids the equivalence point is basic. So phenolphthalein suits this better than an indicator that changes at 5.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: At the **half-equivalence point**, half of the weak acid has turned into its base. Then both are present in equal amounts – and pH = pKa. This is how pKa values are measured.
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: For an unknown weak acid you add half the base needed to reach equivalence. There the meter shows pH {{p}}. What is the acid's pKa?
+    answer:
+      value: "{{p}}"
+      tolerance: 0.01
+    hints:
+      - "Half converted means: equal amounts of acid and base."
+      - Then the pH equals the pKa.
+    explanation: pKa = {{p}}. The half-equivalence point lies in the middle of the flat buffer zone of the curve.
+    difficulty: 3
+    variants:
+      params:
+        p: choice[3.8,4.2,4.8,6.4]
+      defaults:
+        p: 4.8
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a titration tells you how much acid is in a sample.
+    params:
+      keywords:
+        - - lauge
+          - base
+          - natronlauge
+          - naoh
+        - - indikator
+          - indicator
+          - farb
+          - colo
+        - - volumen
+          - verbrauch
+          - menge
+          - volume
+          - amount
+          - ml
+        - - konzentration
+          - concentration
+          - rechn
+          - calculat
+      sample: You drip base of known concentration into the acid until the indicator changes colour. From the volume used and the concentration you calculate the amount of acid.
+    explanation: "At the colour change: amount of H⁺ equals amount of OH⁻."
     difficulty: 3
 
 srs:
