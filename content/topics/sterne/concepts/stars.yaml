@@ -1,0 +1,190 @@
+id: sci.astro.stars
+type: concept
+title: "Wie Sterne leben"
+summary: "Fusion im Kern, Gleichgewicht der Kräfte und warum schwere Sterne früh sterben."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Milliarden Jahre leuchtet die Sonne insgesamt als ruhiger Stern?"
+    params:
+      min: 0.1
+      max: 1000
+      scale: log
+    answer:
+      value: 10
+      within: 30
+    explanation: Rund 10 Milliarden Jahre. Knapp die Hälfte ist um – die Sonne ist 4,6 Milliarden Jahre alt.
+
+  - kind: explain
+    id: c1
+    body: Im Kern eines Sterns verschmelzen Wasserstoffkerne zu Helium. Diese **Kernfusion** liefert die Energie. Der heiße Gasdruck hält gegen die Schwerkraft, die den Stern zusammendrücken will.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring das Leben eines sonnenähnlichen Sterns in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Gaswolke zieht sich zusammen
+        - label: Protostern heizt sich auf
+        - label: "Hauptreihe: Wasserstoff brennt"
+        - label: Roter Riese bläht sich auf
+        - label: Hülle wird abgestoßen
+        - label: Weißer Zwerg kühlt aus
+    hints:
+      - Am Anfang steht Gas, am Ende ein heißer Rest.
+      - Erst wenn der Wasserstoff im Kern knapp wird, bläht sich der Stern auf.
+    explanation: Den Großteil seines Lebens verbringt ein Stern auf der Hauptreihe. Die Sonne wird in 5 Milliarden Jahren zum Roten Riesen und endet als Weißer Zwerg.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum stürzt ein Stern nicht unter seiner eigenen gewaltigen Schwerkraft zusammen?
+    params:
+      options:
+        - label: Der Druck des heißen Gases drückt genauso stark nach außen.
+          correct: true
+        - label: Weil er sich schnell dreht.
+          feedback: Die Sonne dreht sich langsam, fast einmal im Monat. Es ist der Gasdruck.
+        - label: Weil Sterne fest sind.
+          feedback: Sterne sind Gaskugeln. Sie werden vom Druck getragen.
+    hints:
+      - Zwei Kräfte stehen im Gleichgewicht.
+      - Fusion hält das Gas heiß.
+    explanation: Schwerkraft drückt, heißes Gas drückt zurück. Endet die Fusion, gewinnt die Schwerkraft – dann schrumpft der Kern.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Die Sonne ist 4,6 Milliarden Jahre alt und bleibt etwa 10 Milliarden Jahre auf der Hauptreihe. Wie viel Prozent dieser Zeit sind vorbei?
+    params:
+      unit: "%"
+    answer:
+      value: 46
+    hints:
+      - Teil durch Ganzes.
+      - "4,6 : 10 = ?"
+    explanation: 46 %. Die Sonne ist ein Stern im besten Alter.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Schwere Sterne haben mehr Brennstoff, leuchten aber viel heller: Die Leuchtkraft wächst etwa mit $M^{3,5}$. Darum sinkt die **Lebensdauer** mit der Masse: $t \\approx 10^{10}\\,\\text{Jahre} \\cdot M^{-2,5}$, M in Sonnenmassen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Millionen Jahre lebt ein Stern mit {{m}} Sonnenmassen? Rechne t = 10 000 Millionen Jahre · M hoch (−2,5). Auf eine Stelle.
+    params:
+      unit: Mio. Jahre
+    answer:
+      value: "{{10000 / (m * m * sqrt(m))}}"
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 10000 / m) < 1
+        misconception: linear-lifetime
+        text: "Mehr Brennstoff allein würde t ∝ M ergeben. Die viel höhere Leuchtkraft zählt mit: M hoch (−2,5)."
+    hints:
+      - M hoch 2,5 = M² · √M.
+      - "10 000 : ({{m * m}} · {{sqrt(m)}}) = ?"
+    explanation: t ≈ {{10000 / (m * m * sqrt(m))}} Millionen Jahre. Die Dinosaurier lebten länger, als manche Riesensterne existieren.
+    difficulty: 2
+    variants:
+      params:
+        m: choice[4,9,16]
+      defaults:
+        m: 4
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Warum leben schwere Sterne kürzer, obwohl sie viel mehr Brennstoff haben?
+    params:
+      options:
+        - label: Ihr Kern ist heißer und dichter – sie verbrennen den Brennstoff viel schneller.
+          correct: true
+        - label: Sie haben weniger Wasserstoff.
+          feedback: Sie haben mehr Wasserstoff. Entscheidend ist das Tempo.
+        - label: Sie werden von Nachbarn gestört.
+          feedback: Auch einzelne schwere Sterne leben kurz. Es liegt am Inneren.
+    hints:
+      - Mehr Masse, mehr Schwerkraft, mehr Druck im Kern.
+      - Fusion läuft bei höherer Temperatur viel schneller.
+    explanation: Um gegen die stärkere Schwerkraft zu halten, braucht der Kern mehr Druck und Hitze – die Fusion läuft dann rasend schnell. Ein Stern mit 20 Sonnenmassen lebt nur wenige Millionen Jahre.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Verschmelzen 4 Wasserstoffkerne zu Helium, werden 0,7 % ihrer Masse zu Energie. Wie viel Energie liefert 1 kg Wasserstoff? E = mc², c = 3 · 10⁸ m/s. In 10¹⁴ J, auf eine Stelle.
+    answer:
+      value: 6.3
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 900) < 1
+        misconception: full-mass
+        text: Nur 0,7 % der Masse werden umgewandelt, nicht das ganze Kilogramm.
+    hints:
+      - Δm = 0,007 kg.
+      - 0,007 · 9 · 10¹⁶ = ?
+    explanation: 6,3 · 10¹⁴ J – so viel wie 20 000 Tonnen Kohle aus einem einzigen Kilogramm.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Photon, das im Sonnenkern entsteht, braucht Zehntausende Jahre bis zur Oberfläche. Warum so lange, wenn Licht so schnell ist?
+    params:
+      options:
+        - label: Es wird im dichten Gas ständig gestreut und irrt im Zickzack nach außen.
+          correct: true
+        - label: Im Inneren ist Licht viel langsamer als c.
+          feedback: Zwischen den Stößen fliegt es mit c. Das Problem sind die unzähligen Richtungswechsel.
+        - label: Die Schwerkraft hält es fest.
+          feedback: Die Schwerkraft der Sonne bremst Licht nicht merklich.
+    hints:
+      - Wie weit kommt ein Photon im Kern, bevor es auf ein Teilchen trifft?
+      - Bei einer Irrfahrt wächst der Abstand nur mit der Wurzel der Schrittzahl.
+    explanation: "Zwischen zwei Stößen schafft es nur Millimeter. Bei einer Irrfahrt braucht man für die Strecke R etwa (R : Schritt)² Schritte – unvorstellbar viele. Danach braucht es nur noch 8 Minuten zu uns."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wovon ein Stern lebt und warum er irgendwann stirbt.
+    params:
+      keywords:
+        - - fusion
+          - verschmelz
+          - fuse
+          - wasserstoff
+          - hydrogen
+        - - schwerkraft
+          - gravity
+          - druck
+          - pressure
+          - gleichgewicht
+          - balance
+        - - brennstoff
+          - fuel
+          - aus
+          - runs out
+          - verbraucht
+          - used up
+          - end
+      sample: Im Kern verschmelzen Wasserstoffkerne zu Helium und setzen Energie frei. Der heiße Gasdruck hält gegen die Schwerkraft. Ist der Brennstoff im Kern verbraucht, fehlt der Druck – der Kern stürzt zusammen und der Stern stirbt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

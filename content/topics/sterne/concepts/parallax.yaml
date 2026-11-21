@@ -1,0 +1,188 @@
+id: sci.astro.parallax
+type: concept
+title: "Lichtjahre und Parallaxe"
+summary: "Mit der Erdbahn als Messlatte zu den Sternen – und weiter mit Standardkerzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Halte einen Daumen vor dein Gesicht und schließ abwechselnd das linke und das rechte Auge. Was passiert?
+    params:
+      options:
+        - label: Der Daumen springt vor dem Hintergrund hin und her.
+          correct: true
+        - label: Nichts – der Daumen bleibt, wo er ist.
+          feedback: Probier es aus! Jedes Auge sieht von einem anderen Ort.
+        - label: Der Hintergrund springt mehr als der Daumen.
+          feedback: Nahe Dinge springen stärker als ferne.
+    hints:
+      - Deine Augen sind ein paar Zentimeter auseinander.
+      - Je näher der Daumen, desto größer der Sprung.
+    explanation: Dieser Sprung heißt **Parallaxe**. Je größer der Abstand der Augen und je näher das Ding, desto stärker springt es.
+
+  - kind: explain
+    id: c1
+    body: Astronomen nutzen die Erdbahn als riesigen Augenabstand. Im Abstand eines halben Jahres scheint ein naher Stern vor den fernen Sternen zu wandern. Aus diesem Winkel, der **Parallaxe**, folgt seine Entfernung.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Ein Stern hat eine Parallaxe von {{p}} Bogensekunden. Seine Entfernung in Parsec ist 1 : Parallaxe. Wie weit ist er weg?"
+    params:
+      unit: pc
+    answer:
+      value: "{{1 / p}}"
+    feedback:
+      - when: abs(numval(state.input) - p) < 0.001
+        misconception: not-reciprocal
+        text: Kleiner Winkel heißt **große** Entfernung. Bilde den Kehrwert.
+    hints:
+      - "d = 1 : p."
+      - "1 : {{p}} = ?"
+    explanation: "d = 1 : {{p}} = {{1 / p}} pc. Halbe Parallaxe heißt doppelte Entfernung."
+    variants:
+      params:
+        p: choice[0.1,0.2,0.5]
+      defaults:
+        p: 0.2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: 1 Parsec sind 3,26 Lichtjahre. Proxima Centauri ist 1,30 pc entfernt. Wie viele Lichtjahre sind das? Auf zwei Stellen.
+    params:
+      unit: Lj
+    answer:
+      value: 4.24
+      tolerance: 0.02
+    hints:
+      - Parsec mal 3,26.
+      - 1,30 · 3,26 = ?
+    explanation: Rund 4,24 Lichtjahre – der nächste Stern nach der Sonne. Selbst seine Parallaxe ist kleiner als eine Bogensekunde.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum kann man ferne Galaxien nicht mit der Parallaxe vermessen?
+    params:
+      options:
+        - label: Ihr Winkel wäre viel zu klein, um ihn zu messen.
+          correct: true
+        - label: Galaxien bewegen sich zu schnell.
+          feedback: Die Bewegung stört nicht. Das Problem ist die riesige Entfernung.
+        - label: Galaxien leuchten zu schwach.
+          feedback: Helle Galaxien sieht man gut. Ihr Winkel bleibt trotzdem winzig.
+    hints:
+      - Je weiter weg, desto kleiner die Parallaxe.
+      - Andromeda ist eine Million Mal weiter weg als Proxima.
+    explanation: "Für die Andromeda-Galaxie wäre die Parallaxe etwa eine millionstel Bogensekunde. Dafür braucht man andere Methoden: Standardkerzen."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Eine Bogensekunde ist 1/3600 Grad, also 1/206 265 Radiant. Ein Stern im Abstand d sieht den Erdbahnradius unter dem Winkel p: $p = \\frac{1\\,\\text{AE}}{d}$. Bei p = 1″ ist d genau ein **Parsec**."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Parsec ist die Entfernung, aus der 1 AE unter 1/206 265 Radiant erscheint. Wie viele AE ist 1 Parsec?
+    params:
+      unit: AE
+    answer:
+      value: 206265
+      tolerance: 1
+    hints:
+      - "Kleiner Winkel: Winkel = Basis : Entfernung."
+      - "Entfernung = 1 AE : (1/206 265)."
+    explanation: 206 265 AE – rund 31 Billionen km. Die Einheit ist direkt aus der Messmethode gebaut.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Der Satellit Gaia misst noch Parallaxen von 0,0002″ zuverlässig. Wie viele Lichtjahre entfernt ist ein Stern mit dieser Parallaxe? 1 pc = 3,26 Lj. Auf Hunderter.
+    params:
+      unit: Lj
+    answer:
+      value: 16300
+      tolerance: 100
+    hints:
+      - "1 : 0,0002 = 5000 pc."
+      - 5000 · 3,26 = ?
+    explanation: Etwa 16 300 Lichtjahre – ein großer Teil unserer Milchstraße. Gaia hat so über eine Milliarde Sterne vermessen.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Weiter hinaus helfen **Standardkerzen**: Objekte, deren wahre Leuchtkraft man kennt. Ihre scheinbare Helligkeit fällt mit dem Quadrat der Entfernung. Aus dem Vergleich folgt die Entfernung."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Zwei Sterne leuchten in Wahrheit gleich stark. Der zweite erscheint 100-mal schwächer. Wievielmal weiter weg ist er?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: not-root
+        text: Die Helligkeit fällt mit dem **Quadrat** der Entfernung. Zieh die Wurzel.
+    hints:
+      - "Helligkeit ∝ 1 : d²."
+      - √100 = ?
+    explanation: Zehnmal so weit. Mit Cepheiden und Supernovae vom Typ Ia misst man so Entfernungen bis zu Milliarden Lichtjahren.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: "Henrietta Leavitt fand 1912: Je heller ein Cepheid-Stern wirklich ist, desto langsamer pulsiert er. Wozu ist das so wertvoll?"
+    params:
+      options:
+        - label: Aus der Periode folgt die wahre Leuchtkraft – und aus dem Vergleich mit der Helligkeit die Entfernung.
+          correct: true
+        - label: Man kann damit das Alter des Sterns ablesen.
+          feedback: Das Alter folgt nicht direkt. Es geht um die Leuchtkraft.
+        - label: Cepheiden zeigen, ob ein Planet um sie kreist.
+          feedback: Planeten sucht man anders. Cepheiden dienen als Messlatte.
+    hints:
+      - Die Periode kann man leicht messen – auch sehr weit weg.
+      - Wer die wahre Leuchtkraft kennt, hat eine Standardkerze.
+    explanation: Mit Leavitts Gesetz zeigte Hubble 1924, dass Andromeda weit außerhalb der Milchstraße liegt. Plötzlich war das Universum voller Galaxien.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man die Entfernung zu einem nahen Stern misst.
+    params:
+      keywords:
+        - - parallax
+          - winkel
+          - angle
+        - - erdbahn
+          - orbit
+          - halbjahr
+          - half a year
+          - sonne
+          - sun
+        - - verschieb
+          - shift
+          - wander
+          - hintergrund
+          - background
+      sample: Man fotografiert den Stern im Abstand eines halben Jahres, von zwei Seiten der Erdbahn aus. Er scheint sich vor dem Hintergrund zu verschieben. Aus diesem kleinen Winkel und dem Erdbahnradius rechnet man die Entfernung aus.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "x2"]
