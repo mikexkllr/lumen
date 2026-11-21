@@ -5,7 +5,7 @@ summary: Warum Neon rot leuchtet.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "Im Wasserstoff liegt Stufe n bei −13,6 eV : n². Wie viel Energie braucht ein Elektron auf Stufe {{n}}, um das Atom ganz zu verlassen – in eV?"
+    params:
+      unit: eV
+    answer:
+      value: "{{13.6 / (n * n)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 13.6 / n) < 0.01
+        misconception: not-squared
+        text: "n steht im Quadrat: Teile durch {{n * n}}."
+    hints:
+      - Ganz frei heißt Energie 0.
+      - "Der Abstand von −13,6 : {{n * n}} bis 0."
+    explanation: "13,6 : {{n * n}} = {{13.6 / (n * n)}} eV. Je höher die Stufe, desto lockerer sitzt das Elektron."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[2,3,4]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Beim Sprung von n = 3 auf n = 2 entsteht ein Photon mit 1,89 eV. Welche Wellenlänge hat es? Nutze λ in nm = 1240 : E in eV."
+    params:
+      unit: nm
+    answer:
+      value: 656
+      tolerance: 3
+    hints:
+      - "1240 : 1,89 = ?"
+      - Das Ergebnis liegt im sichtbaren Bereich.
+    explanation: 656 nm – das rote Licht des Wasserstoffs. Astronomen sehen es überall, wo Gaswolken leuchten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +148,50 @@ steps:
     hints:
       - Ein enger eingesperrtes Elektron hat nach der Unschärferelation mehr Bewegungsenergie.
     explanation: Der **Grundzustand** ist der Kompromiss aus Anziehung und Unschärfe. Er macht Atome stabil – und Materie fest.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Im **Bohrschen Atommodell** ist der Drehimpuls gequantelt: $m v r = n \\hbar$. Zusammen mit der elektrischen Anziehung folgen Radien $r_n = n^2 \\cdot 0{,}053$ nm und Energien $E_n = -13{,}6\\,\\text{eV} / n^2$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie groß ist nach Bohr der Radius der Bahn n = 3 im Wasserstoff – in nm? Auf drei Stellen.
+    params:
+      unit: nm
+    answer:
+      value: 0.477
+      tolerance: 0.005
+    feedback:
+      - when: abs(numval(state.input) - 0.159) < 0.005
+        misconception: linear-n
+        text: Der Radius wächst mit n², nicht mit n.
+    hints:
+      - r₃ = 3² · 0,053 nm.
+      - 9 · 0,053 = ?
+    explanation: 9 · 0,053 ≈ 0,477 nm. Das Modell stimmt für Wasserstoff erstaunlich gut. Die Quantenmechanik ersetzt die Bahnen später durch Wolken aus Wahrscheinlichkeit.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: Ein Textmarker leuchtet unter UV-Licht hell gelbgrün – also in einer anderen Farbe als das UV. Wie geht das?
+    params:
+      options:
+        - label: Er schluckt energiereiche UV-Photonen und gibt die Energie in kleineren Portionen wieder ab.
+          correct: true
+        - label: Er spiegelt das UV-Licht.
+          feedback: Gespiegeltes Licht behält seine Farbe. Hier entsteht neues Licht.
+        - label: Er macht aus UV energiereicheres Licht.
+          feedback: Mehr Energie pro Photon kann nicht herauskommen als hineingeht.
+    hints:
+      - UV hebt Elektronen weit hinauf.
+      - Zurück geht es über Zwischenstufen.
+    explanation: "Das ist Fluoreszenz: Ein Teil der Energie geht als Wärme verloren, der Rest kommt als Photon mit längerer Wellenlänge heraus. Weiße LEDs nutzen dasselbe Prinzip."
     difficulty: 3
 
 srs:

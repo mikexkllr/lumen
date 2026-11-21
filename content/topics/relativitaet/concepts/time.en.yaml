@@ -5,7 +5,7 @@ summary: Time dilation.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -79,6 +79,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Calculate γ = 1 ÷ √(1 − v²) for v = {{v}} c. To two decimals.
+    answer:
+      value: "{{1 / sqrt(1 - v * v)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - sqrt(1 - v * v)) < 0.01
+        misconception: forgot-reciprocal
+        text: That is √(1 − v²). γ is its **reciprocal**.
+    hints:
+      - First compute v², then 1 − v².
+      - Take the square root and then the reciprocal.
+    explanation: γ = {{1 / sqrt(1 - v * v)}}. Below 0.5 c γ stays close to 1. Beyond 0.9 c it climbs steeply.
+    difficulty: 2
+    variants:
+      params:
+        v: choice[0.6,0.8,0.96]
+      defaults:
+        v: 0.8
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: "Twin paradox: each twin sees the other's clock run slow. Why is the traveller still the younger one?"
+    params:
+      options:
+        - label: He has to turn around and switches reference frames – the situation is not symmetric.
+          correct: true
+        - label: Because space travel is easy on the body.
+          feedback: It is not about biology. All clocks slow down equally.
+        - label: He is not younger at all – it is a contradiction.
+          feedback: Measurements with clocks on aircraft confirm the effect.
+    hints:
+      - Which of the two feels acceleration?
+      - Only the stay-at-home remains in one reference frame the whole time.
+    explanation: The Earth twin stays in one inertial frame throughout. The traveller switches to another when turning round. His world line is shorter – he experiences less time.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -91,6 +133,36 @@ steps:
     hints:
       - "Their clock runs 20 times slower: 660 m · 20."
     explanation: 13.2 km – enough to reach the ground. Measuring them there is direct proof of time dilation.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: For low speeds γ ≈ 1 + v² ÷ (2c²). A plane flies for 10 hours at 250 m/s. By how many nanoseconds does its clock fall behind? Special relativity only, c = 3 · 10⁸ m/s.
+    params:
+      unit: ns
+    answer:
+      value: 12.5
+      tolerance: 0.3
+    hints:
+      - v² ÷ (2c²) = 62,500 ÷ (1.8 · 10¹⁷) ≈ 3.5 · 10⁻¹³.
+      - Times 36,000 seconds.
+    explanation: 3.47 · 10⁻¹³ · 36,000 s ≈ 1.25 · 10⁻⁸ s = 12.5 ns. In 1971 Hafele and Keating measured such effects with atomic clocks on airliners.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: by how many microseconds per day do GPS clocks run fast compared with clocks on the ground, in total?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 38
+      tolerance: 5
+    explanation: About 38 µs. The weaker gravity up there speeds them up by 45 µs, their speed slows them by 7 µs. Uncorrected, GPS would be off by over 10 km after a day.
     difficulty: 3
 
 srs:

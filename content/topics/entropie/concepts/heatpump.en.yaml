@@ -5,7 +5,7 @@ summary: More heat out than electricity in.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: mehr
@@ -71,6 +71,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: A heat pump with a coefficient of performance of 4 delivers 12,000 kWh of heat per year. How many kWh of electricity does it need?
+    params:
+      unit: kWh
+    answer:
+      value: 3000
+    feedback:
+      - when: numval(state.input) == 48000
+        misconception: cop-direction
+        text: "The other way round: it delivers **more** heat than the electricity it uses. Divide by 4."
+    hints:
+      - COP = heat ÷ electricity.
+      - 12,000 ÷ 4 = ?
+    explanation: 3000 kWh of electricity; 9000 kWh come from the outside air or ground. A gas boiler would need the full 12,000 kWh as gas.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: The heating water is at 308 K (35 °C), outside it is {{tc}} K. What is the best possible COP T_warm ÷ (T_warm − T_cold)? To one decimal place.
+    answer:
+      value: "{{308 / (308 - tc)}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - tc / (308 - tc)) < 0.05
+        misconception: cooling-formula
+        text: That is the formula for cooling. For heating, T_warm goes in the numerator.
+    hints:
+      - "Temperature difference: 308 − {{tc}} = {{308 - tc}} K."
+      - 308 ÷ {{308 - tc}} = ?
+    explanation: At most {{308 / (308 - tc)}}. The colder it is outside, the lower it gets. Real devices reach about half of this ideal.
+    difficulty: 2
+    variants:
+      params:
+        tc: choice[266,273,280]
+      defaults:
+        tc: 273
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -86,6 +128,48 @@ steps:
     hints:
       - "Look at the formula: what is in the denominator?"
     explanation: Large heating surface, low temperature, small denominator – high performance.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A fridge keeps 278 K inside and gives off heat at 308 K at the back. What is the best COP for cooling, T_cold ÷ (T_warm − T_cold)? To two decimals.
+    answer:
+      value: 9.27
+      tolerance: 0.05
+    hints:
+      - "Difference: 308 − 278 = 30 K."
+      - 278 ÷ 30 = ?
+    explanation: Up to 9.27 kJ of heat removed per kJ of electricity. Cooling and heating are the same machine – one counts the cold side, the other the warm side.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a heat pump moves heat from cold to warm without breaking the second law.
+    params:
+      keywords:
+        - - arbeit
+          - work
+          - strom
+          - electric
+          - energie
+          - energy
+        - - entropie
+          - entropy
+          - insgesamt
+          - total
+          - gesamt
+          - overall
+        - - kalt
+          - cold
+          - warm
+          - hot
+          - umgebung
+          - outside
+      sample: On its own heat only flows from warm to cold. The heat pump needs work in the form of electricity. This work ends up as extra heat on the warm side, so total entropy does not fall.
     difficulty: 3
 
 srs:

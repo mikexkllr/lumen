@@ -5,7 +5,7 @@ summary: Why not all heat can become work.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: order
+    prompt: Put the four strokes of a petrol engine in the right order.
+    params:
+      items:
+        - label: "Intake: the piston draws in the mixture"
+        - label: "Compression: the piston squeezes it"
+        - label: "Power: ignition, hot gas pushes"
+        - label: "Exhaust: the burnt gas flows out"
+    hints:
+      - First the fuel has to get into the cylinder.
+      - Ignition comes when the gas is most compressed.
+    explanation: Intake, compression, power, exhaust. Only in the third stroke does the hot gas do work. The exhaust carries away the heat no engine can use.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A power plant with 40 % efficiency delivers 1000 MW of electricity. How many MW of waste heat does it release to river and cooling tower?
+    params:
+      unit: MW
+    answer:
+      value: 1500
+    feedback:
+      - when: numval(state.input) == 600
+        misconception: output-as-input
+        text: The 1000 MW are the **output**, not the input. The input is 1000 ÷ 0.4.
+    hints:
+      - "Heat input: 1000 MW ÷ 0.4."
+      - Waste heat = input − output.
+    explanation: 2500 MW go in, 1000 MW come out as electricity, 1500 MW as waste heat. That is why power plants stand by rivers. District heating uses part of it.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +147,30 @@ steps:
     hints:
       - Work carries no entropy; heat does.
     explanation: Heat at high temperature is “valuable”, at low temperature not. The Carnot efficiency follows directly from the second law.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "An engine takes heat $Q_w$ at $T_w$ and gives off $Q_k$ at $T_k$. Entropy must not fall: $\\frac{Q_k}{T_k} \\geq \\frac{Q_w}{T_w}$. This gives the **Carnot efficiency** $\\eta \\leq 1 - \\frac{T_k}{T_w}$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: An engine takes in 1000 J of heat at 600 K. The surroundings are at 300 K. At least how many joules of heat must it give off again?
+    params:
+      unit: J
+    answer:
+      value: 500
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-waste
+        text: "Without waste heat entropy would fall: the entropy taken in has to go somewhere."
+    hints:
+      - "Entropy taken in: 1000 J ÷ 600 K."
+      - "Give off the same entropy at 300 K: Q = 300 K · 1000/600 J/K."
+    explanation: At least 500 J. At most 500 J become work – 50 %, exactly the Carnot value 1 − 300/600.
     difficulty: 3
 
 srs:

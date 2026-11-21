@@ -5,7 +5,7 @@ summary: Mehr Wärme heraus als Strom hinein.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: mehr
@@ -71,6 +71,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Wärmepumpe mit Leistungszahl 4 liefert im Jahr 12 000 kWh Wärme. Wie viele kWh Strom braucht sie?
+    params:
+      unit: kWh
+    answer:
+      value: 3000
+    feedback:
+      - when: numval(state.input) == 48000
+        misconception: cop-direction
+        text: "Umgekehrt: Sie liefert **mehr** Wärme, als sie Strom braucht. Teile durch 4."
+    hints:
+      - "Leistungszahl = Wärme : Strom."
+      - "12 000 : 4 = ?"
+    explanation: 3000 kWh Strom, 9000 kWh kommen aus der Umgebungsluft oder dem Boden. Eine Gasheizung bräuchte die vollen 12 000 kWh als Gas.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Heizwasser hat 308 K (35 °C), draußen sind es {{tc}} K. Wie groß ist die beste denkbare Leistungszahl T_warm : (T_warm − T_kalt)? Auf eine Stelle."
+    answer:
+      value: "{{308 / (308 - tc)}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - tc / (308 - tc)) < 0.05
+        misconception: cooling-formula
+        text: Das ist die Formel fürs Kühlen. Beim Heizen steht T_warm im Zähler.
+    hints:
+      - "Temperaturunterschied: 308 − {{tc}} = {{308 - tc}} K."
+      - "308 : {{308 - tc}} = ?"
+    explanation: Höchstens {{308 / (308 - tc)}}. Je kälter es draußen ist, desto kleiner wird sie. Echte Geräte schaffen etwa die Hälfte dieses Idealwerts.
+    difficulty: 2
+    variants:
+      params:
+        tc: choice[266,273,280]
+      defaults:
+        tc: 273
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -86,6 +128,48 @@ steps:
     hints:
       - "Schau auf die Formel: Was steht im Nenner?"
     explanation: Große Heizfläche, niedrige Temperatur, kleiner Nenner – hohe Leistungszahl.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Kühlschrank hält innen 278 K und gibt hinten Wärme bei 308 K ab. Wie groß ist die beste Leistungszahl fürs Kühlen, T_kalt : (T_warm − T_kalt)? Auf zwei Stellen."
+    answer:
+      value: 9.27
+      tolerance: 0.05
+    hints:
+      - "Unterschied: 308 − 278 = 30 K."
+      - "278 : 30 = ?"
+    explanation: Bis zu 9,27 kJ Wärme pro kJ Strom aus dem Innenraum. Kühlen und Heizen sind dieselbe Maschine – nur einmal zählt die kalte, einmal die warme Seite.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Wärmepumpe Wärme von kalt nach warm bringt, ohne den zweiten Hauptsatz zu verletzen.
+    params:
+      keywords:
+        - - arbeit
+          - work
+          - strom
+          - electric
+          - energie
+          - energy
+        - - entropie
+          - entropy
+          - insgesamt
+          - total
+          - gesamt
+          - overall
+        - - kalt
+          - cold
+          - warm
+          - hot
+          - umgebung
+          - outside
+      sample: Von selbst fließt Wärme nur von warm nach kalt. Die Wärmepumpe braucht dafür Arbeit in Form von Strom. Diese Arbeit landet als zusätzliche Wärme auf der warmen Seite, sodass die Entropie insgesamt nicht sinkt.
     difficulty: 3
 
 srs:

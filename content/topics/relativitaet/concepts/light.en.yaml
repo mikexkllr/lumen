@@ -5,7 +5,7 @@ summary: Einstein's starting point.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zug
@@ -78,6 +78,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: "In 1887 Michelson and Morley looked for the »ether wind«: light should travel at different speeds depending on its direction relative to Earth's motion. What did they find?"
+    params:
+      options:
+        - label: No difference – light was equally fast in every direction.
+          correct: true
+        - label: A small difference, as expected.
+          feedback: Their apparatus was precise enough – and showed nothing.
+        - label: Light was faster against Earth's motion.
+          feedback: The ether predicted a difference – but nothing was measured.
+    hints:
+      - It is the most famous »failed« experiment in physics.
+      - Einstein turned the result into a principle.
+    explanation: "Earth races round the Sun at 30 km/s – and still no effect. In 1905 Einstein concluded: light is equally fast for everyone; no ether is needed."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A spaceship flies at {{u}} c. It fires a probe forward at {{v}} c. How fast is the probe seen from outside? Use w = (u + v) ÷ (1 + u · v). As a fraction of c, to three decimals.
+    answer:
+      value: "{{(u + v) / (1 + u * v)}}"
+      tolerance: 0.003
+    feedback:
+      - when: abs(numval(state.input) - (u + v)) < 0.003
+        misconception: galilean-addition
+        text: Plain adding only works at low speeds. Still divide by 1 + u · v.
+    hints:
+      - "Numerator: {{u}} + {{v}}. Denominator: 1 + {{u}} · {{v}}."
+      - The result must stay below 1.
+    explanation: w = {{(u + v) / (1 + u * v)}} c. However you combine them, it always stays below 1. At everyday speeds u · v is tiny and you simply add.
+    difficulty: 2
+    variants:
+      params:
+        u: choice[0.5,0.6,0.8]
+        v: choice[0.5,0.6,0.8]
+      defaults:
+        u: 0.8
+        v: 0.6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -93,6 +137,31 @@ steps:
     hints:
       - The passenger sits in the middle and moves forward.
     explanation: There is no universal “now”. This is the deepest consequence of the constant speed of light.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "A **light clock**: a pulse bounces between two mirrors a distance L apart. If the clock flies past at v, the light travels on a slant. Pythagoras gives $(ct)^2 = L^2 + (vt)^2$, so $t = \\gamma \\cdot \\frac{L}{c}$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: A light clock ticks once per microsecond at rest. It flies past you at 0.8 c. How many microseconds does one tick last for you? To two decimals.
+    params:
+      unit: µs
+    answer:
+      value: 1.67
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.6) < 0.01
+        misconception: inverse-gamma
+        text: Moving clocks run **slow** – a tick lasts longer, not shorter.
+    hints:
+      - γ = 1 ÷ √(1 − 0.8²) = 1 ÷ √0.36.
+      - 1 ÷ 0.6 = ?
+    explanation: γ = 1 ÷ 0.6 ≈ 1.67. The slanted light path is longer, but light is not faster – so each tick takes longer.
     difficulty: 3
 
 srs:

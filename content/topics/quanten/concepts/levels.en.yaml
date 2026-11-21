@@ -5,7 +5,7 @@ summary: Why neon glows red.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: In hydrogen level n lies at −13.6 eV ÷ n². How much energy does an electron on level {{n}} need to leave the atom completely – in eV?
+    params:
+      unit: eV
+    answer:
+      value: "{{13.6 / (n * n)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 13.6 / n) < 0.01
+        misconception: not-squared
+        text: "n is squared: divide by {{n * n}}."
+    hints:
+      - Completely free means energy 0.
+      - The gap from −13.6 ÷ {{n * n}} to 0.
+    explanation: 13.6 ÷ {{n * n}} = {{13.6 / (n * n)}} eV. The higher the level, the looser the electron is held.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[2,3,4]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A jump from n = 3 to n = 2 produces a photon of 1.89 eV. What is its wavelength? Use λ in nm = 1240 ÷ E in eV.
+    params:
+      unit: nm
+    answer:
+      value: 656
+      tolerance: 3
+    hints:
+      - 1240 ÷ 1.89 = ?
+      - The result lies in the visible range.
+    explanation: 656 nm – the red light of hydrogen. Astronomers see it wherever gas clouds glow.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +148,50 @@ steps:
     hints:
       - By the uncertainty principle a more tightly confined electron has more kinetic energy.
     explanation: The **ground state** is the compromise between attraction and uncertainty. It makes atoms stable – and matter solid.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "In the **Bohr model** the angular momentum is quantised: $m v r = n \\hbar$. Together with the electric attraction this gives radii $r_n = n^2 \\cdot 0.053$ nm and energies $E_n = -13.6\\,\\text{eV} / n^2$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: According to Bohr, what is the radius of the n = 3 orbit in hydrogen – in nm? To three decimals.
+    params:
+      unit: nm
+    answer:
+      value: 0.477
+      tolerance: 0.005
+    feedback:
+      - when: abs(numval(state.input) - 0.159) < 0.005
+        misconception: linear-n
+        text: The radius grows with n², not with n.
+    hints:
+      - r₃ = 3² · 0.053 nm.
+      - 9 · 0.053 = ?
+    explanation: 9 · 0.053 ≈ 0.477 nm. The model works amazingly well for hydrogen. Quantum mechanics later replaces the orbits with clouds of probability.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: A highlighter glows bright yellow-green under UV light – a different colour from the UV. How?
+    params:
+      options:
+        - label: It absorbs high-energy UV photons and gives the energy back in smaller portions.
+          correct: true
+        - label: It reflects the UV light.
+          feedback: Reflected light keeps its colour. New light is made here.
+        - label: It turns UV into higher-energy light.
+          feedback: No more energy per photon can come out than went in.
+    hints:
+      - UV lifts electrons far up.
+      - The way back goes via intermediate steps.
+    explanation: "That is fluorescence: part of the energy is lost as heat, the rest comes out as a photon of longer wavelength. White LEDs use the same principle."
     difficulty: 3
 
 srs:

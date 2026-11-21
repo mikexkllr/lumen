@@ -5,7 +5,7 @@ summary: Der Ausgangspunkt von Einstein.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zug
@@ -78,6 +78,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: "1887 suchten Michelson und Morley den »Ätherwind«: Licht müsste je nach Richtung zur Erdbewegung verschieden schnell sein. Was fanden sie?"
+    params:
+      options:
+        - label: Keinen Unterschied – Licht war in jeder Richtung gleich schnell.
+          correct: true
+        - label: Einen kleinen Unterschied, wie erwartet.
+          feedback: Ihr Gerät war genau genug dafür – und zeigte nichts.
+        - label: Licht war gegen die Erdbewegung schneller.
+          feedback: Das hätte der Äther vorhergesagt – mit umgekehrtem Vorzeichen. Gemessen wurde nichts.
+    hints:
+      - Es ist das berühmteste »gescheiterte« Experiment der Physik.
+      - Einstein machte das Ergebnis zum Grundsatz.
+    explanation: "Die Erde rast mit 30 km/s um die Sonne – und trotzdem kein Effekt. Einstein folgerte 1905: Licht ist für jeden gleich schnell, einen Äther braucht es nicht."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Raumschiff fliegt mit {{u}} c. Es schießt eine Sonde mit {{v}} c nach vorn. Wie schnell ist die Sonde von außen? Rechne w = (u + v) : (1 + u · v). In Anteilen von c, auf drei Stellen."
+    answer:
+      value: "{{(u + v) / (1 + u * v)}}"
+      tolerance: 0.003
+    feedback:
+      - when: abs(numval(state.input) - (u + v)) < 0.003
+        misconception: galilean-addition
+        text: Einfaches Addieren gilt nur bei kleinen Tempi. Teile noch durch 1 + u · v.
+    hints:
+      - "Zähler: {{u}} + {{v}}. Nenner: 1 + {{u}} · {{v}}."
+      - Das Ergebnis muss unter 1 bleiben.
+    explanation: w = {{(u + v) / (1 + u * v)}} c. Egal wie man kombiniert – unter 1 bleibt es immer. Bei Alltagstempo ist u · v winzig, und man addiert einfach.
+    difficulty: 2
+    variants:
+      params:
+        u: choice[0.5,0.6,0.8]
+        v: choice[0.5,0.6,0.8]
+      defaults:
+        u: 0.8
+        v: 0.6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -93,6 +137,31 @@ steps:
     hints:
       - Der Fahrgast sitzt in der Mitte und fährt nach vorn.
     explanation: Es gibt kein universelles »Jetzt«. Das ist die tiefste Folge der konstanten Lichtgeschwindigkeit.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Eine **Lichtuhr**: Ein Puls läuft zwischen zwei Spiegeln im Abstand L hin und her. Fliegt die Uhr mit v vorbei, läuft das Licht schräg. Pythagoras gibt $(ct)^2 = L^2 + (vt)^2$, also $t = \\gamma \\cdot \\frac{L}{c}$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Lichtuhr tickt in Ruhe jede Mikrosekunde. Sie fliegt mit 0,8 c an dir vorbei. Wie viele Mikrosekunden dauert für dich ein Tick? Auf zwei Stellen.
+    params:
+      unit: µs
+    answer:
+      value: 1.67
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.6) < 0.01
+        misconception: inverse-gamma
+        text: Bewegte Uhren gehen **langsamer** – ein Tick dauert länger, nicht kürzer.
+    hints:
+      - "γ = 1 : √(1 − 0,8²) = 1 : √0,36."
+      - "1 : 0,6 = ?"
+    explanation: "γ = 1 : 0,6 ≈ 1,67. Der Lichtweg ist schräg länger, das Licht aber nicht schneller – also dauert jeder Tick länger."
     difficulty: 3
 
 srs:
