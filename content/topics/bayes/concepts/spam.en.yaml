@@ -5,7 +5,7 @@ summary: Words as evidence.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -70,6 +70,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: »Free« appears in 40 % of spam mails and in 1 % of normal ones. What is the likelihood ratio for this word?
+    answer:
+      value: 40
+    hints:
+      - Divide the frequency in spam by that in normal mail.
+      - 40 % ÷ 1 %.
+    explanation: "Factor 40: the word is 40 times more common in spam. Each time it appears, the spam odds are multiplied by 40."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Only 20 % of all mails are spam – odds 1 : 4. A mail contains »free« (factor 40). How likely is it spam? In percent, to one decimal."
+    answer:
+      value: 90.9
+      tolerance: 0.1
+    hints:
+      - "New odds: 1 : 4 · 40 = 40 : 4 = 10 : 1."
+      - Probability = 10 ÷ (10 + 1).
+    explanation: 10/11 ≈ 90.9 %. With a base rate of 50 % it would be 97.6 %. The prior always counts.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -85,6 +112,44 @@ steps:
     hints:
       - “Free” and “prize” often occur together.
     explanation: The assumption is false – and works surprisingly well anyway. A simple robust model often beats a complicated one.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: The word »crosswalk« never appeared in a single spam mail during training. The filter uses 0 %. What happens to a spam mail containing that word?
+    params:
+      options:
+        - label: It counts as certainly not spam – whatever other words it contains
+          correct: true
+        - label: Times zero stays zero.
+          feedback: Mal null bleibt null.
+        - label: The zero works the other way.
+          feedback: Die Null wirkt in die andere Richtung.
+    hints:
+      - Bayes multiplies. What does multiplying by 0 give?
+      - So one adds a small number to every word count.
+    explanation: A single unseen word would set everything to zero. Laplace smoothing counts every word once extra – then nothing is impossible.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Real filters use the logarithm of the likelihood ratios and add them up. Why?
+    params:
+      options:
+        - label: Products of many small numbers underflow to zero on a computer – sums do not
+          correct: true
+        - label: Mathematically it is the same result.
+          feedback: Mathematisch ist es dasselbe Ergebnis.
+        - label: Every word counts exactly as much as before.
+          feedback: Jedes Wort zählt genau gleich viel wie vorher.
+    hints:
+      - log(a · b) = log a + log b.
+      - What happens when you multiply 1000 numbers like 0.001?
+    explanation: "In log-odds space Bayes becomes addition: each word gives points for or against spam. That is fast and numerically stable."
     difficulty: 3
 
 srs:

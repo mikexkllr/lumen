@@ -5,7 +5,7 @@ summary: Wie stark schwankt das Ergebnis?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zwei-spiele
@@ -98,6 +98,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Spiel bringt mit je 50 % entweder {{2 * g}} € oder 0 €. Wie groß ist die Standardabweichung?
+    params:
+      unit: €
+    answer:
+      value: "{{g}}"
+    hints:
+      - Der Erwartungswert ist {{g}} €.
+      - Beide Ergebnisse liegen genau {{g}} € vom Erwartungswert weg.
+    explanation: Beide Abstände sind {{g}}, also ist σ = {{g}} €. Die **Standardabweichung** misst das Risiko in Euro.
+    difficulty: 2
+    variants:
+      params:
+        g: choice[5,10,25,50,100]
+      defaults:
+        g: 10
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Anlage schwankt mit σ = 20 %. Du verteilst dein Geld gleich auf 4 solche Anlagen, die unabhängig voneinander schwanken. Wie groß ist σ jetzt?
+    params:
+      unit: "%"
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: divide-by-n
+        text: Geteilt durch 4 wäre zu optimistisch. Die Streuung sinkt mit √n.
+    hints:
+      - Beim Mitteln von n unabhängigen Werten schrumpft σ um √n.
+      - "20 : √4."
+    explanation: "20 : 2 = 10 %. Das ist **Risikostreuung**: gleicher Erwartungswert, halbes Risiko."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +152,42 @@ steps:
     hints:
       - Würdest du um ±100 € eine Münze werfen?
     explanation: "**Verlustaversion** aus der Prospect-Theorie von Kahneman und Tversky – Nobelpreis 2002."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Zwei unabhängige Risiken haben σ = 3 und σ = 4. Wie groß ist die Standardabweichung ihrer Summe?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: add-sd
+        text: Standardabweichungen addieren sich nicht – Varianzen schon.
+    hints:
+      - "Addiere die Varianzen: 9 + 16."
+      - Zieh die Wurzel aus 25.
+    explanation: √(9 + 16) = 5 – wie beim Satz des Pythagoras. Unabhängige Risiken stehen gewissermaßen senkrecht aufeinander.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Bank verteilt Kredite auf 1000 Hausbesitzer in derselben Region. Warum schützt das 2008 kaum?
+    params:
+      options:
+        - label: Die Risiken hingen zusammen – fallen die Hauspreise, trifft es alle zugleich
+          correct: true
+        - label: 1000 sind zu wenige
+          feedback: Auch eine Million hilft nicht, wenn alle gemeinsam fallen.
+        - label: Kredite haben kein Risiko
+          feedback: Genau das war der Irrtum.
+    hints:
+      - Die √n-Regel braucht eine Voraussetzung. Welche?
+      - Unabhängigkeit fehlt, wenn ein gemeinsamer Faktor wirkt.
+    explanation: Bei korrelierten Risiken bleibt ein Rest, den keine Streuung wegmittelt. Banken unterschätzten, wie stark die Ausfälle zusammenhingen.
     difficulty: 3
 
 srs:

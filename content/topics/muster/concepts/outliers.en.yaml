@@ -1,0 +1,181 @@
+id: stats.clustering.outliers
+type: concept
+title: "Spotting anomalies"
+summary: "From z-scores to fraud detection – and why rare hits are hard."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A person is 1.90 m tall – normal. One weighs 45 kg – not unusual either. One person is 1.90 m tall and weighs 45 kg. Is that unusual?
+    params:
+      options:
+        - label: Yes – the combination is very rare, although each value alone is normal
+          correct: true
+        - label: Tall and light rarely go together.
+          feedback: Groß und leicht passt selten zusammen.
+        - label: Unusualness can also hide in the combination.
+          feedback: Auffälligkeit kann auch in der Kombination stecken.
+    hints:
+      - How are height and weight related?
+      - Tall people are usually heavier.
+    explanation: Some outliers only show up when features are viewed together. A single feature does not reveal them.
+
+  - kind: explain
+    id: c1
+    body: "The simplest outlier rule: a value with |z| > 3 is suspicious. For a bell curve only 0.3 % lie that far out. With many features you instead measure the distance to the neighbours."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Measurements with mean {{m}} and σ = {{s}}. From which value above the mean does a value count as an outlier by the 3σ rule?
+    answer:
+      value: "{{m + 3 * s}}"
+    hints:
+      - 3σ = {{3 * s}}.
+      - Compute {{m}} + {{3 * s}}.
+    explanation: "{{m}} + {{3 * s}} = {{m + 3 * s}}. Careful: a big outlier itself inflates σ – robust rules therefore use median and quartiles."
+    variants:
+      params:
+        m: step[20,100,10]
+        s: choice[2,4,5,10]
+      defaults:
+        m: 50
+        s: 4
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A point has distances 9, 10 and 11 to its 3 nearest neighbours. Typical points have an average neighbour distance of 2. How many times larger is this point's distance?
+    answer:
+      value: 5
+    hints:
+      - "Average the three distances: (9 + 10 + 11) ÷ 3."
+      - Divide 10 by 2.
+    explanation: Five times as lonely as usual – a candidate outlier. Neighbourhood methods work in any number of dimensions.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Error, fraud or discovery? Is the outlier valuable?
+    params:
+      cards:
+        - text: A credit card shops at night in three countries.
+          right: true
+          why: Possible fraud – exactly what you want to find.
+        - text: A sensor reports −999 °C.
+          right: false
+          why: A typical error code, not a reading.
+        - text: A star suddenly changes its brightness.
+          right: true
+          why: Maybe a planet passing – a discovery.
+        - text: An age of 250 years in a form
+          right: false
+          why: A typo.
+      left: Probably junk
+      right: Valuable
+    explanation: Outliers are either errors or the most interesting thing in the dataset. That is why you look at them instead of deleting them blindly.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Of 10,000 payments, 1 is fraud. A detector catches it for sure, but also flags 1 % of honest payments. What percent of the flagged ones are fraud? To one decimal.
+    answer:
+      value: 1
+      tolerance: 0.05
+    hints:
+      - "Flagged: 1 fraud plus 1 % of 9,999 ≈ 100 honest."
+      - Compute 1 ÷ 101.
+    explanation: "≈ 1 %. That is the base-rate trap from the Bayes course: with very rare anomalies almost all alarms are false. Real systems therefore combine many clues."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Many outliers sit close together, e.g. a small fraud ring with similar patterns. What happens with a neighbour rule?
+    params:
+      options:
+        - label: It misses them – every fraudster has neighbours
+          correct: true
+        - label: A little group camouflages each other.
+          feedback: Ein Grüppchen tarnt sich gegenseitig.
+        - label: Neighbourhood depends exactly on who is nearby.
+          feedback: Nachbarschaft hängt genau davon ab, wer in der Nähe ist.
+    hints:
+      - How lonely is a point in a small group?
+      - Better compare the density with the surroundings.
+    explanation: Methods such as the local outlier factor compare a point's density with that of its neighbours – so small clusters stand out too.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: An isolation forest splits the data at random, over and over. Why does that detect outliers?
+    params:
+      options:
+        - label: Outliers get isolated after only a few cuts
+          correct: true
+        - label: All that is counted is how fast they get isolated.
+          feedback: Gezählt wird nur, wie schnell man sie isoliert.
+        - label: "The other way round: in dense clumps you need many cuts."
+          feedback: "Umgekehrt: In dichten Haufen braucht man viele Schnitte."
+    hints:
+      - How many random cuts does it take to separate a point in a dense clump?
+      - A lonely point sits in an empty area.
+    explanation: The average number of cuts until isolation serves as the anomaly score. The method needs no distances and is very fast.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: How do you measure how »unusual« a combination like 1.90 m and 45 kg is?
+    params:
+      options:
+        - label: "With the Mahalanobis distance: distance in standard deviations that accounts for correlations"
+          correct: true
+        - label: Both look harmless.
+          feedback: Die sehen beide harmlos aus.
+        - label: Units and correlations are missing from it.
+          feedback: Einheiten und Zusammenhänge fehlen darin.
+    hints:
+      - Height and weight correlate.
+      - A good measure follows the shape of the cloud.
+    explanation: The Mahalanobis distance stretches space so the cloud becomes round. Then »tall and light« is measured as far from the centre. It is the z-score for many correlated features.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a fraud detector gives many false alarms although it is almost perfect.
+    params:
+      keywords:
+        - - selten
+          - rare
+          - basisrate
+          - base rate
+        - - ehrlich
+          - normal
+          - honest
+          - fehlalarm
+          - false alarm
+        - - viele
+          - mehr
+          - many
+          - more
+          - prozent
+          - percent
+      sample: Fraud is very rare; the base rate is tiny. Even if only 1 percent of honest payments are wrongly flagged, that is far more than the few real fraud cases. So most alarms are false alarms.
+    explanation: With rare events the mass of normal cases overwhelms any small error rate.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

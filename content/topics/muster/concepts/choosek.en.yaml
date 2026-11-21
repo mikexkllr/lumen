@@ -1,0 +1,193 @@
+id: stats.clustering.choosek
+type: concept
+title: "How many groups?"
+summary: "Elbows, silhouettes and the danger of inventing patterns."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: With k = number of points the k-means sum of squares becomes zero. Is that the best choice?
+    params:
+      options:
+        - label: No – every point its own group explains nothing
+          correct: true
+        - label: "Perfect on the data here means: nothing summarised."
+          feedback: "Perfekt auf den Daten heißt hier: nichts zusammengefasst."
+        - label: Precise, but useless.
+          feedback: Genau, aber nutzlos.
+    hints:
+      - What is a group supposed to achieve?
+      - Think of overfitting in regression.
+    explanation: The sum of squares falls with every k – on its own it cannot choose k. You need a criterion that rewards simplicity.
+
+  - kind: explain
+    id: c1
+    body: With the **elbow method** you plot the sum of squares for k = 1, 2, 3 … First it falls steeply, then flatly. The bend shows a good k.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The chart shows the sum of squares for k = 1 to 6. At which k is the elbow?
+    visual:
+      widget: chart
+      params:
+        labels:
+          - k=1
+          - k=2
+          - k=3
+          - k=4
+          - k=5
+          - k=6
+        values:
+          - 100
+          - 40
+          - 20
+          - 17
+          - 15
+          - 14
+        max: 100
+        step: 5
+    answer:
+      value: 3
+    hints:
+      - How much does each extra k gain?
+      - −60, −20, then only −3, −2, −1.
+    explanation: Up to k = 3 each group pays off a lot, after that barely. More groups would only split noise.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The silhouette of a point is (b − a) ÷ max(a, b). a is the mean distance to its own group, b to the nearest other group. Here a = {{a}}, b = {{b}}. What is the silhouette? To two decimals.
+    answer:
+      value: "{{(b - a) / b}}"
+      tolerance: 0.006
+    hints:
+      - Here b is larger, so max(a, b) = {{b}}.
+      - Compute ({{b}} − {{a}}) ÷ {{b}}.
+    explanation: "≈ {{round(100 * (b - a) / b) / 100}}. Near 1 means: clearly in its own group. Near 0: on the border. Negative: probably misassigned."
+    variants:
+      params:
+        a: int[1,4]
+        b: int[5,10]
+      defaults:
+        a: 2
+        b: 6
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Good or questionable groups?
+    params:
+      buckets:
+        - id: b1
+          label: Well separated
+        - id: b2
+          label: Questionable
+      items:
+        - label: Mean silhouette 0.8
+          bucket: b1
+        - label: Mean silhouette 0.1
+          bucket: b2
+        - label: Clear bend in the elbow
+          bucket: b1
+        - label: Every run gives other groups
+          bucket: b2
+        - label: Groups stable in new data too
+          bucket: b1
+    hints:
+      - Stable, clearly separated groups are more credible.
+      - "Silhouettes near 0 mean: many points on the border."
+    explanation: Clustering always finds groups – even in pure noise. Good groups are separated, stable and repeatable.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: k-means with k = 3 on a uniform, structureless cloud of points. What comes out?
+    params:
+      options:
+        - label: Three groups – although there are none
+          correct: true
+        - label: k-means splits any cloud into k parts.
+          feedback: k-Means teilt jede Wolke in k Teile.
+        - label: k-means always returns exactly k groups.
+          feedback: k-Means liefert immer genau k Gruppen.
+    hints:
+      - Does k-means ask whether there are groups?
+      - It simply splits whatever it gets.
+    explanation: "That is the biggest trap in clustering: the algorithm invents structure if you let it. That is why one checks against random data."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In hierarchical clustering you merge the two closest groups step by step. What is the advantage?
+    params:
+      options:
+        - label: You need not choose k in advance – the tree shows all levels
+          correct: true
+        - label: With many points it is rather slower.
+          feedback: Bei vielen Punkten ist es eher langsamer.
+        - label: It needs them at every step.
+          feedback: Es braucht sie bei jedem Schritt.
+    hints:
+      - The tree is called a dendrogram.
+      - You cut it at a suitable height.
+    explanation: That is how biologists build the tree of life. Where you cut the tree decides the number of groups.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The gap statistic compares the sum of squares of the real data with that of random data spanning the same range. What for?
+    params:
+      options:
+        - label: To see whether the groups beat what chance would produce
+          correct: true
+        - label: k-means provides the centres.
+          feedback: Die Zentren liefert k-Means.
+        - label: It is about choosing k.
+          feedback: Es geht um die Wahl von k.
+    hints:
+      - What would the curve look like without real groups?
+      - Where is the gap to the random curve largest?
+    explanation: As in a hypothesis test, chance serves as the null model. Only groups that clearly stand out from it deserve to be taken seriously.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why k-means finds groups even in random data and how to protect yourself.
+    params:
+      keywords:
+        - - immer
+          - jede
+          - always
+          - every
+          - erfind
+          - invent
+        - - zufall
+          - random
+          - rauschen
+          - noise
+        - - prüf
+          - vergleich
+          - stabil
+          - check
+          - compar
+          - stable
+          - silhouette
+      sample: k-means splits every cloud into k parts; it never asks whether groups exist. So groups appear even in random noise. You therefore check the silhouette, stability and a comparison with random data.
+    explanation: An algorithm that always finds something needs a comparison with nothing.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

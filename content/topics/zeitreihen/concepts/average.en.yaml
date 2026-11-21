@@ -5,7 +5,7 @@ summary: Smoothing out the spikes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,49 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "In exponential smoothing: new = {{a}} · measurement + {{1 - a}} · old. The old smoothed value is {{s}}, the measurement is {{x}}. What is the new smoothed value?"
+    answer:
+      value: "{{a * x + (1 - a) * s}}"
+    hints:
+      - Compute {{a}} · {{x}} and {{1 - a}} · {{s}}.
+      - Add both.
+    explanation: "{{a * x}} + {{(1 - a) * s}} = {{a * x + (1 - a) * s}}. The new value moves part of the way towards the measurement."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[0.2,0.5]
+        s: step[10,50,10]
+        x: step[20,80,10]
+      constraints:
+        - x != s
+      defaults:
+        a: 0.5
+        s: 10
+        x: 20
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: A curve shows the average of the last 7 days. From today a number suddenly rises sharply. When does the curve show the full jump?
+    params:
+      options:
+        - label: Only after 7 days – on average it lags 3 days behind
+          correct: true
+        - label: Today makes up only 1/7 of the average.
+          feedback: Heute macht nur 1/7 des Schnitts aus.
+        - label: After a week only new values are in the window.
+          feedback: Nach einer Woche sind nur noch neue Werte im Fenster.
+    hints:
+      - How many new values are in the window after one day?
+      - The window is fully »new« only after 7 days.
+    explanation: A trailing average smooths and delays at the same time. A centred average (3 days before, 3 after) has no delay – but needs future data.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +138,39 @@ steps:
     hints:
       - Should a value from 30 days ago count as much as yesterday’s?
     explanation: New value = α · measurement + (1 − α) · old value. The same formula is found in many sensors and learning methods.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "In exponential smoothing with α = 0.5 the newest value gets weight 0.5, the one before 0.25, and so on: α · (1 − α)^k. What weight does the value from 3 steps ago (k = 3) get?"
+    answer:
+      value: 0.0625
+      tolerance: 0.0001
+    hints:
+      - Compute 0.5 · 0.5³.
+      - 0.5 · 0.125.
+    explanation: 0.5 · 0.125 = 0.0625. The weights fall off geometrically and add up to 1. Old values fade but never vanish completely.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Monthly data with a strong seasonal pattern. Over how many months must a moving average run so that the season disappears completely?
+    params:
+      options:
+        - label: 12 – then each month is in it exactly once
+          correct: true
+        - label: Three months only smooth short spikes.
+          feedback: Drei Monate glätten nur kurze Zacken.
+        - label: Seven fits weekdays, not months.
+          feedback: Sieben passt zu Wochentagen, nicht zu Monaten.
+    hints:
+      - How long is one season cycle in monthly data?
+      - Every window should contain each month equally often.
+    explanation: A 12-month average always holds one summer and one winter. For daily data with a weekly rhythm you take 7 days for the same reason.
     difficulty: 3
 
 srs:

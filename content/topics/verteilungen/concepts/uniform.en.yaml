@@ -1,0 +1,193 @@
+id: stats.distributions.uniform
+type: concept
+title: "Everything equally likely"
+summary: "The uniform distribution – for dice and for waiting times."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: the train runs exactly every 10 minutes. You arrive at a random time. How long do you wait on average?"
+    params:
+      min: 0
+      max: 10
+      step: 0.5
+      unit: min
+    answer:
+      value: 5
+      tolerance: 0.5
+    explanation: Every waiting time from 0 to 10 minutes is equally likely. On average it is 5 minutes – the middle.
+
+  - kind: explain
+    id: c1
+    body: A **distribution** says which values occur and how likely they are. If all values are equally likely, it is called uniform. A fair die is the classic example.
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "1"
+          - label: "2"
+          - label: "3"
+          - label: "4"
+          - label: "5"
+          - label: "6"
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The train runs every 10 minutes and you arrive at random. How likely do you wait longer than 7 minutes? In percent.
+    answer:
+      value: 30
+    hints:
+      - "Longer than 7 minutes means: wait between 7 and 10."
+      - That is a stretch of 3 of the 10 minutes.
+    explanation: 3/10 = 30 %. For the continuous uniform distribution the probability is just the length of the piece divided by the total length.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A random generator delivers a uniform number between {{a}} and {{b}}. What value do you expect on average?
+    answer:
+      value: "{{(a + b) / 2}}"
+    hints:
+      - "Uniform: the balance point is in the middle."
+      - Compute ({{a}} + {{b}}) ÷ 2.
+    explanation: ({{a}} + {{b}}) ÷ 2 = {{(a + b) / 2}}. The expected value of a uniform distribution is the middle of the range.
+    variants:
+      params:
+        a: int[0,10]
+        b: int[12,40]
+      defaults:
+        a: 2
+        b: 12
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Is this roughly uniform?
+    params:
+      buckets:
+        - id: b1
+          label: Uniform
+        - id: b2
+          label: Not uniform
+      items:
+        - label: Roll of a fair die
+          bucket: b1
+        - label: Last digit of a lottery number
+          bucket: b1
+        - label: Height of adults
+          bucket: b2
+        - label: Sum of two dice
+          bucket: b2
+        - label: Arrival within a 10-minute cycle
+          bucket: b1
+    hints:
+      - Are some values clearly more common than others?
+      - The sum of two dice peaks at 7.
+    explanation: A uniform distribution arises when nothing favours any value. Sums and natural quantities usually form a hill instead.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A uniform distribution on [0, 12] has variance (b − a)² ÷ 12. What is its standard deviation? To two decimals.
+    answer:
+      value: 3.46
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: variance-not-sd
+        text: That is the variance. Now take the root.
+    hints:
+      - (12 − 0)² ÷ 12 = 12.
+      - Take the square root of 12.
+    explanation: √12 ≈ 3.46. The 12 in the denominator comes from integrating x² – it appears in every uniform distribution.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Two independent numbers, each uniform between 0 and 1, are added. What does the distribution of the sum look like?
+    params:
+      options:
+        - label: A triangle peaking at 1
+          correct: true
+        - label: The middle has far more combinations than the edges.
+          feedback: Für die Mitte gibt es viel mehr Kombinationen als für die Ränder.
+        - label: The sum averages 1, not 0.
+          feedback: Die Summe ist im Schnitt 1, nicht 0.
+    hints:
+      - How do you get a sum near 0? And near 1?
+      - "Think of two dice: 7 is most common."
+    explanation: Two flat distributions give a triangle, three already a kind of bell. That is the central limit theorem at its start.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Computers produce uniform numbers U between 0 and 1. From them you make waiting times: T = −ln(U) · 10 minutes. Which waiting time does U = 0.5 give? To one decimal. (ln 0.5 ≈ −0.693)"
+    answer:
+      value: 6.9
+      tolerance: 0.05
+    hints:
+      - −ln(0.5) ≈ 0.693.
+      - Times 10 minutes.
+    explanation: About 6.9 minutes – the median waiting time. With this inversion method you can turn a uniform distribution into any other.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A machine should give a »random number from 1 to infinity«, each one just as likely. Can that work?
+    params:
+      options:
+        - label: No – infinitely many equal probabilities cannot add to 1
+          correct: true
+        - label: Then the total would be 0, not 1.
+          feedback: Dann ergäbe die Summe 0, nicht 1.
+        - label: The problem is mathematical, not technical.
+          feedback: Das Problem ist mathematisch, nicht technisch.
+    hints:
+      - Give each number the same chance p. What does the sum over infinitely many give?
+      - p > 0 gives infinity, p = 0 gives 0.
+    explanation: A uniform distribution needs a bounded range. That is why »pick a random natural number« makes no sense without further detail.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you wait 5 minutes on average with trains every 10 minutes – and when it gets longer.
+    params:
+      keywords:
+        - - gleich
+          - jede
+          - equal
+          - every
+          - uniform
+        - - mitte
+          - hälfte
+          - middle
+          - half
+          - fünf
+          - five
+        - - unregelmäßig
+          - lücke
+          - irregular
+          - gap
+          - länger
+          - longer
+      sample: Every arrival time is equally likely, so the wait is uniform between 0 and 10. The average is the middle, five minutes. If trains run irregularly, you land in a long gap more often and wait longer.
+    explanation: With a fixed timetable the wait is uniform. Irregularity raises it – long gaps catch more arrivals.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x1"]

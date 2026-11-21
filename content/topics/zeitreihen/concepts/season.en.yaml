@@ -5,7 +5,7 @@ summary: What comes back every year.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -99,6 +99,53 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: In July a shop sells {{v}} €. July is seasonally {{k}} % above average. What are the seasonally adjusted sales?
+    params:
+      unit: €
+    answer:
+      value: "{{base}}"
+    feedback:
+      - when: numval(state.input) == v - v * k / 100
+        misconception: wrong-base
+        text: The {{k}} % refer to the average, not to July. Divide instead of subtracting.
+    hints:
+      - July = average · {{(100 + k) / 100}}.
+      - Divide {{v}} by {{(100 + k) / 100}}.
+    explanation: "{{v}} ÷ {{(100 + k) / 100}} = {{base}} €. That is how months compare fairly despite the season."
+    difficulty: 2
+    variants:
+      params:
+        base: choice[20000,30000,40000]
+        k: choice[20,25,50,60]
+      derive:
+        v: base * (100 + k) / 100
+      defaults:
+        base: 25000
+        k: 60
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: A parcel service reports 40 % more parcels in December than in November. What is the best question to ask?
+    params:
+      options:
+        - label: How big was the jump the year before?
+          correct: true
+        - label: Maybe it is like that every year – Christmas.
+          feedback: Vielleicht ist es jedes Jahr so – Weihnachten.
+        - label: That is a different question.
+          feedback: Das ist eine andere Frage.
+    hints:
+      - What happens every December?
+      - Only the comparison with last year shows whether it is more than season.
+    explanation: If last year's jump was 35 %, the signal is only +5 points. The year-over-year comparison separates season from real growth.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -114,6 +161,44 @@ steps:
     hints:
       - Which comparison switches off the season?
     explanation: The **year-on-year comparison** holds the season constant and shows the trend.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: One hotel has 200 more guests in summer than in winter – however big it is. Another has 50 % more in summer. What are the two seasonal models called?
+    params:
+      options:
+        - label: Additive and multiplicative
+          correct: true
+        - label: That describes trends, not seasonal patterns.
+          feedback: Das beschreibt Trends, nicht Saisonmuster.
+        - label: Both are signal here.
+          feedback: Beides ist hier Signal.
+    hints:
+      - Does the swing stay the same size or grow with the level?
+      - Plus 200 versus times 1.5.
+    explanation: "Additive: trend + season. Multiplicative: trend · season – the spikes grow along. Taking logs turns multiplicative into additive."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: In February (28 days) a shop sells 2800 €, in March (31 days) 3100 €. By what percent is March better per day?
+    params:
+      unit: "%"
+    answer:
+      value: 0
+    feedback:
+      - when: abs(numval(state.input) - 10.7) < 0.2
+        misconception: calendar-effect
+        text: That is the difference in monthly totals. But March has 3 more days.
+    hints:
+      - Divide each total by its number of days.
+      - "February: 100 € per day. March?"
+    explanation: Both months make 100 € per day – March is no better. Calendar effects such as month length or holidays easily fake growth.
     difficulty: 3
 
 srs:

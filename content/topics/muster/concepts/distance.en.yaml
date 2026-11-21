@@ -1,0 +1,189 @@
+id: stats.clustering.distance
+type: concept
+title: "Measuring similarity"
+summary: "Distances between data points – and why units can spoil everything."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Three people: A is 170 cm tall and earns 3000 €, B 190 cm and 3010 €, C 171 cm and 4000 €. Who is most similar to A?"
+    params:
+      options:
+        - label: That depends on how you weight height and income
+          correct: true
+        - label: On income yes – on height C is much closer.
+          feedback: Beim Gehalt ja – bei der Größe liegt C viel näher.
+        - label: On height yes – on income B is much closer.
+          feedback: Bei der Größe ja – beim Gehalt liegt B viel näher.
+    hints:
+      - Compare the differences in each quantity separately.
+      - Are 20 cm a lot or a little compared with 1000 €?
+    explanation: Similarity is not a law of nature – you must decide how to measure distance. That is the first step of every pattern search.
+
+  - kind: explain
+    id: c1
+    body: "Each data point is a point in space: one axis per feature. The **Euclidean distance** is the straight line: the root of the sum of squared differences – Pythagoras."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: What is the Euclidean distance between (1, 1) and (4, 5)?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: manhattan
+        text: That is the path along the axes (Manhattan distance). The straight line is shorter.
+    hints:
+      - "Differences: 3 and 4."
+      - √(3² + 4²).
+    explanation: √(9 + 16) = 5. The path only along the axes would be 3 + 4 = 7 – the Manhattan distance.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Three features: point P = (0, 0, 0), point Q = ({{a}}, {{b}}, {{c}}). What is the Euclidean distance?"
+    answer:
+      value: "{{d}}"
+    hints:
+      - "Square each difference: {{a * a}}, {{b * b}}, {{c * c}}."
+      - Take the root of {{d * d}}.
+    explanation: √{{d * d}} = {{d}}. Pythagoras works in any number of dimensions.
+    variants:
+      params:
+        t: int[0,3]
+      derive:
+        a: "[1, 2, 2, 4][t]"
+        b: "[2, 3, 4, 4][t]"
+        c: "[2, 6, 4, 7][t]"
+        d: "[3, 7, 6, 9][t]"
+      defaults:
+        t: 0
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Rather similar or rather different?
+    params:
+      buckets:
+        - id: b1
+          label: Small distance
+        - id: b2
+          label: Large distance
+      items:
+        - label: Two shoppers, nearly the same basket
+          bucket: b1
+        - label: A child and a pensioner in age
+          bucket: b2
+        - label: Two photos of the same cat
+          bucket: b1
+        - label: A rock song and a lullaby
+          bucket: b2
+    hints:
+      - How many features differ – and by how much?
+      - "Similar means: close together in the features."
+    explanation: Recommendations, image search and grouping all rest on a distance measure between data points.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Height varies with σ = 10 cm, income with σ = 1000 €. Standardise: how big is the difference between A (170 cm) and B (190 cm) in standard deviations?"
+    answer:
+      value: 2
+    hints:
+      - "Difference: 20 cm."
+      - Divide by σ = 10 cm.
+    explanation: 20 ÷ 10 = 2 σ. In income C is 1000 € = 1 σ from A. Only standardising makes features comparable – otherwise the one with the biggest numbers always wins.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: "Without standardising: income in €, height in cm. Which feature almost alone decides the distance?"
+    params:
+      options:
+        - label: Income – its differences are much larger in numbers
+          correct: true
+        - label: 20 cm against 1000 € – the 1000 wins.
+          feedback: 20 cm gegen 1000 € – die 1000 gewinnt.
+        - label: Without scaling only the size of the numbers counts.
+          feedback: Ohne Skalierung zählt nur die Größe der Zahlen.
+    hints:
+      - Compare 20² with 1000².
+      - Try metres and cents instead – what happens?
+    explanation: Distances depend on units. That is why features are scaled before any grouping, for example to z-scores.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: To compare two texts, we often use the angle between their word counts, not the distance. Why is that?
+    params:
+      options:
+        - label: A long and a short text on the same topic point in the same direction
+          correct: true
+        - label: It is about meaning, not effort.
+          feedback: Es geht um die Bedeutung, nicht um den Aufwand.
+        - label: They exist – they just mostly measure length.
+          feedback: Es gibt sie – nur messen sie vor allem die Länge.
+    hints:
+      - A text twice as long has roughly double word counts.
+      - The vector gets longer, but its direction stays.
+    explanation: Cosine similarity ignores length and measures only direction. It sits inside search engines and language models.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In 1000 dimensions random points are almost all the same distance from each other. What follows?
+    params:
+      options:
+        - label: »Nearest neighbour« loses meaning – you must reduce or choose dimensions carefully
+          correct: true
+        - label: Many unimportant features drown out the important ones.
+          feedback: Viele unwichtige Merkmale ertränken die wichtigen.
+        - label: They become similar in size, not zero.
+          feedback: Sie werden ähnlich groß, nicht null.
+    hints:
+      - Each extra dimension adds a bit of chance to the distance.
+      - By the law of large numbers the sums become alike.
+    explanation: That is the curse of dimensionality. That is why methods such as principal component analysis, later in this course, are needed.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why we rescale each feature before we check how far apart two points are.
+    params:
+      keywords:
+        - - einheit
+          - unit
+          - cm
+          - euro
+        - - groß
+          - zahl
+          - big
+          - number
+          - dominier
+          - dominat
+        - - standard
+          - z-wert
+          - z-score
+          - skal
+          - scal
+      sample: Features have different units, such as cm and euros. Without scaling, the feature with the biggest numbers dominates the distance. With z-scores each feature counts equally, measured in standard deviations.
+    explanation: Only equal yardsticks make a distance fair.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

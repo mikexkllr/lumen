@@ -5,7 +5,7 @@ summary: Many tests, false findings.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zwanzig
@@ -85,6 +85,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Bonferroni: 20 tests, each at the threshold 5 % ÷ 20 = 0.25 %. How likely is at least one false alarm then, if nothing works? In percent, to one decimal. (0.9975²⁰ ≈ 0.951)"
+    answer:
+      value: 4.9
+      tolerance: 0.1
+    hints:
+      - "Complement: no false alarm, probability 0.951."
+      - 1 − 0.951 = ?
+    explanation: About 4.9 % – the family-wise error rate stays below 5 %. Without correction it would be 64 %.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: A researcher tests only one hypothesis. But she decides only after looking at the data which groups to compare and which outliers to drop. Is her p-value fine?
+    params:
+      options:
+        - label: No – she had many possible paths and took the one that fit
+          correct: true
+        - label: The invisible alternatives count too.
+          feedback: Die unsichtbaren Alternativen zählen mit.
+        - label: Honest people get seduced by data too.
+          feedback: Auch ehrliche Menschen werden von Daten verführt.
+    hints:
+      - How many analyses would have been possible?
+      - Every choice after seeing the data is a hidden test.
+    explanation: "This is called the garden of forking paths: many possible decisions act like many tests – even without bad intent."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +133,38 @@ steps:
     hints:
       - A result is only reliable when others find it again.
     explanation: "Causes: small samples, p-hacking and journals that only print “positive” results."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Benjamini–Hochberg: sort the p-values of 10 tests in ascending order. The test at rank k counts if p ≤ k · 5 % ÷ 10. Which threshold applies to rank 3? In percent."
+    answer:
+      value: 1.5
+    hints:
+      - Put in k = 3.
+      - 3 · 5 % ÷ 10.
+    explanation: 1.5 %. Instead of the chance of any false alarm it limits the share of false finds (FDR). It is more generous than Bonferroni (0.5 %).
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: What protects best against p-hacking?
+    params:
+      options:
+        - label: Fix the hypothesis and analysis publicly in advance
+          correct: true
+        - label: That makes the problem worse.
+          feedback: Das vergrößert das Problem.
+        - label: You can still search until it works.
+          feedback: Auch dann kann man suchen, bis es klappt.
+    hints:
+      - The problem is decisions made after seeing the data.
+      - What if those decisions were fixed beforehand?
+    explanation: Pre-registration makes the plan checkable. Deviations are allowed but must be openly labelled as exploratory.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Four times the respondents, half the error.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 1000
       within: 60
     explanation: About 1000 suffice. What matters is the size of the sample – not of the country.
-
 
   - kind: explain
     id: s1
@@ -84,6 +83,57 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "More precisely, for 95 %: margin = 1.96 · √(p(1 − p)/n). For p = 0.5 and n = 1000 the root is about 0.0158. How many percentage points is that times 1.96? To one decimal."
+    answer:
+      value: 3.1
+      tolerance: 0.05
+    hints:
+      - 1.96 · 0.0158 ≈ 0.031.
+      - "As percentage points: times 100."
+    explanation: "± 3.1 points – almost exactly the rule of thumb 100/√1000 ≈ 3.2. The 1.96 comes from the bell curve: 95 % lie within 1.96 σ."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: You want to bring the margin down to ± {{e}} percentage points with the rule 100/√n. How many respondents do you need?
+    answer:
+      value: "{{(100 / e) ** 2}}"
+    hints:
+      - "Rearrange: √n = 100 ÷ {{e}}."
+      - Square {{100 / e}}.
+    explanation: √n = {{100 / e}}, so n = {{(100 / e) ** 2}}. Half the error costs four times the respondents.
+    difficulty: 2
+    variants:
+      params:
+        e: choice[1,2,4,5,10]
+      defaults:
+        e: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: choice
+    prompt: A small party polls 5 %, a big one 50 %. Both come from the same poll of 1000 people. Whose margin is smaller?
+    params:
+      options:
+        - label: The small party's
+          correct: true
+        - label: The rule of thumb is for 50 %. Near the edge p(1 − p) gets smaller.
+          feedback: Die Faustregel gilt für 50 %. Am Rand wird p(1 − p) kleiner.
+        - label: At 50 % p(1 − p) = 0.25 – larger than anywhere else.
+          feedback: Bei 50 % ist p(1 − p) = 0,25 – so groß wie nie sonst.
+    hints:
+      - Compare 0.05 · 0.95 with 0.5 · 0.5.
+      - 0.0475 is much smaller than 0.25.
+    explanation: "At 5 % the margin is about ± 1.4 points, at 50 % about ± 3.1. Relative to the small number it is still big: 5 ± 1.4 means 3.6 to 6.4 %."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +149,38 @@ steps:
     hints:
       - Imagine the same poll were repeated 100 times.
     explanation: This is a **confidence interval**. It covers only random error – not biased samples or leading questions.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Polls often ask whole households or places at once. That gives a design effect of 2: the spread is as if only half as many had been asked. How many »real« respondents are 1000 then worth?"
+    answer:
+      value: 500
+    hints:
+      - Divide by the design effect.
+      - 1000 ÷ 2.
+    explanation: Effectively 500 – the margin grows by √2 ≈ 1.4. People from one place are alike and add less new information.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Party A has 30 %, party B 30 %, ± 3 points each. How big is the margin for the gap A − B?
+    params:
+      options:
+        - label: Clearly bigger, about ± 5 points
+          correct: true
+        - label: Both values wobble – and in opposite directions.
+          feedback: Beide Werte schwanken – und zwar gegenläufig.
+        - label: Equal in the poll does not mean equal in reality.
+          feedback: Gleich in der Umfrage heißt nicht gleich in Wirklichkeit.
+    hints:
+      - If A is too high by chance, those votes are often missing from B.
+      - The errors of both values partly add up.
+    explanation: For the gap the formula is √((pA + pB − (pA − pB)²)/n) – here about 1.7 times the single margin. A lead must be much bigger than ± 3.
     difficulty: 3
 
 srs:

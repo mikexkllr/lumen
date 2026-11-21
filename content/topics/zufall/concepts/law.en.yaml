@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [prob.law]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: explain
     id: s1
@@ -90,6 +90,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: distribution
+    prompt: Flip the coin in big batches until you reach 1000 flips. Watch how close the share gets to 50 %.
+    params:
+      items:
+        - label: Heads
+        - label: Tails
+      sample:
+        - 10
+        - 100
+        - 1000
+    check:
+      predicate: draws >= 1000
+    hints:
+      - Use the button for 1000 flips.
+      - Compare the line and the bar after 10, 100 and 1000 flips.
+    explanation: After 1000 flips the share is usually only one to three points off 50 %. After 10 flips 30 % or 70 % are normal.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: "After many flips: what gets smaller?"
+    params:
+      options:
+        - label: How far the share is from 50 %
+          correct: true
+        - label: This gap typically even grows – like √n. Only divided by n does it shrink.
+          feedback: Dieser Abstand wächst typisch sogar – wie √n. Nur geteilt durch n wird er klein.
+        - label: That always stays 1/2.
+          feedback: Die bleibt immer 1/2.
+    hints:
+      - "At 100 flips 55 : 45 is normal, at 10,000 flips 5050 : 4950."
+      - Compare the gap (10 vs 100) and the share (55 % vs 50.5 %).
+    explanation: The gap grows like √n, the share wobbles like 1/√n. The law of large numbers does not even out – it dilutes.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: the share of heads typically wobbles by 50/√n percentage points. How big is this wobble for {{n}} flips?"
+    answer:
+      value: "{{50 / sqrt(n)}}"
+    hints:
+      - Take the square root of {{n}}.
+      - Divide 50 by {{sqrt(n)}}.
+    explanation: 50 ÷ {{sqrt(n)}} = {{50 / sqrt(n)}} percentage points. Four times as many flips halve the wobble.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[25,100,400,625,2500,10000]
+      defaults:
+        n: 400
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -99,6 +157,45 @@ steps:
     hints:
       - Ten times more precise needs 10² as many tosses.
     explanation: "100 · 100 = 10,000. Precision is expensive: it grows only with the square root."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Chebyshev's inequality holds for every distribution: at most the share 1/k² lies further than k standard deviations from the mean. At most what percent is that for k = 2?"
+    answer:
+      value: 25
+    hints:
+      - Compute 1/k² for k = 2.
+      - 1/4 is what percent?
+    explanation: "At most 25 %. For the bell curve it is only 5 % – Chebyshev is crude but always true. The law of large numbers follows from it: the spread of the mean, σ/√n, goes to zero."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the law of large numbers does not mean that good and bad luck even out.
+    params:
+      keywords:
+        - - anteil
+          - relativ
+          - share
+          - proportion
+          - fraction
+        - - gedächtnis
+          - unabhängig
+          - memory
+          - independent
+        - - verdünn
+          - viele
+          - dilut
+          - many
+          - wächst
+          - grow
+      sample: The coin has no memory; every flip is independent. A lead of heads stays on average. But over many flips it gets diluted in the share, so the share tends to 50 %.
+    explanation: Nothing gets paid back. An old surplus just gets diluted by ever more new flips.
     difficulty: 3
 
 srs:

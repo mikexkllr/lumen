@@ -5,7 +5,7 @@ summary: How small differences look huge.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wirkung
@@ -110,6 +110,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: The y-axis starts at {{s}}. Bar A shows {{s + d}}, bar B shows {{s + d * f}}. How many times taller does B look in the picture?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: abs(numval(state.input) - (s + d * f) / (s + d)) < 0.01
+        misconception: real-ratio
+        text: That is the real ratio of the values. The question is what the eye sees.
+    hints:
+      - Only the part above {{s}} is visible.
+      - A sticks out {{d}}, B sticks out {{d * f}}.
+    explanation: In the picture {{d * f}} ÷ {{d}} = {{f}} times. In truth B is only about {{round(100 * d * (f - 1) / (s + d))}} % larger.
+    difficulty: 2
+    variants:
+      params:
+        s: choice[50,80,90]
+        d: int[2,5]
+        f: int[2,4]
+      defaults:
+        s: 90
+        d: 5
+        f: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: The same curve is drawn once wide and flat, once narrow and tall. What changes?
+    params:
+      options:
+        - label: "Only the impression: narrow looks dramatic, wide looks harmless"
+          correct: true
+        - label: The data are the same, only the aspect ratio differs.
+          feedback: Die Daten sind gleich, nur das Seitenverhältnis ist anders.
+        - label: The aspect ratio strongly affects the feeling.
+          feedback: Das Seitenverhältnis wirkt stark auf das Gefühl.
+    hints:
+      - Imagine squeezing the picture from left and right.
+      - What happens to the angle of the line?
+    explanation: "The aspect ratio controls how steep a line looks. A rule of thumb: important segments should sit at about 45°."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -125,6 +170,42 @@ steps:
     hints:
       - Who chooses where the chart begins?
     explanation: "Always ask: why exactly this period? The honest view shows as much of the course as possible."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: On a log axis, 1000 is as far above 100 as 100 is above which value?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == -800
+        misconception: linear-thinking
+        text: That would be an ordinary axis with equal differences.
+    hints:
+      - From 100 to 1000 is times 10.
+      - Go back from 100 by the same factor.
+    explanation: 100 ÷ 10 = 10. On log axes equal gaps mean equal factors. That is why exponential growth becomes a straight line there.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A report shows numbers up to 2019 on an axis from 0 to 100 – and from 2020 in the same picture on an axis from 0 to 1000. What is this?
+    params:
+      options:
+        - label: A change of scale that hides the jump
+          correct: true
+        - label: A log axis follows one rule along its whole length.
+          feedback: Bei einer log-Achse gilt eine Regel für die ganze Achse.
+        - label: Switching scale in the middle of a chart misleads.
+          feedback: Mitten im Bild die Skala zu wechseln, täuscht.
+    hints:
+      - What would the jump look like if the axis stayed the same?
+      - An axis must follow the same rule everywhere.
+    explanation: A scale change mid-chart makes a tenfold jump look flat. Good charts mark such breaks clearly or avoid them.
     difficulty: 3
 
 srs:

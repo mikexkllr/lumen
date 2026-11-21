@@ -5,7 +5,7 @@ summary: Outcome times probability, then add up.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wuerfelspiel
@@ -102,6 +102,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A game costs 1 €. On a 6 you get {{g}} €, otherwise nothing. What is your average profit per game? Minus means a loss.
+    params:
+      unit: €
+    answer:
+      value: "{{g / 6 - 1}}"
+    feedback:
+      - when: numval(state.input) == g / 6
+        misconception: forgot-stake
+        text: You still have to subtract the 1 € stake.
+    hints:
+      - On average the game pays {{g}} · 1/6.
+      - "Subtract the stake: {{g / 6}} − 1."
+    explanation: "{{g}}/6 − 1 = {{g / 6 - 1}} €. With a payout of 6 € the game would be exactly fair."
+    difficulty: 2
+    variants:
+      params:
+        g: choice[3,6,9,12,18]
+      defaults:
+        g: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: You roll three dice and add them up. What total do you expect on average?
+    answer:
+      value: 10.5
+    hints:
+      - One die gives 3.5 on average.
+      - Expected values can simply be added.
+    explanation: "3 · 3.5 = 10.5. Linearity: E(X + Y) = E(X) + E(Y) – even when X and Y depend on each other."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +154,33 @@ steps:
     hints:
       - ½ · 2 + ¼ · 4 + ⅛ · 8 + …
     explanation: "Yet hardly anyone would pay a €100 stake. The paradox shows: the utility of money does not grow linearly."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: The variance of a die is E(X²) − E(X)². Here E(X²) = 91/6 and E(X) = 3.5. What is the variance? As a fraction.
+    answer:
+      value: 35/12
+      tolerance: 0.01
+    hints:
+      - 3.5² = 49/4.
+      - "Put both over 12: 182/12 − 147/12."
+    explanation: 91/6 − 49/4 = 35/12 ≈ 2.92. The standard deviation is √(35/12) ≈ 1.71 pips.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Ten letters are put into ten addressed envelopes at random. On average, how many end up in the right envelope?
+    answer:
+      value: 1
+    hints:
+      - Each single letter is right with probability 1/10.
+      - Add up the expectation for all ten letters.
+    explanation: "10 · 1/10 = 1 – and that for any number of letters! The trick: count each letter as 0 or 1 and use linearity."
     difficulty: 3
 
 srs:

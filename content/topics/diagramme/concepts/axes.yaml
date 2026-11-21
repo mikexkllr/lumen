@@ -5,7 +5,7 @@ summary: Wie kleine Unterschiede riesig wirken.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wirkung
@@ -110,6 +110,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Die y-Achse beginnt bei {{s}}. Säule A zeigt {{s + d}}, Säule B zeigt {{s + d * f}}. Wievielmal höher **wirkt** B im Bild?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: abs(numval(state.input) - (s + d * f) / (s + d)) < 0.01
+        misconception: real-ratio
+        text: Das ist das echte Verhältnis der Werte. Gefragt ist, was das Auge sieht.
+    hints:
+      - Sichtbar ist nur der Teil über {{s}}.
+      - A ragt {{d}} heraus, B ragt {{d * f}} heraus.
+    explanation: "Im Bild {{d * f}} : {{d}} = {{f}}-mal. In Wahrheit ist B nur etwa {{round(100 * d * (f - 1) / (s + d))}} % größer."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[50,80,90]
+        d: int[2,5]
+        f: int[2,4]
+      defaults:
+        s: 90
+        d: 5
+        f: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Dieselbe Kurve wird einmal sehr breit und flach, einmal schmal und hoch gezeichnet. Was ändert sich?
+    params:
+      options:
+        - label: "Nur der Eindruck: schmal wirkt dramatisch, breit wirkt harmlos"
+          correct: true
+        - label: Die Steigung der Daten
+          feedback: Die Daten sind gleich, nur das Seitenverhältnis ist anders.
+        - label: Nichts, auch nicht der Eindruck
+          feedback: Das Seitenverhältnis wirkt stark auf das Gefühl.
+    hints:
+      - Stell dir vor, du drückst das Bild von links und rechts zusammen.
+      - Was passiert mit dem Winkel der Linie?
+    explanation: "Das **Seitenverhältnis** steuert, wie steil eine Linie aussieht. Eine Faustregel: Wichtige Abschnitte sollen etwa im 45°-Winkel liegen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -125,6 +170,42 @@ steps:
     hints:
       - Wer wählt, wo die Grafik beginnt?
     explanation: "Immer fragen: Warum genau dieser Zeitraum? Der ehrliche Blick zeigt möglichst viel Verlauf."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Auf einer log-Achse liegt 1000 genauso weit über 100 wie 100 über welchem Wert?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == -800
+        misconception: linear-thinking
+        text: Das wäre eine normale Achse mit gleichen Differenzen.
+    hints:
+      - Von 100 nach 1000 ist es mal 10.
+      - Geh von 100 aus um denselben Faktor zurück.
+    explanation: "100 : 10 = 10. Auf log-Achsen sind gleiche Abstände gleiche Faktoren. Darum wird exponentielles Wachstum dort zur Geraden."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Bericht zeigt die Zahlen bis 2019 auf einer Achse von 0 bis 100 – und ab 2020 im selben Bild auf einer Achse von 0 bis 1000. Was ist das?
+    params:
+      options:
+        - label: Ein Skalenwechsel, der den Sprung versteckt
+          correct: true
+        - label: Eine log-Achse
+          feedback: Bei einer log-Achse gilt eine Regel für die ganze Achse.
+        - label: Ganz normal, wenn Zahlen wachsen
+          feedback: Mitten im Bild die Skala zu wechseln, täuscht.
+    hints:
+      - Wie sähe der Sprung aus, wenn die Achse gleich bliebe?
+      - Eine Achse muss überall dieselbe Regel haben.
+    explanation: Ein Wechsel der Skala mitten im Bild lässt einen Zehnfach-Sprung flach aussehen. Gute Grafiken zeigen solche Brüche deutlich oder vermeiden sie.
     difficulty: 3
 
 srs:

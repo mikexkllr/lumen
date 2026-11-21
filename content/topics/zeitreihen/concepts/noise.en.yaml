@@ -5,7 +5,7 @@ summary: Separating chance from real change.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: einzeltag
@@ -58,6 +58,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A measurement fluctuates with σ = {{s}}. You average {{n}} measurements. How much does the average fluctuate?
+    answer:
+      value: "{{s / sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == s / n
+        misconception: divide-by-n
+        text: Dividing by n is too optimistic. Noise falls with √n.
+    hints:
+      - Noise shrinks with the square root of n.
+      - Compute {{s}} ÷ {{sqrt(n)}}.
+    explanation: "{{s}} ÷ {{sqrt(n)}} = {{s / sqrt(n)}}. That is the standard error of the mean."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[6,10,12,20]
+        n: choice[4,16,25,100]
+      defaults:
+        s: 12
+        n: 16
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: A control chart sets limits at mean ± 3σ. The error count averages 50 with σ = 2. Where is the upper limit?
+    answer:
+      value: 56
+    hints:
+      - 3σ = 6.
+      - Compute 50 + 6.
+    explanation: 50 + 6 = 56. If a day lies above it, take a look. Values inside the limits are ordinary noise.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -67,6 +104,39 @@ steps:
     hints:
       - √n should be 10.
     explanation: 100 measurements. That is how astronomers pull faint signals out of noise – by exposing for hours.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: With pure noise a value lies outside ± 3σ with 0.27 % chance. How many false alarms do you expect in 1000 days? Rounded.
+    answer:
+      value: 3
+      tolerance: 0.5
+    hints:
+      - Compute 1000 · 0.0027.
+      - 2.7 – rounded?
+    explanation: About 3 false alarms. That is why extra rules such as »7 values in a row above the mean« are added – they catch shifts that single outliers miss.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: "Every day you add a random coin flip: +1 or −1. After 100 days the curve looks like a clear trend. What is it?"
+    params:
+      options:
+        - label: A random walk – chance that adds up looks like a trend
+          correct: true
+        - label: Every step was a fair coin flip.
+          feedback: Jeder Schritt war ein fairer Münzwurf.
+        - label: Nothing repeats regularly.
+          feedback: Nichts wiederholt sich regelmäßig.
+    hints:
+      - Each day starts where the last one ended.
+      - Sums of chance drift away – typically by √n.
+    explanation: A random walk typically drifts about 10 away after 100 steps. Share prices resemble it. Whoever sees trends in it often sees only chance.
     difficulty: 3
 
 srs:

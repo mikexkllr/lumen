@@ -5,7 +5,7 @@ summary: Skewed distributions and the median.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: form
@@ -69,6 +69,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: buckets
+    prompt: How is this quantity usually distributed?
+    params:
+      buckets:
+        - id: b1
+          label: Long tail to the right
+        - id: b2
+          label: Long tail to the left
+        - id: b3
+          label: Roughly symmetric
+      items:
+        - label: Income
+          bucket: b1
+        - label: Waiting time at the doctor
+          bucket: b1
+        - label: Age at death in rich countries
+          bucket: b2
+        - label: Scores on a very easy test
+          bucket: b2
+        - label: Adult height
+          bucket: b3
+        - label: Errors of a scale
+          bucket: b3
+    hints:
+      - Is there a hard limit below or above?
+      - In an easy test many hit the maximum score.
+    explanation: "Limits create skew: income cannot go below zero, scores cannot exceed the maximum. With right-skewed data the mean lies above the median."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Values: 10, 100, 1000. The geometric mean is the cube root of the product. What is it?"
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 370
+        misconception: arithmetic-mean
+        text: That is the arithmetic mean. The 1000 drags it upwards.
+    hints:
+      - "Product: 10 · 100 · 1000 = 1,000,000."
+      - Which number cubed gives a million?
+    explanation: ∛1,000,000 = 100. In logs the values sit at 1, 2, 3 – nicely symmetric. For skewed positive data the geometric mean is often the better »typical« value.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -86,6 +135,25 @@ steps:
           - average
       min: 3
       sample: In a normal distribution about 68% of values lie at most one standard deviation from the mean and 95% at most two. For IQ with mean 100 and σ = 15, 95% thus lie between 70 and 130.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Many small random effects that add up form a bell. What arises when many small random factors multiply – like growth rates?
+    params:
+      options:
+        - label: "A log-normal distribution: right-skewed, its logarithm is bell-shaped"
+          correct: true
+        - label: Products behave differently from sums.
+          feedback: Produkte verhalten sich anders als Summen.
+        - label: Repeated multiplying creates skew, not flatness.
+          feedback: Wiederholtes Multiplizieren erzeugt Schiefe, keine Gleichheit.
+    hints:
+      - The logarithm turns a product into a sum.
+      - And sums of many random effects become a bell.
+    explanation: log(product) = sum of logs → bell. The product itself is log-normally distributed. That fits incomes, city sizes and share prices.
     difficulty: 3
 
 srs:

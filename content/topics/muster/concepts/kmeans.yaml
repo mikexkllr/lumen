@@ -1,0 +1,299 @@
+id: stats.clustering.kmeans
+type: concept
+title: "Gruppen finden mit k-Means"
+summary: "Zentren setzen, zuordnen, verschieben – bis nichts sich mehr ändert."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Wie viele Gruppen siehst du in dieser Punktwolke?
+    visual:
+      widget: graph
+      params:
+        x:
+          - 0
+          - 9
+        y:
+          - 0
+          - 8
+        showCoordinates: false
+        points:
+          - id: a
+            x: 1
+            y: 2
+            draggable: false
+            label: ""
+          - id: b
+            x: 2
+            y: 1
+            draggable: false
+            label: ""
+          - id: c
+            x: 2
+            y: 3
+            draggable: false
+            label: ""
+          - id: d
+            x: 3
+            y: 2
+            draggable: false
+            label: ""
+          - id: e
+            x: 6
+            y: 6
+            draggable: false
+            label: ""
+          - id: f
+            x: 7
+            y: 5
+            draggable: false
+            label: ""
+          - id: g
+            x: 7
+            y: 7
+            draggable: false
+            label: ""
+          - id: h
+            x: 8
+            y: 6
+            draggable: false
+            label: ""
+    params:
+      options:
+        - label: Zwei
+          correct: true
+        - label: Eine
+          feedback: Zwischen den Haufen ist eine deutliche Lücke.
+        - label: Acht
+          feedback: Jeder Punkt allein ist keine Gruppe.
+    hints:
+      - Wo liegen die Punkte dicht beieinander?
+      - Links unten und rechts oben.
+    explanation: Das Auge sieht sofort zwei Haufen. **Clustering** bringt Computern bei, das ohne vorgegebene Etiketten zu tun.
+
+  - kind: explain
+    id: c1
+    body: "Der **k-Means**-Algorithmus: Setze k Zentren. Ordne jeden Punkt dem nächsten Zentrum zu. Schiebe jedes Zentrum in den Mittelpunkt seiner Punkte. Wiederhole, bis sich nichts mehr ändert."
+
+  - kind: problem
+    id: c2
+    widget: graph
+    prompt: Zieh die zwei Zentren M und N jeweils genau in den Mittelpunkt einer Gruppe.
+    params:
+      x:
+        - 0
+        - 9
+      y:
+        - 0
+        - 8
+      showCoordinates: true
+      points:
+        - id: a
+          x: 1
+          y: 2
+          draggable: false
+          label: ""
+        - id: b
+          x: 2
+          y: 1
+          draggable: false
+          label: ""
+        - id: c
+          x: 2
+          y: 3
+          draggable: false
+          label: ""
+        - id: d
+          x: 3
+          y: 2
+          draggable: false
+          label: ""
+        - id: e
+          x: 6
+          y: 6
+          draggable: false
+          label: ""
+        - id: f
+          x: 7
+          y: 5
+          draggable: false
+          label: ""
+        - id: g
+          x: 7
+          y: 7
+          draggable: false
+          label: ""
+        - id: h
+          x: 8
+          y: 6
+          draggable: false
+          label: ""
+        - id: M
+          x: 4
+          y: 7
+          label: M
+        - id: N
+          x: 5
+          y: 1
+          label: N
+    check:
+      predicate: (state.points.M.x == 2 && state.points.M.y == 2 && state.points.N.x == 7 && state.points.N.y == 6) || (state.points.M.x == 7 && state.points.M.y == 6 && state.points.N.x == 2 && state.points.N.y == 2)
+    solution:
+      state:
+        points:
+          M:
+            x: 2
+            y: 2
+          N:
+            x: 7
+            y: 6
+    hints:
+      - Der Mittelpunkt hat als x den Schnitt der x-Werte, als y den Schnitt der y-Werte.
+      - "Links: x-Werte 1, 2, 2, 3 → 2. y-Werte 2, 1, 3, 2 → 2."
+    explanation: Die Zentren liegen bei (2 | 2) und (7 | 6). Jedes Zentrum ist der Schwerpunkt seiner Gruppe – daher der Name »Means«.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Zentren bei (2 | 2) und (7 | 6). Zu welchem gehört der Punkt (4 | 4)?
+    params:
+      options:
+        - label: Zu (2 | 2) – Abstand √8 ≈ 2,8 statt √13 ≈ 3,6
+          correct: true
+        - label: Zu (7 | 6)
+          feedback: "Rechne beide Abstände: (2² + 2²) gegen (3² + 2²)."
+        - label: Zu keinem, er liegt dazwischen
+          feedback: k-Means ordnet jeden Punkt genau einem Zentrum zu.
+    hints:
+      - "Abstand zu (2 | 2): Unterschiede 2 und 2."
+      - "Abstand zu (7 | 6): Unterschiede 3 und 2."
+    explanation: √8 < √13, also zum linken Zentrum. Jeder Punkt geht zum **nächsten** Zentrum.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Gruppe besteht aus (1 | 2), (3 | 4) und (5 | 0). Wo liegt die y-Koordinate ihres Zentrums?
+    answer:
+      value: 2
+    hints:
+      - Mittle die drei y-Werte.
+      - "(2 + 4 + 0) : 3."
+    explanation: "6 : 3 = 2; das Zentrum ist (3 | 2). Im nächsten Schritt rückt das Zentrum genau dorthin."
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Ordne die Schritte von k-Means.
+    params:
+      items:
+        - label: Anzahl k der Gruppen wählen
+        - label: k Startzentren setzen
+        - label: Jeden Punkt dem nächsten Zentrum zuordnen
+        - label: Jedes Zentrum in den Mittelpunkt seiner Punkte schieben
+        - label: Wiederholen, bis sich nichts mehr ändert
+    hints:
+      - k muss man vorher festlegen.
+      - Zuordnen und Verschieben wechseln sich ab.
+    explanation: "Zwei Schritte im Wechsel: zuordnen, verschieben. Meist ist alles nach wenigen Runden stabil."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "k-Means macht die Summe der quadrierten Abstände zu den Zentren klein. Eine Gruppe auf einer Linie: 1, 3, 8, Zentrum 4. Wie groß ist ihre Quadratsumme?"
+    answer:
+      value: 26
+    hints:
+      - "Abstände: −3, −1, 4."
+      - 9 + 1 + 16.
+    explanation: 26. Jeder Schritt von k-Means senkt diese **Streuung innerhalb der Gruppen** oder lässt sie gleich – darum hört das Verfahren sicher auf.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Zwei Läufe von k-Means mit verschiedenen Startzentren ergeben verschiedene Gruppen. Wie kann das sein?
+    params:
+      options:
+        - label: k-Means findet nur ein lokales Optimum – der Start entscheidet mit
+          correct: true
+        - label: Das ist ein Programmierfehler
+          feedback: Das Verhalten ist normal für k-Means.
+        - label: Die Daten haben sich geändert
+          feedback: Gleiche Daten, anderer Start.
+    hints:
+      - Bleibt ein Zentrum in einem schlechten Tal stecken?
+      - Man startet darum oft mehrmals und nimmt das beste Ergebnis.
+    explanation: Ein kluger Start wie **k-Means++** legt die Startzentren weit auseinander. Mehrere Läufe mit der kleinsten Quadratsumme helfen zusätzlich.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Punkte bilden zwei Ringe, einen kleinen in einem großen. Kann k-Means mit k = 2 die Ringe trennen?
+    params:
+      options:
+        - label: Nein – k-Means schneidet den Raum gerade durch und findet runde Klumpen
+          correct: true
+        - label: Ja, mit genug Runden
+          feedback: Mehr Runden ändern die Form der Gruppen nicht.
+        - label: Ja, wenn man standardisiert
+          feedback: Skalierung macht aus Ringen keine Klumpen.
+    hints:
+      - Die Grenze zwischen zwei Zentren ist immer eine Gerade.
+      - Ringe brauchen eine runde Grenze.
+    explanation: "Für solche Formen nutzt man **dichtebasierte** Verfahren wie DBSCAN: Gruppe ist, was dicht zusammenhängt."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum endet k-Means garantiert nach endlich vielen Schritten?
+    params:
+      options:
+        - label: Die Quadratsumme sinkt bei jeder Änderung, und es gibt nur endlich viele Zuordnungen
+          correct: true
+        - label: Weil man eine Höchstzahl an Runden setzt
+          feedback: Das ist ein Notbehelf, nicht der Grund.
+        - label: Weil die Zentren auf festen Punkten liegen
+          feedback: Die Zentren können beliebige Mittelpunkte sein.
+    hints:
+      - Kann sich eine Zuordnung zweimal wiederholen, wenn die Summe ständig sinkt?
+      - "n Punkte auf k Gruppen: höchstens kⁿ Möglichkeiten."
+    explanation: Eine streng fallende Größe kann keinen Zustand zweimal besuchen. Bei endlich vielen Zuständen ist irgendwann Schluss. Ein typisches **Konvergenz**-Argument.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie k-Means Gruppen findet.
+    params:
+      keywords:
+        - - zentr
+          - centre
+          - center
+          - mittelpunkt
+          - mean
+        - - nächst
+          - zuordn
+          - nearest
+          - assign
+        - - verschieb
+          - wiederhol
+          - move
+          - repeat
+      sample: Man setzt k Zentren. Jeder Punkt wird dem nächsten Zentrum zugeordnet. Dann verschiebt man jedes Zentrum in den Mittelpunkt seiner Punkte und wiederholt das, bis sich nichts mehr ändert.
+    explanation: Zuordnen und Verschieben verbessern sich gegenseitig, bis ein stabiler Zustand erreicht ist.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

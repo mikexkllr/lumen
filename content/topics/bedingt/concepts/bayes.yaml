@@ -5,7 +5,7 @@ summary: Wenn Fehlalarme die Treffer überwiegen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: bauchgefuehl
@@ -87,6 +87,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Von 10 000 Menschen sind {{s}} krank. Ein Test erkennt 90 % der Kranken und schlägt bei 5 % der Gesunden falsch an. Wie viel Prozent der Positiven sind krank? Gerundet.
+    answer:
+      value: "{{100 * 0.9 * s / (0.9 * s + 0.05 * (10000 - s))}}"
+      tolerance: 0.6
+    hints:
+      - "Richtig positiv: {{0.9 * s}}. Falsch positiv: 5 % von {{10000 - s}} = {{0.05 * (10000 - s)}}."
+      - Teile die richtig Positiven durch alle Positiven.
+    explanation: "{{0.9 * s}} : ({{0.9 * s}} + {{0.05 * (10000 - s)}}) ≈ {{round(100 * 0.9 * s / (0.9 * s + 0.05 * (10000 - s)))}} %. Je seltener die Krankheit, desto mehr Fehlalarme unter den Positiven."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[100,500,1000,2000]
+      defaults:
+        s: 100
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +121,50 @@ steps:
     hints:
       - "Von 10 000 Menschen: 1 Kranker, aber 100 falsch-positive Gesunde."
     explanation: "Darum testet man gezielt Risikogruppen: Dort ist die Basisrate höher und der Test aussagekräftig."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Derselbe Test (1000 Menschen, 10 krank, 9 erkannt, 89 Fehlalarme). Jemand testet **negativ**. Wie sicher ist er gesund?
+    params:
+      options:
+        - label: Sehr sicher – über 99,8 %
+          correct: true
+        - label: Nur zu 91 %
+          feedback: 91 % ist der Anteil der Gesunden, die negativ testen. Gefragt ist der umgekehrte Anteil.
+        - label: Zu 50 %
+          feedback: Negative Ergebnisse sind hier sehr verlässlich.
+    hints:
+      - Wie viele testen negativ? 1 kranker und 901 gesunde.
+      - "Rechne 901 : 902."
+    explanation: 901/902 ≈ 99,9 %. Bei seltenen Krankheiten ist ein **negativer** Test viel aussagekräftiger als ein positiver.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux mit 1000 Menschen, warum ein positiver Test bei einer seltenen Krankheit oft ein Fehlalarm ist.
+    params:
+      keywords:
+        - - "1000"
+          - tausend
+          - thousand
+        - - gesund
+          - fehlalarm
+          - falsch
+          - healthy
+          - "false"
+        - - selten
+          - basisrate
+          - wenige
+          - rare
+          - base rate
+          - few
+      sample: Von 1000 Menschen sind nur 10 krank, die Krankheit ist selten. 9 davon testen positiv. Aber von 990 Gesunden testen auch 89 falsch positiv. Darum sind nur 9 von 98 Positiven krank.
+    explanation: Die vielen Gesunden erzeugen mehr Fehlalarme, als es überhaupt Kranke gibt. **Natürliche Häufigkeiten** machen das sichtbar.
     difficulty: 3
 
 srs:

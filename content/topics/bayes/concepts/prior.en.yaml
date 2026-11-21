@@ -5,7 +5,7 @@ summary: Don't forget the base rate.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: bibliothek
@@ -92,6 +92,41 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "The taxi puzzle with 100 cabs: 15 are blue, 85 green. The witness identifies colours correctly 80 % of the time. How many of the 100 cabs would he call »blue«?"
+    answer:
+      value: 29
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: forgot-false-pos
+        text: Those are only the real blue cabs he gets right. Add the green ones he gets wrong.
+    hints:
+      - "Blue, correctly named: 80 % of 15 = 12."
+      - "Green, wrongly called »blue«: 20 % of 85 = 17."
+    explanation: 12 + 17 = 29 cabs get called »blue«. More than half of them are actually green!
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Of these 29 »blue« cabs, 12 are really blue. How likely was the cab blue? In percent, to one decimal.
+    answer:
+      value: 41.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: base-rate-neglect
+        text: 80 % is the witness's accuracy. The base rate of only 15 % blue cabs is missing.
+    hints:
+      - Compute 12 ÷ 29.
+      - That is about 0.414.
+    explanation: 12/29 ≈ 41.4 %. Most people guess 80 % – they forget the base rate.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +142,39 @@ steps:
     hints:
       - “Prior” means “before”.
     explanation: Prior times likelihood gives the **posterior** – and that is the prior for the next piece of evidence.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Bayes as a formula: P(H | E) = P(E | H) · P(H) ÷ P(E). Here P(H) = 0.2, P(E | H) = 0.9 and P(E | not H) = 0.3. What is P(H | E) in percent? To one decimal."
+    answer:
+      value: 42.9
+      tolerance: 0.1
+    hints:
+      - P(E) = 0.9 · 0.2 + 0.3 · 0.8 = 0.18 + 0.24 = 0.42.
+      - Compute 0.18 ÷ 0.42.
+    explanation: 0.18/0.42 = 3/7 ≈ 42.9 %. The denominator P(E) collects all routes to the evidence – with and without H.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A prior needs a reference class. How likely is a new restaurant in your street to still be open after 3 years? What is the best starting point?
+    params:
+      options:
+        - label: With the share of similar restaurants that survive 3 years
+          correct: true
+        - label: That is evidence – the base rate comes first.
+          feedback: Das ist ein Hinweis – erst kommt die Basisrate.
+        - label: Two options do not mean equal chances.
+          feedback: Zwei Möglichkeiten heißen nicht gleiche Chancen.
+    hints:
+      - What do you know about many similar cases?
+      - Then you adjust with the details.
+    explanation: First the outside view (base rate of similar cases), then the inside view (specifics). Those who see only details are usually too optimistic.
     difficulty: 3
 
 srs:

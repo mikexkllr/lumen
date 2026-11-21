@@ -1,0 +1,200 @@
+id: stats.experiments.natural
+type: concept
+title: "Natürliche Experimente"
+summary: "Wenn Zufall, Natur oder Regeln das Los ersetzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Niemand darf Menschen per Los zum Rauchen oder zu Armut verdonnern. Wie findet man trotzdem Ursachen?
+    params:
+      options:
+        - label: Man sucht Situationen, in denen schon der Zufall oder eine Regel eingeteilt hat
+          correct: true
+        - label: Gar nicht – ohne Experiment keine Ursachen
+          feedback: Es gibt kluge Ersatzwege.
+        - label: Man fragt die Menschen, warum
+          feedback: Selbstauskunft verrät keine Ursachen.
+    hints:
+      - Gibt es Lotterien oder Stichtage im echten Leben?
+      - Manchmal teilt die Welt selbst fast zufällig ein.
+    explanation: Solche Situationen nennt man **natürliche Experimente**. Für ihre Methoden gab es 2021 den Wirtschafts-Nobelpreis.
+
+  - kind: explain
+    id: c1
+    body: In einem **natürlichen Experiment** teilen Natur, Zufall oder Regeln Menschen fast wie ein Los ein. Forscher werten nur aus, was ohnehin geschah.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "London 1854: Häuser mit Wasser der Firma A hatten 315 Cholera-Tote pro 10 000 Häuser, Häuser der Firma B nur 37. Wievielmal höher war das Risiko bei A? Auf eine Stelle."
+    answer:
+      value: 8.5
+      tolerance: 0.1
+    hints:
+      - Teile 315 durch 37.
+      - Etwa 8,5.
+    explanation: "Rund 8,5-mal. John Snow erkannte: Die Firmen versorgten oft Nachbarhäuser derselben Straße. Nur das Wasser unterschied sich – A nahm es unterhalb der Abwässer aus der Themse."
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Fast wie ein Los – oder selbst gewählt?
+    params:
+      buckets:
+        - id: b1
+          label: Fast wie ein Los
+        - id: b2
+          label: Selbst gewählt
+      items:
+        - label: Lotto-Gewinner gegen Nicht-Gewinner
+          bucket: b1
+        - label: Wer joggt, gegen wer nicht joggt
+          bucket: b2
+        - label: Geburtstag kurz vor oder nach Stichtag
+          bucket: b1
+        - label: Wer Bio kauft, gegen wer nicht
+          bucket: b2
+        - label: Wehrpflicht per Losnummer
+          bucket: b1
+    hints:
+      - Haben die Menschen selbst entschieden, in welche Gruppe sie kommen?
+      - Wer joggt, unterscheidet sich auch sonst.
+    explanation: Wo Menschen selbst wählen, schleichen sich Störfaktoren ein. Lotterien und Stichtage teilen dagegen ohne Rücksicht auf die Person ein.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Wer im Test 80 Punkte oder mehr hat, bekommt ein Stipendium. Wie misst man fair, was das Stipendium bewirkt?
+    params:
+      options:
+        - label: Man vergleicht Schüler knapp über und knapp unter 80
+          correct: true
+        - label: Man vergleicht alle mit und ohne Stipendium
+          feedback: Die Gruppen unterscheiden sich stark in der Leistung.
+        - label: Man fragt die Stipendiaten
+          feedback: Selbstauskunft ersetzt keinen Vergleich.
+    hints:
+      - Wie verschieden sind Schüler mit 79 und mit 81 Punkten?
+      - Ob man knapp drüber oder drunter landet, ist fast Zufall.
+    explanation: An der Grenze entscheidet fast der Zufall. Dieser **Schwellenvergleich** (Regressions-Diskontinuität) wirkt wie ein kleines Experiment.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Stadt A führt ein Tempolimit ein, Stadt B nicht. Unfälle pro Monat: A vorher 40, nachher 30. B vorher 50, nachher 45. Wie groß ist der Effekt des Limits nach »Differenz der Differenzen«?"
+    answer:
+      value: -5
+    feedback:
+      - when: numval(state.input) == -10
+        misconception: no-control
+        text: Auch in B sanken die Unfälle – um 5. Diesen allgemeinen Trend musst du abziehen.
+    hints:
+      - "A: −10. B: −5."
+      - Rechne (−10) − (−5).
+    explanation: −10 − (−5) = −5 Unfälle pro Monat. B zeigt, was ohne Limit passiert wäre – vorausgesetzt, beide Städte hätten sich sonst gleich entwickelt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Ein Kurs kommt in Schule A: Noten vorher {{a}}, nachher {{a + d1}}. Schule B ohne Kurs: vorher {{b}}, nachher {{b + d2}}. Wie groß ist der Effekt nach Differenz der Differenzen?"
+    answer:
+      value: "{{d1 - d2}}"
+    hints:
+      - "Änderung in A: {{d1}}. Änderung in B: {{d2}}."
+      - Rechne {{d1}} − {{d2}}.
+    explanation: "{{d1}} − {{d2}} = {{d1 - d2}}. Die Methode zieht den gemeinsamen Trend ab – aber nur, wenn beide Schulen **parallel** gelaufen wären."
+    difficulty: 2
+    variants:
+      params:
+        a: step[50,70,5]
+        b: step[50,70,5]
+        d1: int[4,12]
+        d2: int[1,6]
+      constraints:
+        - d1 > d2
+      defaults:
+        a: 60
+        b: 65
+        d1: 8
+        d2: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In einer Stadt werden Plätze an einer begehrten Schule verlost. Nicht jeder Gewinner geht hin, und manche Verlierer kommen doch hinein. Wie nutzt man das Los trotzdem?
+    params:
+      options:
+        - label: "Man nutzt den Losgewinn als Instrument: Er verändert die Chance auf die Schule, sonst nichts"
+          correct: true
+        - label: Man vergleicht nur, wer hinging
+          feedback: Das ist wieder Selbstauswahl.
+        - label: Das Los ist dann wertlos
+          feedback: Es bleibt eine saubere Quelle von Zufall.
+    hints:
+      - Der Losgewinn ist zufällig. Wirkt er nur über den Schulbesuch?
+      - "Man rechnet: Effekt des Loses : Effekt des Loses auf den Schulbesuch."
+    explanation: Das ist die Idee der **Instrumentvariable**. Zeigt das Los +2 Punkte Wirkung und erhöht es den Schulbesuch um 50 Punkte, schätzt man +4 Punkte pro tatsächlichem Besuch.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Gene werden bei der Zeugung zufällig gemischt. Manche Genvarianten erhöhen leicht den Cholesterinspiegel. Wozu nutzen Forscher das?
+    params:
+      options:
+        - label: "Als natürliches Los: Haben Träger mehr Herzinfarkte, wirkt Cholesterin ursächlich"
+          correct: true
+        - label: Um Gene zu verändern
+          feedback: Es geht nur ums Beobachten.
+        - label: Gar nicht, Gene sind keine Ursachen
+          feedback: Gerade weil sie zufällig verteilt sind, taugen sie als Los.
+    hints:
+      - Wählt jemand seine Gene selbst?
+      - Die Genvariante wirkt hier wie das Los einer Studie.
+    explanation: Das heißt **Mendelsche Randomisierung**. Sie setzt voraus, dass das Gen nur über Cholesterin wirkt – das muss man prüfen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein natürliches Experiment ist – mit einem Beispiel.
+    params:
+      keywords:
+        - - zufall
+          - los
+          - regel
+          - chance
+          - lottery
+          - rule
+          - stichtag
+          - cut-off
+        - - vergleich
+          - gruppe
+          - compar
+          - group
+        - - ursach
+          - wirk
+          - cause
+          - effect
+          - kausal
+          - causal
+      sample: Manchmal teilt eine Regel oder der Zufall Menschen ein, etwa eine Schul-Lotterie. Dann vergleicht man Gewinner und Verlierer wie zwei Gruppen in einem Experiment. So erkennt man Ursachen, ohne selbst zu losen.
+    explanation: Das Los muss nicht vom Forscher stammen – es muss nur so gut wie zufällig sein.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

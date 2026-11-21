@@ -1,0 +1,183 @@
+id: stats.information.entropy
+type: concept
+title: "Shannon entropy"
+summary: "The average surprise of a source."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Which coin is harder to predict: a fair one or one that shows heads 90 % of the time?"
+    params:
+      options:
+        - label: The fair one
+          correct: true
+        - label: With it you almost always guess heads correctly.
+          feedback: Bei ihr tippst du fast immer richtig auf Kopf.
+        - label: The uncertainty depends strongly on p.
+          feedback: Die Ungewissheit hängt stark von p ab.
+    hints:
+      - With which coin is your best guess right more often?
+      - Uncertainty is largest when everything is equally likely.
+    explanation: The fair coin has 1 bit of uncertainty, the loaded one only about 0.47 bits. This measure is called entropy.
+
+  - kind: explain
+    id: c1
+    body: "**Entropy** is the average surprise: H = Σ p · (−log₂ p). It measures how many bits you need per symbol on average. The uniform distribution has the highest entropy."
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: A
+            weight: 2
+          - label: B
+            weight: 1
+          - label: C
+            weight: 1
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A source sends A with 1/2, B with 1/4 and C with 1/4. What is its entropy in bits?
+    answer:
+      value: 1.5
+    feedback:
+      - when: abs(numval(state.input) - 1.585) < 0.01
+        misconception: assume-uniform
+        text: That would be log₂ 3 – the entropy for three equally common symbols.
+    hints:
+      - "Surprises: A 1 bit, B and C 2 bits each."
+      - "Weight them: ½ · 1 + ¼ · 2 + ¼ · 2."
+    explanation: 0.5 + 0.5 + 0.5 = 1.5 bits. Less than log₂ 3 ≈ 1.58, because A is more predictable.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A source has {{2 ** k}} equally common symbols. What is its entropy?
+    answer:
+      value: "{{k}}"
+    hints:
+      - "With a uniform distribution every surprise is the same: log₂ {{2 ** k}}."
+      - 2^{{k}} = {{2 ** k}}.
+    explanation: H = log₂ {{2 ** k}} = {{k}} bits – the maximum for {{2 ** k}} symbols.
+    variants:
+      params:
+        k: int[1,8]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Order by entropy – from small to large.
+    params:
+      items:
+        - label: Coin that always shows heads
+        - label: Coin with 90 % heads
+        - label: Fair coin
+        - label: Fair die
+        - label: Fair 20-slot wheel
+    hints:
+      - Certainty has entropy 0.
+      - More equally likely outcomes means more entropy.
+    explanation: "0 < 0.47 < 1 < 2.58 < 4.32 bits. Entropy measures uncertainty: how much you do not yet know."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Compute the entropy of the 90 % coin: H = 0.9 · log₂(1/0.9) + 0.1 · log₂(1/0.1). Here log₂(1/0.9) ≈ 0.152 and log₂ 10 ≈ 3.322. To two decimals."
+    answer:
+      value: 0.47
+      tolerance: 0.01
+    hints:
+      - 0.9 · 0.152 ≈ 0.137.
+      - 0.1 · 3.322 ≈ 0.332. Add.
+    explanation: ≈ 0.47 bits. 1000 flips of this coin can therefore be packed into about 470 bits instead of 1000.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many bits of information does a letter of ordinary English text carry on average? (26 equally common letters would have 4.7 bits.)"
+    params:
+      min: 0
+      max: 5
+      step: 0.1
+    answer:
+      value: 1
+      tolerance: 0.5
+    explanation: In 1951 Shannon estimated about 0.6 to 1.3 bits per letter. Rules, words and meaning make text predictable – that is why it compresses so well.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The entropy of a coin with heads chance p is H(p) = −p log₂ p − (1 − p) log₂(1 − p). Where is its maximum?
+    params:
+      options:
+        - label: At p = 1/2, with 1 bit
+          correct: true
+        - label: Then everything is certain – entropy 0.
+          feedback: Dann ist alles sicher – Entropie 0.
+        - label: There it is only 0.47 bits.
+          feedback: Dort ist sie nur 0,47 Bit.
+    hints:
+      - "H is symmetric: H(p) = H(1 − p)."
+      - The derivative log₂((1 − p)/p) is zero at p = 1/2.
+    explanation: Among all distributions on n symbols the uniform one has the largest entropy, namely log₂ n. The normal distribution plays this role at fixed variance.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Entropy in physics (Boltzmann, S = k · ln W) and Shannon entropy share a name. What connects them?
+    params:
+      options:
+        - label: Both count, logarithmically, how many possibilities fit what you know
+          correct: true
+        - label: The connection is deep and mathematically exact.
+          feedback: Der Zusammenhang ist tief und mathematisch genau.
+        - label: Temperature is a different quantity.
+          feedback: Temperatur ist eine andere Größe.
+    hints:
+      - W is the number of microstates for a macrostate.
+      - log₂ W bits are needed to specify the exact state.
+    explanation: With W equally likely states Shannon's H = log W. Boltzmann measures the same thing in physical units. Information even has an energy cost (Landauer's principle).
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what entropy measures – using coins as an example.
+    params:
+      keywords:
+        - - überrasch
+          - ungewiss
+          - surpris
+          - uncertain
+        - - mittel
+          - mittler
+          - schnitt
+          - average
+          - mean
+        - - fair
+          - gleich
+          - gezinkt
+          - loaded
+          - equal
+          - bit
+      sample: Entropy is the average surprise or uncertainty of a source. A fair coin has 1 bit because both sides are equally likely. A loaded coin is more predictable and has less.
+    explanation: Entropy is the average of all surprises – weighted by how often they occur.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

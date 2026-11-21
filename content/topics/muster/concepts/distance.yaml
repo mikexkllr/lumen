@@ -1,0 +1,189 @@
+id: stats.clustering.distance
+type: concept
+title: "Ähnlichkeit messen"
+summary: "Abstände zwischen Datenpunkten – und warum Einheiten alles verderben können."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Drei Menschen: A ist 170 cm groß und verdient 3000 €, B 190 cm und 3010 €, C 171 cm und 4000 €. Wer ist A am ähnlichsten?"
+    params:
+      options:
+        - label: Das hängt davon ab, wie man Größe und Gehalt gewichtet
+          correct: true
+        - label: Eindeutig B
+          feedback: Beim Gehalt ja – bei der Größe liegt C viel näher.
+        - label: Eindeutig C
+          feedback: Bei der Größe ja – beim Gehalt liegt B viel näher.
+    hints:
+      - Vergleiche die Unterschiede in jeder Größe einzeln.
+      - Sind 20 cm viel oder wenig im Vergleich zu 1000 €?
+    explanation: Ähnlichkeit ist keine Naturkonstante – man muss festlegen, wie man **Abstand** misst. Das ist der erste Schritt jeder Mustersuche.
+
+  - kind: explain
+    id: c1
+    body: "Jeder Datenpunkt ist ein Punkt im Raum: eine Achse pro Merkmal. Der **euklidische Abstand** ist die Luftlinie: Wurzel aus der Summe der quadrierten Unterschiede – Pythagoras."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie groß ist der euklidische Abstand zwischen (1 | 1) und (4 | 5)?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: manhattan
+        text: Das ist der Weg entlang der Achsen (Manhattan-Abstand). Die Luftlinie ist kürzer.
+    hints:
+      - "Unterschiede: 3 und 4."
+      - √(3² + 4²).
+    explanation: √(9 + 16) = 5. Der Weg nur entlang der Achsen wäre 3 + 4 = 7 – der **Manhattan-Abstand**.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Drei Merkmale: Punkt P = (0 | 0 | 0), Punkt Q = ({{a}} | {{b}} | {{c}}). Wie groß ist der euklidische Abstand?"
+    answer:
+      value: "{{d}}"
+    hints:
+      - "Quadriere jeden Unterschied: {{a * a}}, {{b * b}}, {{c * c}}."
+      - Zieh die Wurzel aus {{d * d}}.
+    explanation: √{{d * d}} = {{d}}. Pythagoras funktioniert in beliebig vielen Dimensionen.
+    variants:
+      params:
+        t: int[0,3]
+      derive:
+        a: "[1, 2, 2, 4][t]"
+        b: "[2, 3, 4, 4][t]"
+        c: "[2, 6, 4, 7][t]"
+        d: "[3, 7, 6, 9][t]"
+      defaults:
+        t: 0
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Eher ähnlich oder eher verschieden?
+    params:
+      buckets:
+        - id: b1
+          label: Kleiner Abstand
+        - id: b2
+          label: Großer Abstand
+      items:
+        - label: Zwei Kunden mit fast gleichem Warenkorb
+          bucket: b1
+        - label: Ein Kind und ein Rentner beim Alter
+          bucket: b2
+        - label: Zwei Fotos derselben Katze
+          bucket: b1
+        - label: Ein Rock-Song und ein Wiegenlied
+          bucket: b2
+    hints:
+      - Wie viele Merkmale unterscheiden sich – und wie stark?
+      - "Ähnlich heißt: in den Merkmalen nahe beieinander."
+    explanation: Empfehlungen, Bildersuche und Gruppenbildung beruhen alle auf einem Abstandsmaß zwischen Datenpunkten.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Größe streut mit σ = 10 cm, Gehalt mit σ = 1000 €. Standardisiere: Wie groß ist der Unterschied zwischen A (170 cm) und B (190 cm) in Standardabweichungen?"
+    answer:
+      value: 2
+    hints:
+      - "Unterschied: 20 cm."
+      - Teile durch σ = 10 cm.
+    explanation: "20 : 10 = 2 σ. Beim Gehalt liegt C 1000 € = 1 σ von A entfernt. Erst durch **Standardisieren** werden Merkmale vergleichbar – sonst gewinnt immer das mit den größten Zahlen."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: "Ohne Standardisieren: Gehalt in €, Größe in cm. Welches Merkmal bestimmt den Abstand fast allein?"
+    params:
+      options:
+        - label: Das Gehalt – seine Unterschiede sind in Zahlen viel größer
+          correct: true
+        - label: Die Größe
+          feedback: 20 cm gegen 1000 € – die 1000 gewinnt.
+        - label: Beide gleich
+          feedback: Ohne Skalierung zählt nur die Größe der Zahlen.
+    hints:
+      - Vergleiche 20² mit 1000².
+      - Rechne einmal in Metern und Cent – was passiert?
+    explanation: Abstände hängen von **Einheiten** ab. Darum skaliert man Merkmale vor jeder Gruppenbildung, etwa auf z-Werte.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Texte vergleicht man oft mit dem Winkel zwischen ihren Wort-Vektoren statt mit dem Abstand. Warum?
+    params:
+      options:
+        - label: Ein langer und ein kurzer Text zum selben Thema zeigen in dieselbe Richtung
+          correct: true
+        - label: Winkel sind leichter zu rechnen
+          feedback: Es geht um die Bedeutung, nicht um den Aufwand.
+        - label: Abstände gibt es bei Texten nicht
+          feedback: Es gibt sie – nur messen sie vor allem die Länge.
+    hints:
+      - Ein doppelt so langer Text hat etwa doppelte Wortzählungen.
+      - Der Vektor wird länger, aber seine Richtung bleibt.
+    explanation: Die **Kosinus-Ähnlichkeit** ignoriert die Länge und misst nur die Richtung. Sie steckt in Suchmaschinen und Sprachmodellen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In 1000 Dimensionen liegen zufällige Punkte fast alle **gleich weit** voneinander entfernt. Was folgt daraus?
+    params:
+      options:
+        - label: »Nächster Nachbar« verliert an Bedeutung – man muss Dimensionen reduzieren oder klug wählen
+          correct: true
+        - label: Mehr Dimensionen helfen immer
+          feedback: Viele unwichtige Merkmale ertränken die wichtigen.
+        - label: Abstände werden dort null
+          feedback: Sie werden ähnlich groß, nicht null.
+    hints:
+      - Jede zusätzliche Dimension addiert ein bisschen Zufall zum Abstand.
+      - Nach dem Gesetz der großen Zahlen gleichen sich die Summen an.
+    explanation: Das ist der **Fluch der Dimensionen**. Darum braucht man Verfahren wie die Hauptkomponentenanalyse aus diesem Kurs.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man Merkmale vor dem Messen von Abständen standardisiert.
+    params:
+      keywords:
+        - - einheit
+          - unit
+          - cm
+          - euro
+        - - groß
+          - zahl
+          - big
+          - number
+          - dominier
+          - dominat
+        - - standard
+          - z-wert
+          - z-score
+          - skal
+          - scal
+      sample: Merkmale haben verschiedene Einheiten, etwa cm und Euro. Ohne Skalierung dominiert das Merkmal mit den größten Zahlen den Abstand. Mit z-Werten zählt jedes Merkmal gleich, gemessen in Standardabweichungen.
+    explanation: Erst gleiche Maßstäbe machen einen Abstand fair.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

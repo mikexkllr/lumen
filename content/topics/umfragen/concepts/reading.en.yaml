@@ -5,7 +5,7 @@ summary: A small word with a big effect.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: punkte
@@ -67,6 +67,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A value rises from {{a}} to {{b}}. By what percent is that?
+    answer:
+      value: "{{(b - a) * 100 / a}}"
+    feedback:
+      - when: numval(state.input) == b - a
+        misconception: points-vs-percent
+        text: That is the difference in points. Now divide by the old value.
+    hints:
+      - The change is {{b - a}}.
+      - Divide {{b - a}} by the starting value {{a}}, times 100.
+    explanation: "{{b - a}} ÷ {{a}} = {{(b - a) * 100 / a}} %. The reference is always the old value."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[4,5,8,10,20,25]
+        b: int[5,40]
+      constraints:
+        - b > a
+        - isInt((b - a) * 100 / a)
+      defaults:
+        a: 4
+        b: 6
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: A drug lowers the risk from 4 % to 3 %. By what percent does the risk fall in relative terms?
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: absolute-vs-relative
+        text: "That is the absolute reduction: 1 percentage point. Relative means: compared with 4 %."
+    hints:
+      - The reduction is 1 point.
+      - What percent is 1 of 4?
+    explanation: "Relative −25 %, absolute −1 point. Adverts like to quote the 25 %. The honest version: 1 in 100 benefits."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +126,42 @@ steps:
     hints:
       - 18% of 5% is just under one percentage point.
     explanation: Always ask for the **absolute risk**. Relative figures without a baseline are almost worthless.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Betting odds say »1 to 4«: one success for every four failures. What probability is that, in percent?"
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: odds-vs-prob
+        text: 1 to 4 means 1 in 5 cases, not 1 in 4.
+    hints:
+      - How many cases are there in total?
+      - 1 success out of 1 + 4 = 5 cases.
+    explanation: "Odds of 1 : 4 correspond to 1/5 = 20 %. Medical studies often report odds ratios – easy to confuse."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: A share falls by 50 % and then rises by 50 %. It started at 100 €. Where is it now?
+    params:
+      unit: €
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: percent-base
+        text: The 50 % rise refers to the new, smaller value.
+    hints:
+      - "After the fall: 50 €."
+      - 50 % of 50 € is 25 €.
+    explanation: "100 → 50 → 75. Percentages multiply: 0.5 · 1.5 = 0.75. After −50 % you need +100 % to get back."
     difficulty: 3
 
 srs:

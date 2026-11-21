@@ -5,7 +5,7 @@ summary: Wechseln verdoppelt die Chance.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: wechseln
@@ -95,6 +95,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Jetzt mit vier Türen: Du wählst eine. Der Moderator öffnet eine der drei anderen – immer eine Ziege. Du wechselst zufällig auf eine der zwei übrigen. Wie groß ist deine Chance? Als Bruch."
+    answer:
+      value: 3/8
+    feedback:
+      - when: numval(state.input) == 1 / 4
+        misconception: stay-chance
+        text: Das ist die Chance beim Bleiben. Wechseln ist besser.
+      - when: numval(state.input) == 1 / 2
+        misconception: fifty-fifty
+        text: Die zwei Türen teilen sich zusammen 3/4, nicht 1.
+    hints:
+      - Mit 3/4 steckt das Auto hinter einer der drei anderen Türen.
+      - Nach dem Öffnen teilen sich zwei Türen diese 3/4.
+    explanation: "3/4 : 2 = 3/8 – mehr als die 1/4 beim Bleiben. Das Wissen des Moderators schiebt Wahrscheinlichkeit auf die geschlossenen Türen."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: buckets
+    prompt: Wie groß ist die Gewinnchance beim Wechseln?
+    params:
+      buckets:
+        - id: b1
+          label: 1/2
+        - id: b2
+          label: 2/3
+      items:
+        - label: Er weiß Bescheid, zeigt eine Ziege
+          bucket: b2
+        - label: Er stolpert, eine Ziege fällt raus
+          bucket: b1
+        - label: "Ein Gast öffnet blind: Ziege"
+          bucket: b1
+        - label: Er muss immer eine Ziege zeigen
+          bucket: b2
+    hints:
+      - Entscheidend ist, ob die Ziege mit Absicht gezeigt wurde.
+      - Zufällig gezeigte Ziegen verraten nichts über deine Tür.
+    explanation: Nur ein Moderator, der Bescheid weiß und immer eine Ziege öffnen muss, macht Wechseln zu 2/3. Öffnet jemand zufällig, bleiben 1/2 zu 1/2.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +156,25 @@ steps:
     hints:
       - Es ist dasselbe Problem wie mit den Ziegen.
     explanation: Der Wärter spielt den Moderator, A’s »Tür« ist die erste Wahl. Dieselbe Struktur in anderem Gewand.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Du wählst Tür 1. Der Moderator weiß Bescheid und öffnet **immer** Tür 3, wenn er darf. Heute öffnet er Tür 2. Wie groß ist die Chance beim Wechseln auf Tür 3?
+    params:
+      options:
+        - label: 100 % – sonst hätte er Tür 3 geöffnet
+          correct: true
+        - label: 2/3, wie immer
+          feedback: Die Vorliebe des Moderators verrät hier mehr.
+        - label: 1/2
+          feedback: Prüfe, wann er Tür 2 überhaupt öffnet.
+    hints:
+      - Wann öffnet er Tür 2, obwohl er Tür 3 lieber mag?
+      - Nur, wenn hinter Tür 3 das Auto steht.
+    explanation: Er weicht nur auf Tür 2 aus, wenn Tür 3 das Auto verbirgt. Die Wahrscheinlichkeit hängt davon ab, **wie** die Information entsteht – das ist Bayes.
     difficulty: 3
 
 srs:

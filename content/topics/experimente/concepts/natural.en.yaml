@@ -1,0 +1,200 @@
+id: stats.experiments.natural
+type: concept
+title: "Natural experiments"
+summary: "When chance, nature or rules replace the lottery."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Nobody may assign people to smoking or poverty by lottery. How can causes still be found?
+    params:
+      options:
+        - label: Look for situations where chance or a rule has already done the assigning
+          correct: true
+        - label: There are clever substitutes.
+          feedback: Es gibt kluge Ersatzwege.
+        - label: Self-reports do not reveal causes.
+          feedback: Selbstauskunft verrät keine Ursachen.
+    hints:
+      - Are there lotteries or cut-off dates in real life?
+      - Sometimes the world itself assigns almost at random.
+    explanation: Such situations are called natural experiments. Their methods won the 2021 economics Nobel prize.
+
+  - kind: explain
+    id: c1
+    body: Sometimes nature, chance or a rule sorts people as if by lot. That is a **natural experiment**. Researchers then just look at what happened.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "London 1854: houses supplied by company A had 315 cholera deaths per 10,000 houses, houses of company B only 37. How many times higher was the risk at A? To one decimal."
+    answer:
+      value: 8.5
+      tolerance: 0.1
+    hints:
+      - Divide 315 by 37.
+      - About 8.5.
+    explanation: About 8.5 times. John Snow saw that the companies often supplied neighbouring houses in the same street. Only the water differed – A drew it from the Thames below the sewage.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Almost like a lottery – or self-chosen?
+    params:
+      buckets:
+        - id: b1
+          label: Almost like a lottery
+        - id: b2
+          label: Self-chosen
+      items:
+        - label: Lottery winners vs non-winners
+          bucket: b1
+        - label: Joggers vs non-joggers
+          bucket: b2
+        - label: Birthday just before or after a cut-off
+          bucket: b1
+        - label: Organic shoppers vs others
+          bucket: b2
+        - label: Military draft by lottery number
+          bucket: b1
+    hints:
+      - Did people decide for themselves which group they joined?
+      - Joggers differ in other ways too.
+    explanation: Where people choose themselves, confounders creep in. Lotteries and cut-offs assign without regard to the person.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Anyone scoring 80 points or more gets a scholarship. How do you measure fairly what the scholarship does?
+    params:
+      options:
+        - label: Compare students just above and just below 80
+          correct: true
+        - label: The groups differ greatly in ability.
+          feedback: Die Gruppen unterscheiden sich stark in der Leistung.
+        - label: Self-reports do not replace a comparison.
+          feedback: Selbstauskunft ersetzt keinen Vergleich.
+    hints:
+      - How different are students with 79 and 81 points?
+      - Landing just above or below is almost chance.
+    explanation: At the threshold almost chance decides. This threshold comparison (regression discontinuity) acts like a small experiment.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "City A introduces a speed limit, city B does not. Accidents per month: A before 40, after 30. B before 50, after 45. What is the effect of the limit by »difference in differences«?"
+    answer:
+      value: -5
+    feedback:
+      - when: numval(state.input) == -10
+        misconception: no-control
+        text: Accidents fell in B too – by 5. You must subtract this general trend.
+    hints:
+      - "A: −10. B: −5."
+      - Compute (−10) − (−5).
+    explanation: −10 − (−5) = −5 accidents per month. B shows what would have happened without the limit – provided both cities would otherwise have moved alike.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "A course comes to school A: scores before {{a}}, after {{a + d1}}. School B without it: before {{b}}, after {{b + d2}}. What is the effect by difference in differences?"
+    answer:
+      value: "{{d1 - d2}}"
+    hints:
+      - "Change in A: {{d1}}. Change in B: {{d2}}."
+      - Compute {{d1}} − {{d2}}.
+    explanation: "{{d1}} − {{d2}} = {{d1 - d2}}. The method subtracts the shared trend – but only if both schools would have run parallel."
+    difficulty: 2
+    variants:
+      params:
+        a: step[50,70,5]
+        b: step[50,70,5]
+        d1: int[4,12]
+        d2: int[1,6]
+      constraints:
+        - d1 > d2
+      defaults:
+        a: 60
+        b: 65
+        d1: 8
+        d2: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A city allocates places at a popular school by lottery. Not every winner attends, and some losers get in anyway. How can the lottery still be used?
+    params:
+      options:
+        - label: "Use winning the lottery as an instrument: it changes the chance of attending, nothing else"
+          correct: true
+        - label: That is self-selection again.
+          feedback: Das ist wieder Selbstauswahl.
+        - label: It remains a clean source of chance.
+          feedback: Es bleibt eine saubere Quelle von Zufall.
+    hints:
+      - Winning is random. Does it act only through attending the school?
+      - "You compute: effect of the lottery ÷ effect of the lottery on attendance."
+    explanation: That is the idea of an instrumental variable. If the lottery shows +2 points and raises attendance by 50 percentage points, you estimate +4 points per actual attendance.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Genes are shuffled at random at conception. Some gene variants slightly raise cholesterol. What do researchers use that for?
+    params:
+      options:
+        - label: "As a natural lottery: if carriers have more heart attacks, cholesterol is causal"
+          correct: true
+        - label: It is only about observing.
+          feedback: Es geht nur ums Beobachten.
+        - label: Precisely because they are randomly assigned, they work as a lottery.
+          feedback: Gerade weil sie zufällig verteilt sind, taugen sie als Los.
+    hints:
+      - Does anyone choose their own genes?
+      - The gene variant acts here like a trial's lottery.
+    explanation: That is called Mendelian randomisation. It assumes the gene acts only through cholesterol – which must be checked.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a natural experiment is – with an example.
+    params:
+      keywords:
+        - - zufall
+          - los
+          - regel
+          - chance
+          - lottery
+          - rule
+          - stichtag
+          - cut-off
+        - - vergleich
+          - gruppe
+          - compar
+          - group
+        - - ursach
+          - wirk
+          - cause
+          - effect
+          - kausal
+          - causal
+      sample: Sometimes a rule or chance sorts people, like a school lottery. Then you compare winners and losers like two groups in an experiment. That way you find causes without running the lottery yourself.
+    explanation: The lottery need not come from the researcher – it only has to be as good as random.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

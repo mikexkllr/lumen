@@ -5,7 +5,7 @@ summary: Ein kleines Wort mit großer Wirkung.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: punkte
@@ -67,6 +67,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Wert steigt von {{a}} auf {{b}}. Um wie viel **Prozent** ist das?
+    answer:
+      value: "{{(b - a) * 100 / a}}"
+    feedback:
+      - when: numval(state.input) == b - a
+        misconception: points-vs-percent
+        text: Das ist die Differenz in Punkten. Teile noch durch den alten Wert.
+    hints:
+      - Die Änderung ist {{b - a}}.
+      - Teile {{b - a}} durch den Startwert {{a}}, mal 100.
+    explanation: "{{b - a}} : {{a}} = {{(b - a) * 100 / a}} %. Bezug ist immer der alte Wert."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[4,5,8,10,20,25]
+        b: int[5,40]
+      constraints:
+        - b > a
+        - isInt((b - a) * 100 / a)
+      defaults:
+        a: 4
+        b: 6
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Mittel senkt das Risiko von 4 % auf 3 %. Um wie viel Prozent sinkt das Risiko **relativ**?
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: absolute-vs-relative
+        text: "Das ist die absolute Senkung: 1 Prozentpunkt. Relativ heißt: bezogen auf 4 %."
+    hints:
+      - Die Senkung ist 1 Punkt.
+      - Wie viel Prozent ist 1 von 4?
+    explanation: "Relativ −25 %, absolut −1 Punkt. Werbung nennt gern die 25 %. Ehrlich wäre: 1 von 100 profitiert."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +126,42 @@ steps:
     hints:
       - 18 % von 5 % sind knapp ein Prozentpunkt.
     explanation: Immer nach dem **absoluten Risiko** fragen. Relative Zahlen ohne Ausgangswert sind fast wertlos.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Wettquoten sagen »1 zu 4«: einmal Erfolg auf vier Misserfolge. Welche Wahrscheinlichkeit ist das in Prozent?"
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: odds-vs-prob
+        text: 1 zu 4 heißt 1 von 5 Fällen, nicht 1 von 4.
+    hints:
+      - Wie viele Fälle sind es zusammen?
+      - 1 Erfolg von 1 + 4 = 5 Fällen.
+    explanation: "Die **Chance** (Odds) 1 : 4 entspricht 1/5 = 20 %. Medizinische Studien berichten oft Odds-Verhältnisse – leicht zu verwechseln."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Aktie fällt um 50 % und steigt danach um 50 %. Sie startete bei 100 €. Wo steht sie jetzt?
+    params:
+      unit: €
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: percent-base
+        text: Die 50 % Anstieg beziehen sich auf den neuen, kleineren Wert.
+    hints:
+      - "Nach dem Fall: 50 €."
+      - 50 % von 50 € sind 25 €.
+    explanation: "100 → 50 → 75. Prozente multiplizieren sich: 0,5 · 1,5 = 0,75. Nach −50 % braucht man +100 %, um zurückzukommen."
     difficulty: 3
 
 srs:

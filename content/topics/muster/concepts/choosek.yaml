@@ -1,0 +1,193 @@
+id: stats.clustering.choosek
+type: concept
+title: "Wie viele Gruppen?"
+summary: "Ellenbogen, Silhouette und die Gefahr, Muster zu erfinden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 7
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Mit k = Anzahl der Punkte wird die Quadratsumme von k-Means null. Ist das die beste Wahl?
+    params:
+      options:
+        - label: Nein – jeder Punkt eine Gruppe erklärt nichts
+          correct: true
+        - label: Ja, null Fehler ist perfekt
+          feedback: "Perfekt auf den Daten heißt hier: nichts zusammengefasst."
+        - label: Ja, mehr Gruppen sind immer genauer
+          feedback: Genau, aber nutzlos.
+    hints:
+      - Was soll eine Gruppe eigentlich leisten?
+      - Denk an Überanpassung bei der Regression.
+    explanation: Die Quadratsumme fällt mit jedem k – sie allein kann k nicht wählen. Man braucht ein Kriterium, das **Einfachheit** belohnt.
+
+  - kind: explain
+    id: c1
+    body: Bei der **Ellenbogen-Methode** zeichnet man die Quadratsumme für k = 1, 2, 3 … Erst fällt sie steil, dann flach. Der Knick zeigt ein gutes k.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die Quadratsumme für k = 1 bis 6 zeigt das Diagramm. Bei welchem k liegt der Ellenbogen?
+    visual:
+      widget: chart
+      params:
+        labels:
+          - k=1
+          - k=2
+          - k=3
+          - k=4
+          - k=5
+          - k=6
+        values:
+          - 100
+          - 40
+          - 20
+          - 17
+          - 15
+          - 14
+        max: 100
+        step: 5
+    answer:
+      value: 3
+    hints:
+      - Wie viel gewinnt jedes zusätzliche k?
+      - −60, −20, dann nur noch −3, −2, −1.
+    explanation: Bis k = 3 lohnt jede Gruppe viel, danach kaum noch. Weitere Gruppen würden nur **Rauschen** aufteilen.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Die **Silhouette** eines Punkts ist (b − a) : max(a, b). a ist der mittlere Abstand zur eigenen Gruppe, b zur nächsten fremden. Es gilt a = {{a}}, b = {{b}}. Wie groß ist die Silhouette? Auf zwei Stellen."
+    answer:
+      value: "{{(b - a) / b}}"
+      tolerance: 0.006
+    hints:
+      - Hier ist b größer, also max(a, b) = {{b}}.
+      - "Rechne ({{b}} − {{a}}) : {{b}}."
+    explanation: "≈ {{round(100 * (b - a) / b) / 100}}. Nahe 1 heißt: klar in der eigenen Gruppe. Nahe 0: auf der Grenze. Negativ: wohl falsch zugeordnet."
+    variants:
+      params:
+        a: int[1,4]
+        b: int[5,10]
+      defaults:
+        a: 2
+        b: 6
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Gute oder fragwürdige Gruppen?
+    params:
+      buckets:
+        - id: b1
+          label: Gut getrennt
+        - id: b2
+          label: Fragwürdig
+      items:
+        - label: Mittlere Silhouette 0,8
+          bucket: b1
+        - label: Mittlere Silhouette 0,1
+          bucket: b2
+        - label: Klarer Knick im Ellenbogen
+          bucket: b1
+        - label: Jeder Lauf gibt andere Gruppen
+          bucket: b2
+        - label: Gruppen auch in neuen Daten stabil
+          bucket: b1
+    hints:
+      - Stabile, klar getrennte Gruppen sind glaubwürdiger.
+      - "Silhouetten nahe 0 bedeuten: viele Punkte auf der Grenze."
+    explanation: Clustering findet **immer** Gruppen – auch in reinem Rauschen. Gute Gruppen sind getrennt, stabil und wiederholbar.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: k-Means mit k = 3 auf einer gleichmäßigen, strukturlosen Punktwolke. Was kommt heraus?
+    params:
+      options:
+        - label: Drei Gruppen – obwohl es keine gibt
+          correct: true
+        - label: Eine Fehlermeldung
+          feedback: k-Means teilt jede Wolke in k Teile.
+        - label: Eine Gruppe
+          feedback: k-Means liefert immer genau k Gruppen.
+    hints:
+      - Fragt k-Means, ob es Gruppen gibt?
+      - Es teilt einfach, was es bekommt.
+    explanation: "Das ist die größte Falle beim Clustering: Der Algorithmus **erfindet** Struktur, wenn man ihn lässt. Darum prüft man gegen Zufallsdaten."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Beim **hierarchischen** Clustering verschmilzt man Schritt für Schritt die zwei nächsten Gruppen. Was ist der Vorteil?
+    params:
+      options:
+        - label: Man muss k nicht vorher wählen – der Stammbaum zeigt alle Ebenen
+          correct: true
+        - label: Es ist immer schneller
+          feedback: Bei vielen Punkten ist es eher langsamer.
+        - label: Es braucht keine Abstände
+          feedback: Es braucht sie bei jedem Schritt.
+    hints:
+      - Der Stammbaum heißt Dendrogramm.
+      - Man schneidet ihn auf einer passenden Höhe durch.
+    explanation: So arbeiten Biologen beim Stammbaum der Arten. Wo man den Baum schneidet, bestimmt die Zahl der Gruppen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die **Gap-Statistik** vergleicht die Quadratsumme der echten Daten mit der von Zufallsdaten gleicher Ausdehnung. Wozu?
+    params:
+      options:
+        - label: Um zu sehen, ob die Gruppen besser sind, als Zufall sie liefern würde
+          correct: true
+        - label: Um die Zentren zu finden
+          feedback: Die Zentren liefert k-Means.
+        - label: Um Ausreißer zu löschen
+          feedback: Es geht um die Wahl von k.
+    hints:
+      - Wie sähe die Kurve ohne echte Gruppen aus?
+      - Wo ist der Abstand zur Zufallskurve am größten?
+    explanation: Wie beim Hypothesentest dient der Zufall als **Nullmodell**. Nur Gruppen, die sich klar davon abheben, sind ernst zu nehmen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum k-Means auch in Zufallsdaten Gruppen findet und wie man sich schützt.
+    params:
+      keywords:
+        - - immer
+          - jede
+          - always
+          - every
+          - erfind
+          - invent
+        - - zufall
+          - random
+          - rauschen
+          - noise
+        - - prüf
+          - vergleich
+          - stabil
+          - check
+          - compar
+          - stable
+          - silhouette
+      sample: k-Means teilt jede Wolke in k Teile, es fragt nicht, ob Gruppen da sind. So entstehen auch im Zufall Gruppen. Man prüft darum Silhouette, Stabilität und den Vergleich mit Zufallsdaten.
+    explanation: Ein Algorithmus, der immer etwas findet, braucht einen Vergleich mit dem Nichts.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

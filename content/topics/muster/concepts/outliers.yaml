@@ -1,0 +1,181 @@
+id: stats.clustering.outliers
+type: concept
+title: "Ausreißer aufspüren"
+summary: "Vom z-Wert bis zur Betrugserkennung – und warum seltene Treffer schwer sind."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Person ist 1,90 m groß – normal. Eine wiegt 45 kg – auch nicht ungewöhnlich. Eine Person ist 1,90 m groß und wiegt 45 kg. Ist das auffällig?
+    params:
+      options:
+        - label: Ja – die Kombination ist sehr selten, obwohl jeder Wert allein normal ist
+          correct: true
+        - label: Nein, beide Werte sind normal
+          feedback: Groß und leicht passt selten zusammen.
+        - label: Nur wenn ein Wert über 3 σ liegt
+          feedback: Auffälligkeit kann auch in der Kombination stecken.
+    hints:
+      - Wie hängen Größe und Gewicht zusammen?
+      - Große Menschen sind meist schwerer.
+    explanation: Manche **Ausreißer** sieht man nur, wenn man Merkmale gemeinsam betrachtet. Ein Merkmal allein verrät sie nicht.
+
+  - kind: explain
+    id: c1
+    body: "Die einfachste **Ausreißer-Regel**: Ein Wert mit |z| > 3 ist verdächtig. Bei einer Glocke liegen nur 0,3 % so weit draußen. In vielen Merkmalen misst man stattdessen den Abstand zu den Nachbarn."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Messwerte mit Mittelwert {{m}} und σ = {{s}}. Ab welchem Wert oberhalb des Mittels gilt ein Wert nach der 3-σ-Regel als Ausreißer?
+    answer:
+      value: "{{m + 3 * s}}"
+    hints:
+      - 3σ = {{3 * s}}.
+      - Rechne {{m}} + {{3 * s}}.
+    explanation: "{{m}} + {{3 * s}} = {{m + 3 * s}}. Achtung: Ein großer Ausreißer bläht selbst σ auf – robuste Regeln nutzen darum Median und Quartile."
+    variants:
+      params:
+        m: step[20,100,10]
+        s: choice[2,4,5,10]
+      defaults:
+        m: 50
+        s: 4
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Punkt hat zu seinen 3 nächsten Nachbarn die Abstände 9, 10 und 11. Typische Punkte haben im Schnitt den Nachbar-Abstand 2. Wievielmal größer ist der Abstand dieses Punkts?
+    answer:
+      value: 5
+    hints:
+      - "Mittle die drei Abstände: (9 + 10 + 11) : 3."
+      - Teile 10 durch 2.
+    explanation: Fünfmal so einsam wie üblich – ein Kandidat für einen Ausreißer. **Nachbarschafts**-Verfahren funktionieren in beliebig vielen Dimensionen.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Fehler, Betrug oder Entdeckung? Ist der Ausreißer wertvoll?
+    params:
+      cards:
+        - text: Eine Kreditkarte kauft nachts in drei Ländern ein.
+          right: true
+          why: Möglicher Betrug – genau das will man finden.
+        - text: Ein Sensor meldet −999 °C.
+          right: false
+          why: Typischer Fehlercode, keine Messung.
+        - text: Ein Stern ändert plötzlich seine Helligkeit.
+          right: true
+          why: Vielleicht ein Planet davor – eine Entdeckung.
+        - text: Ein Alter von 250 Jahren im Formular
+          right: false
+          why: Tippfehler.
+      left: Eher Müll
+      right: Wertvoll
+    explanation: Ausreißer sind entweder Fehler oder das Interessanteste im Datensatz. Darum schaut man sie an, statt sie blind zu löschen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Von 10 000 Zahlungen ist 1 Betrug. Ein Detektor erkennt ihn sicher, markiert aber auch 1 % der ehrlichen Zahlungen. Wie viel Prozent der Markierten sind Betrug? Auf eine Stelle.
+    answer:
+      value: 1
+      tolerance: 0.05
+    hints:
+      - "Markiert werden: 1 Betrug plus 1 % von 9999 ≈ 100 ehrliche."
+      - "Rechne 1 : 101."
+    explanation: "≈ 1 %. Das ist die **Basisraten-Falle** aus dem Bayes-Kurs: Bei sehr seltenen Ausreißern sind fast alle Alarme falsch. Praxis-Systeme kombinieren darum viele Hinweise."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Viele Ausreißer liegen dicht beieinander, etwa eine kleine Betrugsbande mit ähnlichen Mustern. Was passiert mit einer Nachbar-Regel?
+    params:
+      options:
+        - label: Sie übersieht sie – jeder Betrüger hat ja Nachbarn
+          correct: true
+        - label: Sie findet sie besonders gut
+          feedback: Ein Grüppchen tarnt sich gegenseitig.
+        - label: Nichts ändert sich
+          feedback: Nachbarschaft hängt genau davon ab, wer in der Nähe ist.
+    hints:
+      - Wie einsam ist ein Punkt in einer kleinen Gruppe?
+      - Man vergleicht besser die Dichte mit der Umgebung.
+    explanation: Verfahren wie der **Local Outlier Factor** vergleichen die eigene Dichte mit der der Nachbarn – so fallen auch kleine Grüppchen auf.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ein **Isolation Forest** teilt die Daten zufällig immer weiter auf. Warum erkennt das Ausreißer?
+    params:
+      options:
+        - label: Ausreißer werden schon nach wenigen Schnitten allein isoliert
+          correct: true
+        - label: Ausreißer werden gelöscht
+          feedback: Gezählt wird nur, wie schnell man sie isoliert.
+        - label: Normale Punkte sind schneller allein
+          feedback: "Umgekehrt: In dichten Haufen braucht man viele Schnitte."
+    hints:
+      - Wie viele zufällige Schnitte braucht man, um einen Punkt in einem dichten Haufen abzutrennen?
+      - Ein einsamer Punkt liegt in einer leeren Gegend.
+    explanation: Die mittlere Zahl der Schnitte bis zur Isolation dient als **Ausreißer-Score**. Das Verfahren braucht keine Abstände und ist sehr schnell.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Wie misst man, wie »ungewöhnlich« eine Kombination wie 1,90 m und 45 kg ist?
+    params:
+      options:
+        - label: "Mit der Mahalanobis-Distanz: Abstand in Standardabweichungen, der Zusammenhänge berücksichtigt"
+          correct: true
+        - label: Mit zwei getrennten z-Werten
+          feedback: Die sehen beide harmlos aus.
+        - label: Mit dem euklidischen Abstand in cm und kg
+          feedback: Einheiten und Zusammenhänge fehlen darin.
+    hints:
+      - Größe und Gewicht korrelieren.
+      - Ein gutes Maß misst entlang der Form der Punktwolke.
+    explanation: Die Mahalanobis-Distanz streckt den Raum so, dass die Punktwolke rund wird. Dann wird »groß und leicht« weit vom Zentrum gemessen. Sie ist der z-Wert für viele **korrelierte** Merkmale.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Betrugsdetektor viele Fehlalarme gibt, obwohl er fast perfekt ist.
+    params:
+      keywords:
+        - - selten
+          - rare
+          - basisrate
+          - base rate
+        - - ehrlich
+          - normal
+          - honest
+          - fehlalarm
+          - false alarm
+        - - viele
+          - mehr
+          - many
+          - more
+          - prozent
+          - percent
+      sample: Betrug ist sehr selten, die Basisrate ist winzig. Auch wenn nur 1 Prozent der ehrlichen Zahlungen falsch markiert wird, sind das viel mehr als die wenigen echten Betrugsfälle. Darum sind die meisten Alarme Fehlalarme.
+    explanation: Bei seltenen Ereignissen schlägt die Masse der Normalen jede kleine Fehlerquote.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

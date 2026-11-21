@@ -5,7 +5,7 @@ summary: When protection is worth it.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: schaden
@@ -91,6 +91,49 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: An insurance costs {{p}} € a year. It covers a 2000 € loss that happens with {{q}} % per year. On average, how much do you overpay per year?
+    params:
+      unit: €
+    answer:
+      value: "{{p - 20 * q}}"
+    hints:
+      - The expected loss is 2000 € · {{q}} %.
+      - "Subtract it from the premium: {{p}} − {{20 * q}}."
+    explanation: "Expected loss {{20 * q}} €, premium {{p}} €: on average {{p - 20 * q}} € extra. That is the price for never having to pay 2000 € at once."
+    difficulty: 2
+    variants:
+      params:
+        p: step[60,150,10]
+        q: int[1,4]
+      constraints:
+        - p > 20 * q
+      defaults:
+        p: 100
+        q: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: For someone with 100 €, another 100 € is a big deal. For a millionaire it hardly matters. What does this describe?
+    params:
+      options:
+        - label: Diminishing marginal utility – each extra euro brings less joy
+          correct: true
+        - label: It is not about character but about utility per euro.
+          feedback: Es geht nicht um Charakter, sondern um den Nutzen pro Euro.
+        - label: The expected value counts every euro the same.
+          feedback: Der Erwartungswert zählt jeden Euro gleich.
+    hints:
+      - What is the hundredth euro worth, and the millionth?
+      - Bernoulli proposed in 1738 to work with the logarithm of money.
+    explanation: Because utility grows more slowly than money, a sure amount is worth more than a bet with the same expected value. That explains why people buy insurance.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +149,37 @@ steps:
     hints:
       - What remains after one win and one loss?
     explanation: In repeated bets the **geometric** mean counts. The Kelly criterion tells which fraction would be optimal.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "A bet wins with 60 % and pays your stake back double; otherwise it is lost. The Kelly formula says: bet the fraction p − q of your wealth. What percent is that?"
+    answer:
+      value: 20
+    hints:
+      - p = 0.6, q = 1 − p = 0.4.
+      - Compute 0.6 − 0.4.
+    explanation: 20 %. Kelly maximises long-run growth. Whoever bets everything goes broke eventually, despite the edge.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Coin flip: +50 % or −40 % of your wealth. After one win and one loss you have 1.5 · 0.6 = 0.9 times as much. What percent do you lose on average per round? (√0.9 ≈ 0.949)"
+    answer:
+      value: 5.1
+      tolerance: 0.2
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: two-rounds
+        text: That is the loss over two rounds. Per round it is the square root.
+    hints:
+      - Per round your wealth grows by the factor √0.9.
+      - 1 − 0.949 = ?
+    explanation: About −5.1 % per round – although the expected value is +5 %. For your wealth the geometric mean counts, not the arithmetic one.
     difficulty: 3
 
 srs:

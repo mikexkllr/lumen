@@ -1,0 +1,180 @@
+id: stats.information.surprise
+type: concept
+title: "Überraschung in Bits"
+summary: "Seltenes verrät mehr: −log₂ p."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Zwei Nachrichten: »Morgen geht die Sonne auf.« und »Morgen schneit es in der Sahara.« Welche enthält mehr Information?"
+    params:
+      options:
+        - label: Die über den Schnee – sie ist überraschend
+          correct: true
+        - label: Die über die Sonne – sie ist wichtiger
+          feedback: Information misst Überraschung, nicht Wichtigkeit.
+        - label: Beide gleich viel – jede ist ein Satz
+          feedback: Die Länge zählt nicht, nur die Wahrscheinlichkeit.
+    hints:
+      - Was hättest du ohnehin erwartet?
+      - Eine sichere Nachricht verändert dein Wissen nicht.
+    explanation: Je unwahrscheinlicher eine Nachricht, desto mehr lernt man. Shannon nannte das den **Informationsgehalt**.
+
+  - kind: explain
+    id: c1
+    body: Der **Informationsgehalt** einer Nachricht mit Wahrscheinlichkeit p ist −log₂ p Bit. Bei p = 1/2 ist es 1 Bit, bei p = 1/4 sind es 2 Bit, bei p = 1 null Bit.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Ereignis hat die Wahrscheinlichkeit 1/{{2 ** k}}. Wie viele Bit Überraschung bringt es?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k
+        misconception: no-log
+        text: "Du hast die Möglichkeiten gezählt. Gefragt sind die Halbierungen: log₂."
+    hints:
+      - Wie oft musst du 1 halbieren, um 1/{{2 ** k}} zu erhalten?
+      - 1/{{2 ** k}} = (1/2)^{{k}}.
+    explanation: −log₂(1/{{2 ** k}}) = {{k}} Bit. Jede Halbierung der Wahrscheinlichkeit bringt ein Bit mehr.
+    variants:
+      params:
+        k: int[1,10]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Du würfelst zweimal eine 6. Die Überraschung einer 6 ist log₂ 6 ≈ 2,585 Bit. Wie groß ist die Überraschung von »zwei Sechsen«? Auf eine Stelle.
+    answer:
+      value: 5.2
+      tolerance: 0.05
+    hints:
+      - "Unabhängige Wahrscheinlichkeiten werden multipliziert: 1/36."
+      - "Der Logarithmus macht aus Malnehmen Addieren: 2 · 2,585."
+    explanation: "≈ 5,2 Bit. Darum nimmt man den **Logarithmus**: Information unabhängiger Ereignisse addiert sich einfach."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Viel oder wenig Überraschung?
+    params:
+      buckets:
+        - id: b1
+          label: Unter 1 Bit
+        - id: b2
+          label: Über 3 Bit
+      items:
+        - label: Es regnet nicht in der Wüste
+          bucket: b1
+        - label: Lottogewinn
+          bucket: b2
+        - label: Der Bus kommt pünktlich (90 %)
+          bucket: b1
+        - label: Eine bestimmte Karte aus 52
+          bucket: b2
+        - label: Kein Sechser beim Würfeln
+          bucket: b1
+    hints:
+      - Wahrscheinliche Dinge bringen wenig Bits.
+      - "Unter 1 Bit heißt: Wahrscheinlichkeit über 50 %."
+    explanation: P = 5/6 bringt nur 0,26 Bit, eine Karte aus 52 bringt 5,7 Bit, ein Lottogewinn über 23 Bit.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Sechser im Lotto hat die Chance 1 zu 13 983 816. Wie viele Bit Überraschung sind das? Gerundet auf ganze Bit. (2²³ ≈ 8,4 Mio., 2²⁴ ≈ 16,8 Mio.)
+    answer:
+      value: 24
+      tolerance: 0.5
+    hints:
+      - Gesucht ist log₂ 13 983 816.
+      - Die Zahl liegt zwischen 2²³ und 2²⁴, näher an 2²⁴.
+    explanation: log₂ 13 983 816 ≈ 23,7 Bit – fast so überraschend wie 24 Münzwürfe, die alle Kopf zeigen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Im Morsealphabet ist das E nur ein Punkt, das Q dagegen »− − · −«. Warum?
+    params:
+      options:
+        - label: Häufige Buchstaben bekommen kurze Zeichen – das spart Zeit
+          correct: true
+        - label: Zufall der Geschichte
+          feedback: Die Längen folgen grob der Häufigkeit im Englischen.
+        - label: E ist wichtiger als Q
+          feedback: Es geht um Häufigkeit, nicht Wichtigkeit.
+    hints:
+      - Welcher Buchstabe kommt im Englischen am häufigsten vor?
+      - Wenig Überraschung verdient wenig Länge.
+    explanation: Die ideale **Codelänge** eines Zeichens ist sein Informationsgehalt −log₂ p. Morse kam dem um 1840 schon intuitiv nahe.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum misst man Überraschung gerade mit −log p und nicht etwa mit 1/p?
+    params:
+      options:
+        - label: Nur der Logarithmus macht Information unabhängiger Ereignisse additiv
+          correct: true
+        - label: 1/p wäre zu groß
+          feedback: Die Größe ist Nebensache – entscheidend ist die Addition.
+        - label: Weil Computer mit Logarithmen rechnen
+          feedback: Der Grund ist mathematisch, nicht technisch.
+    hints:
+      - Für zwei unabhängige Ereignisse gilt P = p · q.
+      - Welche Funktion macht aus Produkten Summen?
+    explanation: "Fordert man »sicher = 0«, »seltener = mehr« und »unabhängig = addieren«, bleibt nur −log p. Die Basis 2 legt nur die Einheit fest: **Bit**."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Mit dem natürlichen Logarithmus misst man Information in »nat«. 1 nat sind 1/ln 2 Bit. Wie viele Bit sind 1 nat? Auf zwei Stellen. (ln 2 ≈ 0,693)
+    answer:
+      value: 1.44
+      tolerance: 0.01
+    hints:
+      - "Rechne 1 : 0,693."
+      - Etwa 1,44.
+    explanation: 1 nat ≈ 1,44 Bit. Physiker und KI-Forscher rechnen oft in nat, Nachrichtentechniker in Bit – wie Meter und Fuß.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum seltene Nachrichten mehr Information tragen.
+    params:
+      keywords:
+        - - selten
+          - unwahrscheinlich
+          - rare
+          - unlikely
+        - - überrasch
+          - surpris
+          - erwart
+          - expect
+        - - log
+          - bit
+          - halb
+          - half
+      sample: Eine seltene Nachricht ist überraschend, weil man sie nicht erwartet. Sie schließt viele Möglichkeiten aus. Gemessen wird das mit minus log zur Basis 2 der Wahrscheinlichkeit, in Bit.
+    explanation: Wer nur das Erwartete hört, lernt nichts. Information ist der Unterschied zwischen Erwartung und Ereignis.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

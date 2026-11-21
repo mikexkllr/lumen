@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [data.mean]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: saeule
@@ -96,6 +96,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Die Werte 3, 5 und 10 haben den Mittelwert 6. Die Abstände zum Mittelwert sind −3, −1 und +4. Wie groß ist ihre Summe?
+    answer:
+      value: 0
+    hints:
+      - Addiere einfach die drei Zahlen mit Vorzeichen.
+      - −3 − 1 = −4. Was bleibt mit +4?
+    explanation: "Null – immer. Der **Mittelwert** ist der Schwerpunkt: Was unten fehlt, liegt oben zu viel."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Note {{a}} zählt doppelt, die Note {{b}} einfach. Wie groß ist der gewichtete Schnitt?
+    answer:
+      value: "{{(2 * a + b) / 3}}"
+    feedback:
+      - when: numval(state.input) == (a + b) / 2
+        misconception: ignore-weights
+        text: Das wäre der einfache Schnitt. Die {{a}} zählt aber zweimal.
+    hints:
+      - Zähle die doppelte Note zweimal.
+      - "Rechne ({{a}} + {{a}} + {{b}}) : 3."
+    explanation: "({{a}} + {{a}} + {{b}}) : 3 = {{(2 * a + b) / 3}}. Gewichte sagen, wie oft ein Wert zählt."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[1,6]
+      constraints:
+        - a != b
+        - isInt((2 * a + b) / 3)
+      defaults:
+        a: 2
+        b: 5
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Du fährst hin mit 60 km/h und zurück mit 40 km/h – gleiche Strecke. Wie schnell warst du im Schnitt?"
+    params:
+      min: 30
+      max: 70
+      unit: km/h
+    answer:
+      value: 48
+      tolerance: 1.5
+    explanation: "Nicht 50! Für 120 km brauchst du 1 h + 1,5 h = 2,5 h. 120 : 2,5 = 48 km/h. Die langsame Fahrt dauert länger und zählt darum mehr."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -109,6 +164,69 @@ steps:
     hints:
       - "Rechne die Gesamtpunkte: 20 · 60 + 30 · 70."
     explanation: "3300 : 50 = 66 – nicht 65. Größere Gruppen ziehen den **gewichteten Mittelwert** zu sich."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Du suchst eine Zahl c, bei der die Summe der quadrierten Abstände (x − c)² zu allen Werten am kleinsten ist. Welche ist das?
+    params:
+      options:
+        - label: Der Mittelwert
+          correct: true
+        - label: Der Median
+          feedback: Der Median macht die Summe der **einfachen** Abstände klein, nicht der quadrierten.
+        - label: Der größte Wert
+          feedback: Dann wären alle anderen Abstände groß.
+    hints:
+      - Probier es mit den Werten 0 und 10 aus.
+      - Bei c = 5 ist die Summe 25 + 25 = 50. Bei c = 4 ist sie 16 + 36 = 52.
+    explanation: Leitet man die Summe nach c ab und setzt null, kommt c = Mittelwert heraus. Darum steckt der Mittelwert in der Methode der kleinsten Quadrate.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Kurs hat 10 Teilnehmer mit dem Schnitt 70. Einer mit 92 Punkten wechselt den Kurs. Wie groß ist der Schnitt der übrigen 9?
+    answer:
+      value: 68
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 70 - 92 / 10
+        misconception: mean-subtract
+        text: "Du hast nur 92 : 10 abgezogen. Rechne erst die neue Summe aus."
+    hints:
+      - Rechne zuerst die Summe aller Punkte aus.
+      - 700 − 92 = 608. Teile durch 9.
+    explanation: Summe 10 · 70 = 700. Ohne die 92 bleiben 608, geteilt durch 9 ist das 67,6 – gerundet 68.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum der Mittelwert ein Schwerpunkt ist.
+    params:
+      keywords:
+        - - summe
+          - sum
+          - addier
+          - add
+        - - anzahl
+          - teil
+          - count
+          - divid
+        - - ausgleich
+          - gleich
+          - balance
+          - schwerpunkt
+          - "null"
+          - zero
+          - cancel
+      sample: Der Mittelwert ist die Summe geteilt durch die Anzahl. Die Abstände nach oben und nach unten gleichen sich genau aus – ihre Summe ist null.
+    explanation: "Wie eine Wippe: Der Mittelwert ist der Punkt, an dem die Daten im Gleichgewicht sind."
     difficulty: 3
 
 srs:

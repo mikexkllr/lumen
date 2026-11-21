@@ -1,0 +1,190 @@
+id: stats.distributions.exponential
+type: concept
+title: "Wartezeiten: die Exponentialverteilung"
+summary: "Wie lange bis zum nächsten Ereignis? Und warum Atome kein Alter haben."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Atom hat eine Halbwertszeit von 1 Stunde. Es hat schon 5 Stunden überlebt. Wie wahrscheinlich zerfällt es in der nächsten Stunde?
+    params:
+      options:
+        - label: 50 % – wie bei einem frischen Atom
+          correct: true
+        - label: Fast sicher, es ist ja »alt«
+          feedback: Atome altern nicht.
+        - label: Kaum, es ist offenbar stabil
+          feedback: Jedes Atom dieser Sorte ist gleich.
+    hints:
+      - Hat das Atom eine Erinnerung an die 5 Stunden?
+      - Die Chance pro Stunde bleibt immer gleich.
+    explanation: Die Zerfallsdauer ist **gedächtnislos**. Die Exponentialverteilung ist die einzige stetige Verteilung mit dieser Eigenschaft.
+
+  - kind: explain
+    id: c1
+    body: Manche Dinge passieren zufällig, aber im Schnitt gleich oft. Dann ist die Zeit bis zum nächsten Mal **exponentialverteilt**. Kurzes Warten ist häufig. Langes Warten wird immer seltener.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Die Halbwertszeit ist 4 Stunden. Stell die Zeit so ein, dass nur noch 12,5 % der Atome übrig sind.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 4
+          fixed: true
+    answer:
+      left:
+        - 12
+        - 13
+    explanation: 12,5 % = ½ · ½ · ½ – drei Halbwertszeiten, also 12 Stunden. Für jedes einzelne Atom ist »übrig« die Chance, so lange zu überleben.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Im Schnitt kommen 6 Kunden pro Stunde, zufällig und unabhängig. Wie viele Minuten wartest du im Schnitt auf den nächsten?
+    answer:
+      value: 10
+    hints:
+      - "Die mittlere Wartezeit ist 1 : Rate."
+      - "60 Minuten : 6."
+    explanation: "1/λ = 1/6 Stunde = 10 Minuten. Exponential und Poisson sind zwei Seiten desselben Zufalls: Poisson zählt, Exponential wartet."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Rate 6 pro Stunde. Wie wahrscheinlich wartest du **länger als 20 Minuten**? P(T > t) = e^(−λt). In Prozent, auf eine Stelle. (e² ≈ 7,389)
+    answer:
+      value: 13.5
+      tolerance: 0.1
+    hints:
+      - λt = 6 · 1/3 Stunde = 2.
+      - e^(−2) ≈ 0,135.
+    explanation: "Etwa 13,5 % – dieselbe Zahl wie P(0 Kunden in 20 Minuten) bei Poisson. Das ist kein Zufall: Länger als t warten heißt, in t kommt keiner."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Die Halbwertszeit ist der **Median** der Lebensdauer. Wie lang ist sie bei einer Rate von λ = 0,1 pro Jahr? Auf eine Stelle. (ln 2 ≈ 0,693)
+    params:
+      unit: Jahre
+    answer:
+      value: 6.9
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: mean-vs-median
+        text: "Das ist die mittlere Lebensdauer 1/λ. Der Median ist kürzer: ln 2 / λ."
+    hints:
+      - Setze e^(−λT) = ½ und löse nach T.
+      - "T = ln 2 : λ."
+    explanation: "0,693 : 0,1 ≈ 6,9 Jahre. Der Mittelwert (10 Jahre) liegt höher, weil wenige sehr lange Leben ihn nach oben ziehen – die Verteilung ist **rechtsschief**."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Ein Medikament wird mit 6 Stunden Halbwertszeit abgebaut. Nach welcher Zeit ist weniger als 10 % übrig? Stell die kleinste passende Stundenzahl ein.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 6
+          fixed: true
+    answer:
+      time: 20
+    explanation: Nach 18 h sind 12,5 % übrig, nach 20 h etwa 9,9 %. Ärzte rechnen so, wann ein Mittel praktisch abgebaut ist – nach rund 3,3 Halbwertszeiten.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Glühbirnen fallen mit fester Rate aus, Menschen nicht. Warum passt die Exponentialverteilung nicht zur menschlichen Lebensdauer?
+    params:
+      options:
+        - label: Menschen altern – ihr Sterberisiko steigt mit dem Alter
+          correct: true
+        - label: Menschen leben zu lange
+          feedback: Die Länge ist nicht das Problem, die steigende Rate ist es.
+        - label: Sie passt genau
+          feedback: Dann wäre ein 90-Jähriger so gefährdet wie ein 20-Jähriger.
+    hints:
+      - Ist das Risiko pro Jahr mit 20 und mit 90 gleich?
+      - "Gedächtnislos heißt: Das Alter spielt keine Rolle."
+    explanation: Für Menschen steigt die **Ausfallrate** grob exponentiell mit dem Alter (Gompertz). Nur bei konstanter Rate ist die Wartezeit exponentiell.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Zwei unabhängige Hotlines: Bei A kommen 2 Anrufe pro Minute, bei B 3. Wie lange wartest du im Schnitt, bis **irgendeine** klingelt? In Sekunden."
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: single-line
+        text: Das ist die Wartezeit nur bei A. Beide zusammen klingeln öfter.
+    hints:
+      - "Raten addieren sich: 2 + 3 = 5 pro Minute."
+      - "60 Sekunden : 5."
+    explanation: Das Minimum zweier Exponential-Wartezeiten ist wieder exponentiell mit Rate 5. Also 1/5 Minute = 12 Sekunden.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Beweisidee für die Gedächtnislosigkeit: P(T > s + t | T > s) = e^(−λ(s+t)) : e^(−λs). Was kommt heraus?"
+    params:
+      options:
+        - label: e^(−λt) – also dasselbe wie P(T > t)
+          correct: true
+        - label: e^(−λs)
+          feedback: "Kürze die Exponenten richtig: (s + t) − s = t."
+        - label: e^(−λ(s+t))
+          feedback: Der Nenner fällt nicht weg.
+    hints:
+      - "eᵃ : eᵇ = e^(a − b)."
+      - −λ(s + t) + λs = −λt.
+    explanation: Die vergangene Zeit s kürzt sich heraus. Genau deshalb hat ein Atom kein Alter – und jede Wartezeit beginnt in jedem Moment neu.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »gedächtnislos« bei Wartezeiten bedeutet – mit einem Beispiel.
+    params:
+      keywords:
+        - - gedächtnis
+          - erinner
+          - memory
+          - remember
+        - - gleich
+          - konstant
+          - same
+          - constant
+          - rate
+        - - atom
+          - zerfall
+          - decay
+          - anruf
+          - call
+          - kunde
+          - customer
+      sample: Die Chance, dass ein Atom in der nächsten Stunde zerfällt, ist immer gleich. Es hat kein Gedächtnis für die Zeit, die es schon überlebt hat. Darum beginnt die Wartezeit in jedem Moment von vorn.
+    explanation: "Konstante Rate bedeutet: Vergangenes Warten bringt nichts – die Zukunft sieht immer gleich aus."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

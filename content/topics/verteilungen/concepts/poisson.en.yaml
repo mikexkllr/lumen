@@ -1,0 +1,200 @@
+id: stats.distributions.poisson
+type: concept
+title: "Rare events: Poisson"
+summary: "Goals, calls, decays – counting how often something rare happens."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A football match has about 3 goals on average. Roughly how often does a match end 0–0?
+    params:
+      options:
+        - label: Rarely – by the model in about 5 % of matches
+          correct: true
+        - label: With 3 goals on average a goalless match is rare, but not impossible.
+          feedback: Bei 3 Toren im Schnitt ist ein torloses Spiel selten, aber nicht unmöglich.
+        - label: That would be far too frequent for 3 goals on average.
+          feedback: Das wäre viel zu häufig für 3 Tore im Schnitt.
+    hints:
+      - Goals are rare, independent events in 90 minutes.
+      - The formula for »none at all« is e^(−λ).
+    explanation: e^(−3) ≈ 0.05. Goal counts fit the Poisson distribution quite well – that is what we look at now.
+
+  - kind: explain
+    id: c1
+    body: "The **Poisson distribution** counts rare, independent events in a time span: calls per hour, goals per match. It has just one number: the average λ."
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "0"
+            weight: 135
+          - label: "1"
+            weight: 271
+          - label: "2"
+            weight: 271
+          - label: "3"
+            weight: 180
+          - label: "4"
+            weight: 90
+          - label: "5"
+            weight: 36
+          - label: 6+
+            weight: 17
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A hotline gets 2 calls per minute on average. How likely is no call in a minute? P(0) = e^(−2). In percent, to one decimal. (e² ≈ 7.389)
+    answer:
+      value: 13.5
+      tolerance: 0.1
+    hints:
+      - e^(−2) = 1 ÷ e².
+      - 1 ÷ 7.389 ≈ 0.135.
+    explanation: "About 13.5 %. In general: P(k) = λᵏ · e^(−λ) ÷ k!."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Same hotline (λ = 2). How likely is exactly one call? P(1) = λ · e^(−λ). In percent, to one decimal.
+    answer:
+      value: 27.1
+      tolerance: 0.1
+    hints:
+      - e^(−2) ≈ 0.135.
+      - Compute 2 · 0.135.
+    explanation: 2 · 0.1353 ≈ 27.1 % – exactly as much as for 2 calls. With a whole-number λ, λ − 1 and λ have the same chance.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: What is roughly Poisson-distributed – and over which span?
+    params:
+      pairs:
+        - left: Goals
+          right: per match
+        - left: Calls
+          right: per hour
+        - left: Decays in a counter
+          right: per second
+        - left: Typos
+          right: per page
+      leftTitle: Event
+      rightTitle: Span
+    hints:
+      - Poisson needs rare, independent events in a fixed frame.
+      - The frame can be time, area or length.
+    explanation: "It always holds: many opportunities, each with a tiny chance, and the events do not interfere."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "In 1898 Ladislaus von Bortkiewicz counted deaths by horse kicks in Prussian army corps: 0.61 per corps per year on average. In what percent of corps-years was there no death? Rounded. (e^(−0.61) ≈ 0.543)"
+    answer:
+      value: 54
+      tolerance: 0.6
+    hints:
+      - You need P(0) = e^(−λ).
+      - "The value is given: 0.543."
+    explanation: About 54 %. He had counted 109 of 200 corps-years without a death, i.e. 54.5 %. The model fits almost exactly.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A machine makes 1000 parts, each defective with chance 0.2 %. With which λ does Poisson describe the number of defects?
+    answer:
+      value: 2
+    hints:
+      - "λ is the expected number: n · p."
+      - 1000 · 0.002.
+    explanation: λ = n · p = 2. Poisson is the limit of the binomial for large n and small p.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "In the Poisson distribution mean and variance are both λ. A shop counts customers per hour: mean 10, variance 40. What follows?"
+    params:
+      options:
+        - label: Customers do not arrive independently – more in groups or rush hours
+          correct: true
+        - label: Under Poisson the variance would be about 10.
+          feedback: Bei Poisson wäre die Varianz etwa 10.
+        - label: Too much spread usually has real causes.
+          feedback: Zu große Streuung hat meist echte Gründe.
+    hints:
+      - Compare variance and mean.
+      - What makes counts extra jumpy?
+    explanation: This is called overdispersion. Families arriving together or rush hours create more fluctuation than pure chance.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A Geiger counter registers 100 clicks per minute on average. What is the typical fluctuation of a one-minute count (standard deviation)?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: variance-not-sd
+        text: That is the variance. The standard deviation is its root.
+    hints:
+      - For Poisson the variance equals λ = 100.
+      - Take the root.
+    explanation: √100 = 10, so ± 10 %. With 10,000 clicks it would be only ± 1 %. That is why physicists count for a long time to beat counting noise.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why does e^(−λ) appear? Split the minute into n tiny pieces, each with call chance λ/n. How likely is there no call in any piece?
+    params:
+      options:
+        - label: (1 − λ/n)ⁿ – which tends to e^(−λ) for large n
+          correct: true
+        - label: That is the chance for one piece.
+          feedback: Das ist die Chance für ein einzelnes Stück.
+        - label: That would even be negative for λ = 2.
+          feedback: Das kann bei λ = 2 sogar negativ werden.
+    hints:
+      - Every piece must stay empty – multiply the chances.
+      - Do you know the limit (1 + x/n)ⁿ → eˣ?
+    explanation: With x = −λ the limit gives e^(−λ). That is how the whole Poisson formula follows from the binomial as n → ∞.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux when events are Poisson-distributed.
+    params:
+      keywords:
+        - - selten
+          - rare
+          - klein
+          - small
+        - - unabhängig
+          - independent
+        - - schnitt
+          - mittel
+          - lambda
+          - average
+          - rate
+      sample: There are many opportunities, but each event is rare. The events are independent of each other. Then the average λ is enough to know the whole distribution.
+    explanation: Rare, independent, a steady rate – then a single number determines everything.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

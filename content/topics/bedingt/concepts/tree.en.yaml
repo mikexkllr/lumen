@@ -5,7 +5,7 @@ summary: Multiply along, add across.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: zwei-rot
@@ -95,6 +95,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A player makes each shot with {{p}} %. She shoots twice. How likely does she score exactly once? In percent.
+    answer:
+      value: "{{2 * p * (100 - p) / 100}}"
+    feedback:
+      - when: numval(state.input) == p * (100 - p) / 100
+        misconception: one-path
+        text: That is just one path, e.g. »hit, then miss«. There are two.
+    hints:
+      - "Two paths: hit–miss and miss–hit."
+      - Each path has {{p}} % · {{100 - p}} %. Add both.
+    explanation: 2 · {{p / 100}} · {{(100 - p) / 100}} = {{2 * p * (100 - p) / 10000}}, so {{2 * p * (100 - p) / 100}} %. Multiply along, then add across.
+    difficulty: 2
+    variants:
+      params:
+        p: choice[10,20,30,40,60,70,90]
+      defaults:
+        p: 70
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: A bag has 3 red and 2 blue balls. You draw two without replacement. How likely do you get one red and one blue? As a fraction.
+    answer:
+      value: 3/5
+    feedback:
+      - when: numval(state.input) == 3 / 10
+        misconception: one-path
+        text: That is only the path »red first, then blue«.
+    hints:
+      - "Path red–blue: 3/5 · 2/4. Path blue–red: 2/5 · 3/4."
+      - 6/20 + 6/20.
+    explanation: "12/20 = 3/5. Without replacement the denominator changes in the second step: 4 instead of 5."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -107,6 +146,43 @@ steps:
     hints:
       - 252 divided by 1024.
     explanation: "24.6%. This is the **binomial distribution**: number of paths times the probability of one path."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: You roll a die five times. How likely do exactly two sixes come up? In percent, to one decimal. (There are 10 paths, each with (1/6)² · (5/6)³ ≈ 0.01608.)
+    answer:
+      value: 16.1
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 1.6) < 0.1
+        misconception: one-path
+        text: That is a single path. But there are 10 such paths.
+    hints:
+      - How many paths contain exactly two sixes? 5 choose 2 = 10.
+      - 10 · 0.01608.
+    explanation: "10 · 0.01608 ≈ 16.1 %. The tree grows so big that you count the paths instead of drawing them: the binomial formula."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A factory has two machines. A makes 60 % of the parts with 2 % rejects, B makes 40 % with 5 % rejects. What is the overall reject rate?
+    params:
+      options:
+        - label: 3.2 %
+          correct: true
+        - label: That is the plain average. But A makes more parts.
+          feedback: Das ist der einfache Schnitt. A macht aber mehr Teile.
+        - label: The rates are not simply added.
+          feedback: Die Quoten werden nicht einfach addiert.
+    hints:
+      - Weight each rate by the machine's share.
+      - 0.6 · 2 % + 0.4 · 5 %.
+    explanation: "1.2 % + 2 % = 3.2 %. That is the law of total probability: you sum over all routes."
     difficulty: 3
 
 srs:

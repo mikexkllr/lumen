@@ -1,0 +1,169 @@
+id: stats.information.crossentropy
+type: concept
+title: "When the model is wrong"
+summary: "Cross-entropy, KL divergence and why AI learns in bits."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You build a Huffman code for German texts and use it for Polish ones. What happens?
+    params:
+      options:
+        - label: It works, but needs more bits than a matching code
+          correct: true
+        - label: Prefix-free codes stay readable.
+          feedback: Präfixfreie Codes bleiben lesbar.
+        - label: Wrong frequencies always cost.
+          feedback: Falsche Häufigkeiten kosten immer.
+    hints:
+      - The code lengths fit German frequencies.
+      - In Polish other letters are common.
+    explanation: A code for the wrong model wastes bits. Exactly how many is measured by cross-entropy.
+
+  - kind: explain
+    id: c1
+    body: "**Cross-entropy** is the average code length when data come from p but the code was built for a model q: Σ p · (−log₂ q). It is never smaller than the entropy."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A fair coin (p = ½, ½). Your model believes q = ¼ for heads, ¾ for tails. Here −log₂ ¼ = 2 and −log₂ ¾ ≈ 0.415. What is the cross-entropy? To two decimals.
+    answer:
+      value: 1.21
+      tolerance: 0.01
+    hints:
+      - Weight with the true probabilities ½ and ½.
+      - ½ · 2 + ½ · 0.415.
+    explanation: ≈ 1.21 bits instead of 1 bit. The 0.21 wasted bits are called the KL divergence – the price of the wrong model.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A language model gives the correct next word probability 1/{{2 ** k}}. Its loss is −log₂ q. How many bits is that?
+    answer:
+      value: "{{k}}"
+    hints:
+      - You need −log₂(1/{{2 ** k}}).
+      - 1/{{2 ** k}} = (1/2)^{{k}}.
+    explanation: "{{k}} bits. Training lowers this loss on average over billions of words – which is exactly the cross-entropy between text and model."
+    variants:
+      params:
+        k: int[1,8]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: True or false?
+    params:
+      cards:
+        - text: A perfect model has cross-entropy equal to entropy.
+          right: true
+        - text: A wrong model can need fewer bits than the entropy.
+          right: false
+          why: Entropy is the lower bound.
+        - text: If a model gives the right word almost 0 %, the loss is huge.
+          right: true
+        - text: The KL divergence can be negative.
+          right: false
+          why: It is always ≥ 0 (Gibbs' inequality).
+    explanation: Cross-entropy = entropy + KL divergence. Learning means lowering the KL divergence.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: A model is 99.9 % sure of a prediction – and wrong. Why does cross-entropy punish this so hard?
+    params:
+      options:
+        - label: The right outcome got only 0.1 % – −log₂ 0.001 ≈ 10 bits
+          correct: true
+        - label: The loss depends on the chance given to the right outcome.
+          feedback: Der Verlust hängt an der Chance fürs richtige Ergebnis.
+        - label: What is punished is the tiny chance for what actually happened.
+          feedback: Bestraft wird die winzige Chance für das, was eintrat.
+    hints:
+      - What probability did the outcome that really happened have?
+      - The smaller q, the larger −log q.
+    explanation: "Overconfidence costs: as q → 0 the loss goes to infinity. That is why well-trained models learn to be calibrated."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "The forecast says 80 % rain and it rains. Loss: −log₂ 0.8. On another day it says 80 % rain and it stays dry: −log₂ 0.2. How big is the second loss in bits? To two decimals. (log₂ 5 ≈ 2.32)"
+    answer:
+      value: 2.32
+      tolerance: 0.01
+    hints:
+      - −log₂ 0.2 = log₂(1/0.2) = log₂ 5.
+      - The value is given.
+    explanation: "≈ 2.32 bits against only 0.32 bits on the rainy day. This logarithmic score rewards honest probabilities: whoever reports their true belief does best on average."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: KL(p‖q) measures how many bits you waste using model q instead of p. Does KL(p‖q) = KL(q‖p)?
+    params:
+      options:
+        - label: No – the KL divergence is not symmetric, so it is not a true distance
+          correct: true
+        - label: A distance would have to be symmetric. KL is not.
+          feedback: Ein Abstand müsste symmetrisch sein. KL ist es nicht.
+        - label: Even for coins the two directions usually differ.
+          feedback: Auch bei Münzen unterscheiden sich beide Richtungen meist.
+    hints:
+      - In the formula you weight by p, not by q.
+      - A model that never expects »snow« is punished hard when it snows – the reverse barely.
+    explanation: "Direction matters: KL(data‖model) punishes missed possibilities hard. That is why it is called a divergence, not a distance."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Mutual information measures how many bits a signal X reveals about Y: I = H(Y) − H(Y | X). The weather has H(Y) = 1 bit. After looking at the sky, H(Y | X) = 0.3 bits remain. How many bits does the sky reveal?"
+    answer:
+      value: 0.7
+    hints:
+      - Information is the drop in uncertainty.
+      - Compute 1 − 0.3.
+    explanation: 0.7 bits. Mutual information is zero exactly when X and Y are independent – it also detects nonlinear links that r misses.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what cross-entropy has to do with training AI language models.
+    params:
+      keywords:
+        - - wahrscheinlich
+          - probab
+          - chance
+        - - wort
+          - nächst
+          - word
+          - next
+          - token
+        - - bit
+          - log
+          - verlust
+          - loss
+          - strafe
+          - penal
+      sample: The model gives every possible next word a probability. The loss is minus log of that probability for the right word, in bits. Training lowers this loss on average, i.e. the cross-entropy between real text and the model.
+    explanation: "A language model is a compressor: the better it predicts, the fewer bits it needs per word."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

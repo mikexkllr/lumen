@@ -1,0 +1,193 @@
+id: stats.distributions.uniform
+type: concept
+title: "Alles gleich wahrscheinlich"
+summary: "Die Gleichverteilung – für Würfel und für Wartezeiten."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Die S-Bahn fährt genau alle 10 Minuten. Du kommst zu einer zufälligen Zeit. Wie lange wartest du im Schnitt?"
+    params:
+      min: 0
+      max: 10
+      step: 0.5
+      unit: min
+    answer:
+      value: 5
+      tolerance: 0.5
+    explanation: Jede Wartezeit von 0 bis 10 Minuten ist gleich wahrscheinlich. Im Schnitt sind es 5 Minuten – die Mitte.
+
+  - kind: explain
+    id: c1
+    body: Eine **Verteilung** sagt, welche Werte vorkommen und wie wahrscheinlich sie sind. Sind alle Werte gleich wahrscheinlich, heißt sie Gleichverteilung. Ein fairer Würfel ist das Paradebeispiel.
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "1"
+          - label: "2"
+          - label: "3"
+          - label: "4"
+          - label: "5"
+          - label: "6"
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die S-Bahn fährt alle 10 Minuten, du kommst zufällig. Wie wahrscheinlich wartest du **länger als 7 Minuten**? In Prozent.
+    answer:
+      value: 30
+    hints:
+      - "Länger als 7 Minuten heißt: Wartezeit zwischen 7 und 10."
+      - Das ist ein Stück von 3 der 10 Minuten.
+    explanation: 3/10 = 30 %. Bei der stetigen Gleichverteilung ist die Wahrscheinlichkeit einfach Länge des Stücks durch Gesamtlänge.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Zufallsgenerator liefert gleichverteilt eine Zahl zwischen {{a}} und {{b}}. Welchen Wert erwartest du im Schnitt?
+    answer:
+      value: "{{(a + b) / 2}}"
+    hints:
+      - "Gleichverteilt: Der Schwerpunkt liegt in der Mitte."
+      - "Rechne ({{a}} + {{b}}) : 2."
+    explanation: "({{a}} + {{b}}) : 2 = {{(a + b) / 2}}. Der Erwartungswert einer Gleichverteilung ist die Mitte des Bereichs."
+    variants:
+      params:
+        a: int[0,10]
+        b: int[12,40]
+      defaults:
+        a: 2
+        b: 12
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Ist das ungefähr gleichverteilt?
+    params:
+      buckets:
+        - id: b1
+          label: Gleichverteilt
+        - id: b2
+          label: Nicht gleichverteilt
+      items:
+        - label: Augenzahl eines fairen Würfels
+          bucket: b1
+        - label: Letzte Ziffer einer Lottozahl
+          bucket: b1
+        - label: Körpergröße von Erwachsenen
+          bucket: b2
+        - label: Summe zweier Würfel
+          bucket: b2
+        - label: Ankunft im 10-Minuten-Takt
+          bucket: b1
+    hints:
+      - Gibt es Werte, die deutlich häufiger sind als andere?
+      - Die Summe zweier Würfel hat eine Spitze bei 7.
+    explanation: Gleichverteilung entsteht, wenn nichts einen Wert bevorzugt. Summen und natürliche Größen bilden dagegen meist einen Berg.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Gleichverteilung auf [0, 12] hat die Varianz (b − a)² : 12. Wie groß ist ihre Standardabweichung? Auf zwei Stellen."
+    answer:
+      value: 3.46
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: variance-not-sd
+        text: Das ist die Varianz. Zieh noch die Wurzel.
+    hints:
+      - "(12 − 0)² : 12 = 12."
+      - Zieh die Wurzel aus 12.
+    explanation: √12 ≈ 3,46. Die 12 im Nenner kommt aus dem Integral über x² – sie taucht in jeder Gleichverteilung auf.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Zwei unabhängige Zahlen, jede gleichverteilt zwischen 0 und 1, werden addiert. Wie sieht die Verteilung der Summe aus?
+    params:
+      options:
+        - label: Ein Dreieck mit Spitze bei 1
+          correct: true
+        - label: Wieder flach zwischen 0 und 2
+          feedback: Für die Mitte gibt es viel mehr Kombinationen als für die Ränder.
+        - label: Eine Glocke mit Spitze bei 0
+          feedback: Die Summe ist im Schnitt 1, nicht 0.
+    hints:
+      - Wie bekommt man eine Summe nahe 0? Und nahe 1?
+      - "Denk an zwei Würfel: Die 7 ist am häufigsten."
+    explanation: Zwei flache Verteilungen ergeben ein Dreieck, drei schon eine Art Glocke. Das ist der **zentrale Grenzwertsatz** im Anfang.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Computer erzeugen gleichverteilte Zahlen U zwischen 0 und 1. Daraus macht man Wartezeiten: T = −ln(U) · 10 Minuten. Welche Wartezeit ergibt U = 0,5? Auf eine Stelle. (ln 0,5 ≈ −0,693)"
+    answer:
+      value: 6.9
+      tolerance: 0.05
+    hints:
+      - −ln(0,5) ≈ 0,693.
+      - Mal 10 Minuten.
+    explanation: Etwa 6,9 Minuten – der Median der Wartezeit. Mit diesem **Inversionsverfahren** erzeugt man aus Gleichverteilung jede andere Verteilung.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Zufallsgenerator soll eine »zufällige Zahl zwischen 1 und unendlich« liefern, alle gleich wahrscheinlich. Geht das?
+    params:
+      options:
+        - label: Nein – unendlich viele gleiche Wahrscheinlichkeiten können nicht 1 ergeben
+          correct: true
+        - label: Ja, jede Zahl hat dann Chance 0
+          feedback: Dann ergäbe die Summe 0, nicht 1.
+        - label: Ja, mit genug Rechenleistung
+          feedback: Das Problem ist mathematisch, nicht technisch.
+    hints:
+      - Gib jeder Zahl dieselbe Chance p. Was ergibt die Summe über unendlich viele?
+      - p > 0 gibt unendlich, p = 0 gibt 0.
+    explanation: Eine Gleichverteilung braucht einen **beschränkten** Bereich. Darum ist »wähle zufällig eine natürliche Zahl« ohne weitere Angabe sinnlos.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man im 10-Minuten-Takt im Schnitt 5 Minuten wartet – und wann es länger wird.
+    params:
+      keywords:
+        - - gleich
+          - jede
+          - equal
+          - every
+          - uniform
+        - - mitte
+          - hälfte
+          - middle
+          - half
+          - fünf
+          - five
+        - - unregelmäßig
+          - lücke
+          - irregular
+          - gap
+          - länger
+          - longer
+      sample: Jede Ankunftszeit ist gleich wahrscheinlich, die Wartezeit liegt gleich verteilt zwischen 0 und 10. Der Schnitt ist die Mitte, also fünf Minuten. Fahren die Bahnen unregelmäßig, landet man öfter in einer langen Lücke und wartet länger.
+    explanation: Bei festem Takt ist die Wartezeit gleichverteilt. Unregelmäßigkeit erhöht sie – lange Lücken fangen mehr Ankünfte ein.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x1"]

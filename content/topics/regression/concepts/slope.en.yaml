@@ -5,7 +5,7 @@ summary: Relationships in numbers.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: bedeutung
@@ -76,6 +76,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Height and weight correlate with r = {{r}}. The standard deviations are {{sy}} kg and {{sx}} cm. How many kg more does the line predict per cm? To two decimals.
+    answer:
+      value: "{{r * sy / sx}}"
+      tolerance: 0.006
+    hints:
+      - Slope = r · s_y ÷ s_x.
+      - Compute {{r}} · {{sy}} ÷ {{sx}}.
+    explanation: "{{r}} · {{sy}} ÷ {{sx}} ≈ {{round(100 * r * sy / sx) / 100}} kg per cm. The slope always has the unit »y per x«."
+    difficulty: 2
+    variants:
+      params:
+        r: choice[0.4,0.5,0.6,0.8]
+        sy: choice[10,12,15]
+        sx: choice[5,6,10]
+      defaults:
+        r: 0.5
+        sy: 12
+        sx: 6
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: "A rent model: rent = 300 € + 11 € · area in m². You measure area in dm² instead of m² (1 m² = 100 dm²). What happens to the slope?"
+    params:
+      options:
+        - label: "It becomes 100 times smaller: 0.11 € per dm²"
+          correct: true
+        - label: Then each dm² would cost 11 € – far too much.
+          feedback: Dann würde jeder dm² 11 € kosten – viel zu viel.
+        - label: A dm² is smaller than a m², so it costs less.
+          feedback: Ein dm² ist kleiner als ein m², also kostet er weniger.
+    hints:
+      - How much does one extra m² cost? How many dm² is that?
+      - 11 € spread over 100 dm².
+    explanation: The slope depends on units; r does not. Whoever compares slopes must check the units.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -91,6 +133,44 @@ steps:
     hints:
       - “All else equal” is the decisive addition.
     explanation: "**Multiple regression** separates influences by holding the others constant mathematically."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: A model reads ln(price) = 9 + 0.05 · years-newer. What does the 0.05 mean?
+    params:
+      options:
+        - label: Each year newer brings about 5 % higher price
+          correct: true
+        - label: In logs, coefficients act as factors.
+          feedback: Im Logarithmus wirken Koeffizienten als Faktoren.
+        - label: It is percent, not euros.
+          feedback: Gemeint sind Prozente, nicht Euro.
+    hints:
+      - ln(price) rises by 0.05. What does that mean for the price itself?
+      - e^0.05 ≈ 1.051.
+    explanation: e^0.05 ≈ 1.051, so about +5.1 % per year. Log models describe relative effects – typical for prices and incomes.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A model »pay from height« gives +200 € per 10 cm. Adding gender shrinks the effect to +40 €. Why?
+    params:
+      options:
+        - label: Height partly stood in for gender – an omitted variable biased the slope
+          correct: true
+        - label: "On the contrary: it now separates two influences."
+          feedback: "Im Gegenteil: Es trennt jetzt zwei Einflüsse."
+        - label: "The effect is systematic: men are taller on average."
+          feedback: "Der Effekt ist systematisch: Männer sind im Schnitt größer."
+    hints:
+      - Are height and gender related?
+      - Without gender in the model, height takes over its effect.
+    explanation: That is omitted-variable bias. A slope always means »holding constant the other variables in the model«.
     difficulty: 3
 
 srs:

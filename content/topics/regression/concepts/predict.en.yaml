@@ -5,7 +5,7 @@ summary: From model to number.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wohnung
@@ -88,6 +88,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "A model predicts 290,000 €. Its typical error (RMSE) is 20,000 €. Rule of thumb for 95 %: prediction ± 2 · RMSE. Where is the lower limit?"
+    params:
+      unit: €
+    answer:
+      value: 250000
+    hints:
+      - 2 · 20,000 = 40,000.
+      - Compute 290,000 − 40,000.
+    explanation: Between 250,000 € and 330,000 €. An honest prediction interval is often much wider than people think.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: A model has an error of 2 % on its training data and 15 % on new data. What is most likely?
+    params:
+      options:
+        - label: It memorised the training data, noise included
+          correct: true
+        - label: New data are the honest test.
+          feedback: Neue Daten sind der ehrliche Test.
+        - label: What counts is the error on new data.
+          feedback: Entscheidend ist der Fehler bei neuen Daten.
+    hints:
+      - Which of the two errors counts in practice?
+      - A big gap between them is a warning sign.
+    explanation: That is overfitting. That is why you always hold back test data the model has never seen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +137,55 @@ steps:
     hints:
       - With enough knobs you hit every point – including the noise.
     explanation: That is why models are always tested on data they have never seen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Through 10 points with different x-values there is always a polynomial that hits all of them exactly. At most what degree does it need?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: off-by-one
+        text: A polynomial of degree n has n + 1 coefficients. For 10 points 10 coefficients are enough.
+    hints:
+      - A line (degree 1) always fits through 2 points.
+      - Degree n fits through n + 1 points.
+    explanation: Degree 9 with R² = 1 – and still useless for new values, because the curve swings wildly between the points. A perfect fit is no mark of quality.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "The adjusted R² penalises too many predictors: 1 − (1 − R²) · (n − 1) ÷ (n − k − 1). Here R² = 0.5, n = 21 points and k = 10 predictors. What is it?"
+    answer:
+      value: 0
+    hints:
+      - (n − 1) ÷ (n − k − 1) = 20 ÷ 10 = 2.
+      - 1 − 0.5 · 2 = ?
+    explanation: Zero! With 10 predictors and 21 points the model explains no more than chance would. Adjusted R² can even turn negative.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x3
+    depth: 3
+    widget: choice
+    prompt: In cross-validation you split the data into 5 parts. What happens next?
+    params:
+      options:
+        - label: "Five times: train on 4 parts, test on the fifth – then average the errors"
+          correct: true
+        - label: Then you test on data the model already knows.
+          feedback: Dann testet man auf bekannten Daten.
+        - label: That cherry-picks the result.
+          feedback: Damit sucht man sich das Ergebnis aus.
+    hints:
+      - Every part should be test data once.
+      - The model must never see its test data beforehand.
+    explanation: That way every point is tested honestly exactly once. This error is used, for example, to choose how complex a model may be.
     difficulty: 3
 
 srs:

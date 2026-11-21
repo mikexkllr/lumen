@@ -1,0 +1,212 @@
+id: stats.distributions.binomial
+type: concept
+title: "Die Binomialverteilung"
+summary: "Wie oft trifft man bei n Versuchen?"
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Du rätst bei 5 Fragen mit je 4 Antworten. Wie wahrscheinlich hast du **alle** falsch? In Prozent."
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 23.7
+      tolerance: 6
+    explanation: (3/4)⁵ ≈ 0,237 – fast ein Viertel. Mehr, als die meisten denken.
+
+  - kind: explain
+    id: c1
+    body: Die **Binomialverteilung** zählt Treffer. Man macht n Versuche. Jeder trifft mit der Chance p, ganz unabhängig von den anderen. So ist es bei Münzen, Ratefragen und Elfmetern.
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "0"
+            weight: 1
+          - label: "1"
+            weight: 4
+          - label: "2"
+            weight: 6
+          - label: "3"
+            weight: 4
+          - label: "4"
+            weight: 1
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Spielerin trifft {{p}} % ihrer Elfmeter. Sie schießt {{n}}. Wie viele Treffer erwartest du im Schnitt?
+    answer:
+      value: "{{n * p / 100}}"
+    hints:
+      - Jeder Schuss bringt im Schnitt {{p / 100}} Treffer.
+      - Rechne {{n}} · {{p / 100}}.
+    explanation: "{{n}} · {{p / 100}} = {{n * p / 100}}. Der Erwartungswert der Binomialverteilung ist **n · p**."
+    variants:
+      params:
+        p: choice[60,70,75,80,90]
+        n: choice[10,20,40]
+      constraints:
+        - isInt(n * p / 100)
+      defaults:
+        p: 75
+        n: 20
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Du rätst 5 Fragen mit je 4 Antworten. Wie wahrscheinlich ist **genau eine** richtig? In Prozent, auf eine Stelle. (Ein Pfad: ¼ · (¾)⁴ ≈ 0,0791)"
+    answer:
+      value: 39.6
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 7.9) < 0.2
+        misconception: one-path
+        text: Das ist nur ein Pfad. Die richtige Antwort kann bei jeder der 5 Fragen liegen.
+    hints:
+      - Bei welcher Frage liegt der eine Treffer? 5 Möglichkeiten.
+      - 5 · 0,0791.
+    explanation: "5 · 0,0791 ≈ 39,6 %. Allgemein: P(k) = (n über k) · pᵏ · (1 − p)ⁿ⁻ᵏ."
+
+  - kind: problem
+    id: c4
+    widget: distribution
+    prompt: "Vier Münzen: Die Säulen zeigen 0 bis 4 Köpfe. Wirf mindestens 100-mal und vergleiche mit der Binomialverteilung."
+    params:
+      items:
+        - label: "0"
+          weight: 1
+        - label: "1"
+          weight: 4
+        - label: "2"
+          weight: 6
+        - label: "3"
+          weight: 4
+        - label: "4"
+          weight: 1
+    check:
+      predicate: draws >= 100
+    hints:
+      - Nutze den Knopf für 100 Würfe.
+      - Die Gewichte 1, 4, 6, 4, 1 stammen aus dem Pascal-Dreieck.
+    explanation: "Zwei Köpfe kommen am häufigsten: 6 von 16 Folgen. Die Zahlen 1, 4, 6, 4, 1 sind »4 über k«."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Die Varianz der Binomialverteilung ist n · p · (1 − p). Wie groß ist die Standardabweichung der Kopfzahl bei 100 Münzwürfen?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: variance-not-sd
+        text: Das ist die Varianz. Zieh noch die Wurzel.
+    hints:
+      - 100 · 0,5 · 0,5 = 25.
+      - Zieh die Wurzel aus 25.
+    explanation: σ = 5. Also liegen etwa 95 % der Ergebnisse zwischen 40 und 60 Köpfen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} Münzwürfe. Nach der Glocken-Näherung liegt die Kopfzahl mit 95 % im Bereich n/2 ± 2σ, σ = √n : 2. Wo liegt die obere Grenze?"
+    answer:
+      value: "{{n / 2 + sqrt(n)}}"
+    hints:
+      - "σ = √{{n}} : 2 = {{sqrt(n) / 2}}."
+      - Rechne {{n / 2}} + 2 · {{sqrt(n) / 2}}.
+    explanation: "{{n / 2}} + {{sqrt(n)}} = {{n / 2 + sqrt(n)}}. Für große n wird die Binomialverteilung zur **Glocke** (de Moivre–Laplace)."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[100,400,900,2500,10000]
+      defaults:
+        n: 400
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wann passt die Binomialverteilung **nicht**?
+    params:
+      options:
+        - label: Wenn die Versuche voneinander abhängen, etwa Ziehen ohne Zurücklegen aus einer kleinen Urne
+          correct: true
+        - label: Wenn p klein ist
+          feedback: Kleine p sind erlaubt – dann nähert sie sich der Poisson-Verteilung.
+        - label: Wenn n groß ist
+          feedback: Große n sind erlaubt.
+    hints:
+      - "Die Bedingungen: feste Zahl n, gleiches p, Unabhängigkeit."
+      - Ohne Zurücklegen ändert sich p mit jedem Zug.
+    explanation: Ohne Zurücklegen gilt die **hypergeometrische** Verteilung. Bei großen Urnen ist der Unterschied winzig.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Bei welcher Trefferzahl k ist P(k) für n = 10 und p = 0,3 am größten? Faustregel: k ist die größte ganze Zahl ≤ (n + 1) · p."
+    answer:
+      value: 3
+    hints:
+      - (10 + 1) · 0,3 = 3,3.
+      - Runde ab.
+    explanation: "k = 3. Der Quotient P(k + 1) : P(k) = (n − k) : (k + 1) · p : (1 − p) ist größer als 1, solange k < (n + 1)p − 1. Danach fällt die Verteilung."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Test mit 20 Ratefragen (je 50 %) gilt ab 15 Richtigen als bestanden. P(≥ 15) ≈ 2 %. 100 Schüler raten alle nur. Was erwartest du?
+    params:
+      options:
+        - label: Etwa 2 bestehen – durch reines Raten
+          correct: true
+        - label: Niemand besteht
+          feedback: 2 % von 100 sind 2 Schüler.
+        - label: Die Hälfte besteht
+          feedback: 50 % ist die Chance pro Frage, nicht für 15 von 20.
+    hints:
+      - Jeder Schüler ist ein Versuch mit Chance 2 %.
+      - "Wieder binomial: n = 100, p = 0,02."
+    explanation: Im Schnitt 2 Glückspilze. Schon wenige Glücksfälle unter vielen sind **zu erwarten** – das gleiche Prinzip wie beim p-Hacking.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wann man die Binomialverteilung benutzen darf.
+    params:
+      keywords:
+        - - unabhängig
+          - independent
+        - - gleich
+          - dieselbe
+          - same
+          - konstant
+          - constant
+        - - anzahl
+          - zähl
+          - count
+          - number
+          - treffer
+          - hits
+      sample: Man zählt die Treffer bei einer festen Anzahl von Versuchen. Jeder Versuch hat dieselbe Trefferchance, und die Versuche sind unabhängig. Dann ist die Zahl der Treffer binomialverteilt.
+    explanation: Feste Zahl n, gleiches p, Unabhängigkeit – fehlt eines davon, braucht man ein anderes Modell.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

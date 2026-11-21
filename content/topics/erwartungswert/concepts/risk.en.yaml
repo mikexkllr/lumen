@@ -5,7 +5,7 @@ summary: How much does the result swing?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zwei-spiele
@@ -98,6 +98,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: A game gives either {{2 * g}} € or 0 €, 50 % each. What is the standard deviation?
+    params:
+      unit: €
+    answer:
+      value: "{{g}}"
+    hints:
+      - The expected value is {{g}} €.
+      - Both outcomes are exactly {{g}} € away from the expected value.
+    explanation: Both distances are {{g}}, so σ = {{g}} €. The standard deviation measures risk in euros.
+    difficulty: 2
+    variants:
+      params:
+        g: choice[5,10,25,50,100]
+      defaults:
+        g: 10
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: One investment fluctuates with σ = 20 %. You split your money equally across 4 such investments that fluctuate independently. What is σ now?
+    params:
+      unit: "%"
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: divide-by-n
+        text: Dividing by 4 is too optimistic. The spread falls with √n.
+    hints:
+      - Averaging n independent values shrinks σ by √n.
+      - 20 ÷ √4.
+    explanation: "20 ÷ 2 = 10 %. That is diversification: same expected value, half the risk."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +152,42 @@ steps:
     hints:
       - Would you toss a coin for ±€100?
     explanation: "**Loss aversion** from Kahneman and Tversky’s prospect theory – Nobel Prize 2002."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Two independent risks have σ = 3 and σ = 4. What is the standard deviation of their sum?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: add-sd
+        text: Standard deviations do not add – variances do.
+    hints:
+      - "Add the variances: 9 + 16."
+      - Take the square root of 25.
+    explanation: √(9 + 16) = 5 – just like Pythagoras. Independent risks are, in a sense, at right angles.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A bank spreads loans across 1000 homeowners in the same region. Why did that barely help in 2008?
+    params:
+      options:
+        - label: The risks were linked – when house prices fall, everyone is hit at once
+          correct: true
+        - label: Even a million would not help if they all fall together.
+          feedback: Auch eine Million hilft nicht, wenn alle gemeinsam fallen.
+        - label: That was exactly the mistake.
+          feedback: Genau das war der Irrtum.
+    hints:
+      - The √n rule needs one condition. Which?
+      - Independence is missing when a common factor acts.
+    explanation: With correlated risks a remainder stays that no spreading averages away. Banks underestimated how strongly defaults were linked.
     difficulty: 3
 
 srs:

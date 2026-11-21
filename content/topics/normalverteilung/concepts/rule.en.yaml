@@ -5,7 +5,7 @@ summary: What is typical and what is rare.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 2.5
       tolerance: 2
     explanation: Only about 2.5%. The tails of the bell are very thin.
-
 
   - kind: explain
     id: s1
@@ -90,6 +89,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Normal distribution: what percent of the values lie above μ + {{k}}σ? Use the 68-95-99.7 rule."
+    answer:
+      value: "{{k == 1 ? 16 : (k == 2 ? 2.5 : 0.15)}}"
+      tolerance: 0.05
+    hints:
+      - "Within {{k}}σ lie {{k == 1 ? 68 : (k == 2 ? 95 : 99.7)}} %."
+      - The rest splits evenly between both sides.
+    explanation: "(100 − {{k == 1 ? 68 : (k == 2 ? 95 : 99.7)}}) ÷ 2 = {{k == 1 ? 16 : (k == 2 ? 2.5 : 0.15)}} %. The bell is symmetric."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,3]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: what percent of the values lie further than one standard deviation from the mean?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 32
+      tolerance: 4
+    explanation: 100 − 68 = 32 %. Almost one value in three lies outside ± 1σ – perfectly normal.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -99,6 +132,39 @@ steps:
     hints:
       - 0.3% of 1,000,000.
     explanation: 3000 per million. At 6 σ it is only 3.4 – the tails fall off extremely fast.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Without a bell curve, Chebyshev helps: at least the share 1 − 1/k² lies within k σ. At least what percent is that for k = 3? To one decimal."
+    answer:
+      value: 88.9
+      tolerance: 0.1
+    hints:
+      - 1/k² = 1/9.
+      - 1 − 1/9 = 8/9.
+    explanation: At least 88.9 % – for every distribution. For the bell it is 99.7 %. So the rule of thumb only holds when the data really are normal.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Statisticians often say »95 % lie within 1.96 σ« instead of »within 2 σ«. Why?
+    params:
+      options:
+        - label: 2 σ actually covers 95.4 %; exactly 95 % needs 1.96 σ
+          correct: true
+        - label: The rule is just rounded, not wrong.
+          feedback: Die Faustregel ist nur gerundet, nicht falsch.
+        - label: That is a different correction.
+          feedback: Das ist eine andere Korrektur.
+    hints:
+      - The 68-95-99.7 rule is rounded.
+      - Where is the limit for exactly 95 %?
+    explanation: "Exactly: ± 1 σ → 68.3 %, ± 1.96 σ → 95.0 %, ± 2 σ → 95.4 %, ± 3 σ → 99.7 %. Confidence intervals use 1.96."
     difficulty: 3
 
 srs:

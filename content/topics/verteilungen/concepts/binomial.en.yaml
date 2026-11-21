@@ -1,0 +1,212 @@
+id: stats.distributions.binomial
+type: concept
+title: "The binomial distribution"
+summary: "How many hits in n tries?"
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: you guess on 5 questions with 4 options each. How likely do you get all of them wrong? In percent."
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 23.7
+      tolerance: 6
+    explanation: (3/4)⁵ ≈ 0.237 – almost a quarter. More than most people think.
+
+  - kind: explain
+    id: c1
+    body: The **binomial distribution** counts hits. You make n tries. Each one hits with chance p, independent of the others. Coins, guessed answers and penalty kicks work like this.
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "0"
+            weight: 1
+          - label: "1"
+            weight: 4
+          - label: "2"
+            weight: 6
+          - label: "3"
+            weight: 4
+          - label: "4"
+            weight: 1
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A player scores {{p}} % of her penalties. She takes {{n}}. How many goals do you expect on average?
+    answer:
+      value: "{{n * p / 100}}"
+    hints:
+      - Each kick yields {{p / 100}} goals on average.
+      - Compute {{n}} · {{p / 100}}.
+    explanation: "{{n}} · {{p / 100}} = {{n * p / 100}}. The expected value of the binomial distribution is n · p."
+    variants:
+      params:
+        p: choice[60,70,75,80,90]
+        n: choice[10,20,40]
+      constraints:
+        - isInt(n * p / 100)
+      defaults:
+        p: 75
+        n: 20
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "You guess 5 questions with 4 options each. How likely is exactly one right? In percent, to one decimal. (One path: ¼ · (¾)⁴ ≈ 0.0791)"
+    answer:
+      value: 39.6
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 7.9) < 0.2
+        misconception: one-path
+        text: That is just one path. The right answer can be at any of the 5 questions.
+    hints:
+      - Which question holds the one hit? 5 options.
+      - 5 · 0.0791.
+    explanation: "5 · 0.0791 ≈ 39.6 %. In general: P(k) = (n choose k) · pᵏ · (1 − p)ⁿ⁻ᵏ."
+
+  - kind: problem
+    id: c4
+    widget: distribution
+    prompt: "Four coins: the bars show 0 to 4 heads. Throw at least 100 times and compare with the binomial distribution."
+    params:
+      items:
+        - label: "0"
+          weight: 1
+        - label: "1"
+          weight: 4
+        - label: "2"
+          weight: 6
+        - label: "3"
+          weight: 4
+        - label: "4"
+          weight: 1
+    check:
+      predicate: draws >= 100
+    hints:
+      - Use the button for 100 throws.
+      - The weights 1, 4, 6, 4, 1 come from Pascal's triangle.
+    explanation: "Two heads come most often: 6 of 16 sequences. The numbers 1, 4, 6, 4, 1 are »4 choose k«."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The variance of the binomial distribution is n · p · (1 − p). What is the standard deviation of the number of heads in 100 coin flips?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: variance-not-sd
+        text: That is the variance. Now take the root.
+    hints:
+      - 100 · 0.5 · 0.5 = 25.
+      - Take the square root of 25.
+    explanation: σ = 5. So about 95 % of outcomes lie between 40 and 60 heads.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} coin flips. By the bell approximation the number of heads lies within n/2 ± 2σ with 95 %, where σ = √n ÷ 2. Where is the upper limit?"
+    answer:
+      value: "{{n / 2 + sqrt(n)}}"
+    hints:
+      - σ = √{{n}} ÷ 2 = {{sqrt(n) / 2}}.
+      - Compute {{n / 2}} + 2 · {{sqrt(n) / 2}}.
+    explanation: "{{n / 2}} + {{sqrt(n)}} = {{n / 2 + sqrt(n)}}. For large n the binomial becomes a bell (de Moivre–Laplace)."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[100,400,900,2500,10000]
+      defaults:
+        n: 400
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: When does the binomial distribution NOT fit?
+    params:
+      options:
+        - label: When the tries depend on each other, e.g. drawing without replacement from a small urn
+          correct: true
+        - label: Small p is allowed – then it approaches the Poisson distribution.
+          feedback: Kleine p sind erlaubt – dann nähert sie sich der Poisson-Verteilung.
+        - label: Large n is allowed.
+          feedback: Große n sind erlaubt.
+    hints:
+      - "The conditions: fixed n, same p, independence."
+      - Without replacement p changes with every draw.
+    explanation: Without replacement the hypergeometric distribution applies. For large urns the difference is tiny.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "For which number of hits k is P(k) largest when n = 10 and p = 0.3? Rule: k is the largest whole number ≤ (n + 1) · p."
+    answer:
+      value: 3
+    hints:
+      - (10 + 1) · 0.3 = 3.3.
+      - Round down.
+    explanation: k = 3. The ratio P(k + 1) ÷ P(k) = (n − k)/(k + 1) · p/(1 − p) stays above 1 while k < (n + 1)p − 1. After that the distribution falls.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A test with 20 guess questions (50 % each) is passed from 15 correct. P(≥ 15) ≈ 2 %. 100 students all just guess. What do you expect?
+    params:
+      options:
+        - label: About 2 pass – by pure guessing
+          correct: true
+        - label: 2 % of 100 are 2 students.
+          feedback: 2 % von 100 sind 2 Schüler.
+        - label: 50 % is the chance per question, not for 15 of 20.
+          feedback: 50 % ist die Chance pro Frage, nicht für 15 von 20.
+    hints:
+      - Each student is a try with chance 2 %.
+      - "Binomial again: n = 100, p = 0.02."
+    explanation: On average 2 lucky ones. A few lucky cases among many are to be expected – the same principle as in p-hacking.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux when you may use the binomial distribution.
+    params:
+      keywords:
+        - - unabhängig
+          - independent
+        - - gleich
+          - dieselbe
+          - same
+          - konstant
+          - constant
+        - - anzahl
+          - zähl
+          - count
+          - number
+          - treffer
+          - hits
+      sample: You count hits in a fixed number of tries. Each try has the same hit chance, and the tries are independent. Then the number of hits is binomial.
+    explanation: Fixed n, same p, independence – if one is missing, you need another model.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

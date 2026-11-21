@@ -5,7 +5,7 @@ summary: Mindestens einmal? Rechne rückwärts.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: gegenteil
@@ -68,6 +68,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Du würfelst {{n}}-mal. Wie wahrscheinlich ist mindestens eine 6? In Prozent, auf eine Stelle.
+    answer:
+      value: "{{100 * (1 - (5 / 6) ** n)}}"
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 100 * n / 6) < 0.2
+        misconception: add-chances
+        text: Chancen einfach zu addieren klappt nicht – bei 7 Würfen kämen über 100 % heraus.
+    hints:
+      - "Rechne zuerst die Chance auf **keine** 6: (5/6) hoch {{n}}."
+      - Zieh das Ergebnis von 1 ab.
+    explanation: 1 − (5/6)^{{n}} ≈ {{round(1000 * (1 - (5 / 6) ** n)) / 10}} %. Das Gegenteil von »mindestens eine 6« ist »keine einzige 6«.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,8]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie oft musst du würfeln, damit mit über 90 % mindestens eine 6 dabei ist?"
+    params:
+      min: 1
+      max: 40
+    answer:
+      value: 13
+      tolerance: 2
+    explanation: (5/6)¹² ≈ 11 %, (5/6)¹³ ≈ 9,3 %. Erst ab 13 Würfen liegt »mindestens eine 6« über 90 %.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -80,6 +117,32 @@ steps:
     hints:
       - 1 − 0,366.
     explanation: Rund 63 % – also 1 − 1/e. Ein »Jahrhunderthochwasser« ist in 100 Jahren keineswegs sicher.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Drei Würfel. Wie wahrscheinlich zeigen mindestens zwei dieselbe Zahl? Als Bruch.
+    answer:
+      value: 4/9
+    hints:
+      - "Gegenteil: alle drei verschieden. Das sind 6 · 5 · 4 von 216 Fällen."
+      - 120/216 = 5/9. Zieh das von 1 ab.
+    explanation: 1 − 5/9 = 4/9. Das ist das Geburtstagsparadox im Kleinen – mit 6 statt 365 Tagen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Bei 300 Patienten trat eine Nebenwirkung **nie** auf. Die **Dreierregel** sagt: Mit 95 % Sicherheit liegt ihre Rate unter 3/n. Wo liegt diese Grenze in Prozent?"
+    answer:
+      value: 1
+    hints:
+      - "Rechne 3 : 300."
+      - 0,01 sind wie viel Prozent?
+    explanation: "3/300 = 1 %. Grund: (1 − p)ⁿ = 5 % ergibt p ≈ 3/n, weil ln 0,05 ≈ −3. »Nie gesehen« heißt also nicht »gibt es nicht«."
     difficulty: 3
 
 srs:

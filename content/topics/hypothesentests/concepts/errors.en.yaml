@@ -5,7 +5,7 @@ summary: The two kinds of error.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -109,6 +109,58 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: buckets
+    prompt: Does this raise or lower a test's power?
+    params:
+      buckets:
+        - id: b1
+          label: More power
+        - id: b2
+          label: Less power
+      items:
+        - label: More participants
+          bucket: b1
+        - label: Larger true effect
+          bucket: b1
+        - label: More precise measurements
+          bucket: b1
+        - label: "Stricter threshold: 1 % not 5 %"
+          bucket: b2
+        - label: More noise in the data
+          bucket: b2
+    hints:
+      - Power is the chance of finding a real effect.
+      - What makes a signal easier to tell from noise?
+    explanation: Power grows with sample size, effect size and precision. A stricter threshold cuts false alarms, but power too.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: The effect size (Cohen's d) is the difference in means divided by the standard deviation. Group A averages {{a}}, group B {{b}}, σ = {{s}}. What is d?
+    answer:
+      value: "{{(a - b) / s}}"
+    hints:
+      - "Difference: {{a - b}}."
+      - Divide by {{s}}.
+    explanation: "d = {{(a - b) / s}}. Rule of thumb: 0.2 small, 0.5 medium, 0.8 large. Unlike p, d does not depend on sample size."
+    difficulty: 2
+    variants:
+      params:
+        b: choice[50,100]
+        s: choice[5,10,20]
+        k: choice[1,2,4,8]
+      derive:
+        a: b + k * s / 4
+      defaults:
+        b: 100
+        s: 10
+        k: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -120,6 +172,42 @@ steps:
     hints:
       - 100% minus the probability of a type II error.
     explanation: 80% counts as the minimum. Many older studies had below 50% – their results are hardly reliable.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: For d = 0.5 and 80 % power you need about 64 people per group. How many do you need for d = 0.25?
+    answer:
+      value: 256
+    feedback:
+      - when: numval(state.input) == 128
+        misconception: linear-n
+        text: The required sample grows with 1/d², not with 1/d.
+    hints:
+      - Half the effect – how much more data?
+      - The margin shrinks with √n. Half the margin needs 4 times as many.
+    explanation: 4 · 64 = 256 per group. Proving small effects reliably is expensive – that is why many studies are too small.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A small study (20 per group) finds a significant, huge effect. What is suspicious?
+    params:
+      options:
+        - label: With low power only exaggerated estimates make it past the threshold
+          correct: true
+        - label: With low power the effect found is usually too big.
+          feedback: Bei wenig Power ist der gefundene Effekt meist zu groß.
+        - label: 20 per group is rather few.
+          feedback: 20 pro Gruppe ist eher wenig.
+    hints:
+      - How large must a randomly estimated effect be for a small study to find it significant?
+      - Only lucky draws with a big swing get through.
+    explanation: "That is the winner's curse: with low power, significant results systematically overstate the effect. Replications then find smaller values."
     difficulty: 3
 
 srs:

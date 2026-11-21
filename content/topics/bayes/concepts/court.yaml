@@ -5,7 +5,7 @@ summary: Der Fehlschluss des Anklägers.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: treffer
@@ -80,6 +80,46 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Vor der Spur steht die Chance auf Schuld bei 1 : 1 000 000. Eine DNA-Spur hat das Likelihood-Verhältnis 1000, ein Zeuge 10. Beide sind unabhängig. Wie viel Prozent Schuld-Wahrscheinlichkeit ergibt das? Auf eine Stelle."
+    answer:
+      value: 1
+      tolerance: 0.05
+    hints:
+      - "Neue Chance: 1 : 1 000 000 · 1000 · 10 = 1 : 100."
+      - "Wahrscheinlichkeit = 1 : 101."
+    explanation: 1/101 ≈ 1,0 %. Starke Hinweise können einen winzigen Prior nur bis zu einem gewissen Punkt heben. Für ein Urteil braucht es mehr.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: buckets
+    prompt: Richtig gedacht oder ein Fehlschluss?
+    params:
+      buckets:
+        - id: b1
+          label: Fehlschluss
+        - id: b2
+          label: Richtig
+      items:
+        - label: »1 zu 1 Mio. Zufall, also schuldig.«
+          bucket: b1
+        - label: »20 passen, also ist die Spur wertlos.«
+          bucket: b1
+        - label: »Die Spur hebt die Chance stark an.«
+          bucket: b2
+        - label: »Wir brauchen weitere Beweise.«
+          bucket: b2
+    hints:
+      - Verwechselt die Aussage P(Spur | unschuldig) mit P(unschuldig | Spur)?
+      - Eine Spur, die 2 Mio. auf 20 eingrenzt, ist nicht wertlos.
+    explanation: "Der **Anklägerfehlschluss** überschätzt, der Verteidigerfehlschluss unterschätzt die Spur. Richtig ist: Die Spur multipliziert die Chance, sie ersetzt sie nicht."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +135,51 @@ steps:
     hints:
       - Wie groß war die Wahrscheinlichkeit vor der Spur?
     explanation: Der **Fehlschluss des Verteidigers**. Ein Hinweis ist so viel wert, wie er die Wahrscheinlichkeit **verschiebt**.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: "Ein Verteidiger argumentierte 1995: Nur etwa 1 von 1000 Männern, die ihre Frau schlagen, tötet sie später. Also sei Gewalt in der Ehe kein Hinweis auf Mord. Wo liegt der Fehler?"
+    params:
+      options:
+        - label: Die Frau wurde ermordet – man muss auf dieses Wissen bedingen
+          correct: true
+        - label: Die Zahl 1 von 1000 ist zu klein
+          feedback: Auch mit korrekter Zahl bleibt die Frage falsch gestellt.
+        - label: Es gibt keinen Fehler
+          feedback: Die richtige Frage verändert das Ergebnis drastisch.
+    hints:
+      - Gesucht ist nicht P(Mord | Gewalt), sondern …?
+      - P(Täter ist der Mann | Gewalt **und** Frau ermordet).
+    explanation: Bedingt man auf »Frau wurde ermordet und vorher geschlagen«, war in den meisten Fällen der Mann der Täter. Die **richtige Bedingung** dreht das Argument um.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Fehlschluss des Anklägers mit Zahlen.
+    params:
+      keywords:
+        - - million
+          - region
+          - einwohner
+          - people
+          - population
+        - - passen
+          - treffer
+          - match
+          - zufall
+          - chance
+        - - verwechsel
+          - umgekehrt
+          - confus
+          - revers
+          - swap
+      sample: Eine Spur passt zufällig zu 1 von 1 Million Menschen. In einer Region mit 2 Millionen Einwohnern passen also etwa 2 Unschuldige plus der Täter. Der Ankläger verwechselt die Chance eines Zufallstreffers mit der Chance der Unschuld.
+    explanation: P(Spur | unschuldig) ist winzig, P(unschuldig | Spur) aber nicht – das hängt davon ab, wie viele Menschen infrage kommen.
     difficulty: 3
 
 srs:

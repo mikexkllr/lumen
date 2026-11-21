@@ -1,0 +1,215 @@
+id: stats.experiments.abtest
+type: concept
+title: "A/B tests"
+summary: "How websites run experiments on millions – and where they fool themselves."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A shop shows two buy buttons: with A 50 of 1000 visitors bought, with B 60 of 1000. Is B surely better?"
+    params:
+      options:
+        - label: Unclear – a difference like that can be chance
+          correct: true
+        - label: Even two identical buttons never show exactly the same number.
+          feedback: Auch zwei gleiche Knöpfe zeigen nie genau dieselbe Zahl.
+        - label: Nothing points to A.
+          feedback: Nichts spricht für A.
+    hints:
+      - How much do 50 purchases out of 1000 vary on their own?
+      - A test has to check that.
+    explanation: "The question is always: difference or noise? That is what this lesson settles."
+
+  - kind: explain
+    id: c1
+    body: In an **A/B test** each visitor sees version A or B at random. Everything else is the same. Differences in behaviour then come from the version – or from chance.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: With B, 60 of 1000 visitors bought. What is the purchase rate in percent?
+    answer:
+      value: 6
+    hints:
+      - Divide 60 by 1000.
+      - 0.06 is what percent?
+    explanation: 6 % against 5 % for A. This figure is called the conversion rate.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The purchase rate rises from 5 % to 6 %. By what percent is that relatively more?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: points-vs-percent
+        text: That is the difference in percentage points. Relative means compared with the 5 %.
+    hints:
+      - The increase is 1 point.
+      - 1 of 5 is what percent?
+    explanation: +20 % relative, +1 point absolute. Companies like to report the 20 %.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Good or bad practice in an A/B test?
+    params:
+      buckets:
+        - id: b1
+          label: Good
+        - id: b2
+          label: Bad
+      items:
+        - label: Assign visitors at random
+          bucket: b1
+        - label: Show A in May, B in June
+          bucket: b2
+        - label: Fix the duration beforehand
+          bucket: b1
+        - label: Stop as soon as B leads
+          bucket: b2
+        - label: Change only one thing
+          bucket: b1
+    hints:
+      - What else differs between May and June besides the version?
+      - Stopping when it looks good catches random spikes.
+    explanation: At the same time, at random, with a fixed plan – then the test measures the version, not the weather or luck.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The standard error of the difference 6 % − 5 % is about 1 percentage point here. How many standard errors is the difference (z-score)?
+    answer:
+      value: 1
+    hints:
+      - The difference is 1 point.
+      - Divide 1 by the standard error 1.
+    explanation: z ≈ 1 – far below 1.96. With 1000 visitors per version the difference is not significant. You need far more visitors.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: To detect a difference of 1 point the test needs about {{n}} visitors per version. How many does it need for a difference half as big?
+    answer:
+      value: "{{4 * n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: linear-n
+        text: The margin shrinks with √n. Half the margin needs four times as many.
+    hints:
+      - Half the difference needs half the margin.
+      - "Half the margin: four times the visitors."
+    explanation: 4 · {{n}} = {{4 * n}}. Proving small improvements reliably costs a great many visitors.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[5000,8000,10000,20000]
+      defaults:
+        n: 8000
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A team checks the p-value every day and stops as soon as it falls below 5 %. What happens?
+    params:
+      options:
+        - label: False alarms become much more frequent than 5 %
+          correct: true
+        - label: Every look is a new test.
+          feedback: Jeder Blick ist ein neuer Test.
+        - label: It just ends sooner – and wrong more often.
+          feedback: Er wird nur früher – und öfter falsch.
+    hints:
+      - The p-value wanders up and down even without an effect.
+      - Whoever looks often eventually catches a random dip.
+    explanation: "Constant checking (peeking) is hidden p-hacking. Remedy: a fixed duration or methods built for repeated looks."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A shop tests 20 button colours against the original, each at the 5 % threshold. None really works. How many »winners« do you expect by pure chance?
+    answer:
+      value: 1
+    hints:
+      - Each colour has a 5 % false-alarm chance.
+      - 20 · 0.05.
+    explanation: On average one winner – with no effect at all. Many A/B successes shrink in a second test because they were such chance winners.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A new feature looks great in the first days, then the effect flattens. What is often behind it?
+    params:
+      options:
+        - label: The novelty effect – new things get used more at first out of curiosity
+          correct: true
+        - label: The test was right, just too short.
+          feedback: Der Test war korrekt, nur zu kurz.
+        - label: It is about interest in the new, not tiredness.
+          feedback: Gemeint ist das Interesse am Neuen, nicht Müdigkeit.
+    hints:
+      - How do you react to a new button you have never seen?
+      - Getting used to it changes behaviour over time.
+    explanation: Good teams run tests longer and look at new and old users separately. Short-term effects are not the same as long-term ones.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: In a social network group B gets a new sharing feature. Group A suddenly shares more too. Why does that spoil the test?
+    params:
+      options:
+        - label: The groups influence each other – A is no longer a clean control
+          correct: true
+        - label: The difference between A and B is then measured too small.
+          feedback: Der Unterschied zwischen A und B wird dadurch zu klein gemessen.
+        - label: A does not have it – but A sees what B shares.
+          feedback: A hat sie nicht – aber A sieht, was B teilt.
+    hints:
+      - Friends in B share content that A sees.
+      - The treatment »leaks« into the control group.
+    explanation: Experiments assume one person's treatment does not change another's outcome. In networks you therefore often randomise whole friend circles or cities.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a fair A/B test works and which trap lurks in the analysis.
+    params:
+      keywords:
+        - - zufall
+          - zufällig
+          - random
+        - - gleichzeitig
+          - gleich
+          - same time
+          - simultan
+        - - stopp
+          - früh
+          - schauen
+          - peek
+          - stop
+          - early
+          - zufallsgewinn
+      sample: Each visitor gets A or B at random, and both run at the same time. The duration is fixed in advance. Whoever stops early as soon as B leads often finds just a chance winner.
+    explanation: Chance assigns fairly; a fixed plan prevents self-deception in the analysis.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d2"]

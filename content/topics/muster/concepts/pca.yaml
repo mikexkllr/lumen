@@ -1,0 +1,214 @@
+id: stats.clustering.pca
+type: concept
+title: "Dimensionen reduzieren"
+summary: "Die Hauptkomponentenanalyse sucht die Richtungen mit der meisten Streuung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Foto von einem Gesicht ist 2D, das Gesicht 3D. Trotzdem erkennt man es meist. Was lehrt das über Daten?
+    params:
+      options:
+        - label: Weniger Dimensionen können fast alles Wichtige behalten – wenn man die richtige Richtung wählt
+          correct: true
+        - label: Dimensionen sind unwichtig
+          feedback: Ein Foto von oben auf den Kopf zeigt wenig.
+        - label: Man braucht immer alle Dimensionen
+          feedback: Das Foto beweist das Gegenteil.
+    hints:
+      - Von welcher Seite fotografiert man ein Gesicht am besten?
+      - Die beste Richtung zeigt die meisten Unterschiede.
+    explanation: "Die **Hauptkomponentenanalyse** (PCA) sucht genau diese Blickrichtung: die, in der die Daten am stärksten streuen."
+
+  - kind: explain
+    id: c1
+    body: Die erste **Hauptkomponente** ist die Richtung, in der die Daten am meisten streuen. Die zweite steht senkrecht darauf und erklärt das Meiste vom Rest. So fasst man viele Merkmale in wenigen zusammen.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Die Punkte liegen fast auf der Linie y = x. In welche Richtung zeigt die erste Hauptkomponente?
+    visual:
+      widget: graph
+      params:
+        x:
+          - 0
+          - 8
+        y:
+          - 0
+          - 8
+        showCoordinates: false
+        points:
+          - id: a
+            x: 1
+            y: 1
+            draggable: false
+            label: ""
+          - id: b
+            x: 2
+            y: 3
+            draggable: false
+            label: ""
+          - id: c
+            x: 3
+            y: 3
+            draggable: false
+            label: ""
+          - id: d
+            x: 4
+            y: 5
+            draggable: false
+            label: ""
+          - id: e
+            x: 5
+            y: 4
+            draggable: false
+            label: ""
+          - id: f
+            x: 6
+            y: 6
+            draggable: false
+            label: ""
+          - id: g
+            x: 7
+            y: 7
+            draggable: false
+            label: ""
+    params:
+      options:
+        - label: Schräg entlang der Diagonale
+          correct: true
+        - label: Waagrecht
+          feedback: Entlang der x-Achse streuen die Punkte weniger als entlang der Diagonale.
+        - label: Senkrecht zur Diagonale
+          feedback: In diese Richtung streuen sie am **wenigsten**.
+    hints:
+      - In welcher Richtung liegen die Punkte am weitesten auseinander?
+      - Senkrecht zur Diagonale ist die Wolke ganz schmal.
+    explanation: "Die Diagonale trägt fast alle Information: Ein Wert entlang der Linie beschreibt jeden Punkt fast vollständig. Aus 2 Dimensionen wird beinahe 1."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Die drei Hauptkomponenten haben die Streuungen (Varianzen) 8, 1,5 und 0,5. Wie viel Prozent der Gesamtstreuung erklärt die erste?
+    answer:
+      value: 80
+    hints:
+      - "Gesamtstreuung: 8 + 1,5 + 0,5 = 10."
+      - "Rechne 8 : 10."
+    explanation: 80 %. Mit einer statt drei Zahlen pro Punkt behält man vier Fünftel der **Streuung**.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Fünf Hauptkomponenten erklären 50 %, 30 %, 12 %, 5 % und 3 %. Wie viele braucht man mindestens für 90 %?
+    answer:
+      value: 3
+    hints:
+      - "Addiere von vorn: 50, 80, 92 …"
+      - Ab welcher Komponente liegt die Summe über 90 %?
+    explanation: 50 + 30 + 12 = 92 % mit drei Komponenten. Die letzten beiden sind oft vor allem Rauschen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Merkmale: Körpergröße in mm und Alter in Jahren. Ohne Standardisieren zeigt die erste Hauptkomponente fast genau entlang der Größe. Warum?"
+    params:
+      options:
+        - label: Millimeter haben riesige Zahlen und damit riesige Varianz
+          correct: true
+        - label: Größe ist wichtiger als Alter
+          feedback: PCA kennt keine Wichtigkeit – nur Varianz.
+        - label: Weil Größe und Alter unabhängig sind
+          feedback: Auch dann entscheidet die Skala.
+    hints:
+      - Varianz hängt von der Einheit ab.
+      - "Rechne einmal in Metern: Was passiert?"
+    explanation: PCA folgt der Varianz – und die hängt an den **Einheiten**. Darum standardisiert man fast immer vorher, wie beim Clustering.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Bild mit 100 × 100 Pixeln ist ein Punkt in 10 000 Dimensionen. Viele Gesichter lassen sich mit 50 Hauptkomponenten gut nachbauen. Was heißt das?
+    params:
+      options:
+        - label: Gesichter liegen auf einem viel niedriger-dimensionalen Teil des Pixelraums
+          correct: true
+        - label: Die anderen Pixel sind schwarz
+          feedback: Alle Pixel tragen Werte – sie hängen nur stark zusammen.
+        - label: PCA erfindet Gesichter
+          feedback: PCA verdichtet, was schon da ist.
+    hints:
+      - Benachbarte Pixel sind fast gleich hell.
+      - "Starke Zusammenhänge bedeuten: wenige echte Freiheitsgrade."
+    explanation: Echte Daten sind **redundant**. PCA findet die wenigen Richtungen, in denen sie wirklich variieren – das nutzt man für Kompression und Gesichtserkennung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Mathematisch sind die Hauptkomponenten …
+    params:
+      options:
+        - label: die Eigenvektoren der Kovarianzmatrix; die Eigenwerte sind ihre Varianzen
+          correct: true
+        - label: die Mittelwerte der Merkmale
+          feedback: Die Mittelwerte zieht man vorher ab.
+        - label: die Regressionsgeraden
+          feedback: Regression macht senkrechte Abstände klein, PCA die rechtwinkligen zur Achse.
+    hints:
+      - Die Kovarianzmatrix beschreibt, wie Merkmale zusammen streuen.
+      - Ihre Eigenvektoren werden durch sie nur gestreckt, nicht gedreht.
+    explanation: PCA ist eine **Eigenwertzerlegung**. Die Summe der Eigenwerte ist die Gesamtvarianz, und jeder Eigenwert sagt, wie viel seine Richtung davon trägt.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Alle Punkte liegen **exakt** auf einer Geraden in der Ebene. Wie viel Prozent der Streuung erklärt die erste Hauptkomponente?
+    answer:
+      value: 100
+    hints:
+      - Wie stark streuen die Punkte senkrecht zur Geraden?
+      - Gar nicht – der zweite Eigenwert ist 0.
+    explanation: 100 %. Die Daten sind eigentlich eindimensional. PCA findet die **wahre Dimension** – bei echten Daten nur ungefähr, weil Rauschen dazukommt.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Hauptkomponentenanalyse macht.
+    params:
+      keywords:
+        - - richtung
+          - achse
+          - direction
+          - axis
+        - - streu
+          - varianz
+          - spread
+          - variance
+        - - weniger
+          - reduz
+          - zusammenfass
+          - fewer
+          - reduc
+          - condens
+          - dimension
+      sample: PCA sucht die Richtung, in der die Daten am meisten streuen, und dann weitere senkrecht dazu. Mit wenigen solchen Achsen fasst man viele Merkmale zusammen. So hat man weniger Dimensionen, aber fast dieselbe Information.
+    explanation: PCA dreht das Koordinatensystem so, dass die ersten Achsen möglichst viel Streuung einfangen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

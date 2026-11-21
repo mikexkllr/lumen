@@ -5,7 +5,7 @@ summary: Vom Modell zur Zahl.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wohnung
@@ -88,6 +88,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Ein Modell sagt 290 000 € voraus. Sein typischer Fehler (RMSE) ist 20 000 €. Faustregel für 95 %: Vorhersage ± 2 · RMSE. Wo liegt die untere Grenze?"
+    params:
+      unit: €
+    answer:
+      value: 250000
+    hints:
+      - 2 · 20 000 = 40 000.
+      - Rechne 290 000 − 40 000.
+    explanation: Zwischen 250 000 € und 330 000 €. Ein ehrliches **Vorhersageintervall** ist oft viel breiter, als man denkt.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Modell hat auf den Lerndaten einen Fehler von 2 %, auf neuen Daten von 15 %. Was ist am wahrscheinlichsten?
+    params:
+      options:
+        - label: Es hat die Lerndaten auswendig gelernt, samt Zufall
+          correct: true
+        - label: Die neuen Daten sind falsch
+          feedback: Neue Daten sind der ehrliche Test.
+        - label: Es ist ein sehr gutes Modell
+          feedback: Entscheidend ist der Fehler bei neuen Daten.
+    hints:
+      - Welcher der beiden Fehler zählt für die Praxis?
+      - Ein großer Abstand zwischen beiden ist ein Warnsignal.
+    explanation: Das ist **Überanpassung**. Darum hält man immer Testdaten zurück, die das Modell nie gesehen hat.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +137,55 @@ steps:
     hints:
       - Mit genug Stellschrauben trifft man jeden Punkt – auch das Rauschen.
     explanation: Darum prüft man Modelle immer an Daten, die sie noch nie gesehen haben.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Durch 10 Punkte mit verschiedenen x-Werten passt immer ein Polynom, das alle exakt trifft. Welchen Grad braucht es höchstens?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: off-by-one
+        text: Ein Polynom vom Grad n hat n + 1 Koeffizienten. Für 10 Punkte reichen 10 Koeffizienten.
+    hints:
+      - Eine Gerade (Grad 1) passt immer durch 2 Punkte.
+      - Grad n passt durch n + 1 Punkte.
+    explanation: Grad 9 mit R² = 1 – und trotzdem nutzlos für neue Werte, weil die Kurve zwischen den Punkten wild schwingt. Perfekte Anpassung ist kein Qualitätsmerkmal.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Das **korrigierte R²** bestraft zu viele Einflussgrößen: 1 − (1 − R²) · (n − 1) : (n − k − 1). Es gilt R² = 0,5, n = 21 Punkte und k = 10 Einflussgrößen. Wie groß ist es?"
+    answer:
+      value: 0
+    hints:
+      - "(n − 1) : (n − k − 1) = 20 : 10 = 2."
+      - 1 − 0,5 · 2 = ?
+    explanation: Null! Mit 10 Größen bei 21 Punkten erklärt das Modell nicht mehr, als Zufall erwarten lässt. Das korrigierte R² kann sogar negativ werden.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x3
+    depth: 3
+    widget: choice
+    prompt: Bei der **Kreuzvalidierung** teilt man die Daten in 5 Teile. Wie geht es weiter?
+    params:
+      options:
+        - label: "Fünfmal: mit 4 Teilen lernen, am fünften testen – dann die Fehler mitteln"
+          correct: true
+        - label: Mit allen 5 lernen und testen
+          feedback: Dann testet man auf bekannten Daten.
+        - label: Den besten Teil behalten
+          feedback: Damit sucht man sich das Ergebnis aus.
+    hints:
+      - Jeder Teil soll einmal Testdaten sein.
+      - Das Modell darf seine Testdaten nie vorher sehen.
+    explanation: So wird jeder Punkt genau einmal ehrlich getestet. Mit diesem Fehler wählt man etwa, wie komplex ein Modell sein darf.
     difficulty: 3
 
 srs:

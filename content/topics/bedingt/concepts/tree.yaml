@@ -5,7 +5,7 @@ summary: Entlang multiplizieren, quer addieren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: zwei-rot
@@ -95,6 +95,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Spielerin trifft jeden Wurf mit {{p}} %. Sie wirft zweimal. Wie wahrscheinlich trifft sie **genau einmal**? In Prozent.
+    answer:
+      value: "{{2 * p * (100 - p) / 100}}"
+    feedback:
+      - when: numval(state.input) == p * (100 - p) / 100
+        misconception: one-path
+        text: Das ist nur ein Pfad, etwa »Treffer, dann daneben«. Es gibt zwei.
+    hints:
+      - "Zwei Pfade: Treffer–daneben und daneben–Treffer."
+      - Jeder Pfad hat {{p}} % · {{100 - p}} %. Addiere beide.
+    explanation: 2 · {{p / 100}} · {{(100 - p) / 100}} = {{2 * p * (100 - p) / 10000}}, also {{2 * p * (100 - p) / 100}} %. Erst entlang multiplizieren, dann quer addieren.
+    difficulty: 2
+    variants:
+      params:
+        p: choice[10,20,30,40,60,70,90]
+      defaults:
+        p: 70
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: In einer Tüte sind 3 rote und 2 blaue Kugeln. Du ziehst zwei ohne Zurücklegen. Wie wahrscheinlich bekommst du eine rote **und** eine blaue? Als Bruch.
+    answer:
+      value: 3/5
+    feedback:
+      - when: numval(state.input) == 3 / 10
+        misconception: one-path
+        text: Das ist nur der Pfad »erst rot, dann blau«.
+    hints:
+      - "Pfad rot–blau: 3/5 · 2/4. Pfad blau–rot: 2/5 · 3/4."
+      - 6/20 + 6/20.
+    explanation: "12/20 = 3/5. Ohne Zurücklegen ändert sich der Nenner im zweiten Schritt: 4 statt 5."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -107,6 +146,43 @@ steps:
     hints:
       - 252 geteilt durch 1024.
     explanation: "24,6 %. Das ist die **Binomialverteilung**: Anzahl der Wege mal Wahrscheinlichkeit eines Wegs."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Du würfelst fünfmal. Wie wahrscheinlich kommt **genau zweimal** eine 6? In Prozent, auf eine Stelle. (Es gibt 10 Pfade mit je (1/6)² · (5/6)³ ≈ 0,01608.)
+    answer:
+      value: 16.1
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 1.6) < 0.1
+        misconception: one-path
+        text: Das ist ein einzelner Pfad. Es gibt aber 10 solche Pfade.
+    hints:
+      - Wie viele Pfade enthalten genau zwei Sechsen? 5 über 2 = 10.
+      - 10 · 0,01608.
+    explanation: "10 · 0,01608 ≈ 16,1 %. Der Baum wird so groß, dass man die Pfade zählt statt sie zu zeichnen: die **Binomialformel**."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Fabrik hat zwei Maschinen. A macht 60 % der Teile mit 2 % Ausschuss, B macht 40 % mit 5 % Ausschuss. Wie viel Ausschuss gibt es insgesamt?
+    params:
+      options:
+        - label: 3,2 %
+          correct: true
+        - label: 3,5 %
+          feedback: Das ist der einfache Schnitt. A macht aber mehr Teile.
+        - label: 7 %
+          feedback: Die Quoten werden nicht einfach addiert.
+    hints:
+      - Gewichte jede Quote mit dem Anteil der Maschine.
+      - 0,6 · 2 % + 0,4 · 5 %.
+    explanation: "1,2 % + 2 % = 3,2 %. Das ist der **Satz der totalen Wahrscheinlichkeit**: Man summiert über alle Wege."
     difficulty: 3
 
 srs:

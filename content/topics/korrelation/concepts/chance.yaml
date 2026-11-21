@@ -5,7 +5,7 @@ summary: Regression zur Mitte und Zufallstreffer.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: rekord
@@ -96,6 +96,28 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Tests korrelieren mit r = 0,5. Der Schnitt ist 100. Jemand hatte im ersten Test {{x}}. Was erwartest du im zweiten? Formel: 100 + r · ({{x}} − 100)."
+    answer:
+      value: "{{100 + 0.5 * (x - 100)}}"
+    feedback:
+      - when: numval(state.input) == x
+        misconception: no-regression
+        text: Dann gäbe es keine Regression zur Mitte – das gilt nur bei r = 1.
+    hints:
+      - Der Abstand zum Schnitt ist {{x - 100}}.
+      - Nur die Hälfte davon bleibt erhalten.
+    explanation: 100 + 0,5 · ({{x - 100}}) = {{100 + 0.5 * (x - 100)}}. Der Rest des Ausschlags war Glück oder Pech.
+    difficulty: 2
+    variants:
+      params:
+        x: choice[60,70,80,120,130,140]
+      defaults:
+        x: 130
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +133,43 @@ steps:
     hints:
       - Man »hackt« so lange an den Daten, bis der p-Wert passt.
     explanation: "Abhilfe: die Auswertung **vorab registrieren**. Dann kann man sich nichts mehr schönrechnen."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Sportler auf dem Titel einer großen Zeitschrift sind danach oft schwächer. Manche sprechen von einem Fluch. Was steckt eher dahinter?
+    params:
+      options:
+        - label: Auf den Titel kommt man nach einem Hoch – danach geht es meist zurück zur Mitte
+          correct: true
+        - label: Der Druck durch die Berühmtheit
+          feedback: Möglich, aber man braucht keinen Druck, um das Muster zu erklären.
+        - label: Die Zeitschrift wählt schlechte Sportler
+          feedback: "Im Gegenteil: Sie wählt die mit der besten Phase."
+    hints:
+      - Wann kommt jemand auf den Titel?
+      - Ein Hoch enthält meist auch Glück.
+    explanation: Auswahl nach einem Extremwert garantiert **Regression zur Mitte**. Ohne Vergleichsgruppe sieht das aus wie ein Effekt.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Jeder Test hat 5 % Fehlalarm-Chance. Wie wahrscheinlich ist bei 10 unabhängigen Tests mindestens ein Zufallstreffer? In Prozent. (0,95¹⁰ ≈ 0,599)
+    answer:
+      value: 40
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: add-chances
+        text: Einfach 10 · 5 % zu rechnen, überschätzt – Treffer können sich überlappen.
+    hints:
+      - "Gegenteil: kein einziger Treffer, Chance 0,95¹⁰."
+      - Rechne 1 − 0,599.
+    explanation: 1 − 0,599 ≈ 40 %. Schon zehn Vergleiche machen einen Zufallsfund fast so wahrscheinlich wie einen Münzwurf.
     difficulty: 3
 
 srs:

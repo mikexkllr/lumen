@@ -5,7 +5,7 @@ summary: Zwei positive Tests sagen viel mehr.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -81,6 +81,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Der Test erkennt 90 % der Kranken und schlägt bei 9 % der Gesunden an. Das **Likelihood-Verhältnis** ist 90 % : 9 %. Wie groß ist es?"
+    answer:
+      value: 10
+    hints:
+      - Teile die Trefferquote durch die Fehlalarmquote.
+      - "90 : 9."
+    explanation: Ein positiver Test ist 10-mal wahrscheinlicher bei Kranken als bei Gesunden. Jedes Positiv verzehnfacht die Chance.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Die Chance steht anfangs 1 : 99. Jeder positive Test multipliziert sie mit 10. Wie wahrscheinlich ist man nach **drei** positiven, unabhängigen Tests krank? In Prozent, gerundet."
+    answer:
+      value: 91
+      tolerance: 1
+    hints:
+      - "Nach drei Tests: 1000 : 99."
+      - "Wahrscheinlichkeit = 1000 : (1000 + 99)."
+    explanation: 1000/1099 ≈ 91 %. Nach einem Test 9 %, nach zwei 50 %, nach drei 91 %. In Chancen ist Bayes nur Multiplizieren.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -96,6 +123,48 @@ steps:
     hints:
       - Wer beim ersten Test falsch-positiv war, ist es beim zweiten vermutlich wieder.
     explanation: Bestätigungstests sollten auf einem **anderen** Prinzip beruhen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: "Nach einem positiven Test (Chance 10 : 99) kommt ein **negativer** Test. Das Likelihood-Verhältnis für »negativ« ist 10 % : 91 % ≈ 0,11. Was gilt jetzt?"
+    params:
+      options:
+        - label: "Die Chance sinkt auf etwa 1,1 : 99 – fast wie am Anfang"
+          correct: true
+        - label: Positiv und negativ heben sich genau auf
+          feedback: Fast – aber 10 · 0,11 = 1,1, nicht genau 1.
+        - label: Man ist sicher gesund
+          feedback: Die Chance bleibt bei etwa 1 %.
+    hints:
+      - Multipliziere 10 mit 0,11.
+      - "Vergleiche mit der Startchance 1 : 99."
+    explanation: "Neue Chance ≈ 1,1 : 99, also etwa 1,1 %. Jeder Befund verschiebt die Chance um sein eigenes Likelihood-Verhältnis."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum zwei positive Tests so viel mehr sagen als einer – und wann nicht.
+    params:
+      keywords:
+        - - fehlalarm
+          - falsch
+          - "false"
+          - alarm
+        - - unabhängig
+          - independent
+        - - zweit
+          - beide
+          - wieder
+          - second
+          - both
+          - again
+      sample: Ein Fehlalarm beim ersten Test wiederholt sich beim zweiten selten, wenn die Tests unabhängig sind. Darum bleiben nach zwei Positiven nur noch wenige Gesunde übrig. Misst der zweite Test dasselbe, hilft er kaum.
+    explanation: Der zweite Test filtert die Fehlalarme des ersten – aber nur, wenn er unabhängig von ihm irrt.
     difficulty: 3
 
 srs:

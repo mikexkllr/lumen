@@ -5,7 +5,7 @@ summary: Regression to the mean and lucky hits.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: rekord
@@ -96,6 +96,28 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Two tests correlate with r = 0.5. The average is 100. Someone scored {{x}} on the first test. What do you expect on the second? Formula: 100 + r · ({{x}} − 100)."
+    answer:
+      value: "{{100 + 0.5 * (x - 100)}}"
+    feedback:
+      - when: numval(state.input) == x
+        misconception: no-regression
+        text: Then there would be no regression to the mean – that only holds for r = 1.
+    hints:
+      - The distance from the average is {{x - 100}}.
+      - Only half of it remains.
+    explanation: 100 + 0.5 · ({{x - 100}}) = {{100 + 0.5 * (x - 100)}}. The rest of the swing was luck.
+    difficulty: 2
+    variants:
+      params:
+        x: choice[60,70,80,120,130,140]
+      defaults:
+        x: 130
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +133,43 @@ steps:
     hints:
       - You “hack” at the data until the p-value fits.
     explanation: "The remedy: **pre-register** the analysis. Then nothing can be massaged afterwards."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Athletes on the cover of a big magazine often do worse afterwards. Some call it a curse. What is more likely behind it?
+    params:
+      options:
+        - label: You make the cover after a peak – afterwards things drift back to the mean
+          correct: true
+        - label: Possible, but you need no pressure to explain the pattern.
+          feedback: Möglich, aber man braucht keinen Druck, um das Muster zu erklären.
+        - label: "On the contrary: it picks those in their best phase."
+          feedback: "Im Gegenteil: Sie wählt die mit der besten Phase."
+    hints:
+      - When does someone make the cover?
+      - A peak usually contains some luck.
+    explanation: Selecting on an extreme value guarantees regression to the mean. Without a comparison group it looks like an effect.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Each test has a 5 % chance of a false alarm. How likely is at least one chance hit in 10 independent tests? In percent. (0.95¹⁰ ≈ 0.599)
+    answer:
+      value: 40
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: add-chances
+        text: Just computing 10 · 5 % overestimates – hits can overlap.
+    hints:
+      - "Complement: no hit at all, probability 0.95¹⁰."
+      - Compute 1 − 0.599.
+    explanation: 1 − 0.599 ≈ 40 %. Just ten comparisons make a chance find almost as likely as a coin flip.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Die Basisrate nicht vergessen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: bibliothek
@@ -92,6 +92,41 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Taxi-Rätsel mit 100 Taxis: 15 sind blau, 85 grün. Der Zeuge erkennt Farben zu 80 % richtig. Wie viele der 100 Taxis würde er »blau« nennen?"
+    answer:
+      value: 29
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: forgot-false-pos
+        text: Das sind nur die echten blauen, die er richtig erkennt. Dazu kommen grüne, die er falsch nennt.
+    hints:
+      - "Blaue, richtig erkannt: 80 % von 15 = 12."
+      - "Grüne, falsch »blau« genannt: 20 % von 85 = 17."
+    explanation: 12 + 17 = 29 Taxis heißen »blau«. Mehr als die Hälfte davon ist in Wahrheit grün!
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Von diesen 29 »blauen« Taxis sind 12 wirklich blau. Wie wahrscheinlich war das Taxi blau? In Prozent, auf eine Stelle.
+    answer:
+      value: 41.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: base-rate-neglect
+        text: 80 % ist die Treffsicherheit des Zeugen. Die Basisrate von nur 15 % blauen Taxis fehlt.
+    hints:
+      - "Rechne 12 : 29."
+      - Das sind etwa 0,414.
+    explanation: 12/29 ≈ 41,4 %. Die meisten Menschen tippen auf 80 % – sie vergessen die **Basisrate**.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +142,39 @@ steps:
     hints:
       - »Prior« heißt »vorher«.
     explanation: Prior mal Likelihood ergibt den **Posterior** – und der ist der Prior für den nächsten Hinweis.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Bayes als Formel: P(H | E) = P(E | H) · P(H) : P(E). Es gilt P(H) = 0,2, P(E | H) = 0,9 und P(E | nicht H) = 0,3. Wie groß ist P(H | E) in Prozent? Auf eine Stelle."
+    answer:
+      value: 42.9
+      tolerance: 0.1
+    hints:
+      - P(E) = 0,9 · 0,2 + 0,3 · 0,8 = 0,18 + 0,24 = 0,42.
+      - "Rechne 0,18 : 0,42."
+    explanation: 0,18/0,42 = 3/7 ≈ 42,9 %. Der Nenner P(E) sammelt **alle** Wege zum Hinweis – mit und ohne H.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Für einen Prior braucht man eine **Referenzklasse**. Wie wahrscheinlich ist es, dass ein neues Restaurant in deiner Straße nach 3 Jahren noch offen ist? Womit startest du am besten?
+    params:
+      options:
+        - label: Mit dem Anteil ähnlicher Restaurants, die 3 Jahre überleben
+          correct: true
+        - label: Mit dem Bauchgefühl, wie gut das Essen ist
+          feedback: Das ist ein Hinweis – erst kommt die Basisrate.
+        - label: Mit 50 %, weil es offen oder zu sein kann
+          feedback: Zwei Möglichkeiten heißen nicht gleiche Chancen.
+    hints:
+      - Was weißt du über viele ähnliche Fälle?
+      - Danach passt man mit den Details an.
+    explanation: Erst die Außensicht (Basisrate ähnlicher Fälle), dann die Innensicht (Besonderheiten). Wer nur Details sieht, ist meist zu optimistisch.
     difficulty: 3
 
 srs:

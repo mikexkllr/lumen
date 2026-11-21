@@ -5,7 +5,7 @@ summary: Spotting the big direction.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -93,6 +93,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Sales double in 10 years from 100 to 200. By what percent did they grow on average per year? To one decimal. (2^0.1 ≈ 1.0718)
+    answer:
+      value: 7.2
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-growth
+        text: 10 % a year would give 2.59 times after 10 years – compound growth!
+    hints:
+      - You need the factor q with q¹⁰ = 2.
+      - q = 2^0.1 ≈ 1.0718.
+    explanation: About 7.2 % a year. This average growth rate is a geometric mean, not a simple average.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: with p % growth per year a value doubles in about 70/p years. How long does it take at {{p}} %?"
+    params:
+      unit: years
+    answer:
+      value: "{{70 / p}}"
+    hints:
+      - Divide 70 by {{p}}.
+      - 70 ÷ {{p}} = ?
+    explanation: About {{70 / p}} years. The 70 comes from ln 2 ≈ 0.693.
+    difficulty: 2
+    variants:
+      params:
+        p: choice[2,5,7,10,14,35]
+      defaults:
+        p: 7
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -108,6 +146,44 @@ steps:
     hints:
       - Does what held for 10 years also hold for 50?
     explanation: "**Extrapolation** assumes the causes do not change. The further out, the bolder."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: The number of smartphones and a factory's output have risen for years. Their correlation is r = 0.95. What is the most important objection?
+    params:
+      options:
+        - label: Two trending series almost always correlate – compare the changes instead
+          correct: true
+        - label: r is very large – that is exactly what misleads.
+          feedback: r ist sogar sehr groß – genau das täuscht.
+        - label: Almost everything that grows correlates.
+          feedback: Fast alles, was wächst, korreliert.
+    hints:
+      - What do both series share?
+      - Check whether good years of one are also good years of the other.
+    explanation: "That is a spurious regression. Statisticians therefore take differences: year minus previous year. Only if the changes correlate too does it get interesting."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: A series reads 3, 5, 9, 15, 23. The differences are 2, 4, 6, 8. Which trend fits?
+    params:
+      options:
+        - label: Quadratic – the second differences are constant
+          correct: true
+        - label: A linear trend would have equal first differences.
+          feedback: Bei linearem Trend wären schon die ersten Differenzen gleich.
+        - label: Then the ratios would be constant, not the second differences.
+          feedback: Dann wüchsen die Quotienten gleich, nicht die zweiten Differenzen.
+    hints:
+      - "Take differences again: 4 − 2, 6 − 4, 8 − 6."
+      - Always 2 – what does that mean?
+    explanation: "Constant second differences mean a quadratic trend: here n² − n + 3. Taking differences is a core tool of time-series analysis."
     difficulty: 3
 
 srs:

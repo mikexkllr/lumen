@@ -1,0 +1,214 @@
+id: stats.clustering.pca
+type: concept
+title: "Reducing dimensions"
+summary: "Principal component analysis looks for the directions with the most spread."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A photo of a face is 2D, the face is 3D. Yet you usually recognise it. What does this teach about data?
+    params:
+      options:
+        - label: Fewer dimensions can keep almost everything important – if you pick the right direction
+          correct: true
+        - label: A photo from above the head shows little.
+          feedback: Ein Foto von oben auf den Kopf zeigt wenig.
+        - label: The photo proves the opposite.
+          feedback: Das Foto beweist das Gegenteil.
+    hints:
+      - From which side is a face best photographed?
+      - The best direction shows the most differences.
+    explanation: "Principal component analysis (PCA) looks for exactly this viewpoint: the one in which the data spread most."
+
+  - kind: explain
+    id: c1
+    body: The first **principal component** is the direction in which the data spread most. The second is at right angles to it and explains most of the rest. That way many features get condensed into a few.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: The points lie almost on the line y = x. In which direction does the first principal component point?
+    visual:
+      widget: graph
+      params:
+        x:
+          - 0
+          - 8
+        y:
+          - 0
+          - 8
+        showCoordinates: false
+        points:
+          - id: a
+            x: 1
+            y: 1
+            draggable: false
+            label: ""
+          - id: b
+            x: 2
+            y: 3
+            draggable: false
+            label: ""
+          - id: c
+            x: 3
+            y: 3
+            draggable: false
+            label: ""
+          - id: d
+            x: 4
+            y: 5
+            draggable: false
+            label: ""
+          - id: e
+            x: 5
+            y: 4
+            draggable: false
+            label: ""
+          - id: f
+            x: 6
+            y: 6
+            draggable: false
+            label: ""
+          - id: g
+            x: 7
+            y: 7
+            draggable: false
+            label: ""
+    params:
+      options:
+        - label: Diagonally along the line y = x
+          correct: true
+        - label: Along the x-axis the points spread less than along the diagonal.
+          feedback: Entlang der x-Achse streuen die Punkte weniger als entlang der Diagonale.
+        - label: In that direction they spread the least.
+          feedback: In diese Richtung streuen sie am **wenigsten**.
+    hints:
+      - In which direction are the points furthest apart?
+      - At right angles to the diagonal the cloud is very thin.
+    explanation: "The diagonal carries almost all the information: one value along the line describes each point almost completely. 2 dimensions become almost 1."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The three principal components have spreads (variances) 8, 1.5 and 0.5. What percent of the total spread does the first explain?
+    answer:
+      value: 80
+    hints:
+      - "Total spread: 8 + 1.5 + 0.5 = 10."
+      - Compute 8 ÷ 10.
+    explanation: 80 %. With one number per point instead of three you keep four fifths of the spread.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Five principal components explain 50 %, 30 %, 12 %, 5 % and 3 %. At least how many are needed for 90 %?
+    answer:
+      value: 3
+    hints:
+      - "Add from the start: 50, 80, 92 …"
+      - From which component is the total above 90 %?
+    explanation: 50 + 30 + 12 = 92 % with three components. The last two are often mostly noise.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Features: height in mm and age in years. Without standardising, the first principal component points almost exactly along height. Why?"
+    params:
+      options:
+        - label: Millimetres have huge numbers and thus huge variance
+          correct: true
+        - label: PCA knows no importance – only variance.
+          feedback: PCA kennt keine Wichtigkeit – nur Varianz.
+        - label: Even then the scale decides.
+          feedback: Auch dann entscheidet die Skala.
+    hints:
+      - Variance depends on the unit.
+      - "Try metres instead: what happens?"
+    explanation: PCA follows variance – which depends on the units. That is why you almost always standardise first, as with clustering.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A 100 × 100 pixel image is a point in 10,000 dimensions. Many faces can be rebuilt well from 50 principal components. What does that mean?
+    params:
+      options:
+        - label: Faces lie on a much lower-dimensional part of pixel space
+          correct: true
+        - label: All pixels carry values – they are just strongly linked.
+          feedback: Alle Pixel tragen Werte – sie hängen nur stark zusammen.
+        - label: PCA condenses what is already there.
+          feedback: PCA verdichtet, was schon da ist.
+    hints:
+      - Neighbouring pixels are almost equally bright.
+      - "Strong links mean: few real degrees of freedom."
+    explanation: Real data are redundant. PCA finds the few directions in which they really vary – used for compression and face recognition.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In maths terms, the main axes of PCA are what?
+    params:
+      options:
+        - label: the eigenvectors of the covariance matrix; the eigenvalues are their variances
+          correct: true
+        - label: The means are subtracted beforehand.
+          feedback: Die Mittelwerte zieht man vorher ab.
+        - label: Regression minimises vertical distances, PCA perpendicular ones.
+          feedback: Regression macht senkrechte Abstände klein, PCA die rechtwinkligen zur Achse.
+    hints:
+      - The covariance matrix describes how features vary together.
+      - Its eigenvectors are only stretched by it, not rotated.
+    explanation: PCA is an eigendecomposition. The sum of the eigenvalues is the total variance, and each eigenvalue says how much of it its direction carries.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: All points lie exactly on a straight line in the plane. What percent of the spread does the first principal component explain?
+    answer:
+      value: 100
+    hints:
+      - How much do the points spread at right angles to the line?
+      - Not at all – the second eigenvalue is 0.
+    explanation: 100 %. The data are really one-dimensional. PCA finds the true dimension – for real data only roughly, because noise adds a little.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux in plain words what PCA does with a big table of data.
+    params:
+      keywords:
+        - - richtung
+          - achse
+          - direction
+          - axis
+        - - streu
+          - varianz
+          - spread
+          - variance
+        - - weniger
+          - reduz
+          - zusammenfass
+          - fewer
+          - reduc
+          - condens
+          - dimension
+      sample: PCA finds the direction in which the data spread most, then further ones at right angles. With a few such axes you condense many features. That gives fewer dimensions but almost the same information.
+    explanation: PCA rotates the coordinate system so that the first axes capture as much spread as possible.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

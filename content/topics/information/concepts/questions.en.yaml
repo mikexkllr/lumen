@@ -1,0 +1,192 @@
+id: stats.information.questions
+type: concept
+title: "Twenty questions"
+summary: "Yes/no questions as a measure of information."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: I think of a number from 1 to 1000. How many yes/no questions do you need at most if you ask cleverly?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 10
+      tolerance: 1
+    explanation: "Each clever question halves the options: 1000 → 500 → 250 … After 10 questions one is left. Because 2¹⁰ = 1024 ≥ 1000."
+
+  - kind: explain
+    id: c1
+    body: A **bit** is the answer to a yes/no question that makes both options equally likely. With n bits you can tell 2ⁿ cases apart.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many different things can you tell apart for sure with 20 yes/no questions?
+    answer:
+      value: 1048576
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: linear-bits
+        text: Questions double the options, they do not add to them.
+    hints:
+      - Each question doubles the number of cases.
+      - Compute 2²⁰.
+    explanation: 2²⁰ = 1,048,576 – over a million. That is why the game »20 questions« works so well.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many yes/no questions do you need at least to find one of {{n}} equally likely options for sure?
+    answer:
+      value: "{{k}}"
+    hints:
+      - Find the smallest power of two that is at least {{n}}.
+      - 2^{{k - 1}} = {{2 ** (k - 1)}} is not enough, 2^{{k}} = {{2 ** k}} is.
+    explanation: "{{k}} questions, because 2^{{k}} = {{2 ** k}} ≥ {{n}}. The amount of information is log₂ {{n}} bits, rounded up to whole questions."
+    variants:
+      params:
+        k: int[3,9]
+        e: int[1,3]
+      derive:
+        n: 2 ** (k - 1) + e * 2 ** (k - 3)
+      defaults:
+        k: 5
+        e: 2
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You are looking for one person out of 64. Which first question is best?
+    params:
+      options:
+        - label: One that splits the group exactly in half
+          correct: true
+        - label: A 1/64 chance of a direct hit – usually you learn almost nothing.
+          feedback: Mit 1/64 Chance ein Volltreffer – meist lernst du fast nichts.
+        - label: That splits very unevenly. The answer is usually »no«.
+          feedback: Das teilt sehr ungleich. Meist ist die Antwort »nein«.
+    hints:
+      - Which question gains most in the worst case?
+      - With a 50:50 question 32 always remain.
+    explanation: A question with a 50:50 answer delivers exactly 1 bit. Uneven questions deliver less than one bit on average.
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Order by amount of information – from little to much.
+    params:
+      items:
+        - label: One coin flip
+        - label: One die roll
+        - label: One letter A–Z, all equally common
+        - label: One card out of 52
+        - label: A number from 1 to 1000
+    hints:
+      - More equally likely options means more bits.
+      - 2, 6, 26, 52, 1000 options.
+    explanation: log₂ 2 = 1, log₂ 6 ≈ 2.6, log₂ 26 ≈ 4.7, log₂ 52 ≈ 5.7, log₂ 1000 ≈ 10 bits.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: One die roll has log₂ 6 ≈ 2.585 bits. How many whole bits do you need at least to store five rolls together? (6⁵ = 7776)
+    answer:
+      value: 13
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: per-symbol
+        text: 3 bits per roll works – but wastes space. Store all five together.
+    hints:
+      - The five rolls have 7776 options.
+      - 2¹² = 4096 is too few, 2¹³ = 8192 suffices.
+    explanation: 13 bits instead of 15. The more rolls you bundle, the closer you get to 2.585 bits per roll. Information can come in fractions of bits.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In the game »Mastermind« a guess returns not just yes or no but one of many answers. What does that mean?
+    params:
+      options:
+        - label: A question can deliver more than 1 bit
+          correct: true
+        - label: That only holds for yes/no at 50:50.
+          feedback: Das gilt nur für Ja-Nein mit 50:50.
+        - label: More possible answers means more information per move.
+          feedback: Mehr mögliche Antworten heißt mehr Information pro Zug.
+    hints:
+      - With k equally likely answers you get log₂ k bits.
+      - A question with 4 equally likely answers brings 2 bits.
+    explanation: Whoever asks so that all answers are about equally likely gets there fastest. That is the strategy of maximum information.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: You sort 8 cards using only comparisons »Is A smaller than B?«. There are 8! = 40,320 orders. At least how many comparisons does any method need in the worst case? (2¹⁵ = 32,768, 2¹⁶ = 65,536)
+    answer:
+      value: 16
+    hints:
+      - Each comparison is a yes/no question.
+      - Which power of two covers 40,320?
+    explanation: At least 16. In general sorting needs at least log₂(n!) ≈ n log₂ n comparisons – a lower bound from pure information theory.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "12 coins, one is fake – lighter or heavier. A balance has three outcomes: left, right, equal. At least how many weighings are needed?"
+    params:
+      options:
+        - label: 3 – because 3³ = 27 ≥ 24 possibilities
+          correct: true
+        - label: 3² = 9 outcomes are not enough for 24 cases.
+          feedback: 3² = 9 Ausgänge reichen nicht für 24 Fälle.
+        - label: The balance has three outcomes, not two.
+          feedback: Die Waage hat drei Ausgänge, nicht zwei.
+    hints:
+      - How many cases are there? 12 coins times 2 (lighter or heavier).
+      - Each weighing triples the distinguishable cases.
+    explanation: 24 cases need at least log₃ 24 ≈ 2.9, so 3 weighings – and with skill 3 really do suffice. Information limits tell you what is possible at all.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a bit is and why 20 questions suffice for a million things.
+    params:
+      keywords:
+        - - ja
+          - nein
+          - yes
+          - no
+          - frage
+          - question
+        - - halb
+          - halbier
+          - half
+          - halve
+          - verdoppel
+          - double
+        - - million
+          - 2^20
+          - zwanzig
+          - twenty
+          - "1048576"
+      sample: A bit is the answer to a yes/no question that halves the options. Each question doubles what you can tell apart. After twenty questions that is 2^20, about a million.
+    explanation: Halving is exponentially powerful – that is why the number of questions only grows with the logarithm.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

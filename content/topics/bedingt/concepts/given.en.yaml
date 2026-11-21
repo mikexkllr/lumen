@@ -5,7 +5,7 @@ summary: P(B | A) is not P(A | B).
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: sport-musik
@@ -89,6 +89,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{b}} % of all students play an instrument. {{c}} % play an instrument and sing in the choir. What percent of the instrument players sing in the choir?"
+    answer:
+      value: "{{100 * c / b}}"
+    feedback:
+      - when: numval(state.input) == c
+        misconception: joint-vs-conditional
+        text: That is the share of all students. The question asks for the share among instrument players.
+    hints:
+      - Look only at the {{b}} %.
+      - Compute {{c}} ÷ {{b}}.
+    explanation: P(choir | instrument) = {{c}} ÷ {{b}} = {{100 * c / b}} %. In general P(A | B) = P(A and B) ÷ P(B).
+    difficulty: 2
+    variants:
+      params:
+        b: choice[20,25,40,50]
+        c: choice[5,10,15,20]
+      constraints:
+        - c < b
+        - isInt(100 * c / b)
+      defaults:
+        b: 40
+        c: 10
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: It rains with 30 %. When it rains, the bus is late with 50 %. How likely is »rain and late bus«?
+    params:
+      options:
+        - label: 15 %
+          correct: true
+        - label: Conditional probabilities are multiplied, not added.
+          feedback: Bedingte Wahrscheinlichkeiten werden multipliziert, nicht addiert.
+        - label: That holds only on rainy days.
+          feedback: Das gilt nur an Regentagen.
+    hints:
+      - P(A and B) = P(A) · P(B | A).
+      - 0.3 · 0.5.
+    explanation: 0.3 · 0.5 = 0.15. This multiplication rule always holds – even for dependent events.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -104,6 +150,42 @@ steps:
     hints:
       - How many people in a city of millions would have the same trace?
     explanation: The **prosecutor’s fallacy**. It has demonstrably led to wrongful convictions.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: A family has two children. You learn that at least one is a girl. How likely are both girls? As a fraction.
+    answer:
+      value: 1/3
+    feedback:
+      - when: numval(state.input) == 1 / 2
+        misconception: which-child
+        text: That would be right if you knew the older child is a girl.
+    hints:
+      - "The four equally likely cases: BB, BG, GB, GG."
+      - »At least one girl« removes only BB.
+    explanation: JM, MJ, MM remain – only one is GG, so 1/3. The condition cuts down the set of cases.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: "Another family with two children: you see that the older one is a girl. How likely are both girls?"
+    params:
+      options:
+        - label: 1/2
+          correct: true
+        - label: Now only GB and GG remain – two cases.
+          feedback: Jetzt bleiben nur MJ und MM – zwei Fälle.
+        - label: That would be without any information.
+          feedback: Das wäre ohne jede Information.
+    hints:
+      - Which of the four cases fit »the older one is a girl«?
+      - Only GB and GG.
+    explanation: The answer depends on how you get the information. That is why even experts argue about such puzzles.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Was Prognosen können und was nicht.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: schritte
@@ -74,6 +74,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Prognose lag viermal daneben: +2, −1, +3 und −2. Wie groß ist der **mittlere absolute Fehler**?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: signed-error
+        text: Du hast die Vorzeichen behalten. Beim absoluten Fehler zählt nur die Größe.
+    hints:
+      - "Lass die Vorzeichen weg: 2, 1, 3, 2."
+      - "Rechne 8 : 4."
+    explanation: "(2 + 1 + 3 + 2) : 4 = 2. Ohne Betrag hätten sich die Fehler zu 0,5 verrechnet und die Prognose besser aussehen lassen."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Ein teures Prognose-Modell sagt den Umsatz von morgen voraus. Womit sollte man es zuerst vergleichen?
+    params:
+      options:
+        - label: Mit »morgen wie heute« – der einfachsten Prognose
+          correct: true
+        - label: Mit einem noch teureren Modell
+          feedback: Erst muss es das Einfachste schlagen.
+        - label: Mit gar nichts, Modelle sind objektiv
+          feedback: Ohne Vergleich weiß man nicht, ob es etwas taugt.
+    hints:
+      - Wie gut wäre eine Prognose, für die man nichts rechnen muss?
+      - Diese einfache Prognose heißt naive Prognose.
+    explanation: Die **naive Prognose** ist schwer zu schlagen. Viele aufwendige Modelle schaffen es kaum besser – das zeigen Prognose-Wettbewerbe immer wieder.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -100,6 +136,42 @@ steps:
           - plan
           - risk
       sample: Niemand kann die Zukunft genau vorhersagen. Eine Spanne zeigt ehrlich, wie unsicher die Prognose ist – und erst damit kann man vernünftig entscheiden und Risiken einplanen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Kurs verhält sich wie eine Irrfahrt: Für einen Tag ist die Unsicherheit σ = 1. Wie groß ist sie für {{h}} Tage im Voraus?"
+    answer:
+      value: "{{sqrt(h)}}"
+    feedback:
+      - when: numval(state.input) == h
+        misconception: linear-uncertainty
+        text: Die Unsicherheit wächst nicht linear, sondern mit √h.
+    hints:
+      - "Varianzen addieren sich: Nach {{h}} Tagen ist sie {{h}}."
+      - σ ist die Wurzel daraus.
+    explanation: √{{h}} = {{sqrt(h)}}. Der **Prognosetrichter** öffnet sich wie eine Wurzelkurve – breit, aber langsamer als linear.
+    difficulty: 3
+    variants:
+      params:
+        h: choice[4,9,16,25,100]
+      defaults:
+        h: 16
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Der **Brier-Score** misst Wahrscheinlichkeits-Prognosen: (Prognose − Ergebnis)². Die App sagte 70 % Regen, und es regnete (Ergebnis 1). Wie groß ist der Score?"
+    answer:
+      value: 0.09
+      tolerance: 0.001
+    hints:
+      - Prognose 0,7, Ergebnis 1.
+      - (0,7 − 1)² = (−0,3)².
+    explanation: "0,09. Kleiner ist besser: 0 heißt perfekt, und wer immer 50 % sagt, bekommt 0,25. So bewertet man Prognosen fair über viele Tage."
     difficulty: 3
 
 srs:
