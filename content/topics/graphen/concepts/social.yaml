@@ -5,7 +5,7 @@ summary: Freunde von Freunden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: kette
@@ -77,6 +77,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: In einer Gruppe von {{n}} Personen kennt jeder jeden. Wie viele Bekanntschaften gibt es?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1)
+        misconception: double-count
+        text: Jede Bekanntschaft zählst du so doppelt – einmal von jeder Seite.
+    hints:
+      - Jede Person kennt {{n - 1}} andere.
+      - "{{n}} · {{n - 1}}, durch 2."
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}. Die Zahl der Paare wächst quadratisch."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,30]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Über wie viele Zwischenpersonen war 2016 im Schnitt jeder Facebook-Nutzer mit jedem anderen verbunden?"
+    params:
+      min: 1
+      max: 20
+    answer:
+      value: 3.6
+      tolerance: 1
+    explanation: Eine Auswertung von 2016 ergab im Schnitt etwa 3,6 Zwischenpersonen. Die »sechs Schritte« aus alten Experimenten sind im Netz noch weniger geworden.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Wie findet man am schnellsten die kürzeste Bekanntenkette zwischen zwei Personen?
+    params:
+      options:
+        - label: "Breitensuche: erst alle direkten Freunde, dann deren Freunde …"
+          correct: true
+        - label: "Tiefensuche: einer Kette möglichst weit folgen"
+          feedback: Sie findet irgendeinen Weg, nicht unbedingt den kürzesten.
+        - label: Alle Ketten aufzählen
+          feedback: Davon gibt es astronomisch viele.
+    hints:
+      - Ohne Gewichte zählt nur die Zahl der Schritte.
+      - Ring für Ring nach außen.
+    explanation: Die Breitensuche findet jede Person zuerst über die kürzeste Kette. Sie ist Dijkstra für Netze, in denen jede Kante 1 kostet.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +175,38 @@ steps:
           - network
           - map
       sample: Ein Graph besteht aus Knoten und Kanten, die sie verbinden. Damit beschreibt man Netze aller Art, etwa Straßenkarten für kürzeste Wege oder Freundschaften in sozialen Netzen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Bea hat 4 Freunde. Von den möglichen Paaren unter ihnen sind 3 befreundet. Welcher Anteil der Paare ist das? (Das ist Beas Clustering-Koeffizient.)
+    answer:
+      value: 0.5
+    hints:
+      - Wie viele Paare bilden 4 Personen?
+      - 4 · 3 / 2 = 6 Paare.
+    explanation: "3 von 6 = 0,5. In sozialen Netzen ist dieser Wert hoch: Freunde von Freunden sind oft selbst befreundet."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Google bewertete Webseiten früh mit PageRank. Was zählt dabei am meisten?
+    params:
+      options:
+        - label: Wie viele wichtige Seiten auf eine Seite verlinken
+          correct: true
+        - label: Wie oft ein Suchwort auf der Seite steht
+          feedback: Das ließ sich zu leicht austricksen.
+        - label: Wie neu die Seite ist
+          feedback: Das Alter spielte beim PageRank keine Rolle.
+    hints:
+      - Ein Link ist wie eine Stimme.
+      - Eine Stimme von einer wichtigen Seite zählt mehr.
+    explanation: Wichtig ist, wer von Wichtigen verlinkt wird – eine rekursive Definition. Mathematisch ist PageRank ein Eigenvektor der Link-Matrix.
     difficulty: 3
 
 srs:

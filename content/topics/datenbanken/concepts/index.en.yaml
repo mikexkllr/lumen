@@ -5,7 +5,7 @@ summary: Indexes and SQL injection.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -143,6 +143,38 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: An index is a B-tree with up to 500 entries per node. How many levels does it need for 100 million rows?
+    answer:
+      value: 3
+    hints:
+      - Two levels manage 500 · 500 = 250,000.
+      - Three levels manage 125 million.
+    explanation: $500^3$ = 125 million ≥ 100 million. Three reads find any row – the upper levels usually even sit in memory.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: "A login builds: … WHERE name = 'INPUT' AND pw = '…'. Which input as the name bypasses the password check?"
+    params:
+      options:
+        - label: admin' --
+          correct: true
+        - label: admin
+          feedback: Then the password is checked as usual.
+        - label: --admin
+          feedback: That sits harmlessly inside the quotes.
+    hints:
+      - A quote mark ends the text early.
+      - Two dashes start a comment in SQL.
+    explanation: "The input becomes: name = 'admin' -- '… – the rest is a comment and the password is never checked. Placeholders prevent this because input never turns into code."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -191,6 +223,51 @@ steps:
           - link
           - join
       sample: That way every piece of information is stored only once and needs updating in just one place when it changes. The tables are linked back together via keys.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Transactions follow **ACID**. A: all or nothing. C: the rules still hold. I: nobody sees half-done states. D: what is confirmed stays saved."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: match
+    prompt: Which letter of ACID promises what?
+    params:
+      pairs:
+        - left: Atomic
+          right: All or nothing
+        - left: Consistent
+          right: Rules still hold
+        - left: Isolated
+          right: No outside meddling
+        - left: Durable
+          right: Survives crashes
+    hints:
+      - The transfer that must not half-happen is A.
+      - "Power lost after the OK – still saved: D."
+    explanation: Together the four properties make a database reliable enough for banks.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Two people book the last seat at the same moment. What prevents a double booking?
+    params:
+      options:
+        - label: Isolation – the first transaction locks the seat, the second then sees it as taken
+          correct: true
+        - label: A faster server
+          feedback: Even fast servers handle requests at the same time.
+        - label: Durability
+          feedback: That only makes sure saved data stays.
+    hints:
+      - Both read »free« – that is the problem.
+      - One must wait until the other has finished.
+    explanation: Without isolation both read »free« and write »booked«. With locks or versions each transaction sees a clean state.
     difficulty: 3
 
 srs:

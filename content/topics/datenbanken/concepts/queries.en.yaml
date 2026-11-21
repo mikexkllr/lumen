@@ -5,7 +5,7 @@ summary: Asking the database questions.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -97,6 +97,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: In what order does the database logically process a query?
+    params:
+      items:
+        - label: FROM
+        - label: WHERE
+        - label: GROUP BY
+        - label: HAVING
+        - label: SELECT
+        - label: ORDER BY
+    hints:
+      - First it must be clear which table the rows come from.
+      - Filtering comes before grouping, sorting at the very end.
+    explanation: That is why WHERE cannot use column names that SELECT only assigns later. The written order differs from the logical one.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: The column age contains 25, 34, 41, 29 and 52. What does SELECT AVG(age) FROM customers return?
+    answer:
+      value: 36.2
+    hints:
+      - Sum divided by count.
+      - 181 / 5.
+    explanation: 25 + 34 + 41 + 29 + 52 = 181, divided by 5 gives 36.2. Such functions are called aggregates.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: What distinguishes WHERE from HAVING?
+    params:
+      options:
+        - label: WHERE filters rows before grouping, HAVING filters groups afterwards
+          correct: true
+        - label: Nothing, they are the same
+          feedback: HAVING can test conditions like COUNT(*) > 10, WHERE cannot.
+        - label: HAVING is just faster
+          feedback: It works at a completely different stage.
+    hints:
+      - When do the groups even exist?
+      - COUNT(*) per city is only known after GROUP BY.
+    explanation: »Cities with over 10 customers« needs HAVING COUNT(*) > 10 – that value only arises during grouping.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: cloze
+    prompt: Complete the query »cities with more than 10 customers, in alphabetical order«.
+    params:
+      text: SELECT city, COUNT(*) FROM customers [[GROUP BY]] city [[HAVING]] COUNT(*) > 10 [[ORDER BY]] city
+      distractors:
+        - WHERE
+        - JOIN
+    hints:
+      - Group first, then filter groups, then sort.
+      - The condition on COUNT(*) goes with HAVING.
+    explanation: GROUP BY forms the cities, HAVING keeps the big ones, ORDER BY sorts.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +179,42 @@ steps:
     hints:
       - GROUP BY forms groups, COUNT counts within each.
     explanation: Grouping and aggregating – the heart of every analysis and dashboard.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: The column age contains 20, NULL, 40, NULL and 60. How many rows does WHERE age > 30 OR age <= 30 return?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: null-logic
+        text: For NULL every comparison is »unknown« – and unknown is filtered out.
+    hints:
+      - What does NULL > 30 give?
+      - Unknown OR unknown stays unknown.
+    explanation: "SQL has three truth values: true, false, unknown. The two NULL rows drop out, although the condition sounds like »always«."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: SQL describes what you want, not how to find it. Who decides on the route?
+    params:
+      options:
+        - label: The database's query optimiser
+          correct: true
+        - label: The programmer in every query
+          feedback: They can give hints – they need not decide.
+        - label: Chance
+          feedback: The optimiser estimates costs and chooses deliberately.
+    hints:
+      - Use an index or scan everything – who knows which is faster?
+      - The database knows its table sizes.
+    explanation: The optimiser compares plans – which index, which join order – and takes the cheapest. With EXPLAIN you can watch it.
     difficulty: 3
 
 srs:

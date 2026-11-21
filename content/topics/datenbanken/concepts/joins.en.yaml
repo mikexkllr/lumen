@@ -5,7 +5,7 @@ summary: The join.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,66 @@ steps:
     explanation: 5000 – a **cross product**. With millions of rows a forgotten ON brings the server to its knees.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Customers: 1 Ana, 2 Ben, 3 Cem. Orders: A by customer 2, B by customer 2, C by customer 3, D by customer 5. The **INNER JOIN** keeps only pairs whose customer numbers match."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: How many rows does the INNER JOIN of the customers and orders above return?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: orphan
+        text: Order D points to customer 5 – who does not exist.
+    hints:
+      - "Go through each order: does its customer exist?"
+      - A and B belong to Ben, C to Cem.
+    explanation: Ben–A, Ben–B, Cem–C. Ana has no order, D no customer – both drop out.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: And how many rows does customers LEFT JOIN orders return?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: inner-vs-left
+        text: LEFT JOIN keeps every customer – Ana without an order too.
+    hints:
+      - All rows of the left table stay.
+      - The 3 matches plus Ana with NULL.
+    explanation: "Ben–A, Ben–B, Cem–C and Ana–NULL: 4 rows. That is how you find customers without orders: WHERE order IS NULL."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: match
+    prompt: Which join does what?
+    params:
+      pairs:
+        - left: INNER JOIN
+          right: Only matches on both sides
+        - left: LEFT JOIN
+          right: All on the left, NULL on the right if needed
+        - left: FULL JOIN
+          right: Everything from both sides
+        - left: CROSS JOIN
+          right: Every row with every row
+    hints:
+      - "LEFT means: the left table is kept completely."
+      - CROSS has no condition.
+    explanation: The joins differ in what happens to rows without a partner.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +163,83 @@ steps:
     hints:
       - Ana did not show up before. How do you get her back?
     explanation: Missing partners are filled with **NULL** – the sign for “no value”.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: How many rows does a FULL JOIN of the tables above return?
+    answer:
+      value: 5
+    hints:
+      - All matches, plus all unmatched rows from both sides.
+      - 3 matches + Ana + order D.
+    explanation: 3 + 1 + 1 = 5. Order D without a customer shows that a foreign-key rule would never have allowed it.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A join of two tables with a million rows each – no index, every row compared with every row. How many comparisons is that?
+    params:
+      options:
+        - label: $10^{12}$ – that is why indexes or hash joins are used
+          correct: true
+        - label: 2 million
+          feedback: That would just be one pass through both tables.
+        - label: $10^6$
+          feedback: It is a million times a million.
+    hints:
+      - Each of the million rows on the left meets each on the right.
+      - $10^6$ · $10^6$.
+    explanation: A trillion comparisons take minutes. A hash join needs only about two million steps.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: How does a hash join work?
+    params:
+      options:
+        - label: It builds a hash table from the smaller table and looks up every row of the larger one in it
+          correct: true
+        - label: It sorts both tables
+          feedback: That is the merge join.
+        - label: It compares each with each, only faster
+          feedback: That is exactly what it avoids.
+    hints:
+      - A hash table lookup costs O(1).
+      - Build once, then just look up.
+    explanation: Building costs O(n), looking up O(m) – linear in total instead of n · m. Data structures make databases fast.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a join does and why it is needed.
+    params:
+      keywords:
+        - - schlüssel
+          - key
+          - nummer
+          - number
+          - id
+        - - verbind
+          - kombin
+          - connect
+          - combin
+          - zusammen
+          - join
+        - - doppelt
+          - redundan
+          - einmal
+          - once
+          - duplicate
+      sample: Data is spread over several tables so that nothing is stored twice – each fact once. A join combines the tables at query time via their keys, such as the customer number in an order.
     difficulty: 3
 
 srs:

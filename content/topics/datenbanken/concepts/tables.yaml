@@ -5,7 +5,7 @@ summary: Zeilen, Spalten, Datentypen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -99,6 +99,63 @@ steps:
     explanation: Was wie eine Zahl aussieht, ist nicht immer eine. Telefonnummern und Postleitzahlen sind Text.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Die **erste Normalform** verlangt: In jeder Zelle steht genau ein Wert. »Telefon: 0151…, 0170…« in einer Zelle ist verboten. Jede Nummer bekommt eine eigene Zeile in einer eigenen Tabelle."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: Erfüllt die Zelle die erste Normalform?
+    params:
+      buckets:
+        - id: b1
+          label: ein Wert – in Ordnung
+        - id: b2
+          label: mehrere Werte – verboten
+      items:
+        - label: "Geburtsdatum: 2001-05-03"
+          bucket: b1
+        - label: "Hobbys: Lesen, Tennis"
+          bucket: b2
+        - label: "Preis: 4,99"
+          bucket: b1
+        - label: "Kinder: Mia, Ben"
+          bucket: b2
+        - label: "Tags: rot; blau"
+          bucket: b2
+        - label: "Stadt: Leipzig"
+          bucket: b1
+    hints:
+      - Steht in der Zelle eine Aufzählung?
+      - Kommas oder Strichpunkte trennen oft mehrere Werte.
+    explanation: Listen in Zellen kann man schlecht durchsuchen und zählen. »Wer spielt Tennis?« geht nur sauber, wenn jedes Hobby eine eigene Zeile hat.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Tabelle hat {{r}} Millionen Zeilen zu je {{b}} Byte. Wie viele Megabyte sind das?
+    params:
+      unit: MB
+    answer:
+      value: "{{r * b}}"
+    hints:
+      - Eine Million Byte sind 1 MB.
+      - "{{r}} · {{b}}."
+    explanation: "{{r}} Millionen · {{b}} Byte = {{r * b}} MB – dazu kommen noch Indizes."
+    difficulty: 2
+    variants:
+      params:
+        r: int[1,9]
+        b: choice[100,200,250,500]
+      defaults:
+        r: 1
+        b: 200
+
   - kind: problem
     id: x1
     depth: 3
@@ -115,6 +172,69 @@ steps:
     hints:
       - Was passiert, wenn man eine der 50 Kopien vergisst?
     explanation: "**Normalisierung**: Jede Information steht genau einmal. Das ist das Grundprinzip guten Datenbankdesigns."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Fehlt ein Wert, steht **NULL** in der Zelle – »unbekannt«, nicht 0 und nicht leer. Vorsicht: NULL = NULL ist nicht wahr, sondern wieder unbekannt. Man prüft darum mit IS NULL."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Was zählt SELECT COUNT(telefon) FROM kunden?
+    params:
+      options:
+        - label: Nur die Zeilen, in denen telefon nicht NULL ist
+          correct: true
+        - label: Alle Zeilen
+          feedback: Das macht COUNT(*).
+        - label: Die verschiedenen Telefonnummern
+          feedback: Dafür bräuchte man COUNT(DISTINCT telefon).
+    hints:
+      - COUNT einer Spalte überspringt fehlende Werte.
+      - Was ist der Unterschied zu COUNT(*)?
+    explanation: COUNT(*) zählt Zeilen, COUNT(spalte) zählt vorhandene Werte. Fehlt bei 30 von 100 Kunden die Nummer, ergibt das 70.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Warum speichert man Geldbeträge nicht als Gleitkommazahl?
+    params:
+      options:
+        - label: Wegen Rundungsfehlern – man nimmt DECIMAL oder rechnet in ganzen Cent
+          correct: true
+        - label: Weil Gleitkomma zu viel Platz braucht
+          feedback: Ein double hat nur 8 Byte.
+        - label: Weil Datenbanken keine Kommazahlen kennen
+          feedback: Sie kennen sogar mehrere Arten.
+    hints:
+      - Was ergibt 0,1 + 0,2 im Computer?
+      - Bei Geld darf kein Cent verloren gehen.
+    explanation: 0,10 € ist binär nicht exakt darstellbar. Über Millionen Buchungen summieren sich die Fehler. DECIMAL speichert Dezimalstellen exakt.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Tabelle in einer Datenbank aufgebaut ist.
+    params:
+      keywords:
+        - - zeile
+          - row
+          - datensatz
+          - record
+        - - spalte
+          - column
+          - eigenschaft
+          - attribute
+        - - typ
+          - type
+      sample: Jede Zeile ist ein Datensatz, etwa eine Kundin. Jede Spalte ist eine Eigenschaft wie Name oder Alter und hat einen festen Datentyp, etwa Text oder Zahl.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Von Landkarten zu Prüfungsplänen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -131,6 +131,132 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: Diesmal hast du nur 2 Farben. Färbe das Netz ohne Konflikt.
+    params:
+      mode: color
+      colors: 2
+      nodes:
+        - id: A
+          x: 10
+          y: 20
+        - id: B
+          x: 50
+          y: 6
+        - id: C
+          x: 90
+          y: 20
+        - id: D
+          x: 90
+          y: 80
+        - id: E
+          x: 50
+          y: 94
+        - id: F
+          x: 10
+          y: 80
+      edges:
+        - a: A
+          b: B
+        - a: B
+          b: C
+        - a: C
+          b: D
+        - a: D
+          b: E
+        - a: E
+          b: F
+        - a: F
+          b: A
+        - a: A
+          b: D
+        - a: B
+          b: E
+    hints:
+      - Gib A eine Farbe. Dann ist die Farbe jedes Nachbarn festgelegt.
+      - Abwechselnd um den Kreis herum.
+    explanation: A, C, E bekommen die eine Farbe, B, D, F die andere. Die Querverbindungen passen auch – das Netz hat nur gerade Kreise.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: network
+    prompt: "Ein Rad: eine Mitte und ein Fünfeck drumherum. Färbe es konfliktfrei."
+    params:
+      mode: color
+      colors: 4
+      nodes:
+        - id: M
+          x: 50
+          y: 50
+        - id: P1
+          x: 50
+          y: 5
+        - id: P2
+          x: 93
+          y: 36
+        - id: P3
+          x: 77
+          y: 94
+        - id: P4
+          x: 23
+          y: 94
+        - id: P5
+          x: 7
+          y: 36
+      edges:
+        - a: P1
+          b: P2
+        - a: P2
+          b: P3
+        - a: P3
+          b: P4
+        - a: P4
+          b: P5
+        - a: P5
+          b: P1
+        - a: M
+          b: P1
+        - a: M
+          b: P2
+        - a: M
+          b: P3
+        - a: M
+          b: P4
+        - a: M
+          b: P5
+    hints:
+      - Die Mitte grenzt an alle – sie braucht eine eigene Farbe.
+      - Ein Fünfeck braucht allein schon 3 Farben.
+    explanation: "1 Farbe für die Mitte, 3 für das ungerade Fünfeck: zusammen 4."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Farben braucht das Rad aus Mitte und Fünfeck mindestens?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: odd-cycle
+        text: Das Fünfeck braucht schon 3, und die Mitte grenzt an alle drei Farben.
+    hints:
+      - Ein Kreis mit ungerade vielen Ecken braucht 3 Farben.
+      - Die Mitte darf keine davon nehmen.
+    explanation: 3 + 1 = 4. Das Rad ist ein Beispiel ohne vier gegenseitige Nachbarn, das trotzdem 4 Farben braucht.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: Die **Greedy-Färbung** geht die Knoten der Reihe nach durch und nimmt jeweils die kleinste freie Farbe. Sie braucht nie mehr als höchster Grad plus 1 Farben – oft aber mehr als nötig.
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -146,6 +272,61 @@ steps:
     hints:
       - Was verlangt man traditionell von einem mathematischen Beweis?
     explanation: Ist etwas bewiesen, wenn nur eine Maschine es prüfen kann? Heute verifizieren Beweisassistenten solche Beweise formal.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Compiler legt Variablen in wenige Fächer im Chip, die Register. Welches Problem steckt dahinter?
+    params:
+      options:
+        - label: Graphenfärbung – Variablen, die gleichzeitig gebraucht werden, brauchen verschiedene Register
+          correct: true
+        - label: Kürzeste Wege
+          feedback: Es geht nicht um Wege, sondern um Konflikte.
+        - label: Sortieren
+          feedback: Die Reihenfolge der Variablen ist hier egal.
+    hints:
+      - Wann dürfen zwei Variablen nicht dasselbe Register teilen?
+      - Konflikte als Kanten, Register als Farben.
+    explanation: Knoten sind Variablen, Kanten verbinden gleichzeitig lebende. Eine Färbung mit k Farben passt in k Register.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Zu entscheiden, ob ein beliebiges Netz mit 3 Farben färbbar ist, ist …
+    params:
+      options:
+        - label: NP-vollständig – man kennt kein schnelles Verfahren
+          correct: true
+        - label: leicht, wie bei 2 Farben
+          feedback: Bei 2 Farben genügt Abwechseln – bei 3 nicht.
+        - label: unmöglich
+          feedback: Durchprobieren klappt immer – es dauert nur.
+    hints:
+      - Bei 2 Farben ist jede Farbe erzwungen. Bei 3?
+      - Man müsste viele Möglichkeiten durchprobieren.
+    explanation: "2 Farben: schnell prüfbar. 3 Farben: NP-vollständig. Ein winziger Unterschied in der Frage, ein riesiger im Aufwand."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Sudoku ist ein Färbeproblem mit 81 Knoten und 9 Farben. Mit wie vielen anderen Feldern ist jedes Feld verbunden?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: double-count
+        text: Im eigenen Block liegen schon 4 Felder aus Zeile und Spalte – nicht doppelt zählen.
+    hints:
+      - 8 in der Zeile, 8 in der Spalte. Und im Block?
+      - Im 3 × 3-Block kommen nur noch 4 neue dazu.
+    explanation: 8 + 8 + 4 = 20 Nachbarn. Das ganze Sudoku-Netz hat 81 · 20 / 2 = 810 Kanten.
     difficulty: 3
 
 srs:

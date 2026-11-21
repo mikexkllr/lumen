@@ -5,7 +5,7 @@ summary: Wann man jede Linie genau einmal abläuft.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: grad
@@ -111,6 +111,104 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: "Das Haus vom Nikolaus: Zeichne es in einem Zug. Tippe die Ecken nacheinander an, jede Linie genau einmal."
+    params:
+      aspect: 1
+      nodes:
+        - id: A
+          x: 20
+          y: 95
+        - id: B
+          x: 80
+          y: 95
+        - id: C
+          x: 20
+          y: 45
+        - id: D
+          x: 80
+          y: 45
+        - id: E
+          x: 50
+          y: 5
+      edges:
+        - a: A
+          b: B
+        - a: A
+          b: C
+        - a: B
+          b: D
+        - a: C
+          b: D
+        - a: A
+          b: D
+        - a: B
+          b: C
+        - a: C
+          b: E
+        - a: D
+          b: E
+    check:
+      predicate: everyEdgeOnce
+    solution:
+      state:
+        path:
+          - A
+          - C
+          - E
+          - D
+          - C
+          - B
+          - D
+          - A
+          - B
+        colors: {}
+        edges: []
+    hints:
+      - Die unteren Ecken A und B haben ungeraden Grad. Starte an einer davon.
+      - Hebe dir die Linie A–B für den Schluss auf.
+    explanation: Zum Beispiel A, C, E, D, C, B, D, A, B. Start und Ende liegen an den beiden ungeraden Ecken.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Ecken eines Netzes haben die Grade 3, 3, 2, 2 und 4. Wie viele Kanten hat es?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: double-count
+        text: Jede Kante hat zwei Enden und wird darum doppelt gezählt.
+    hints:
+      - Addiere alle Grade.
+      - Jede Kante zählt an beiden Enden.
+    explanation: 3 + 3 + 2 + 2 + 4 = 14, geteilt durch 2 ergibt 7. Das ist das Handschlag-Lemma.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Kann ein Netz genau eine Ecke mit ungeradem Grad haben?
+    params:
+      options:
+        - label: Nein – die Summe aller Grade ist doppelt so groß wie die Zahl der Kanten, also gerade
+          correct: true
+        - label: Ja, zum Beispiel ein Dreieck
+          feedback: Im Dreieck haben alle Ecken Grad 2.
+        - label: Nur in großen Netzen
+          feedback: Die Größe spielt keine Rolle.
+    hints:
+      - Was weißt du über die Summe aller Grade?
+      - Eine einzelne ungerade Zahl macht eine Summe ungerade.
+    explanation: "Ungerade Ecken gibt es immer in gerader Anzahl: 0, 2, 4 … Darum hat ein Zug durch alle Kanten nie genau ein loses Ende."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -126,6 +224,68 @@ steps:
     hints:
       - Fast dieselbe Frage – völlig andere Schwierigkeit.
     explanation: Eine winzige Änderung der Frage macht aus einem leichten Problem ein NP-vollständiges.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: In Königsberg haben die vier Stadtteile die Grade 5, 3, 3 und 3. Wie viele Brücken muss man mindestens neu bauen, damit ein Spaziergang über jede Brücke genau einmal möglich wird? Start und Ende dürfen verschieden sein.
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: closed-walk
+        text: Zwei ungerade Ecken dürfen bleiben – Start und Ende.
+    hints:
+      - Wie viele ungerade Ecken darf ein offener Weg haben?
+      - Eine neue Brücke macht zwei ungerade Ecken gerade.
+    explanation: Eine Brücke zwischen zwei ungeraden Stadtteilen lässt genau zwei ungerade übrig. Für einen Rundweg bräuchte man 2.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Postbote muss jede Straße mindestens einmal ablaufen und zum Start zurück. Was tut er bei ungeraden Ecken?
+    params:
+      options:
+        - label: Er läuft einige Straßen doppelt – möglichst kurze, die ungerade Ecken paarweise verbinden
+          correct: true
+        - label: Er lässt Straßen aus
+          feedback: Jede Straße muss bedient werden.
+        - label: Nichts, das geht immer ohne Umweg
+          feedback: Nur ohne ungerade Ecken.
+    hints:
+      - Ungerade Ecken verhindern einen Rundweg.
+      - Doppelt gelaufene Straßen wirken wie neue Kanten.
+    explanation: Das ist das Briefträgerproblem. Es lässt sich schnell lösen, mit kürzesten Wegen und Paarungen – anders als das Rundreiseproblem.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Eulers Regel mit den ungeraden Ecken stimmt.
+    params:
+      keywords:
+        - - rein
+          - raus
+          - hinein
+          - hinaus
+          - in and out
+          - enter
+          - leave
+        - - paar
+          - gerade
+          - even
+          - pair
+        - - start
+          - ende
+          - end
+          - anfang
+          - begin
+      sample: Jedes Mal, wenn ich durch eine Ecke laufe, komme ich hinein und wieder hinaus – das verbraucht zwei Linien, ein Paar. Durchlaufene Ecken haben also geraden Grad. Nur am Start und am Ende darf eine Linie übrig sein.
     difficulty: 3
 
 srs:

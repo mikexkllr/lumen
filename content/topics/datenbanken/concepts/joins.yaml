@@ -5,7 +5,7 @@ summary: Der Join.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,66 @@ steps:
     explanation: 5000 – ein **Kreuzprodukt**. Bei Millionen Zeilen legt ein vergessenes ON den Server lahm.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Kunden: 1 Ana, 2 Ben, 3 Cem. Bestellungen: A von Kunde 2, B von Kunde 2, C von Kunde 3, D von Kunde 5. Der **INNER JOIN** behält nur Paare, bei denen die Kundennummern zusammenpassen."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Zeilen liefert der INNER JOIN von Kunden und Bestellungen oben?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: orphan
+        text: Bestellung D zeigt auf Kunde 5 – den gibt es nicht.
+    hints:
+      - "Geh jede Bestellung durch: Gibt es ihren Kunden?"
+      - A und B gehören Ben, C gehört Cem.
+    explanation: Ben–A, Ben–B, Cem–C. Ana hat keine Bestellung, D keinen Kunden – beide fallen weg.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Und wie viele Zeilen liefert kunden LEFT JOIN bestellungen?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: inner-vs-left
+        text: LEFT JOIN behält alle Kunden – auch Ana ohne Bestellung.
+    hints:
+      - Alle Zeilen der linken Tabelle bleiben.
+      - Die 3 Treffer plus Ana mit NULL.
+    explanation: "Ben–A, Ben–B, Cem–C und Ana–NULL: 4 Zeilen. So findet man Kunden ohne Bestellung: WHERE bestellung IS NULL."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: match
+    prompt: Welcher Join macht was?
+    params:
+      pairs:
+        - left: INNER JOIN
+          right: Nur Treffer auf beiden Seiten
+        - left: LEFT JOIN
+          right: Alle links, rechts notfalls NULL
+        - left: FULL JOIN
+          right: Alle von beiden Seiten
+        - left: CROSS JOIN
+          right: Jede Zeile mit jeder
+    hints:
+      - "LEFT heißt: Die linke Tabelle wird vollständig behalten."
+      - CROSS kennt keine Bedingung.
+    explanation: Die Joins unterscheiden sich darin, was mit Zeilen ohne Partner passiert.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +163,83 @@ steps:
     hints:
       - Ana tauchte vorhin nicht auf. Wie holt man sie zurück?
     explanation: Fehlende Partner werden mit **NULL** aufgefüllt – dem Zeichen für »kein Wert«.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Zeilen liefert ein FULL JOIN der Tabellen oben?
+    answer:
+      value: 5
+    hints:
+      - Alle Treffer, dazu alle Partnerlosen von beiden Seiten.
+      - 3 Treffer + Ana + Bestellung D.
+    explanation: "3 + 1 + 1 = 5. Bestellung D ohne Kunden zeigt: Eine Fremdschlüssel-Regel hätte sie gar nicht erst erlaubt."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Join zweier Tabellen mit je einer Million Zeilen – ohne Index, jede Zeile mit jeder vergleichen. Wie viele Vergleiche sind das?
+    params:
+      options:
+        - label: $10^{12}$ – darum nutzt man Indizes oder Hash-Joins
+          correct: true
+        - label: 2 Millionen
+          feedback: Das wäre nur einmal durch beide Tabellen.
+        - label: $10^6$
+          feedback: Es sind eine Million mal eine Million.
+    hints:
+      - Jede der Millionen Zeilen links trifft jede der Millionen rechts.
+      - $10^6$ · $10^6$.
+    explanation: Eine Billion Vergleiche dauern Minuten. Ein Hash-Join braucht nur etwa zwei Millionen Schritte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Wie arbeitet ein Hash-Join?
+    params:
+      options:
+        - label: Er baut aus der kleineren Tabelle eine Hash-Tabelle und schlägt jede Zeile der größeren darin nach
+          correct: true
+        - label: Er sortiert beide Tabellen
+          feedback: Das macht der Merge-Join.
+        - label: Er vergleicht jede mit jeder, nur schneller
+          feedback: Gerade das vermeidet er.
+    hints:
+      - Nachschlagen in einer Hash-Tabelle kostet O(1).
+      - Einmal bauen, dann nur noch nachschlagen.
+    explanation: Bauen kostet O(n), Nachschlagen O(m) – zusammen linear statt n · m. Datenstrukturen machen Datenbanken schnell.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein Join macht und warum man ihn braucht.
+    params:
+      keywords:
+        - - schlüssel
+          - key
+          - nummer
+          - number
+          - id
+        - - verbind
+          - kombin
+          - connect
+          - combin
+          - zusammen
+          - join
+        - - doppelt
+          - redundan
+          - einmal
+          - once
+          - duplicate
+      sample: Daten liegen auf mehrere Tabellen verteilt, damit nichts doppelt gespeichert ist – jede Angabe nur einmal. Ein Join verbindet die Tabellen beim Abfragen über ihre Schlüssel, etwa die Kundennummer in der Bestellung.
     difficulty: 3
 
 srs:

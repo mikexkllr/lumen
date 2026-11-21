@@ -5,7 +5,7 @@ summary: Indizes und SQL-Injection.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -143,6 +143,38 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Index ist ein B-Baum mit bis zu 500 Einträgen pro Knoten. Wie viele Ebenen braucht er für 100 Millionen Zeilen?
+    answer:
+      value: 3
+    hints:
+      - Zwei Ebenen schaffen 500 · 500 = 250 000.
+      - Drei Ebenen schaffen 125 Millionen.
+    explanation: $500^3$ = 125 Millionen ≥ 100 Millionen. Drei Lesezugriffe finden jede Zeile – die oberen Ebenen liegen meist sogar im Speicher.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: "Ein Login baut: … WHERE name = 'EINGABE' AND pw = '…'. Welche Eingabe als Name umgeht die Passwortprüfung?"
+    params:
+      options:
+        - label: admin' --
+          correct: true
+        - label: admin
+          feedback: Dann wird das Passwort ganz normal geprüft.
+        - label: --admin
+          feedback: Das steht harmlos innerhalb der Anführungszeichen.
+    hints:
+      - Mit einem Anführungszeichen beendet man den Text vorzeitig.
+      - Zwei Striche leiten in SQL einen Kommentar ein.
+    explanation: "Aus der Eingabe wird: name = 'admin' -- '… – der Rest ist Kommentar, das Passwort wird nie geprüft. Platzhalter verhindern das, weil die Eingabe nie zu Code wird."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -191,6 +223,51 @@ steps:
           - link
           - join
       sample: So steht jede Information nur einmal da und muss bei einer Änderung nur an einer Stelle aktualisiert werden. Die Tabellen verbindet man über Schlüssel wieder miteinander.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Transaktionen folgen **ACID**. A: ganz oder gar nicht. C: Die Regeln gelten weiter. I: Keiner sieht halbe Zwischenstände. D: Was bestätigt ist, bleibt gespeichert."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: match
+    prompt: Welcher Buchstabe von ACID verspricht was?
+    params:
+      pairs:
+        - left: Atomar
+          right: Ganz oder gar nicht
+        - left: Konsistent
+          right: Regeln gelten weiter
+        - left: Isoliert
+          right: Keine Störung von außen
+        - left: Dauerhaft
+          right: Übersteht Abstürze
+    hints:
+      - Die Überweisung, die nicht halb passieren darf, ist A.
+      - "Strom weg nach dem OK – trotzdem gespeichert: D."
+    explanation: Zusammen machen die vier Eigenschaften eine Datenbank verlässlich genug für Banken.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Zwei Leute buchen im selben Moment den letzten Sitzplatz. Was verhindert eine Doppelbuchung?
+    params:
+      options:
+        - label: Isolation – die erste Transaktion sperrt den Platz, die zweite sieht ihn danach als belegt
+          correct: true
+        - label: Ein schnellerer Server
+          feedback: Auch schnelle Server bearbeiten Anfragen gleichzeitig.
+        - label: Dauerhaftigkeit
+          feedback: Die sorgt nur dafür, dass Gespeichertes bleibt.
+    hints:
+      - Beide lesen »frei« – das ist das Problem.
+      - Einer muss warten, bis der andere fertig ist.
+    explanation: Ohne Isolation lesen beide »frei« und schreiben »gebucht«. Mit Sperren oder Versionen sieht jede Transaktion einen sauberen Stand.
     difficulty: 3
 
 srs:
