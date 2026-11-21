@@ -1,0 +1,168 @@
+id: bio.biotech.pcr
+type: concept
+title: "PCR: DNA kopieren im Reagenzglas"
+summary: "Verdoppeln in jedem Zyklus – bis Milliarden Kopien."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein einziges DNA-Stück wird in jedem Zyklus verdoppelt. Wie viele Kopien hast du nach 30 Zyklen?
+    params:
+      min: 100
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 1073741824
+      within: 50
+    explanation: 2³⁰ ≈ 1 Milliarde – in rund zwei Stunden. Aus einem Haar am Tatort wird genug DNA für einen Test.
+
+  - kind: explain
+    id: c1
+    body: Die **Polymerase-Kettenreaktion**, kurz PCR, kopiert einen DNA-Abschnitt immer wieder. Kurze Startstücke, die Primer, markieren Anfang und Ende. Eine hitzefeste Polymerase baut die neuen Stränge.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Ordne die drei Schritte eines PCR-Zyklus.
+    params:
+      items:
+        - label: "Erhitzen auf 95 °C: Stränge trennen sich"
+        - label: "Abkühlen auf etwa 55 °C: Primer binden"
+        - label: "72 °C: Polymerase verlängert die Stränge"
+    hints:
+      - Erst muss die Doppelhelix aufgehen.
+      - Die Polymerase arbeitet am besten bei 72 °C.
+    explanation: Trennen, anlagern, verlängern – und von vorn. Jeder Zyklus dauert nur wenige Minuten.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Du startest mit {{s}} DNA-Molekülen. Wie viele sind es nach {{n}} Zyklen bei perfekter Verdopplung?
+    answer:
+      value: "{{s * 2 ** n}}"
+    feedback:
+      - when: numval(state.input) == s * 2 * n
+        misconception: linear
+        text: Jeder Zyklus verdoppelt – das ist 2 hoch n, nicht 2 mal n.
+    hints:
+      - "Jeder Zyklus: mal 2."
+      - "{{s}} · 2 hoch {{n}}"
+    explanation: "{{s}} · 2^{{n}} = {{s * 2 ** n}}."
+    variants:
+      params:
+        s: choice[1,5,10]
+        n: int[5,12]
+      defaults:
+        s: 10
+        n: 10
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum braucht die PCR eine Polymerase aus Bakterien heißer Quellen?
+    params:
+      options:
+        - label: Normale Polymerasen würden beim Erhitzen auf 95 °C zerstört.
+          correct: true
+        - label: Sie arbeitet schneller in der Kälte.
+          feedback: Gerade die Hitze ist das Problem für normale Enzyme.
+        - label: Sie ist billiger.
+          feedback: Der Grund ist die Hitzefestigkeit.
+    hints:
+      - Was passiert mit Enzymen bei großer Hitze?
+      - Jeder Zyklus erhitzt auf 95 °C.
+    explanation: Die Taq-Polymerase stammt aus Thermus aquaticus aus dem Yellowstone-Park. Sie übersteht jeden Zyklus.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In echt verdoppelt sich die DNA nicht ganz perfekt. Die **Effizienz** E gibt an, welcher Anteil pro Zyklus kopiert wird. Nach n Zyklen hat man das (1 + E)ⁿ-Fache.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Effizienz ist 90 %. Um welchen Faktor wächst die DNA in 10 Zyklen? Runde auf eine ganze Zahl.
+    answer:
+      value: 613
+      tolerance: 2
+    feedback:
+      - when: numval(state.input) == 1024
+        misconception: perfect
+        text: Das wäre bei 100 %. Rechne 1,9 hoch 10.
+    hints:
+      - Pro Zyklus mal 1,9.
+      - 1,9 hoch 10
+    explanation: 1,9¹⁰ ≈ 613 statt 1024. Nach 30 Zyklen wäre der Unterschied schon das Vierfache.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Beim Corona-PCR-Test wird mitgezählt, nach wie vielen Zyklen ein Signal auftaucht. Eine Probe braucht 20, eine andere 30 Zyklen. Was heißt das?
+    params:
+      options:
+        - label: Die erste Probe enthielt viel mehr Virus-RNA, etwa 1000-mal so viel.
+          correct: true
+        - label: Die zweite enthielt mehr Virus.
+          feedback: Wer mehr hat, erreicht die Schwelle früher.
+        - label: Beide gleich viel.
+          feedback: 10 Zyklen sind ein Faktor von 2¹⁰ ≈ 1000.
+    hints:
+      - Wenig Start-DNA braucht mehr Verdopplungen bis zur Schwelle.
+      - 10 Zyklen Unterschied = 2 hoch 10.
+    explanation: "Der Ct-Wert misst die Menge: Je kleiner, desto mehr Erbgut war in der Probe."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Zwei Proben unterscheiden sich im Ct-Wert um {{d}} Zyklen. Wievielmal mehr Start-DNA hatte die frühere Probe (100 % Effizienz)?
+    answer:
+      value: "{{2 ** d}}"
+    feedback:
+      - when: numval(state.input) == 2 * d
+        misconception: linear
+        text: "Jeder Zyklus ist ein Faktor 2: Multipliziere {{d}}-mal."
+    hints:
+      - Ein Zyklus früher heißt doppelt so viel.
+      - 2 hoch {{d}}
+    explanation: 2^{{d}} = {{2 ** d}}-mal so viel. Ein Ct-Unterschied von rund 3,3 entspricht dem Faktor 10.
+    difficulty: 3
+    variants:
+      params:
+        d: int[3,10]
+      defaults:
+        d: 5
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die PCR aus wenig DNA sehr viel macht.
+    params:
+      keywords:
+        - - "95"
+          - erhitz
+          - trenn
+          - heat
+          - separat
+        - - primer
+        - - polymerase
+        - - verdoppel
+          - 2 hoch
+          - doubl
+          - exponent
+      sample: Erst erhitzt man auf 95 °C, und die Stränge trennen sich. Dann binden Primer, und eine hitzefeste Polymerase baut neue Stränge. Jeder Zyklus verdoppelt die DNA, nach 30 Zyklen sind es rund eine Milliarde Kopien.
+    explanation: Temperaturzyklen plus Verdopplung – exponentielles Wachstum im Reagenzglas.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

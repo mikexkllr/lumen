@@ -1,0 +1,202 @@
+id: bio.genetics.hardy
+type: concept
+title: "The Hardy–Weinberg equilibrium"
+summary: "Allele frequencies across a whole population."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Blue eyes are recessive. Do they therefore disappear from the population over time?
+    params:
+      options:
+        - label: No. Recessive alleles stay just as common as long as nothing pushes them out.
+          correct: true
+        - label: Yes, dominant alleles take over.
+          feedback: Dominant does not mean more common. It only describes how Aa looks.
+        - label: Yes, but only after a thousand years.
+          feedback: Without selection the frequency stays stable.
+    hints:
+      - Does an Aa person pass on their a less often?
+      - Heredity copies alleles, it favours none.
+    explanation: "Hardy and Weinberg showed this in 1908: without outside forces allele frequencies stay constant."
+
+  - kind: explain
+    id: c1
+    body: Let p be the share of allele A and q that of a. Then p + q = 1. With random mating, p² people are AA, 2pq are Aa and q² are aa. This is the **Hardy–Weinberg equilibrium**.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Set the share p so that 16 % of people show the recessive trait (aa).
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 15.9
+        - 16.1
+    explanation: q² = 0.16, so q = 0.4 and p = 0.6. Then 48 % are Aa carriers – three times as many as aa!
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In a population q = {{q}}. What percentage are homozygous aa?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * q * q}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 100 * q
+        misconception: allele-vs-genotype
+        text: "That is the share of the allele. aa needs two: q × q."
+    hints:
+      - "aa means: two a alleles together by chance."
+      - "{{q}} × {{q}}"
+    explanation: q² = {{q * q}}, so {{100 * q * q}} %.
+    variants:
+      params:
+        q: choice[0.1,0.2,0.3,0.5]
+      defaults:
+        q: 0.2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Set the lab so that 9 % of people are aa. Read off how many carriers there are.
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 8.9
+        - 9.1
+    explanation: "q = 0.3, p = 0.7. Carriers: 2 × 0.7 × 0.3 = 42 %."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Cystic fibrosis is recessive. In Central Europe about 1 in 2500 babies is affected (q² = 1/2500). What percentage of people are carriers (2pq)? Round to one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 0.04
+        misconception: affected
+        text: That is the share affected, in percent. The question asks for carriers.
+      - when: numval(state.input) == 2
+        misconception: q-only
+        text: q = 0.02 is the allele share. Carriers are 2 × p × q.
+    hints:
+      - "First take the root: q = 1/50 = 0.02."
+      - 2 × 0.98 × 0.02
+    explanation: 2 × 0.98 × 0.02 ≈ 0.039, about 3.9 % – roughly one in 25 people carries the allele, usually without knowing.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: At what allele share p are there the most Aa carriers?
+    params:
+      options:
+        - label: p = 0.5
+          correct: true
+        - label: p = 1
+          feedback: Then there is no a at all, so no carriers.
+        - label: p = 0.9
+          feedback: "Try it in the lab: 2 × 0.9 × 0.1 = 18 %."
+    hints:
+      - 2pq = 2p(1 − p) is a parabola.
+      - It is zero at 0 and 1.
+    explanation: At p = q = 0.5 exactly 50 % are carriers – the maximum of 2p(1 − p).
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: buckets
+    prompt: Does the equilibrium hold – or is it disturbed?
+    params:
+      buckets:
+        - id: b1
+          label: holds
+        - id: b2
+          label: disturbed
+      items:
+        - label: Huge, random mating
+          bucket: b1
+        - label: Allele causes infertility
+          bucket: b2
+        - label: Only ten animals on an island
+          bucket: b2
+        - label: Many animals migrate in
+          bucket: b2
+        - label: Mates with the same trait preferred
+          bucket: b2
+    hints:
+      - "The equilibrium needs: large, random, no selection, no migration, no mutation."
+      - In small groups alleles fluctuate by chance.
+    explanation: "Each disturbance is a force of evolution: selection, drift, gene flow, mutation and non-random mating."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A rare recessive allele has q = 0.01. How many healthy carriers (2pq) are there per affected person (q²)?
+    answer:
+      value: 198
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: missing-two
+        text: "Almost: 2pq ÷ q² = 2p ÷ q. The factor 2 is missing."
+    hints:
+      - Divide 2pq by q².
+      - 2 × 0.99 ÷ 0.01
+    explanation: 2p/q = 198. Rare recessive alleles hide almost entirely in carriers. That is why selection can hardly remove them.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what the Hardy–Weinberg rule says.
+    params:
+      keywords:
+        - - p²
+          - p2
+          - p hoch 2
+          - p squared
+          - pq
+          - q²
+        - - konstant
+          - gleich
+          - stabil
+          - constant
+          - stable
+          - same
+        - - zufällig
+          - zufaellig
+          - random
+        - - selektion
+          - evolution
+          - groß
+          - gross
+          - selection
+          - large
+      sample: In a large population with random mating and no selection, the allele shares p and q stay constant. The genotypes are then distributed as p², 2pq and q².
+    explanation: "The equilibrium is the baseline: any deviation shows that evolution is at work."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

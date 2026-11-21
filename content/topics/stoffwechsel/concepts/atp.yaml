@@ -1,0 +1,172 @@
+id: bio.metabolism.atp
+type: concept
+title: "ATP, die Energiewährung"
+summary: "Wie Zellen Energie speichern und ausgeben."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Deine Zellen bauen jeden Tag ATP auf und wieder ab. Wie viel Kilogramm ATP setzt ein Erwachsener ungefähr pro Tag um?
+    params:
+      min: 0.01
+      max: 1000
+      scale: log
+      unit: kg
+    answer:
+      value: 50
+      within: 60
+    explanation: Etwa so viel, wie du wiegst! Der Vorrat ist klein – jedes ATP wird darum täglich viele Hundert Mal recycelt.
+
+  - kind: explain
+    id: c1
+    body: "**ATP** heißt Adenosintriphosphat. Es trägt drei Phosphatgruppen. Spaltet die Zelle eine ab, wird Energie frei. Übrig bleibt ADP. Mit Energie aus der Nahrung wird daraus wieder ATP."
+
+  - kind: problem
+    id: c2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: ATP gibt eine [[Phosphatgruppe]] ab und wird zu [[ADP]]. Dabei wird [[Energie]] frei.
+      distractors:
+        - Glucose
+        - DNA
+        - Wärme
+    explanation: ATP ist wie ein aufgeladener Akku, ADP wie ein leerer.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Kostet das ATP?
+    params:
+      buckets:
+        - id: b1
+          label: kostet ATP
+        - id: b2
+          label: kostet kein ATP
+      items:
+        - label: Muskel zieht sich zusammen
+          bucket: b1
+        - label: Na⁺-K⁺-Pumpe arbeitet
+          bucket: b1
+        - label: Zelle baut ein Eiweiß
+          bucket: b1
+        - label: O₂ diffundiert ins Blut
+          bucket: b2
+        - label: Wasser strömt durch Osmose
+          bucket: b2
+    hints:
+      - Läuft es von selbst, mit dem Gefälle?
+      - Bauen, bewegen, pumpen kostet.
+    explanation: Alles, was Ordnung schafft oder bewegt, kostet ATP. Diffusion und Osmose laufen von selbst.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum nutzen Zellen ATP, statt Zucker direkt überall zu verbrennen?
+    params:
+      options:
+        - label: ATP liefert kleine, passende Portionen, die überall in der Zelle einsetzbar sind.
+          correct: true
+        - label: Zucker enthält keine Energie.
+          feedback: Zucker enthält viel Energie – zu viel auf einmal.
+        - label: ATP ist billiger als Zucker.
+          feedback: ATP wird ja aus Zuckerenergie gemacht.
+    hints:
+      - Denk an Kleingeld und einen großen Geldschein.
+      - Ein Zucker wird in viele ATP umgetauscht.
+    explanation: ATP ist das Kleingeld der Zelle. Ein Zucker ergibt rund 30 ATP.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Viele Reaktionen in der Zelle laufen nicht von selbst. Die Zelle **koppelt** sie an die Spaltung von ATP. Die freie Energie des ATP zieht die schwierige Reaktion mit.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Spaltung von ATP liefert etwa 30 kJ pro Mol. Eine Reaktion braucht {{e}} kJ pro Mol. Wie viele ATP müssen mindestens gekoppelt werden?
+    answer:
+      value: "{{ceil(e / 30)}}"
+    feedback:
+      - when: numval(state.input) == e / 30 && !isInt(e / 30)
+        misconception: no-ceil
+        text: Halbe ATP gibt es nicht. Runde auf.
+    hints:
+      - Teile {{e}} durch 30.
+      - Runde auf, denn es muss reichen.
+    explanation: "{{e}} : 30 aufgerundet = {{ceil(e / 30)}} ATP."
+    difficulty: 2
+    variants:
+      params:
+        e: choice[20,45,50,80,100]
+      defaults:
+        e: 50
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Sprinter hat in den Muskeln nur ATP für etwa 2 bis 3 Sekunden. Wie läuft er trotzdem 10 Sekunden voll?
+    params:
+      options:
+        - label: Kreatinphosphat lädt ADP blitzschnell wieder zu ATP auf.
+          correct: true
+        - label: Er läuft ohne Energie weiter.
+          feedback: Ohne ATP zieht sich kein Muskel zusammen.
+        - label: Er atmet so schnell, dass Fett verbrennt.
+          feedback: Fett liefert Energie viel zu langsam für einen Sprint.
+    hints:
+      - Es gibt einen schnellen Ersatzspeicher.
+      - Er gibt seine Phosphatgruppe an ADP ab.
+    explanation: "Erst Kreatinphosphat, dann Milchsäuregärung, zuletzt Zellatmung: Muskeln haben drei Gänge."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Ein Gift entkoppelt die Mitochondrien: Sie verbrennen Zucker, machen aber kaum ATP. Was passiert?"
+    params:
+      options:
+        - label: Die Energie wird zu Wärme – der Körper überhitzt, obwohl die Zellen hungern.
+          correct: true
+        - label: Man wird stärker.
+          feedback: Ohne ATP fehlt den Zellen die Energie.
+        - label: Nichts, Zucker reicht.
+          feedback: Die Zelle kann Zuckerenergie nur über ATP nutzen.
+    hints:
+      - Energie verschwindet nicht.
+      - Wenn sie nicht in ATP geht, wohin dann?
+    explanation: Das Diätmittel DNP wirkte so und führte zu Todesfällen. Braunes Fettgewebe nutzt Entkopplung dagegen gezielt zum Heizen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man ATP die Energiewährung der Zelle nennt.
+    params:
+      keywords:
+        - - atp
+        - - adp
+        - - phosphat
+          - phosphate
+        - - energie
+          - energy
+        - - recycel
+          - wieder aufgeladen
+          - aufladen
+          - recycl
+          - recharg
+      sample: ATP gibt eine Phosphatgruppe ab und wird zu ADP. Dabei wird Energie frei, die Muskeln, Pumpen und Bauarbeiten antreibt. Mit Energie aus Zucker wird ADP wieder zu ATP aufgeladen – ein ständiges Recycling.
+    explanation: Eine Währung für alle Ausgaben, ständig neu verdient.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

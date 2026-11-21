@@ -1,0 +1,178 @@
+id: bio.evolution.drift
+type: concept
+title: "Zufall in der Evolution"
+summary: "Gendrift, Flaschenhälse und Gründereffekte."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: distribution
+    prompt: Eine winzige Population hat zwei Allele, gleich häufig. Zieh 10 Nachkommen. Kommt genau 5 zu 5 heraus? Zieh mindestens 30-mal.
+    params:
+      items:
+        - label: Allel A
+          weight: 1
+        - label: Allel a
+          weight: 1
+      sample:
+        - 10
+        - 100
+    check:
+      predicate: draws >= 30
+    hints:
+      - Zieh in Zehnerschritten.
+      - Achte darauf, wie stark die Zehnergruppen schwanken.
+    explanation: "Bei wenigen Nachkommen weicht das Ergebnis oft stark von 50 : 50 ab. Das ist Gendrift."
+
+  - kind: explain
+    id: c1
+    body: Allelhäufigkeiten ändern sich auch durch reinen Zufall. Wer zufällig mehr Junge hat, gibt mehr Allele weiter. Das heißt **Gendrift**. In kleinen Populationen wirkt sie besonders stark.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: In welcher Population verändert Drift die Allele am schnellsten?
+    params:
+      options:
+        - label: 20 Tiere auf einer kleinen Insel
+          correct: true
+        - label: 20 000 Tiere auf einem Kontinent
+          feedback: Bei vielen Tieren gleicht sich der Zufall aus.
+        - label: Bei beiden gleich
+          feedback: "Wirf zehn- oder tausendmal eine Münze: Der Anteil Kopf schwankt sehr verschieden."
+    hints:
+      - Denk an Münzwürfe.
+      - Kleine Stichproben schwanken stärker.
+    explanation: Der Zufall wirkt in kleinen Gruppen stark. Ein Allel kann dort schnell verschwinden oder alle erobern.
+
+  - kind: problem
+    id: c3
+    widget: swipe
+    prompt: Selektion oder Drift?
+    params:
+      cards:
+        - text: Dunkle Falter überleben auf rußigen Bäumen öfter.
+          right: true
+          why: Das Merkmal bringt einen Vorteil.
+        - text: Ein Sturm tötet zufällig die Hälfte der Vögel.
+          right: false
+          why: Wer überlebt, hängt nicht vom Merkmal ab.
+        - text: Ein neutrales Allel verschwindet in einem kleinen Dorf.
+          right: false
+          why: "Neutral heißt: kein Vorteil, kein Nachteil. Nur Zufall."
+        - text: Bakterien mit Resistenz überleben das Antibiotikum.
+          right: true
+          why: Die Resistenz ist ein klarer Vorteil.
+      left: Drift
+      right: Selektion
+    explanation: Selektion hängt vom Merkmal ab, Drift nicht.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Bei der [[Gendrift]] ändern sich Allelhäufigkeiten durch [[Zufall]]. Sie wirkt besonders stark in [[kleinen]] Populationen.
+      distractors:
+        - Selektion
+        - großen
+    explanation: Drift ist Zufall ohne Richtung – und je kleiner die Gruppe, desto größer die Schwankung.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Schrumpft eine Population stark, geht viel Vielfalt verloren. Das nennt man **Flaschenhals**. Nördliche See-Elefanten wurden um 1890 bis auf wenige Dutzend Tiere gejagt. Heute gibt es wieder über 100 000, aber genetisch sehr ähnliche.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Eine Insel wird von nur fünf Vögeln besiedelt. Einer trägt ein seltenes Allel. Was ist wahrscheinlich?
+    params:
+      options:
+        - label: Das Allel ist auf der Insel viel häufiger als auf dem Festland.
+          correct: true
+        - label: Das Allel verschwindet sofort.
+          feedback: Es kann verschwinden – aber es startet bei 1 von 10 Allelen, viel häufiger als vorher.
+        - label: Die Inselvögel gleichen genau dem Festland.
+          feedback: Fünf Tiere sind keine gute Stichprobe.
+    hints:
+      - Fünf Vögel haben zehn Allele für jedes Gen.
+      - Die Gründer sind eine Zufallsstichprobe.
+    explanation: Das ist der Gründereffekt. Bei den Amischen in Pennsylvania ist so eine seltene Erbkrankheit sehr häufig geworden.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine neue, neutrale Mutation entsteht in einer Population von {{n}} Tieren mit je zwei Kopien des Gens. Wie wahrscheinlich setzt sie sich durch Drift ganz durch? Gib 1 durch wie viel an.
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: haploid
+        text: Jedes Tier hat zwei Kopien. Es gibt also 2N Allele.
+    hints:
+      - Am Ende stammen alle Kopien von einer einzigen ab. Jede hat die gleiche Chance.
+      - Wie viele Kopien gibt es?
+    explanation: "Von {{2 * n}} Kopien wird eine zur Ahnin aller: Chance 1/{{2 * n}}. In kleinen Populationen setzen sich neutrale Mutationen öfter durch."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[10,50,100,500]
+      defaults:
+        n: 50
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum sind gerade kleine, bedrohte Populationen durch Drift doppelt in Gefahr?
+    params:
+      options:
+        - label: Sie verlieren Vielfalt, und schädliche Allele können sich durch Zufall anreichern.
+          correct: true
+        - label: Drift tötet direkt Tiere.
+          feedback: Drift tötet niemanden. Sie verschiebt Allelhäufigkeiten.
+        - label: Kleine Populationen mutieren schneller.
+          feedback: Die Mutationsrate pro Tier ist gleich.
+    hints:
+      - Was passiert mit seltenen Allelen in kleinen Gruppen?
+      - Selektion wirkt in kleinen Gruppen schwächer als der Zufall.
+    explanation: Wenig Vielfalt heißt wenig Spielraum für Anpassung. Darum tauscht man in Zoos und Schutzprogrammen gezielt Tiere aus.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Selektion und Gendrift.
+    params:
+      keywords:
+        - - zufall
+          - zufällig
+          - zufaellig
+          - chance
+          - random
+        - - vorteil
+          - merkmal
+          - advantage
+          - trait
+        - - klein
+          - small
+        - - allel
+          - häufigkeit
+          - haeufigkeit
+          - allele
+          - frequenc
+      sample: Bei der Selektion werden Allele häufiger, weil ihr Merkmal einen Vorteil bringt. Bei der Drift ändern sich die Häufigkeiten durch reinen Zufall. Das wirkt vor allem in kleinen Populationen.
+    explanation: Selektion hat eine Richtung, Drift nicht.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

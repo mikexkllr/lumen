@@ -1,0 +1,174 @@
+id: bio.molecular.code
+type: concept
+title: "The genetic code"
+summary: "Three letters, one amino acid."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: Proteins are made of 20 kinds of amino acids. RNA has 4 letters. How many different words are there if each word is 3 letters long?
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: multiply-wrong
+        text: "4 × 3 does not count all combinations. Each position has 4 options: 4 × 4 × 4."
+    hints:
+      - "First position: 4 options. Second? Third?"
+      - 4 × 4 × 4
+    explanation: 4³ = 64 words – enough for 20 amino acids. Two letters would give only 16, too few.
+
+  - kind: explain
+    id: c1
+    body: Every three bases of the mRNA form a **codon**. Each codon stands for an amino acid or for stop. AUG means start and brings the amino acid methionine. UAA, UAG and UGA mean stop.
+
+  - kind: problem
+    id: c2
+    widget: tiles
+    prompt: Build an mRNA for start (Met) – Phe – Gly – stop. UUU means Phe, GGG means Gly.
+    params:
+      tiles:
+        - GGG
+        - UAA
+        - AUG
+        - CCC
+        - UUU
+        - UGG
+      slots: 4
+    answer:
+      sequence:
+        - AUG
+        - UUU
+        - GGG
+        - UAA
+    hints:
+      - Every protein begins with AUG.
+      - A stop codon comes at the end.
+    explanation: "AUG UUU GGG UAA: methionine, phenylalanine, glycine, stop."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A protein has {{n}} amino acids. At least how many bases does its mRNA have, including the stop codon?
+    answer:
+      value: "{{3 * n + 3}}"
+    feedback:
+      - when: numval(state.input) == 3 * n
+        misconception: no-stop
+        text: "Almost: the stop codon has three bases too."
+      - when: numval(state.input) == n
+        misconception: one-base
+        text: One amino acid needs three bases.
+    hints:
+      - Three bases per amino acid.
+      - Plus three for stop.
+    explanation: 3 × {{n}} + 3 = {{3 * n + 3}} bases. The start AUG is already the first amino acid.
+    variants:
+      params:
+        n: choice[100,150,300,500]
+      defaults:
+        n: 300
+
+  - kind: explain
+    id: c4
+    body: In **translation** a ribosome reads the mRNA codon by codon. Transfer RNAs bring the matching amino acids. The ribosome links them into a chain. The chain folds into a protein.
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: "From gene to protein: order the steps."
+    params:
+      items:
+        - label: Gene on the DNA
+        - label: Transcription into mRNA
+        - label: mRNA leaves the nucleus
+        - label: Ribosome reads the codons
+        - label: Chain folds into a protein
+    hints:
+      - First copy, then translate.
+      - Folding comes at the very end.
+    explanation: "DNA → RNA → protein: the central dogma of molecular biology."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: The code has [[64]] codons for [[20]] amino acids. So many amino acids have several codons. The code is [[redundant]].
+      distractors:
+        - "46"
+        - "4"
+        - unique
+    explanation: Leucine, for instance, has six codons, tryptophan only one (UGG).
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: GCU, GCC, GCA and GCG all stand for alanine. What is the benefit?
+    params:
+      options:
+        - label: Many errors at the third position do not change the protein at all.
+          correct: true
+        - label: Nothing, it is wasteful.
+          feedback: The redundancy cushions mutations.
+        - label: It makes alanine more common.
+          feedback: Frequency depends on the gene, not on the number of codons.
+    hints:
+      - Which position differs between the four codons?
+      - A mutation there often stays silent.
+    explanation: The third position often wobbles without effect. That makes the code error-tolerant.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Almost all living things – bacteria, fungi, plants, humans – use the same code. What follows?
+    params:
+      options:
+        - label: All life shares one origin, and bacteria can read human genes.
+          correct: true
+        - label: The code arose the same everywhere by chance.
+          feedback: With 64 codons that would be extremely unlikely.
+        - label: The code is the only chemical possibility.
+          feedback: Rare variants exist, for example in mitochondria. Other codes are possible.
+    hints:
+      - A shared code is like a shared language.
+      - That is why bacteria today produce human insulin.
+    explanation: The universal code is strong evidence of common descent – and the basis of genetic engineering.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the cell translates an mRNA into a protein.
+    params:
+      keywords:
+        - - codon
+          - drei basen
+          - triplett
+          - three bases
+          - triplet
+        - - ribosom
+        - - aminosäure
+          - aminosaeure
+          - amino acid
+        - - start
+          - stopp
+          - stop
+          - aug
+      sample: The ribosome reads the mRNA in groups of three, the codons. Each codon stands for an amino acid. From the start codon AUG a chain is built until a stop codon comes.
+    explanation: Codons are words, amino acids their meaning, the ribosome the translator.
+    difficulty: 3
+
+srs:
+  cards_from: ["hook", "c3", "d2"]

@@ -1,0 +1,203 @@
+id: bio.ecology.pyramid
+type: concept
+title: "Die Energiepyramide"
+summary: "Nur etwa 10 % kommen eine Stufe weiter."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie viel Kilogramm Gras braucht es ungefähr, damit ein Löwe um 1 kg wächst? (Gras → Zebra → Löwe)
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: kg
+    answer:
+      value: 100
+      within: 50
+    explanation: "Rund 100 kg: Aus 100 kg Gras werden etwa 10 kg Zebra, daraus 1 kg Löwe."
+
+  - kind: explain
+    id: c1
+    body: Von einer Stufe zur nächsten kommen nur etwa 10 % der Energie an. Der Rest geht als Wärme, Bewegung und Kot verloren. Das ist die **Zehn-Prozent-Regel**.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Pflanzen auf einer Wiese speichern {{e}} kJ. Wie viel davon kommt bei den Fleischfressern an, die die Pflanzenfresser fressen?
+    params:
+      unit: kJ
+    answer:
+      value: "{{e / 100}}"
+    feedback:
+      - when: numval(state.input) == e / 10
+        misconception: one-step
+        text: Das ist bei den Pflanzenfressern. Es geht noch eine Stufe weiter.
+      - when: numval(state.input) == e * 0.8
+        misconception: loss-confusion
+        text: Es bleiben nicht 80 % übrig, sondern nur 10 % pro Stufe.
+    hints:
+      - "Zwei Stufen: Pflanze → Pflanzenfresser → Fleischfresser."
+      - "Zweimal 10 %: also 1 %."
+    explanation: "{{e}} kJ → {{e / 10}} kJ → {{e / 100}} kJ. Nur 1 % landet zwei Stufen höher."
+    variants:
+      params:
+        e: choice[10000,20000,50000,100000]
+      defaults:
+        e: 10000
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum gibt es viel mehr Mäuse als Eulen?
+    params:
+      options:
+        - label: Auf jeder Stufe geht Energie verloren. Oben reicht sie für weniger Tiere.
+          correct: true
+        - label: Eulen vermehren sich zu langsam.
+          feedback: Das ist eine Folge, nicht die Ursache. Die Energie begrenzt.
+        - label: Mäuse sind kleiner.
+          feedback: Kleine Tiere gibt es auch oben in Ketten, etwa Spitzmäuse. Es zählt die Stufe.
+    hints:
+      - Wo stehen Eulen in der Pyramide?
+      - Weniger Energie ernährt weniger Tiere.
+    explanation: Die Pyramide wird nach oben schmal. Darum sind Spitzenräuber selten.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ganz unten in der Pyramide stehen die [[Produzenten]]. Darüber folgen die [[Pflanzenfresser]], dann die [[Fleischfresser]]. Pro Stufe kommen etwa [[10 %]] der Energie an.
+      distractors:
+        - Zersetzer
+        - 50 %
+    explanation: Breite Basis, schmale Spitze – und jede Stufe ist nur ein Zehntel der vorigen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Wohin verschwinden die übrigen 90 %?
+    reveal:
+      body: "Das meiste verbrauchen die Tiere selbst: für Atmung, Bewegung und Wärme. Ein Teil bleibt unverdaut im Kot oder steckt in Knochen und Fell. Davon leben dann die Zersetzer."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Feld liefert Getreide für {{n}} Menschen, wenn sie es direkt essen. Wie viele Menschen würden satt, wenn man das Getreide erst an Rinder verfüttert? (10-%-Regel)
+    answer:
+      value: "{{n / 10}}"
+    feedback:
+      - when: numval(state.input) == n * 10
+        misconception: inverse
+        text: "Umgekehrt: Über das Rind geht Energie verloren, also weniger Menschen."
+    hints:
+      - Das Rind ist eine Stufe dazwischen.
+      - Teile durch 10.
+    explanation: Nur rund {{n / 10}} Menschen. Pflanzlich essen spart Fläche – grob um den Faktor 10.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[100,500,1000,5000]
+      defaults:
+        n: 1000
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Kette hat {{k}} Stufen über den Pflanzen. Wie viel Prozent der Pflanzenenergie kommt ganz oben an?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / 10 ** k}}"
+      tolerance: 0.0001
+    hints:
+      - Jede Stufe nimmt mal 0,1.
+      - 100 % · 0,1 hoch {{k}}
+    explanation: 100 % · 0,1^{{k}} = {{100 / 10 ** k}} %. Darum haben Nahrungsketten selten mehr als 4 bis 5 Stufen.
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Im offenen Meer wiegt das Plankton zusammen weniger als die Tiere, die es fressen. Wie kann das sein?
+    params:
+      options:
+        - label: Das Plankton teilt sich so schnell, dass es ständig nachwächst.
+          correct: true
+        - label: Die 10-%-Regel gilt im Meer nicht.
+          feedback: Für Energie gilt sie. Nur die stehende Masse ist umgedreht.
+        - label: Die Tiere fressen kein Plankton.
+          feedback: Doch, Krill und Fischlarven leben davon.
+    hints:
+      - Masse ist ein Bestand, Energie ein Fluss.
+      - Eine kleine Menge, die sich täglich erneuert, kann viele ernähren.
+    explanation: Die Biomassepyramide kann umgekehrt sein, die Energiepyramide nie. Es zählt die Produktion pro Zeit.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Auf eine Wiese fallen 1 000 000 kJ Sonnenlicht. Die Pflanzen speichern 1 % davon. Wie viel kJ kommen beim Fuchs an? (Gras → Kaninchen → Fuchs, je 10 %)
+    params:
+      unit: kJ
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: one-step
+        text: Das ist beim Kaninchen. Eine Stufe fehlt noch.
+      - when: numval(state.input) == 10000
+        misconception: plants-only
+        text: Das speichern die Pflanzen. Jetzt noch zweimal 10 %.
+    hints:
+      - Erst 1 %, dann zweimal 10 %.
+      - 1 000 000 · 0,01 · 0,1 · 0,1
+    explanation: "10 000 kJ in den Pflanzen, 1000 im Kaninchen, 100 im Fuchs: nur 0,01 % des Sonnenlichts."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die Energiepyramide.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+        - - stufe
+          - ebene
+          - level
+        - - wärme
+          - waerme
+          - verlust
+          - verlor
+          - heat
+          - lost
+          - loss
+        - - weniger
+          - selten
+          - fewer
+          - less
+          - rare
+      sample: Von Stufe zu Stufe kommen nur etwa 10 % der Energie an. Der Rest geht als Wärme verloren. Darum gibt es oben in der Pyramide viel weniger Tiere.
+    explanation: Energie fließt nach oben und schrumpft auf jeder Stufe.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

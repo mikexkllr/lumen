@@ -1,0 +1,186 @@
+id: bio.genetics.human
+type: concept
+title: "Blutgruppen und Geschlecht"
+summary: "Kodominanz, das AB0-System und X-chromosomale Vererbung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Vater hat Blutgruppe A, eine Mutter Blutgruppe B. Kann ihr Kind Blutgruppe 0 haben?
+    params:
+      options:
+        - label: Ja, wenn beide ein Allel 0 tragen.
+          correct: true
+        - label: Nein, nie.
+          feedback: A und B können ein verdecktes 0 tragen.
+        - label: Nur, wenn das Kind adoptiert ist.
+          feedback: Das ist biologisch durchaus möglich.
+    hints:
+      - Blutgruppe A kann genetisch A0 sein.
+      - 0 ist rezessiv.
+    explanation: "A0 × B0: Mit 25 % gibt jeder ein 0 weiter. Dann hat das Kind 00, also Blutgruppe 0."
+
+  - kind: explain
+    id: c1
+    body: "Die Allele A und B sind beide dominant über 0. Treffen A und B zusammen, wirken beide. Das heißt **Kodominanz**. So entsteht Blutgruppe AB: Die Zellen tragen beide Merkmale."
+
+  - kind: problem
+    id: c2
+    widget: venn
+    prompt: Die Kreise zeigen rote Blutzellen mit Merkmal A und mit Merkmal B. Färbe den Bereich für Blutgruppe AB.
+    params:
+      sets:
+        - Merkmal A
+        - Merkmal B
+      outside: true
+    answer:
+      regions:
+        - AB
+    hints:
+      - AB-Zellen tragen beide Merkmale.
+      - Das ist die Schnittmenge.
+    explanation: Blutgruppe AB liegt in der Schnittmenge, Blutgruppe 0 außerhalb beider Kreise.
+
+  - kind: problem
+    id: c3
+    widget: venn
+    prompt: Färbe jetzt alle Bereiche, deren Blut das Merkmal A trägt.
+    params:
+      sets:
+        - Merkmal A
+        - Merkmal B
+      outside: true
+    answer:
+      regions:
+        - A
+        - AB
+    hints:
+      - Auch AB hat Merkmal A.
+      - Der ganze Kreis A.
+    explanation: Blutgruppen A und AB tragen Merkmal A. Wer Blutgruppe B oder 0 hat, bildet Antikörper dagegen.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Welche Blutgruppe hat dieser Genotyp?
+    params:
+      buckets:
+        - id: b1
+          label: A
+        - id: b2
+          label: B
+        - id: b3
+          label: AB
+        - id: b4
+          label: "0"
+      items:
+        - label: AA
+          bucket: b1
+        - label: A0
+          bucket: b1
+        - label: B0
+          bucket: b2
+        - label: AB
+          bucket: b3
+        - label: "00"
+          bucket: b4
+    hints:
+      - 0 ist rezessiv.
+      - A und B sind kodominant.
+    explanation: A0 sieht aus wie A, B0 wie B. Nur 00 ist Blutgruppe 0.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Frauen haben zwei X-Chromosomen, Männer ein X und ein Y. Ein rezessives Allel auf dem X zeigt sich bei Männern sofort. Sie haben kein zweites X zum Ausgleich. Das ist **X-chromosomale** Vererbung.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Rot-Grün-Schwäche ist X-chromosomal rezessiv. Warum ist sie bei Männern viel häufiger (rund 8 %) als bei Frauen (rund 0,5 %)?
+    params:
+      options:
+        - label: Männer brauchen nur ein betroffenes X, Frauen zwei.
+          correct: true
+        - label: Männer sehen schlechter.
+          feedback: Es geht um ein Gen, nicht um das Sehen allgemein.
+        - label: Das Allel liegt auf dem Y.
+          feedback: Dann hätten Frauen es nie.
+    hints:
+      - Wie viele X hat ein Mann?
+      - Eine Frau braucht das Allel auf beiden X.
+    explanation: "8 % der X tragen das Allel. Eine Frau braucht es doppelt: etwa 0,08 · 0,08 ≈ 0,6 %."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein farbenblinder Vater und eine Mutter ohne das Allel bekommen einen Sohn. Ist der Sohn farbenblind?
+    params:
+      options:
+        - label: Nein. Der Sohn bekommt vom Vater das Y, nicht das X.
+          correct: true
+        - label: Ja, er erbt es vom Vater.
+          feedback: Vom Vater bekommt ein Sohn immer das Y.
+        - label: Mit 50 % Wahrscheinlichkeit
+          feedback: Die Mutter hat das Allel nicht, der Vater gibt sein X nur Töchtern.
+    hints:
+      - Woher hat ein Sohn sein X?
+      - Von der Mutter.
+    explanation: Söhne erben ihr X von der Mutter. Die Töchter dieses Vaters sind aber alle Trägerinnen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Trägerin (X^A X^a) und ein gesunder Mann (X^A Y) bekommen einen Sohn. Wie wahrscheinlich ist er betroffen? Gib einen Bruch an.
+    answer:
+      value: 1/2
+      form: fraction
+    feedback:
+      - when: numval(state.input) == 1/4
+        misconception: ignore-condition
+        text: 1/4 gilt für alle Kinder zusammen. Gefragt ist, wenn es schon ein Sohn ist.
+    hints:
+      - Der Sohn bekommt das Y vom Vater. Welches X von der Mutter?
+      - X^A oder X^a, je zur Hälfte.
+    explanation: "Unter den Söhnen ist jeder zweite betroffen: 1/2. Unter allen Kindern wären es 1/4."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Kind von Eltern mit A und B Blutgruppe 0 bekommen kann.
+    params:
+      keywords:
+        - - a0
+          - ao
+          - verdeckt
+          - träger
+          - traeger
+          - carrier
+          - hidden
+        - - rezessiv
+          - recessive
+        - - "00"
+          - oo
+          - beide
+          - both
+        - - "25"
+          - viertel
+          - quarter
+      sample: Vater A0 und Mutter B0 tragen je ein verdecktes, rezessives Allel 0. Gibt jeder sein 0 weiter, hat das Kind 00 und damit Blutgruppe 0. Das passiert mit 25 %.
+    explanation: Verdeckte Allele machen Überraschungen möglich – und berechenbar.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

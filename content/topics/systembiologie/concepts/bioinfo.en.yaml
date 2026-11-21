@@ -1,0 +1,164 @@
+id: bio.systems.bioinfo
+type: concept
+title: "Sequences and structures"
+summary: "Sequence alignment, protein folding and AlphaFold."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A small protein has 100 amino acids. Each can take roughly 3 positions. How many foldings are there? Guess the power of ten.
+    params:
+      min: 1
+      max: 100
+      unit: 10^
+    answer:
+      value: 48
+      tolerance: 4
+    explanation: 3¹⁰⁰ ≈ 5 × 10⁴⁷. Trying them all would take longer than the age of the universe – yet the protein folds in seconds.
+
+  - kind: explain
+    id: c1
+    body: "**Bioinformatics** uses computers to understand biological data. A basic tool is sequence comparison. You line up two DNA or protein sequences and count where they match."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Compare ACGTTGCA with ACGATGCC. At how many positions do they match?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: swapped
+        text: Those are the differences. The question asks for matches.
+    hints:
+      - Go position by position.
+      - Only positions 4 and 8 differ.
+    explanation: "6 of 8 positions match: 75 % identity. The more similar, the more closely related."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Compare GATTACA with GATACA. What is the best explanation?
+    params:
+      options:
+        - label: One T is missing from the second sequence. With a gap both match perfectly.
+          correct: true
+        - label: Everything differs from position 4.
+          feedback: Position by position yes – but not with a gap.
+        - label: The sequences are unrelated.
+          feedback: They differ by just one base.
+    hints:
+      - May you insert a gap?
+      - GAT-ACA
+    explanation: Good alignments allow gaps, because mutations delete or insert. Programs such as BLAST search billions of bases this way.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: The [[sequence]] of amino acids determines the protein’s [[shape]]. The shape determines its [[function]].
+      distractors:
+        - colour
+        - mass
+    explanation: Sequence, shape, function – the basic law of structural biology.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A protein folds by itself into a fixed shape. The shape sets its job. For a long time shapes could only be measured slowly in the lab. In 2020 the AI program **AlphaFold** first predicted them very accurately.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A protein tries 10¹³ foldings per second. How many seconds would it need for 10⁴⁷ foldings? Give the power of ten.
+    answer:
+      value: 34
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: exponent-add
+        text: When dividing, exponents are subtracted, not added.
+    hints:
+      - 10⁴⁷ ÷ 10¹³
+      - Subtract the exponents.
+    explanation: "10³⁴ seconds – the universe is only about 4 × 10¹⁷ s old. This is Levinthal’s paradox: proteins do not search blindly."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: AlphaFold and co. – true or false?
+    params:
+      cards:
+        - text: Predicted structures exist for over 200 million proteins.
+          right: true
+          why: Almost all known protein sequences.
+        - text: It earned the 2024 Nobel Prize in Chemistry.
+          right: true
+          why: To Hassabis and Jumper, together with David Baker for protein design.
+        - text: Lab experiments have become unnecessary.
+          right: false
+          why: Predictions must be checked, and protein motion is hard to predict.
+        - text: Structures help design drugs.
+          right: true
+          why: You can see where an inhibitor can dock.
+    explanation: AI has accelerated structural biology, not replaced it.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How did AlphaFold learn to predict structures?
+    params:
+      options:
+        - label: From tens of thousands of measured structures and from patterns of co-varying mutations in related sequences
+          correct: true
+        - label: It simulates every atom until folding.
+          feedback: That would be far too slow. It learns patterns from data.
+        - label: It guesses at random.
+          feedback: Its predictions are often almost as accurate as measurements.
+    hints:
+      - Two amino acids that touch often mutate together.
+      - Evolution leaves traces of the shape in sequence alignments.
+    explanation: Co-evolution reveals which parts lie close together. AlphaFold combines this with learned rules of geometry.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why we want to predict a protein’s shape from a DNA sequence.
+    params:
+      keywords:
+        - - form
+          - struktur
+          - faltung
+          - shape
+          - structure
+          - fold
+        - - aufgabe
+          - funktion
+          - job
+          - function
+        - - alphafold
+          - ki
+          - computer
+          - ai
+        - - medikament
+          - drug
+          - krankheit
+          - disease
+      sample: A protein’s shape determines its function. Measuring it is laborious, so programs like AlphaFold predict the structure from the sequence. That speeds up finding drugs and understanding diseases.
+    explanation: "Sequence → shape → function: know the shape and you understand the protein."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

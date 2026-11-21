@@ -1,0 +1,168 @@
+id: bio.biotech.pcr
+type: concept
+title: "PCR: copying DNA in a tube"
+summary: "Doubling every cycle – up to billions of copies."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A single piece of DNA is doubled every cycle. How many copies do you have after 30 cycles?
+    params:
+      min: 100
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 1073741824
+      within: 50
+    explanation: 2³⁰ ≈ 1 billion – in about two hours. A single hair at a crime scene yields enough DNA for a test.
+
+  - kind: explain
+    id: c1
+    body: The **polymerase chain reaction**, PCR for short, copies a section of DNA again and again. Short starter pieces called primers mark its start and end. A heat-resistant polymerase builds the new strands.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Order the three steps of a PCR cycle.
+    params:
+      items:
+        - label: "Heat to 95 °C: strands separate"
+        - label: "Cool to about 55 °C: primers bind"
+        - label: "72 °C: polymerase extends the strands"
+    hints:
+      - First the double helix must open.
+      - The polymerase works best at 72 °C.
+    explanation: Separate, attach, extend – and again. Each cycle takes only a few minutes.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: You start with {{s}} DNA molecules. How many are there after {{n}} cycles with perfect doubling?
+    answer:
+      value: "{{s * 2 ** n}}"
+    feedback:
+      - when: numval(state.input) == s * 2 * n
+        misconception: linear
+        text: Each cycle doubles – that is 2 to the n, not 2 times n.
+    hints:
+      - "Each cycle: times 2."
+      - "{{s}} × 2 to the power {{n}}"
+    explanation: "{{s}} × 2^{{n}} = {{s * 2 ** n}}."
+    variants:
+      params:
+        s: choice[1,5,10]
+        n: int[5,12]
+      defaults:
+        s: 10
+        n: 10
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why does PCR need a polymerase from hot-spring bacteria?
+    params:
+      options:
+        - label: Normal polymerases would be destroyed when heated to 95 °C.
+          correct: true
+        - label: It works faster in the cold.
+          feedback: Heat is exactly the problem for normal enzymes.
+        - label: It is cheaper.
+          feedback: The reason is heat resistance.
+    hints:
+      - What happens to enzymes in great heat?
+      - Every cycle heats to 95 °C.
+    explanation: Taq polymerase comes from Thermus aquaticus from Yellowstone. It survives every cycle.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In reality the DNA does not double quite perfectly. The **efficiency** E says what share is copied per cycle. After n cycles you have (1 + E)ⁿ times as much.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The efficiency is 90 %. By what factor does the DNA grow in 10 cycles? Round to a whole number.
+    answer:
+      value: 613
+      tolerance: 2
+    feedback:
+      - when: numval(state.input) == 1024
+        misconception: perfect
+        text: That would be at 100 %. Work out 1.9 to the power 10.
+    hints:
+      - Times 1.9 per cycle.
+      - 1.9 to the power 10
+    explanation: 1.9¹⁰ ≈ 613 instead of 1024. After 30 cycles the gap would already be fourfold.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A Covid PCR test counts after how many cycles a signal appears. One sample needs 20 cycles, another 30. What does that mean?
+    params:
+      options:
+        - label: The first sample contained much more viral RNA, about 1000 times as much.
+          correct: true
+        - label: The second contained more virus.
+          feedback: Whoever has more reaches the threshold sooner.
+        - label: Both the same amount.
+          feedback: 10 cycles are a factor of 2¹⁰ ≈ 1000.
+    hints:
+      - Little starting DNA needs more doublings to reach the threshold.
+      - 10 cycles difference = 2 to the 10th.
+    explanation: "The Ct value measures quantity: the smaller it is, the more genetic material was in the sample."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Two samples differ in Ct value by {{d}} cycles. How many times more starting DNA did the earlier sample have (100 % efficiency)?
+    answer:
+      value: "{{2 ** d}}"
+    feedback:
+      - when: numval(state.input) == 2 * d
+        misconception: linear
+        text: "Each cycle is a factor of 2: multiply {{d}} times."
+    hints:
+      - One cycle earlier means twice as much.
+      - 2 to the power {{d}}
+    explanation: 2^{{d}} = {{2 ** d}} times as much. A Ct difference of about 3.3 equals a factor of 10.
+    difficulty: 3
+    variants:
+      params:
+        d: int[3,10]
+      defaults:
+        d: 5
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how PCR turns a little DNA into a lot.
+    params:
+      keywords:
+        - - "95"
+          - erhitz
+          - trenn
+          - heat
+          - separat
+        - - primer
+        - - polymerase
+        - - verdoppel
+          - 2 hoch
+          - doubl
+          - exponent
+      sample: First you heat to 95 °C and the strands separate. Then primers bind and a heat-resistant polymerase builds new strands. Each cycle doubles the DNA; after 30 cycles there are about a billion copies.
+    explanation: Temperature cycles plus doubling – exponential growth in a tube.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

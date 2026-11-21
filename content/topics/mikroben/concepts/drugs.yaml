@@ -1,0 +1,175 @@
+id: bio.microbes.drugs
+type: concept
+title: "Antibiotika und Virostatika"
+summary: "Warum Bakterien und Viren verschiedene Mittel brauchen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du hast eine Erkältung durch ein Virus. Hilft ein Antibiotikum?
+    params:
+      options:
+        - label: Nein. Antibiotika greifen Teile von Bakterien an, die Viren nicht haben.
+          correct: true
+        - label: Ja, es tötet alle Keime.
+          feedback: Antibiotika wirken nur gegen Bakterien.
+        - label: Ja, aber langsamer.
+          feedback: Gegen Viren wirkt es gar nicht – fördert aber Resistenzen.
+    hints:
+      - Haben Viren eine Zellwand oder Ribosomen?
+      - Antibiotika zielen auf genau solche Teile.
+    explanation: Gegen Viren sind Antibiotika nutzlos. Sie schaden nur den nützlichen Darmbakterien.
+
+  - kind: explain
+    id: c1
+    body: Ein gutes Medikament trifft etwas, das nur der Erreger hat. Das ist **selektive Toxizität**. Antibiotika stören zum Beispiel die Zellwand oder die Ribosomen von Bakterien. Unsere Zellen bleiben verschont.
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Welches Mittel trifft welches Ziel?
+    params:
+      pairs:
+        - left: Penicillin
+          right: Bakterielle Zellwand
+        - left: Tetracyclin
+          right: Bakterielle Ribosomen
+        - left: Oseltamivir
+          right: Ausgang von Grippeviren
+        - left: HIV-Mittel
+          right: Reverse Transkriptase
+    hints:
+      - Zwei Antibiotika, zwei Virostatika.
+      - Viren haben eigene Enzyme, die man bremsen kann.
+    explanation: Virostatika bremsen Virus-Enzyme. Weil Viren unsere Zellen nutzen, gibt es weniger Ziele.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Ein Antibiotikum hat im Blut eine Halbwertszeit von 6 Stunden. Finde den frühesten Zeitpunkt, an dem nur noch 25 % übrig sind.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 6
+          fixed: true
+    answer:
+      time: 12
+    explanation: "Zwei Halbwertszeiten: 50 %, dann 25 %. Darum nimmt man viele Antibiotika zwei- bis dreimal am Tag."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Mittel hat eine Halbwertszeit von {{t}} h. Wie viel Prozent sind nach {{k * t}} h noch im Blut?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / 2 ** k}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 200 / 2 ** k
+        misconception: one-short
+        text: Eine Halbierung fehlt noch.
+    hints:
+      - Wie viele Halbwertszeiten sind {{k * t}} h?
+      - "Halbiere {{k}}-mal: 100 → 50 → …"
+    explanation: "{{k}} Halbierungen: {{100 / 2 ** k}} %. Egal wie lang die Halbwertszeit ist – es zählt die Zahl der Halbierungen."
+    variants:
+      params:
+        t: choice[2,4,6,8]
+        k: int[2,4]
+      defaults:
+        t: 4
+        k: 3
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Gegen Viren ist es schwerer. Viren nutzen die Maschinen unserer Zellen. Ein **Virostatikum** muss ein Teil treffen, das nur das Virus hat, etwa ein Virus-Enzym. Darum gibt es weniger Mittel gegen Viren.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Ein Mittel wirkt nur, solange mehr als 10 % im Blut sind. Die nächste Dosis kommt nach 24 Stunden. Welche Halbwertszeit braucht es mindestens? Probier aus.
+    params:
+      scene: decay
+      controls:
+        time:
+          value: 24
+          fixed: true
+    answer:
+      left:
+        - 10
+        - 100
+      halflife:
+        - 8
+        - 8
+    explanation: Bei 7 h sind nach einem Tag 9,3 % übrig, bei 8 h 12,5 %. Lange Halbwertszeiten erlauben seltene Einnahme.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: HIV-Patienten nehmen meist drei Mittel gleichzeitig. Warum?
+    params:
+      options:
+        - label: Ein Virus mit drei passenden Mutationen zugleich ist extrem unwahrscheinlich.
+          correct: true
+        - label: Ein Mittel wäre zu schwach.
+          feedback: Jedes wirkt allein, aber Resistenzen kämen schnell.
+        - label: Damit sie weniger Nebenwirkungen haben.
+          feedback: Mehr Mittel heißen eher mehr Nebenwirkungen.
+    hints:
+      - Wie wahrscheinlich ist eine Resistenz-Mutation gegen ein Mittel?
+      - Unabhängige Wahrscheinlichkeiten multiplizieren sich.
+    explanation: Ist jede Resistenz 1 zu 10 000, sind drei zugleich 1 zu einer Billion. So bleibt HIV heute dauerhaft unterdrückt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Resistenz gegen jedes von drei Mitteln entsteht mit 1 zu 10 000. Mit 1 zu wie vielen tritt sie gegen alle drei gleichzeitig auf?
+    answer:
+      value: 1000000000000
+    feedback:
+      - when: numval(state.input) == 30000
+        misconception: added
+        text: Wahrscheinlichkeiten unabhängiger Ereignisse multipliziert man.
+    hints:
+      - 10 000 · 10 000 · 10 000
+      - Das sind 10 hoch 12.
+    explanation: 1 zu 10¹² – einer Billion. Kombinationstherapie ist Evolutionsbiologie im Dienst der Medizin.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Antibiotika nicht gegen Viren helfen.
+    params:
+      keywords:
+        - - zellwand
+          - ribosom
+          - cell wall
+        - - bakter
+          - bacteri
+        - - virus
+          - viren
+        - - ziel
+          - trifft
+          - target
+          - hit
+      sample: Antibiotika treffen Ziele, die nur Bakterien haben, zum Beispiel die Zellwand oder bakterielle Ribosomen. Viren haben so etwas nicht, sie nutzen unsere Zellen. Darum braucht man gegen Viren andere Mittel.
+    explanation: Ohne passendes Ziel keine Wirkung.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

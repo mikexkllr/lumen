@@ -1,0 +1,184 @@
+id: bio.genetics.mendel
+type: concept
+title: "Mendels Erbsen"
+summary: "Dominant, rezessiv und das Verhältnis 3 zu 1."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Mendel kreuzte reinerbig violett blühende Erbsen mit weiß blühenden. Wie blühten alle Kinder?
+    params:
+      options:
+        - label: Alle violett
+          correct: true
+        - label: Alle hellviolett, eine Mischung
+          feedback: So dachte man damals. Doch die Farben mischten sich nicht.
+        - label: Halb violett, halb weiß
+          feedback: Das passiert erst eine Generation später – und nicht halb-halb.
+    hints:
+      - Eine Anlage kann die andere verdecken.
+      - Die weiße Farbe tauchte erst in der nächsten Generation wieder auf.
+    explanation: Alle Kinder blühten violett. Die Anlage für Weiß war nicht weg – nur verdeckt.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Gen** ist ein Abschnitt der DNA für ein Merkmal, etwa die Blütenfarbe. Jedes Gen gibt es in Varianten, den Allelen. Von jedem Gen hast du zwei Allele: eines von der Mutter, eines vom Vater."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Violett (A) ist dominant über Weiß (a). Welche Farbe hat die Pflanze?
+    params:
+      buckets:
+        - id: b1
+          label: violett
+        - id: b2
+          label: weiß
+      items:
+        - label: AA
+          bucket: b1
+        - label: Aa
+          bucket: b1
+        - label: aa
+          bucket: b2
+    hints:
+      - Ein dominantes Allel setzt sich immer durch.
+      - Weiß braucht zwei rezessive Allele.
+    explanation: Schon ein A macht violett. Nur aa blüht weiß. Das Erbbild heißt Genotyp, das Aussehen Phänotyp.
+
+  - kind: problem
+    id: c3
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ein Allel, das sich schon in Aa zeigt, heißt [[dominant]]. Ein verdecktes Allel heißt [[rezessiv]]. Die Varianten eines Gens heißen [[Allele]].
+      distractors:
+        - Chromosomen
+        - mutiert
+    explanation: Dominant setzt sich durch, rezessiv braucht zwei Kopien.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Mendel kreuzte die violetten Kinder (Aa) untereinander. Von {{n}} Enkeln – wie viele blühen vermutlich violett?
+    answer:
+      value: "{{3 * n / 4}}"
+    feedback:
+      - when: numval(state.input) == n / 2
+        misconception: half
+        text: "Nicht halb-halb: Drei von vier Kombinationen enthalten ein A."
+      - when: numval(state.input) == n / 4
+        misconception: swapped
+        text: Das sind die weißen. Gefragt sind die violetten.
+    hints:
+      - Aa × Aa ergibt AA, Aa, aA und aa.
+      - Drei von vier haben mindestens ein A.
+    explanation: 3/4 von {{n}} = {{3 * n / 4}} violett, {{n / 4}} weiß – das Verhältnis 3 zu 1.
+    variants:
+      params:
+        n: choice[100,400,800,1000]
+      defaults:
+        n: 400
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: distribution
+    prompt: Zieh mindestens 100 Enkel aus der Kreuzung Aa × Aa. Wie nah kommst du an 3 zu 1?
+    params:
+      items:
+        - label: violett
+          weight: 3
+        - label: weiß
+          weight: 1
+    check:
+      predicate: draws >= 100
+    hints:
+      - Zieh gleich 100 auf einmal.
+      - Vergleiche die Häufigkeiten mit 75 % und 25 %.
+    explanation: Der Zufall streut. Erst bei vielen Pflanzen nähert sich das Verhältnis 3 zu 1. Mendel zählte darum Tausende.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Mendel zählte bei der Blütenfarbe 705 violette und 224 weiße Pflanzen. Wie groß ist das Verhältnis? Runde auf zwei Stellen.
+    answer:
+      value: 3.15
+      tolerance: 0.01
+    hints:
+      - Teile violett durch weiß.
+      - "705 : 224"
+    explanation: "705 : 224 ≈ 3,15 – sehr nah an 3. So entdeckte Mendel eine Regel im Zufall."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Eine Erbse blüht violett. Wie findest du heraus, ob sie AA oder Aa ist?
+    params:
+      options:
+        - label: Kreuze sie mit einer weißen (aa). Tauchen weiße Kinder auf, war sie Aa.
+          correct: true
+        - label: Genau hinsehen – Aa ist heller.
+          feedback: Bei echter Dominanz sehen AA und Aa gleich aus.
+        - label: Mit einer anderen violetten kreuzen.
+          feedback: Ist die andere AA, sieht man nie Weiß. Das verrät nichts.
+    hints:
+      - Du brauchst einen Partner, der nur a weitergibt.
+      - Das heißt Rückkreuzung oder Testkreuzung.
+    explanation: Bei Aa × aa ist jedes zweite Kind weiß, bei AA × aa keines. Die Testkreuzung macht den Genotyp sichtbar.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Bei Löwenmäulchen ergibt Rot × Weiß rosa Kinder. Rosa × Rosa ergibt Rot, Rosa und Weiß im Verhältnis 1 : 2 : 1. Was zeigt das?"
+    params:
+      options:
+        - label: Die Allele vererben sich getrennt, auch wenn sich ihre Wirkung mischt.
+          correct: true
+        - label: Hier gelten Mendels Regeln nicht.
+          feedback: "Doch – nur ist keines dominant. Die Spaltung 1 : 2 : 1 ist reiner Mendel."
+        - label: Die Farben haben sich dauerhaft vermischt.
+          feedback: Dann kämen bei Rosa × Rosa nie wieder Rot und Weiß.
+    hints:
+      - Was würde passieren, wenn Erbanlagen sich wirklich mischen?
+      - Rot und Weiß tauchen unverändert wieder auf.
+    explanation: Das ist unvollständige Dominanz. Das Aussehen ist gemischt, die Allele bleiben unverändert.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum zwei violette Erbsen weiße Kinder haben können.
+    params:
+      keywords:
+        - - allel
+          - allele
+          - anlage
+        - - dominant
+        - - rezessiv
+          - recessive
+          - verdeckt
+          - hidden
+        - - aa
+          - beide
+          - zwei
+          - both
+          - two
+      sample: "Beide Eltern sind Aa: Sie sehen violett aus, weil A dominant ist. Jeder gibt aber mit halber Chance das rezessive Allel a weiter. Bekommt ein Kind von beiden ein a, ist es aa und blüht weiß."
+    explanation: Verdeckte Allele bleiben erhalten und können wieder zusammenkommen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

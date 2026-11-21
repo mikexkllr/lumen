@@ -1,0 +1,180 @@
+id: bio.genetics.punnett
+type: concept
+title: "Das Punnett-Quadrat"
+summary: "Kreuzungen ausrechnen und Wahrscheinlichkeiten finden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Eltern sind beide Aa. Wie wahrscheinlich ist ein Kind aa?
+    params:
+      options:
+        - label: 25 %
+          correct: true
+        - label: 50 %
+          feedback: "Jeder Elternteil gibt mit 50 % ein a. Beide müssen es tun: 50 % von 50 %."
+        - label: 0 %
+          feedback: Beide tragen ein a. Es kann zusammenkommen.
+    hints:
+      - Beide müssen ein a weitergeben.
+      - 1/2 · 1/2
+    explanation: "Jeder gibt mit 1/2 ein a. Zusammen: 1/2 · 1/2 = 1/4 = 25 %."
+
+  - kind: explain
+    id: c1
+    body: Ein **Punnett-Quadrat** ist eine Tabelle. Oben stehen die Allele der Mutter, links die des Vaters. In jedes Feld schreibst du, was zusammenkommt. Jedes Feld ist gleich wahrscheinlich.
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: "Kreuzung Aa × aa: Welche Felder entstehen? Ordne den Anteil zu."
+    params:
+      pairs:
+        - left: Aa
+          right: 50 %
+        - left: aa
+          right: 50 %, die andere Hälfte
+        - left: AA
+          right: 0 %
+    hints:
+      - Der Elternteil aa gibt immer a.
+      - Der andere gibt A oder a, je zur Hälfte.
+    explanation: Zwei Felder Aa, zwei Felder aa, keins AA. Darum zeigt diese Kreuzung den Genotyp so klar.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Elternteil ist AA, der andere aa. Wie viel Prozent der Kinder sind Aa?
+    params:
+      unit: "%"
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: half
+        text: Der eine gibt immer A, der andere immer a. Jedes Kind bekommt beides.
+    hints:
+      - Was kann jeder Elternteil weitergeben?
+      - Es gibt nur eine Kombination.
+    explanation: "Alle Felder sind Aa: 100 %. Das ist Mendels erste Regel, die Uniformität."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Zwei Aa-Eltern haben schon drei Kinder mit AA oder Aa. Wie wahrscheinlich ist das vierte Kind aa?
+    params:
+      options:
+        - label: Immer noch 25 %
+          correct: true
+        - label: 100 %, weil es jetzt dran ist
+          feedback: Der Zufall hat kein Gedächtnis. Jedes Kind ist neu.
+        - label: 0 %, weil es noch nie vorkam
+          feedback: Frühere Kinder ändern nichts an den Allelen der Eltern.
+    hints:
+      - Ändern sich die Allele der Eltern?
+      - Jede Befruchtung ist ein neuer Wurf.
+    explanation: "Jedes Kind ist unabhängig. Das 3 : 1 gilt im Schnitt vieler Familien, nicht innerhalb einer."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Zwei Eltern sind Träger (Aa) einer rezessiven Krankheit. Wie wahrscheinlich ist es, dass beide ihrer zwei Kinder erkrankt sind? Gib einen Bruch an.
+    answer:
+      value: 1/16
+      form: fraction
+    feedback:
+      - when: numval(state.input) == 1/4
+        misconception: one-child
+        text: Das ist ein Kind. Für zwei Kinder multiplizierst du.
+      - when: numval(state.input) == 1/2
+        misconception: added
+        text: Wahrscheinlichkeiten unabhängiger Ereignisse addiert man nicht.
+    hints:
+      - "Jedes Kind: 1/4."
+      - 1/4 · 1/4
+    explanation: 1/4 · 1/4 = 1/16. Unabhängige Ereignisse werden multipliziert.
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Bei zwei Merkmalen braucht man ein größeres Quadrat. Jeder Elternteil AaBb bildet vier Sorten Keimzellen: AB, Ab, aB und ab. Das ergibt 16 Felder. Mendel nannte das die **Unabhängigkeitsregel**."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Kreuzung AaBb × AaBb. Wie viele der 16 Felder zeigen beide rezessiven Merkmale (aabb)?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: one-trait
+        text: aa allein kommt in 4 Feldern vor. Für aabb muss auch bb stimmen.
+    hints:
+      - Wie wahrscheinlich ist aa? Und bb?
+      - 1/4 · 1/4 von 16 Feldern
+    explanation: "Nur ein Feld: ab × ab. Insgesamt ergibt das die Verteilung 9 : 3 : 3 : 1."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein gesundes Kind zweier Aa-Eltern möchte wissen, ob es Träger ist. Wie groß ist die Wahrscheinlichkeit? Gib einen Bruch an.
+    answer:
+      value: 2/3
+      form: fraction
+    feedback:
+      - when: numval(state.input) == 1/2
+        misconception: ignore-condition
+        text: Ohne Wissen wäre es 1/2. Aber aa ist schon ausgeschlossen.
+      - when: numval(state.input) == 3/4
+        misconception: wrong-ratio
+        text: Das ist die Chance, gesund zu sein. Unter den Gesunden zählen nur die Aa.
+    hints:
+      - Welche Felder bleiben übrig, wenn das Kind gesund ist?
+      - "AA, Aa, aA: Wie viele davon sind Träger?"
+    explanation: "Von drei gesunden Feldern sind zwei Aa: 2/3. Eine bedingte Wahrscheinlichkeit – Genetische Beratung rechnet genau so."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit einem Punnett-Quadrat eine Wahrscheinlichkeit findet.
+    params:
+      keywords:
+        - - mutter
+          - vater
+          - eltern
+          - mother
+          - father
+          - parent
+        - - allel
+          - allele
+          - keimzell
+          - gamet
+        - - feld
+          - kästchen
+          - kaestchen
+          - box
+          - square
+          - cell
+        - - gleich wahrscheinlich
+          - viertel
+          - equally likely
+          - quarter
+          - "25"
+      sample: Oben schreibt man die Allele der Mutter hin, links die des Vaters. In jedes Feld kommt die Kombination. Jedes Feld ist gleich wahrscheinlich, bei vier Feldern also ein Viertel.
+    explanation: Das Quadrat zählt gleich wahrscheinliche Fälle – Wahrscheinlichkeit ist dann einfach Abzählen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

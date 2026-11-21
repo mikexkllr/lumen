@@ -1,0 +1,155 @@
+id: bio.genetics.meiosis
+type: concept
+title: "Meiose und Vielfalt"
+summary: "Warum Geschwister so verschieden sind."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Deine Eltern bekommen ein zweites Kind. Wie viele verschiedene Chromosomen-Mischungen kann allein eine Mutter in ihre Eizellen packen?
+    params:
+      min: 10
+      max: 10000000000
+      scale: log
+    answer:
+      value: 8400000
+      within: 50
+    explanation: Über 8 Millionen – und das ohne Crossing-over. Darum gleicht kein Geschwister dem anderen, außer bei eineiigen Zwillingen.
+
+  - kind: explain
+    id: c1
+    body: Ei- und Samenzellen haben nur 23 Chromosomen, die Hälfte. Sie entstehen durch **Meiose**, eine besondere Teilung. Bei der Befruchtung verschmelzen zwei Hälften wieder zu 46.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Körperzelle des Hundes hat 78 Chromosomen. Wie viele hat eine Samenzelle des Hundes?
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 78
+        misconception: no-halving
+        text: Dann hätte das Junge 156. Keimzellen haben die Hälfte.
+    hints:
+      - Keimzellen haben einen einfachen Satz.
+      - "78 : 2"
+    explanation: "39 + 39 = 78: Ei und Samen ergeben wieder einen vollständigen doppelten Satz."
+
+  - kind: explain
+    id: c3
+    body: Bei der Meiose wird von jedem Chromosomenpaar zufällig eines weitergegeben. Mal vom Großvater, mal von der Großmutter. Bei 23 Paaren gibt das 2 hoch 23 **Kombinationen**.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Tier hat {{n}} Chromosomenpaare. Wie viele verschiedene Keimzellen kann es allein durch die zufällige Verteilung bilden?
+    answer:
+      value: "{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: additive
+        text: "Die Paare kombinieren sich: Multiplizieren, nicht addieren."
+    hints:
+      - Jedes Paar hat 2 Möglichkeiten.
+      - 2 · 2 · … ({{n}}-mal)
+    explanation: 2^{{n}} = {{2 ** n}}. Beim Menschen mit 23 Paaren sind es 8 388 608.
+    variants:
+      params:
+        n: int[3,8]
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In der Meiose legen sich die Partnerchromosomen eng aneinander. Sie tauschen dabei Stücke aus. Dieses **Crossing-over** mischt sogar die Gene innerhalb eines Chromosoms neu.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Zwei Gene liegen auf demselben Chromosom dicht nebeneinander. Was folgt daraus?
+    params:
+      options:
+        - label: Sie werden meist zusammen vererbt – nur selten trennt sie ein Crossing-over.
+          correct: true
+        - label: Sie werden immer getrennt vererbt.
+          feedback: Nah beieinander heißt fast immer gemeinsam.
+        - label: Sie verschmelzen zu einem Gen.
+          feedback: Gene bleiben getrennte Abschnitte.
+    hints:
+      - Crossing-over schneidet an zufälligen Stellen.
+      - Je näher, desto seltener liegt ein Schnitt dazwischen.
+    explanation: Das nennt man Kopplung. Aus der Häufigkeit der Trennung erstellten Forscher die ersten Genkarten.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Ohne Crossing-over: Wie groß ist die Chance, dass zwei Geschwister von der Mutter genau dieselbe Chromosomen-Mischung bekommen? Gib 1 durch wie viel an?"
+    answer:
+      value: 8388608
+    feedback:
+      - when: numval(state.input) == 46
+        misconception: count-chromosomes
+        text: "Gefragt sind die Kombinationen: 2 hoch 23."
+    hints:
+      - Das erste Kind bekommt irgendeine Mischung. Wie wahrscheinlich trifft das zweite genau diese?
+      - Es gibt 2²³ gleich wahrscheinliche Mischungen.
+    explanation: 1 zu 8 388 608 – und vom Vater noch einmal so. Mit Crossing-over ist es praktisch unmöglich.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Beim Down-Syndrom hat jede Zelle drei Kopien von Chromosom 21. Wie kann das entstehen?
+    params:
+      options:
+        - label: In der Meiose trennte sich ein Chromosomenpaar nicht. Eine Keimzelle bekam zwei Kopien.
+          correct: true
+        - label: Durch eine Infektion in der Schwangerschaft
+          feedback: Die Ursache liegt in der Teilung der Keimzelle.
+        - label: Durch zu viel Crossing-over
+          feedback: Crossing-over tauscht Stücke, es ändert die Anzahl nicht.
+    hints:
+      - Wie viele Kopien bringt normalerweise jede Keimzelle mit?
+      - 2 + 1 = 3
+    explanation: Das heißt Non-Disjunction, also Nicht-Trennung. Das Risiko steigt mit dem Alter der Mutter, weil Eizellen jahrzehntelang in der Meiose pausieren.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Geschwister nie genau gleich sind.
+    params:
+      keywords:
+        - - meiose
+          - meiosis
+        - - zufall
+          - zufällig
+          - zufaellig
+          - random
+          - chance
+        - - crossing
+          - austausch
+          - tausch
+          - swap
+          - exchang
+        - - "23"
+          - hälfte
+          - haelfte
+          - half
+      sample: In der Meiose bekommt jede Keimzelle die Hälfte, 23 Chromosomen. Welches Chromosom eines Paares weitergeht, ist Zufall. Dazu tauscht Crossing-over Stücke aus. So ist jede Ei- und Samenzelle einzigartig.
+    explanation: Zufällige Verteilung plus Crossing-over macht jede Keimzelle neu.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

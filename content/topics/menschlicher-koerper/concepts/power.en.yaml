@@ -1,0 +1,196 @@
+id: bio.body.power
+type: concept
+title: "The body as a power plant"
+summary: "Calories, watts and why the brain is so hungry."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A light bulb uses 60 watts. How much power does your body use on average?
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: W
+    answer:
+      value: 100
+      within: 40
+    explanation: About 100 watts – a person is like a bright light bulb, day and night.
+
+  - kind: explain
+    id: c1
+    body: Food supplies **energy**. It is measured in kilocalories, kcal for short, or in kilojoules. 1 kcal is about 4.2 kJ. An adult needs about 2000 kcal a day.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Someone eats {{k}} kcal a day. How much power is that in watts? (1 kcal = 4184 J, a day has 86,400 s.) Round to whole watts.
+    params:
+      unit: W
+    answer:
+      value: "{{round(k * 4184 / 86400)}}"
+      tolerance: 1
+    hints:
+      - Watts means joules per second.
+      - Compute {{k}} × 4184 J and divide by 86,400.
+    explanation: "{{k}} × 4184 J ÷ 86,400 s ≈ {{round(k * 4184 / 86400)}} W."
+    variants:
+      params:
+        k: choice[1800,2000,2400,3000]
+      defaults:
+        k: 2000
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A bar has 10 g of fat, 30 g of carbohydrates and 5 g of protein. Fat supplies 9 kcal per gram, the others 4 kcal. How many kcal does the bar have?
+    params:
+      unit: kcal
+    answer:
+      value: 230
+    feedback:
+      - when: numval(state.input) == 180
+        misconception: fat-four
+        text: Fat has more than twice the energy per gram. Use 9, not 4.
+    hints:
+      - Work out each kind separately.
+      - 10 × 9 + 30 × 4 + 5 × 4
+    explanation: 90 + 120 + 20 = 230 kcal. The fat supplies almost 40 % of it.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: What does your body need energy for while you sleep?
+    params:
+      options:
+        - label: For the heart, breathing, the brain and body heat
+          correct: true
+        - label: For nothing – everything rests during sleep.
+          feedback: Your heart keeps beating and your brain keeps working.
+        - label: Only for dreams
+          feedback: The brain needs a lot, but not just for dreaming.
+    hints:
+      - Which organs always work?
+      - Your body keeps 37 °C – at night too.
+    explanation: "The basal metabolic rate keeps you alive: about 1600 to 1800 kcal a day, even without moving."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Your brain weighs only about 2 % of your body. But it uses about a fifth of the energy at rest. Nerve cells constantly pump ions. That costs a lot of **resting energy**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Your body uses {{w}} W at rest. The brain takes 20 % of it. How many watts is that?
+    params:
+      unit: W
+    answer:
+      value: "{{w / 5}}"
+    hints:
+      - 20 % is one fifth.
+      - Divide {{w}} by 5.
+    explanation: "{{w}} W ÷ 5 = {{w / 5}} W – like a small lamp, for all your thinking."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[80,90,100]
+      defaults:
+        w: 100
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: What uses more energy per hour?
+    params:
+      buckets:
+        - id: b1
+          label: less
+        - id: b2
+          label: more
+      items:
+        - label: Sleeping
+          bucket: b1
+        - label: Reading while sitting
+          bucket: b1
+        - label: Watching TV
+          bucket: b1
+        - label: Jogging
+          bucket: b2
+        - label: Swimming
+          bucket: b2
+        - label: Climbing stairs
+          bucket: b2
+    hints:
+      - Where do large muscles work?
+      - Moving muscles need far more than resting ones.
+    explanation: When jogging, demand rises to eight to ten times the resting value.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Big animals need more energy, but less per kilo. Roughly: metabolic rate grows with mass to the power 3/4. This is **Kleiber’s law**."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: One animal is 16 times as heavy as another. How many times as much energy does it need according to Kleiber’s law?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: linear-scaling
+        text: That would be a rate proportional to mass. Work out 16 to the power 3/4.
+      - when: numval(state.input) == 12
+        misconception: times-exponent
+        text: 3/4 of 16 is not 16 to the power 3/4. Take the fourth root first.
+    hints:
+      - 16 to the 3/4 = (fourth root of 16) cubed.
+      - The fourth root of 16 is 2.
+    explanation: 16^(3/4) = 2³ = 8. Per kilo the big animal needs only half as much. That is why a mouse lives so much faster than an elephant.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how breathing, digestion and circulation work together to supply your cells with energy.
+    params:
+      keywords:
+        - - lunge
+          - sauerstoff
+          - lung
+          - oxygen
+        - - darm
+          - verdau
+          - zucker
+          - nahrung
+          - gut
+          - digest
+          - sugar
+          - food
+        - - herz
+          - blut
+          - heart
+          - blood
+        - - zelle
+          - cell
+        - - energie
+          - energy
+          - watt
+          - kcal
+      sample: The lungs take in oxygen, the gut supplies sugar from food. Heart and blood bring both to every cell. There sugar is burned with oxygen, which releases energy – about 100 watts.
+    explanation: "Organs work as a team: intake, transport and use in the cells."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

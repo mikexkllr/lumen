@@ -1,0 +1,183 @@
+id: bio.systems.epidemic
+type: concept
+title: "Modelling epidemics"
+summary: "The SIR model, its peak and its limits."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A disease with R₀ = 2 runs its course with no countermeasures at all. What percentage of the population ends up infected?
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 80
+      tolerance: 8
+    explanation: About 80 % – not 100 %. The wave ends before everyone has been ill, because the sick find too few unprotected people.
+
+  - kind: explain
+    id: c1
+    body: "The **SIR model** splits people into three groups: susceptible (S), infected (I) and recovered (R). The infected infect the susceptible and then recover. Three numbers describe a whole epidemic."
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Set R₀ so that at most half of all people get ill in the end. Nobody has had a jab.
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          fixed: true
+    answer:
+      total:
+        - 0
+        - 50
+      r0:
+        - 1.1
+        - 6
+    explanation: From R₀ ≈ 1.4 more than half end up infected. Small changes in R₀ have big consequences.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Why does every wave in the SIR model level off in the end, even with no vaccine?
+    params:
+      options:
+        - label: The number of susceptibles falls until each sick person infects fewer than one on average.
+          correct: true
+        - label: The virus gets weaker.
+          feedback: In the model the virus stays the same. Susceptibles run out.
+        - label: By then everyone is ill.
+          feedback: The wave ends before everyone has been ill.
+    hints:
+      - Effective R = R₀ × share of susceptibles.
+      - As S falls, R falls.
+    explanation: The peak is exactly where S = 1/R₀. After that R is below 1.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "With R₀ = {{r}}: at what share of susceptibles (in %) does the wave peak?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / r}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 - 100 / r
+        misconception: complement
+        text: That is the herd immunity threshold. The question asks for the remaining susceptibles.
+    hints:
+      - At the peak effective R = 1.
+      - R₀ × S = 1, so S = 1/{{r}}.
+    explanation: S = 1/{{r}} = {{100 / r}} %. Then each sick person infects exactly one other, and the curve turns.
+    difficulty: 2
+    variants:
+      params:
+        r: choice[4,5,8,10]
+      defaults:
+        r: 4
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: The illness duration is now unlocked. Set R₀ = 3 and compare 3 and 14 days. How high is the peak? Leave it at 14 days at the end.
+    params:
+      scene: epidemic
+      controls:
+        recovery:
+          fixed: false
+        vaccinated:
+          fixed: true
+    answer:
+      r0: 3
+      recovery: 14
+    explanation: About 30 % both times! With R₀ fixed, the duration only shifts the pace of the wave. To lower the peak, R₀ itself must fall.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Masks, distancing and ventilation reduce transmission. What does that change in the model?
+    params:
+      options:
+        - label: R falls. The wave becomes flatter and reaches fewer people in total.
+          correct: true
+        - label: Only the timing shifts.
+          feedback: A smaller R also lowers the peak and the total.
+        - label: Nothing.
+          feedback: R is a product of contacts, transmission risk and duration – all of which can be influenced.
+    hints:
+      - R₀ = contacts × risk per contact × duration.
+      - What lowers the risk per contact?
+    explanation: Every factor that lowers R flattens the curve and relieves hospitals.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The SIR model predicts a smooth wave. Real epidemics often look different. What is the model missing?
+    params:
+      options:
+        - label: "People are not well mixed: networks, age groups, behaviour and chance matter."
+          correct: true
+        - label: Nothing, it is perfect.
+          feedback: Every model simplifies. The art is knowing where.
+        - label: It has no recovered people.
+          feedback: It does – the R in its name stands for exactly that.
+    hints:
+      - Who meets whom, how often?
+      - Superspreader events do not fit an average.
+    explanation: Researchers extend SIR with networks, age groups and chance. All models are wrong – some are useful.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "The final size z satisfies z = 1 − e^(−R₀ · z). Check for R₀ = 2: what is 1 − e^(−2 · 0.8)? Round to two decimals. (e^(−1.6) ≈ 0.202)"
+    answer:
+      value: 0.8
+      tolerance: 0.01
+    hints:
+      - "Substitute z = 0.8: 1 − e^(−1.6)."
+      - 1 − 0.202
+    explanation: 1 − 0.202 ≈ 0.80 – so z = 0.8 is the solution. 80 % as in the lab, without any simulation.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the SIR model describes an epidemic and why it ends by itself.
+    params:
+      keywords:
+        - - empfänglich
+          - empfaenglich
+          - susceptib
+        - - infiziert
+          - infected
+        - - genesen
+          - recovered
+        - - r0
+          - r₀
+          - unter 1
+          - below 1
+          - weniger als einen
+          - fewer than one
+      sample: The model splits people into susceptible, infected and recovered. The infected infect the susceptible. The fewer susceptibles remain, the smaller R gets. When R drops below 1, the wave ends.
+    explanation: Three groups, one number R – and the wave brakes itself.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]
