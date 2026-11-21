@@ -1,0 +1,172 @@
+id: sci.momentum.angular
+type: concept
+title: "Drehimpuls und Pirouette"
+summary: "Was beim Drehen erhalten bleibt – von der Eiskunstläuferin bis zum Pulsar."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Eiskunstläuferin dreht sich mit ausgestreckten Armen. Jetzt zieht sie die Arme eng an den Körper. Was passiert?
+    params:
+      options:
+        - label: Sie dreht sich viel schneller.
+          correct: true
+        - label: Sie wird langsamer.
+          feedback: Gerade umgekehrt. Ausbreiten bremst, Anziehen beschleunigt.
+        - label: Nichts ändert sich.
+          feedback: Die Arme sind näher an der Achse. Das ändert die Drehung deutlich.
+    hints:
+      - Kein Drehmoment von außen – etwas bleibt erhalten.
+      - Das Trägheitsmoment wird kleiner.
+    explanation: Mit kleinerem Trägheitsmoment muss sie schneller drehen. Das kann man selbst auf einem Bürostuhl ausprobieren.
+
+  - kind: explain
+    id: c1
+    body: Der **Drehimpuls** ist $L = J \cdot \omega$. Ohne Drehmoment von außen bleibt er gleich. Wird das Trägheitsmoment kleiner, muss die Winkelgeschwindigkeit wachsen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Turner dreht sich mit 2 Umdrehungen pro Sekunde, sein Trägheitsmoment ist {{j}} kg·m². Er hockt sich zusammen auf 1 kg·m². Wie viele Umdrehungen pro Sekunde macht er jetzt?
+    answer:
+      value: "{{2 * j}}"
+    feedback:
+      - when: abs(numval(state.input) - 2 / j) < 0.01
+        misconception: inverse
+        text: Kleineres Trägheitsmoment heißt **schneller**, nicht langsamer.
+    hints:
+      - "L = J · ω bleibt gleich: {{j}} · 2 = 1 · ω."
+      - ω = {{2 * j}}.
+    explanation: "{{j}} · 2 = 1 · ω ergibt {{2 * j}} Umdrehungen pro Sekunde. So schaffen Turmspringer mehrere Salti in einer Sekunde."
+    variants:
+      params:
+        j: choice[3,4,6]
+      defaults:
+        j: 4
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum hat ein normaler Hubschrauber hinten einen kleinen Seitenrotor?
+    params:
+      options:
+        - label: Ohne ihn würde sich der Rumpf gegen den Hauptrotor drehen.
+          correct: true
+        - label: Er sorgt für Vortrieb nach vorn.
+          feedback: Nach vorn kippt man den Hauptrotor. Der Heckrotor drückt seitlich.
+        - label: Er kühlt den Motor.
+          feedback: Er ist ein Propeller mit wichtiger Aufgabe für die Drehung.
+    hints:
+      - Der Motor dreht den Rotor – und stützt sich dabei am Rumpf ab.
+      - Gesamtdrehimpuls null muss null bleiben.
+    explanation: Der Motor gibt dem Rotor Drehimpuls, der Rumpf bekommt den entgegengesetzten. Der Heckrotor erzeugt ein Gegen-Drehmoment. Hubschrauber mit zwei gegenläufigen Rotoren brauchen keinen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ein Planet auf seiner Bahn hat den Drehimpuls $L = m \\cdot v \\cdot r$. Weil keine Kraft seitlich zieht, bleibt L gleich: Nahe der Sonne ist er schneller, fern langsamer. Das ist Keplers zweites Gesetz, der **Flächensatz**."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Komet ist in Sonnennähe 10-mal näher an der Sonne als in Sonnenferne. Wievielmal schneller ist er dort?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: squared
+        text: "Beim Drehimpuls zählt r einfach, nicht im Quadrat: m · v · r bleibt gleich."
+    hints:
+      - m · v · r ist an beiden Punkten gleich.
+      - Zehnmal kleineres r heißt …?
+    explanation: Zehnmal schneller. Darum rasen Kometen in wenigen Wochen um die Sonne und kriechen dann jahrzehntelang durch die Kälte.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kreisel steht schräg und fällt trotzdem nicht um. Stattdessen wandert seine Achse langsam im Kreis. Warum?
+    params:
+      options:
+        - label: Das Drehmoment der Schwerkraft ändert die Richtung des Drehimpulses, nicht seine Größe.
+          correct: true
+        - label: Der Kreisel ist zu schnell zum Fallen.
+          feedback: Auch er spürt die Schwerkraft voll. Sie wirkt nur anders.
+        - label: Die Luft hält ihn aufrecht.
+          feedback: Im Vakuum geht es genauso.
+    hints:
+      - Das Drehmoment steht senkrecht zum Drehimpuls.
+      - Eine Kraft quer zur Bewegung lenkt nur um – wie bei der Kreisbahn.
+    explanation: "ΔL zeigt waagerecht, quer zu L. Darum dreht sich der Pfeil L im Kreis: Präzession. Die Erdachse präzediert aus demselben Grund in 26 000 Jahren."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Stern mit 700 000 km Radius dreht sich einmal in 30 Tagen. Sein Kern stürzt zu einem Neutronenstern mit 10 km Radius zusammen. J wächst mit r². Wie lange dauert eine Umdrehung jetzt – in Millisekunden? Auf zwei Stellen.
+    params:
+      unit: ms
+    answer:
+      value: 0.53
+      tolerance: 0.03
+    hints:
+      - "Die Periode schrumpft mit (10 : 700 000)² ≈ 2 · 10⁻¹⁰."
+      - 30 Tage = 2,6 · 10⁶ s. Mal 2 · 10⁻¹⁰.
+    explanation: "Etwa 0,5 ms – fast 2000 Umdrehungen pro Sekunde. Echte Pulsare drehen sich bis zu gut 700-mal pro Sekunde, weil Sterne Drehimpuls verlieren. Die Idee bleibt: Pirouette auf kosmisch."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine Katze fällt mit dem Rücken nach unten und landet trotzdem auf den Füßen. Verletzt sie den Drehimpulserhalt?
+    params:
+      options:
+        - label: Nein – sie verdreht Vorder- und Hinterkörper gegeneinander, insgesamt bleibt L = 0.
+          correct: true
+        - label: Ja, Katzen sind die Ausnahme.
+          feedback: Für Katzen gelten dieselben Gesetze. Ihr Trick ist geschickter.
+        - label: Sie stößt sich an der Luft ab.
+          feedback: Auch im Vakuum würde es klappen. Es ist reine Körpermechanik.
+    hints:
+      - Ein Körper aus zwei Teilen kann sich verformen.
+      - Erst Beine einziehen und den Oberkörper drehen, dann umgekehrt.
+    explanation: Sie dreht die Hälfte mit kleinem Trägheitsmoment weit, die andere wenig zurück – abwechselnd. Am Ende hat sie sich gedreht, ohne je Drehimpuls zu haben. Astronauten nutzen denselben Trick.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Pirouette schneller wird, wenn man die Arme anzieht.
+    params:
+      keywords:
+        - - drehimpuls
+          - angular momentum
+          - erhalt
+          - conserv
+        - - trägheitsmoment
+          - moment of inertia
+          - innen
+          - inward
+          - näher
+          - closer
+          - achse
+          - axis
+        - - schneller
+          - faster
+          - winkelgeschwindigkeit
+          - angular velocity
+      sample: "Ohne Drehmoment von außen bleibt der Drehimpuls gleich: Trägheitsmoment mal Winkelgeschwindigkeit. Ziehe ich die Arme an, sitzt die Masse näher an der Achse. Das Trägheitsmoment wird kleiner, also drehe ich schneller."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

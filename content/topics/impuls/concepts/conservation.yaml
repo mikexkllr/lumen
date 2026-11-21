@@ -1,0 +1,216 @@
+id: sci.momentum.conservation
+type: concept
+title: "Impulserhaltung"
+summary: "Was der eine an Impuls gewinnt, verliert der andere – mit Richtung und Vorzeichen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du stehst auf Inlinern und wirfst einen schweren Medizinball kräftig nach vorn. Was passiert mit dir?
+    params:
+      options:
+        - label: Du rollst rückwärts.
+          correct: true
+        - label: Nichts, du stehst ja fest.
+          feedback: Auf Rollen hält dich nichts. Der Ball drückt beim Werfen auf dich zurück.
+        - label: Du rollst dem Ball hinterher.
+          feedback: Du drückst den Ball nach vorn – er drückt dich nach hinten.
+    hints:
+      - Vorher bewegt sich nichts. Gesamtimpuls null.
+      - Nach dem Wurf muss die Summe immer noch null sein.
+    explanation: Der Ball bekommt Impuls nach vorn, du genauso viel nach hinten. Zusammen bleibt es null.
+
+  - kind: explain
+    id: c1
+    body: Der Impuls p = m · v hat eine Richtung. Nach rechts zählt er plus, nach links minus. Ohne Kräfte von außen bleibt die Summe aller Impulse gleich – das ist die **Impulserhaltung**.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Zwei Wagen stehen, eine gespannte Feder dazwischen. Sie springt los. Wagen A (2 kg) rollt mit {{v}} m/s nach links. Wie schnell rollt Wagen B (4 kg) nach rechts?
+    params:
+      unit: m/s
+    answer:
+      value: "{{v / 2}}"
+    feedback:
+      - when: numval(state.input) == v
+        misconception: same-speed
+        text: Gleiches Tempo hieße doppelter Impuls für B. Die Impulse müssen gleich groß sein.
+    hints:
+      - "Impuls von A: 2 · {{v}} kg·m/s."
+      - B braucht gleich viel Impuls mit 4 kg.
+    explanation: 2 · {{v}} = 4 · v_B, also v_B = {{v / 2}} m/s. Der schwerere Wagen ist langsamer.
+    variants:
+      params:
+        v: choice[2,3,4,6]
+      defaults:
+        v: 4
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Zwei Eisläufer (60 kg und 40 kg) stehen und stoßen sich voneinander ab. Der leichtere gleitet mit 3 m/s davon. Wie schnell gleitet der schwerere?
+    params:
+      unit: m/s
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 4.5
+        misconception: inverse
+        text: "Umgekehrt: Der Schwerere ist **langsamer**."
+    hints:
+      - "Impuls des Leichten: 40 · 3 = 120 kg·m/s."
+      - "120 : 60 = ?"
+    explanation: "120 : 60 = 2 m/s, in die Gegenrichtung. Beide spüren dieselbe Kraft gleich lang – nur ihre Massen sind verschieden."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Ball (1 kg) fliegt mit 5 m/s gegen eine Wand und prallt mit 5 m/s zurück. Wie groß ist die Änderung seines Impulses?
+    params:
+      options:
+        - label: 10 kg·m/s
+          correct: true
+        - label: 0 – das Tempo ist ja gleich.
+          feedback: "Die Richtung hat sich umgekehrt: von +5 auf −5."
+        - label: 5 kg·m/s
+          feedback: So viel braucht es nur zum Anhalten. Zurückfliegen kostet noch einmal so viel.
+    hints:
+      - Vorher +5, nachher −5 kg·m/s.
+      - "Differenz: −5 − (+5)."
+    explanation: Δp = −5 − 5 = −10 kg·m/s. Abprallen tut darum mehr weh als Abstoppen – die Wand muss doppelt so viel Impuls übertragen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Gewehr (4 kg) feuert eine Kugel (10 g) mit 800 m/s ab. Mit welchem Tempo stößt es zurück?
+    params:
+      unit: m/s
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 2000
+        misconception: grams
+        text: "Rechne in Kilogramm: 10 g = 0,01 kg."
+    hints:
+      - "Impuls der Kugel: 0,01 kg · 800 m/s."
+      - "8 kg·m/s : 4 kg = ?"
+    explanation: "8 : 4 = 2 m/s. Darum drückt man ein Gewehr fest an die Schulter: Dann muss der ganze Körper zurückgestoßen werden."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Lastwagen (10 t, 20 m/s) und ein Auto (1 t, 20 m/s in Gegenrichtung) prallen frontal zusammen und verkeilen sich. Wie schnell bewegt sich das Wrack danach – in m/s? Auf eine Stelle.
+    params:
+      unit: m/s
+    answer:
+      value: 16.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: equal-momenta
+        text: "Die Impulse sind nicht gleich groß: Der Lastwagen hat zehnmal so viel."
+    hints:
+      - "Gesamtimpuls: 10 000 · 20 − 1000 · 20."
+      - Durch die Gesamtmasse 11 000 kg teilen.
+    explanation: "180 000 : 11 000 ≈ 16,4 m/s in Fahrtrichtung des Lasters. Das Auto ändert sein Tempo um 36 m/s, der Laster nur um 3,6 m/s."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wer spürt bei diesem Zusammenstoß die größere Kraft – Lastwagen oder Auto?
+    params:
+      options:
+        - label: Beide genau gleich viel – aber das Auto wird viel stärker abgebremst.
+          correct: true
+        - label: Das Auto.
+          feedback: Die Kräfte sind nach Newtons drittem Gesetz gleich. Verschieden ist die Wirkung auf die Masse.
+        - label: Der Lastwagen, weil er schwerer ist.
+          feedback: Schwerer heißt nicht mehr Kraft. Die Kräfte sind gleich groß.
+    hints:
+      - Actio gleich Reactio.
+      - Gleiche Kraft, aber zehnfach kleinere Masse heißt …?
+    explanation: Gleiche Kraft, gleiche Zeit, gleicher Impulsübertrag. Beim leichten Auto bedeutet das die zehnfache Tempoänderung – und die gefährliche Beschleunigung für die Insassen.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Warum gilt die Impulserhaltung? Während des Stoßes wirkt auf A die Kraft F und auf B die **Gegenkraft** −F, gleich lange. Die Impulse ändern sich um F · Δt und −F · Δt. Die Summe bleibt also gleich.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Billardkugel trifft eine gleich schwere, ruhende Kugel. Danach rollt die eine mit 3 m/s nach Norden, die andere mit 4 m/s nach Osten. Wie schnell war die stoßende Kugel vorher?
+    params:
+      unit: m/s
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: scalar-sum
+        text: Impulse sind Pfeile. Pfeile im rechten Winkel addiert man mit Pythagoras.
+    hints:
+      - Die beiden Impulspfeile stehen senkrecht aufeinander.
+      - √(3² + 4²) = ?
+    explanation: "√(9 + 16) = 5 m/s. Und 9 + 16 = 25: Auch die Bewegungsenergie stimmt – ein elastischer Stoß."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Bei gleich schweren Kugeln fliegen nach einem schiefen elastischen Stoß beide immer im rechten Winkel auseinander. Warum?
+    params:
+      options:
+        - label: Impuls und Energie bleiben beide erhalten – das geht nur, wenn die Pfeile ein rechtwinkliges Dreieck bilden.
+          correct: true
+        - label: Weil Billardtische rechteckig sind.
+          feedback: Der Tisch spielt keine Rolle. Es folgt aus den Erhaltungssätzen.
+        - label: Das ist reiner Zufall.
+          feedback: Es passiert bei jedem solchen Stoß. Dahinter steckt Pythagoras.
+    hints:
+      - "Impuls: v = v₁ + v₂ als Pfeile. Energie: v² = v₁² + v₂²."
+      - Wann gilt für drei Pfeile im Dreieck der Satz des Pythagoras?
+    explanation: Die Pfeilsumme verlangt ein Dreieck, die Energie verlangt Pythagoras. Beides zusammen erzwingt den rechten Winkel. Billardspieler nutzen das ständig.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum du rückwärts rollst, wenn du auf Inlinern einen Ball nach vorn wirfst.
+    params:
+      keywords:
+        - - impuls
+          - momentum
+        - - "null"
+          - zero
+          - summe
+          - sum
+          - gleich
+          - same
+          - erhalt
+          - conserv
+        - - gegen
+          - opposite
+          - rückwärts
+          - backward
+          - zurück
+          - back
+      sample: Vorher ist der Gesamtimpuls null. Der Ball bekommt Impuls nach vorn. Damit die Summe null bleibt, bekomme ich gleich viel Impuls nach hinten – ich rolle rückwärts, aber langsamer, weil ich schwerer bin.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

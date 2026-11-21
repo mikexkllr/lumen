@@ -5,7 +5,7 @@ summary: Zeitdilatation.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -79,6 +79,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "Berechne γ = 1 : √(1 − v²) für v = {{v}} c. Auf zwei Stellen."
+    answer:
+      value: "{{1 / sqrt(1 - v * v)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - sqrt(1 - v * v)) < 0.01
+        misconception: forgot-reciprocal
+        text: Das ist √(1 − v²). γ ist der **Kehrwert** davon.
+    hints:
+      - Erst v² berechnen, dann 1 − v².
+      - Wurzel ziehen und den Kehrwert bilden.
+    explanation: γ = {{1 / sqrt(1 - v * v)}}. Unter 0,5 c bleibt γ fast 1. Ab 0,9 c wächst es steil.
+    difficulty: 2
+    variants:
+      params:
+        v: choice[0.6,0.8,0.96]
+      defaults:
+        v: 0.8
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: "Zwillingsparadoxon: Jeder Zwilling sieht die Uhr des anderen langsamer gehen. Warum ist trotzdem der Reisende jünger?"
+    params:
+      options:
+        - label: Er muss umkehren und wechselt dabei das Bezugssystem – die Lage ist nicht symmetrisch.
+          correct: true
+        - label: Weil Raumfahrt den Körper schont.
+          feedback: Es geht nicht um Biologie. Alle Uhren laufen gleich langsamer.
+        - label: Er ist gar nicht jünger – das ist ein Widerspruch.
+          feedback: Messungen mit Uhren in Flugzeugen bestätigen den Effekt.
+    hints:
+      - Wer von beiden spürt Beschleunigung?
+      - Nur der Zuhausegebliebene bleibt die ganze Zeit in einem Bezugssystem.
+    explanation: Der Erdzwilling ruht die ganze Zeit in einem Inertialsystem. Der Reisende wechselt beim Umkehren in ein anderes. Seine Weltlinie ist kürzer – er erlebt weniger Zeit.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -91,6 +133,36 @@ steps:
     hints:
       - "Ihre Uhr geht 20-mal langsamer: 660 m · 20."
     explanation: 13,2 km – genug bis zum Boden. Dass wir sie dort messen, ist ein direkter Beweis der Zeitdilatation.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: "Für kleine Tempi gilt γ ≈ 1 + v² : (2c²). Ein Flugzeug fliegt 10 Stunden mit 250 m/s. Um wie viele Nanosekunden geht seine Uhr nach? Nur spezielle Relativität, c = 3 · 10⁸ m/s."
+    params:
+      unit: ns
+    answer:
+      value: 12.5
+      tolerance: 0.3
+    hints:
+      - "v² : (2c²) = 62 500 : (1,8 · 10¹⁷) ≈ 3,5 · 10⁻¹³."
+      - Mal 36 000 Sekunden.
+    explanation: 3,47 · 10⁻¹³ · 36 000 s ≈ 1,25 · 10⁻⁸ s = 12,5 ns. Hafele und Keating maßen 1971 solche Effekte mit Atomuhren in Linienflugzeugen.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Um wie viele Mikrosekunden pro Tag gehen GPS-Uhren gegenüber Uhren am Boden insgesamt vor?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 38
+      tolerance: 5
+    explanation: Rund 38 µs. Die schwächere Schwerkraft oben macht sie um 45 µs schneller, das Tempo um 7 µs langsamer. Ohne Korrektur wäre GPS nach einem Tag um über 10 km falsch.
     difficulty: 3
 
 srs:

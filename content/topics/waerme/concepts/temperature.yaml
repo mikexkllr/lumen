@@ -5,7 +5,7 @@ summary: Zappelnde Teilchen und Kelvin.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -94,6 +94,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "In den USA misst man in Fahrenheit: °F = 1,8 · °C + 32. Wie viel °F sind {{c}} °C?"
+    params:
+      unit: °F
+    answer:
+      value: "{{1.8 * c + 32}}"
+    feedback:
+      - when: abs(numval(state.input) - 1.8 * c) < 0.1
+        misconception: forgot-offset
+        text: "Die 32 fehlen noch: Der Nullpunkt der Skalen ist verschoben."
+    hints:
+      - Erst mal 1,8 nehmen.
+      - Dann 32 dazuzählen.
+    explanation: 1,8 · {{c}} + 32 = {{1.8 * c + 32}} °F. 100 °F sind leichtes Fieber, 0 °F sind −18 °C.
+    difficulty: 2
+    variants:
+      params:
+        c: choice[10,20,37,100]
+      defaults:
+        c: 37
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: Wasser A hat 20 °C, Wasser B hat 40 °C. Bewegen sich die Teilchen in B im Mittel doppelt so heftig?
+    params:
+      options:
+        - label: Nein – in Kelvin sind es 293 K und 313 K, nur etwa 7 % mehr.
+          correct: true
+        - label: Ja, 40 ist doppelt so viel wie 20.
+          feedback: Celsius beginnt nicht beim echten Nullpunkt. Zum Vergleichen braucht man Kelvin.
+        - label: Nein, sie bewegen sich gleich schnell.
+          feedback: Wärmer heißt schneller – nur eben nicht doppelt so.
+    hints:
+      - Rechne beide Temperaturen in Kelvin um.
+      - Die Teilchenenergie ist proportional zu T in Kelvin.
+    explanation: "313 : 293 ≈ 1,07. Doppelt so viel Bewegungsenergie hätte Wasser erst bei 586 K, also 313 °C."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: sim
+    prompt: Die Temperatur bleibt fest bei 300 K. Drück das Gas so zusammen, dass sich der Druck verdoppelt – auf etwa 200 kPa.
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+    answer:
+      pressure:
+        - 195
+        - 205
+    explanation: "Bei halbem Volumen (2,5 L) prallen die Teilchen doppelt so oft gegen die Wand. Das ist das Gesetz von Boyle: p · V bleibt gleich."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +170,47 @@ steps:
     hints:
       - "Ein Eisberg und eine Tasse Tee: Wer hat mehr Energie, wer die höhere Temperatur?"
     explanation: Temperatur ist ein **Durchschnitt** pro Teilchen, Wärme eine Gesamtmenge.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: Die mittlere Bewegungsenergie eines Gasteilchens ist $\frac{3}{2} k T$. Dabei ist k die **Boltzmann-Konstante**, 1,38 · 10⁻²³ J/K. Sie verbindet die Temperatur mit der Energie einzelner Teilchen.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie schnell fliegen Stickstoffmoleküle bei Zimmertemperatur im Mittel – in m/s?"
+    params:
+      min: 0
+      max: 3000
+    answer:
+      value: 510
+      tolerance: 100
+    explanation: Aus ½ m v² = 3/2 k T folgt v = √(3kT/m) ≈ 510 m/s – schneller als der Schall. Weil sie ständig zusammenstoßen, kommen sie trotzdem nur langsam voran.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: numeric
+    prompt: Bei welcher Temperatur in Kelvin haben Gasteilchen doppelt so viel Bewegungsenergie wie bei 27 °C?
+    params:
+      unit: K
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 54
+        misconception: celsius-double
+        text: Das sind 54 °C – verdoppelt in Celsius. Die Energie ist proportional zur Kelvin-Temperatur.
+      - when: numval(state.input) == 327
+        misconception: unit-confusion
+        text: Das ist richtig gerechnet – aber in °C. Gefragt war Kelvin.
+    hints:
+      - 27 °C sind 300 K.
+      - Doppelte Energie heißt doppelte Kelvin-Temperatur.
+    explanation: 2 · 300 K = 600 K, das sind 327 °C. Die Teilchen sind dann um den Faktor √2 schneller.
     difficulty: 3
 
 srs:

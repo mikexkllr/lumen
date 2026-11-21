@@ -5,7 +5,7 @@ summary: Why gases spread out on their own.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: moeglichkeiten
@@ -73,6 +73,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} particles, each left or right. In how many arrangements are exactly half of them on the left?"
+    answer:
+      value: "{{n == 4 ? 6 : (n == 6 ? 20 : 70)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: all-states
+        text: That is **all** arrangements. Only those with exactly half and half are asked for.
+    hints:
+      - How many ways are there to choose {{n / 2}} of {{n}} particles?
+      - That is the binomial coefficient »{{n}} choose {{n / 2}}«.
+    explanation: Half and half is the most common single case. As n grows it overwhelms »all on the left« (just 1 way) more and more.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,6,8]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: you toss 100 coins. How likely is it to get exactly 50 heads – in percent?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 8
+      tolerance: 3
+    explanation: "Only about 8 %. But you almost always land close to 50: between 40 and 60 heads lie about 96 % of all tosses. The middle has the most microstates."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -82,6 +118,42 @@ steps:
     hints:
       - ln(W²) = 2 · ln W.
     explanation: "Twice as large. The logarithm makes entropy **additive**: two litres of gas have twice as much as one."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Boltzmann linked counting with heat: $S = k \\ln W$. The **logarithm** turns multiplying into adding: two systems together have $W_1 \\cdot W_2$ states and the entropy $S_1 + S_2$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "One mole of particles (6 · 10²³), each with two options: W = 2 to the 6 · 10²³. What is S = k · ln W = N · k · ln 2 – in J/K? k = 1.38 · 10⁻²³ J/K. To one decimal place."
+    params:
+      unit: J/K
+    answer:
+      value: 5.7
+      tolerance: 0.1
+    hints:
+      - N · k = 6 · 10²³ · 1.38 · 10⁻²³ ≈ 8.3 J/K.
+      - Times ln 2 ≈ 0.693.
+    explanation: S ≈ 5.7 J/K. An unimaginably large number of states gives a perfectly handy entropy – that is exactly what the logarithm does.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: in how many ways can 52 playing cards be arranged?"
+    params:
+      min: 10000000000
+      max: 1e+100
+      scale: log
+    answer:
+      value: 8e+67
+      within: 80
+    explanation: 52! ≈ 8 · 10⁶⁷ – more than the atoms in our galaxy. A well-shuffled deck is almost certainly unique in history. And »sorted« is just one of them.
     difficulty: 3
 
 srs:

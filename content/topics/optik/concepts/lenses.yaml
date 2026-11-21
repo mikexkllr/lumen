@@ -5,7 +5,7 @@ summary: Licht bündeln und zerstreuen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -109,6 +109,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Linse hat 10 cm Brennweite. Ein Gegenstand steht {{g}} cm davor. In welchem Abstand hinter der Linse entsteht das Bild? Nutze 1/f = 1/g + 1/b.
+    params:
+      unit: cm
+    answer:
+      value: "{{g * 10 / (g - 10)}}"
+    feedback:
+      - when: numval(state.input) == g - 10
+        misconception: subtract-distances
+        text: "Man zieht nicht die Abstände ab, sondern die Kehrwerte: 1/b = 1/f − 1/g."
+    hints:
+      - 1/b = 1/10 − 1/{{g}}.
+      - Bilde den Kehrwert des Ergebnisses.
+    explanation: "b = g · f : (g − f) = {{g * 10 / (g - 10)}} cm. Je näher der Gegenstand am Brennpunkt, desto weiter weg und größer das Bild."
+    difficulty: 2
+    variants:
+      params:
+        g: choice[15,20,30,60]
+      defaults:
+        g: 15
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: sim
+    prompt: "Mach eine Kamera: Das Bild soll halb so groß sein wie der Gegenstand."
+    params:
+      scene: lens
+    answer:
+      magnification:
+        - 0.48
+        - 0.52
+    explanation: Halbe Größe gibt es, wenn der Gegenstand dreimal so weit weg ist wie die Brennweite, etwa 30 cm bei f = 10 cm. Kameras machen Bilder fast immer kleiner.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -124,6 +162,26 @@ steps:
     hints:
       - So benutzt du eine Lupe.
     explanation: "Ein **virtuelles Bild**: Die Strahlen scheinen von einem Punkt hinter dem Gegenstand zu kommen."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: Im Auge ist der Abstand zur Netzhaut fest. Um scharf zu stellen, ändert die Augenlinse ihre Brennweite – das heißt **Akkommodation**. Im Alter wird die Linse steif. Dann hilft eine Lesebrille.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Auge kann höchstens auf 50 cm Nähe scharf stellen. Du willst in 25 cm Abstand lesen. Welche Brillenstärke brauchst du? Rechne D = 1/0,25 m − 1/0,5 m.
+    params:
+      unit: dpt
+    answer:
+      value: 2
+    hints:
+      - "1 : 0,25 = 4 und 1 : 0,5 = 2."
+      - Die Differenz ist die nötige Zusatzstärke.
+    explanation: 4 − 2 = +2 Dioptrien. Die Sammellinse übernimmt, was die Augenlinse nicht mehr schafft. Kurzsichtige brauchen dagegen Zerstreuungslinsen mit Minus.
     difficulty: 3
 
 srs:

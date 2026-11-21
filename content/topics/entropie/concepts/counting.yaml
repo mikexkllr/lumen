@@ -5,7 +5,7 @@ summary: Warum sich Gase von selbst verteilen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: moeglichkeiten
@@ -73,6 +73,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} Teilchen, jedes links oder rechts. In wie vielen Verteilungen sind genau die Hälfte links?"
+    answer:
+      value: "{{n == 4 ? 6 : (n == 6 ? 20 : 70)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: all-states
+        text: Das sind **alle** Verteilungen. Gefragt sind nur die mit genau halb-halb.
+    hints:
+      - Wie viele Arten gibt es, {{n / 2}} von {{n}} Teilchen auszuwählen?
+      - Das ist der Binomialkoeffizient »{{n}} über {{n / 2}}«.
+    explanation: Halb-halb ist der häufigste Einzelfall. Mit wachsendem n wird er im Vergleich zu »alle links« (nur 1 Möglichkeit) immer übermächtiger.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,6,8]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Du wirfst 100 Münzen. Wie wahrscheinlich ist es, genau 50-mal Kopf zu bekommen – in Prozent?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 8
+      tolerance: 3
+    explanation: "Nur etwa 8 %. Aber fast immer landet man nah bei 50: Zwischen 40 und 60 Köpfen liegen rund 96 % aller Würfe. Das Mittelfeld hat die meisten Mikrozustände."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -82,6 +118,42 @@ steps:
     hints:
       - ln(W²) = 2 · ln W.
     explanation: "Doppelt so groß. Der Logarithmus macht Entropie **additiv**: zwei Liter Gas haben doppelt so viel wie einer."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Boltzmann verband Zählen und Wärme: $S = k \\ln W$. Der **Logarithmus** macht aus dem Malnehmen ein Addieren: Zwei Systeme haben zusammen $W_1 \\cdot W_2$ Zustände und die Entropie $S_1 + S_2$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Mol Teilchen (6 · 10²³), jedes mit zwei Möglichkeiten: W = 2 hoch 6 · 10²³. Wie groß ist S = k · ln W = N · k · ln 2 – in J/K? k = 1,38 · 10⁻²³ J/K. Auf eine Stelle."
+    params:
+      unit: J/K
+    answer:
+      value: 5.7
+      tolerance: 0.1
+    hints:
+      - N · k = 6 · 10²³ · 1,38 · 10⁻²³ ≈ 8,3 J/K.
+      - Mal ln 2 ≈ 0,693.
+    explanation: S ≈ 5,7 J/K. Eine unvorstellbar große Zahl von Zuständen ergibt eine ganz handliche Entropie – genau dafür sorgt der Logarithmus.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Auf wie viele Arten kann man 52 Spielkarten anordnen?"
+    params:
+      min: 10000000000
+      max: 1e+100
+      scale: log
+    answer:
+      value: 8e+67
+      within: 80
+    explanation: 52! ≈ 8 · 10⁶⁷ – mehr als Atome in unserer Galaxie. Ein gut gemischtes Spiel ist darum mit großer Sicherheit einmalig in der Geschichte. Und »geordnet« ist eine einzige davon.
     difficulty: 3
 
 srs:

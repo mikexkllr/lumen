@@ -1,0 +1,201 @@
+id: sci.oscillations.applications
+type: concept
+title: "Oscillations in technology and nature"
+summary: "Quartz watches, swaying skyscrapers, earthquakes and atomic clocks."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many times per second does the tiny quartz crystal in a wristwatch oscillate?"
+    params:
+      min: 1
+      max: 1000000
+      scale: log
+    answer:
+      value: 32768
+      within: 30
+    explanation: Exactly 32,768 times – that is 2 to the 15th. A counter chip halves the frequency 15 times and gets exactly 1 Hz for the second hand.
+
+  - kind: explain
+    id: c1
+    body: Every object has a **natural frequency** – glasses, bridges, skyscrapers, even your chest. Engineers either build it far from disturbing rhythms or use it on purpose, as in clocks.
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Which oscillation is behind it?
+    params:
+      pairs:
+        - left: Quartz watch
+          right: Crystal, 32,768 Hz
+        - left: Pendulum clock
+          right: Pendulum, 1 Hz
+        - left: Tuning fork
+          right: Prongs, 440 Hz
+        - left: Skyscraper
+          right: Sway, 0.2 Hz
+    hints:
+      - Which oscillation is very fast, which very slow?
+      - Big things oscillate slowly.
+    explanation: From the crystal at tens of thousands of hertz to the skyscraper at a fraction of 1 Hz – the same physics across six powers of ten.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A quartz crystal oscillates 32,768 times per second. How many times must a counter circuit halve that to get 1 Hz?
+    answer:
+      value: 15
+    hints:
+      - "Count: 32,768 → 16,384 → 8192 → …"
+      - 32,768 = 2 to the what?
+    explanation: 2¹⁵ = 32,768, so 15 halvings. Powers of two are especially easy to divide with simple circuits.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: At the top of the Taipei 101 tower a 660-tonne steel ball hangs on cables. What for?
+    params:
+      options:
+        - label: It swings against the building and damps its sway in the wind – a tuned mass damper.
+          correct: true
+        - label: It is a work of art with no function.
+          feedback: It is worth seeing but has an important job.
+        - label: It makes the building heavier and so steadier.
+          feedback: Heavier alone hardly helps. The ball must be able to move.
+    hints:
+      - The ball is tuned to the tower's natural frequency.
+      - It swings in the opposite direction.
+    explanation: The damper takes up the oscillation energy and passes it to dashpots. That way the tower sways much less.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: a tall building sways with a period of about 0.1 s per storey. How long is the period for {{n}} storeys?"
+    params:
+      unit: s
+    answer:
+      value: "{{n / 10}}"
+    hints:
+      - 0.1 s times the number of storeys.
+      - "{{n}} · 0.1 = ?"
+    explanation: About {{n / 10}} s. Taller buildings sway more slowly – like longer pendulums.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[10,30,50,100]
+      defaults:
+        n: 50
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In some earthquakes mainly medium-height buildings collapse, while low and very tall ones suffer less. Why?
+    params:
+      options:
+        - label: Their natural period matches the period of the ground shaking – they build up.
+          correct: true
+        - label: Medium-height buildings are built worse.
+          feedback: It is the physics, not the build quality.
+        - label: Tall buildings are lighter.
+          feedback: Tall buildings are heavier. What matters is their natural frequency.
+    hints:
+      - The ground often shakes with periods of about 0.5 to 2 seconds.
+      - "Use the rule of thumb: 0.1 s per storey."
+    explanation: Buildings with 5 to 20 storeys have periods of 0.5 to 2 s – right in the ground's range. Earthquake-proof designs shift their natural frequency or damp strongly.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: A 2 kg tuned mass damper should oscillate at 0.5 Hz. Find the right spring constant.
+    params:
+      scene: spring
+      controls:
+        mass:
+          value: 2
+          fixed: true
+    answer:
+      frequency:
+        - 0.49
+        - 0.51
+    explanation: k = m · (2πf)² = 2 · π² ≈ 20 N/m. A tuned damper only works if it matches the structure's natural frequency.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Atomic clocks count microwaves that exactly match a transition in the caesium atom: 9,192,631,770 oscillations. By definition that is how long a **second** lasts. Such clocks drift by less than a second in millions of years."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A quartz watch is off by 1 second per day. What is the relative error in ppm (parts per million)? A day has 86,400 s. To one decimal place.
+    params:
+      unit: ppm
+    answer:
+      value: 11.6
+      tolerance: 0.2
+    hints:
+      - 1 ÷ 86,400 ≈ 0.0000116.
+      - Times one million.
+    explanation: About 11.6 ppm. Good quartz watches manage below 1 ppm. An atomic clock is at about 10⁻¹⁰ ppm.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: In an MRI scanner, radio waves are sent in at exactly the natural frequency of hydrogen nuclei in the magnetic field. Why exactly that one?
+    params:
+      options:
+        - label: Only at resonance do the nuclei absorb energy and then send back a signal.
+          correct: true
+        - label: Other frequencies would be dangerous.
+          feedback: Other radio frequencies simply pass through without effect.
+        - label: So the machine is quieter.
+          feedback: The knocking comes from the coils. The choice of frequency follows resonance.
+    hints:
+      - "As with the swing: when does energy arrive?"
+      - The nuclei's natural frequency depends on the field strength.
+    explanation: Energy is only transferred at the right rhythm. Because the frequency depends on the field and the field varies across the body, the scanner knows where each signal comes from.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a skyscraper is protected against swaying up in the wind.
+    params:
+      keywords:
+        - - eigenfrequenz
+          - natural frequency
+          - takt
+          - frequency
+          - resonanz
+          - resonance
+        - - dämpf
+          - damp
+          - tilger
+          - damper
+          - bremst
+          - brake
+        - - gegen
+          - opposite
+          - energie
+          - energy
+          - masse
+          - mass
+      sample: The skyscraper has a natural frequency, and wind vortices can push it at that rhythm. A tuned damper – a big mass at the same frequency – swings against the building, takes up the energy and damps it away.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x2"]

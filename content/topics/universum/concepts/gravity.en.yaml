@@ -5,7 +5,7 @@ summary: Mass stays, weight changes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -112,6 +112,79 @@ steps:
     explanation: About 3.3 s instead of 2 s on Earth. With a pendulum you can measure the gravity of a planet.
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: "Newton found the **law of gravitation**: two masses attract with $F = G \\frac{m_1 m_2}{r^2}$. Double the mass means double the force. Double the distance means a quarter of the force."
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "A planet has {{m}} times Earth's mass and {{r}} times its radius. What is the gravitational acceleration g there? On Earth: 10 m/s²."
+    params:
+      unit: m/s²
+    answer:
+      value: "{{10 * m / (r * r)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 10 * m / r) < 0.01
+        misconception: radius-not-squared
+        text: The radius is squared in the denominator. Divide by {{r * r}}, not by {{r}}.
+    hints:
+      - More mass pulls harder; a larger radius puts you farther away.
+      - g = 10 · mass factor ÷ radius factor².
+    explanation: g = 10 · {{m}} ÷ {{r * r}} = {{10 * m / (r * r)}} m/s². Mass counts once, distance squared.
+    difficulty: 2
+    variants:
+      params:
+        m: choice[2,4,8,16]
+        r: choice[2,4]
+      defaults:
+        m: 8
+        r: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: The ISS flies 400 km up. Earth's radius is 6,400 km. What percentage of the ground-level gravity still acts there?
+    params:
+      unit: "%"
+    answer:
+      value: 89
+      tolerance: 1.5
+    feedback:
+      - when: numval(state.input) < 5
+        misconception: no-gravity-in-orbit
+        text: Gravity has not vanished there! It is only a little weaker.
+    hints:
+      - "Distance from Earth's centre: 6,800 km instead of 6,400 km."
+      - Work out (6400 ÷ 6800)².
+    explanation: (6400/6800)² ≈ 0.89. Almost 90 % of gravity acts in the ISS. You float because you fall freely around Earth together with the station.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d4
+    depth: 2
+    widget: sim
+    prompt: The satellite starts horizontally at 1.5 Earth radii. It must not hit Earth – but fly as slowly as possible. At most 5.9 km/s.
+    params:
+      scene: orbit
+      controls:
+        radius:
+          value: 1.5
+          fixed: true
+        speed:
+          value: 4
+    answer:
+      kind: 0
+      speed:
+        - 5.75
+        - 5.9
+    explanation: Below circular speed the orbit becomes an ellipse that dips towards Earth. From about 5.8 km/s it just misses the surface.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -130,6 +203,80 @@ steps:
         - 0
         - 0.03
     explanation: At 5.6 km/s. Too slow and it crashes, too fast and the orbit becomes an ellipse – or it escapes.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "On a circular orbit gravity provides the force towards the centre: $\\frac{GMm}{r^2} = \\frac{m v^2}{r}$. Inserting $v = \\frac{2\\pi r}{T}$ gives $T^2 = \\frac{4\\pi^2}{GM} r^3$ – **Kepler's third law**."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: By Kepler, T² ∝ r³. An asteroid orbits {{k}} times as far from the Sun as Earth. How many years does one orbit take?
+    params:
+      unit: years
+    answer:
+      value: "{{k * sqrt(k)}}"
+    feedback:
+      - when: numval(state.input) == k * k
+        misconception: kepler-square
+        text: That would be T ∝ r². Kepler says T² ∝ r³, so T ∝ r to the power 1.5.
+      - when: numval(state.input) == k
+        misconception: kepler-linear
+        text: Farther out the path is longer **and** the speed is lower.
+    hints:
+      - T² = {{k}}³ = {{k * k * k}}.
+      - Take the square root.
+    explanation: "T = √({{k}}³) = {{k * sqrt(k)}} years. Earth is the yardstick: 1 distance, 1 year."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[4,9,16]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many minutes does the ISS (400 km up, 7.7 km/s) need for one lap around Earth?"
+    params:
+      min: 10
+      max: 600
+    answer:
+      value: 92
+      tolerance: 12
+    explanation: Circumference 2π · 6,800 km ≈ 42,700 km, divided by 7.7 km/s ≈ 5,500 s ≈ 92 minutes. The crew sees 16 sunrises a day.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x4
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: why do astronauts float in the ISS although almost full gravity acts there?"
+    params:
+      keywords:
+        - - fall
+          - fällt
+          - falling
+          - fallen
+        - - gleich
+          - same
+          - zusammen
+          - together
+          - mit
+          - station
+        - - schnell
+          - fast
+          - seitwärts
+          - sideways
+          - vorbei
+          - around
+          - verfehl
+          - miss
+      sample: Station and astronauts fall towards Earth together. Because they fly sideways so fast, they keep missing Earth. Everything falls the same, so nothing presses on the floor.
     difficulty: 3
 
 srs:

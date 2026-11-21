@@ -1,0 +1,225 @@
+id: sci.astro.cosmos
+type: concept
+title: "Das expandierende Universum"
+summary: "Hubble-Gesetz, das Alter des Kosmos und die Spuren dunkler Materie."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Fast alle Galaxien entfernen sich von uns – und je weiter weg, desto schneller. Heißt das, wir sind im Zentrum des Universums?
+    params:
+      options:
+        - label: Nein – von jeder Galaxie aus sieht es genauso aus, wie bei Rosinen in einem aufgehenden Kuchen.
+          correct: true
+        - label: Ja, darum fliehen alle vor uns.
+          feedback: Bei gleichmäßiger Ausdehnung sieht jeder Beobachter dasselbe.
+        - label: Ja, die Milchstraße war der Urknall-Ort.
+          feedback: Der Urknall geschah überall zugleich, nicht an einem Ort.
+    hints:
+      - Stell dir einen Hefekuchen mit Rosinen vor, der aufgeht.
+      - Was sieht eine beliebige Rosine?
+    explanation: Jede Rosine sieht alle anderen davonfliegen, die fernen am schnellsten. Ein Zentrum gibt es nicht – der Raum selbst dehnt sich.
+
+  - kind: explain
+    id: c1
+    body: "Das **Hubble-Gesetz**: Die Fluchtgeschwindigkeit einer Galaxie wächst mit ihrer Entfernung, v = H₀ · d. Die Hubble-Konstante ist etwa 70 km/s pro Megaparsec. Ein Megaparsec sind 3,26 Millionen Lichtjahre."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Galaxie ist {{d}} Megaparsec entfernt. Wie schnell entfernt sie sich – in km/s? H₀ = 70 km/s pro Mpc.
+    params:
+      unit: km/s
+    answer:
+      value: "{{70 * d}}"
+    hints:
+      - v = H₀ · d.
+      - 70 · {{d}} = ?
+    explanation: v = 70 · {{d}} = {{70 * d}} km/s. Doppelte Entfernung, doppeltes Tempo.
+    variants:
+      params:
+        d: choice[10,50,100,300]
+      defaults:
+        d: 100
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Galaxie entfernt sich mit 7000 km/s. Wie weit ist sie weg – in Megaparsec?
+    params:
+      unit: Mpc
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 490000
+        misconception: multiply
+        text: "Umgekehrt: d = v : H₀."
+    hints:
+      - Stell v = H₀ · d nach d um.
+      - "7000 : 70 = ?"
+    explanation: 100 Mpc, gut 300 Millionen Lichtjahre. So misst man mit einem Spektrum ferne Entfernungen.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Dehnt sich wegen der Expansion auch dein Zimmer, die Erde oder die Milchstraße aus?
+    params:
+      options:
+        - label: Nein – was durch Kräfte zusammengehalten wird, bleibt gleich groß.
+          correct: true
+        - label: Ja, nur unmerklich.
+          feedback: Gebundene Systeme dehnen sich überhaupt nicht. Ihre Kräfte halten sie stabil.
+        - label: Nur die Erde, nicht das Zimmer.
+          feedback: Weder noch. Erst zwischen Galaxienhaufen wirkt die Expansion.
+    hints:
+      - Atome werden von elektrischen Kräften zusammengehalten.
+      - Die Milchstraße hält ihre Schwerkraft zusammen.
+    explanation: Die Expansion zeigt sich nur dort, wo nichts zusammenhält – zwischen Galaxienhaufen. Atome, Planeten und Galaxien bleiben gleich groß.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Rechnet man die Expansion zurück, lagen alle Galaxien vor etwa $1/H_0$ beisammen. Diese **Hubble-Zeit** schätzt das Alter des Universums. Genauere Modelle ergeben 13,8 Milliarden Jahre.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Berechne die Hubble-Zeit 1 : H₀. H₀ = 70 km/s pro Mpc, 1 Mpc = 3,09 · 10¹⁹ km, 1 Jahr = 3,15 · 10⁷ s. In Milliarden Jahren, auf eine Stelle."
+    params:
+      unit: Mrd. Jahre
+    answer:
+      value: 14
+      tolerance: 0.2
+    hints:
+      - "1 : H₀ = 3,09 · 10¹⁹ km : 70 km/s ≈ 4,4 · 10¹⁷ s."
+      - Durch 3,15 · 10⁷ s pro Jahr teilen.
+    explanation: Rund 14 Milliarden Jahre – erstaunlich nah an 13,8. Aus einer einzigen Konstante folgt grob das Alter des Kosmos.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Eine Spektrallinie mit 500 nm wird bei einer Galaxie bei 550 nm gemessen. Für kleine Rotverschiebung z = Δλ : λ gilt v ≈ z · c. Wie schnell entfernt sie sich – in km/s? c = 300 000 km/s."
+    params:
+      unit: km/s
+    answer:
+      value: 30000
+    feedback:
+      - when: abs(numval(state.input) - 330000) < 1000
+        misconception: whole-wavelength
+        text: Es zählt nur die Verschiebung Δλ = 50 nm, nicht die ganze Wellenlänge.
+    hints:
+      - "z = 50 : 500 = 0,1."
+      - v ≈ 0,1 · 300 000 km/s.
+    explanation: 30 000 km/s, nach Hubble etwa 430 Mpc entfernt. Für noch größere z braucht man die Relativitätstheorie.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Sterne außen in Galaxien kreisen fast so schnell wie innen. Mit der sichtbaren Masse müssten sie nach Kepler viel langsamer sein. Es fehlt unsichtbare Masse – die **dunkle Materie**.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ohne zusätzliche Masse fällt das Bahntempo außerhalb der sichtbaren Galaxie mit 1 : √r. Innen kreist ein Stern mit 200 km/s. Wie schnell müsste ein Stern in vierfacher Entfernung sein?"
+    params:
+      unit: km/s
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: linear
+        text: Das Tempo fällt mit der **Wurzel** des Abstands, nicht linear.
+    hints:
+      - √4 = 2.
+      - "200 : 2 = ?"
+    explanation: "Erwartet: 100 km/s. Gemessen: fast immer noch 200 km/s. Diese flachen Rotationskurven, entdeckt von Vera Rubin, sind ein Hauptbeleg für dunkle Materie."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: buckets
+    prompt: Ist das ein Hinweis auf dunkle Materie?
+    params:
+      buckets:
+        - id: b1
+          label: Hinweis auf dunkle Materie
+        - id: b2
+          label: kein Hinweis
+      items:
+        - label: Flache Rotationskurven
+          bucket: b1
+        - label: Starke Gravitationslinsen
+          bucket: b1
+        - label: Zu schnelle Galaxien in Haufen
+          bucket: b1
+        - label: Rotverschiebung ferner Galaxien
+          bucket: b2
+        - label: Farbe der Sterne
+          bucket: b2
+        - label: Parallaxe naher Sterne
+          bucket: b2
+    hints:
+      - Dunkle Materie zeigt sich nur durch ihre Schwerkraft.
+      - Die Rotverschiebung zeigt die Expansion.
+    explanation: Rotationskurven, Linsen und Galaxienhaufen verraten mehr Schwerkraft als sichtbare Masse. Rotverschiebung, Farbe und Parallaxe messen etwas anderes.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: choice
+    prompt: Was steckt alles im Universum? Wie teilt es sich nach heutigen Messungen auf?
+    params:
+      options:
+        - label: Etwa 5 % normale Materie, 27 % dunkle Materie, 68 % dunkle Energie.
+          correct: true
+        - label: Fast nur aus Sternen und Gas.
+          feedback: Alles, was wir sehen, sind nur rund 5 %.
+        - label: Je zur Hälfte aus Materie und Licht.
+          feedback: Licht trägt heute fast nichts bei. Den Großteil kennen wir nicht.
+    hints:
+      - Das Sichtbare ist ein kleiner Bruchteil.
+      - Die dunkle Energie treibt die beschleunigte Expansion.
+    explanation: Normale Materie macht nur rund 5 % aus. Was dunkle Materie und dunkle Energie sind, ist eine der größten offenen Fragen der Physik.
+    difficulty: 3
+
+  - kind: problem
+    id: x5
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, woher wir wissen, dass es dunkle Materie gibt, obwohl niemand sie sieht.
+    params:
+      keywords:
+        - - schwerkraft
+          - gravity
+          - masse
+          - mass
+        - - rotation
+          - kreisen
+          - orbit
+          - schnell
+          - fast
+          - tempo
+          - speed
+        - - linse
+          - lens
+          - unsichtbar
+          - invisible
+          - sichtbar
+          - visible
+      sample: Sterne außen in Galaxien kreisen viel zu schnell für die sichtbare Masse. Auch Gravitationslinsen lenken Licht stärker ab, als die sichtbare Masse kann. Es muss also unsichtbare Masse geben, die nur durch ihre Schwerkraft wirkt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

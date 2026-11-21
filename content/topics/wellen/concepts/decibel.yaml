@@ -5,7 +5,7 @@ summary: Zehn mehr heißt zehnmal so viel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zehn
@@ -70,6 +70,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Maschine macht 80 dB. Eine zweite, gleich laute, läuft daneben. Um wie viel dB steigt der Pegel?
+    params:
+      unit: dB
+    answer:
+      value: 3
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: add-decibels
+        text: Dezibel addiert man nicht einfach. Doppelte Energie ergibt nur 3 dB mehr.
+    hints:
+      - Zwei Maschinen liefern doppelte Schallenergie.
+      - 10 · log₁₀(2) ≈ ?
+    explanation: 10 · log 2 ≈ 3 dB. Aus 80 dB werden 83 dB, nicht 160.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Gerät macht 85 dB. Wie viele gleiche Geräte braucht man zusammen für 95 dB?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear-db
+        text: Zwei Geräte bringen nur 3 dB mehr. Für 10 dB braucht es zehnfache Energie.
+    hints:
+      - 10 dB mehr heißt wievielmal so viel Energie?
+      - Jedes Gerät liefert gleich viel.
+    explanation: 10 dB mehr heißt zehnfache Energie, also zehn Geräte. Unser Ohr empfindet das etwa als doppelt so laut.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -85,6 +122,56 @@ steps:
     hints:
       - Die Energie verteilt sich auf die vierfache Fläche. Ein Viertel sind zweimal −3 dB.
     explanation: Viertel der Energie = −6 dB. Das **Abstandsgesetz** gilt für jede Punktquelle.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Der **Schallpegel** ist $L = 10 \\cdot \\log_{10}(I / I_0)$ dB. Dabei ist $I_0 = 10^{-12}$ W/m² die Hörschwelle. 0 dB heißt also nicht Stille, sondern: gerade noch hörbar."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Gespräch hat 60 dB. Welche Intensität in W/m² ist das? Gib den Exponenten an: 10 hoch …"
+    answer:
+      value: -6
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-reference
+        text: Starte bei der Hörschwelle 10⁻¹² W/m². 60 dB sind 6 Zehnerstufen darüber.
+      - when: numval(state.input) == 60
+        misconception: db-as-exponent
+        text: Dezibel sind keine Exponenten. Teile durch 10.
+    hints:
+      - 60 dB sind 10⁶-mal die Hörschwelle.
+      - 10⁻¹² · 10⁶ = ?
+    explanation: 10⁻¹² · 10⁶ = 10⁻⁶ W/m², ein Millionstel Watt pro m². Unser Ohr ist ein extrem empfindliches Messgerät.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 20 dB mehr nicht »doppelt so laut«, sondern hundertmal so viel Schallenergie bedeutet.
+    params:
+      keywords:
+        - - zehn
+          - ten
+          - potenz
+          - power
+          - log
+        - - faktor
+          - factor
+          - mal
+          - times
+          - multipli
+        - - energie
+          - energy
+          - intensität
+          - intensity
+          - leistung
+      sample: Die Dezibel-Skala zählt Zehnerpotenzen. Jede 10 dB bedeuten den Faktor zehn bei der Energie. 20 dB sind also zehn mal zehn, das ist hundertmal so viel Intensität.
     difficulty: 3
 
 srs:

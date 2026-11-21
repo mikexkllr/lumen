@@ -5,7 +5,7 @@ summary: Dämmen, Thermoskanne, Heizkosten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: thermoskanne
@@ -64,6 +64,35 @@ steps:
     explanation: 150 − 50 = 100 W.
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: Der **U-Wert** sagt, wie viele Watt pro m² und pro Grad Temperaturunterschied durch ein Bauteil gehen. Kleiner U-Wert heißt gute Dämmung. Einfachglas hat etwa 5, Dreifachglas unter 1.
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Fenster hat 2 m² und den U-Wert {{u}} W/(m²·K). Innen sind es 20 °C, außen 0 °C. Wie viele Watt gehen verloren?
+    params:
+      unit: W
+    answer:
+      value: "{{40 * u}}"
+    feedback:
+      - when: numval(state.input) == 20 * u
+        misconception: forgot-area
+        text: Die Fläche ist 2 m² – mal 2 nehmen.
+    hints:
+      - Verlust = U · Fläche · Temperaturunterschied.
+      - "{{u}} · 2 · 20 = ?"
+    explanation: "{{u}} · 2 · 20 = {{40 * u}} W. Ein altes Einfachfenster verliert so viel wie eine kleine Heizung leistet."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[1,3,5]
+      defaults:
+        u: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +132,44 @@ steps:
           - verlust
           - loss
       sample: Die Daunen schließen viel ruhende Luft ein. Luft leitet Wärme schlecht, also bleibt die Wärme des Körpers länger drin. Die Jacke erzeugt keine Wärme, sie bremst nur den Verlust.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Haus verliert 200 W pro Grad Unterschied zwischen innen und außen. Im Winter ist es 200 Tage lang draußen im Mittel 15 Grad kälter als drinnen. Wie viele kWh Heizenergie braucht es?
+    params:
+      unit: kWh
+    answer:
+      value: 14400
+    feedback:
+      - when: numval(state.input) == 600
+        misconception: days-not-hours
+        text: Das wären Kilowatt mal **Tage**. Ein Tag hat 24 Stunden.
+    hints:
+      - "Mittlere Verlustleistung: 200 W · 15 = 3 kW."
+      - "Zeit: 200 Tage · 24 h = 4800 h."
+    explanation: 3 kW · 4800 h = 14 400 kWh. Mit Öl wären das rund 1400 Liter. Halbiert Dämmung die 200 W, halbieren sich auch die Kosten.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Im Winter beschlägt ein altes Fenster mit einer Scheibe innen. Ein Fenster mit zwei Scheiben kaum. Warum?
+    params:
+      options:
+        - label: Die innere Scheibe bleibt wärmer und kühlt die Raumluft nicht unter den Taupunkt ab.
+          correct: true
+        - label: Doppelfenster lassen keine Feuchtigkeit durch.
+          feedback: Der Wasserdampf kommt aus dem Raum. Entscheidend ist, wie kalt die Scheibe ist.
+        - label: Zwischen den Scheiben ist ein Trockenmittel.
+          feedback: Das hält nur den Spalt trocken. Innen beschlägt Glas, wenn es kalt ist.
+    hints:
+      - "Wo bildet sich Tau: an warmen oder kalten Flächen?"
+      - Wie warm ist die innere Scheibe bei guter Dämmung?
+    explanation: Kalte Flächen kühlen die Luft daneben ab, bis ihr Wasserdampf kondensiert. Die gut gedämmte Innenscheibe ist fast so warm wie der Raum.
     difficulty: 3
 
 srs:

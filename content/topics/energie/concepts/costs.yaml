@@ -5,7 +5,7 @@ summary: Kleine Geräte, die immer laufen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: wasserkocher
@@ -71,6 +71,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Was kostet eine volle Handy-Ladung (15 Wh) bei 30 Cent pro kWh – in Cent?"
+    params:
+      min: 0.01
+      max: 100
+      scale: log
+    answer:
+      value: 0.45
+      within: 50
+    explanation: 15 Wh sind 0,015 kWh. Mal 30 Cent ergibt 0,45 Cent. Ein ganzes Jahr tägliches Laden kostet weniger als 2 Euro.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Gerät mit {{w}} W läuft {{h}} Stunden am Tag, das ganze Jahr. Was kostet das bei 30 Cent pro kWh – in Euro?
+    params:
+      unit: €
+    answer:
+      value: "{{w * h * 365 * 0.3 / 1000}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - w * h * 365 * 0.3) < 1
+        misconception: wh-vs-kwh
+        text: Du hast in Wattstunden gerechnet. Teile durch 1000 für kWh.
+    hints:
+      - "Wattstunden pro Tag: {{w}} · {{h}}. Dann mal 365."
+      - Durch 1000 ergibt kWh, dann mal 0,30 €.
+    explanation: "{{w}} · {{h}} · 365 : 1000 = {{w * h * 365 / 1000}} kWh. Mal 0,30 € ergibt {{w * h * 365 * 0.3 / 1000}} €."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[10,50,100,2000]
+        h: choice[1,2,4]
+      defaults:
+        w: 100
+        h: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -83,6 +125,42 @@ steps:
     hints:
       - 52 W weniger · 3 h · 365 Tage.
     explanation: ≈ 57 kWh, mal 0,30 € sind rund 17 €.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Haushalt braucht 2500 kWh im Jahr. Welcher mittleren Dauerleistung entspricht das – in Watt?
+    params:
+      unit: W
+    answer:
+      value: 285
+      tolerance: 3
+    hints:
+      - Ein Jahr hat 8760 Stunden.
+      - "2 500 000 Wh : 8760 h = ?"
+    explanation: "2 500 000 Wh : 8760 h ≈ 285 W. Im Mittel läuft also ständig so viel wie ein paar alte Glühbirnen. Spitzen beim Kochen liegen viel höher."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Tarif B kostet 60 € mehr Grundgebühr im Jahr, aber jede kWh 5 Cent weniger. Ab wie vielen kWh im Jahr lohnt sich Tarif B?
+    params:
+      unit: kWh
+    answer:
+      value: 1200
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 12) < 0.1
+        misconception: cent-euro
+        text: "Achte auf die Einheiten: 5 Cent sind 0,05 €."
+    hints:
+      - Wie viele kWh braucht man, um 60 € mit je 5 Cent Ersparnis aufzuholen?
+      - "60 € : 0,05 € pro kWh = ?"
+    explanation: "60 : 0,05 = 1200 kWh. Wer mehr verbraucht, spart mit Tarif B. Genau so rechnet man jeden Grundpreis-Vergleich."
     difficulty: 3
 
 srs:

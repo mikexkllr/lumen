@@ -5,7 +5,7 @@ summary: Distance, shielding, time.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: At 1 m from a source you measure {{d}} µSv per hour. How much do you measure at {{k}} m?
+    params:
+      unit: µSv/h
+    answer:
+      value: "{{d / (k * k)}}"
+    feedback:
+      - when: numval(state.input) == d / k
+        misconception: linear-distance
+        text: The radiation spreads over a sphere. Its area grows with the **square** of the distance.
+    hints:
+      - "{{k}} times the distance means {{k * k}} times the area."
+      - "{{d}} ÷ {{k * k}} = ?"
+    explanation: "{{d}} ÷ {{k * k}} = {{d / (k * k)}} µSv/h. A few steps back work better than almost any shielding."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[40,80,160]
+        k: choice[2,4]
+      defaults:
+        d: 80
+        k: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: Beta radiation is better shielded with acrylic than with lead. Why?
+    params:
+      options:
+        - label: In lead the braked electrons produce X-rays.
+          correct: true
+        - label: Acrylic is denser than lead.
+          feedback: Lead is much denser. That is exactly the problem here.
+        - label: Lead lets beta radiation through.
+          feedback: Lead stops electrons at once – but too abruptly.
+    hints:
+      - What happens when fast electrons are braked abruptly?
+      - That is also how an X-ray tube works.
+    explanation: Strongly braked electrons emit bremsstrahlung – X-rays that penetrate deeply. In light acrylic they slow gently. Lead can then follow behind it.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +152,44 @@ steps:
     hints:
       - The same number of atoms decays – in 8 days or in 30 years.
     explanation: Iodine is over 1000 times more active at first but practically gone after three months. Caesium remains the long-term problem.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: You may take at most 1 mSv extra. At the workplace you measure 20 µSv per hour. How many hours may you work there?
+    params:
+      unit: h
+    answer:
+      value: 50
+    feedback:
+      - when: abs(numval(state.input) - 0.05) < 0.001
+        misconception: milli-micro
+        text: "Convert first: 1 mSv = 1000 µSv."
+    hints:
+      - 1 mSv = 1000 µSv.
+      - 1000 ÷ 20 = ?
+    explanation: "1000 µSv ÷ 20 µSv/h = 50 h. Time is the third protection rule: the dose grows exactly with the time spent."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: After a reactor accident people nearby should take iodine tablets quickly. What do they do?
+    params:
+      options:
+        - label: They fill the thyroid with normal iodine so it no longer takes up radioactive iodine-131.
+          correct: true
+        - label: They make radiation harmless.
+          feedback: Tablets cannot block radiation. They act on one organ only.
+        - label: They cure radiation damage.
+          feedback: They only prevent uptake of iodine-131 – taken beforehand.
+    hints:
+      - Which organ collects iodine?
+      - A full store takes nothing more.
+    explanation: The thyroid stores iodine. Once saturated with stable iodine, iodine-131 is excreted again. After a few half-lives of 8 days the danger is over.
     difficulty: 3
 
 srs:

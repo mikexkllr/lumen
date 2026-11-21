@@ -5,7 +5,7 @@ summary: Ten more means ten times as much.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zehn
@@ -70,6 +70,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: A machine makes 80 dB. A second, equally loud one runs next to it. By how many dB does the level rise?
+    params:
+      unit: dB
+    answer:
+      value: 3
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: add-decibels
+        text: Decibels do not simply add. Double the energy gives only 3 dB more.
+    hints:
+      - Two machines deliver double the sound energy.
+      - 10 · log₁₀(2) ≈ ?
+    explanation: 10 · log 2 ≈ 3 dB. 80 dB becomes 83 dB, not 160.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A device makes 85 dB. How many identical devices together make 95 dB?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear-db
+        text: Two devices add only 3 dB. 10 dB needs ten times the energy.
+    hints:
+      - 10 dB more means how many times the energy?
+      - Each device delivers the same amount.
+    explanation: 10 dB more means ten times the energy, so ten devices. Our ears perceive that as roughly twice as loud.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -85,6 +122,56 @@ steps:
     hints:
       - The energy spreads over four times the area. A quarter is twice −3 dB.
     explanation: A quarter of the energy = −6 dB. The **inverse-square law** holds for every point source.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "The **sound level** is $L = 10 \\cdot \\log_{10}(I / I_0)$ dB. Here $I_0 = 10^{-12}$ W/m² is the threshold of hearing. So 0 dB does not mean silence but: just audible."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "A conversation is 60 dB. What intensity in W/m² is that? Give the exponent: 10 to the …"
+    answer:
+      value: -6
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-reference
+        text: Start at the threshold of 10⁻¹² W/m². 60 dB is 6 powers of ten above it.
+      - when: numval(state.input) == 60
+        misconception: db-as-exponent
+        text: Decibels are not exponents. Divide by 10.
+    hints:
+      - 60 dB is 10⁶ times the threshold.
+      - 10⁻¹² · 10⁶ = ?
+    explanation: 10⁻¹² · 10⁶ = 10⁻⁶ W/m², a millionth of a watt per m². Our ear is an extremely sensitive instrument.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 20 dB more does not mean »twice as loud« but a hundred times the sound energy.
+    params:
+      keywords:
+        - - zehn
+          - ten
+          - potenz
+          - power
+          - log
+        - - faktor
+          - factor
+          - mal
+          - times
+          - multipli
+        - - energie
+          - energy
+          - intensität
+          - intensity
+          - leistung
+      sample: The decibel scale counts powers of ten. Every 10 dB means a factor of ten in energy. So 20 dB is ten times ten, a hundred times the intensity.
     difficulty: 3
 
 srs:

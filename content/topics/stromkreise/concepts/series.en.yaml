@@ -5,7 +5,7 @@ summary: Two ways to connect devices.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: kette
@@ -117,6 +117,49 @@ steps:
     explanation: 12 V. In series the resistances add up – the same current needs more voltage.
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: "Two rules are enough for any circuit. First: at every **junction** as much flows in as flows out. Second: around every closed loop all voltages add up to zero."
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: 3 A and 2 A flow into a junction. 1.5 A flow out through one wire. How much current flows out through the last wire?
+    params:
+      unit: A
+    answer:
+      value: 3.5
+    feedback:
+      - when: numval(state.input) == 6.5
+        misconception: sign-junction
+        text: The 1.5 A flow **out**, not in.
+    hints:
+      - "In: 3 A + 2 A = 5 A."
+      - The same amount has to flow out.
+    explanation: 5 A − 1.5 A = 3.5 A. Charge is neither lost nor piles up – that is the junction rule.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: Three resistors of 2 Ω, 3 Ω and 6 Ω are in parallel. What is the total resistance?
+    params:
+      unit: Ω
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 11
+        misconception: series-parallel
+        text: That would be series. In parallel you add the reciprocals.
+    hints:
+      - 1/R = 1/2 + 1/3 + 1/6.
+      - Put everything over six.
+    explanation: 3/6 + 2/6 + 1/6 = 1, so R = 1 Ω. In parallel the total is always smaller than the smallest single resistor.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -129,6 +172,42 @@ steps:
     hints:
       - The current is 12 V ÷ 6 Ω = 2 A.
     explanation: 2 A · 4 Ω = 8 V. The voltage divides in the ratio of the resistances.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: One bulb shines alone on 12 V. Now two identical bulbs hang in series on the same 12 V. To what fraction does the power of each bulb fall? Treat R as fixed.
+    answer:
+      value: 1/4
+    feedback:
+      - when: abs(numval(state.input) - 0.5) < 0.01
+        misconception: linear-power
+        text: Each bulb gets half the voltage. But power depends on U².
+    hints:
+      - Each bulb now has only 6 V across it.
+      - P = U² ÷ R. Half the voltage means …?
+    explanation: "P = U²/R: half the voltage means a quarter of the power per bulb. Together both give only half as much light as one alone."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Why is the total resistance of a parallel circuit always smaller than the smallest single resistor?
+    params:
+      options:
+        - label: Every extra branch opens another path for the current.
+          correct: true
+        - label: Because the voltage is shared.
+          feedback: In parallel every branch gets the full voltage.
+        - label: Because resistors weaken one another.
+          feedback: Each resistor stays as it is. Only paths are added.
+    hints:
+      - Think of checkouts in a supermarket.
+      - One more checkout – faster or slower?
+    explanation: More parallel paths let more current flow at the same voltage. More current at the same voltage means a smaller total resistance.
     difficulty: 3
 
 srs:

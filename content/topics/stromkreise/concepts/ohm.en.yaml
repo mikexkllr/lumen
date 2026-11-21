@@ -5,7 +5,7 @@ summary: Ohm's law, U = R · I.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -131,6 +131,90 @@ steps:
     explanation: "At 3 Ω, 4 A flows: 12 V · 4 A = 48 W. Smaller resistance, more power."
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: "A wire's **resistance** grows with its length and falls with its cross-section: $R = \\rho \\cdot \\frac{L}{A}$. Twice as long means double the resistance. Twice as thick means half."
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A wire has 2 Ω. A second one of the same metal is {{l}} times as long and has {{a}} times the cross-section. What is its resistance?
+    params:
+      unit: Ω
+    answer:
+      value: "{{2 * l / a}}"
+    feedback:
+      - when: abs(numval(state.input) - 2 * l * a) < 0.01
+        misconception: area-direction
+        text: More cross-section widens the path – resistance **falls**. Divide by {{a}}.
+    hints:
+      - "Length: times {{l}}. Cross-section: divided by {{a}}."
+      - 2 · {{l}} ÷ {{a}} = ?
+    explanation: "2 Ω · {{l}} ÷ {{a}} = {{2 * l / a}} Ω. That is why cooker cables have thick cores: they carry a lot of current without getting hot."
+    difficulty: 2
+    variants:
+      params:
+        l: choice[2,3,4,6]
+        a: choice[2,4]
+      constraints:
+        - l != a
+      defaults:
+        l: 6
+        a: 4
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: graph
+    prompt: A resistor has 2 Ω. The line shows U = R · I. Drag the point to where 3 A flows.
+    params:
+      x:
+        - 0
+        - 6
+      y:
+        - 0
+        - 12
+      grid: 1
+      functions:
+        - expr: 2*x
+          label: U = 2 · I
+      points:
+        - id: A
+          x: 0
+          y: 0
+          label: P
+    answer:
+      points:
+        A:
+          x: 3
+          y: 6
+    hints:
+      - Horizontally is current I, vertically voltage U.
+      - "At I = 3 A: U = 2 · 3."
+    explanation: At 3 A there are 6 V across it. For an ohmic resistor the U–I graph is a straight line through zero – its slope is R.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d4
+    depth: 2
+    widget: choice
+    prompt: Does an incandescent bulb have more resistance when cold or when hot?
+    params:
+      options:
+        - label: Hot – the glowing filament has about ten times the resistance.
+          correct: true
+        - label: Cold – cold slows electrons.
+          feedback: In metals the thermal jiggling of the atoms impedes the current. Hot means more resistance.
+        - label: The same – R is a fixed number.
+          feedback: Only at constant temperature. A bulb is not an ohmic resistor.
+    hints:
+      - What do the atoms in the filament do when it glows?
+      - Atoms that jiggle more get in the electrons' way more often.
+    explanation: Tungsten at 2500 °C has about ten times its cold resistance. So a big current flows briefly at switch-on – which is when bulbs usually blow.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -143,6 +227,26 @@ steps:
     hints:
       - Half the voltage – and the voltage is squared.
     explanation: "A quarter: 250 W. Half the voltage also drives only half the current."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: An extension cable is 100 m long, so the current runs through 200 m of copper. Cross-section 1.5 mm², ρ = 0.0175 Ω·mm²/m. What is its resistance?
+    params:
+      unit: Ω
+    answer:
+      value: 2.33
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 1.17) < 0.05
+        misconception: one-way
+        text: "The current goes there **and** back: 200 m, not 100 m."
+    hints:
+      - R = ρ · L ÷ A.
+      - 0.0175 · 200 ÷ 1.5 = ?
+    explanation: R ≈ 2.33 Ω. At 16 A the cable drops 37 V and heats up with almost 600 W. That is why cable reels should always be fully unwound.
     difficulty: 3
 
 srs:

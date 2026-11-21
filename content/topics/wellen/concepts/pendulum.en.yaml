@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: c1
@@ -85,6 +85,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: A pendulum should take {{k}} times as long per swing. How many times as long must it be?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: root-ignored
+        text: The length sits under a square root. For {{k}} times the period you need more than {{k}} times the length.
+    hints:
+      - T grows with the square root of the length.
+      - To multiply the root by {{k}}, the number under it must grow by {{k}}².
+    explanation: √({{k * k}}) = {{k}}. So it takes {{k * k}} times the length.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,3,4]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: the Foucault pendulum in the Paris Panthéon takes 16.4 s per swing. How long is its wire – in metres?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 67
+      tolerance: 12
+    explanation: L = g · (T ÷ 2π)² ≈ 9.8 · 6.8 ≈ 67 m. In 1851 Foucault used it to show that the plane of swing slowly turns – because Earth rotates beneath it.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: sim
@@ -124,6 +160,30 @@ steps:
     hints:
       - The rhythm of the pushes matches the natural frequency.
     explanation: When the drive hits the **natural frequency**, the oscillation builds up. That is how glasses sing – and how bridges can collapse.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: For small swings gravity pulls the pendulum back with $F = -\frac{mg}{L} x$ – proportional to the displacement x. This gives a **harmonic oscillation** with $\omega = \sqrt{g/L}$, so $T = 2\pi\sqrt{L/g}$.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Does T = 2π√(L/g) still hold when the pendulum swings out 90°?
+    params:
+      options:
+        - label: No – at large amplitudes a swing takes longer.
+          correct: true
+        - label: Yes, the period never depends on the amplitude.
+          feedback: That only holds for small angles. At 90° T is about 18 % longer.
+        - label: No – then it gets shorter.
+          feedback: The restoring force grows more slowly than the displacement. That slows it down rather than speeding it up.
+    hints:
+      - The formula uses sin(α) ≈ α. Is that true at 90°?
+      - At large angles gravity pulls back relatively less.
+    explanation: The approximation sin α ≈ α only holds up to about 15°. At 90° the period is about 18 % longer. That is why pendulum clocks swing only a little.
     difficulty: 3
 
 srs:

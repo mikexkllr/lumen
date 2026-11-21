@@ -5,7 +5,7 @@ summary: Focusing and spreading light.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -109,6 +109,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: A lens has a focal length of 10 cm. An object stands {{g}} cm in front of it. At what distance behind the lens does the image form? Use 1/f = 1/g + 1/b.
+    params:
+      unit: cm
+    answer:
+      value: "{{g * 10 / (g - 10)}}"
+    feedback:
+      - when: numval(state.input) == g - 10
+        misconception: subtract-distances
+        text: "You do not subtract the distances but their reciprocals: 1/b = 1/f − 1/g."
+    hints:
+      - 1/b = 1/10 − 1/{{g}}.
+      - Take the reciprocal of the result.
+    explanation: b = g · f ÷ (g − f) = {{g * 10 / (g - 10)}} cm. The closer the object is to the focal point, the farther and larger the image.
+    difficulty: 2
+    variants:
+      params:
+        g: choice[15,20,30,60]
+      defaults:
+        g: 15
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: sim
+    prompt: "Make a camera: the image should be half the size of the object."
+    params:
+      scene: lens
+    answer:
+      magnification:
+        - 0.48
+        - 0.52
+    explanation: Half size occurs when the object is three times the focal length away, about 30 cm at f = 10 cm. Cameras almost always make images smaller.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -124,6 +162,26 @@ steps:
     hints:
       - That is how you use a magnifying glass.
     explanation: "A **virtual image**: the rays seem to come from a point behind the object."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: In the eye the distance to the retina is fixed. To focus, the eye lens changes its focal length – that is called **accommodation**. With age the lens stiffens. Then reading glasses help.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: An eye can focus no closer than 50 cm. You want to read at 25 cm. What lens power do you need? Calculate D = 1/0.25 m − 1/0.5 m.
+    params:
+      unit: dpt
+    answer:
+      value: 2
+    hints:
+      - 1 ÷ 0.25 = 4 and 1 ÷ 0.5 = 2.
+      - The difference is the extra power needed.
+    explanation: 4 − 2 = +2 dioptres. The converging lens does what the eye lens can no longer manage. Short-sighted people need diverging lenses with a minus instead.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Warum nie alles in Arbeit fließt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: order
+    prompt: Bring die vier Takte eines Benzinmotors in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "Ansaugen: Kolben saugt Gemisch an"
+        - label: "Verdichten: Kolben presst es zusammen"
+        - label: "Arbeiten: Zündung, heißes Gas drückt"
+        - label: "Ausstoßen: Abgas strömt hinaus"
+    hints:
+      - Erst muss Brennstoff in den Zylinder.
+      - Gezündet wird, wenn das Gas am stärksten verdichtet ist.
+    explanation: Ansaugen, Verdichten, Arbeiten, Ausstoßen. Nur im dritten Takt leistet das heiße Gas Arbeit. Das Abgas trägt die Wärme weg, die keine Maschine nutzen kann.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Kraftwerk mit 40 % Wirkungsgrad liefert 1000 MW Strom. Wie viele MW Abwärme gibt es an Fluss und Kühlturm ab?
+    params:
+      unit: MW
+    answer:
+      value: 1500
+    feedback:
+      - when: numval(state.input) == 600
+        misconception: output-as-input
+        text: "Die 1000 MW sind der **Nutzen**, nicht der Einsatz. Der Einsatz ist 1000 : 0,4."
+    hints:
+      - "Eingesetzte Wärme: 1000 MW : 0,4."
+      - Abwärme = Einsatz − Nutzen.
+    explanation: 2500 MW gehen hinein, 1000 MW als Strom heraus, 1500 MW als Abwärme. Darum stehen Kraftwerke an Flüssen. Mit Fernwärme nutzt man einen Teil davon.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +147,30 @@ steps:
     hints:
       - Arbeit trägt keine Entropie, Wärme schon.
     explanation: Wärme bei hoher Temperatur ist »wertvoll«, bei niedriger nicht. Der Carnot-Wirkungsgrad folgt direkt aus dem zweiten Hauptsatz.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Eine Maschine nimmt Wärme $Q_w$ bei $T_w$ auf und gibt $Q_k$ bei $T_k$ ab. Die Entropie darf dabei nicht sinken: $\\frac{Q_k}{T_k} \\geq \\frac{Q_w}{T_w}$. Daraus folgt der **Carnot-Wirkungsgrad** $\\eta \\leq 1 - \\frac{T_k}{T_w}$."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Maschine nimmt 1000 J Wärme bei 600 K auf. Die Umgebung hat 300 K. Wie viele Joule Wärme muss sie mindestens wieder abgeben?
+    params:
+      unit: J
+    answer:
+      value: 500
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-waste
+        text: "Ohne Abwärme würde die Entropie sinken: Die aufgenommene Entropie muss irgendwohin."
+    hints:
+      - "Aufgenommene Entropie: 1000 J : 600 K."
+      - "Dieselbe Entropie bei 300 K abgeben: Q = 300 K · 1000/600 J/K."
+    explanation: Mindestens 500 J. Höchstens 500 J werden Arbeit – 50 %, genau der Carnot-Wert 1 − 300/600.
     difficulty: 3
 
 srs:

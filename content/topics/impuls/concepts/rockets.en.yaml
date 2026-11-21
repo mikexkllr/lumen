@@ -1,0 +1,183 @@
+id: sci.momentum.rockets
+type: concept
+title: "Rockets"
+summary: "Recoil, thrust and the rocket equation – why rockets are almost all tank."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how fast must a rocket go to orbit Earth just above the air – in km/s?"
+    params:
+      min: 0
+      max: 20
+    answer:
+      value: 7.8
+      tolerance: 1.5
+    explanation: About 7.8 km/s – 28,000 km/h. Including air drag and gravity on the way up, a rocket needs about 9 km/s in total.
+
+  - kind: explain
+    id: c1
+    body: A rocket throws hot gas backwards at high speed. The gas gets momentum backwards, the rocket just as much forwards. This **recoil** also works in empty space.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Does a rocket need air to push against?
+    params:
+      options:
+        - label: No – it pushes against its own exhaust.
+          correct: true
+        - label: Yes, that is why it cannot fly on in space.
+          feedback: In space it flies even better, without air drag.
+        - label: Yes, but only at lift-off.
+          feedback: Even at lift-off the gas does not push on the air; the rocket pushes the gas away.
+    hints:
+      - Think of the skater throwing a ball.
+      - What does she push against?
+    explanation: The expelled gas is the »ball«. The more gas per second and the faster, the more thrust.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: An engine expels 100 kg of gas per second at 3000 m/s. How large is the thrust? Thrust = gas per second · exhaust speed. In kN.
+    params:
+      unit: kN
+    answer:
+      value: 300
+    feedback:
+      - when: numval(state.input) == 300000
+        misconception: unit-kn
+        text: That is newtons. 1 kN = 1000 N.
+    hints:
+      - Momentum per second is a force.
+      - 100 · 3000 = 300,000 N.
+    explanation: 300,000 N = 300 kN. Force is change of momentum per time – here 300,000 kg·m/s of gas backwards every second.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The rocket has a mass of 20 t at lift-off, so its weight is 200 kN. The thrust is 300 kN. With what acceleration does it lift off – in m/s²?
+    params:
+      unit: m/s²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: forgot-weight
+        text: Gravity pulls against it. Only the surplus of 100 kN accelerates.
+    hints:
+      - Net force = thrust − weight.
+      - 100,000 N ÷ 20,000 kg = ?
+    explanation: 5 m/s². As fuel burns, the rocket gets lighter and accelerates ever harder.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Tsiolkovsky found the **rocket equation**: $\\Delta v = v_e \\cdot \\ln\\frac{m_0}{m_1}$. Here $v_e$ is the exhaust speed, $m_0$ the launch mass and $m_1$ the mass without fuel."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The gas exits at 3 km/s. The ratio of launch mass to empty mass is e to the {{k}}. What change in speed can the rocket achieve – in km/s?
+    params:
+      unit: km/s
+    answer:
+      value: "{{3 * k}}"
+    hints:
+      - ln(e to the {{k}}) = {{k}}.
+      - Δv = 3 km/s · {{k}}.
+    explanation: Δv = {{3 * k}} km/s. Each further bit of Δv costs a fixed factor in mass, not a fixed amount.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,2,3]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A rocket with an exhaust speed of 3 km/s must reach 9 km/s. What mass ratio m₀ ÷ m₁ does it need? To one decimal place.
+    answer:
+      value: 20.1
+      tolerance: 0.3
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: log-vs-ratio
+        text: That is the logarithm of the ratio. The ratio itself is e³.
+    hints:
+      - ln(m₀ ÷ m₁) = 9 ÷ 3 = 3.
+      - e³ = ?
+    explanation: e³ ≈ 20.1. Of 20 t at launch only 1 t remains – 95 % is fuel.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "That is why engineers build **stages**: when a tank is empty, it is dropped. The next stage no longer has to haul the dead mass. That way rockets reach orbital speed despite the cruel logarithm rule."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: An ion thruster expels particles at 30 km/s. What mass ratio does it need for 9 km/s? To two decimals.
+    answer:
+      value: 1.35
+      tolerance: 0.02
+    hints:
+      - ln(m₀ ÷ m₁) = 9 ÷ 30 = 0.3.
+      - e to the 0.3 = ?
+    explanation: e^0.3 ≈ 1.35 – only a quarter fuel. But ion thrusters have tiny thrust. They suit long trips in space, never lift-off.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Why does increasing the exhaust speed pay off so much?
+    params:
+      options:
+        - label: It sits in front of the logarithm – the fuel needed drops exponentially.
+          correct: true
+        - label: Because the rocket is then quieter.
+          feedback: Noise does not matter. It is about mass.
+        - label: It brings little; mass matters more.
+          feedback: Double the exhaust speed halves the exponent of the mass ratio.
+    hints:
+      - m₀ ÷ m₁ = e to the (Δv ÷ v_e).
+      - What happens to e^3 if the exponent is halved?
+    explanation: "With double v_e, e³ ≈ 20 becomes just e^1.5 ≈ 4.5. That is why hydrogen counts as the best chemical fuel: it exits fastest."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a rocket can accelerate in empty space.
+    params:
+      keywords:
+        - - gas
+          - abgas
+          - exhaust
+        - - impuls
+          - momentum
+          - rückstoß
+          - recoil
+        - - hinten
+          - backward
+          - nach vorn
+          - forward
+          - gegen
+          - opposite
+      sample: The rocket throws gas backwards at high speed. The gas gets momentum backwards, so the rocket gets the same momentum forwards. It needs no air for that – only its own exhaust.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

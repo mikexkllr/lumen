@@ -5,7 +5,7 @@ summary: Masse bleibt, Gewicht ändert sich.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -112,6 +112,79 @@ steps:
     explanation: Rund 3,3 s statt 2 s auf der Erde. Mit einem Pendel kann man die Schwerkraft eines Planeten messen.
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: "Newton fand das **Gravitationsgesetz**: Zwei Massen ziehen sich an mit $F = G \\frac{m_1 m_2}{r^2}$. Doppelte Masse heißt doppelte Kraft. Doppelter Abstand heißt ein Viertel der Kraft."
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Planet hat {{m}}-mal die Masse der Erde und {{r}}-mal ihren Radius. Wie groß ist die Fallbeschleunigung g dort? Auf der Erde: 10 m/s²."
+    params:
+      unit: m/s²
+    answer:
+      value: "{{10 * m / (r * r)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 10 * m / r) < 0.01
+        misconception: radius-not-squared
+        text: Der Radius steht im Quadrat im Nenner. Teile durch {{r * r}}, nicht durch {{r}}.
+    hints:
+      - Mehr Masse zieht stärker, ein größerer Radius bringt dich weiter weg.
+      - "g = 10 · Massenfaktor : Radiusfaktor²."
+    explanation: "g = 10 · {{m}} : {{r * r}} = {{10 * m / (r * r)}} m/s². Masse zählt einfach, Abstand im Quadrat."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[2,4,8,16]
+        r: choice[2,4]
+      defaults:
+        m: 8
+        r: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: Die ISS fliegt 400 km hoch. Der Erdradius ist 6400 km. Wie viel Prozent der Schwerkraft am Boden wirken dort noch?
+    params:
+      unit: "%"
+    answer:
+      value: 89
+      tolerance: 1.5
+    feedback:
+      - when: numval(state.input) < 5
+        misconception: no-gravity-in-orbit
+        text: Die Schwerkraft ist dort nicht weg! Sie ist nur ein wenig schwächer.
+    hints:
+      - "Abstand zum Erdmittelpunkt: 6800 km statt 6400 km."
+      - "Rechne (6400 : 6800)²."
+    explanation: (6400/6800)² ≈ 0,89. In der ISS wirken fast 90 % der Schwerkraft. Man schwebt, weil man mit der Station frei um die Erde fällt.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d4
+    depth: 2
+    widget: sim
+    prompt: Der Satellit startet waagerecht in 1,5 Erdradien Höhe. Er soll die Erde nicht treffen – aber so langsam wie möglich fliegen. Höchstens 5,9 km/s.
+    params:
+      scene: orbit
+      controls:
+        radius:
+          value: 1.5
+          fixed: true
+        speed:
+          value: 4
+    answer:
+      kind: 0
+      speed:
+        - 5.75
+        - 5.9
+    explanation: Unter dem Kreisbahn-Tempo wird die Bahn zur Ellipse, die sich der Erde nähert. Ab etwa 5,8 km/s verfehlt sie die Oberfläche gerade noch.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -130,6 +203,80 @@ steps:
         - 0
         - 0.03
     explanation: Bei 5,6 km/s. Zu langsam stürzt er ab, zu schnell wird die Bahn zur Ellipse – oder er entkommt.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Bei einer Kreisbahn liefert die Schwerkraft die Kraft zur Mitte: $\\frac{GMm}{r^2} = \\frac{m v^2}{r}$. Setzt man $v = \\frac{2\\pi r}{T}$ ein, folgt $T^2 = \\frac{4\\pi^2}{GM} r^3$ – das dritte **Keplersche Gesetz**."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Nach Kepler gilt T² ∝ r³. Ein Asteroid kreist {{k}}-mal so weit von der Sonne wie die Erde. Wie viele Jahre dauert sein Umlauf?
+    params:
+      unit: Jahre
+    answer:
+      value: "{{k * sqrt(k)}}"
+    feedback:
+      - when: numval(state.input) == k * k
+        misconception: kepler-square
+        text: Das wäre T ∝ r². Kepler sagt T² ∝ r³, also T ∝ r hoch 1,5.
+      - when: numval(state.input) == k
+        misconception: kepler-linear
+        text: Weiter draußen ist der Weg länger **und** das Tempo kleiner.
+    hints:
+      - T² = {{k}}³ = {{k * k * k}}.
+      - Zieh die Wurzel.
+    explanation: "T = √({{k}}³) = {{k * sqrt(k)}} Jahre. Die Erde dient als Maßstab: 1 Abstand, 1 Jahr."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[4,9,16]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Minuten braucht die ISS (400 km hoch, 7,7 km/s) für eine Runde um die Erde?"
+    params:
+      min: 10
+      max: 600
+    answer:
+      value: 92
+      tolerance: 12
+    explanation: Umfang 2π · 6800 km ≈ 42 700 km, geteilt durch 7,7 km/s ≈ 5500 s ≈ 92 Minuten. Die Crew sieht 16 Sonnenaufgänge am Tag.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum schweben Astronauten in der ISS, obwohl dort fast die volle Schwerkraft wirkt?"
+    params:
+      keywords:
+        - - fall
+          - fällt
+          - falling
+          - fallen
+        - - gleich
+          - same
+          - zusammen
+          - together
+          - mit
+          - station
+        - - schnell
+          - fast
+          - seitwärts
+          - sideways
+          - vorbei
+          - around
+          - verfehl
+          - miss
+      sample: Station und Astronauten fallen zusammen zur Erde. Weil sie so schnell seitwärts fliegen, verfehlen sie die Erde immer wieder. Alles fällt gleich, darum drückt nichts auf den Boden.
     difficulty: 3
 
 srs:

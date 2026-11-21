@@ -5,7 +5,7 @@ summary: Wie viel kommt wirklich an?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: gluehbirne
@@ -107,6 +107,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein E-Motor hat 90 % Wirkungsgrad. Er soll 45 kW an die Räder geben. Wie viele kW zieht er aus der Batterie?
+    params:
+      unit: kW
+    answer:
+      value: 50
+    feedback:
+      - when: abs(numval(state.input) - 40.5) < 0.1
+        misconception: efficiency-direction
+        text: Der Motor braucht **mehr**, als er abgibt. Teile durch 0,9, statt mit 0,9 zu malen.
+    hints:
+      - Nutzen = Wirkungsgrad · Aufwand.
+      - "Aufwand = 45 kW : 0,9."
+    explanation: "45 : 0,9 = 50 kW. Die 5 kW Differenz werden zu Wärme in Motor und Elektronik."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: Ein elektrischer Heizlüfter macht fast 100 % des Stroms zu Wärme. Ist er damit die beste Heizung?
+    params:
+      options:
+        - label: Nein – eine Wärmepumpe macht aus 1 kWh Strom 3 bis 4 kWh Wärme.
+          correct: true
+        - label: Ja, mehr als 100 % geht nicht.
+          feedback: Die Wärmepumpe erzeugt die Wärme nicht, sie holt sie von draußen.
+        - label: Ja, er ist auch am billigsten.
+          feedback: Mit Strom direkt zu heizen ist meist am teuersten.
+    hints:
+      - Muss die Wärme aus dem Strom selbst kommen?
+      - Ein Kühlschrank pumpt Wärme von innen nach außen.
+    explanation: "Der Heizlüfter wandelt Strom 1 : 1 in Wärme. Die Wärmepumpe nutzt den Strom, um Umweltwärme hereinzupumpen – sie liefert ein Vielfaches."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -122,6 +160,57 @@ steps:
     hints:
       - Woher könnte die zusätzliche Wärme stammen?
     explanation: Sie **pumpt** Wärme von kalt nach warm. Ein Kühlschrank macht dasselbe – nur andersherum genutzt.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Kohlekraftwerk (40 %) liefert Strom über eine Leitung (95 %) an eine Wärmepumpe. Sie macht aus jeder kWh Strom 3 kWh Wärme. Wie viel Prozent der Kohleenergie kommen als Wärme an?
+    params:
+      unit: "%"
+    answer:
+      value: 114
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 38) < 1
+        misconception: forgot-cop
+        text: Das wäre ein Heizlüfter. Die Wärmepumpe verdreifacht den Strom noch.
+    hints:
+      - "Multipliziere alle Faktoren: 0,40 · 0,95 · …"
+      - Die Leistungszahl 3 ist auch ein Faktor.
+    explanation: 0,40 · 0,95 · 3 = 1,14. Selbst mit Kohlestrom kommt mehr Wärme an, als die Kohle direkt im Ofen liefern könnte. Mit Ökostrom ist der Vorteil noch größer.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum kann kein Wirkungsgrad über 100 % liegen – und warum ist die Wärmepumpe trotzdem kein Wunder?"
+    params:
+      keywords:
+        - - energie
+          - energy
+          - erhalt
+          - conserv
+          - nichts
+          - nothing
+        - - umgebung
+          - environment
+          - surround
+          - außen
+          - outside
+          - luft
+          - air
+          - erde
+          - ground
+        - - pump
+          - holt
+          - fetch
+          - transport
+          - bewegt
+          - moves
+      sample: Energie entsteht nicht aus dem Nichts, darum kommt nie mehr heraus als hinein. Die Wärmepumpe erzeugt die Wärme nicht. Sie pumpt Wärme aus der Umgebung ins Haus und braucht dafür nur etwas Strom.
     difficulty: 3
 
 srs:

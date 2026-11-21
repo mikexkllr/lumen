@@ -5,7 +5,7 @@ summary: How much really arrives?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: gluehbirne
@@ -107,6 +107,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: An electric motor has 90 % efficiency. It must deliver 45 kW to the wheels. How many kW does it draw from the battery?
+    params:
+      unit: kW
+    answer:
+      value: 50
+    feedback:
+      - when: abs(numval(state.input) - 40.5) < 0.1
+        misconception: efficiency-direction
+        text: The motor needs **more** than it delivers. Divide by 0.9 instead of multiplying.
+    hints:
+      - Output = efficiency · input.
+      - Input = 45 kW ÷ 0.9.
+    explanation: 45 ÷ 0.9 = 50 kW. The 5 kW difference turns into heat in the motor and electronics.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: An electric fan heater turns almost 100 % of its electricity into heat. Does that make it the best heater?
+    params:
+      options:
+        - label: No – a heat pump turns 1 kWh of electricity into 3 to 4 kWh of heat.
+          correct: true
+        - label: Yes, more than 100 % is impossible.
+          feedback: The heat pump does not create the heat; it fetches it from outside.
+        - label: Yes, it is also the cheapest.
+          feedback: Heating directly with electricity is usually the most expensive.
+    hints:
+      - Does the heat have to come from the electricity itself?
+      - A fridge pumps heat from inside to outside.
+    explanation: "The fan heater converts electricity 1 : 1 into heat. The heat pump uses electricity to pump in heat from outside – it delivers several times as much."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -122,6 +160,57 @@ steps:
     hints:
       - Where might the extra heat come from?
     explanation: It **pumps** heat from cold to warm. A fridge does the same – just used the other way round.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A coal power plant (40 %) sends electricity through a line (95 %) to a heat pump. It turns every kWh of electricity into 3 kWh of heat. What percentage of the coal energy arrives as heat?
+    params:
+      unit: "%"
+    answer:
+      value: 114
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 38) < 1
+        misconception: forgot-cop
+        text: That would be a fan heater. The heat pump triples the electricity on top.
+    hints:
+      - "Multiply all factors: 0.40 · 0.95 · …"
+      - The coefficient of performance 3 is a factor too.
+    explanation: 0.40 · 0.95 · 3 = 1.14. Even with coal power more heat arrives than burning the coal in a stove could give. With green power the advantage is even larger.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: why can no efficiency exceed 100 % – and why is the heat pump still no miracle?"
+    params:
+      keywords:
+        - - energie
+          - energy
+          - erhalt
+          - conserv
+          - nichts
+          - nothing
+        - - umgebung
+          - environment
+          - surround
+          - außen
+          - outside
+          - luft
+          - air
+          - erde
+          - ground
+        - - pump
+          - holt
+          - fetch
+          - transport
+          - bewegt
+          - moves
+      sample: Energy does not come from nothing, so you never get out more than you put in. The heat pump does not create heat. It pumps heat from the surroundings into the house and only needs a little electricity for that.
     difficulty: 3
 
 srs:

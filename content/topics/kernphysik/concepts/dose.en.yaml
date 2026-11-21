@@ -5,7 +5,7 @@ summary: Comparing doses.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,36 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: a banana gives about 0.1 µSv. A flight from Frankfurt to New York about 50 µSv. How many bananas is the flight worth?"
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 500
+      within: 50
+    explanation: 50 ÷ 0.1 = 500 bananas. Both are harmless – a year of natural radiation is about 20,000 bananas.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: An absorbed dose of 1 gray means 1 joule per kg of body. A 70 kg person absorbs 0.001 Gy. How much energy in joules is that?
+    params:
+      unit: J
+    answer:
+      value: 0.07
+    hints:
+      - Energy = dose · mass.
+      - 0.001 · 70 = ?
+    explanation: Only 0.07 J – the heat you get from a candle in a fraction of a second. Radiation does harm not by heat but because single hits rip apart molecules like DNA.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +141,49 @@ steps:
     hints:
       - The same energy – on one cell or spread over a million cells?
     explanation: "That is why the **sievert** exists: it weights the energy by its biological effect."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: The **equivalent dose** in sievert is the absorbed dose in gray times a weighting factor. It is 1 for gamma and beta but 20 for alpha. It accounts for how densely particles dump their energy.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Radon in a cellar gives the lungs 0.5 mGy of alpha radiation. What is the equivalent dose – in mSv?
+    params:
+      unit: mSv
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: forgot-weighting
+        text: For alpha each gray counts twenty times.
+    hints:
+      - "Weighting factor for alpha: 20."
+      - 0.5 · 20 = ?
+    explanation: 0.5 mGy · 20 = 10 mSv. That is why radon is the largest source of natural radiation in Germany – and why airing helps so much.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: From roughly what short-term whole-body dose do about half of people die without treatment?
+    params:
+      options:
+        - label: About 4 to 5 sievert
+          correct: true
+        - label: About 5 millisievert
+          feedback: That is only a little above the natural annual dose – entirely safe.
+        - label: About 50 millisievert
+          feedback: Several CT scans give that much. Acute radiation sickness only begins at about 1 Sv.
+    hints:
+      - A CT scan gives about 10 mSv – and is permitted.
+      - Danger to life starts at doses a thousand times the annual dose.
+    explanation: At 4 to 5 Sv – two thousand times the natural annual dose – the bone marrow is destroyed. With radiation the dose makes the poison.
     difficulty: 3
 
 srs:

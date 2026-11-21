@@ -1,0 +1,183 @@
+id: sci.momentum.rockets
+type: concept
+title: "Raketen"
+summary: "Rückstoß, Schub und die Raketengleichung – warum Raketen fast nur Tank sind."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie schnell muss eine Rakete werden, um die Erde knapp über der Luft zu umkreisen – in km/s?"
+    params:
+      min: 0
+      max: 20
+    answer:
+      value: 7.8
+      tolerance: 1.5
+    explanation: Etwa 7,8 km/s – 28 000 km/h. Mit Luftwiderstand und Schwerkraft beim Aufstieg braucht eine Rakete insgesamt sogar rund 9 km/s.
+
+  - kind: explain
+    id: c1
+    body: Eine Rakete stößt heißes Gas mit großem Tempo nach hinten aus. Das Gas bekommt Impuls nach hinten, die Rakete genauso viel nach vorn. Dieser **Rückstoß** funktioniert auch im leeren Raum.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Braucht eine Rakete Luft, gegen die sie sich abstoßen kann?
+    params:
+      options:
+        - label: Nein – sie stößt sich am eigenen Abgas ab.
+          correct: true
+        - label: Ja, darum fliegt sie im All nicht weiter.
+          feedback: Im All fliegt sie sogar besser, ohne Luftwiderstand.
+        - label: Ja, aber nur beim Start.
+          feedback: Auch beim Start drückt das Gas nicht auf die Luft, sondern die Rakete stößt das Gas weg.
+    hints:
+      - Denk an die Skaterin, die einen Ball wirft.
+      - Woran stößt sie sich ab?
+    explanation: Das ausgestoßene Gas ist der »Ball«. Je mehr Gas pro Sekunde und je schneller, desto mehr Schub.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Triebwerk stößt pro Sekunde 100 kg Gas mit 3000 m/s aus. Wie groß ist die Schubkraft? Schub = Gas pro Sekunde · Austrittstempo. In kN.
+    params:
+      unit: kN
+    answer:
+      value: 300
+    feedback:
+      - when: numval(state.input) == 300000
+        misconception: unit-kn
+        text: Das sind Newton. 1 kN = 1000 N.
+    hints:
+      - Impuls pro Sekunde ist eine Kraft.
+      - 100 · 3000 = 300 000 N.
+    explanation: 300 000 N = 300 kN. Kraft ist Impulsänderung pro Zeit – hier jede Sekunde 300 000 kg·m/s Gas nach hinten.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Die Rakete wiegt beim Start 20 t, ihr Gewicht ist also 200 kN. Der Schub ist 300 kN. Mit welcher Beschleunigung hebt sie ab – in m/s²?
+    params:
+      unit: m/s²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: forgot-weight
+        text: Die Schwerkraft zieht dagegen. Nur der Überschuss von 100 kN beschleunigt.
+    hints:
+      - Gesamtkraft = Schub − Gewicht.
+      - "100 000 N : 20 000 kg = ?"
+    explanation: 5 m/s². Weil Treibstoff verbrennt, wird die Rakete leichter und beschleunigt immer stärker.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ziolkowski fand die **Raketengleichung**: $\\Delta v = v_e \\cdot \\ln\\frac{m_0}{m_1}$. Dabei ist $v_e$ das Austrittstempo, $m_0$ die Startmasse und $m_1$ die Masse ohne Treibstoff."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Das Gas strömt mit 3 km/s aus. Das Verhältnis von Startmasse zu Leermasse ist e hoch {{k}}. Welche Geschwindigkeitsänderung schafft die Rakete – in km/s?
+    params:
+      unit: km/s
+    answer:
+      value: "{{3 * k}}"
+    hints:
+      - ln(e hoch {{k}}) = {{k}}.
+      - Δv = 3 km/s · {{k}}.
+    explanation: Δv = {{3 * k}} km/s. Jedes weitere Stück Δv kostet einen festen **Faktor** an Masse, nicht einen festen Betrag.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,2,3]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Eine Rakete mit 3 km/s Austrittstempo soll 9 km/s erreichen. Welches Massenverhältnis m₀ : m₁ braucht sie? Auf eine Stelle."
+    answer:
+      value: 20.1
+      tolerance: 0.3
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: log-vs-ratio
+        text: Das ist der Logarithmus des Verhältnisses. Das Verhältnis selbst ist e³.
+    hints:
+      - "ln(m₀ : m₁) = 9 : 3 = 3."
+      - e³ = ?
+    explanation: e³ ≈ 20,1. Von 20 t beim Start bleiben nur 1 t übrig – 95 % sind Treibstoff.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Darum bauen Ingenieure **Stufen**: Ist ein Tank leer, wird er abgeworfen. Die nächste Stufe muss die tote Masse nicht mehr mitschleppen. So erreichen Raketen Bahngeschwindigkeit trotz der grausamen Logarithmus-Regel."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Ionentriebwerk stößt Teilchen mit 30 km/s aus. Welches Massenverhältnis braucht es für 9 km/s? Auf zwei Stellen.
+    answer:
+      value: 1.35
+      tolerance: 0.02
+    hints:
+      - "ln(m₀ : m₁) = 9 : 30 = 0,3."
+      - e hoch 0,3 = ?
+    explanation: e^0,3 ≈ 1,35 – nur ein Viertel Treibstoff. Aber Ionentriebwerke haben winzigen Schub. Sie taugen für lange Reisen im All, nie für den Start.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Warum lohnt es sich so sehr, das Austrittstempo des Gases zu erhöhen?
+    params:
+      options:
+        - label: Es steht vor dem Logarithmus – der Treibstoffbedarf sinkt exponentiell.
+          correct: true
+        - label: Weil die Rakete dann leiser ist.
+          feedback: Lärm spielt keine Rolle. Es geht um die Masse.
+        - label: Es bringt nur wenig, die Masse ist wichtiger.
+          feedback: Doppeltes Austrittstempo halbiert den Exponenten des Massenverhältnisses.
+    hints:
+      - "m₀ : m₁ = e hoch (Δv : v_e)."
+      - Was passiert mit e^3, wenn der Exponent halbiert wird?
+    explanation: "Bei doppeltem v_e wird aus e³ ≈ 20 nur e^1,5 ≈ 4,5. Darum gilt Wasserstoff als bester chemischer Treibstoff: Er strömt am schnellsten aus."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Rakete im leeren All beschleunigen kann.
+    params:
+      keywords:
+        - - gas
+          - abgas
+          - exhaust
+        - - impuls
+          - momentum
+          - rückstoß
+          - recoil
+        - - hinten
+          - backward
+          - nach vorn
+          - forward
+          - gegen
+          - opposite
+      sample: Die Rakete stößt Gas mit großem Tempo nach hinten aus. Das Gas bekommt Impuls nach hinten, also bekommt die Rakete gleich viel Impuls nach vorn. Dafür braucht sie keine Luft – nur ihr eigenes Abgas.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

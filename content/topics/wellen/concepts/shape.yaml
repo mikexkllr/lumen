@@ -5,7 +5,7 @@ summary: Hohe Welle laut, dichte Welle hoch.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: lauter
@@ -97,6 +97,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: slider
+    prompt: "Antischall: Ein zweiter Lautsprecher spielt a · sin(2x) zur Welle sin(2x) dazu. Stelle a so ein, dass Stille entsteht."
+    params:
+      expr: sin(2*x) + a*sin(2*x)
+      x:
+        - 0
+        - 6
+      y:
+        - -3
+        - 3
+      sliders:
+        - id: a
+          label: Lautsprecher 2
+          min: -2
+          max: 2
+          step: 0.5
+          initial: 1
+      target:
+        expr: "0"
+    answer:
+      matchTarget: true
+    hints:
+      - Die zweite Welle muss Berg auf Tal legen.
+      - Gleich groß, aber umgekehrtes Vorzeichen.
+    explanation: "Bei a = −1 löschen sich die Wellen aus. So arbeiten Kopfhörer mit Geräuschunterdrückung: Sie messen den Lärm und spielen ihn umgekehrt ab."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Stimmgabeln klingen zusammen: 440 Hz und 444 Hz. Wie oft pro Sekunde schwillt der Ton an und wieder ab?"
+    params:
+      unit: Hz
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 442
+        misconception: mean-not-beat
+        text: Das ist die Tonhöhe, die du hörst. Gefragt ist das Wummern.
+    hints:
+      - Die Wellen laufen mal im Takt, mal gegeneinander.
+      - Wie oft pro Sekunde holt die schnellere die langsamere ein?
+    explanation: "444 − 440 = 4 Schwebungen pro Sekunde. Musiker stimmen so: Sie drehen, bis das Wummern verschwindet."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +161,30 @@ steps:
     hints:
       - Addiere +1 und −1.
     explanation: "**Destruktive Interferenz**. Kopfhörer mit Geräuschunterdrückung erzeugen genau diesen Gegenschall."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Jeder Klang ist eine Summe von Sinuswellen: ein Grundton plus **Obertöne** mit doppelter, dreifacher, vierfacher Frequenz. Ihr Mischungsverhältnis macht den Unterschied zwischen Geige und Flöte."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Gitarrensaite ist 65 cm lang. Wellen laufen auf ihr mit 143 m/s. Beim Grundton passt eine halbe Welle auf die Saite. Welche Frequenz hat er?
+    params:
+      unit: Hz
+    answer:
+      value: 110
+    feedback:
+      - when: numval(state.input) == 220
+        misconception: half-wave
+        text: Die Wellenlänge ist **doppelt** so lang wie die Saite, nicht gleich lang.
+    hints:
+      - Wellenlänge = 2 · 0,65 m = 1,3 m.
+      - "f = Tempo : Wellenlänge."
+    explanation: "143 : 1,3 = 110 Hz – das tiefe A. Greifst du die Saite in der Mitte, halbiert sich die Länge, und der Ton springt eine Oktave höher."
     difficulty: 3
 
 srs:

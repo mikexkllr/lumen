@@ -5,7 +5,7 @@ summary: Why heavy things are sluggish.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: bus
@@ -83,6 +83,54 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: A car drives straight at a steady 100 km/h. What is the sum of all forces on the car?
+    params:
+      options:
+        - label: Zero
+          correct: true
+        - label: A large forward force
+          feedback: The engine pushes – but air and friction brake just as hard.
+        - label: A backward force
+          feedback: Then the car would slow down.
+    hints:
+      - Does the velocity change?
+      - Without acceleration F = m · a is zero.
+    explanation: Uniform motion needs no net force. The engine only balances the braking forces. That is Newton's first law – and it contradicts gut feeling.
+    difficulty: 2
+
+  - kind: explain
+    id: ph-d2
+    depth: 2
+    body: "**Friction** slows motion down. Its force is $F_R = \\mu \\cdot F_N$. Here $F_N$ is the force pressing a body onto the floor. The friction coefficient μ depends on the materials."
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: A 1000 kg car pulls with {{f}} N. Air and friction brake with 500 N. What is its acceleration in m/s²?
+    params:
+      unit: m/s²
+    answer:
+      value: "{{(f - 500) / 1000}}"
+    feedback:
+      - when: abs(numval(state.input) - f / 1000) < 0.01
+        misconception: net-force
+        text: You forgot the braking force. What counts is the sum of all forces.
+    hints:
+      - Net force = pulling force − braking force.
+      - a = net force ÷ mass.
+    explanation: ({{f}} − 500) ÷ 1000 = {{(f - 500) / 1000}} m/s². Only the leftover force accelerates.
+    difficulty: 2
+    variants:
+      params:
+        f: choice[1500,2500,3500,4500]
+      defaults:
+        f: 2500
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -98,6 +146,72 @@ steps:
     hints:
       - "Look only at the cart: which forces act on it?"
     explanation: Only the pull forward (and some friction) acts on the cart. The horse pushes off the ground.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: You (60 kg) stand on scales in a lift. It starts and accelerates upwards at 2 m/s². What do the scales show in kg? g = 10 m/s².
+    params:
+      unit: kg
+    answer:
+      value: 72
+    feedback:
+      - when: numval(state.input) == 48
+        misconception: sign-elevator
+        text: Accelerating **upwards** you press harder. The floor has to push you extra.
+      - when: numval(state.input) == 60
+        misconception: ignore-acceleration
+        text: That is right at rest. While starting off, extra force is needed.
+    hints:
+      - "The floor must supply g and a: F = m · (g + a)."
+      - 60 · 12 = 720 N. The scales divide by 10.
+    explanation: F = 60 · (10 + 2) = 720 N. The scales read that as 72 kg. When braking on the way up they show less.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: In a thought experiment the lift cable snaps and everything falls freely. What do the scales under your feet show?
+    params:
+      options:
+        - label: 0 kg
+          correct: true
+        - label: 60 kg
+          feedback: You and the scales fall equally fast. You no longer press on them at all.
+        - label: More than 60 kg
+          feedback: It only shows more when the lift accelerates upwards.
+    hints:
+      - Do the scales fall faster or slower than you?
+      - No pressure, no reading.
+    explanation: Everything falls at g. You no longer press on the scales – you are weightless. That is exactly how astronauts feel in the space station.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: teach
+    prompt: Explain Newton's first law to Lux using an emergency stop in a bus.
+    params:
+      keywords:
+        - - träg
+          - inertia
+          - beharr
+          - weiter
+          - keeps
+          - continue
+        - - kraft
+          - force
+          - ohne
+          - without
+        - - bus
+          - brems
+          - brake
+          - stop
+          - halt
+      sample: A body keeps moving as long as no force slows it down – it has inertia. The bus brakes, but at first no force acts on my body. So I keep moving forward.
     difficulty: 3
 
 srs:

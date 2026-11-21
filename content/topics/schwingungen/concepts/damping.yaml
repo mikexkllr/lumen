@@ -1,0 +1,201 @@
+id: sci.oscillations.damping
+type: concept
+title: "Gedämpfte Schwingung"
+summary: "Reibung frisst Schwingungsenergie – manchmal ein Ärgernis, oft genau gewollt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Schaukel schwingt, aber niemand schubst mehr. Was passiert mit dem Ausschlag?
+    params:
+      options:
+        - label: Er wird mit jeder Schwingung etwas kleiner.
+          correct: true
+        - label: Er bleibt für immer gleich.
+          feedback: Luft und Reibung an der Aufhängung bremsen ständig ein wenig.
+        - label: Er bleibt gleich, aber der Takt wird langsamer.
+          feedback: Der Takt bleibt fast gleich. Kleiner wird der Ausschlag.
+    hints:
+      - Wohin geht die Energie der Schaukel?
+      - Reibung macht Bewegung zu Wärme.
+    explanation: Jede Schwingung verliert etwas Energie an Luft und Lager. Der Ausschlag sinkt, bis die Schaukel stillsteht.
+
+  - kind: explain
+    id: c1
+    body: Reibung entzieht einer Schwingung ständig Energie. Bei dieser **Dämpfung** schrumpft die Amplitude in gleichen Zeiten um denselben Faktor – sie fällt exponentiell. Der Takt ändert sich bei schwacher Dämpfung kaum.
+
+  - kind: problem
+    id: c2
+    widget: slider
+    prompt: Die gestrichelte Schwingung klingt ab. Stelle die Dämpfung d so ein, dass deine Kurve genau passt.
+    params:
+      expr: 2*exp(-d*x)*cos(4*x)
+      x:
+        - 0
+        - 6
+      y:
+        - -2.5
+        - 2.5
+      sliders:
+        - id: d
+          label: Dämpfung d
+          min: 0
+          max: 1
+          step: 0.1
+          initial: 0
+      target:
+        expr: 2*exp(-0.5*x)*cos(4*x)
+    answer:
+      matchTarget: true
+    hints:
+      - Ohne Dämpfung bleiben alle Berge gleich hoch.
+      - Wie schnell schrumpft die gestrichelte Hülle?
+    explanation: d = 0,5. Je größer d, desto schneller schrumpft die Hüllkurve 2 · e hoch (−d · t).
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Der Ausschlag halbiert sich mit jeder Schwingung. Am Anfang sind es 16 cm. Wie groß ist er nach 3 Schwingungen?
+    params:
+      unit: cm
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-decay
+        text: Das wäre ein festes Stück weniger pro Schwingung. Hier ist es ein fester **Faktor**.
+    hints:
+      - 16 → 8 → …
+      - Dreimal halbieren.
+    explanation: 16 → 8 → 4 → 2 cm. Gleicher Faktor pro Zeit – das ist exponentielles Abklingen.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Auto hat Federn. Wozu braucht es zusätzlich Stoßdämpfer?
+    params:
+      options:
+        - label: Damit es nach einem Schlagloch nicht lange nachschaukelt.
+          correct: true
+        - label: Damit es weicher federt.
+          feedback: Die Federn bestimmen die Weichheit. Dämpfer bremsen das Nachschwingen.
+        - label: Damit die Federn nicht rosten.
+          feedback: Dämpfer haben mit Rost nichts zu tun. Sie wandeln Schwingung in Wärme.
+    hints:
+      - Was macht eine Feder ganz ohne Bremse?
+      - Dämpfer drücken Öl durch enge Kanäle.
+    explanation: Ohne Dämpfer würde das Auto nach jedem Stoß lange wippen und die Reifen verlören Halt. Der Dämpfer macht die Schwingungsenergie zu Wärme im Öl.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Bei sehr starker Dämpfung schwingt gar nichts mehr – das System kriecht langsam zurück. Am schnellsten ohne Überschwingen zur Ruhe kommt es genau dazwischen, im **aperiodischen Grenzfall**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Schwingt es lange nach – oder kommt es ohne Schwingen zur Ruhe?
+    params:
+      buckets:
+        - id: b1
+          label: schwingt lange
+        - id: b2
+          label: ohne Nachschwingen
+      items:
+        - label: Glocke
+          bucket: b1
+        - label: Gitarrensaite
+          bucket: b1
+        - label: Stimmgabel
+          bucket: b1
+        - label: Türschließer
+          bucket: b2
+        - label: Zeiger einer guten Waage
+          bucket: b2
+        - label: Pendel in Honig
+          bucket: b2
+    hints:
+      - Bei Instrumenten soll der Ton lange klingen.
+      - Bei Türen und Messgeräten will man schnell Ruhe.
+    explanation: "Instrumente sind schwach gedämpft, damit sie klingen. Türschließer und Waagen sind nahe am Grenzfall gebaut: schnell in Ruhe, ohne Wippen. Honig dämpft sogar zu stark."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Die Amplitude einer Schwingung halbiert sich. Auf welchen Bruchteil sinkt ihre Energie?
+    answer:
+      value: 1/4
+    feedback:
+      - when: abs(numval(state.input) - 0.5) < 0.01
+        misconception: linear-energy
+        text: "Die Energie wächst mit dem **Quadrat** der Amplitude: E = ½ D A²."
+    hints:
+      - E = ½ · D · A².
+      - (½)² = ?
+    explanation: Ein Viertel. Darum klingt ein Ton, dessen Ausschlag halb so groß ist, schon deutlich leiser – ein Viertel der Energie sind etwa 6 dB weniger.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Die **Güte** Q sagt, wie gut eine Schwingung Energie hält: Q = 2π · gespeicherte Energie : Verlust pro Schwingung. Eine Stimmgabel hat ein Q von Tausenden, ein Autodämpfer etwa 1."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Eine Stimmgabel verliert pro Schwingung 0,1 % ihrer Energie. Wie groß ist ihre Güte Q = 2π : 0,001? Auf ganze Zahlen."
+    answer:
+      value: 6283
+      tolerance: 5
+    hints:
+      - 2π ≈ 6,283.
+      - Durch 0,001 teilen heißt mal 1000.
+    explanation: Q ≈ 6283. Bei 440 Hz klingt sie damit mehrere Sekunden. Quarzkristalle in Uhren erreichen Güten von über 10 000 – darum sind sie so genau.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: "Die Amplitude fällt wie e hoch (−δ · t) mit δ = 0,5 pro Sekunde. Nach wie vielen Sekunden ist sie halb so groß? t = ln 2 : δ. Auf zwei Stellen."
+    params:
+      unit: s
+    answer:
+      value: 1.39
+      tolerance: 0.02
+    hints:
+      - ln 2 ≈ 0,693.
+      - "0,693 : 0,5 = ?"
+    explanation: t ≈ 1,39 s – eine Halbwertszeit wie beim radioaktiven Zerfall. Exponentielles Abklingen sieht überall gleich aus.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: choice
+    prompt: Warum klingt eine Glocke lange nach, ein Holzbrett mit derselben Form aber nur kurz?
+    params:
+      options:
+        - label: Metall hat eine kleine innere Reibung – die Glocke hat eine hohe Güte.
+          correct: true
+        - label: Holz schwingt gar nicht.
+          feedback: Holz schwingt – Geigen sind aus Holz. Es dämpft aber stärker.
+        - label: Die Glocke ist lauter, darum hört man sie länger.
+          feedback: Auch eine leise Glocke klingt lange. Es geht um den Verlust pro Schwingung.
+    hints:
+      - Wo bleibt die Energie bei jeder Schwingung?
+      - Holzfasern reiben aneinander und machen Wärme.
+    explanation: Im Holz reiben Fasern aneinander und schlucken die Energie in wenigen Schwingungen. Bronze verliert pro Schwingung nur einen winzigen Teil. Instrumentenbauer wählen Holz für einen warmen, kurzen Klang.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3", "x3"]

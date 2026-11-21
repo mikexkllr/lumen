@@ -5,7 +5,7 @@ summary: What a solar system delivers.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many kWh of solar energy hit one square metre in Germany per year?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 1050
+      within: 30
+    explanation: About 1000 to 1100 kWh per m² per year. In the Sahara it is roughly twice as much.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A module converts 20 % of light into electricity. How many m² of modules make 1 kWp – that is, 1000 W under 1000 W of sunlight per m²?
+    params:
+      unit: m²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: inverse
+        text: "The other way round: each m² gives 200 W. How many m² for 1000 W?"
+    hints:
+      - One m² yields 20 % of 1000 W.
+      - 1000 W ÷ 200 W per m² = ?
+    explanation: "1000 ÷ 200 = 5 m². With 1000 kWh of sunlight per m² per year this fits the rule of thumb: 1 kWp yields about 1000 kWh."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -112,6 +146,40 @@ steps:
           - time
           - hour
       sample: "A watt is power – how fast energy flows. A kilowatt-hour is an amount of energy: power times time, for example 1000 watts for one hour."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: estimate
+    prompt: "Fermi question: Germany uses about 500 TWh of electricity a year. What share of its land (357,000 km²) would need solar modules for that – in percent? Use 200 kWh per m² of module."
+    params:
+      min: 0.01
+      max: 100
+      scale: log
+    answer:
+      value: 0.7
+      within: 50
+    explanation: 500 · 10⁹ kWh ÷ 200 kWh/m² = 2.5 · 10⁹ m² = 2500 km². That is about 0.7 % of the land. The real problem is less space than storage for night and winter.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: On a cold, clear winter day a module delivers more electricity per amount of light than on a hot summer day. Why?
+    params:
+      options:
+        - label: Solar cells work better cold – their voltage drops when they get hot.
+          correct: true
+        - label: Winter light is more energetic.
+          feedback: The spectrum is similar. It is the cell itself.
+        - label: Snow charges the cells.
+          feedback: Snow can reflect light, but it charges nothing.
+    hints:
+      - What happens to many electronic parts when they get hot?
+      - Per degree of warming a cell loses about 0.4 % of its power.
+    explanation: In the heat losses in the semiconductor rise and the voltage drops. A module at 60 °C delivers over 10 % less than a cool one.
     difficulty: 3
 
 srs:
