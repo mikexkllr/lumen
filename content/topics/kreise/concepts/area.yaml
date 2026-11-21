@@ -5,7 +5,7 @@ summary: Der Radius zählt im Quadrat.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: pizza
@@ -80,6 +80,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Kreis hat den Durchmesser {{d}} cm. Wie groß ist seine Fläche? Rechne mit π ≈ 3,14.
+    params:
+      unit: cm²
+    answer:
+      value: "{{3.14 * (d / 2) ** 2}}"
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 3.14 * d * d) < 1
+        misconception: diameter-squared
+        text: Du hast den Durchmesser quadriert. In die Formel gehört der Radius.
+    hints:
+      - "Erst den Radius: {{d / 2}} cm."
+      - 3,14 · {{d / 2}}².
+    explanation: 3,14 · {{(d / 2) ** 2}} = {{3.14 * (d / 2) ** 2}} cm².
+    difficulty: 2
+    variants:
+      params:
+        d: choice[4,6,8,10,12,20]
+      defaults:
+        d: 10
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Ring hat außen den Radius 5 cm und innen 3 cm. Wie groß ist die Ringfläche? π ≈ 3,14.
+    params:
+      unit: cm²
+    answer:
+      value: 50.24
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 12.56) < 0.1
+        misconception: subtract-radii
+        text: Das ist π · 2² – aber man darf nicht erst die Radien abziehen.
+    hints:
+      - Großer Kreis minus kleiner Kreis.
+      - 3,14 · (25 − 9).
+    explanation: 3,14 · 16 = 50,24 cm².
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kreis und ein Quadrat haben denselben Umfang. Wer hat mehr Fläche?
+    params:
+      options:
+        - label: Der Kreis
+          correct: true
+        - label: Das Quadrat
+          feedback: "Probiere Umfang 4π: Kreis 12,6, Quadrat nur 9,9."
+        - label: Beide gleich
+          feedback: Gleicher Umfang heißt nicht gleiche Fläche.
+    hints:
+      - "Probiere Umfang 12,56: Der Kreis hat r = 2."
+      - Das Quadrat hat die Seite 3,14.
+    explanation: "Kreis: 3,14 · 4 ≈ 12,6. Quadrat: 3,14² ≈ 9,9. Der Kreis gewinnt."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: order
@@ -94,6 +158,25 @@ steps:
     hints:
       - Am Anfang wird zerschnitten, am Ende gerechnet.
     explanation: Je schmaler die Stücke, desto genauer das Rechteck – eine Vorstufe der Integralrechnung.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Von allen Formen mit gleichem Umfang hat der Kreis die größte Fläche. Diese Frage heißt **isoperimetrisches Problem**. Darum ziehen sich Tropfen und Seifenblasen rund zusammen.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Zufall misst π: Du wirfst 1000 Punkte zufällig auf ein Quadrat mit einem Viertelkreis darin. 785 landen im Viertelkreis. Schätze π als 4 · 785 : 1000."
+    answer:
+      value: 3.14
+      tolerance: 0.005
+    hints:
+      - "785 : 1000 = 0,785."
+      - Mal 4.
+    explanation: Der Viertelkreis füllt π/4 ≈ 78,5 % des Quadrats. Diese »Monte-Carlo-Methode« nutzen Computer für schwierige Flächen.
     difficulty: 3
 
 srs:

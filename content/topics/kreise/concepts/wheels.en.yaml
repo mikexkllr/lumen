@@ -5,7 +5,7 @@ summary: How often does a wheel turn?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: umfang
@@ -68,6 +68,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: A wheel is 50 cm across. How many turns does it make in 1 km? Use π ≈ 3.14 and round to whole turns.
+    answer:
+      value: 637
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 2000) < 2
+        misconception: diameter-not-circumference
+        text: You divided by the diameter instead of the circumference.
+    hints:
+      - "Circumference: 3.14 · 50 cm = 157 cm."
+      - "100,000 cm : 157 cm."
+    explanation: "100,000 : 157 ≈ 637 turns."
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: "With gears, teeth times turns stays the same. That is the **gear ratio**: a 40-tooth gear drives a 10-tooth gear four times as fast."
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: A large gear with {{k * m}} teeth turns {{n}} times. It drives a small gear with {{k}} teeth. How many times does the small one turn?
+    answer:
+      value: "{{m * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: same-turns
+        text: The small gear must turn faster so the same number of teeth pass.
+    hints:
+      - How many teeth pass? {{k * m}} · {{n}}.
+      - Divided by {{k}}.
+    explanation: "{{k * m * n}} teeth : {{k}} = {{m * n}} turns."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[10,12,15]
+        m: int[2,4]
+        n: int[2,6]
+      defaults:
+        k: 10
+        m: 3
+        n: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -83,6 +132,50 @@ steps:
     hints:
       - What path does the **centre** of the rolling coin cover?
     explanation: The centre travels on a circle of radius 2r – double the path, double the turns.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A wheel with a 2.1 m circumference turns 10 times per second. How fast is the vehicle in km/h?
+    params:
+      unit: km/h
+    answer:
+      value: 75.6
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 21) < 0.1
+        misconception: units
+        text: Those are metres per second. Times 3.6 gives km/h.
+    hints:
+      - 2.1 m · 10 = 21 m per second.
+      - 1 m/s = 3.6 km/h.
+    explanation: 21 m/s · 3.6 = 75.6 km/h. That is how a speedometer works.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "A rolling wheel holds a surprise: the bottom point is briefly still, the top point moves twice as fast as the bike. A point on the rim traces a **cycloid**."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: A bike rides at 20 km/h. How fast does the top point of the wheel move relative to the road?
+    params:
+      unit: km/h
+    answer:
+      value: 40
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: same-speed
+        text: At the top, travel and rotation add up.
+    hints:
+      - The rotation alone moves the rim at 20 km/h.
+      - At the top, rotation points forward – plus the travel.
+    explanation: 20 + 20 = 40 km/h at the top, 20 − 20 = 0 km/h at the bottom.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Kreisfläche mal Höhe.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 330
       tolerance: 60
     explanation: 330 ml. Gleich rechnest du das aus Radius und Höhe nach.
-
 
   - kind: explain
     id: s1
@@ -82,6 +81,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Dose hat r = {{r}} cm und h = {{h}} cm. Wie viel Blech braucht man für Boden, Deckel und Mantel? π ≈ 3,14.
+    params:
+      unit: cm²
+    answer:
+      value: "{{2 * 3.14 * r * r + 2 * 3.14 * r * h}}"
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 2 * 3.14 * r * h) < 1
+        misconception: mantle-only
+        text: Das ist nur der Mantel. Boden und Deckel fehlen.
+    hints:
+      - "Zwei Kreise: 2 · 3,14 · {{r}}²."
+      - "Mantel: Umfang · Höhe = 2 · 3,14 · {{r}} · {{h}}."
+    explanation: "{{2 * 3.14 * r * r}} + {{2 * 3.14 * r * h}} = {{2 * 3.14 * r * r + 2 * 3.14 * r * h}} cm²."
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,6]
+        h: int[4,12]
+      defaults:
+        r: 5
+        h: 10
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Dose hat r = 4 cm und h = 10 cm. Wie viele Milliliter passen hinein? 1 cm³ = 1 ml, π ≈ 3,14.
+    params:
+      unit: ml
+    answer:
+      value: 502.4
+      tolerance: 1
+    hints:
+      - "Grundfläche: 3,14 · 16."
+      - 50,24 · 10.
+    explanation: 3,14 · 16 · 10 = 502,4 ml – ein halber Liter.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kegel hat dieselbe Grundfläche und Höhe wie ein Zylinder. Wie viel passt hinein?
+    params:
+      options:
+        - label: Die Hälfte
+          feedback: "Probiere es mit Wasser: Dreimal Umfüllen füllt den Zylinder."
+        - label: Ein Drittel
+          correct: true
+        - label: Genauso viel
+          feedback: Der Kegel wird nach oben spitz – da fehlt viel.
+    hints:
+      - Der Kegel wird oben immer schmaler.
+      - Die Formel ist $V = \frac{1}{3} \pi r^2 h$.
+    explanation: Ein Drittel. Das gilt für jede Spitze über jeder Grundfläche – auch für Pyramiden.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +158,47 @@ steps:
     hints:
       - Flache Dosen haben große Deckel, hohe einen großen Mantel. Das Beste liegt dazwischen.
     explanation: Mit Analysis findet man h = 2r. Echte Dosen weichen ab – wegen Stapelbarkeit und Falzen.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Kugel hat das Volumen $V = \frac{4}{3}\pi r^3$. Wie groß ist es für r = 3 cm? π ≈ 3,14.
+    params:
+      unit: cm³
+    answer:
+      value: 113.04
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 37.68) < 0.1
+        misconception: square-not-cube
+        text: Das ist $\frac{4}{3}\pi r^2$. Der Radius gehört hoch 3.
+    hints:
+      - $3^3 = 27$.
+      - $\frac{4}{3} \cdot 3{,}14 \cdot 27$.
+    explanation: 4 · 3,14 · 9 = 113,04 cm³.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Archimedes fand: Eine Kugel füllt genau **zwei Drittel** des Zylinders, der sie eng umschließt. Darauf war er so stolz, dass er die Figur auf seinem Grabstein haben wollte."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Eine Kugel mit r = 1 liegt in einem Zylinder mit r = 1 und h = 2. Wie viel Prozent des Zylinders füllt sie? Auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 66.7
+      tolerance: 0.1
+    hints:
+      - "Kugel: $\\frac{4}{3}\\pi$. Zylinder: $\\pi \\cdot 1^2 \\cdot 2 = 2\\pi$."
+      - "$\\frac{4}{3} : 2 = \\frac{2}{3}$."
+    explanation: 2/3 ≈ 66,7 % – π kürzt sich weg.
     difficulty: 3
 
 srs:

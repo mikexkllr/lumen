@@ -5,7 +5,7 @@ summary: Circle area times height.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 330
       tolerance: 60
     explanation: 330 ml. In a moment you will check this from radius and height.
-
 
   - kind: explain
     id: s1
@@ -82,6 +81,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: A can has r = {{r}} cm and h = {{h}} cm. How much metal do the bottom, lid and side need? π ≈ 3.14.
+    params:
+      unit: cm²
+    answer:
+      value: "{{2 * 3.14 * r * r + 2 * 3.14 * r * h}}"
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 2 * 3.14 * r * h) < 1
+        misconception: mantle-only
+        text: That is only the side. Bottom and lid are missing.
+    hints:
+      - "Two circles: 2 · 3.14 · {{r}}²."
+      - "Side: circumference · height = 2 · 3.14 · {{r}} · {{h}}."
+    explanation: "{{2 * 3.14 * r * r}} + {{2 * 3.14 * r * h}} = {{2 * 3.14 * r * r + 2 * 3.14 * r * h}} cm²."
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,6]
+        h: int[4,12]
+      defaults:
+        r: 5
+        h: 10
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A can has r = 4 cm and h = 10 cm. How many millilitres does it hold? 1 cm³ = 1 ml, π ≈ 3.14.
+    params:
+      unit: ml
+    answer:
+      value: 502.4
+      tolerance: 1
+    hints:
+      - "Base: 3.14 · 16."
+      - 50.24 · 10.
+    explanation: 3.14 · 16 · 10 = 502.4 ml – half a litre.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: A cone has the same base and height as a cylinder. How much does it hold?
+    params:
+      options:
+        - label: "Try it with water: pouring three times fills the cylinder."
+          feedback: "Probiere es mit Wasser: Dreimal Umfüllen füllt den Zylinder."
+        - label: One third
+          correct: true
+        - label: The cone narrows to a point – a lot is missing.
+          feedback: Der Kegel wird nach oben spitz – da fehlt viel.
+    hints:
+      - The cone gets narrower towards the top.
+      - The formula is $V = \frac{1}{3} \pi r^2 h$.
+    explanation: One third. That holds for any point over any base – pyramids too.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +158,47 @@ steps:
     hints:
       - Flat cans have big lids, tall ones a big side. The best lies in between.
     explanation: With calculus you find h = 2r. Real cans differ – because of stacking and seams.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A sphere has volume $V = \frac{4}{3}\pi r^3$. What is it for r = 3 cm? π ≈ 3.14.
+    params:
+      unit: cm³
+    answer:
+      value: 113.04
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 37.68) < 0.1
+        misconception: square-not-cube
+        text: That is $\frac{4}{3}\pi r^2$. The radius must be cubed.
+    hints:
+      - $3^3 = 27$.
+      - $\frac{4}{3} \cdot 3.14 \cdot 27$.
+    explanation: 4 · 3.14 · 9 = 113.04 cm³.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Archimedes found: a sphere fills exactly **two thirds** of the cylinder that fits tightly around it. He was so proud of this that he wanted the figure on his gravestone."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: A sphere with r = 1 sits in a cylinder with r = 1 and h = 2. What percentage of the cylinder does it fill? To one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 66.7
+      tolerance: 0.1
+    hints:
+      - "Sphere: $\\frac{4}{3}\\pi$. Cylinder: $\\pi \\cdot 1^2 \\cdot 2 = 2\\pi$."
+      - "$\\frac{4}{3} : 2 = \\frac{2}{3}$."
+    explanation: 2/3 ≈ 66.7 % – π cancels out.
     difficulty: 3
 
 srs:
