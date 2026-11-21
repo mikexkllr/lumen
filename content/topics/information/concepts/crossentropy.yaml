@@ -1,0 +1,169 @@
+id: stats.information.crossentropy
+type: concept
+title: "Wenn das Modell falsch liegt"
+summary: "Kreuzentropie, KL-Divergenz und warum KI in Bits lernt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du baust einen Huffman-Code für deutsche Texte und benutzt ihn für polnische. Was passiert?
+    params:
+      options:
+        - label: Er funktioniert, braucht aber mehr Bits als ein passender Code
+          correct: true
+        - label: Er geht kaputt
+          feedback: Präfixfreie Codes bleiben lesbar.
+        - label: Er wird sogar besser
+          feedback: Falsche Häufigkeiten kosten immer.
+    hints:
+      - Die Codelängen passen zu den deutschen Häufigkeiten.
+      - Im Polnischen sind andere Buchstaben häufig.
+    explanation: Ein Code für das falsche Modell verschwendet Bits. Wie viele genau, misst die **Kreuzentropie**.
+
+  - kind: explain
+    id: c1
+    body: "Die **Kreuzentropie** ist die mittlere Codelänge, wenn die Daten nach p kommen, der Code aber für ein Modell q gebaut ist: Σ p · (−log₂ q). Sie ist nie kleiner als die Entropie."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine faire Münze (p = ½, ½). Dein Modell glaubt q = ¼ für Kopf, ¾ für Zahl. Es gilt −log₂ ¼ = 2 und −log₂ ¾ ≈ 0,415. Wie groß ist die Kreuzentropie? Auf zwei Stellen.
+    answer:
+      value: 1.21
+      tolerance: 0.01
+    hints:
+      - Gewichte mit den echten Wahrscheinlichkeiten ½ und ½.
+      - ½ · 2 + ½ · 0,415.
+    explanation: ≈ 1,21 Bit statt 1 Bit. Die 0,21 Bit Verschwendung heißen **KL-Divergenz** – der Preis für das falsche Modell.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Sprachmodell gibt dem richtigen nächsten Wort die Wahrscheinlichkeit 1/{{2 ** k}}. Sein Verlust ist −log₂ q. Wie viele Bit sind das?
+    answer:
+      value: "{{k}}"
+    hints:
+      - Gesucht ist −log₂(1/{{2 ** k}}).
+      - 1/{{2 ** k}} = (1/2)^{{k}}.
+    explanation: "{{k}} Bit. Training senkt diesen Verlust im Schnitt über Milliarden Wörter – das ist genau die Kreuzentropie zwischen Text und Modell."
+    variants:
+      params:
+        k: int[1,8]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Stimmt das?
+    params:
+      cards:
+        - text: Ein perfektes Modell hat Kreuzentropie gleich Entropie.
+          right: true
+        - text: Ein falsches Modell kann weniger Bits brauchen als die Entropie.
+          right: false
+          why: Die Entropie ist die untere Grenze.
+        - text: Gibt ein Modell dem richtigen Wort fast 0 %, ist der Verlust riesig.
+          right: true
+        - text: Die KL-Divergenz kann negativ sein.
+          right: false
+          why: Sie ist immer ≥ 0 (Gibbs-Ungleichung).
+    explanation: Kreuzentropie = Entropie + KL-Divergenz. Lernen heißt, die KL-Divergenz zu senken.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Ein Modell ist sich bei einer Vorhersage zu 99,9 % sicher – und liegt falsch. Warum bestraft die Kreuzentropie das so hart?
+    params:
+      options:
+        - label: Das richtige Ergebnis bekam nur 0,1 % – −log₂ 0,001 ≈ 10 Bit
+          correct: true
+        - label: Es wird gar nicht bestraft
+          feedback: Der Verlust hängt an der Chance fürs richtige Ergebnis.
+        - label: Wegen der 99,9 %
+          feedback: Bestraft wird die winzige Chance für das, was eintrat.
+    hints:
+      - Welche Wahrscheinlichkeit hatte das Ergebnis, das wirklich kam?
+      - Je kleiner q, desto größer −log q.
+    explanation: "Übermut kostet: Bei q → 0 geht der Verlust gegen unendlich. Darum lernen gut trainierte Modelle, **kalibriert** zu sein."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Die **Wettervorhersage** sagt 80 % Regen, und es regnet. Verlust: −log₂ 0,8. An einem anderen Tag sagt sie 80 % Regen, und es bleibt trocken: −log₂ 0,2. Wie groß ist der zweite Verlust in Bit? Auf zwei Stellen. (log₂ 5 ≈ 2,32)"
+    answer:
+      value: 2.32
+      tolerance: 0.01
+    hints:
+      - −log₂ 0,2 = log₂(1/0,2) = log₂ 5.
+      - Der Wert steht schon da.
+    explanation: "≈ 2,32 Bit gegen nur 0,32 Bit am Regentag. Dieser **logarithmische Score** belohnt ehrliche Wahrscheinlichkeiten: Wer seine echte Einschätzung meldet, schneidet im Schnitt am besten ab."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: KL(p‖q) misst, wie viele Bit man mit Modell q statt p verschwendet. Gilt KL(p‖q) = KL(q‖p)?
+    params:
+      options:
+        - label: Nein – die KL-Divergenz ist nicht symmetrisch, also kein echter Abstand
+          correct: true
+        - label: Ja, sie ist ein Abstand
+          feedback: Ein Abstand müsste symmetrisch sein. KL ist es nicht.
+        - label: Nur, wenn p und q Münzen sind
+          feedback: Auch bei Münzen unterscheiden sich beide Richtungen meist.
+    hints:
+      - In der Formel gewichtet man mit p, nicht mit q.
+      - Ein Modell, das nie »Schnee« erwartet, wird bei Schnee hart bestraft – umgekehrt kaum.
+    explanation: "Die Richtung zählt: KL(Daten‖Modell) bestraft verpasste Möglichkeiten stark. Darum heißt sie **Divergenz**, nicht Distanz."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Die **wechselseitige Information** misst, wie viele Bit ein Signal X über Y verrät: I = H(Y) − H(Y | X). Das Wetter hat H(Y) = 1 Bit. Nach Blick auf den Himmel bleiben H(Y | X) = 0,3 Bit. Wie viele Bit verrät der Himmel?"
+    answer:
+      value: 0.7
+    hints:
+      - Information ist die Abnahme der Ungewissheit.
+      - Rechne 1 − 0,3.
+    explanation: 0,7 Bit. Wechselseitige Information ist null genau dann, wenn X und Y unabhängig sind – sie erkennt auch nichtlineare Zusammenhänge, die r übersieht.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Kreuzentropie mit dem Training von KI-Sprachmodellen zu tun hat.
+    params:
+      keywords:
+        - - wahrscheinlich
+          - probab
+          - chance
+        - - wort
+          - nächst
+          - word
+          - next
+          - token
+        - - bit
+          - log
+          - verlust
+          - loss
+          - strafe
+          - penal
+      sample: Das Modell gibt jedem möglichen nächsten Wort eine Wahrscheinlichkeit. Der Verlust ist minus log dieser Wahrscheinlichkeit für das richtige Wort, in Bit. Training senkt diesen Verlust im Schnitt, also die Kreuzentropie zwischen echten Texten und Modell.
+    explanation: "Ein Sprachmodell ist ein Kompressor: Je besser es vorhersagt, desto weniger Bit braucht es pro Wort."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

@@ -1,0 +1,189 @@
+id: stats.information.compression
+type: concept
+title: "Komprimieren mit Huffman"
+summary: "Häufiges kurz, Seltenes lang – bis an Shannons Grenze."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Eine Textdatei mit 100 KB wird gezippt. Wie groß ist sie danach ungefähr? In KB."
+    params:
+      min: 1
+      max: 100
+      unit: KB
+    answer:
+      value: 30
+      tolerance: 15
+    explanation: Typisch 25 bis 40 KB. Text ist voller Wiederholungen und Muster – Kompression nutzt genau diese **Vorhersehbarkeit**.
+
+  - kind: explain
+    id: c1
+    body: "Die Idee hinter **Huffman-Codes**: Häufige Zeichen bekommen kurze Codes, seltene lange. Kein Code ist der Anfang eines anderen – so kann man ohne Trennzeichen lesen."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: "Ordne jedem Zeichen seinen Huffman-Code zu: A kommt mit 1/2, B mit 1/4, C und D mit je 1/8."
+    params:
+      pairs:
+        - left: A (1/2)
+          right: "0"
+        - left: B (1/4)
+          right: "10"
+        - left: C (1/8)
+          right: "110"
+        - left: D (1/8)
+          right: "111"
+      leftTitle: Zeichen
+      rightTitle: Code
+    hints:
+      - Das häufigste Zeichen bekommt den kürzesten Code.
+      - "Codelänge = −log₂ p: 1, 2, 3, 3 Bit."
+    explanation: "Jede Codelänge entspricht genau dem Informationsgehalt. Und kein Code beginnt wie ein anderer: Nach einer 0 ist A sicher fertig."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Mit dem Code A = 0, B = 10, C = 110, D = 111 (Häufigkeiten 1/2, 1/4, 1/8, 1/8): Wie viele Bit braucht ein Zeichen im Schnitt?"
+    answer:
+      value: 1.75
+    feedback:
+      - when: numval(state.input) == 2.25
+        misconception: unweighted
+        text: Das ist der einfache Schnitt der Codelängen. Gewichte mit der Häufigkeit!
+    hints:
+      - Rechne ½ · 1 + ¼ · 2 + ⅛ · 3 + ⅛ · 3.
+      - 0,5 + 0,5 + 0,375 + 0,375.
+    explanation: 1,75 Bit statt 2 Bit mit festem Code (00, 01, 10, 11). Das entspricht genau der Entropie dieser Quelle – besser geht es nicht.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Entschlüssle mit A = 0, B = 10, C = 110, D = 111: Wie viele Zeichen stecken in 0101100111?"
+    answer:
+      value: 5
+    hints:
+      - "Lies von links: 0 → A, dann 10 → B …"
+      - A, B, C, A, D.
+    explanation: 0 | 10 | 110 | 0 | 111 = A B C A D. Weil kein Code der Anfang eines anderen ist (**präfixfrei**), gibt es nur eine Lesart.
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: So baut man einen Huffman-Code. Ordne die Schritte.
+    params:
+      items:
+        - label: Alle Zeichen mit ihren Häufigkeiten notieren
+        - label: Die zwei seltensten zu einem Knoten verbinden
+        - label: Den Knoten mit der Summe ihrer Häufigkeiten einreihen
+        - label: Wiederholen, bis nur ein Baum übrig ist
+        - label: Links 0, rechts 1 – der Weg zum Blatt ist der Code
+    hints:
+      - Man baut den Baum von den Blättern her.
+      - Die seltensten Zeichen landen am tiefsten.
+    explanation: David Huffman fand das Verfahren 1952 als Student. Es liefert den kürzesten präfixfreien Code für bekannte Häufigkeiten.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Text hat 1000 Zeichen aus einer Quelle mit 1,75 Bit Entropie. Ein fester Code braucht 2 Bit pro Zeichen. Wie viel Prozent spart der Huffman-Code?
+    answer:
+      value: 12.5
+      tolerance: 0.05
+    hints:
+      - "Fest: 2000 Bit. Huffman: 1750 Bit."
+      - 250 von 2000 sind wie viel Prozent?
+    explanation: 12,5 % Ersparnis. Bei schieferen Häufigkeiten spart man viel mehr – bei Gleichverteilung gar nichts.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Kann ein Programm **jede** Datei kleiner machen?
+    params:
+      options:
+        - label: Nein – es gibt weniger kurze Dateien als lange, also muss manche Datei wachsen
+          correct: true
+        - label: Ja, mit genug Rechenzeit
+          feedback: Das ist ein Zählargument, keine Frage der Zeit.
+        - label: Ja, wenn man oft genug zippt
+          feedback: Gezippte Dateien werden durch erneutes Zippen kaum kleiner.
+    hints:
+      - Es gibt 2ⁿ Dateien mit n Bit, aber weniger als 2ⁿ kürzere.
+      - Zwei Dateien dürfen nicht dieselbe Kurzform haben.
+    explanation: Das **Schubfachprinzip** verbietet es. Echt zufällige Daten haben maximale Entropie und lassen sich gar nicht komprimieren.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Eine Quelle sendet A mit 0,9 und B mit 0,1 (Entropie 0,47 Bit). Huffman für einzelne Zeichen gibt A = 0, B = 1. Wie kommt man näher an 0,47 Bit?
+    params:
+      options:
+        - label: Mehrere Zeichen zu Blöcken bündeln und die Blöcke codieren
+          correct: true
+        - label: Es geht nicht besser als 1 Bit
+          feedback: Mit Blöcken oder arithmetischer Codierung schon.
+        - label: B weglassen
+          feedback: Dann geht Information verloren.
+    hints:
+      - Ein Zeichen kann nicht weniger als 1 Bit lang sein – ein Block schon pro Zeichen.
+      - AA kommt mit 81 % – dafür reicht ein kurzer Code.
+    explanation: "Mit Blöcken nähert sich die Länge pro Zeichen der Entropie. Das ist Shannons **Quellencodierungssatz**: Weniger als H Bit pro Zeichen geht nicht, beliebig nah heran schon."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: JPEG und MP3 machen Dateien viel kleiner als ZIP. Wie schaffen sie das?
+    params:
+      options:
+        - label: Sie werfen Details weg, die Menschen kaum wahrnehmen
+          correct: true
+        - label: Sie umgehen die Entropie-Grenze
+          feedback: Für exakte Wiederherstellung gilt die Grenze immer.
+        - label: Sie nutzen bessere Huffman-Codes
+          feedback: Huffman ist nur ein kleiner Teil davon.
+    hints:
+      - Bekommt man nach JPEG exakt das alte Bild zurück?
+      - Verlustbehaftet gegen verlustfrei.
+    explanation: Verlustbehaftete Kompression senkt die Entropie, indem sie unwichtige Information entfernt. Danach wird – oft mit Huffman – **verlustfrei** gepackt.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man Text komprimieren kann, Zufallsrauschen aber nicht.
+    params:
+      keywords:
+        - - häufig
+          - muster
+          - common
+          - pattern
+          - wiederhol
+          - repeat
+        - - kurz
+          - short
+          - code
+        - - zufall
+          - entropie
+          - random
+          - entropy
+          - vorhersag
+          - predict
+      sample: Text hat Muster und häufige Zeichen, er ist vorhersagbar. Häufige Zeichen bekommen kurze Codes, das spart Platz. Zufallsrauschen hat maximale Entropie, nichts ist vorhersagbar, also gibt es nichts zu sparen.
+    explanation: Kompression verwandelt Vorhersehbarkeit in Platz. Wo nichts vorhersehbar ist, bleibt nichts zu gewinnen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

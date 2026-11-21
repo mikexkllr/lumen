@@ -1,0 +1,189 @@
+id: stats.information.compression
+type: concept
+title: "Compressing with Huffman"
+summary: "Common things short, rare things long – right up to Shannon's limit."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a 100 KB text file gets zipped. Roughly how big is it afterwards? In KB."
+    params:
+      min: 1
+      max: 100
+      unit: KB
+    answer:
+      value: 30
+      tolerance: 15
+    explanation: Typically 25 to 40 KB. Text is full of repetition and patterns – compression exploits exactly that predictability.
+
+  - kind: explain
+    id: c1
+    body: "The idea behind Huffman codes: common symbols get short codes, rare ones long codes. No code is the start of another – so you can read without separators."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: "Give each symbol its Huffman code: A comes with 1/2, B with 1/4, C and D with 1/8 each."
+    params:
+      pairs:
+        - left: A (1/2)
+          right: "0"
+        - left: B (1/4)
+          right: "10"
+        - left: C (1/8)
+          right: "110"
+        - left: D (1/8)
+          right: "111"
+      leftTitle: Symbol
+      rightTitle: Code
+    hints:
+      - The most common symbol gets the shortest code.
+      - "Code length = −log₂ p: 1, 2, 3, 3 bits."
+    explanation: "Each code length matches the information content exactly. And no code starts like another: after a 0, A is surely finished."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "With the code A = 0, B = 10, C = 110, D = 111 (frequencies 1/2, 1/4, 1/8, 1/8): how many bits does a symbol need on average?"
+    answer:
+      value: 1.75
+    feedback:
+      - when: numval(state.input) == 2.25
+        misconception: unweighted
+        text: That is the plain average of the code lengths. Weight by frequency!
+    hints:
+      - Compute ½ · 1 + ¼ · 2 + ⅛ · 3 + ⅛ · 3.
+      - 0.5 + 0.5 + 0.375 + 0.375.
+    explanation: 1.75 bits instead of 2 bits with a fixed code (00, 01, 10, 11). That equals the entropy of this source exactly – you cannot do better.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Decode with A = 0, B = 10, C = 110, D = 111: how many symbols are in 0101100111?"
+    answer:
+      value: 5
+    hints:
+      - "Read from the left: 0 → A, then 10 → B …"
+      - A, B, C, A, D.
+    explanation: 0 | 10 | 110 | 0 | 111 = A B C A D. Because no code is the start of another (prefix-free), there is only one reading.
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: This is how to build a Huffman code. Put the steps in order.
+    params:
+      items:
+        - label: List all symbols with their frequencies
+        - label: Join the two rarest into one node
+        - label: Put the node back with the sum of their frequencies
+        - label: Repeat until only one tree remains
+        - label: Left 0, right 1 – the path to the leaf is the code
+    hints:
+      - You build the tree from the leaves.
+      - The rarest symbols end up deepest.
+    explanation: David Huffman found the method in 1952 as a student. It gives the shortest prefix-free code for known frequencies.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A text has 1000 symbols from a source with 1.75 bits of entropy. A fixed code needs 2 bits per symbol. What percent does the Huffman code save?
+    answer:
+      value: 12.5
+      tolerance: 0.05
+    hints:
+      - "Fixed: 2000 bits. Huffman: 1750 bits."
+      - 250 of 2000 is what percent?
+    explanation: 12.5 % saved. With more skewed frequencies you save much more – with a uniform distribution nothing at all.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Can a program make every file smaller?
+    params:
+      options:
+        - label: No – there are fewer short files than long ones, so some file must grow
+          correct: true
+        - label: It is a counting argument, not a matter of time.
+          feedback: Das ist ein Zählargument, keine Frage der Zeit.
+        - label: Zipped files barely shrink when zipped again.
+          feedback: Gezippte Dateien werden durch erneutes Zippen kaum kleiner.
+    hints:
+      - There are 2ⁿ files of n bits but fewer than 2ⁿ shorter ones.
+      - Two files must not share the same short form.
+    explanation: The pigeonhole principle forbids it. Truly random data have maximum entropy and cannot be compressed at all.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A source sends A with 0.9 and B with 0.1 (entropy 0.47 bits). Huffman for single symbols gives A = 0, B = 1. How do you get closer to 0.47 bits?
+    params:
+      options:
+        - label: Bundle several symbols into blocks and encode the blocks
+          correct: true
+        - label: With blocks or arithmetic coding it can.
+          feedback: Mit Blöcken oder arithmetischer Codierung schon.
+        - label: Then information is lost.
+          feedback: Dann geht Information verloren.
+    hints:
+      - A symbol cannot be shorter than 1 bit – but a block can be, per symbol.
+      - AA comes with 81 % – it needs only a short code.
+    explanation: "With blocks the length per symbol approaches the entropy. That is Shannon's source coding theorem: fewer than H bits per symbol is impossible, getting arbitrarily close is possible."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: JPEG and MP3 make files much smaller than ZIP. How do they manage it?
+    params:
+      options:
+        - label: They throw away details that people barely notice
+          correct: true
+        - label: For exact reconstruction the limit always holds.
+          feedback: Für exakte Wiederherstellung gilt die Grenze immer.
+        - label: Huffman is only a small part of it.
+          feedback: Huffman ist nur ein kleiner Teil davon.
+    hints:
+      - After JPEG, do you get exactly the original picture back?
+      - Lossy versus lossless.
+    explanation: Lossy compression lowers the entropy by removing unimportant information. Then the rest is packed losslessly – often with Huffman.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you can compress text but not random noise.
+    params:
+      keywords:
+        - - häufig
+          - muster
+          - common
+          - pattern
+          - wiederhol
+          - repeat
+        - - kurz
+          - short
+          - code
+        - - zufall
+          - entropie
+          - random
+          - entropy
+          - vorhersag
+          - predict
+      sample: Text has patterns and common symbols; it is predictable. Common symbols get short codes, which saves space. Random noise has maximum entropy; nothing is predictable, so there is nothing to save.
+    explanation: Compression turns predictability into space. Where nothing is predictable, there is nothing to gain.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]
