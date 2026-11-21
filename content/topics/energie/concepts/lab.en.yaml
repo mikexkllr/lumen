@@ -5,7 +5,7 @@ summary: Set usage and compare.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
   - kind: problem
     id: tag
@@ -57,6 +57,67 @@ steps:
     explanation: About 15, 60, 150 and 2500 kWh. The electric car is far ahead.
 
   - kind: problem
+    id: ph-c1
+    widget: chart
+    prompt: "Work out and set how many kWh each device uses per day: kettle 2000 W for 15 minutes, laptop 50 W for 6 hours, LED 10 W for 5 hours."
+    params:
+      labels:
+        - Kettle
+        - Laptop
+        - LED
+      values:
+        - 0
+        - 0
+        - 0
+      editable:
+        - 0
+        - 1
+        - 2
+      min: 0
+      max: 1
+      step: 0.05
+      unit: kWh
+    answer:
+      values:
+        - 0.5
+        - 0.3
+        - 0.05
+    hints:
+      - Power in kW times time in hours.
+      - 2 kW · 0.25 h, 0.05 kW · 6 h, 0.01 kW · 5 h.
+    explanation: 0.5 kWh, 0.3 kWh and 0.05 kWh. The kettle runs only briefly but uses the most.
+
+  - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: sim
+    prompt: A heating wire at 24 V should deliver 96 W. Set the right resistance.
+    params:
+      scene: circuit
+      controls:
+        voltage:
+          value: 24
+          fixed: true
+    answer:
+      power: 96
+    explanation: P = U² ÷ R, so R = 576 ÷ 96 = 6 Ω. At fixed voltage a small resistance means high power.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many people on bike generators (100 W each) does it take to run a 2000 W kettle?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 20
+      tolerance: 3
+    explanation: 2000 ÷ 100 = 20 people pedalling at once. Mains electricity is astonishingly cheap compared with muscle power.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -69,6 +130,48 @@ steps:
     hints:
       - 8,400,000 joules divided by 86,400 seconds.
     explanation: Just under 100 W – you radiate like an old light bulb.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A pumped-storage plant lifts 1 million m³ of water 300 m up. How many MWh does it store? Use g = 10 m/s². (1 MWh = 3.6 · 10⁹ J)
+    params:
+      unit: MWh
+    answer:
+      value: 833
+      tolerance: 5
+    hints:
+      - 1 m³ of water has 1000 kg. E = m · g · h.
+      - 10⁹ kg · 10 · 300 = 3 · 10¹² J. Divide by 3.6 · 10⁹.
+    explanation: 3 · 10¹² J ÷ 3.6 · 10⁹ J ≈ 833 MWh. That could supply about 100,000 households for a day.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you find out which device in a household costs the most electricity.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - watt
+        - - zeit
+          - time
+          - stunde
+          - hour
+          - dauer
+          - lange
+          - long
+        - - mal
+          - times
+          - multipli
+          - kwh
+          - preis
+          - price
+      sample: I take the power in watts times the time the device runs. That gives the energy in kWh. Times the price per kWh gives the cost. Even small devices that always run can cost a lot.
     difficulty: 3
 
 srs:

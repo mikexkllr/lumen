@@ -5,7 +5,7 @@ summary: Das ohmsche Gesetz U = R · I.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -131,6 +131,90 @@ steps:
     explanation: "Bei 3 Ω fließen 4 A: 12 V · 4 A = 48 W. Kleinerer Widerstand, mehr Leistung."
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: "Der **Widerstand** eines Drahtes wächst mit seiner Länge und sinkt mit seinem Querschnitt: $R = \\rho \\cdot \\frac{L}{A}$. Doppelt so lang heißt doppelter Widerstand. Doppelt so dick heißt halber."
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Draht hat 2 Ω. Ein zweiter aus demselben Metall ist {{l}}-mal so lang und hat {{a}}-mal so viel Querschnitt. Welchen Widerstand hat er?
+    params:
+      unit: Ω
+    answer:
+      value: "{{2 * l / a}}"
+    feedback:
+      - when: abs(numval(state.input) - 2 * l * a) < 0.01
+        misconception: area-direction
+        text: Mehr Querschnitt macht den Weg breiter – der Widerstand **sinkt**. Teile durch {{a}}.
+    hints:
+      - "Länge: mal {{l}}. Querschnitt: geteilt durch {{a}}."
+      - "2 · {{l}} : {{a}} = ?"
+    explanation: "2 Ω · {{l}} : {{a}} = {{2 * l / a}} Ω. Darum haben Herdkabel dicke Adern: Sie tragen viel Strom, ohne heiß zu werden."
+    difficulty: 2
+    variants:
+      params:
+        l: choice[2,3,4,6]
+        a: choice[2,4]
+      constraints:
+        - l != a
+      defaults:
+        l: 6
+        a: 4
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: graph
+    prompt: Ein Widerstand hat 2 Ω. Die Linie zeigt U = R · I. Zieh den Punkt auf die Stelle, an der 3 A fließen.
+    params:
+      x:
+        - 0
+        - 6
+      y:
+        - 0
+        - 12
+      grid: 1
+      functions:
+        - expr: 2*x
+          label: U = 2 · I
+      points:
+        - id: A
+          x: 0
+          y: 0
+          label: P
+    answer:
+      points:
+        A:
+          x: 3
+          y: 6
+    hints:
+      - Waagerecht ist der Strom I, senkrecht die Spannung U.
+      - "Bei I = 3 A: U = 2 · 3."
+    explanation: Bei 3 A liegen 6 V an. Für einen ohmschen Widerstand ist die U-I-Kennlinie eine Gerade durch null – ihre Steigung ist R.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d4
+    depth: 2
+    widget: choice
+    prompt: Hat eine Glühlampe kalt oder heiß den größeren Widerstand?
+    params:
+      options:
+        - label: Heiß – der glühende Draht hat etwa zehnmal so viel Widerstand.
+          correct: true
+        - label: Kalt – Kälte bremst Elektronen.
+          feedback: In Metallen bremst die Wärmebewegung der Atome den Strom. Heiß heißt mehr Widerstand.
+        - label: Gleich – R ist eine feste Zahl.
+          feedback: Nur bei konstanter Temperatur. Eine Glühlampe ist kein ohmscher Widerstand.
+    hints:
+      - Was machen die Atome im Draht, wenn er glüht?
+      - Stärker zappelnde Atome stehen den Elektronen öfter im Weg.
+    explanation: Wolfram hat bei 2500 °C rund zehnmal so viel Widerstand wie kalt. Darum fließt beim Einschalten kurz ein großer Strom – Glühbirnen brennen meist genau dann durch.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -143,6 +227,26 @@ steps:
     hints:
       - Halbe Spannung – und die Spannung steht im Quadrat.
     explanation: "Ein Viertel: 250 W. Halbe Spannung treibt auch nur halben Strom."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Verlängerungskabel ist 100 m lang, der Strom läuft also 200 m durch Kupfer. Querschnitt 1,5 mm², ρ = 0,0175 Ω·mm²/m. Wie groß ist sein Widerstand?
+    params:
+      unit: Ω
+    answer:
+      value: 2.33
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 1.17) < 0.05
+        misconception: one-way
+        text: "Der Strom muss hin **und** zurück: 200 m, nicht 100 m."
+    hints:
+      - "R = ρ · L : A."
+      - "0,0175 · 200 : 1,5 = ?"
+    explanation: R ≈ 2,33 Ω. Bei 16 A fallen am Kabel 37 V ab, und es heizt mit fast 600 W. Darum soll man Kabeltrommeln immer ganz abrollen.
     difficulty: 3
 
 srs:

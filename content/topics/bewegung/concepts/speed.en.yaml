@@ -5,7 +5,7 @@ summary: Distance divided by time.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 30
       tolerance: 6
     explanation: About 30 km/s, over 100,000 km/h. We notice nothing because the speed does not change.
-
 
   - kind: problem
     id: zug
@@ -109,6 +108,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: You cycle there at 30 km/h and back along the same route at 60 km/h. What is your average speed?
+    params:
+      options:
+        - label: 40 km/h
+          correct: true
+        - label: 45 km/h
+          feedback: That would be right if you had ridden for equal **times**. But you spent longer at the slow speed.
+        - label: 50 km/h
+          feedback: There is no reason for that. Try a distance of 60 km.
+    hints:
+      - Suppose the route is 60 km. How long does each direction take?
+      - Total distance ÷ total time.
+    explanation: "There 2 h, back 1 h: 120 km in 3 h gives 40 km/h. Averaging the speeds only works for equal times."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "A car accelerates steadily from 0 to 20 m/s in 10 s. How many metres does it cover? Tip: the distance is the area under the line in the speed–time graph."
+    params:
+      unit: m
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: triangle-area
+        text: That would be a rectangle – as if it had gone 20 m/s the whole time. The area is a triangle.
+    hints:
+      - The line rises from 0 to 20. What shape is the area underneath?
+      - "Triangle: ½ · 10 s · 20 m/s."
+    explanation: ½ · 10 · 20 = 100 m. The same as 10 s at the average speed of 10 m/s.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: You drive at 120 km/h, a lorry ahead of you at 80 km/h. You are 200 m behind it. After how many seconds are you level?
+    params:
+      unit: s
+    answer:
+      value: 18
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 6) < 0.3
+        misconception: relative-speed
+        text: "Only the **difference** in speed counts: 40 km/h."
+    hints:
+      - How fast are you catching up?
+      - 40 km/h is about 11.1 m/s.
+    explanation: You close in at 40 km/h ≈ 11.1 m/s. 200 m ÷ 11.1 m/s ≈ 18 s. That is why overtaking on country roads takes so long.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -121,6 +178,38 @@ steps:
       - The gap shrinks at 80 + 120 km/h.
     explanation: 300 ÷ 200 = 1.5 h. This is the **relative speed**.
     difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "**Instantaneous speed** is the slope of the distance–time curve at a single point. Mathematically it is the derivative $v = \\frac{ds}{dt}$. A speedometer shows exactly this number."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: A stone falls according to s = 5t². How fast is it after {{t}} seconds – in m/s? Take the derivative.
+    params:
+      unit: m/s
+    answer:
+      value: "{{10 * t}}"
+    feedback:
+      - when: numval(state.input) == 5 * t * t
+        misconception: position-not-velocity
+        text: That is the **distance** after {{t}} s, not the speed.
+      - when: numval(state.input) == 5 * t
+        misconception: derivative-factor
+        text: Differentiating t² brings down a factor of 2.
+    hints:
+      - The derivative of t² is 2t.
+      - v = 5 · 2t = 10t.
+    explanation: v = 10t = {{10 * t}} m/s. The speed grows by 10 m/s every second – that is g.
+    difficulty: 3
+    variants:
+      params:
+        t: int[3,6]
+      defaults:
+        t: 3
 
 srs:
   cards_from: [zug, sprint]

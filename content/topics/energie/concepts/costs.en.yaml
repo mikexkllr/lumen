@@ -5,7 +5,7 @@ summary: Small devices that never switch off.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: wasserkocher
@@ -71,6 +71,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: what does a full phone charge (15 Wh) cost at 30 cents per kWh – in cents?"
+    params:
+      min: 0.01
+      max: 100
+      scale: log
+    answer:
+      value: 0.45
+      within: 50
+    explanation: 15 Wh is 0.015 kWh. Times 30 cents gives 0.45 cents. A whole year of daily charging costs less than 2 euros.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A {{w}} W device runs {{h}} hours a day, all year. What does that cost at 30 cents per kWh – in euros?
+    params:
+      unit: €
+    answer:
+      value: "{{w * h * 365 * 0.3 / 1000}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - w * h * 365 * 0.3) < 1
+        misconception: wh-vs-kwh
+        text: You calculated in watt-hours. Divide by 1000 to get kWh.
+    hints:
+      - "Watt-hours per day: {{w}} · {{h}}. Then times 365."
+      - Divide by 1000 for kWh, then multiply by €0.30.
+    explanation: "{{w}} · {{h}} · 365 ÷ 1000 = {{w * h * 365 / 1000}} kWh. Times €0.30 gives €{{w * h * 365 * 0.3 / 1000}}."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[10,50,100,2000]
+        h: choice[1,2,4]
+      defaults:
+        w: 100
+        h: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -83,6 +125,42 @@ steps:
     hints:
       - 52 W less · 3 h · 365 days.
     explanation: ≈ 57 kWh, times €0.30 is about €17.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A household uses 2500 kWh a year. What average continuous power is that – in watts?
+    params:
+      unit: W
+    answer:
+      value: 285
+      tolerance: 3
+    hints:
+      - A year has 8760 hours.
+      - 2,500,000 Wh ÷ 8760 h = ?
+    explanation: 2,500,000 Wh ÷ 8760 h ≈ 285 W. On average a few old light bulbs are always burning. Peaks while cooking are much higher.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Tariff B costs €60 more in standing charges per year, but every kWh is 5 cents cheaper. From how many kWh a year does tariff B pay off?
+    params:
+      unit: kWh
+    answer:
+      value: 1200
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 12) < 0.1
+        misconception: cent-euro
+        text: "Watch the units: 5 cents is €0.05."
+    hints:
+      - How many kWh does it take to recover €60 at 5 cents saved each?
+      - €60 ÷ €0.05 per kWh = ?
+    explanation: 60 ÷ 0.05 = 1200 kWh. Anyone using more saves with tariff B. Every standing-charge comparison works like this.
     difficulty: 3
 
 srs:

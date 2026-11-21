@@ -5,7 +5,7 @@ summary: Ballons, Luftdruck und Flügel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: ballon
@@ -80,6 +80,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: 1 m³ kalte Luft wiegt 1,2 kg, heiße Luft (100 °C) nur 0,95 kg. Wie viele m³ heiße Luft braucht ein Ballon, um 500 kg zu tragen?
+    params:
+      unit: m³
+    answer:
+      value: 2000
+    feedback:
+      - when: abs(numval(state.input) - 526) < 3
+        misconception: not-difference
+        text: "Es trägt nur der **Unterschied**: 1,2 − 0,95 = 0,25 kg pro m³."
+    hints:
+      - Wie viel Kilogramm trägt jeder m³?
+      - "500 kg : 0,25 kg pro m³ = ?"
+    explanation: "500 : 0,25 = 2000 m³. Darum sind Heißluftballone so riesig – eine Kugel mit über 15 m Durchmesser."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Der Luftdruck halbiert sich etwa alle 5,5 km. In welcher Höhe ist nur noch ein Viertel übrig? In km.
+    params:
+      unit: km
+    answer:
+      value: 11
+    feedback:
+      - when: abs(numval(state.input) - 22) < 0.1
+        misconception: halvings
+        text: Ein Viertel ist zweimal halbiert, nicht viermal.
+    hints:
+      - Wie oft muss man halbieren, um auf ein Viertel zu kommen?
+      - Zweimal 5,5 km.
+    explanation: "Zwei Halbierungen: 11 km. Dort fliegen Verkehrsflugzeuge. Darum braucht die Kabine eine Druckanlage."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +133,48 @@ steps:
     hints:
       - Auftrieb ist das Gewicht der **verdrängten** Luft.
     explanation: Archimedes gilt auch in Luft. Wetterballons platzen meist vorher, weil sie sich oben stark ausdehnen.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Strömt Luft schneller, sinkt ihr Druck. Das beschreibt die **Bernoulli-Gleichung**: $p + \\frac{1}{2}\\rho v^2 = \\text{konstant}$. Sie folgt aus der Energieerhaltung für strömende Luft."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Sturm mit 30 m/s über einem Flachdach. Der Unterdruck ist ½ · ρ · v² mit ρ = 1,2 kg/m³. Mit welcher Kraft zieht er an 100 m² Dach – in kN?
+    params:
+      unit: kN
+    answer:
+      value: 54
+    feedback:
+      - when: abs(numval(state.input) - 108) < 1
+        misconception: forgot-half
+        text: Das ½ nicht vergessen.
+      - when: abs(numval(state.input) - 1.8) < 0.1
+        misconception: not-squared
+        text: "Das Tempo wird quadriert: 30² = 900."
+    hints:
+      - "Unterdruck: 0,5 · 1,2 · 900 Pa."
+      - 540 Pa mal 100 m² ergibt Newton.
+    explanation: 540 Pa · 100 m² = 54 000 N = 54 kN – das Gewicht von über 5 Tonnen. Darum deckt Sturm Dächer ab.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Mit wie vielen Tonnen drückt die Luft von oben auf ein Dach von 100 m²?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 1000
+      within: 30
+    explanation: 100 000 Pa · 100 m² = 10 Millionen N, das Gewicht von 1000 Tonnen. Das Dach bricht nicht, weil die Luft im Haus genauso stark nach oben drückt.
     difficulty: 3
 
 srs:

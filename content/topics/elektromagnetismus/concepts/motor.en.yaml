@@ -5,7 +5,7 @@ summary: Motion from current.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,21 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: A 0.2 m wire lies across a magnetic field of 0.5 T. 3 A flow through it. What is the force on the wire? We have F = B · I · L.
+    params:
+      unit: N
+    answer:
+      value: 0.3
+    hints:
+      - "Substitute: 0.5 · 3 · 0.2."
+      - The unit is newtons.
+    explanation: 0.5 · 3 · 0.2 = 0.3 N. In a motor many turns act together, which is why much more force arises there.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +121,50 @@ steps:
     hints:
       - Motor and generator are the same machine.
     explanation: "**Regenerative braking**. Lenz’s law says: the generated current opposes its cause – it brakes."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: A spinning motor is also a generator. It produces a **back EMF** that grows with its speed. That is why it draws little current when running fast but a lot when stalled.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: A motor is connected to a battery, but you hold its shaft still. What happens?
+    params:
+      options:
+        - label: Without back EMF a very large current flows – the motor gets hot.
+          correct: true
+        - label: No current flows at all.
+          feedback: The circuit stays closed. Only the opposing back EMF is missing.
+        - label: The current stays as when running.
+          feedback: When running the back EMF limits the current. When stalled it is missing.
+    hints:
+      - What does a spinning coil in a magnetic field produce?
+      - Without rotation only the small wire resistance limits the current.
+    explanation: When stalled only the winding resistance limits the current – often ten times the running current. That is why blocked motors burn out.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: numeric
+    prompt: A motor delivers a torque of 2 Nm at 3000 revolutions per minute. What power is that? We have P = M · ω with ω = 2π · revolutions per second. In watts.
+    params:
+      unit: W
+    answer:
+      value: 628
+      tolerance: 2
+    feedback:
+      - when: abs(numval(state.input) - 6000) < 1
+        misconception: rpm-not-omega
+        text: "The speed must first be converted into ω: 50 revolutions per second times 2π."
+    hints:
+      - 3000 per minute is 50 per second.
+      - ω = 2π · 50 ≈ 314 per second.
+    explanation: P = 2 · 314 ≈ 628 W. At the same power a motor can give a lot of torque slowly or little torque fast – gearboxes trade one for the other.
     difficulty: 3
 
 srs:

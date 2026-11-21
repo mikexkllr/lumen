@@ -5,7 +5,7 @@ summary: Was eine Solaranlage liefert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele kWh Sonnenenergie treffen in Deutschland pro Jahr auf einen Quadratmeter?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 1050
+      within: 30
+    explanation: Rund 1000 bis 1100 kWh pro m² und Jahr. In der Sahara ist es etwa doppelt so viel.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Modul wandelt 20 % des Lichts in Strom. Wie viele m² Modulfläche ergeben 1 kWp – also 1000 W bei 1000 W Sonne pro m²?
+    params:
+      unit: m²
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: inverse
+        text: "Umgekehrt: Jeder m² liefert 200 W. Wie viele m² für 1000 W?"
+    hints:
+      - Ein m² liefert 20 % von 1000 W.
+      - "1000 W : 200 W pro m² = ?"
+    explanation: "1000 : 200 = 5 m². Mit 1000 kWh Sonne pro m² und Jahr passt das zur Faustregel: 1 kWp liefert rund 1000 kWh."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -112,6 +146,40 @@ steps:
           - time
           - hour
       sample: "Watt ist die Leistung – wie schnell Energie fließt. Die Kilowattstunde ist eine Energiemenge: Leistung mal Zeit, zum Beispiel 1000 Watt eine Stunde lang."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: estimate
+    prompt: "Fermi-Frage: Deutschland braucht etwa 500 TWh Strom im Jahr. Welcher Anteil der Landesfläche (357 000 km²) müsste dafür mit Solarmodulen belegt sein – in Prozent? Rechne mit 200 kWh pro m² Modul."
+    params:
+      min: 0.01
+      max: 100
+      scale: log
+    answer:
+      value: 0.7
+      within: 50
+    explanation: "500 · 10⁹ kWh : 200 kWh/m² = 2,5 · 10⁹ m² = 2500 km². Das sind etwa 0,7 % der Fläche. Das Problem ist weniger der Platz als die Speicherung für Nacht und Winter."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: An einem kalten, klaren Wintertag liefert ein Modul pro Lichtmenge mehr Strom als an einem heißen Sommertag. Warum?
+    params:
+      options:
+        - label: Solarzellen arbeiten kalt besser – ihre Spannung sinkt, wenn sie heiß werden.
+          correct: true
+        - label: Winterlicht ist energiereicher.
+          feedback: Das Spektrum ist ähnlich. Es liegt an der Zelle selbst.
+        - label: Schnee lädt die Zellen auf.
+          feedback: Schnee kann Licht zurückwerfen, lädt aber nichts auf.
+    hints:
+      - Was passiert mit vielen Elektronikteilen, wenn sie heiß werden?
+      - Pro Grad Erwärmung verliert eine Zelle etwa 0,4 % Leistung.
+    explanation: In der Hitze steigen die Verluste im Halbleiter, die Spannung sinkt. Ein 60 °C heißes Modul liefert gut 10 % weniger als ein kühles.
     difficulty: 3
 
 srs:

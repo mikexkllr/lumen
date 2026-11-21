@@ -5,7 +5,7 @@ summary: Leistung mal Zeit ist Energie.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -120,6 +120,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Du wiegst {{m}} kg und rennst in {{t}} Sekunden eine 3 m hohe Treppe hoch. Welche Leistung bringst du – in Watt? Rechne mit g = 10 m/s².
+    params:
+      unit: W
+    answer:
+      value: "{{m * 30 / t}}"
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - m * 30) < 1
+        misconception: energy-vs-power
+        text: Das ist die Energie in Joule. Leistung ist Energie **pro Sekunde**.
+    hints:
+      - "Erst die Energie: m · g · h."
+      - Dann durch die Zeit teilen.
+    explanation: "Energie: {{m}} · 10 · 3 = {{m * 30}} J. Durch {{t}} s ergibt {{m * 30 / t}} W. Kurz schafft ein Mensch mehrere hundert Watt, dauerhaft eher 100."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,60,70,80]
+        t: choice[3,4,5,6]
+      defaults:
+        m: 60
+        t: 5
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Kilowattstunden Energie stecken in einem Liter Benzin?"
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+    answer:
+      value: 9
+      within: 30
+    explanation: Rund 9 kWh. Ein Mensch auf dem Rad (100 W) bräuchte dafür 90 Stunden. Darum ist Benzin so »praktisch« – und so schwer zu ersetzen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -129,6 +171,40 @@ steps:
     hints:
       - 1 Watt = 1 Joule pro Sekunde. Eine Stunde hat 3600 Sekunden.
     explanation: 1000 W · 3600 s = 3,6 Millionen Joule.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: choice
+    prompt: "Auf einer Rechnung steht: »Verbrauch 3000 kW pro Jahr«. Was ist daran falsch?"
+    params:
+      options:
+        - label: kW ist eine Leistung. Verbraucht werden kWh – Energie.
+          correct: true
+        - label: Nichts, das ist dasselbe.
+          feedback: Leistung ist ein Tempo, Energie eine Menge. Wie km/h und km.
+        - label: Es müsste kW pro Stunde heißen.
+          feedback: kW pro Stunde wäre eine Änderung der Leistung. Gemeint ist kW **mal** Stunde.
+    hints:
+      - "Vergleiche: km/h und km."
+      - Kilowattstunde heißt Kilowatt **mal** Stunde.
+    explanation: "Leistung (kW) ist wie das Tempo, Energie (kWh) wie die Strecke. Die Rechnung zählt die Energie: 3000 kWh."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Fermi-Frage: Wie viele kWh Energie braucht Deutschland pro Kopf und Tag – Strom, Heizung, Verkehr und Industrie zusammen?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 100
+      within: 40
+    explanation: Rund 100 kWh am Tag, also etwa 4 kW rund um die Uhr. Das ist so viel, wie 40 Menschen dauerhaft auf dem Rad leisten könnten.
     difficulty: 3
 
 srs:

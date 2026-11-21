@@ -5,7 +5,7 @@ summary: Weg geteilt durch Zeit.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 30
       tolerance: 6
     explanation: Rund 30 km/s, über 100 000 km/h. Wir merken nichts, weil sich das Tempo nicht ändert.
-
 
   - kind: problem
     id: zug
@@ -109,6 +108,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: Du radelst hin mit 30 km/h und auf demselben Weg zurück mit 60 km/h. Wie hoch ist dein Durchschnittstempo?
+    params:
+      options:
+        - label: 40 km/h
+          correct: true
+        - label: 45 km/h
+          feedback: Das wäre richtig, wenn du gleich **lange** gefahren wärst. Langsam warst du aber länger unterwegs.
+        - label: 50 km/h
+          feedback: Dafür gibt es keinen Grund. Rechne mit einer Strecke von 60 km.
+    hints:
+      - Nimm an, der Weg ist 60 km lang. Wie lange dauert jede Richtung?
+      - "Gesamtweg : Gesamtzeit."
+    explanation: "Hin 2 h, zurück 1 h: 120 km in 3 h ergibt 40 km/h. Das Mittel der Tempos stimmt nur bei gleichen Zeiten."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Auto beschleunigt gleichmäßig in 10 s von 0 auf 20 m/s. Wie viele Meter fährt es dabei? Tipp: Der Weg ist die Fläche unter der Linie im Geschwindigkeit-Zeit-Diagramm."
+    params:
+      unit: m
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: triangle-area
+        text: Das wäre ein Rechteck – als wäre es die ganze Zeit 20 m/s gefahren. Die Fläche ist ein Dreieck.
+    hints:
+      - Die Linie steigt von 0 auf 20. Welche Form hat die Fläche darunter?
+      - "Dreieck: ½ · 10 s · 20 m/s."
+    explanation: ½ · 10 · 20 = 100 m. Genauso viel wie 10 s lang mit dem Mittelwert 10 m/s.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: Du fährst 120 km/h, ein LKW vor dir 80 km/h. Dein Auto ist 200 m hinter ihm. Nach wie vielen Sekunden bist du gleichauf?
+    params:
+      unit: s
+    answer:
+      value: 18
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 6) < 0.3
+        misconception: relative-speed
+        text: "Es zählt nur der **Unterschied** der Tempos: 40 km/h."
+    hints:
+      - Wie schnell holst du auf?
+      - 40 km/h sind etwa 11,1 m/s.
+    explanation: "Du holst mit 40 km/h ≈ 11,1 m/s auf. 200 m : 11,1 m/s ≈ 18 s. Darum dauert Überholen auf der Landstraße so lange."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -121,6 +178,38 @@ steps:
       - Der Abstand schrumpft mit 80 + 120 km/h.
     explanation: "300 : 200 = 1,5 h. Das ist die **Relativgeschwindigkeit**."
     difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: Die **Momentangeschwindigkeit** ist die Steigung der Weg-Zeit-Kurve in einem einzigen Punkt. Mathematisch ist das die Ableitung $v = \frac{ds}{dt}$. Ein Tacho zeigt genau diese Zahl.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Stein fällt nach dem Gesetz s = 5t². Wie schnell ist er nach {{t}} Sekunden – in m/s? Leite ab.
+    params:
+      unit: m/s
+    answer:
+      value: "{{10 * t}}"
+    feedback:
+      - when: numval(state.input) == 5 * t * t
+        misconception: position-not-velocity
+        text: Das ist der **Weg** nach {{t}} s, nicht das Tempo.
+      - when: numval(state.input) == 5 * t
+        misconception: derivative-factor
+        text: Beim Ableiten von t² kommt der Faktor 2 nach vorn.
+    hints:
+      - Die Ableitung von t² ist 2t.
+      - v = 5 · 2t = 10t.
+    explanation: v = 10t = {{10 * t}} m/s. Das Tempo wächst jede Sekunde um 10 m/s – das ist g.
+    difficulty: 3
+    variants:
+      params:
+        t: int[3,6]
+      defaults:
+        t: 3
 
 srs:
   cards_from: [zug, sprint]

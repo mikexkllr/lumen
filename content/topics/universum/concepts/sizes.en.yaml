@@ -5,7 +5,7 @@ summary: Sizes in powers of ten.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 100000000000
       within: 90
     explanation: Around 100 billion – and there are about as many galaxies.
-
 
   - kind: problem
     id: ordnen
@@ -104,6 +103,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many Earths fit side by side in the gap between Earth and Moon?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 30
+      within: 30
+    explanation: About 30. The Moon is 384,000 km away and Earth is 12,700 km across. Pictures in books almost always draw the Moon far too close.
+    difficulty: 2
+
+  - kind: explain
+    id: ph-d2
+    depth: 2
+    body: For estimates the **order of magnitude** is often enough. You round to one digit times a power of ten. 384,000 km becomes 4 · 10⁵ km. Now you can calculate in your head.
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: 10 to the {{a}} times 10 to the {{b}} gives 10 to the …?
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == a * b
+        misconception: exp-multiply
+        text: You multiplied the exponents. When you multiply powers, the exponents **add**.
+    hints:
+      - "Write it out: 10³ · 10² = 1000 · 100."
+      - Add up the zeros of both numbers.
+    explanation: "{{a}} zeros and {{b}} zeros make {{a + b}} zeros. That is why exponents add."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,9]
+        b: int[2,9]
+      constraints:
+        - a * b != a + b
+      defaults:
+        a: 6
+        b: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -114,6 +159,72 @@ steps:
     hints:
       - "Volume grows with the cube: 110³."
     explanation: 110³ ≈ 1.3 million.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: estimate
+    prompt: "Fermi question: how many atoms are in your body? Tip: you are mostly water."
+    params:
+      min: 1000000000000000
+      max: 1e+40
+      scale: log
+    answer:
+      value: 7e+27
+      within: 80
+    explanation: 70 kg of water is about 3,900 mol of molecules. Each has 3 atoms, and a mole has 6 · 10²³ particles. That gives roughly 7 · 10²⁷ atoms.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: A proton measures about 10⁻¹⁵ m, the observable universe about 10²⁷ m. How many powers of ten lie in between?
+    answer:
+      value: 42
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: neg-exponent
+        text: "The minus sign counts: from −15 to 0 is already 15 steps."
+    hints:
+      - How many steps from 10⁻¹⁵ to 10⁰?
+      - Then add the steps from 10⁰ to 10²⁷.
+    explanation: 15 + 27 = 42 powers of ten. A human at 10⁰ m sits roughly in the middle – on paper.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why sizes in the universe are written with powers of ten.
+    params:
+      keywords:
+        - - zehn
+          - ten
+          - potenz
+          - power
+          - exponent
+          - "null"
+          - zero
+        - - groß
+          - klein
+          - large
+          - small
+          - huge
+          - tiny
+          - riesig
+          - winzig
+        - - vergleich
+          - compare
+          - stufe
+          - step
+          - faktor
+          - factor
+          - kopf
+          - head
+      sample: Sizes range from tiny to huge. With powers of ten you just count steps, each ten times bigger. That makes comparing and mental maths easy.
     difficulty: 3
 
 srs:

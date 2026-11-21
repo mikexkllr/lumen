@@ -5,7 +5,7 @@ summary: Water, heating and that one degree.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: wasser
@@ -67,6 +67,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many seconds does a 2000 W kettle need to bring 1 litre from 20 to 100 °C?"
+    params:
+      min: 10
+      max: 1000
+    answer:
+      value: 168
+      tolerance: 40
+    explanation: 1 L by 80 °C needs 336 kJ. 336,000 J ÷ 2000 W = 168 s, almost 3 minutes. In reality it takes a little longer because some heat escapes.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A tankless water heater warms {{l}} litres per minute by 30 °C. One litre needs 4.2 kJ per degree. What power does the heater need – in kW?
+    params:
+      unit: kW
+    answer:
+      value: "{{l * 2.1}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - l * 126) < 1
+        misconception: per-minute
+        text: That is kJ per **minute**. For kW you need kJ per second.
+    hints:
+      - "Energy per minute: {{l}} · 4.2 · 30 kJ."
+      - Divide by 60 for kJ per second = kW.
+    explanation: "{{l}} · 4.2 · 30 = {{l * 126}} kJ per minute; divided by 60 that is {{l * 2.1}} kW. That is why tankless heaters need their own heavy-duty supply."
+    difficulty: 2
+    variants:
+      params:
+        l: choice[4,6,8,10]
+      defaults:
+        l: 8
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +121,37 @@ steps:
     hints:
       - Water has one of the highest **heat capacities** of all.
     explanation: That is why oceans moderate the climate and heating systems use water.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A shower runs for 5 minutes at 8 litres per minute. The water is heated from 10 to 38 °C. How many kWh does that take? (1 kWh = 3600 kJ)
+    params:
+      unit: kWh
+    answer:
+      value: 1.31
+      tolerance: 0.03
+    hints:
+      - "40 litres warmed by 28 °C: 40 · 4.2 · 28 kJ."
+      - Then divide by 3600.
+    explanation: 40 · 4.2 · 28 = 4704 kJ ≈ 1.31 kWh. A fridge uses that much in three days. Hot water is a big item.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "How much energy does the air in a 50 m³ room need to warm by 1 °C? Air: 1.2 kg per m³ and 1 kJ per kg and degree. In kJ."
+    params:
+      unit: kJ
+    answer:
+      value: 60
+    hints:
+      - "Mass of the air: 50 · 1.2 kg."
+      - Times 1 kJ per kg and degree.
+    explanation: 60 kg of air need just 60 kJ – what a kettle delivers in 30 seconds. The heat sits in walls and furniture. That is why a short burst of airing loses hardly any energy.
     difficulty: 3
 
 srs:

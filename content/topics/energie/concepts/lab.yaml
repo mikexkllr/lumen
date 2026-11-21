@@ -5,7 +5,7 @@ summary: Verbrauch einstellen und vergleichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
   - kind: problem
     id: tag
@@ -57,6 +57,67 @@ steps:
     explanation: Etwa 15, 60, 150 und 2500 kWh – das E-Auto liegt weit vorn.
 
   - kind: problem
+    id: ph-c1
+    widget: chart
+    prompt: "Rechne und stell ein, wie viele kWh jedes Gerät pro Tag braucht: Wasserkocher 2000 W für 15 Minuten, Laptop 50 W für 6 Stunden, LED 10 W für 5 Stunden."
+    params:
+      labels:
+        - Kocher
+        - Laptop
+        - LED
+      values:
+        - 0
+        - 0
+        - 0
+      editable:
+        - 0
+        - 1
+        - 2
+      min: 0
+      max: 1
+      step: 0.05
+      unit: kWh
+    answer:
+      values:
+        - 0.5
+        - 0.3
+        - 0.05
+    hints:
+      - Leistung in kW mal Zeit in Stunden.
+      - 2 kW · 0,25 h, 0,05 kW · 6 h, 0,01 kW · 5 h.
+    explanation: 0,5 kWh, 0,3 kWh und 0,05 kWh. Der Wasserkocher läuft nur kurz, verbraucht aber am meisten.
+
+  - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: sim
+    prompt: Ein Heizdraht an 24 V soll 96 W liefern. Stell den passenden Widerstand ein.
+    params:
+      scene: circuit
+      controls:
+        voltage:
+          value: 24
+          fixed: true
+    answer:
+      power: 96
+    explanation: "P = U² : R, also R = 576 : 96 = 6 Ω. Kleiner Widerstand heißt bei fester Spannung große Leistung."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Menschen auf Fahrrad-Generatoren (je 100 W) braucht man, um einen Wasserkocher mit 2000 W zu betreiben?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 20
+      tolerance: 3
+    explanation: "2000 : 100 = 20 Menschen, die gleichzeitig strampeln. Strom aus der Steckdose ist erstaunlich billig im Vergleich zu Muskelkraft."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -69,6 +130,48 @@ steps:
     hints:
       - 8 400 000 Joule geteilt durch 86 400 Sekunden.
     explanation: Knapp 100 W – du strahlst wie eine alte Glühbirne.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Pumpspeicherwerk hebt 1 Million m³ Wasser 300 m hoch. Wie viele MWh speichert es? Rechne mit g = 10 m/s². (1 MWh = 3,6 · 10⁹ J)
+    params:
+      unit: MWh
+    answer:
+      value: 833
+      tolerance: 5
+    hints:
+      - 1 m³ Wasser hat 1000 kg. E = m · g · h.
+      - 10⁹ kg · 10 · 300 = 3 · 10¹² J. Teile durch 3,6 · 10⁹.
+    explanation: "3 · 10¹² J : 3,6 · 10⁹ J ≈ 833 MWh. Damit könnte man rund 100 000 Haushalte einen Tag lang versorgen."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie du herausfindest, welches Gerät im Haushalt am meisten Strom kostet.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - watt
+        - - zeit
+          - time
+          - stunde
+          - hour
+          - dauer
+          - lange
+          - long
+        - - mal
+          - times
+          - multipli
+          - kwh
+          - preis
+          - price
+      sample: Ich nehme die Leistung in Watt mal die Zeit, die das Gerät läuft. Das ergibt die Energie in kWh. Mal Preis pro kWh ergibt die Kosten. Auch kleine Geräte, die immer laufen, können viel kosten.
     difficulty: 3
 
 srs:

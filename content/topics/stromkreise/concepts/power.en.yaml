@@ -5,7 +5,7 @@ summary: P = U · I and the 16-ampere limit.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: kocher
@@ -91,6 +91,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: 10 A flow through a cable of 0.5 Ω. How many watts turn into heat in the cable?
+    params:
+      unit: W
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-current
+        text: P = U · I, and across the cable U = R · I = 5 V. So P = 5 V · 10 A.
+      - when: numval(state.input) == 2300
+        misconception: wrong-voltage
+        text: The 230 V are across the device, not the cable. Only 5 V drop across the cable.
+    hints:
+      - With U = R · I, P = U · I becomes P = I² · R.
+      - 10² · 0.5 = ?
+    explanation: P = I² · R = 100 · 0.5 = 50 W. Double the current means four times the heat. That is why overloaded cables get dangerously hot.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: "Two bulbs for 230 V: one at 60 W, one at 100 W. Which has the larger resistance?"
+    params:
+      options:
+        - label: The 60 W bulb
+          correct: true
+        - label: The 100 W bulb
+          feedback: At fixed voltage more power needs more current – so a **smaller** resistance.
+        - label: Both the same
+          feedback: Then both would shine equally bright.
+    hints:
+      - At fixed voltage P = U² ÷ R.
+      - Smaller P means …?
+    explanation: R = U² ÷ P. 60 W gives 882 Ω, 100 W only 529 Ω. Incidentally, wired in series the 60 W bulb shines brighter.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +147,42 @@ steps:
     hints:
       - The loss in the line is I² · R.
     explanation: Ten times the voltage, a tenth of the current, a **hundredth** of the loss.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A power plant sends 1 MW over a line with 10 Ω. How many times smaller is the loss in the line at 100 kV than at 10 kV?
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-loss
+        text: Ten times the voltage means a tenth of the current. But the loss grows with I².
+    hints:
+      - "Current: I = P ÷ U. At 10 kV it is 100 A, at 100 kV 10 A."
+      - Loss = I² · R.
+    explanation: "At 10 kV: 100² · 10 = 100 kW lost. At 100 kV: 10² · 10 = 1 kW. A hundred times less – hence high voltage."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Many electric cars charge at 400 or 800 V rather than 12 V. Why?
+    params:
+      options:
+        - label: The same power needs much less current – thinner cables, less heat.
+          correct: true
+        - label: Higher voltage stores more energy in the battery.
+          feedback: Energy depends on cell chemistry and number. Voltage mainly lowers the current.
+        - label: Because 12 V is not allowed.
+          feedback: Nothing is banned. 12 V would just need enormous currents.
+    hints:
+      - Fast charging at 200 kW – what current at 12 V?
+      - P = U · I and losses ∝ I².
+    explanation: 200 kW at 12 V would be almost 17,000 A, at 800 V only 250 A. Less current means less heat in cables and plugs.
     difficulty: 3
 
 srs:

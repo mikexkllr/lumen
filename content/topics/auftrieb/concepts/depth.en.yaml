@@ -5,7 +5,7 @@ summary: One more bar every 10 meters.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 1100
       tolerance: 200
     explanation: About 1100 bar – like a small car standing on your thumbnail.
-
 
   - kind: explain
     id: s1
@@ -81,6 +80,50 @@ steps:
     explanation: "Triple the pressure, a third of the volume: **Boyle’s law**."
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: Why 1 bar per 10 m? At 10 m depth there are 10 m³ of water above each m², that is 10,000 kg. Its weight of 100,000 N presses on 1 m². That is the **hydrostatic pressure** $p = \rho g h$.
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Mercury is 13.6 times as dense as water. How tall must a column of mercury be to press as hard as 10 m of water? In cm.
+    params:
+      unit: cm
+    answer:
+      value: 73.5
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 13600) < 50
+        misconception: inverse-density
+        text: "Denser means **shorter**: the same pressure needs less height."
+    hints:
+      - "At equal pressure: density times height stays the same."
+      - 1000 cm ÷ 13.6 = ?
+    explanation: "1000 ÷ 13.6 ≈ 73.5 cm. In 1643 Torricelli built the first barometer this way: the air holds up a column of mercury about 76 cm high."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: choice
+    prompt: Why can you not breathe through a long snorkel at 2 m depth?
+    params:
+      options:
+        - label: The water presses on the chest with an extra 0.2 bar – the breathing muscles cannot work against that.
+          correct: true
+        - label: The air in the tube gets too thin.
+          feedback: The tube holds normal air. The problem is the pressure on the chest.
+        - label: The snorkel fills with water.
+          feedback: It sticks out of the water. It still does not work.
+    hints:
+      - How large is the pressure at 2 m depth?
+      - The air in the lungs is only at surface pressure.
+    explanation: Outside 1.2 bar, in the lungs only 1 bar. 0.2 bar is 2000 kg per m² of chest. That is why divers breathe air at the pressure of their depth.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -97,6 +140,42 @@ steps:
     hints:
       - What did pressure under water depend on?
     explanation: "The **hydrostatic paradox**: p = ρ · g · h. Only the height counts."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A diver breathes from a tank at 30 m depth. How many times as much air – counted in particles – does each breath use there compared with the surface?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: forgot-air-pressure
+        text: There is already 1 bar at the surface. At 30 m it is 4 bar, not 3.
+    hints:
+      - "Total pressure at 30 m: 1 bar of air plus 3 bar of water."
+      - Same lung volume at four times the pressure means four times the air.
+    explanation: At 4 bar each breath holds four times as much air. So the tank empties four times as fast down there.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Why must a scuba diver never hold their breath while ascending?
+    params:
+      options:
+        - label: The pressure falls, the air in the lungs expands and can injure them.
+          correct: true
+        - label: Otherwise he gets too little oxygen.
+          feedback: The problem is not oxygen but the growing volume.
+        - label: The water presses harder then.
+          feedback: On the way up the pressure gets smaller, not larger.
+    hints:
+      - Think of the balloon that shrinks at depth.
+      - What happens on the way back up?
+    explanation: By Boyle's law p · V = constant. From 2 bar to 1 bar the volume doubles. Trapped air would overstretch the lungs.
     difficulty: 3
 
 srs:

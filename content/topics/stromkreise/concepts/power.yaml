@@ -5,7 +5,7 @@ summary: P = U · I und die 16-Ampere-Grenze.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: kocher
@@ -91,6 +91,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Durch ein Kabel mit 0,5 Ω fließen 10 A. Wie viele Watt werden im Kabel zu Wärme?
+    params:
+      unit: W
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-current
+        text: P = U · I, und am Kabel liegt U = R · I = 5 V. Also P = 5 V · 10 A.
+      - when: numval(state.input) == 2300
+        misconception: wrong-voltage
+        text: Die 230 V liegen am Gerät, nicht am Kabel. Am Kabel fallen nur 5 V ab.
+    hints:
+      - Mit U = R · I wird aus P = U · I die Formel P = I² · R.
+      - 10² · 0,5 = ?
+    explanation: P = I² · R = 100 · 0,5 = 50 W. Doppelter Strom heißt vierfache Wärme. Darum werden überlastete Kabel gefährlich heiß.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: "Zwei Lampen für 230 V: eine mit 60 W, eine mit 100 W. Welche hat den größeren Widerstand?"
+    params:
+      options:
+        - label: Die 60-W-Lampe
+          correct: true
+        - label: Die 100-W-Lampe
+          feedback: Bei fester Spannung braucht mehr Leistung mehr Strom – also einen **kleineren** Widerstand.
+        - label: Beide gleich
+          feedback: Dann würden beide gleich hell leuchten.
+    hints:
+      - "Bei fester Spannung gilt P = U² : R."
+      - Kleineres P heißt …?
+    explanation: "R = U² : P. 60 W ergibt 882 Ω, 100 W nur 529 Ω. Schaltet man beide in Reihe, leuchtet übrigens die 60-W-Lampe heller."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +147,42 @@ steps:
     hints:
       - Der Verlust in der Leitung ist I² · R.
     explanation: Zehnfache Spannung, ein Zehntel Strom, ein **Hundertstel** Verlust.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Kraftwerk schickt 1 MW über eine Leitung mit 10 Ω. Wievielmal kleiner ist der Verlust in der Leitung bei 100 kV als bei 10 kV?
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-loss
+        text: Zehnfache Spannung heißt ein Zehntel Strom. Der Verlust wächst aber mit I².
+    hints:
+      - "Strom: I = P : U. Bei 10 kV sind es 100 A, bei 100 kV 10 A."
+      - Verlust = I² · R.
+    explanation: "Bei 10 kV: 100² · 10 = 100 kW Verlust. Bei 100 kV: 10² · 10 = 1 kW. Hundertmal weniger – darum Hochspannung."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Viele E-Autos laden mit 400 oder 800 V statt mit 12 V. Warum?
+    params:
+      options:
+        - label: Für dieselbe Leistung braucht es viel weniger Strom – dünnere Kabel, weniger Wärme.
+          correct: true
+        - label: Höhere Spannung speichert mehr Energie im Akku.
+          feedback: Die Energie hängt von der Zellchemie und -zahl ab. Die Spannung senkt vor allem den Strom.
+        - label: Weil 12 V verboten sind.
+          feedback: Verboten ist nichts. Bei 12 V bräuchte man nur gewaltige Ströme.
+    hints:
+      - Schnellladen mit 200 kW – welcher Strom bei 12 V?
+      - P = U · I und Verluste ∝ I².
+    explanation: 200 kW bei 12 V wären fast 17 000 A, bei 800 V nur 250 A. Weniger Strom heißt weniger Wärme in Kabeln und Steckern.
     difficulty: 3
 
 srs:

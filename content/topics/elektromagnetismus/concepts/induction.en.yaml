@@ -5,7 +5,7 @@ summary: Induction, generator, transformer.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: still
@@ -80,6 +80,32 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: sim
+    prompt: A power supply should turn 230 V into about 12 V. Set the numbers of turns.
+    params:
+      scene: transformer
+    answer:
+      u2:
+        - 11.5
+        - 12.5
+    explanation: "The ratio must be about 19 : 1, for example 950 to 50 turns. The voltages are in the same ratio as the turns."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: sim
+    prompt: On the output side 1 A flows. Set the transformer so that only 0.05 A flow on the 230 V side.
+    params:
+      scene: transformer
+    answer:
+      i1: 0.05
+    explanation: "At 20 : 1, 11.5 V come out. Power is conserved: 230 V · 0.05 A = 11.5 V · 1 A. What you lose in voltage you gain in current."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +121,49 @@ steps:
     hints:
       - What had to change earlier for current to flow?
     explanation: "That is why alternating current prevailed: it is easy to step up and down."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Faraday's **law of induction**: $U = -N \\frac{\\Delta \\Phi}{\\Delta t}$. Here Φ is the magnetic flux through the coil. More turns or a faster change give more voltage."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: A coil has 100 turns. The flux through it changes by 0.02 Wb in 0.1 s. What is the induced voltage in volts?
+    params:
+      unit: V
+    answer:
+      value: 20
+    feedback:
+      - when: abs(numval(state.input) - 0.2) < 0.01
+        misconception: forgot-turns
+        text: That is for one turn. But there are 100 – each contributes equally.
+    hints:
+      - "Per turn: 0.02 Wb ÷ 0.1 s."
+      - Times 100 turns.
+    explanation: 0.2 V per turn, times 100 gives 20 V. Move twice as fast, double the voltage – which is why a dynamo shines brighter the faster you ride.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: You drop a strong magnet through a vertical copper pipe. Copper is not magnetic. What happens?
+    params:
+      options:
+        - label: It falls strikingly slowly – eddy currents in the pipe brake it.
+          correct: true
+        - label: It falls quite normally.
+          feedback: The moving magnet induces currents in the copper. Their field brakes it.
+        - label: It sticks inside the pipe.
+          feedback: Copper does not attract magnets. The brake only works while it moves.
+    hints:
+      - A moving magnet changes the field in the copper.
+      - Induced currents oppose their cause (Lenz).
+    explanation: The induced currents form magnets that brake the falling magnet. That is Lenz's law. Trains and roller coasters brake this way without contact.
     difficulty: 3
 
 srs:

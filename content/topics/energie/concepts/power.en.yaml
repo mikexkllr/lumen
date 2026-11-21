@@ -5,7 +5,7 @@ summary: Power times time is energy.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -120,6 +120,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: You weigh {{m}} kg and run up 3 m of stairs in {{t}} seconds. What power do you deliver – in watts? Use g = 10 m/s².
+    params:
+      unit: W
+    answer:
+      value: "{{m * 30 / t}}"
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - m * 30) < 1
+        misconception: energy-vs-power
+        text: That is the energy in joules. Power is energy **per second**.
+    hints:
+      - "First the energy: m · g · h."
+      - Then divide by the time.
+    explanation: "Energy: {{m}} · 10 · 3 = {{m * 30}} J. Divided by {{t}} s that is {{m * 30 / t}} W. Briefly a person manages several hundred watts, for long periods about 100."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,60,70,80]
+        t: choice[3,4,5,6]
+      defaults:
+        m: 60
+        t: 5
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many kilowatt-hours of energy are in one litre of petrol?"
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+    answer:
+      value: 9
+      within: 30
+    explanation: About 9 kWh. A person on a bike (100 W) would need 90 hours for that. That is why petrol is so »handy« – and so hard to replace.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -129,6 +171,40 @@ steps:
     hints:
       - 1 watt = 1 joule per second. An hour has 3600 seconds.
     explanation: 1000 W · 3600 s = 3.6 million joules.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: choice
+    prompt: "A bill says: »Consumption 3000 kW per year«. What is wrong with that?"
+    params:
+      options:
+        - label: kW is a power. What you use up is kWh – energy.
+          correct: true
+        - label: Nothing, it is the same.
+          feedback: Power is a rate, energy an amount. Like km/h and km.
+        - label: It should say kW per hour.
+          feedback: kW per hour would be a change of power. What is meant is kW **times** hour.
+    hints:
+      - "Compare: km/h and km."
+      - Kilowatt-hour means kilowatt **times** hour.
+    explanation: "Power (kW) is like speed, energy (kWh) like distance. The bill counts energy: 3000 kWh."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Fermi question: how many kWh of energy does Germany use per person each day? Count power, heat, cars and industry."
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 100
+      within: 40
+    explanation: About 100 kWh per day, roughly 4 kW around the clock. That is what 40 people could deliver cycling non-stop.
     difficulty: 3
 
 srs:

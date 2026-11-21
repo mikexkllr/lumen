@@ -5,7 +5,7 @@ summary: Warum schwere Dinge träge sind.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: bus
@@ -83,6 +83,54 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: choice
+    prompt: Ein Auto fährt mit gleichbleibend 100 km/h geradeaus. Wie groß ist die Summe aller Kräfte auf das Auto?
+    params:
+      options:
+        - label: "Null"
+          correct: true
+        - label: Eine große Kraft nach vorn
+          feedback: Der Motor schiebt – aber Luft und Reibung bremsen genauso stark.
+        - label: Eine Kraft nach hinten
+          feedback: Dann würde das Auto langsamer.
+    hints:
+      - Ändert sich die Geschwindigkeit?
+      - Ohne Beschleunigung ist F = m · a gleich null.
+    explanation: Gleichförmige Bewegung braucht keine Gesamtkraft. Der Motor gleicht nur die Bremskräfte aus. Das ist Newtons erstes Gesetz – und es widerspricht dem Bauchgefühl.
+    difficulty: 2
+
+  - kind: explain
+    id: ph-d2
+    depth: 2
+    body: "**Reibung** bremst Bewegungen. Ihre Kraft ist $F_R = \\mu \\cdot F_N$. Dabei ist $F_N$ die Kraft, mit der ein Körper auf den Boden drückt. Die Reibungszahl μ hängt von den Stoffen ab."
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Auto mit 1000 kg zieht mit {{f}} N. Luft und Reibung bremsen mit 500 N. Wie groß ist seine Beschleunigung in m/s²?
+    params:
+      unit: m/s²
+    answer:
+      value: "{{(f - 500) / 1000}}"
+    feedback:
+      - when: abs(numval(state.input) - f / 1000) < 0.01
+        misconception: net-force
+        text: Du hast die Bremskraft vergessen. Es zählt die Summe aller Kräfte.
+    hints:
+      - Gesamtkraft = Zugkraft − Bremskraft.
+      - "a = Gesamtkraft : Masse."
+    explanation: "({{f}} − 500) : 1000 = {{(f - 500) / 1000}} m/s². Nur die übrige Kraft beschleunigt."
+    difficulty: 2
+    variants:
+      params:
+        f: choice[1500,2500,3500,4500]
+      defaults:
+        f: 2500
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -98,6 +146,72 @@ steps:
     hints:
       - "Schau nur auf den Wagen: Welche Kräfte wirken auf ihn?"
     explanation: Auf den Wagen wirkt nur der Zug nach vorn (und etwas Reibung). Das Pferd stößt sich am Boden ab.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Du (60 kg) stehst im Aufzug auf einer Waage. Er fährt an und beschleunigt mit 2 m/s² nach oben. Was zeigt die Waage in kg? g = 10 m/s².
+    params:
+      unit: kg
+    answer:
+      value: 72
+    feedback:
+      - when: numval(state.input) == 48
+        misconception: sign-elevator
+        text: Nach **oben** beschleunigt drückst du stärker. Der Boden muss dich zusätzlich anschieben.
+      - when: numval(state.input) == 60
+        misconception: ignore-acceleration
+        text: In Ruhe stimmt das. Beim Anfahren braucht es aber zusätzlich Kraft.
+    hints:
+      - "Der Boden muss g und a liefern: F = m · (g + a)."
+      - 60 · 12 = 720 N. Die Waage teilt durch 10.
+    explanation: F = 60 · (10 + 2) = 720 N. Die Waage rechnet das als 72 kg. Beim Bremsen nach oben zeigt sie weniger.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Im Gedankenexperiment reißt das Seil des Aufzugs, und alles fällt frei. Was zeigt die Waage unter deinen Füßen?
+    params:
+      options:
+        - label: 0 kg
+          correct: true
+        - label: 60 kg
+          feedback: Waage und du fallen gleich schnell. Du drückst gar nicht mehr auf sie.
+        - label: Mehr als 60 kg
+          feedback: Mehr zeigt sie nur, wenn der Aufzug nach oben beschleunigt.
+    hints:
+      - Fällt die Waage schneller oder langsamer als du?
+      - Ohne Druck keine Anzeige.
+    explanation: Alles fällt mit g. Du drückst nicht mehr auf die Waage – du bist schwerelos. Genau so geht es Astronauten in der Raumstation.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux Newtons erstes Gesetz am Beispiel einer Vollbremsung im Bus.
+    params:
+      keywords:
+        - - träg
+          - inertia
+          - beharr
+          - weiter
+          - keeps
+          - continue
+        - - kraft
+          - force
+          - ohne
+          - without
+        - - bus
+          - brems
+          - brake
+          - stop
+          - halt
+      sample: Ein Körper bleibt in Bewegung, solange keine Kraft ihn bremst – er ist träge. Der Bus bremst, aber auf meinen Körper wirkt erst mal keine Kraft. Darum bewege ich mich weiter nach vorn.
     difficulty: 3
 
 srs:

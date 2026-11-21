@@ -5,7 +5,7 @@ summary: Induktion, Generator, Trafo.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: still
@@ -80,6 +80,32 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: sim
+    prompt: Ein Netzteil soll aus 230 V etwa 12 V machen. Stell die Windungszahlen ein.
+    params:
+      scene: transformer
+    answer:
+      u2:
+        - 11.5
+        - 12.5
+    explanation: "Das Verhältnis muss etwa 19 : 1 sein, zum Beispiel 950 zu 50 Windungen. Die Spannungen verhalten sich wie die Windungszahlen."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: sim
+    prompt: Auf der Ausgangsseite fließt 1 A. Stell den Trafo so ein, dass auf der 230-V-Seite nur 0,05 A fließen.
+    params:
+      scene: transformer
+    answer:
+      i1: 0.05
+    explanation: "Bei 20 : 1 kommen 11,5 V heraus. Leistung bleibt erhalten: 230 V · 0,05 A = 11,5 V · 1 A. Was man an Spannung senkt, gewinnt man an Strom."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +121,49 @@ steps:
     hints:
       - Was musste sich vorhin ändern, damit Strom fließt?
     explanation: "Darum setzte sich Wechselstrom durch: Er lässt sich leicht hoch- und heruntertransformieren."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: "Das **Induktionsgesetz** von Faraday: $U = -N \\frac{\\Delta \\Phi}{\\Delta t}$. Dabei ist Φ der magnetische Fluss durch die Spule. Mehr Windungen oder eine schnellere Änderung liefern mehr Spannung."
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Spule hat 100 Windungen. Der Fluss durch sie ändert sich in 0,1 s um 0,02 Wb. Wie groß ist die induzierte Spannung in Volt?
+    params:
+      unit: V
+    answer:
+      value: 20
+    feedback:
+      - when: abs(numval(state.input) - 0.2) < 0.01
+        misconception: forgot-turns
+        text: Das gilt für eine Windung. Es sind aber 100 – jede liefert gleich viel.
+    hints:
+      - "Pro Windung: 0,02 Wb : 0,1 s."
+      - Mal 100 Windungen.
+    explanation: 0,2 V pro Windung, mal 100 ergibt 20 V. Doppelt so schnell bewegt, doppelte Spannung – darum leuchtet ein Dynamo heller, je schneller man fährt.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: Du lässt einen starken Magneten durch ein senkrechtes Kupferrohr fallen. Kupfer ist nicht magnetisch. Was passiert?
+    params:
+      options:
+        - label: Er fällt auffällig langsam – Wirbelströme im Rohr bremsen ihn.
+          correct: true
+        - label: Er fällt ganz normal.
+          feedback: Der bewegte Magnet induziert Ströme im Kupfer. Ihr Feld bremst ihn.
+        - label: Er bleibt im Rohr kleben.
+          feedback: Kupfer zieht Magnete nicht an. Die Bremse wirkt nur, solange er sich bewegt.
+    hints:
+      - Ein bewegter Magnet ändert das Feld im Kupfer.
+      - Induzierte Ströme wirken ihrer Ursache entgegen (Lenz).
+    explanation: Die induzierten Ströme bilden Magnete, die den fallenden Magneten bremsen. Das ist die Lenzsche Regel. Züge und Achterbahnen bremsen so berührungslos.
     difficulty: 3
 
 srs:

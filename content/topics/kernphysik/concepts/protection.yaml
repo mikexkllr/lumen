@@ -5,7 +5,7 @@ summary: Abstand, Abschirmung, Zeit.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: In 1 m Abstand von einer Quelle misst du {{d}} µSv pro Stunde. Wie viel misst du in {{k}} m Abstand?
+    params:
+      unit: µSv/h
+    answer:
+      value: "{{d / (k * k)}}"
+    feedback:
+      - when: numval(state.input) == d / k
+        misconception: linear-distance
+        text: Die Strahlung verteilt sich auf eine Kugelfläche. Die wächst mit dem **Quadrat** des Abstands.
+    hints:
+      - "{{k}}-facher Abstand heißt {{k * k}}-fache Fläche."
+      - "{{d}} : {{k * k}} = ?"
+    explanation: "{{d}} : {{k * k}} = {{d / (k * k)}} µSv/h. Ein paar Schritte zurück wirken stärker als fast jede Abschirmung."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[40,80,160]
+        k: choice[2,4]
+      defaults:
+        d: 80
+        k: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: Beta-Strahlung schirmt man lieber mit Plexiglas ab als mit Blei. Warum?
+    params:
+      options:
+        - label: In Blei erzeugen die abgebremsten Elektronen Röntgenstrahlung.
+          correct: true
+        - label: Plexiglas ist dichter als Blei.
+          feedback: Blei ist viel dichter. Gerade das ist hier das Problem.
+        - label: Blei lässt Beta-Strahlung durch.
+          feedback: Blei stoppt Elektronen sofort – aber zu heftig.
+    hints:
+      - Was passiert, wenn schnelle Elektronen abrupt gebremst werden?
+      - So funktioniert auch eine Röntgenröhre.
+    explanation: Stark gebremste Elektronen senden Bremsstrahlung aus – Röntgenlicht, das tief eindringt. In leichtem Plexiglas bremsen sie sanft. Dahinter kann noch Blei folgen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +152,44 @@ steps:
     hints:
       - Dieselbe Zahl Atome zerfällt – in 8 Tagen oder in 30 Jahren.
     explanation: Jod ist anfangs über 1000-mal aktiver, aber nach drei Monaten praktisch weg. Cäsium bleibt das Langzeitproblem.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Du darfst höchstens 1 mSv zusätzlich aufnehmen. Am Arbeitsplatz misst du 20 µSv pro Stunde. Wie viele Stunden darfst du dort arbeiten?
+    params:
+      unit: h
+    answer:
+      value: 50
+    feedback:
+      - when: abs(numval(state.input) - 0.05) < 0.001
+        misconception: milli-micro
+        text: "Erst umrechnen: 1 mSv = 1000 µSv."
+    hints:
+      - 1 mSv = 1000 µSv.
+      - "1000 : 20 = ?"
+    explanation: "1000 µSv : 20 µSv/h = 50 h. Zeit ist die dritte Schutzregel: Die Dosis wächst genau mit der Aufenthaltsdauer."
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Nach einem Reaktorunfall sollen Menschen in der Nähe schnell Jodtabletten nehmen. Was bewirken sie?
+    params:
+      options:
+        - label: Sie füllen die Schilddrüse mit normalem Jod, sodass sie kein radioaktives Jod-131 mehr aufnimmt.
+          correct: true
+        - label: Sie machen Strahlung unschädlich.
+          feedback: Tabletten können keine Strahlung abschirmen. Sie wirken nur auf ein Organ.
+        - label: Sie heilen Strahlenschäden.
+          feedback: Sie verhindern nur das Einlagern von Jod-131 – vorher genommen.
+    hints:
+      - Welches Organ sammelt Jod?
+      - Ein volles Lager nimmt nichts mehr auf.
+    explanation: Die Schilddrüse speichert Jod. Ist sie mit stabilem Jod gesättigt, wird Jod-131 wieder ausgeschieden. Nach einigen Halbwertszeiten von 8 Tagen ist die Gefahr vorbei.
     difficulty: 3
 
 srs:

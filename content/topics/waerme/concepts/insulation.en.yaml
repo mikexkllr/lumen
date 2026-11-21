@@ -5,7 +5,7 @@ summary: Insulation, thermos flasks, heating costs.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: thermoskanne
@@ -64,6 +64,35 @@ steps:
     explanation: 150 − 50 = 100 W.
     difficulty: 2
 
+  - kind: explain
+    id: ph-d1
+    depth: 2
+    body: The **U-value** tells how many watts per m² and per degree of temperature difference pass through a building part. A small U-value means good insulation. Single glazing has about 5, triple glazing below 1.
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: A window has 2 m² and a U-value of {{u}} W/(m²·K). Inside it is 20 °C, outside 0 °C. How many watts are lost?
+    params:
+      unit: W
+    answer:
+      value: "{{40 * u}}"
+    feedback:
+      - when: numval(state.input) == 20 * u
+        misconception: forgot-area
+        text: The area is 2 m² – multiply by 2.
+    hints:
+      - Loss = U · area · temperature difference.
+      - "{{u}} · 2 · 20 = ?"
+    explanation: "{{u}} · 2 · 20 = {{40 * u}} W. An old single-glazed window loses as much as a small heater delivers."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[1,3,5]
+      defaults:
+        u: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +132,44 @@ steps:
           - verlust
           - loss
       sample: The down traps lots of still air. Air conducts heat poorly, so the body’s heat stays in longer. The jacket produces no heat, it only slows the loss.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: A house loses 200 W per degree of difference between inside and outside. In winter it is on average 15 degrees colder outside than inside, for 200 days. How many kWh of heating energy does it need?
+    params:
+      unit: kWh
+    answer:
+      value: 14400
+    feedback:
+      - when: numval(state.input) == 600
+        misconception: days-not-hours
+        text: That would be kilowatts times **days**. A day has 24 hours.
+    hints:
+      - "Average loss: 200 W · 15 = 3 kW."
+      - "Time: 200 days · 24 h = 4800 h."
+    explanation: 3 kW · 4800 h = 14,400 kWh. With oil that would be about 1400 litres. If insulation halves the 200 W, the costs halve too.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Single-glazed windows steam up inside in winter, double glazing hardly. Why?
+    params:
+      options:
+        - label: The inner pane stays warmer and does not cool the room air below the dew point.
+          correct: true
+        - label: Double glazing lets no moisture through.
+          feedback: The water vapour comes from the room. What matters is how cold the pane is.
+        - label: There is a drying agent between the panes.
+          feedback: That only keeps the gap dry. Inside, glass steams up when it is cold.
+    hints:
+      - "Where does dew form: on warm or cold surfaces?"
+      - How warm is the inner pane with good insulation?
+    explanation: Cold surfaces cool the air next to them until its water vapour condenses. The well-insulated inner pane is almost as warm as the room.
     difficulty: 3
 
 srs:

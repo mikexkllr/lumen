@@ -5,7 +5,7 @@ summary: Wasser, Heizung und das eine Grad.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: wasser
@@ -67,6 +67,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Sekunden braucht ein Wasserkocher mit 2000 W, um 1 Liter von 20 auf 100 °C zu bringen?"
+    params:
+      min: 10
+      max: 1000
+    answer:
+      value: 168
+      tolerance: 40
+    explanation: "1 L um 80 °C braucht 336 kJ. 336 000 J : 2000 W = 168 s, knapp 3 Minuten. In echt dauert es etwas länger, weil Wärme verloren geht."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Durchlauferhitzer erwärmt {{l}} Liter pro Minute um 30 °C. Ein Liter braucht 4,2 kJ pro Grad. Welche Leistung braucht das Gerät – in kW?
+    params:
+      unit: kW
+    answer:
+      value: "{{l * 2.1}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - l * 126) < 1
+        misconception: per-minute
+        text: Das sind kJ pro **Minute**. Für kW brauchst du kJ pro Sekunde.
+    hints:
+      - "Energie pro Minute: {{l}} · 4,2 · 30 kJ."
+      - Durch 60 ergibt kJ pro Sekunde = kW.
+    explanation: "{{l}} · 4,2 · 30 = {{l * 126}} kJ pro Minute, durch 60 sind das {{l * 2.1}} kW. Darum brauchen Durchlauferhitzer einen eigenen Starkstrom-Anschluss."
+    difficulty: 2
+    variants:
+      params:
+        l: choice[4,6,8,10]
+      defaults:
+        l: 8
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +121,37 @@ steps:
     hints:
       - Wasser hat eine der höchsten **Wärmekapazitäten** überhaupt.
     explanation: Darum mildern Meere das Klima, und Heizungen arbeiten mit Wasser.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Dusche läuft 5 Minuten mit 8 Litern pro Minute. Das Wasser wird von 10 auf 38 °C erwärmt. Wie viele kWh kostet das? (1 kWh = 3600 kJ)
+    params:
+      unit: kWh
+    answer:
+      value: 1.31
+      tolerance: 0.03
+    hints:
+      - "40 Liter, um 28 °C erwärmt: 40 · 4,2 · 28 kJ."
+      - Dann durch 3600 teilen.
+    explanation: 40 · 4,2 · 28 = 4704 kJ ≈ 1,31 kWh. So viel braucht ein Kühlschrank in drei Tagen. Warmwasser ist ein großer Posten.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: "Wie viel Energie braucht die Luft in einem Zimmer mit 50 m³, um 1 °C wärmer zu werden? Luft: 1,2 kg pro m³ und 1 kJ pro kg und Grad. In kJ."
+    params:
+      unit: kJ
+    answer:
+      value: 60
+    hints:
+      - "Masse der Luft: 50 · 1,2 kg."
+      - Mal 1 kJ pro kg und Grad.
+    explanation: 60 kg Luft brauchen nur 60 kJ – so viel wie ein Wasserkocher in 30 Sekunden. Die Wärme steckt in Wänden und Möbeln. Darum verliert kurzes Stoßlüften kaum Energie.
     difficulty: 3
 
 srs:

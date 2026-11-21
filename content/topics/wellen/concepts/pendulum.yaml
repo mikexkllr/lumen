@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: c1
@@ -85,6 +85,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Pendel soll {{k}}-mal so lange für eine Schwingung brauchen. Wievielmal so lang muss es werden?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: root-ignored
+        text: Die Länge steht unter der Wurzel. Für {{k}}-fache Periode braucht es mehr als {{k}}-fache Länge.
+    hints:
+      - T wächst mit der Wurzel aus der Länge.
+      - Um die Wurzel zu ver-{{k}}-fachen, muss die Zahl darunter {{k}}² groß werden.
+    explanation: √({{k * k}}) = {{k}}. Also braucht es die {{k * k}}-fache Länge.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,3,4]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Das Foucault-Pendel im Pariser Panthéon braucht 16,4 s für eine Schwingung. Wie lang ist sein Seil – in Metern?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 67
+      tolerance: 12
+    explanation: "L = g · (T : 2π)² ≈ 9,8 · 6,8 ≈ 67 m. Foucault zeigte damit 1851: Die Schwingungsebene dreht sich langsam – weil sich die Erde unter ihr dreht."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: sim
@@ -124,6 +160,30 @@ steps:
     hints:
       - Der Takt des Anschubsens trifft die Eigenfrequenz.
     explanation: Trifft der Antrieb die **Eigenfrequenz**, schaukelt sich die Schwingung auf. So singen Gläser – und so können Brücken einstürzen.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: Bei kleinen Ausschlägen zieht die Schwerkraft das Pendel mit $F = -\frac{mg}{L} x$ zurück – proportional zur Auslenkung x. Daraus folgt eine **harmonische Schwingung** mit $\omega = \sqrt{g/L}$, also $T = 2\pi\sqrt{L/g}$.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: choice
+    prompt: Gilt T = 2π√(L/g) auch, wenn das Pendel 90° weit ausschlägt?
+    params:
+      options:
+        - label: Nein – bei großen Ausschlägen dauert eine Schwingung länger.
+          correct: true
+        - label: Ja, die Periode hängt nie vom Ausschlag ab.
+          feedback: Das gilt nur für kleine Winkel. Bei 90° ist T etwa 18 % länger.
+        - label: Nein – dann wird sie kürzer.
+          feedback: Die Rückstellkraft wächst langsamer als die Auslenkung. Das bremst, statt zu beschleunigen.
+    hints:
+      - Die Formel nutzt sin(α) ≈ α. Stimmt das bei 90°?
+      - Bei großen Winkeln zieht die Schwerkraft relativ schwächer zurück.
+    explanation: Die Näherung sin α ≈ α gilt nur bis etwa 15°. Bei 90° ist die Periode rund 18 % länger. Pendeluhren schwingen darum nur wenig aus.
     difficulty: 3
 
 srs:

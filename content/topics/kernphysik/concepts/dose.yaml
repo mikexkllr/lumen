@@ -5,7 +5,7 @@ summary: Dosen vergleichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,36 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Eine Banane bringt etwa 0,1 µSv. Ein Flug Frankfurt–New York etwa 50 µSv. Wie vielen Bananen entspricht der Flug?"
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 500
+      within: 50
+    explanation: "50 : 0,1 = 500 Bananen. Beides ist harmlos – ein Jahr natürliche Strahlung sind rund 20 000 Bananen."
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Energiedosis 1 Gray heißt 1 Joule pro kg Körper. Ein Mensch mit 70 kg nimmt 0,001 Gy auf. Wie viel Energie in Joule ist das?
+    params:
+      unit: J
+    answer:
+      value: 0.07
+    hints:
+      - Energie = Dosis · Masse.
+      - 0,001 · 70 = ?
+    explanation: Nur 0,07 J – so viel Wärme bekommt man in einem Bruchteil einer Sekunde von einer Kerze. Strahlung schadet nicht durch Wärme, sondern weil einzelne Treffer Moleküle wie die DNA zerreißen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -111,6 +141,49 @@ steps:
     hints:
       - Dieselbe Energie – auf einer Zelle oder auf einer Million Zellen verteilt?
     explanation: "Darum gibt es das **Sievert**: Es gewichtet die Energie mit der biologischen Wirkung."
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: Die **Äquivalentdosis** in Sievert ist die Energiedosis in Gray mal einem Wichtungsfaktor. Er ist 1 für Gamma und Beta, aber 20 für Alpha. So zählt, wie dicht die Teilchen ihre Energie abladen.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: numeric
+    prompt: Radon im Keller gibt der Lunge 0,5 mGy Alpha-Strahlung. Wie groß ist die Äquivalentdosis – in mSv?
+    params:
+      unit: mSv
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: forgot-weighting
+        text: Bei Alpha zählt jedes Gray zwanzigfach.
+    hints:
+      - "Wichtungsfaktor für Alpha: 20."
+      - 0,5 · 20 = ?
+    explanation: 0,5 mGy · 20 = 10 mSv. Darum ist Radon in Deutschland die größte Quelle natürlicher Strahlung – und Lüften so wirksam.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: choice
+    prompt: Ab welcher kurzzeitigen Ganzkörperdosis stirbt etwa die Hälfte der Menschen ohne Behandlung?
+    params:
+      options:
+        - label: Etwa 4 bis 5 Sievert
+          correct: true
+        - label: Etwa 5 Millisievert
+          feedback: Das ist nur etwas mehr als die natürliche Jahresdosis – völlig ungefährlich.
+        - label: Etwa 50 Millisievert
+          feedback: So viel bringen einige CTs. Akute Strahlenkrankheit beginnt erst ab etwa 1 Sv.
+    hints:
+      - Ein CT bringt etwa 10 mSv – und ist erlaubt.
+      - Lebensgefahr beginnt bei Dosen, die tausendmal größer sind als die Jahresdosis.
+    explanation: Bei 4 bis 5 Sv – dem Zweitausendfachen der natürlichen Jahresdosis – wird das Knochenmark zerstört. Bei Strahlung macht die Dosis das Gift.
     difficulty: 3
 
 srs:

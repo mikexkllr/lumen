@@ -5,7 +5,7 @@ summary: Jiggling particles and kelvin.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -94,6 +94,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ph-d1
+    depth: 2
+    widget: numeric
+    prompt: "In the USA temperatures are in Fahrenheit: °F = 1.8 · °C + 32. How many °F are {{c}} °C?"
+    params:
+      unit: °F
+    answer:
+      value: "{{1.8 * c + 32}}"
+    feedback:
+      - when: abs(numval(state.input) - 1.8 * c) < 0.1
+        misconception: forgot-offset
+        text: "The 32 is still missing: the zero points of the scales are offset."
+    hints:
+      - First multiply by 1.8.
+      - Then add 32.
+    explanation: 1.8 · {{c}} + 32 = {{1.8 * c + 32}} °F. 100 °F is a mild fever, 0 °F is −18 °C.
+    difficulty: 2
+    variants:
+      params:
+        c: choice[10,20,37,100]
+      defaults:
+        c: 37
+
+  - kind: problem
+    id: ph-d2
+    depth: 2
+    widget: choice
+    prompt: Water A is at 20 °C, water B at 40 °C. Do the particles in B move twice as vigorously on average?
+    params:
+      options:
+        - label: No – in kelvin it is 293 K and 313 K, only about 7 % more.
+          correct: true
+        - label: Yes, 40 is twice 20.
+          feedback: Celsius does not start at the true zero. For comparisons you need kelvin.
+        - label: No, they move equally fast.
+          feedback: Warmer means faster – just not twice as fast.
+    hints:
+      - Convert both temperatures to kelvin.
+      - Particle energy is proportional to T in kelvin.
+    explanation: 313 ÷ 293 ≈ 1.07. Water would have twice the kinetic energy only at 586 K, that is 313 °C.
+    difficulty: 2
+
+  - kind: problem
+    id: ph-d3
+    depth: 2
+    widget: sim
+    prompt: The temperature stays fixed at 300 K. Squeeze the gas until the pressure doubles – to about 200 kPa.
+    params:
+      scene: gas
+      controls:
+        temperature:
+          value: 300
+          fixed: true
+    answer:
+      pressure:
+        - 195
+        - 205
+    explanation: "At half the volume (2.5 L) the particles hit the wall twice as often. That is Boyle's law: p · V stays the same."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +170,47 @@ steps:
     hints:
       - "An iceberg and a cup of tea: which has more energy, which the higher temperature?"
     explanation: Temperature is an **average** per particle; heat is a total amount.
+    difficulty: 3
+
+  - kind: explain
+    id: ph-x1
+    depth: 3
+    body: The average kinetic energy of a gas particle is $\frac{3}{2} k T$. Here k is the **Boltzmann constant**, 1.38 · 10⁻²³ J/K. It links temperature to the energy of single particles.
+
+  - kind: problem
+    id: ph-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how fast do nitrogen molecules fly on average at room temperature – in m/s?"
+    params:
+      min: 0
+      max: 3000
+    answer:
+      value: 510
+      tolerance: 100
+    explanation: From ½ m v² = 3/2 k T we get v = √(3kT/m) ≈ 510 m/s – faster than sound. Because they keep colliding, they still make slow progress.
+    difficulty: 3
+
+  - kind: problem
+    id: ph-x3
+    depth: 3
+    widget: numeric
+    prompt: At what temperature in kelvin do gas particles have twice the kinetic energy they have at 27 °C?
+    params:
+      unit: K
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 54
+        misconception: celsius-double
+        text: That is 54 °C – doubled in Celsius. The energy is proportional to the kelvin temperature.
+      - when: numval(state.input) == 327
+        misconception: unit-confusion
+        text: That is calculated correctly – but in °C. Kelvin was asked for.
+    hints:
+      - 27 °C is 300 K.
+      - Double the energy means double the kelvin temperature.
+    explanation: 2 · 300 K = 600 K, which is 327 °C. The particles are then faster by a factor of √2.
     difficulty: 3
 
 srs:
