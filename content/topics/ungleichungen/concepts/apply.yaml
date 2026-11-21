@@ -5,7 +5,7 @@ summary: Ab wann lohnt sich die Grundgebühr?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: telefon
@@ -73,6 +73,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: match
+    prompt: Welches Zeichen gehört zu welchem Wort?
+    params:
+      pairs:
+        - left: höchstens
+          right: ≤
+        - left: mindestens
+          right: ≥
+        - left: mehr als
+          right: ">"
+        - left: weniger als
+          right: <
+    hints:
+      - »Höchstens 5« – darf es genau 5 sein?
+      - Bei »mehr als« gehört die Grenze nicht dazu.
+    explanation: Höchstens und mindestens schließen die Grenze ein, mehr als und weniger als nicht.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Ticket kostet {{t}} €. Du hast {{g}} €. Wie viele Tickets kannst du höchstens kaufen?
+    answer:
+      value: "{{floor(g / t)}}"
+    feedback:
+      - when: numval(state.input) == ceil(g / t)
+        misconception: round-up
+        text: Für das letzte Ticket reicht das Geld nicht mehr – abrunden!
+    hints:
+      - $ {{t}} \cdot n \le {{g}}$.
+      - "{{g}} : {{t}} ≈ {{round(g / t * 10) / 10}}."
+    explanation: "{{floor(g / t)}} Tickets kosten {{floor(g / t) * t}} €. Ein weiteres wäre zu teuer."
+    difficulty: 2
+    variants:
+      params:
+        t: choice[3,4,6,7]
+        g: int[20,60]
+      constraints:
+        - g % t != 0
+      defaults:
+        t: 7
+        g: 50
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Aufzug trägt höchstens 630 kg. Ein Mann wiegt 90 kg und hat Kisten zu je 30 kg dabei. Wie viele Kisten darf er höchstens mitnehmen?
+    answer:
+      value: 18
+    feedback:
+      - when: numval(state.input) == 21
+        misconception: forgot-person
+        text: Der Mann zählt mit!
+    hints:
+      - $90 + 30k \le 630$.
+      - $30k \le 540$.
+    explanation: "540 : 30 = 18 Kisten."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -84,6 +148,41 @@ steps:
     hints:
       - 36 000 + 0,04 k < 30 000 + 0,10 k.
     explanation: 6000 < 0,06 k, also k > 100 000. Das ist der **Break-even-Punkt**.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Noten von 1 (sehr gut) bis 6: Du hast 2, 3 und 4. Der Schnitt aus vier Arbeiten darf nicht schlechter als 3,0 werden. Welche Note darfst du in der vierten höchstens schreiben?"
+    answer:
+      value: 3
+    hints:
+      - "$(2 + 3 + 4 + x) : 4 \\le 3$."
+      - $9 + x \le 12$.
+    explanation: $x \le 3$. Eine 3 hält den Schnitt genau bei 3,0.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Gelten mehrere Ungleichungen gleichzeitig, beschreiben sie, was erlaubt ist. Darin sucht man die beste Lösung – das heißt **lineare Optimierung**. So planen Firmen Produktion, Fahrpläne und Lager.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Du hast 10 Eier. Ein Kuchen braucht 3 Eier, ein Blech Waffeln 2 Eier. Du backst 2 Kuchen. Wie viele Bleche Waffeln gehen höchstens noch?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-cakes
+        text: Die Kuchen brauchen schon 6 Eier.
+    hints:
+      - $2 \cdot 3 + 2w \le 10$.
+      - $2w \le 4$.
+    explanation: w ≤ 2. Genau 10 Eier werden verbraucht.
     difficulty: 3
 
 srs:

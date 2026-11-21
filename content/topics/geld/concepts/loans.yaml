@@ -5,7 +5,7 @@ summary: Den wahren Preis erkennen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: raten
@@ -109,6 +109,56 @@ steps:
     explanation: 1 % von 600 € sind 6 €.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Bei einem **Ratenkredit** zahlst du jeden Monat dieselbe Rate. Darin stecken Zinsen und Tilgung. Am Anfang ist der Zinsanteil groß, am Ende fast null.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Du hast {{s}} € Schulden zu {{p}} % Zins pro Jahr. Wie viel Zinsen fallen in einem Monat an?
+    params:
+      unit: €
+    answer:
+      value: "{{s * p / 1200}}"
+    feedback:
+      - when: numval(state.input) == s * p / 100
+        misconception: year-not-month
+        text: Das ist der Zins für ein ganzes Jahr. Ein Monat ist ein Zwölftel.
+    hints:
+      - "Jahreszins: {{s * p / 100}} €."
+      - Durch 12.
+    explanation: "{{s}} € · {{p}} % : 12 = {{s * p / 1200}} €."
+    difficulty: 2
+    variants:
+      params:
+        s: step[1200,6000,1200]
+        p: choice[6,12]
+      defaults:
+        s: 2400
+        p: 6
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Kredit 2000 €, Zins 6 % pro Jahr, Rate 100 € im Monat. Wie viel der ersten Rate tilgt die Schuld wirklich?
+    params:
+      unit: €
+    answer:
+      value: 90
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: all-repayment
+        text: Ein Teil der Rate sind Zinsen. Zieh sie ab.
+    hints:
+      - "Zins im ersten Monat: 2000 € · 6 % : 12."
+      - 100 € − 10 € = ?
+    explanation: 10 € sind Zinsen, 90 € Tilgung. Die Restschuld sinkt auf 1910 €.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -121,6 +171,66 @@ steps:
     hints:
       - Im ersten Jahr schuldest du 1000 €, im zweiten nur noch 500 €.
     explanation: 100 € + 50 € = 150 €. Wer schneller tilgt, zahlt weniger Zinsen.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Kreditkartenschuld wächst mit 18 % pro Jahr, du zahlst nichts. Nach wie vielen Jahren hat sie sich etwa verdoppelt? Nutze die 72er-Regel.
+    params:
+      unit: Jahre
+    answer:
+      value: 4
+    hints:
+      - 72 geteilt durch den Zinssatz.
+      - "72 : 18 = ?"
+    explanation: "72 : 18 = 4 Jahre. Genau: $1{,}18^4 \\approx 1{,}94$. Schulden wachsen genauso exponentiell wie Guthaben."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Faustregel für Kreditkosten: Durchschnittsschuld · Zins · Zeit. 1200 € werden in 12 Monaten getilgt, im Schnitt schuldest du 600 €. Bei 1 % pro Monat – etwa wie viel Zinsen?"
+    params:
+      unit: €
+    answer:
+      value: 72
+      tolerance: 5
+    feedback:
+      - when: numval(state.input) == 144
+        misconception: full-debt
+        text: Du hast mit der vollen Schuld gerechnet. Sie sinkt aber jeden Monat.
+    hints:
+      - 600 € · 1 % = 6 € pro Monat.
+      - 6 € · 12 = ?
+    explanation: Etwa 72 €. Tilgt man jeden Monat 100 € und zahlt Zins auf den Rest, sind es genau 78 € – die Faustregel liegt nah dran.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man Kredite am effektiven Jahreszins vergleicht.
+    params:
+      keywords:
+        - - gebühr
+          - kosten
+          - fee
+          - cost
+          - charges
+        - - vergleich
+          - compare
+          - gleich
+          - same
+        - - jahr
+          - year
+          - effektiv
+          - effective
+          - apr
+      sample: Der effektive Jahreszins rechnet alle Kosten ein, auch Gebühren. Er rechnet sie auf ein Jahr um. So kann man verschiedene Angebote fair vergleichen.
+    explanation: "Kernidee: Nur eine Zahl, die alle Kosten auf dieselbe Zeit umrechnet, ist vergleichbar."
     difficulty: 3
 
 srs:

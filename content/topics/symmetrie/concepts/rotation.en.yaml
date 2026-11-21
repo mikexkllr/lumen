@@ -5,7 +5,7 @@ summary: When does it look the same again?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: windrad
@@ -77,6 +77,20 @@ steps:
         - axes
 
   - kind: problem
+    id: ma-c1
+    widget: angle
+    prompt: Set the smallest turning angle after which a square looks exactly the same again.
+    params:
+      initial: 0
+      snap: 5
+    answer:
+      value: 90
+    hints:
+      - A square has 4 equal corners.
+      - 360° divided by 4.
+    explanation: After 90° every corner sits where the next one was.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: buckets
@@ -107,6 +121,63 @@ steps:
     explanation: S and the pinwheel can be rotated but not mirrored. A and the heart only mirrored.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: The **order** of a rotational symmetry counts how often a figure looks the same during one full turn. A pinwheel with three blades has order 3.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A star has {{n}} equal points. It looks the same after turns of {{360 / n}}°, {{720 / n}}° … What is the order of its rotational symmetry?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 360 / n
+        misconception: angle-vs-order
+        text: That is the smallest angle. The question is how many times it fits.
+    hints:
+      - How many times does {{360 / n}}° fit into 360°?
+      - "360 : {{360 / n}} = ?"
+    explanation: "360° : {{360 / n}}° = {{n}}. The order is {{n}} – as many as the points."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,5,6,8,9,10,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Does the capital letter look the same after a half turn (180°)?
+    params:
+      buckets:
+        - id: b1
+          label: yes
+        - id: b2
+          label: no
+      items:
+        - label: N
+          bucket: b1
+        - label: Z
+          bucket: b1
+        - label: H
+          bucket: b1
+        - label: A
+          bucket: b2
+        - label: E
+          bucket: b2
+        - label: T
+          bucket: b2
+    hints:
+      - Imagine turning the page upside down.
+      - An upside-down A points down.
+    explanation: N, Z and H have point symmetry. A, E and T end up upside down.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -117,6 +188,70 @@ steps:
     hints:
       - Count the rotations (including 0°) and the axes.
     explanation: 5 rotations and 5 reflections. These 2n symmetries form the **dihedral group** – the gateway to group theory.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: You turn a square by 90° and then by 270°. Which single turn does the same?
+    params:
+      options:
+        - label: 0° – it is back where it started
+          correct: true
+        - label: 90° + 270° = 360°, not 180°.
+          feedback: 90° + 270° = 360°, nicht 180°.
+        - label: 360° is the same as 0°.
+          feedback: 360° ist dasselbe wie 0°.
+    hints:
+      - Add the two angles.
+      - 360° is one full turn.
+    explanation: 90° + 270° = 360° – a full turn, the same as 0°. Symmetries combined give a symmetry again.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "All symmetries of a figure form a **group**: two in a row give a symmetry again. Doing nothing belongs to it. And each can be undone. Groups are a core idea of algebra."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: How many rotations map a cube onto itself? The 0° rotation counts.
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: faces-only
+        text: Those are just the faces that can be on top. Each can still be turned four ways.
+      - when: numval(state.input) == 48
+        misconception: with-reflections
+        text: That includes reflections. Only rotations are asked for.
+    hints:
+      - First choose which face is on top.
+      - 6 faces on top, 4 positions each.
+    explanation: 6 · 4 = 24. This rotation group of the cube shows up again in chemistry and crystals.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux after which angle a regular hexagon looks the same again – and why.
+    params:
+      keywords:
+        - - "360"
+        - - sechs
+          - six
+          - ecken
+          - corners
+        - - "60"
+          - geteilt
+          - divid
+          - teilen
+      sample: A full turn has 360 degrees. The hexagon has six equal corners. After 360 divided by 6, so 60 degrees, every corner sits where the next one was.
+    explanation: "Key idea: smallest angle = 360° divided by the order."
     difficulty: 3
 
 srs:

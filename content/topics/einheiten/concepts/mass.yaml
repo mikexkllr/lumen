@@ -1,0 +1,204 @@
+id: math.units.mass
+type: concept
+title: "Gramm, Kilo, Tonne"
+summary: "Gewichte messen, umrechnen und schätzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel wiegt eine Tafel Schokolade in Gramm?"
+    params:
+      min: 0
+      max: 500
+      unit: g
+    answer:
+      value: 100
+      tolerance: 20
+    explanation: Die meisten Tafeln wiegen 100 g – ein Zehntel Kilogramm.
+
+  - kind: explain
+    id: c1
+    body: Gewichte messen wir in **Gramm** und Kilogramm. 1 kg = 1000 g. Und 1 t (Tonne) = 1000 kg. Eine Tafel Schokolade wiegt etwa 100 g.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie viele Gramm sind {{k}} kg?
+    params:
+      unit: g
+    answer:
+      value: "{{k * 1000}}"
+    feedback:
+      - when: numval(state.input) == k * 100
+        misconception: factor-100
+        text: Ein Kilo sind 1000 g, nicht 100 g.
+    hints:
+      - Kilo heißt tausend.
+      - "{{k}} · 1000."
+    explanation: "{{k}} · 1000 = {{k * 1000}} g."
+    variants:
+      params:
+        k: choice[2,1.5,0.25,3.2,0.75]
+      defaults:
+        k: 1.5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie viele Kilogramm sind {{g}} g?
+    params:
+      unit: kg
+    answer:
+      value: "{{g / 1000}}"
+    feedback:
+      - when: numval(state.input) == g / 100
+        misconception: factor-100
+        text: Teile durch 1000 – das Komma rückt drei Stellen.
+    hints:
+      - Große Einheit, kleine Zahl.
+      - "{{g}} : 1000."
+    explanation: "{{g}} : 1000 = {{g / 1000}} kg."
+    variants:
+      params:
+        g: choice[2500,750,50,1200,300]
+      defaults:
+        g: 750
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Gramm, Kilogramm oder Tonnen?
+    params:
+      buckets:
+        - id: b1
+          label: g
+        - id: b2
+          label: kg
+        - id: b3
+          label: t
+      items:
+        - label: Gummibärchen
+          bucket: b1
+        - label: Brief
+          bucket: b1
+        - label: Katze
+          bucket: b2
+        - label: Sack Kartoffeln
+          bucket: b2
+        - label: Auto
+          bucket: b3
+        - label: Elefant
+          bucket: b3
+    hints:
+      - Kannst du es mit einer Hand halten?
+      - Autos und Elefanten wiegen mehr als 1000 kg.
+    explanation: Kleines in g, Haustiere und Einkäufe in kg, Fahrzeuge und große Tiere in t.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Im Rucksack sind eine Flasche (750 g), ein Brot (0,5 kg) und ein Buch (450 g). Wie viele Kilogramm sind das zusammen?
+    params:
+      unit: kg
+    answer:
+      value: 1.7
+    feedback:
+      - when: abs(numval(state.input) - 1200.5) < 0.01
+        misconception: mixed-units
+        text: Erst alles in dieselbe Einheit umrechnen!
+    hints:
+      - 0,5 kg = 500 g.
+      - 750 + 500 + 450 = 1700 g.
+    explanation: 1700 g = 1,7 kg. Erst gleiche Einheiten, dann addieren.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Apfel wiegt etwa 150 g. Wie viele Äpfel sind ungefähr in einem 3-kg-Netz?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: units
+        text: Rechne erst 3 kg in Gramm um.
+    hints:
+      - 3 kg = 3000 g.
+      - "3000 : 150 = ?"
+    explanation: "3000 : 150 = 20 Äpfel."
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Genau genommen misst kg die **Masse**. Sie ist überall gleich. Auf dem Mond fühlt man sich trotzdem leichter: Er zieht nur etwa ein Sechstel so stark wie die Erde."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Kind hat 36 kg Masse. Auf dem Mond drückt es so stark auf eine Waage wie wie viel Kilo auf der Erde?
+    params:
+      unit: kg
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: mass-vs-weight
+        text: Die Masse bleibt 36 kg – aber der Mond zieht schwächer.
+    hints:
+      - Ein Sechstel der Anziehung.
+      - "36 : 6 = ?"
+    explanation: "36 : 6 = 6. Die Waage zeigt 6 kg – die Masse ist aber immer noch 36 kg."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: 1 Liter Wasser wiegt etwa 1 kg. Ein Eimer wiegt leer 400 g. Wie viele Kilogramm wiegt er mit 10 Litern Wasser?
+    params:
+      unit: kg
+    answer:
+      value: 10.4
+    feedback:
+      - when: numval(state.input) == 410
+        misconception: units
+        text: Der Eimer wiegt 400 g, nicht 400 kg.
+    hints:
+      - 10 Liter Wasser = 10 kg.
+      - 400 g = 0,4 kg.
+    explanation: 10 kg + 0,4 kg = 10,4 kg.
+    difficulty: 3
+
+  - kind: explain
+    id: x2
+    depth: 3
+    body: Seit 2019 ist das **Kilogramm** über eine Naturkonstante festgelegt, das Plancksche Wirkungsquantum. Vorher war es ein Metallzylinder, der bei Paris in einem Tresor lag.
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Gold hat die Dichte 19,3 g pro cm³. Wie viel wiegt ein Goldwürfel mit 2 cm Kantenlänge?
+    params:
+      unit: g
+    answer:
+      value: 154.4
+    feedback:
+      - when: abs(numval(state.input) - 38.6) < 0.01
+        misconception: edge-not-volume
+        text: Der Würfel hat 2 · 2 · 2 = 8 cm³, nicht 2 cm³.
+    hints:
+      - "Volumen: 2 · 2 · 2 = 8 cm³."
+      - 8 · 19,3 = ?
+    explanation: 8 · 19,3 = 154,4 g – schwer für so einen kleinen Würfel!
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

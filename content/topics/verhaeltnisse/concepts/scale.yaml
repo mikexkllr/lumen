@@ -5,7 +5,7 @@ summary: Karten und Modelle richtig lesen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 6.6
       tolerance: 2
     explanation: "Der Mond ist 30 Erddurchmesser entfernt: 30 · 22 cm = 6,6 m."
-
 
   - kind: problem
     id: karte
@@ -88,6 +87,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: "Maßstab 1 : {{m}}. Ein Zimmer ist in echt {{L}} m lang. Wie viele Zentimeter sind das auf dem Plan?"
+    params:
+      unit: cm
+    answer:
+      value: "{{L * 100 / m}}"
+    feedback:
+      - when: numval(state.input) == L * m
+        misconception: wrong-direction
+        text: Auf dem Plan wird es kleiner, nicht größer. Teile durch {{m}}.
+      - when: numval(state.input) == L / m
+        misconception: units
+        text: "Erst in Zentimeter umrechnen: {{L}} m = {{L * 100}} cm."
+    hints:
+      - "{{L}} m sind {{L * 100}} cm."
+      - Teile durch {{m}}.
+    explanation: "{{L * 100}} cm : {{m}} = {{L * 100 / m}} cm."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,100,200]
+        L: int[2,12]
+      defaults:
+        m: 50
+        L: 4
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: choice
+    prompt: Welche Karte zeigt mehr Einzelheiten?
+    params:
+      options:
+        - label: "1 : 25 000"
+          correct: true
+        - label: "1 : 100 000"
+          feedback: Hier ist 1 cm schon 1 km – die Karte zeigt weniger Details.
+    hints:
+      - Wie viele echte Meter stehen für 1 cm?
+      - "Weniger Meter pro cm heißt: Alles erscheint größer."
+    explanation: "Bei 1 : 25 000 ist 1 cm nur 250 m. Alles wird viermal so groß gezeichnet wie bei 1 : 100 000."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +148,46 @@ steps:
     hints:
       - Eine Fläche wächst in Länge **und** Breite.
     explanation: Längen mal k, Flächen mal k², Volumen mal k³. Darum wiegt ein doppelt so großes Tier achtmal so viel.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "Längen wachsen mit dem Faktor k, Flächen mit $k^2$, Volumen mit $k^3$. Das ist das **Quadrat-Würfel-Gesetz**. Darum kann ein Riese nicht einfach ein vergrößerter Mensch sein: Sein Gewicht wächst schneller als seine Knochen."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Modellauto im Maßstab 1 : 10. Der echte Tank fasst 50 Liter. Wie viele Milliliter fasst der Modelltank?"
+    params:
+      unit: ml
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5000
+        misconception: linear-scaling
+        text: Das ist nur durch 10. Volumen schrumpfen mit 10 · 10 · 10.
+      - when: numval(state.input) == 500
+        misconception: area-scaling
+        text: Das ist durch 100 – wie bei Flächen. Volumen braucht durch 1000.
+    hints:
+      - Länge, Breite und Höhe werden je durch 10 geteilt.
+      - "50 Liter : 1000 = ?"
+    explanation: "50 L : 1000 = 0,05 L = 50 ml."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Tier würde in allen Richtungen doppelt so groß. Um welchen Faktor wächst die Last pro Fläche Knochenquerschnitt?
+    answer:
+      value: 2
+    hints:
+      - "Gewicht ~ Volumen: Faktor 8. Querschnitt ~ Fläche: Faktor 4."
+      - "8 : 4 = ?"
+    explanation: Die Last pro Fläche verdoppelt sich. Große Tiere brauchen darum viel dickere Beine – wie Elefanten.
     difficulty: 3
 
 srs:

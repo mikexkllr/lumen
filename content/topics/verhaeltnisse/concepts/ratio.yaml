@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ratio.ratio]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: saft
@@ -102,6 +102,72 @@ steps:
     explanation: "Ein Teil sind 5 Kinder, drei Teile 15. Ein Verhältnis a : b bedeutet den Anteil a/(a+b)."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Ein Verhältnis kann man **kürzen** wie einen Bruch: 12 : 18 = 2 : 3. Beide Seiten werden durch 6 geteilt. Das Verhältnis bleibt dasselbe."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Kürze so weit wie möglich: 24 : 36 = 2 : ?"
+    answer:
+      value: 3
+    hints:
+      - Welche größte Zahl teilt 24 und 36?
+      - Beide durch 12.
+    explanation: "24 : 12 = 2 und 36 : 12 = 3. Also 2 : 3."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Teile {{k * (a + b)}} € im Verhältnis {{a}} : {{b}}. Wie viel bekommt die erste Person?"
+    params:
+      unit: €
+    answer:
+      value: "{{k * a}}"
+    feedback:
+      - when: numval(state.input) == k * (a + b) / 2
+        misconception: equal-split
+        text: "Das wäre halbe-halbe. Bei {{a}} : {{b}} gibt es {{a + b}} Teile."
+    hints:
+      - Wie viele Teile gibt es insgesamt?
+      - "Ein Teil ist {{k * (a + b)}} : {{a + b}} = {{k}} €."
+    explanation: "{{a + b}} Teile zu je {{k}} €. Die erste Person bekommt {{a}} Teile: {{k * a}} €."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,4]
+        b: int[2,5]
+        k: step[5,20,5]
+      constraints:
+        - a != b
+      defaults:
+        a: 2
+        b: 3
+        k: 10
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: rect
+    prompt: "Zieh ein Rechteck, dessen Breite zur Höhe im Verhältnis 3 : 2 steht und das 20 m Umfang hat."
+    params:
+      maxW: 10
+      maxH: 8
+      w: 2
+      h: 2
+    check:
+      predicate: w * 2 == h * 3 && perimeter == 20
+    hints:
+      - Probiere 3 × 2 – und dann ein Vielfaches davon.
+      - Breite + Höhe muss 10 ergeben.
+    explanation: "6 × 4: 6 : 4 = 3 : 2 und 2 · (6 + 4) = 20."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -113,6 +179,68 @@ steps:
     hints:
       - "Aus x : 1 wird beim Halbieren 1 : x/2. Beide sollen gleich sein."
     explanation: x/1 = 1/(x/2) ergibt x² = 2, also x = √2 ≈ 1,41.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Film im Format 16 : 9 läuft auf einem 4 : 3-Bildschirm, ganz in die Breite gezogen. Wie viel Prozent der Bildschirmhöhe bleiben schwarz?"
+    params:
+      unit: "%"
+    answer:
+      value: 25
+    hints:
+      - "Schreib 4 : 3 mit derselben Breite 16."
+      - "4 : 3 = 16 : 12. Das Bild ist nur 9 hoch."
+    explanation: Von 12 Höheneinheiten nutzt das Bild 9. Es bleiben 3 von 12, also 25 % – oben und unten je ein Streifen.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Zwei Verhältnisse sind gleich, wenn die **Produktgleichung** stimmt: Aus a : b = c : d folgt a · d = b · c. So prüft man 3 : 5 = 24 : 40 schnell: 3 · 40 = 5 · 24 = 120."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: "Löse: 3 : 5 = x : 40"
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 38
+        misconception: additive-thinking
+        text: Verhältnisse wachsen mit mal, nicht mit plus.
+    hints:
+      - Von 5 auf 40 ist mal 8.
+      - 3 · 8 = ?
+    explanation: "40 : 5 = 8, also x = 3 · 8 = 24. Probe: 3 · 40 = 120 = 5 · 24."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux, warum 2 : 3 und 4 : 6 dasselbe Verhältnis sind."
+    params:
+      keywords:
+        - - beide
+          - both
+          - jede seite
+          - each side
+        - - mal
+          - doppelt
+          - verdoppel
+          - times
+          - double
+          - multipl
+        - - gleich
+          - dasselbe
+          - same
+          - equal
+      sample: "Bei 4 : 6 sind beide Seiten doppelt so groß wie bei 2 : 3. Wenn man beide Seiten mit derselben Zahl malnimmt, bleibt das Verhältnis gleich."
+    explanation: "Kernidee: Verhältnisse bleiben gleich, wenn man beide Seiten mit derselben Zahl multipliziert."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Primzahlen finden durch Streichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 25
       tolerance: 4
     explanation: Genau 25. Je größer die Zahlen, desto seltener werden Primzahlen.
-
 
   - kind: problem
     id: welche-prim
@@ -97,6 +96,75 @@ steps:
     explanation: "√221 ≈ 14,9. Bei 13 wirst du fündig: 221 = 13 · 17."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Warum reicht es, bis zur **Wurzel** zu prüfen? Teiler kommen in Paaren. Ist einer größer als √n, muss sein Partner kleiner sein. Bei 91 reicht es, bis 9 zu testen.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Ist 91 eine Primzahl? Gib ihren kleinsten Teiler größer als 1 an.
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 91
+        misconception: looks-prime
+        text: 91 sieht prim aus – ist es aber nicht. Teste 7.
+    hints:
+      - Nicht durch 2, 3 oder 5 teilbar. Was kommt als Nächstes?
+      - 7 · 13 = ?
+    explanation: "91 = 7 · 13. Eine typische Falle: Sie ist ungerade, endet nicht auf 5 und hat Quersumme 10."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Primzahl oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: Primzahl
+        - id: b2
+          label: zusammengesetzt
+      items:
+        - label: "127"
+          bucket: b1
+        - label: "137"
+          bucket: b1
+        - label: "119"
+          bucket: b2
+        - label: "121"
+          bucket: b2
+        - label: "133"
+          bucket: b2
+        - label: "143"
+          bucket: b2
+    hints:
+      - Teste 7, 11 und 13.
+      - 119 = 7 · 17, 121 = 11 · 11.
+    explanation: 127 und 137 sind prim. 119 = 7 · 17, 121 = 11², 133 = 7 · 19, 143 = 11 · 13.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Du willst alle Primzahlen bis 120 sieben. Bis zu welcher Primzahl musst du Vielfache streichen?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 11
+        misconception: one-too-far
+        text: 11 · 11 = 121 liegt schon über 120. Die 11 brauchst du nicht.
+    hints:
+      - Welche Primzahl hat ein Quadrat unter 120?
+      - 7² = 49, 11² = 121.
+    explanation: Jede zusammengesetzte Zahl bis 120 hat einen Primfaktor höchstens √120 ≈ 11. Also reichen 2, 3, 5 und 7.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +180,65 @@ steps:
     hints:
       - "Es ist ein Widerspruchsbeweis: Er beginnt mit einer Annahme."
     explanation: Der Beweis ist über 2000 Jahre alt und gilt als einer der schönsten der Mathematik.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Euklids Trick: Rechne $2 \\cdot 3 \\cdot 5 \\cdot 7 + 1$."
+    answer:
+      value: 211
+    hints:
+      - $2 \cdot 3 \cdot 5 \cdot 7 = 210$.
+      - Plus 1.
+    explanation: 211 lässt bei 2, 3, 5 und 7 jeweils den Rest 1. Es ist selbst prim.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: choice
+    prompt: $2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 + 1 = 30031 = 59 \cdot 509$. Widerlegt das Euklids Beweis?
+    params:
+      options:
+        - label: Ja – die Zahl ist nicht prim
+          feedback: Der Beweis behauptet nicht, dass die Zahl prim ist.
+        - label: Nein – 59 und 509 sind neue Primzahlen, die nicht in der Liste stehen
+          correct: true
+        - label: Nein, weil 30031 doch prim ist
+          feedback: 59 · 509 = 30031.
+    hints:
+      - Was genau zeigt der Beweis?
+      - "Er zeigt: Es gibt einen Primfaktor außerhalb der Liste."
+    explanation: Die Zahl hat Primfaktoren, die keine der Listen-Primzahlen sind. Also war die Liste unvollständig – der Beweis hält.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: Primzahlen werden seltener, aber sie gehen nie aus. Zwischen n und 2n liegt immer mindestens eine. Das ist das **Bertrandsche Postulat**, 1852 von Tschebyschow bewiesen.
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man beim Primzahltest nur bis zur Wurzel prüfen muss.
+    params:
+      keywords:
+        - - paar
+          - pair
+          - partner
+        - - wurzel
+          - root
+        - - klein
+          - kleiner
+          - smaller
+          - small
+          - at most
+          - höchstens
+      sample: Teiler kommen in Paaren. Wenn beide größer als die Wurzel wären, wäre ihr Produkt zu groß. Also ist einer immer kleiner oder gleich der Wurzel – den findet man vorher.
+    explanation: "Kernidee: In jedem Teilerpaar ist ein Partner höchstens √n."
     difficulty: 3
 
 srs:

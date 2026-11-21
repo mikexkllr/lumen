@@ -1,0 +1,240 @@
+id: math.units.area
+type: concept
+title: "Areas and litres"
+summary: "Why m² jump in steps of a hundred and litres in steps of a thousand."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many litres does a bathtub hold?"
+    params:
+      min: 20
+      max: 500
+      unit: L
+    answer:
+      value: 150
+      tolerance: 40
+    explanation: About 150 litres – roughly 15 big buckets.
+
+  - kind: problem
+    id: c1
+    widget: rect
+    prompt: One square is 1 dm × 1 dm. Drag a square that is exactly 1 m × 1 m.
+    params:
+      maxW: 12
+      maxH: 10
+      w: 3
+      h: 3
+      show:
+        - area
+      unit: dm
+    check:
+      predicate: w == 10 && h == 10
+    hints:
+      - 1 m = 10 dm.
+      - Drag 10 squares wide and 10 high.
+    explanation: 1 m² holds 10 · 10 = 100 dm². Areas jump by a factor of 100.
+
+  - kind: explain
+    id: c2
+    body: "1 m² holds 100 squares of 1 dm². So each step between **area units** is times 100: mm² → cm² → dm² → m²."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many dm² are {{a}} m²?
+    params:
+      unit: dm²
+    answer:
+      value: "{{a * 100}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: linear-factor
+        text: For areas it is times 100, not times 10.
+    hints:
+      - 1 m² = 100 dm².
+      - "{{a}} · 100."
+    explanation: "{{a}} · 100 = {{a * 100}} dm²."
+    variants:
+      params:
+        a: choice[3,1.5,0.4,12]
+      defaults:
+        a: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: How many mm² are {{a}} cm²?
+    params:
+      unit: mm²
+    answer:
+      value: "{{a * 100}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: linear-factor
+        text: One cm² is 10 mm × 10 mm – so 100 mm².
+    hints:
+      - 1 cm = 10 mm – in both directions.
+      - 1 cm² = 100 mm².
+    explanation: "{{a}} · 100 = {{a * 100}} mm²."
+    variants:
+      params:
+        a: int[2,9]
+      defaults:
+        a: 4
+
+  - kind: explain
+    id: c5
+    body: A **litre** is a cube with 1 dm edges. 1 L = 1 dm³ = 1000 cm³ = 1000 ml. For volume, each step is times 1000.
+
+  - kind: problem
+    id: c6
+    widget: numeric
+    prompt: A fish tank is 50 cm long, 30 cm wide and 40 cm high. How many litres of water fit in?
+    params:
+      unit: L
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 60000
+        misconception: units
+        text: Those are cm³. 1000 cm³ make 1 litre.
+    hints:
+      - "Volume: 50 · 30 · 40 cm³."
+      - "60,000 cm³ : 1000."
+    explanation: "60,000 cm³ = 60 L. Or in dm: 5 · 3 · 4 = 60 dm³."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A hectare is a square with 100 m sides. How many m² is one hectare?
+    params:
+      unit: m²
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: perimeter
+        text: That is the perimeter in m. The question asks for the area.
+    hints:
+      - Area = side times side.
+      - 100 · 100 = ?
+    explanation: 1 ha = 10,000 m². Farmers and foresters measure fields in hectares.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A football pitch is about 105 m long and 68 m wide. How many hectares is that? To one decimal.
+    params:
+      unit: ha
+    answer:
+      value: 0.7
+      tolerance: 0.05
+    hints:
+      - 105 · 68 = 7140 m².
+      - "7140 : 10,000."
+    explanation: 7140 m² ≈ 0.7 ha. A good two thirds of a hectare.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Area or volume?
+    params:
+      buckets:
+        - id: b1
+          label: area
+        - id: b2
+          label: volume
+      items:
+        - label: m²
+          bucket: b1
+        - label: ha
+          bucket: b1
+        - label: km²
+          bucket: b1
+        - label: litre
+          bucket: b2
+        - label: cm³
+          bucket: b2
+        - label: ml
+          bucket: b2
+    hints:
+      - "Power 2: area, power 3: volume."
+      - Litres and ml measure what fits inside.
+    explanation: m², ha and km² measure area. Litres, cm³ and ml measure space.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: How many litres are 1 m³?
+    params:
+      unit: L
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: area-factor
+        text: One m³ is 10 dm · 10 dm · 10 dm.
+      - when: numval(state.input) == 10
+        misconception: linear-factor
+        text: That is just one length step. Volume has three directions.
+    hints:
+      - 1 m = 10 dm.
+      - 10 · 10 · 10 dm³.
+    explanation: 1 m³ = 1000 dm³ = 1000 litres – as much as about six bathtubs.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: It rains 10 mm. How many litres of water fall on 1 m²?
+    params:
+      unit: L
+    answer:
+      value: 10
+    hints:
+      - The water would be 1 m × 1 m × 1 cm.
+      - "In dm: 10 · 10 · 0.1 dm³."
+    explanation: 10 dm · 10 dm · 0.1 dm = 10 dm³ = 10 L. That is why 1 mm of rain is also 1 litre per m².
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 1 m² is 10,000 cm² and not 100.
+    params:
+      keywords:
+        - - "100"
+          - hundert
+          - hundred
+        - - beide
+          - zwei richtungen
+          - länge und breite
+          - both
+          - two directions
+          - length and width
+        - - mal
+          - times
+          - multipl
+          - quadrat
+          - square
+      sample: A square metre is 100 cm long and 100 cm wide. Area is length times width, so 100 times 100 equals 10,000 cm². The factor 100 acts in both directions.
+    explanation: "Key idea: for areas the length factor counts twice, for volume three times."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

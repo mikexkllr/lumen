@@ -5,7 +5,7 @@ summary: Höchstens so weit vom Ziel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: schraube
@@ -73,6 +73,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numberline
+    prompt: Setze die Markierung auf eine Zahl mit $|x + 2| \le 1$.
+    params:
+      min: -5
+      max: 2
+      ticks: 2
+      labels: integers
+    check:
+      predicate: abs(state.value + 2) <= 1
+    hints:
+      - $|x + 2| = |x - (-2)|$ – der Abstand zu −2.
+      - "Höchstens 1 von −2 entfernt: von −3 bis −1."
+    explanation: "Alle Zahlen von −3 bis −1 passen. Plus 2 im Betrag heißt: Abstand zu −2."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele ganze Zahlen erfüllen $|x - {{m}}| \le {{d}}$?
+    answer:
+      value: "{{2 * d + 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * d
+        misconception: forgot-centre
+        text: Die Mitte {{m}} selbst zählt auch.
+    hints:
+      - Von {{m - d}} bis {{m + d}}.
+      - "{{d}} links, {{d}} rechts und die Mitte."
+    explanation: "{{d}} + {{d}} + 1 = {{2 * d + 1}} Zahlen."
+    difficulty: 2
+    variants:
+      params:
+        m: int[-5,9]
+        d: int[1,6]
+      defaults:
+        m: 4
+        d: 3
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: Wie schreibt man »x liegt höchstens 0,5 von 10 entfernt«?
+    params:
+      options:
+        - label: $|x - 10| \le 0{,}5$
+          correct: true
+        - label: $|x - 0{,}5| \le 10$
+          feedback: Mitte und Abstand sind vertauscht.
+        - label: $|x| \le 10{,}5$
+          feedback: Das wäre der Abstand zu 0.
+    hints:
+      - Der Betrag misst den Abstand zur Mitte.
+      - Mitte 10, Abstand höchstens 0,5.
+    explanation: $|x - 10| \le 0{,}5$ heißt 9,5 ≤ x ≤ 10,5 – eine Toleranz.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -88,6 +149,41 @@ steps:
     hints:
       - Probier a = 3, b = −3 und a = 2, b = 5.
     explanation: Bei verschiedenen Vorzeichen heben sich Teile auf. Die Ungleichung ist ein Grundwerkzeug der Analysis.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Für welches x gilt $|x - 1| = |x - 5|$?
+    answer:
+      value: 3
+    hints:
+      - x ist von 1 und von 5 gleich weit weg.
+      - Die Mitte zwischen 1 und 5.
+    explanation: x = 3 – jeweils 2 entfernt. In der Ebene wird daraus die Mittelsenkrechte.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Mit Beträgen definiert man **Grenzwerte**. Eine Folge nähert sich a, wenn der Abstand $|a_n - a|$ irgendwann kleiner als jede Toleranz ε wird. Das ist die Sprache der Analysis.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Ab welchem n ist $\frac{1}{n}$ weniger als 0,01 von 0 entfernt? Gib das kleinste n an.
+    answer:
+      value: 101
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: boundary
+        text: Bei n = 100 ist der Abstand genau 0,01 – nicht kleiner.
+    hints:
+      - $\frac{1}{n} < 0{,}01$ heißt $n > 100$.
+      - Die erste ganze Zahl über 100.
+    explanation: n = 101. Für jede Toleranz findet man so ein n – darum ist der Grenzwert von 1/n gleich 0.
     difficulty: 3
 
 srs:

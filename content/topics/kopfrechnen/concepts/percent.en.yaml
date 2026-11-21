@@ -5,8 +5,21 @@ summary: First 10 %, then the rest.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Take a guess: what is 15 % of €60?"
+    params:
+      min: 0
+      max: 30
+      unit: €
+    answer:
+      value: 9
+      tolerance: 2
+    explanation: 10 % is €6, 5 % is €3. Together €9.
+
   - kind: problem
     id: zehn
     widget: numeric
@@ -84,6 +97,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: match
+    prompt: Which fraction goes with which percentage?
+    params:
+      pairs:
+        - left: 50 %
+          right: 1/2
+        - left: 25 %
+          right: 1/4
+        - left: 20 %
+          right: 1/5
+        - left: 10 %
+          right: 1/10
+        - left: 12.5 %
+          right: 1/8
+    hints:
+      - Percent means »out of a hundred«.
+      - 1/8 is half of 1/4.
+    explanation: 1/2 = 50/100, 1/4 = 25/100, 1/5 = 20/100, 1/10 = 10/100 and 1/8 = 12.5/100.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Mental maths: 12 % of €{{n}}."
+    params:
+      unit: €
+    answer:
+      value: "{{n * 0.12}}"
+    hints:
+      - 12 % = 10 % + 2 %.
+      - 10 % is €{{n / 10}}, 1 % is €{{n / 100}}.
+    explanation: €{{n / 10}} + 2 · €{{n / 100}} = €{{n * 0.12}}.
+    difficulty: 2
+    variants:
+      params:
+        n: step[50,400,50]
+      defaults:
+        n: 150
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: 9 of 12 apples are red. What percentage is that?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: count-not-share
+        text: That is the count. We want the share out of 100.
+    hints:
+      - Simplify 9/12 first.
+      - 9/12 = 3/4. What percentage is three quarters?
+    explanation: 9/12 = 3/4 = 75/100 = 75 %.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -119,6 +194,54 @@ steps:
           - sum
           - dazu
       sample: I take 10% – that is one tenth. Half of it is 5%. Add both and you get 15%.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: A percentage change can be written as a **factor**. Plus 15 % means times 1.15. Minus 30 % means times 0.7. For several steps you just multiply one after another.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: First +{{p}} %, then −{{p}} %. What percentage of the starting price is left?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 + p / 100) * (1 - p / 100)}}"
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: same-base
+        text: The −{{p}} % applies to the higher price. It takes away more.
+    hints:
+      - Write both steps as factors.
+      - Work out {{1 + p / 100}} · {{1 - p / 100}}.
+    explanation: "{{1 + p / 100}} · {{1 - p / 100}} = {{(1 + p / 100) * (1 - p / 100)}}. {{100 - p * p / 100}} % is left."
+    difficulty: 3
+    variants:
+      params:
+        p: choice[10,20,30,40,50]
+      defaults:
+        p: 20
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: A price rises by 10 % twice in a row. By what percentage has it risen in total?
+    params:
+      unit: "%"
+    answer:
+      value: 21
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: add-percents
+        text: The second increase also applies to the first one.
+    hints:
+      - Twice times 1.1.
+      - 1.1 · 1.1 = 1.21.
+    explanation: 1.1 · 1.1 = 1.21, so 21 % more. That is compound growth in miniature.
     difficulty: 3
 
 srs:

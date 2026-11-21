@@ -5,7 +5,7 @@ summary: To the nearest number, and why prices end in 99.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: strahl
@@ -79,6 +79,78 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numberline
+    prompt: What is the smallest number that rounds to 2.4 (one decimal)? Put the marker on it.
+    params:
+      min: 2
+      max: 3
+      ticks: 20
+      labels: decimals
+    answer:
+      value: 2.35
+    feedback:
+      - when: state.value == 2.4
+        misconception: target-not-bound
+        text: 2.4 rounds to 2.4 – but you can go lower.
+    hints:
+      - From which second digit do you round up?
+      - From 5 you round up.
+    explanation: 2.35 rounds up to 2.4. Everything from 2.35 to just under 2.45 gives 2.4.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Round {{a}} to the nearest hundred.
+    answer:
+      value: "{{round(a / 100) * 100}}"
+    feedback:
+      - when: numval(state.input) == floor(a / 100) * 100 && a % 100 > 50
+        misconception: always-down
+        text: The tens digit is 5 or more – round up!
+    hints:
+      - Look at the tens digit.
+      - From 5 you round up to the next hundred.
+    explanation: "{{a}} is closest to {{round(a / 100) * 100}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1012,9988]
+      constraints:
+        - a % 100 != 50
+      defaults:
+        a: 4651
+
+  - kind: explain
+    id: ma-d3
+    depth: 2
+    body: "**Significant figures** count from the first non-zero digit. 0.00450 has three: 4, 5 and the final 0. They show how precisely something was measured."
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: choice
+    prompt: Which number has exactly two significant figures?
+    params:
+      options:
+        - label: "0.052"
+          correct: true
+        - label: The final zero counts – that makes three.
+          feedback: Die Null am Ende zählt mit – das sind drei.
+        - label: The final zero counts – three.
+          feedback: Die Null am Ende zählt – drei.
+        - label: The zero between 5 and 2 counts – three.
+          feedback: Die Null zwischen 5 und 2 zählt – drei.
+    hints:
+      - Leading zeros do not count.
+      - Zeros in the middle and trailing zeros after the point do count.
+    explanation: In 0.052 only 5 and 2 are significant. The leading zeros just show the size.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +166,48 @@ steps:
     hints:
       - Actually carry out both ways.
     explanation: Rounding repeatedly distorts. Always round **once** from the original value.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A square’s side measures 4.0 cm, rounded – so at least 3.95 and under 4.05 cm. What is the largest possible area? In cm², to two decimals.
+    answer:
+      value: 16.4
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: ignore-error
+        text: That uses 4.0. Take the largest possible side.
+    hints:
+      - "Take the largest side: 4.05 cm."
+      - $4.05^2 = ?$
+    explanation: "$4.05^2 \\approx 16.40$ cm². The side’s error roughly doubles in the area: measurement errors propagate."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Each amount rounded to the cent can be off by at most half a cent. With 100 amounts the total can be off by up to 50 cents. **Rounding errors** can add up.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: With »round half to even«, 2.5 becomes 2 but 3.5 becomes 4. Why do banks and computers often use this?
+    params:
+      options:
+        - label: So that rounding errors cancel out on average
+          correct: true
+        - label: It is about the sum of many roundings.
+          feedback: Es geht um die Summe vieler Rundungen.
+        - label: The computing time is practically the same.
+          feedback: Die Rechenzeit ist praktisch gleich.
+    hints:
+      - What happens if you always round every 5 up?
+      - Then the total is too big on average.
+    explanation: Always rounding up pushes the total upwards. Rounding up and down in turn balances it out.
     difficulty: 3
 
 srs:

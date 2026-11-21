@@ -5,7 +5,7 @@ summary: Wenn Zinsen selbst Zinsen bringen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 14974
       tolerance: 2500
     explanation: Fast 15 000 € – das Fünfzehnfache. Ohne Zinseszins wären es nur 3800 €.
-
 
   - kind: problem
     id: ein-jahr
@@ -123,6 +122,51 @@ steps:
     explanation: "72 : 6 = 12 Jahre. Genau gerechnet sind es 11,9."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Bei **einfachen Zinsen** kommt jedes Jahr derselbe Betrag dazu. Das Konto wächst wie eine Treppe mit gleichen Stufen. Beim Zinseszins werden die Stufen jedes Jahr höher.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{k}} € liegen {{n}} Jahre zu {{p}} % einfachen Zinsen. Die Zinsen werden jedes Jahr ausgezahlt. Wie viel Zinsen sind es insgesamt?"
+    params:
+      unit: €
+    answer:
+      value: "{{k * p * n / 100}}"
+    hints:
+      - Ein Jahr bringt {{k * p / 100}} €.
+      - Mal {{n}} Jahre.
+    explanation: "{{k * p / 100}} € · {{n}} = {{k * p * n / 100}} €. Ohne Zinseszins wächst das Geld linear."
+    difficulty: 2
+    variants:
+      params:
+        k: step[500,5000,500]
+        p: choice[2,3,4,5]
+        n: int[2,10]
+      defaults:
+        k: 2000
+        p: 3
+        n: 5
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: sim
+    prompt: "Bei 10 %: Nach wie vielen Jahren liegt der Zinseszins zum ersten Mal mindestens 1000 € über den einfachen Zinsen? Start 1000 €."
+    params:
+      scene: growth
+    answer:
+      rate: 10
+      years: 13
+    hints:
+      - Stell 10 % ein und vergleiche »Exponentiell« mit »Linear«.
+      - Nach 12 Jahren fehlt noch ein Stück.
+    explanation: "Nach 13 Jahren: 3452 € gegen 2300 €. Am Anfang ist der Unterschied winzig – dann explodiert er."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -139,6 +183,78 @@ steps:
     hints:
       - Löse $(1 + p/100)^n = 2$ mit dem Logarithmus nach n.
     explanation: n = ln 2 / ln(1 + p/100) ≈ 69,3 / p. Die 72 gleicht den Fehler für übliche Zinssätze aus.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: 100 % Zins im Jahr verdoppelt 1 €. Was wird aus 1 €, wenn es zweimal im Jahr 50 % gibt?
+    params:
+      unit: €
+    answer:
+      value: 2.25
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: no-compounding
+        text: Die zweiten 50 % gibt es auch auf die ersten Zinsen.
+    hints:
+      - "Nach einem halben Jahr: 1,50 €."
+      - 1,50 € · 1,5 = ?
+    explanation: $1{,}5^2 = 2{,}25$. Öfter verzinsen bringt mehr.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "12 % Zins im Jahr, aber monatlich verzinst: Jeden Monat gibt es 1 %. Was wird aus 100 € nach einem Jahr? Auf Cent."
+    params:
+      unit: €
+    answer:
+      value: 112.68
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 112
+        misconception: simple-interest
+        text: Das wäre ohne Zinseszins. Zwölfmal mal 1,01!
+    hints:
+      - Zwölfmal mal 1,01.
+      - $100 \cdot 1{,}01^{12}$
+    explanation: $100 \cdot 1{,}01^{12} \approx 112{,}68$ €. Der effektive Jahreszins ist 12,68 % statt 12 %.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: Verzinst man immer öfter – täglich, stündlich, jede Sekunde –, wächst 1 € bei 100 % nicht ins Unendliche. Er nähert sich der **eulerschen Zahl** e ≈ 2,718.
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum früh anfangen beim Sparen mit Zinseszins so viel bringt.
+    params:
+      keywords:
+        - - zinsen auf zinsen
+          - zinseszins
+          - mitverzinst
+          - interest on interest
+          - compound
+        - - zeit
+          - jahre
+          - länger
+          - time
+          - years
+          - longer
+        - - wächst
+          - exponentiell
+          - schneller
+          - grows
+          - exponential
+          - faster
+      sample: Beim Zinseszins bekommt man Zinsen auf Zinsen. Je mehr Jahre das Geld liegt, desto schneller wächst es, denn der Zuwachs wird jedes Jahr größer. Die letzten Jahre bringen am meisten.
+    explanation: "Kernidee: Exponentielles Wachstum belohnt Zeit – die späten Jahre bringen den größten Zuwachs."
     difficulty: 3
 
 srs:

@@ -5,8 +5,21 @@ summary: Unterschiede über die Null hinweg.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie tief ist die tiefste Stelle im Meer – in Metern unter dem Meeresspiegel?"
+    params:
+      min: -15000
+      max: 0
+      unit: m
+    answer:
+      value: -11000
+      tolerance: 1500
+    explanation: Der Marianengraben reicht bis etwa −11 000 m. Der Mount Everest würde darin komplett verschwinden.
+
   - kind: problem
     id: temperatur
     widget: numeric
@@ -86,6 +99,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Gipfel liegt {{h}} m über dem Meer, ein Graben {{t}} m darunter. Wie groß ist der Höhenunterschied?
+    params:
+      unit: m
+    answer:
+      value: "{{h + t}}"
+    feedback:
+      - when: numval(state.input) == h - t
+        misconception: subtract-across-zero
+        text: Der Graben liegt unter null. Der Weg führt über die Null hinweg.
+    hints:
+      - Schreib den Graben als −{{t}} m.
+      - "{{h}} − (−{{t}}) = ?"
+    explanation: "{{h}} − (−{{t}}) = {{h}} + {{t}} = {{h + t}} m."
+    difficulty: 2
+    variants:
+      params:
+        h: step[500,4000,500]
+        t: step[200,3000,200]
+      defaults:
+        h: 2000
+        t: 600
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: In Berlin ist es 14 Uhr (UTC+1). New York hat die Zeitzone UTC−5. Wie viel Uhr ist es dort?
+    params:
+      unit: Uhr
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: zone-gap
+        text: Von +1 bis −5 sind es 6 Stunden, nicht 4.
+    hints:
+      - Wie weit liegen +1 und −5 auseinander?
+      - Der Abstand ist 6 Stunden. New York ist zurück.
+    explanation: Von UTC+1 zu UTC−5 sind es 6 Stunden. 14 − 6 = 8 Uhr morgens.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Dein Konto steht bei −120 €. Du zahlst jeden Monat 40 € ein. Nach wie vielen Monaten stehst du bei +40 €?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: stop-at-zero
+        text: Nach 3 Monaten bist du erst bei 0 €.
+    hints:
+      - Wie weit ist es von −120 bis +40?
+      - 160 € in Schritten zu 40 €.
+    explanation: "Von −120 bis 40 sind es 160 €. 160 : 40 = 4 Monate."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -97,6 +172,72 @@ steps:
     hints:
       - Addiere erst die negativen und die positiven Werte getrennt.
     explanation: "−18 + 4 = −14, und −14 : 7 = −2."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Jemand wird am 1. Januar 20 v. Chr. geboren. Wie viele Jahre später ist der 1. Januar 20 n. Chr.? Ein Jahr 0 gibt es nicht.
+    params:
+      unit: Jahre
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: year-zero
+        text: Auf das Jahr 1 v. Chr. folgt direkt 1 n. Chr. – ein Jahr fehlt.
+    hints:
+      - Auf dem Zahlenstrahl wären es −20 bis 20.
+      - Ohne Jahr 0 ist es ein Jahr weniger.
+    explanation: 20 − (−20) = 40, aber das Jahr 0 fehlt. Also 39 Jahre. Historiker rechnen darum vorsichtig.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Die **Kelvin-Skala** beginnt beim absoluten Nullpunkt: 0 K = −273,15 °C. Kälter geht es nicht. Darum hat diese Skala keine negativen Werte."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viel Kelvin sind −73,15 °C?
+    params:
+      unit: K
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == -346.3
+        misconception: wrong-direction
+        text: Kelvin = Celsius plus 273,15 – nicht minus.
+    hints:
+      - K = °C + 273,15.
+      - −73,15 + 273,15 = ?
+    explanation: −73,15 + 273,15 = 200 K.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man den Unterschied zwischen −5 °C und 3 °C findet.
+    params:
+      keywords:
+        - - abstand
+          - unterschied
+          - difference
+          - distance
+        - - "null"
+          - zero
+        - - minus
+          - abzieh
+          - subtrah
+          - subtract
+          - acht
+          - eight
+      sample: Von −5 bis zur Null sind es 5 Grad, von der Null bis 3 noch 3 Grad. Der Unterschied ist 8 Grad. Man rechnet 3 minus −5.
+    explanation: "Kernidee: Ein Unterschied ist ein Abstand – über die Null hinweg werden beide Teile addiert."
     difficulty: 3
 
 srs:

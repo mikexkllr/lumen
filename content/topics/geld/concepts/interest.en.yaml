@@ -5,7 +5,7 @@ summary: When interest earns interest.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 14974
       tolerance: 2500
     explanation: Almost €15,000 – fifteen times as much. Without compounding it would be only €3800.
-
 
   - kind: problem
     id: ein-jahr
@@ -123,6 +122,51 @@ steps:
     explanation: 72 ÷ 6 = 12 years. The exact figure is 11.9.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: With **simple interest** the same amount is added every year. The account grows like a staircase with equal steps. With compound interest the steps get taller every year.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: €{{k}} is invested for {{n}} years at {{p}} % simple interest. The interest is paid out every year. How much interest is that in total?
+    params:
+      unit: €
+    answer:
+      value: "{{k * p * n / 100}}"
+    hints:
+      - One year brings €{{k * p / 100}}.
+      - Times {{n}} years.
+    explanation: €{{k * p / 100}} · {{n}} = €{{k * p * n / 100}}. Without compounding, money grows linearly.
+    difficulty: 2
+    variants:
+      params:
+        k: step[500,5000,500]
+        p: choice[2,3,4,5]
+        n: int[2,10]
+      defaults:
+        k: 2000
+        p: 3
+        n: 5
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: sim
+    prompt: "At 10 %: after how many years is compound interest first at least €1000 ahead of simple interest? Start €1000."
+    params:
+      scene: growth
+    answer:
+      rate: 10
+      years: 13
+    hints:
+      - Set 10 % and compare »Exponential« with »Linear«.
+      - After 12 years it is not quite there.
+    explanation: "After 13 years: €3452 against €2300. At first the gap is tiny – then it explodes."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -139,6 +183,78 @@ steps:
     hints:
       - Solve $(1 + p/100)^n = 2$ for n with the logarithm.
     explanation: n = ln 2 / ln(1 + p/100) ≈ 69.3 / p. The 72 offsets the error for typical rates.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: 100 % interest per year doubles €1. What becomes of €1 if you get 50 % twice a year?
+    params:
+      unit: €
+    answer:
+      value: 2.25
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: no-compounding
+        text: The second 50 % also applies to the first interest.
+    hints:
+      - "After half a year: €1.50."
+      - €1.50 · 1.5 = ?
+    explanation: $1.5^2 = 2.25$. Compounding more often pays more.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "12 % per year, but compounded monthly: each month you get 1 %. What do €100 become after one year? To the cent."
+    params:
+      unit: €
+    answer:
+      value: 112.68
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 112
+        misconception: simple-interest
+        text: That would be without compounding. Twelve times times 1.01!
+    hints:
+      - Twelve times times 1.01.
+      - $100 \cdot 1.01^{12}$
+    explanation: $100 \cdot 1.01^{12} \approx €112.68$. The effective annual rate is 12.68 % instead of 12 %.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: If you compound ever more often – daily, hourly, every second – €1 at 100 % does not grow without limit. It approaches **Euler’s number** e ≈ 2.718.
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why starting early makes such a difference with compound interest.
+    params:
+      keywords:
+        - - zinsen auf zinsen
+          - zinseszins
+          - mitverzinst
+          - interest on interest
+          - compound
+        - - zeit
+          - jahre
+          - länger
+          - time
+          - years
+          - longer
+        - - wächst
+          - exponentiell
+          - schneller
+          - grows
+          - exponential
+          - faster
+      sample: With compound interest you earn interest on interest. The more years the money sits, the faster it grows, because the growth gets bigger every year. The last years bring the most.
+    explanation: "Key idea: exponential growth rewards time – the late years bring the biggest gains."
     difficulty: 3
 
 srs:

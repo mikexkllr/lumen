@@ -5,8 +5,21 @@ summary: Bigger is not always cheaper.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Take a guess: tap water costs about 0.2 cents per litre. How many times as expensive is bottled water at 50 cents per litre?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 250
+      within: 40
+    explanation: "50 : 0.2 = 250. Bottled water is about 250 times as expensive."
+
   - kind: problem
     id: kilo
     widget: numeric
@@ -79,6 +92,87 @@ steps:
       - You used to get 5 parts for the money, now 4. Compare 1/4 with 1/5.
     explanation: 500 ÷ 400 = 1.25. The amount drops by 20%, the price per gram rises by 25%.
     difficulty: 2
+
+  - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{g}} g cost €{{p}}. What is the unit price per kilogram?"
+    params:
+      unit: €
+    answer:
+      value: "{{p * 1000 / g}}"
+      tolerance: 0.01
+    hints:
+      - How many times does {{g}} g fit into 1000 g?
+      - €{{p}} · {{1000 / g}}.
+    explanation: €{{p}} · {{1000 / g}} = €{{p * 1000 / g}} per kg.
+    difficulty: 2
+    variants:
+      params:
+        g: choice[125,200,250,400,500]
+        p: choice[1.5,2,3,4.5,6]
+      defaults:
+        g: 250
+        p: 3
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: choice
+    prompt: "What is cheaper per litre: 3 cans of 0.33 L for €2 or one 1.5 L bottle for €2.50?"
+    params:
+      options:
+        - label: The bottle – about €1.67 instead of €2.02 per litre
+          correct: true
+        - label: Three cans are less than a litre for €2.
+          feedback: Drei Dosen sind nicht mal ein Liter für 2 €.
+        - label: Work out both per litre.
+          feedback: Rechne beide pro Liter aus.
+    hints:
+      - 3 · 0.33 L = 0.99 L.
+      - "€2 : 0.99 and €2.50 : 1.5."
+    explanation: "Cans: about €2.02 per L. Bottle: about €1.67 per L. The higher total price is misleading."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A pack shrinks from 1000 g to 900 g and the price rises from €2.49 to €2.59. By what percentage does the unit price rise? To one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 15.6
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: price-only
+        text: That is only the price. The smaller amount makes it dearer as well.
+    hints:
+      - "New unit price: €2.59 : 0.9 kg."
+      - "2.878 : 2.49 ≈ ?"
+    explanation: "2.59 : 0.9 ≈ €2.878/kg. That is 15.6 % more than €2.49/kg – far more than the 4 % on the label."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: 3 kg cost €6, 1 kg costs €2.50. You buy the big pack but only use 2 kg. The rest spoils. What does each kilo you use cost you?
+    params:
+      unit: €
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: bought-not-used
+        text: That is the price per kilo bought. What counts is what you actually use.
+    hints:
+      - You pay €6 for 2 kilos used.
+      - "€6 : 2 = ?"
+    explanation: €3 per kilo used – more than the small pack. Bulk discounts only pay off if you use it all.
+    difficulty: 3
 
 srs:
   cards_from: [kilo, grundpreis]

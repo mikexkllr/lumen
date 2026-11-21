@@ -5,7 +5,7 @@ summary: Teiler kommen in Paaren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: teiler-24
@@ -100,6 +100,24 @@ steps:
           why: 34 ist nicht durch 4 teilbar.
 
   - kind: problem
+    id: ma-c1
+    widget: rect
+    prompt: "Teiler zum Anfassen: Zieh ein Rechteck aus genau 12 Kästchen. Jede Form zeigt ein Teilerpaar."
+    params:
+      maxW: 12
+      maxH: 8
+      w: 2
+      h: 2
+      show:
+        - area
+    check:
+      predicate: area == 12
+    hints:
+      - Welche Zahl mal welche ergibt 12?
+      - Zum Beispiel 3 Reihen zu je 4.
+    explanation: 1 × 12, 2 × 6 und 3 × 4 – das sind die Teilerpaare von 12.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -110,6 +128,54 @@ steps:
       - 72 = 2³ · 3².
       - "Für jeden Primfaktor: Exponent plus 1 – und dann malnehmen."
     explanation: (3 + 1) · (2 + 1) = 12. Jeder Teiler wählt 0 bis 3 Zweien und 0 bis 2 Dreien.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "**Teilbarkeitsregeln** lassen sich kombinieren. Durch 6 teilbar heißt: durch 2 und durch 3. Durch 9 teilbar heißt: Die Quersumme ist durch 9 teilbar."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: buckets
+    prompt: Durch 6 teilbar oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: durch 6 teilbar
+        - id: b2
+          label: nicht teilbar
+      items:
+        - label: "114"
+          bucket: b1
+        - label: "222"
+          bucket: b1
+        - label: "732"
+          bucket: b1
+        - label: "316"
+          bucket: b2
+        - label: "405"
+          bucket: b2
+        - label: "1001"
+          bucket: b2
+    hints:
+      - "Prüfe zuerst: gerade?"
+      - "Dann die Quersumme: durch 3 teilbar?"
+    explanation: 114, 222 und 732 sind gerade mit Quersumme 6, 6 und 12. 316 hat Quersumme 10, 405 ist ungerade, 1001 auch.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Welche Ziffer muss in die Lücke, damit 4□2 durch 9 teilbar ist?
+    answer:
+      value: 3
+    hints:
+      - Die Quersumme muss durch 9 teilbar sein.
+      - 4 + □ + 2 = 9.
+    explanation: "4 + 3 + 2 = 9. Also ist 432 durch 9 teilbar: 432 = 9 · 48."
     difficulty: 2
 
   - kind: problem
@@ -128,6 +194,48 @@ steps:
     hints:
       - Teiler kommen in Paaren. Wann ist ein Teiler sein eigener Partner?
     explanation: Nur bei n = d · d paart sich ein Teiler mit sich selbst. 36 hat 9 Teiler.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Aus den Primfaktoren folgt die **Teileranzahl**. 72 = 2³ · 3². Jeder Teiler hat 0 bis 3 Zweien und 0 bis 2 Dreien. Das sind 4 · 3 = 12 Teiler.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Teiler hat {{2 ** a * 3 ** b}} = $2^{ {{a}} } \cdot 3^{ {{b}} }$?
+    answer:
+      value: "{{(a + 1) * (b + 1)}}"
+    feedback:
+      - when: numval(state.input) == a * b && a * b != (a + 1) * (b + 1)
+        misconception: forgot-zero-exponent
+        text: Auch null Zweien oder null Dreien sind erlaubt.
+    hints:
+      - Wie viele Zweien kann ein Teiler haben? 0 bis {{a}}.
+      - "{{a + 1}} Möglichkeiten mal {{b + 1}} Möglichkeiten."
+    explanation: ({{a}} + 1) · ({{b}} + 1) = {{(a + 1) * (b + 1)}} Teiler.
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,5]
+        b: int[1,3]
+      defaults:
+        a: 3
+        b: 1
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Welche ist die kleinste Zahl mit genau 6 Teilern?
+    answer:
+      value: 12
+    hints:
+      - 6 = 2 · 3 = (1 + 1)(2 + 1).
+      - Probiere $2^2 \cdot 3$.
+    explanation: 12 hat die Teiler 1, 2, 3, 4, 6, 12. Alle kleineren Zahlen haben weniger.
     difficulty: 3
 
 srs:

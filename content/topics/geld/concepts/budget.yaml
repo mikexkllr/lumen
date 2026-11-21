@@ -5,7 +5,7 @@ summary: Prozente vom Einkommen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: anteil
@@ -50,6 +50,37 @@ steps:
     explanation: 27,97 € · 12 ≈ 336 €. Kleine Beträge summieren sich.
 
   - kind: problem
+    id: ma-c1
+    widget: chart
+    prompt: Teile 2000 € nach der 50-30-20-Regel auf. Stell die Säulen ein.
+    params:
+      labels:
+        - Fixkosten
+        - Wünsche
+        - Sparen
+      values:
+        - 200
+        - 200
+        - 200
+      editable:
+        - 0
+        - 1
+        - 2
+      min: 0
+      max: 1200
+      step: 100
+      unit: €
+    answer:
+      values:
+        - 1000
+        - 600
+        - 400
+    hints:
+      - 50 % von 2000 € sind 1000 €.
+      - 10 % sind 200 €.
+    explanation: 1000 € + 600 € + 400 € = 2000 €.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -61,6 +92,55 @@ steps:
     hints:
       - 5 Jahre sind 60 Monate.
     explanation: 60 · 150 € = 9000 €.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: buckets
+    prompt: Bedarf oder Wunsch?
+    params:
+      buckets:
+        - id: b1
+          label: Bedarf
+        - id: b2
+          label: Wunsch
+      items:
+        - label: Miete
+          bucket: b1
+        - label: Strom
+          bucket: b1
+        - label: Lebensmittel
+          bucket: b1
+        - label: Kino
+          bucket: b2
+        - label: Streaming-Abo
+          bucket: b2
+        - label: Neue Sneaker
+          bucket: b2
+    hints:
+      - Was brauchst du, um gut zu leben?
+      - Worauf könntest du einen Monat verzichten?
+    explanation: Miete, Strom und Essen sind Fixkosten. Kino, Abo und Sneaker sind Wünsche – schön, aber verzichtbar.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Du bekommst 40 € im Monat und sparst davon 25 %. Nach wie vielen Monaten hast du 120 € für ein Spiel?
+    params:
+      unit: Monate
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: all-saved
+        text: "Du sparst nicht alles, nur ein Viertel: 10 € im Monat."
+    hints:
+      - 25 % von 40 € sind 10 €.
+      - "120 € : 10 € = ?"
+    explanation: 10 € pro Monat, also 12 Monate. Mit 50 % ginge es doppelt so schnell.
     difficulty: 2
 
   - kind: problem
@@ -79,6 +159,49 @@ steps:
     hints:
       - "Erst ein Jahr: 220 · 3,50 €."
     explanation: 770 € im Jahr, 7700 € in zehn. Kleine regelmäßige Beträge summieren sich.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Netto 2000 €, Ausgaben 1800 €. Dann steigt das Gehalt um 10 %, die Ausgaben aber um 15 %. Wie hoch ist die Sparquote danach? In %, auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 5.9
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: old-rate
+        text: Das war die alte Quote. Rechne neues Gehalt minus neue Ausgaben.
+    hints:
+      - "Neu: 2200 € Gehalt, 2070 € Ausgaben."
+      - 130 € von 2200 €.
+    explanation: "130 : 2200 ≈ 5,9 %. Vorher waren es 10 %. Wachsen die Ausgaben schneller als das Gehalt, schrumpft das Sparen."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Du zahlst drei Jahre lang am Jahresanfang 1000 € ein, zu 5 % Zinseszins. Wie viel ist am Ende des dritten Jahres da? Auf Euro.
+    params:
+      unit: €
+    answer:
+      value: 3310
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: no-interest
+        text: Jede Einzahlung bekommt Zinsen – die erste dreimal.
+      - when: numval(state.input) == 3473
+        misconception: all-three-years
+        text: Nicht jede Einzahlung liegt drei Jahre. Die letzte nur eins.
+    hints:
+      - Die erste Einzahlung wächst 3 Jahre, die zweite 2, die dritte 1.
+      - $1000 \cdot (1{,}05^3 + 1{,}05^2 + 1{,}05)$
+    explanation: 1157,63 + 1102,50 + 1050 ≈ 3310 €. Eine Summe aus Potenzen heißt geometrische Reihe.
     difficulty: 3
 
 srs:

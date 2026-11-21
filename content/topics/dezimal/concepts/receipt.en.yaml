@@ -5,7 +5,7 @@ summary: Estimating protects you from mistakes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: summe
@@ -72,6 +72,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: You pay €{{a / 100}} with a €50 note. How much change do you get?
+    params:
+      unit: €
+    answer:
+      value: "{{(5000 - a) / 100}}"
+    hints:
+      - Count up to the next whole euro.
+      - Then on to €50.
+    explanation: €50 − €{{a / 100}} = €{{(5000 - a) / 100}}. Counting up is often easier than subtracting.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1012,4988]
+      constraints:
+        - a % 100 != 0
+      defaults:
+        a: 2347
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: order
+    prompt: This is how a cashier works out €50 − €23.47 by counting up. Put the steps in order.
+    params:
+      items:
+        - label: €23.47 + €0.03 = €23.50
+        - label: €23.50 + €0.50 = €24
+        - label: €24 + €6 = €30
+        - label: €30 + €20 = €50
+        - label: "Change: 0.03 + 0.50 + 6 + 20 = €26.53"
+    hints:
+      - First up to the next round amount.
+      - Cents, then euros, then tens.
+    explanation: "Each step lands on a rounder number. At the end you add the jumps: €26.53."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: estimate
+    prompt: "Quick guess: what do these cost in all? €4.95 + €7.10 + €2.99 + €9.89 + €1.05"
+    params:
+      min: 0
+      max: 50
+      unit: €
+    answer:
+      value: 25.98
+      tolerance: 1.5
+    explanation: "Rounded: 5 + 7 + 3 + 10 + 1 = €26. Exactly it is €25.98."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +142,48 @@ steps:
     hints:
       - Convert both prices to 1 kg.
     explanation: €3.99 ÷ 0.75 = €5.32. The **unit price** makes packs comparable.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "»3 for 2«: you take three yoghurts and pay for two. What discount is that in percent? To one decimal."
+    params:
+      unit: "%"
+    answer:
+      value: 33.3
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: wrong-base
+        text: You save one of three yoghurts, not one of two.
+    hints:
+      - How many of three yoghurts are free?
+      - 1/3 as a percentage.
+    explanation: "One of three is free: 1/3 ≈ 33.3 % off."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Barcodes contain a **check digit**. In an EAN code the digits are multiplied by 1 and 3 in turn. The total, including the check digit, must be divisible by 10.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: The weighted sum of a barcode without its check digit is 87. Which check digit (counted times 1) makes the total divisible by 10?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: last-digit
+        text: With 7 it would be 94. You need the next multiple of ten.
+    hints:
+      - Which multiple of ten comes after 87?
+      - 90 − 87 = ?
+    explanation: 87 + 3 = 90. If the till misreads a digit, the total usually breaks – and the error is caught.
     difficulty: 3
 
 srs:

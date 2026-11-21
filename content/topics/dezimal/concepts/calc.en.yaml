@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [dec.calc]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: plus
@@ -104,6 +104,82 @@ steps:
     explanation: 36 ÷ 4 = 9. Scaling both by 10 does not change the quotient.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "When **multiplying**, add up the decimal places. 1.2 · 0.5: work out 12 · 5 = 60 and give it 2 places. Result 0.60."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Calculate: {{a / 10}} · {{b / 10}}"
+    answer:
+      value: "{{a * b / 100}}"
+    feedback:
+      - when: numval(state.input) == a * b / 10
+        misconception: decimal-places
+        text: Two factors with one place each – the result needs two.
+    hints:
+      - "First without decimals: {{a}} · {{b}}."
+      - "{{a * b}} – now two decimal places."
+    explanation: "{{a}} · {{b}} = {{a * b}}, with two places: {{a * b / 100}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[11,49]
+        b: int[2,9]
+      constraints:
+        - a % 10 != 0
+      defaults:
+        a: 23
+        b: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Calculate: 4.5 : 0.09"
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: shift-once
+        text: "That would be 4.5 : 0.9. The decimal point must move two places."
+    hints:
+      - "Make the divisor whole: multiply both by 100."
+      - "450 : 9 = ?"
+    explanation: "4.5 : 0.09 = 450 : 9 = 50. Shifting both numbers equally keeps the quotient."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 0.3 · 0.2 = 0.06
+          right: true
+          why: "Two places: 3 · 2 = 6 → 0.06."
+        - text: 0.1 · 0.1 = 0.1
+          right: false
+          why: "A tenth of a tenth is a hundredth: 0.01."
+        - text: "2 : 0.5 = 1"
+          right: false
+          why: "Four halves fit into 2: 4."
+        - text: 0.2 + 0.03 = 0.5
+          right: false
+          why: "Line up the points: 0.23."
+        - text: 1.5 · 2 = 3
+          right: true
+          why: Twice one and a half is three.
+    hints:
+      - Check with a rough estimate.
+      - Times a number below 1 makes smaller, dividing makes bigger.
+    explanation: "With decimals it almost always helps to ask: is the result a plausible size?"
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -120,6 +196,47 @@ steps:
     hints:
       - How often does a quarter fit into one whole?
     explanation: Dividing by 1/4 is multiplying by 4. Dividing by a number below 1 enlarges.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Why does the places rule work? 1.2 = $\frac{12}{10}$ and 0.5 = $\frac{5}{10}$. The product is $\frac{60}{100}$. The **powers of ten** in the denominators multiply – their zeros add up.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Calculate: 0.25 · 0.25"
+    answer:
+      value: 0.0625
+    feedback:
+      - when: numval(state.input) == 0.625
+        misconception: decimal-places
+        text: Two plus two places – the result needs four.
+    hints:
+      - 25 · 25 = 625.
+      - How many decimal places in total?
+    explanation: "625 with four places: 0.0625. Check: a quarter of a quarter is one sixteenth."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: Many programs compute 0.1 + 0.2 = 0.30000000000000004. Why?
+    params:
+      options:
+        - label: Computers store numbers in binary – there 0.1 never ends, like 1/3 for us
+          correct: true
+        - label: It happens on every computer.
+          feedback: Das passiert auf jedem Rechner.
+        - label: It rounds correctly – 0.1 just does not exist exactly in binary.
+          feedback: Er rundet korrekt – nur gibt es 0,1 binär nicht genau.
+    hints:
+      - Computers use powers of two instead of powers of ten.
+      - Does 10 = 2 · 5 cause trouble with the 5 in binary?
+    explanation: 1/10 has the prime factor 5 in the denominator. In base two it repeats and has to be rounded.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: When does the base fee pay off?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: telefon
@@ -73,6 +73,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: match
+    prompt: Which sign goes with which phrase?
+    params:
+      pairs:
+        - left: at most
+          right: ≤
+        - left: at least
+          right: ≥
+        - left: more than
+          right: ">"
+        - left: less than
+          right: <
+    hints:
+      - »At most 5« – may it be exactly 5?
+      - With »more than« the boundary is excluded.
+    explanation: At most and at least include the boundary, more than and less than do not.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A ticket costs €{{t}}. You have €{{g}}. How many tickets can you buy at most?
+    answer:
+      value: "{{floor(g / t)}}"
+    feedback:
+      - when: numval(state.input) == ceil(g / t)
+        misconception: round-up
+        text: There is not enough money for the last ticket – round down!
+    hints:
+      - $ {{t}} \cdot n \le {{g}}$.
+      - "{{g}} : {{t}} ≈ {{round(g / t * 10) / 10}}."
+    explanation: "{{floor(g / t)}} tickets cost €{{floor(g / t) * t}}. One more would be too expensive."
+    difficulty: 2
+    variants:
+      params:
+        t: choice[3,4,6,7]
+        g: int[20,60]
+      constraints:
+        - g % t != 0
+      defaults:
+        t: 7
+        g: 50
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: A lift carries at most 630 kg. A man weighs 90 kg and has boxes of 30 kg each. How many boxes can he take at most?
+    answer:
+      value: 18
+    feedback:
+      - when: numval(state.input) == 21
+        misconception: forgot-person
+        text: The man counts too!
+    hints:
+      - $90 + 30k \le 630$.
+      - $30k \le 540$.
+    explanation: "540 : 30 = 18 boxes."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -84,6 +148,41 @@ steps:
     hints:
       - 36,000 + 0.04 k < 30,000 + 0.10 k.
     explanation: 6000 < 0.06 k, so k > 100,000. This is the **break-even point**.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Grades from 1 (best) to 6: you have 2, 3 and 4. The average of four tests must not be worse than 3.0. What is the worst grade you may get in the fourth?"
+    answer:
+      value: 3
+    hints:
+      - "$(2 + 3 + 4 + x) : 4 \\le 3$."
+      - $9 + x \le 12$.
+    explanation: $x \le 3$. A 3 keeps the average at exactly 3.0.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: When several inequalities hold at once, they describe what is allowed. Within that you look for the best solution – this is **linear programming**. Companies plan production, timetables and stock this way.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: You have 10 eggs. A cake needs 3 eggs, a tray of waffles 2 eggs. You bake 2 cakes. How many trays of waffles can you still make at most?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-cakes
+        text: The cakes already use 6 eggs.
+    hints:
+      - $2 \cdot 3 + 2w \le 10$.
+      - $2w \le 4$.
+    explanation: w ≤ 2. Exactly 10 eggs are used.
     difficulty: 3
 
 srs:

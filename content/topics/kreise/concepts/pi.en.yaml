@@ -5,7 +5,7 @@ summary: Every circle has the same ratio.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 16
       tolerance: 4
     explanation: 1 m ÷ (2π) ≈ 16 cm – whatever the size of the sphere. A cat fits underneath.
-
 
   - kind: problem
     id: rad
@@ -117,6 +116,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: a can is 10 cm across. How long is a ribbon that goes once around it?"
+    params:
+      min: 10
+      max: 50
+      unit: cm
+    answer:
+      value: 31.4
+      tolerance: 2
+    explanation: π · 10 cm ≈ 31.4 cm – a bit more than three times the diameter.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: "Why does the rope at the equator lift by 16 cm? From C = 2πr: 1 m more circumference means 1 m : 2π ≈ 16 cm more **radius**. That holds for every circle – Earth or orange."
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: You lengthen a rope around a circle by {{L}} m. By how many centimetres does the radius grow? Use π ≈ 3.14 and round to whole cm.
+    params:
+      unit: cm
+    answer:
+      value: "{{round(L * 100 / 6.28)}}"
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == round(L * 100 / 3.14)
+        misconception: diameter-not-radius
+        text: That is the growth of the diameter. The radius is half of it.
+    hints:
+      - More circumference = 2π · more radius.
+      - "{{L * 100}} cm : 6.28."
+    explanation: "{{L * 100}} : 6.28 ≈ {{round(L * 100 / 6.28)}} cm – however big the circle is."
+    difficulty: 2
+    variants:
+      params:
+        L: choice[1,2,3,5]
+      defaults:
+        L: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -132,6 +176,65 @@ steps:
     hints:
       - The circumference lies between two quantities you can compute.
     explanation: With 96 corners he found 3.1408 < π < 3.1429. This **squeezing** is the heart of the limit.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "π is **irrational**: it is not a fraction, and its digits never repeat. 22/7 = 3.1428… is only an approximation. Johann Heinrich Lambert proved this in 1761."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: A regular hexagon fits inside a circle of radius 1. Its six sides add up to 6. Divide that by the width of the circle. What guess for π do you get?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-diameter
+        text: Still divide by the diameter 2.
+    hints:
+      - The diameter is 2.
+      - "6 : 2 = ?"
+    explanation: 3 – a bit too small, because the hexagon lies inside. Archimedes went up to a 96-gon and found 3.1408 < π < 3.1429.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: How far is 22/7 from π ≈ 3.14159? To four decimal places.
+    answer:
+      value: 0.0013
+      tolerance: 0.0001
+    hints:
+      - "22 : 7 ≈ 3.14286."
+      - 3.14286 − 3.14159.
+    explanation: ≈ 0.0013. 22/7 is correct to two decimals – 355/113 even to six.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what the number π means.
+    params:
+      keywords:
+        - - umfang
+          - circumference
+          - herum
+          - around
+        - - durchmesser
+          - diameter
+        - - jeder
+          - immer
+          - every
+          - always
+          - gleich
+          - same
+      sample: For every circle the circumference is about 3.14 times the diameter. This ratio is always the same, however big the circle. It is called π.
+    explanation: "Key idea: π = circumference : diameter – the same number for all circles."
     difficulty: 3
 
 srs:

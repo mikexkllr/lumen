@@ -5,7 +5,7 @@ summary: Seeing the true price.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: raten
@@ -109,6 +109,56 @@ steps:
     explanation: 1% of €600 is €6.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: With an **instalment loan** you pay the same rate every month. It contains interest and repayment. At first the interest share is large, at the end almost zero.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: You owe €{{s}} at {{p}} % interest per year. How much interest builds up in one month?
+    params:
+      unit: €
+    answer:
+      value: "{{s * p / 1200}}"
+    feedback:
+      - when: numval(state.input) == s * p / 100
+        misconception: year-not-month
+        text: That is the interest for a whole year. One month is a twelfth.
+    hints:
+      - "Yearly interest: €{{s * p / 100}}."
+      - Divided by 12.
+    explanation: "€{{s}} · {{p}} % : 12 = €{{s * p / 1200}}."
+    difficulty: 2
+    variants:
+      params:
+        s: step[1200,6000,1200]
+        p: choice[6,12]
+      defaults:
+        s: 2400
+        p: 6
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Loan €2000, 6 % interest per year, €100 rate per month. How much of the first payment actually reduces the debt?
+    params:
+      unit: €
+    answer:
+      value: 90
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: all-repayment
+        text: Part of the payment is interest. Subtract it.
+    hints:
+      - "Interest in month one: €2000 · 6 % : 12."
+      - €100 − €10 = ?
+    explanation: €10 is interest, €90 repayment. The debt falls to €1910.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -121,6 +171,66 @@ steps:
     hints:
       - In year one you owe €1000, in year two only €500.
     explanation: €100 + €50 = €150. Repaying faster means paying less interest.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A credit card debt grows at 18 % per year and you pay nothing. After about how many years has it doubled? Use the rule of 72.
+    params:
+      unit: years
+    answer:
+      value: 4
+    hints:
+      - 72 divided by the interest rate.
+      - "72 : 18 = ?"
+    explanation: "72 : 18 = 4 years. Exactly: $1.18^4 \\approx 1.94$. Debt grows just as exponentially as savings."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Rule of thumb for loan costs: average debt · rate · time. €1200 is repaid over 12 months, on average you owe €600. At 1 % per month – roughly how much interest?"
+    params:
+      unit: €
+    answer:
+      value: 72
+      tolerance: 5
+    feedback:
+      - when: numval(state.input) == 144
+        misconception: full-debt
+        text: You used the full debt. But it shrinks every month.
+    hints:
+      - €600 · 1 % = €6 per month.
+      - €6 · 12 = ?
+    explanation: About €72. Repaying €100 a month plus interest on the rest gives exactly €78 – the rule of thumb comes close.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why loans are compared by their effective annual rate (APR).
+    params:
+      keywords:
+        - - gebühr
+          - kosten
+          - fee
+          - cost
+          - charges
+        - - vergleich
+          - compare
+          - gleich
+          - same
+        - - jahr
+          - year
+          - effektiv
+          - effective
+          - apr
+      sample: The effective annual rate includes all costs, fees too. It converts them to one year. That way different offers can be compared fairly.
+    explanation: "Key idea: only a number that converts all costs to the same time span is comparable."
     difficulty: 3
 
 srs:

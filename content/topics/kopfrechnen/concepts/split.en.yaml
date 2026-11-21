@@ -5,7 +5,7 @@ summary: Round numbers make everything easier.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 399
       tolerance: 45
     explanation: 20 · 20 = 400 – and 19 · 21 is just 1 below. You are about to see why.
-
 
   - kind: problem
     id: sieben-achtzehn
@@ -92,6 +91,26 @@ steps:
         - "50"
 
   - kind: problem
+    id: ma-c1
+    widget: numeric
+    prompt: Mental maths – {{n}} · 9.
+    answer:
+      value: "{{9 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: forgot-correction
+        text: That is {{n}} · 10. Now subtract {{n}} once.
+    hints:
+      - Times 9 is almost times 10.
+      - Work out {{n}} · 10 = {{10 * n}} and subtract {{n}}.
+    explanation: "{{n}} · 10 − {{n}} = {{10 * n}} − {{n}} = {{9 * n}}."
+    variants:
+      params:
+        n: int[12,48]
+      defaults:
+        n: 27
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -108,6 +127,79 @@ steps:
       defaults:
         n: 23
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Why does splitting work? 7 · 12 means 7 rows of 12 squares. Cut them into 7 · 10 and 7 · 2. This is the **distributive law**.
+    visual:
+      widget: rect
+      params:
+        maxW: 12
+        maxH: 8
+        w: 12
+        h: 7
+        show:
+          - area
+        unit: cm
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Double and halve – {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    hints:
+      - Halve {{a}} and double {{b}}. The product stays the same.
+      - Work out {{a / 2}} · {{2 * b}}.
+    explanation: "{{a}} · {{b}} = {{a / 2}} · {{2 * b}} = {{a * b}}. Halving and doubling cancel out."
+    difficulty: 2
+    variants:
+      params:
+        a: step[12,28,2]
+        b: choice[15,35,45]
+      defaults:
+        a: 14
+        b: 15
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: order
+    prompt: Work out 23 · 19 in your head. Put the steps in order.
+    params:
+      items:
+        - label: 19 is 20 − 1
+        - label: 23 · 20 = 460
+        - label: 23 · 1 = 23
+        - label: 460 − 23 = 437
+    hints:
+      - Which round number is close to 19?
+      - First times 20, then subtract the rest.
+    explanation: 23 · 19 = 23 · (20 − 1) = 460 − 23 = 437.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: choice
+    prompt: Which way of splitting 8 · 26 is wrong?
+    params:
+      options:
+        - label: 8 · 20 + 6
+          correct: true
+        - label: Correctly split – 160 + 48 = 208.
+          feedback: Richtig zerlegt – 160 + 48 = 208.
+        - label: Also correct – 240 − 32 = 208.
+          feedback: Auch richtig – 240 − 32 = 208.
+        - label: Correct – halved and doubled.
+          feedback: Richtig – halbiert und verdoppelt.
+    hints:
+      - Every part must be multiplied by 8.
+      - Where is one part missing the 8?
+    explanation: In 8 · 20 + 6 the 6 is not multiplied by 8. Correct is 8 · 20 + 8 · 6 = 208.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -119,6 +211,65 @@ steps:
       - Both numbers are equally far from 50.
       - (50 − 2) · (50 + 2) = 50² − 2²
     explanation: 2500 − 4 = 2496. Behind it is the formula $(a-b)(a+b) = a^2 - b^2$.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Calculate cleverly – {{m - k}} · {{m + k}}.
+    answer:
+      value: "{{m * m - k * k}}"
+    feedback:
+      - when: numval(state.input) == m * m
+        misconception: forgot-square
+        text: Almost! You still have to subtract {{k}}² = {{k * k}}.
+    hints:
+      - Both numbers are {{k}} away from {{m}}.
+      - Work out {{m}}² − {{k}}².
+    explanation: $(m-k)(m+k) = m^2 - k^2$, so {{m * m}} − {{k * k}} = {{m * m - k * k}}.
+    difficulty: 3
+    variants:
+      params:
+        m: choice[30,40,60,70]
+        k: int[2,6]
+      defaults:
+        m: 40
+        k: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Why is 19 · 21 = 20 · 20 − 1?
+    reveal:
+      body: "Take one row off the 20 × 20 square and add it as a column. Only one corner square is missing. In algebra: $(a-b)(a+b) = a^2 - b^2$."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 7 · 18 is the same as 7 · 20 − 7 · 2.
+    params:
+      keywords:
+        - - "20"
+          - zwanzig
+          - twenty
+        - - zwei
+          - two
+          - weniger
+          - minus
+          - less
+          - fewer
+        - - sieben
+          - seven
+          - reihe
+          - mal
+          - row
+          - times
+          - jede
+          - each
+      sample: 18 is 20 minus 2. Seven times 20 is too much – exactly seven times 2 too much. So you subtract 7 · 2 again.
+    explanation: "Key idea: 7 · 20 counts 7 · 2 too many – so you take them away. That is the distributive law."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: The radius counts squared.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: pizza
@@ -80,6 +80,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: A circle has a diameter of {{d}} cm. What is its area? Use π ≈ 3.14.
+    params:
+      unit: cm²
+    answer:
+      value: "{{3.14 * (d / 2) ** 2}}"
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 3.14 * d * d) < 1
+        misconception: diameter-squared
+        text: You squared the diameter. The formula needs the radius.
+    hints:
+      - "First the radius: {{d / 2}} cm."
+      - 3.14 · {{d / 2}}².
+    explanation: 3.14 · {{(d / 2) ** 2}} = {{3.14 * (d / 2) ** 2}} cm².
+    difficulty: 2
+    variants:
+      params:
+        d: choice[4,6,8,10,12,20]
+      defaults:
+        d: 10
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A ring has an outer radius of 5 cm and an inner one of 3 cm. What is the area of the ring? π ≈ 3.14.
+    params:
+      unit: cm²
+    answer:
+      value: 50.24
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 12.56) < 0.1
+        misconception: subtract-radii
+        text: That is π · 2² – but you cannot subtract the radii first.
+    hints:
+      - Big circle minus small circle.
+      - 3.14 · (25 − 9).
+    explanation: 3.14 · 16 = 50.24 cm².
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: A circle and a square have the same perimeter. Which has more area?
+    params:
+      options:
+        - label: The circle
+          correct: true
+        - label: "Try perimeter 4π: circle 12.6, square only 9.9."
+          feedback: "Probiere Umfang 4π: Kreis 12,6, Quadrat nur 9,9."
+        - label: Same perimeter does not mean same area.
+          feedback: Gleicher Umfang heißt nicht gleiche Fläche.
+    hints:
+      - "Try perimeter 12.56: the circle has r = 2."
+      - The square has side 3.14.
+    explanation: "Circle: 3.14 · 4 ≈ 12.6. Square: 3.14² ≈ 9.9. The circle wins."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: order
@@ -94,6 +158,25 @@ steps:
     hints:
       - First you cut, at the end you compute.
     explanation: The thinner the slices, the more exact the rectangle – a precursor of integral calculus.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Of all shapes with the same perimeter, the circle has the largest area. This question is called the **isoperimetric problem**. That is why drops and soap bubbles pull together into round shapes.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Chance measures π: you throw 1000 random points onto a square containing a quarter circle. 785 land inside the quarter circle. Estimate π as 4 · 785 : 1000."
+    answer:
+      value: 3.14
+      tolerance: 0.005
+    hints:
+      - "785 : 1000 = 0.785."
+      - Times 4.
+    explanation: The quarter circle fills π/4 ≈ 78.5 % of the square. Computers use this »Monte Carlo method« for hard areas.
     difficulty: 3
 
 srs:

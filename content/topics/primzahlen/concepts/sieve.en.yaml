@@ -5,7 +5,7 @@ summary: Finding primes by crossing out.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 25
       tolerance: 4
     explanation: Exactly 25. The larger the numbers, the rarer primes become.
-
 
   - kind: problem
     id: welche-prim
@@ -97,6 +96,75 @@ steps:
     explanation: "√221 ≈ 14.9. At 13 you find it: 221 = 13 · 17."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Why is it enough to test up to the **square root**? Divisors come in pairs. If one is larger than √n, its partner must be smaller. For 91 it is enough to test up to 9.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Is 91 prime? Enter its smallest divisor greater than 1.
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 91
+        misconception: looks-prime
+        text: 91 looks prime – but it is not. Test 7.
+    hints:
+      - Not divisible by 2, 3 or 5. What comes next?
+      - 7 · 13 = ?
+    explanation: "91 = 7 · 13. A classic trap: it is odd, does not end in 5 and has digit sum 10."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Prime or not?
+    params:
+      buckets:
+        - id: b1
+          label: prime
+        - id: b2
+          label: composite
+      items:
+        - label: "127"
+          bucket: b1
+        - label: "137"
+          bucket: b1
+        - label: "119"
+          bucket: b2
+        - label: "121"
+          bucket: b2
+        - label: "133"
+          bucket: b2
+        - label: "143"
+          bucket: b2
+    hints:
+      - Test 7, 11 and 13.
+      - 119 = 7 · 17, 121 = 11 · 11.
+    explanation: 127 and 137 are prime. 119 = 7 · 17, 121 = 11², 133 = 7 · 19, 143 = 11 · 13.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: You want to sieve all primes up to 120. Up to which prime must you cross out multiples?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 11
+        misconception: one-too-far
+        text: 11 · 11 = 121 is already above 120. You do not need 11.
+    hints:
+      - Which prime has a square below 120?
+      - 7² = 49, 11² = 121.
+    explanation: Every composite number up to 120 has a prime factor of at most √120 ≈ 11. So 2, 3, 5 and 7 are enough.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +180,65 @@ steps:
     hints:
       - "It is a proof by contradiction: it starts with an assumption."
     explanation: The proof is over 2000 years old and counts among the most beautiful in mathematics.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Euclid’s trick: work out $2 \\cdot 3 \\cdot 5 \\cdot 7 + 1$."
+    answer:
+      value: 211
+    hints:
+      - $2 \cdot 3 \cdot 5 \cdot 7 = 210$.
+      - Plus 1.
+    explanation: 211 leaves remainder 1 when divided by 2, 3, 5 and 7. It is prime itself.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: choice
+    prompt: $2 \cdot 3 \cdot 5 \cdot 7 \cdot 11 \cdot 13 + 1 = 30031 = 59 \cdot 509$. Does this disprove Euclid’s proof?
+    params:
+      options:
+        - label: The proof does not claim that the number is prime.
+          feedback: Der Beweis behauptet nicht, dass die Zahl prim ist.
+        - label: No – 59 and 509 are new primes that were not on the list
+          correct: true
+        - label: 59 · 509 = 30031.
+          feedback: 59 · 509 = 30031.
+    hints:
+      - What exactly does the proof show?
+      - "It shows: there is a prime factor outside the list."
+    explanation: The number has prime factors that are not on the list. So the list was incomplete – the proof holds.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: Primes get rarer, but they never run out. Between n and 2n there is always at least one. This is **Bertrand’s postulate**, proved by Chebyshev in 1852.
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a prime test only needs to check up to the square root.
+    params:
+      keywords:
+        - - paar
+          - pair
+          - partner
+        - - wurzel
+          - root
+        - - klein
+          - kleiner
+          - smaller
+          - small
+          - at most
+          - höchstens
+      sample: Divisors come in pairs. If both were larger than the root, their product would be too big. So one of them is always at most the root – and you find it first.
+    explanation: "Key idea: in every divisor pair, one partner is at most √n."
     difficulty: 3
 
 srs:

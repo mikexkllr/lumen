@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ratio.ratio]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: saft
@@ -102,6 +102,72 @@ steps:
     explanation: "One part is 5 children, three parts 15. A ratio a : b means the share a/(a+b)."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "You can **simplify** a ratio like a fraction: 12 : 18 = 2 : 3. Both sides are divided by 6. The ratio stays the same."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Simplify fully: 24 : 36 = 2 : ?"
+    answer:
+      value: 3
+    hints:
+      - What is the largest number dividing both 24 and 36?
+      - Both by 12.
+    explanation: "24 : 12 = 2 and 36 : 12 = 3. So 2 : 3."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Split €{{k * (a + b)}} in the ratio {{a}} : {{b}}. How much does the first person get?"
+    params:
+      unit: €
+    answer:
+      value: "{{k * a}}"
+    feedback:
+      - when: numval(state.input) == k * (a + b) / 2
+        misconception: equal-split
+        text: "That would be half and half. With {{a}} : {{b}} there are {{a + b}} parts."
+    hints:
+      - How many parts are there in total?
+      - "One part is {{k * (a + b)}} : {{a + b}} = €{{k}}."
+    explanation: "{{a + b}} parts of €{{k}} each. The first person gets {{a}} parts: €{{k * a}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,4]
+        b: int[2,5]
+        k: step[5,20,5]
+      constraints:
+        - a != b
+      defaults:
+        a: 2
+        b: 3
+        k: 10
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: rect
+    prompt: "Drag a rectangle whose width to height is 3 : 2 and whose perimeter is 20 m."
+    params:
+      maxW: 10
+      maxH: 8
+      w: 2
+      h: 2
+    check:
+      predicate: w * 2 == h * 3 && perimeter == 20
+    hints:
+      - Try 3 × 2 – and then a multiple of it.
+      - Width + height must make 10.
+    explanation: "6 × 4: 6 : 4 = 3 : 2 and 2 · (6 + 4) = 20."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -113,6 +179,68 @@ steps:
     hints:
       - "Halving turns x : 1 into 1 : x/2. Both must be equal."
     explanation: x/1 = 1/(x/2) gives x² = 2, so x = √2 ≈ 1.41.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "A 16 : 9 film plays on a 4 : 3 screen, stretched to full width. What percentage of the screen height stays black?"
+    params:
+      unit: "%"
+    answer:
+      value: 25
+    hints:
+      - "Write 4 : 3 with the same width 16."
+      - "4 : 3 = 16 : 12. The picture is only 9 high."
+    explanation: The picture uses 9 of 12 height units. That leaves 3 of 12, so 25 % – a strip at top and bottom.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Two ratios are equal when the **cross products** match: a : b = c : d means a · d = b · c. So 3 : 5 = 24 : 40 checks quickly: 3 · 40 = 5 · 24 = 120."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: "Solve: 3 : 5 = x : 40"
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 38
+        misconception: additive-thinking
+        text: Ratios grow by multiplying, not by adding.
+    hints:
+      - From 5 to 40 is times 8.
+      - 3 · 8 = ?
+    explanation: "40 : 5 = 8, so x = 3 · 8 = 24. Check: 3 · 40 = 120 = 5 · 24."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux why 2 : 3 and 4 : 6 are the same ratio."
+    params:
+      keywords:
+        - - beide
+          - both
+          - jede seite
+          - each side
+        - - mal
+          - doppelt
+          - verdoppel
+          - times
+          - double
+          - multipl
+        - - gleich
+          - dasselbe
+          - same
+          - equal
+      sample: "In 4 : 6 both sides are twice as big as in 2 : 3. Multiplying both sides by the same number keeps the ratio the same."
+    explanation: "Key idea: ratios stay equal when both sides are multiplied by the same number."
     difficulty: 3
 
 srs:

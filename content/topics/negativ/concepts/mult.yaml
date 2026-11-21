@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [neg.mult]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: schulden
@@ -96,6 +96,22 @@ steps:
       right: Positiv
 
   - kind: problem
+    id: ma-c1
+    widget: numberline
+    prompt: "$(-3) \\cdot 4$ heißt: viermal 3 nach links springen. Wo landest du?"
+    params:
+      min: -15
+      max: 5
+      ticks: 1
+      labels: integers
+    answer:
+      value: -12
+    hints:
+      - Ein Sprung bringt dich zu −3, zwei zu −6.
+      - Noch zwei Sprünge.
+    explanation: −3, −6, −9, −12. Also ist $(-3) \cdot 4 = -12$.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -105,6 +121,86 @@ steps:
     hints:
       - Fünf Faktoren −2. Ist die Anzahl der Minuszeichen gerade oder ungerade?
     explanation: 2⁵ = 32, und fünf Minuszeichen ergeben minus. Gerade Hochzahlen machen positiv, ungerade negativ.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Setz das Muster fort: $2 \\cdot (-2) = -4$, $1 \\cdot (-2) = -2$, $0 \\cdot (-2) = 0$, $(-1) \\cdot (-2) = \\;?$"
+    reveal:
+      body: "Plus 2! Jede Zeile wächst um 2. Das Muster lässt keine andere Wahl: Minus mal minus ergibt plus."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Rechne: $(-{{a}}) \\cdot (-{{b}}) \\cdot (-{{c}})$"
+    answer:
+      value: "{{-a * b * c}}"
+    feedback:
+      - when: numval(state.input) == a * b * c
+        misconception: sign-count
+        text: "Zähl die Minuszeichen: Es sind drei."
+    hints:
+      - "Erst die ersten beiden: minus mal minus."
+      - $(+{{a * b}}) \cdot (-{{c}})$ – welches Vorzeichen?
+    explanation: $(-{{a}}) \cdot (-{{b}}) = {{a * b}}$, dann mal $(-{{c}})$ ergibt {{-a * b * c}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[2,5]
+        c: int[2,4]
+      defaults:
+        a: 2
+        b: 3
+        c: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Positiv oder negativ? Rechne nicht aus – zähl die Minuszeichen.
+    params:
+      buckets:
+        - id: b1
+          label: positiv
+        - id: b2
+          label: negativ
+      items:
+        - label: (−2) · (−3) · (−4)
+          bucket: b2
+        - label: $(-1)^{10}$
+          bucket: b1
+        - label: $(-5)^3$
+          bucket: b2
+        - label: "(−6) : (−2)"
+          bucket: b1
+        - label: 7 · (−1) · (−1)
+          bucket: b1
+        - label: "(−8) : 2"
+          bucket: b2
+    hints:
+      - Eine gerade Anzahl Minus ergibt plus.
+      - Bei Potenzen zählt der Exponent die Minuszeichen.
+    explanation: "Gerade viele negative Faktoren: positiv. Ungerade viele: negativ."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Welche Zahl passt? $? \cdot (-6) = 42$
+    answer:
+      value: -7
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: sign
+        text: $7 \cdot (-6) = -42$. Du brauchst ein anderes Vorzeichen.
+    hints:
+      - 42 ist positiv, −6 ist negativ.
+      - "Teile: $42 : (-6)$."
+    explanation: "$42 : (-6) = -7$. Probe: $(-7) \\cdot (-6) = 42$."
     difficulty: 2
 
   - kind: problem
@@ -149,6 +245,50 @@ steps:
           - negative
       min: 3
       sample: Haben beide Zahlen das gleiche Vorzeichen, ist das Ergebnis positiv. Sind die Vorzeichen verschieden, ist es negativ.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Rechne: $(-1)^{ {{n}} } \\cdot {{k}}$"
+    answer:
+      value: "{{(n % 2 == 0 ? 1 : -1) * k}}"
+    hints:
+      - Jedes Paar $(-1) \cdot (-1)$ ergibt 1.
+      - Ist {{n}} gerade oder ungerade?
+    explanation: "Bei geradem Exponenten kommt 1 heraus, bei ungeradem −1. Hier: {{(n % 2 == 0 ? 1 : -1) * k}}."
+    difficulty: 3
+    variants:
+      params:
+        n: int[11,40]
+        k: int[2,9]
+      defaults:
+        n: 17
+        k: 5
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Mal −1 ist eine **Drehung**: Die Zahl dreht sich um 180° um die Null auf die andere Seite. Zweimal drehen bringt sie zurück. Später wird »mal i« eine Vierteldrehung – die komplexen Zahlen."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: Ein Produkt hat 7 Faktoren, keiner ist 0. Wann ist es negativ?
+    params:
+      options:
+        - label: Wenn eine ungerade Anzahl Faktoren negativ ist
+          correct: true
+        - label: Wenn mindestens einer negativ ist
+          feedback: Zwei negative Faktoren ergeben zusammen plus.
+        - label: Wenn die meisten negativ sind
+          feedback: Bei 4 von 7 ist es positiv.
+    hints:
+      - Fasse negative Faktoren paarweise zusammen.
+      - Bleibt einer übrig?
+    explanation: Je zwei Minus heben sich auf. Nur wenn eins ohne Partner bleibt, ist das Produkt negativ.
     difficulty: 3
 
 srs:

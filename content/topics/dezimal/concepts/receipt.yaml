@@ -5,7 +5,7 @@ summary: Überschlagen schützt vor Fehlern.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: summe
@@ -72,6 +72,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Du zahlst {{a / 100}} € mit einem 50-€-Schein. Wie viel Rückgeld bekommst du?
+    params:
+      unit: €
+    answer:
+      value: "{{(5000 - a) / 100}}"
+    hints:
+      - Zähle hoch bis zum nächsten vollen Euro.
+      - Dann weiter bis 50 €.
+    explanation: 50 € − {{a / 100}} € = {{(5000 - a) / 100}} €. Hochzählen ist oft leichter als Abziehen.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1012,4988]
+      constraints:
+        - a % 100 != 0
+      defaults:
+        a: 2347
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: order
+    prompt: So rechnet die Kassiererin 50 € − 23,47 € durch Hochzählen. Ordne die Schritte.
+    params:
+      items:
+        - label: 23,47 € + 0,03 € = 23,50 €
+        - label: 23,50 € + 0,50 € = 24 €
+        - label: 24 € + 6 € = 30 €
+        - label: 30 € + 20 € = 50 €
+        - label: "Rückgeld: 0,03 + 0,50 + 6 + 20 = 26,53 €"
+    hints:
+      - Erst bis zum nächsten runden Betrag.
+      - Cent, dann Euro, dann Zehner.
+    explanation: "Jeder Schritt landet auf einer runderen Zahl. Am Ende addiert man die Sprünge: 26,53 €."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz die Summe: 4,95 € + 7,10 € + 2,99 € + 9,89 € + 1,05 €"
+    params:
+      min: 0
+      max: 50
+      unit: €
+    answer:
+      value: 25.98
+      tolerance: 1.5
+    explanation: Gerundet 5 + 7 + 3 + 10 + 1 = 26 €. Genau sind es 25,98 €.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +142,48 @@ steps:
     hints:
       - Rechne beide Preise auf 1 kg um.
     explanation: "3,99 € : 0,75 = 5,32 €. Der **Grundpreis** macht Packungen vergleichbar."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "»3 für 2«: Du nimmst drei Joghurts und zahlst nur zwei. Wie viel Prozent Rabatt sind das? Auf eine Stelle."
+    params:
+      unit: "%"
+    answer:
+      value: 33.3
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: wrong-base
+        text: Du sparst einen von drei Joghurts, nicht einen von zwei.
+    hints:
+      - Wie viele von drei Joghurts sind gratis?
+      - 1/3 in Prozent.
+    explanation: "Einer von drei ist gratis: 1/3 ≈ 33,3 % Rabatt."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Strichcodes enthalten eine **Prüfziffer**. Beim EAN-Code nimmt man die Ziffern abwechselnd mal 1 und mal 3. Die Summe aller Ziffern samt Prüfziffer muss durch 10 teilbar sein.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Die gewichtete Summe eines Strichcodes ohne Prüfziffer ist 87. Welche Prüfziffer (mal 1 gerechnet) macht die Summe durch 10 teilbar?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: last-digit
+        text: Mit 7 wären es 94. Gesucht ist die nächste Zehnerzahl.
+    hints:
+      - Welche Zehnerzahl kommt nach 87?
+      - 90 − 87 = ?
+    explanation: 87 + 3 = 90. Tippt die Kasse eine Ziffer falsch ab, stimmt die Summe meist nicht mehr – der Fehler fällt auf.
     difficulty: 3
 
 srs:

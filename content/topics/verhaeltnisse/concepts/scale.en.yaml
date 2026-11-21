@@ -5,7 +5,7 @@ summary: Reading maps and models correctly.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 6.6
       tolerance: 2
     explanation: "The Moon is 30 Earth diameters away: 30 · 22 cm = 6.6 m."
-
 
   - kind: problem
     id: karte
@@ -88,6 +87,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: "Scale 1 : {{m}}. A room is {{L}} m long in reality. How many centimetres is that on the plan?"
+    params:
+      unit: cm
+    answer:
+      value: "{{L * 100 / m}}"
+    feedback:
+      - when: numval(state.input) == L * m
+        misconception: wrong-direction
+        text: On the plan it gets smaller, not bigger. Divide by {{m}}.
+      - when: numval(state.input) == L / m
+        misconception: units
+        text: "Convert to centimetres first: {{L}} m = {{L * 100}} cm."
+    hints:
+      - "{{L}} m is {{L * 100}} cm."
+      - Divide by {{m}}.
+    explanation: "{{L * 100}} cm : {{m}} = {{L * 100 / m}} cm."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[50,100,200]
+        L: int[2,12]
+      defaults:
+        m: 50
+        L: 4
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: choice
+    prompt: Which map shows more detail?
+    params:
+      options:
+        - label: "1 : 25,000"
+          correct: true
+        - label: "1 : 100,000"
+          feedback: Here 1 cm is already 1 km – the map shows less detail.
+    hints:
+      - How many real metres does 1 cm stand for?
+      - Fewer metres per cm means everything looks bigger.
+    explanation: "At 1 : 25,000, 1 cm is only 250 m. Everything is drawn four times as large as at 1 : 100,000."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +148,46 @@ steps:
     hints:
       - An area grows in length **and** width.
     explanation: Lengths times k, areas times k², volumes times k³. That is why an animal twice as large weighs eight times as much.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "Lengths grow by the factor k, areas by $k^2$, volumes by $k^3$. This is the **square-cube law**. That is why a giant cannot simply be a scaled-up human: its weight grows faster than its bones."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "A model car at scale 1 : 10. The real tank holds 50 litres. How many millilitres does the model tank hold?"
+    params:
+      unit: ml
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5000
+        misconception: linear-scaling
+        text: That is only divided by 10. Volumes shrink by 10 · 10 · 10.
+      - when: numval(state.input) == 500
+        misconception: area-scaling
+        text: That is divided by 100 – like areas. Volume needs divided by 1000.
+    hints:
+      - Length, width and height are each divided by 10.
+      - "50 litres : 1000 = ?"
+    explanation: "50 L : 1000 = 0.05 L = 50 ml."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: An animal became twice as big in every direction. By what factor does the load per area of bone cross-section grow?
+    answer:
+      value: 2
+    hints:
+      - "Weight ~ volume: factor 8. Cross-section ~ area: factor 4."
+      - "8 : 4 = ?"
+    explanation: The load per area doubles. Large animals therefore need much thicker legs – like elephants.
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [dec.calc]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: plus
@@ -104,6 +104,82 @@ steps:
     explanation: "36 : 4 = 9. Erweitern mit 10 ändert den Quotienten nicht."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Beim **Malnehmen** zählst du die Stellen nach dem Komma zusammen. 1,2 · 0,5: Rechne 12 · 5 = 60 und setze 2 Stellen. Ergebnis 0,60."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Rechne: {{a / 10}} · {{b / 10}}"
+    answer:
+      value: "{{a * b / 100}}"
+    feedback:
+      - when: numval(state.input) == a * b / 10
+        misconception: decimal-places
+        text: Zwei Faktoren mit je einer Stelle – das Ergebnis braucht zwei.
+    hints:
+      - "Rechne erst ohne Komma: {{a}} · {{b}}."
+      - "{{a * b}} – jetzt zwei Stellen nach dem Komma."
+    explanation: "{{a}} · {{b}} = {{a * b}}, mit zwei Stellen: {{a * b / 100}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[11,49]
+        b: int[2,9]
+      constraints:
+        - a % 10 != 0
+      defaults:
+        a: 23
+        b: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Rechne: 4,5 : 0,09"
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: shift-once
+        text: "Das wäre 4,5 : 0,9. Das Komma muss zwei Stellen wandern."
+    hints:
+      - "Mach den Teiler ganz: Beide Zahlen mal 100."
+      - "450 : 9 = ?"
+    explanation: "4,5 : 0,09 = 450 : 9 = 50. Beide Zahlen gleich verschieben ändert den Quotienten nicht."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 0,3 · 0,2 = 0,06
+          right: true
+          why: "Zwei Stellen: 3 · 2 = 6 → 0,06."
+        - text: 0,1 · 0,1 = 0,1
+          right: false
+          why: "Ein Zehntel von einem Zehntel ist ein Hundertstel: 0,01."
+        - text: "2 : 0,5 = 1"
+          right: false
+          why: "In 2 passen vier Halbe: 4."
+        - text: 0,2 + 0,03 = 0,5
+          right: false
+          why: "Komma unter Komma: 0,23."
+        - text: 1,5 · 2 = 3
+          right: true
+          why: Zweimal anderthalb sind drei.
+    hints:
+      - Prüfe mit einem Überschlag.
+      - Mal eine Zahl unter 1 macht kleiner, geteilt macht größer.
+    explanation: "Bei Dezimalzahlen hilft fast immer: Ist das Ergebnis plausibel groß?"
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -120,6 +196,47 @@ steps:
     hints:
       - Wie oft passt ein Viertel in ein Ganzes?
     explanation: Teilen durch 1/4 ist Malnehmen mit 4. Teilen durch eine Zahl unter 1 vergrößert.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Warum stimmt die Stellen-Regel? 1,2 = $\frac{12}{10}$ und 0,5 = $\frac{5}{10}$. Das Produkt ist $\frac{60}{100}$. Die **Zehnerpotenzen** im Nenner multiplizieren sich – ihre Nullen addieren sich.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Rechne: 0,25 · 0,25"
+    answer:
+      value: 0.0625
+    feedback:
+      - when: numval(state.input) == 0.625
+        misconception: decimal-places
+        text: Zwei plus zwei Stellen – das Ergebnis braucht vier.
+    hints:
+      - 25 · 25 = 625.
+      - Wie viele Stellen nach dem Komma insgesamt?
+    explanation: "625 mit vier Stellen: 0,0625. Probe: ein Viertel von einem Viertel ist ein Sechzehntel."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: Viele Programme rechnen 0,1 + 0,2 = 0,30000000000000004. Warum?
+    params:
+      options:
+        - label: Computer speichern Zahlen binär – 0,1 ist dort unendlich lang, wie 1/3 bei uns
+          correct: true
+        - label: Der Prozessor ist kaputt
+          feedback: Das passiert auf jedem Rechner.
+        - label: Der Computer rundet falsch auf
+          feedback: Er rundet korrekt – nur gibt es 0,1 binär nicht genau.
+    hints:
+      - Computer rechnen mit Zweierpotenzen statt Zehnerpotenzen.
+      - Hat 10 = 2 · 5 im Binärsystem ein Problem mit der 5?
+    explanation: 1/10 hat den Primfaktor 5 im Nenner. Im Zweiersystem wird es periodisch und muss gerundet werden.
     difficulty: 3
 
 srs:

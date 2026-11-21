@@ -1,0 +1,240 @@
+id: math.units.area
+type: concept
+title: "Flächen und Liter"
+summary: "Warum m² in Hunderterschritten und Liter in Tausenderschritten springen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Liter passen in eine Badewanne?"
+    params:
+      min: 20
+      max: 500
+      unit: L
+    answer:
+      value: 150
+      tolerance: 40
+    explanation: Etwa 150 Liter – rund 15 große Eimer.
+
+  - kind: problem
+    id: c1
+    widget: rect
+    prompt: Ein Kästchen ist 1 dm × 1 dm groß. Zieh ein Quadrat, das genau 1 m × 1 m groß ist.
+    params:
+      maxW: 12
+      maxH: 10
+      w: 3
+      h: 3
+      show:
+        - area
+      unit: dm
+    check:
+      predicate: w == 10 && h == 10
+    hints:
+      - 1 m = 10 dm.
+      - Zieh 10 Kästchen breit und 10 hoch.
+    explanation: In 1 m² passen 10 · 10 = 100 dm². Flächen springen um den Faktor 100.
+
+  - kind: explain
+    id: c2
+    body: "In 1 m² passen 100 Quadrate von 1 dm². Jeder Schritt bei **Flächeneinheiten** ist darum mal 100: mm² → cm² → dm² → m²."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie viele dm² sind {{a}} m²?
+    params:
+      unit: dm²
+    answer:
+      value: "{{a * 100}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: linear-factor
+        text: Bei Flächen ist es mal 100, nicht mal 10.
+    hints:
+      - 1 m² = 100 dm².
+      - "{{a}} · 100."
+    explanation: "{{a}} · 100 = {{a * 100}} dm²."
+    variants:
+      params:
+        a: choice[3,1.5,0.4,12]
+      defaults:
+        a: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie viele mm² sind {{a}} cm²?
+    params:
+      unit: mm²
+    answer:
+      value: "{{a * 100}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: linear-factor
+        text: Ein cm² ist 10 mm × 10 mm – also 100 mm².
+    hints:
+      - 1 cm = 10 mm – in beide Richtungen.
+      - 1 cm² = 100 mm².
+    explanation: "{{a}} · 100 = {{a * 100}} mm²."
+    variants:
+      params:
+        a: int[2,9]
+      defaults:
+        a: 4
+
+  - kind: explain
+    id: c5
+    body: Ein **Liter** ist ein Würfel mit 1 dm Kantenlänge. 1 L = 1 dm³ = 1000 cm³ = 1000 ml. Bei Volumen ist jeder Schritt mal 1000.
+
+  - kind: problem
+    id: c6
+    widget: numeric
+    prompt: Ein Aquarium ist 50 cm lang, 30 cm breit und 40 cm hoch. Wie viele Liter Wasser passen hinein?
+    params:
+      unit: L
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 60000
+        misconception: units
+        text: Das sind cm³. 1000 cm³ sind 1 Liter.
+    hints:
+      - "Volumen: 50 · 30 · 40 cm³."
+      - "60 000 cm³ : 1000."
+    explanation: "60 000 cm³ = 60 L. Oder in dm: 5 · 3 · 4 = 60 dm³."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Hektar ist ein Quadrat mit 100 m Seitenlänge. Wie viele m² hat ein Hektar?
+    params:
+      unit: m²
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: perimeter
+        text: Das ist der Umfang in m. Gefragt ist die Fläche.
+    hints:
+      - Fläche = Seite mal Seite.
+      - 100 · 100 = ?
+    explanation: 1 ha = 10 000 m². Bauern und Förster messen Felder in Hektar.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Fußballfeld ist etwa 105 m lang und 68 m breit. Wie viele Hektar sind das? Auf eine Stelle.
+    params:
+      unit: ha
+    answer:
+      value: 0.7
+      tolerance: 0.05
+    hints:
+      - 105 · 68 = 7140 m².
+      - "7140 : 10 000."
+    explanation: 7140 m² ≈ 0,7 ha. Gut zwei Drittel eines Hektars.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Fläche oder Volumen?
+    params:
+      buckets:
+        - id: b1
+          label: Fläche
+        - id: b2
+          label: Volumen
+      items:
+        - label: m²
+          bucket: b1
+        - label: ha
+          bucket: b1
+        - label: km²
+          bucket: b1
+        - label: Liter
+          bucket: b2
+        - label: cm³
+          bucket: b2
+        - label: ml
+          bucket: b2
+    hints:
+      - "Hochzahl 2: Fläche, Hochzahl 3: Volumen."
+      - Liter und ml messen, was hineinpasst.
+    explanation: m², ha und km² messen Flächen. Liter, cm³ und ml messen Raum.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Liter sind 1 m³?
+    params:
+      unit: L
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: area-factor
+        text: Ein m³ ist 10 dm · 10 dm · 10 dm.
+      - when: numval(state.input) == 10
+        misconception: linear-factor
+        text: Das wäre nur ein Längenschritt. Volumen hat drei Richtungen.
+    hints:
+      - 1 m = 10 dm.
+      - 10 · 10 · 10 dm³.
+    explanation: 1 m³ = 1000 dm³ = 1000 Liter – so viel wie gut sechs Badewannen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Es regnet 10 mm. Wie viele Liter Wasser fallen auf 1 m²?
+    params:
+      unit: L
+    answer:
+      value: 10
+    hints:
+      - Das Wasser wäre 1 m × 1 m × 1 cm.
+      - "In dm: 10 · 10 · 0,1 dm³."
+    explanation: 10 dm · 10 dm · 0,1 dm = 10 dm³ = 10 L. Darum heißt 1 mm Regen auch 1 Liter pro m².
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 1 m² 10 000 cm² sind und nicht 100.
+    params:
+      keywords:
+        - - "100"
+          - hundert
+          - hundred
+        - - beide
+          - zwei richtungen
+          - länge und breite
+          - both
+          - two directions
+          - length and width
+        - - mal
+          - times
+          - multipl
+          - quadrat
+          - square
+      sample: Ein Quadratmeter ist 100 cm lang und 100 cm breit. Die Fläche ist Länge mal Breite, also 100 mal 100 gleich 10 000 cm². Der Faktor 100 wirkt in beide Richtungen.
+    explanation: "Kernidee: Bei Flächen zählt der Längenfaktor zweimal, bei Volumen dreimal."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

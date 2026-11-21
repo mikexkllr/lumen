@@ -5,7 +5,7 @@ summary: Zur nächsten Zahl – und warum Preise auf 99 enden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: strahl
@@ -79,6 +79,78 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numberline
+    prompt: Welche ist die kleinste Zahl, die auf eine Stelle gerundet 2,4 ergibt? Setze die Markierung.
+    params:
+      min: 2
+      max: 3
+      ticks: 20
+      labels: decimals
+    answer:
+      value: 2.35
+    feedback:
+      - when: state.value == 2.4
+        misconception: target-not-bound
+        text: 2,4 rundet zu 2,4 – aber es geht noch kleiner.
+    hints:
+      - Ab welcher zweiten Ziffer rundet man auf?
+      - Ab 5 wird aufgerundet.
+    explanation: 2,35 wird zu 2,4 aufgerundet. Alles von 2,35 bis knapp unter 2,45 ergibt 2,4.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Runde {{a}} auf Hunderter.
+    answer:
+      value: "{{round(a / 100) * 100}}"
+    feedback:
+      - when: numval(state.input) == floor(a / 100) * 100 && a % 100 > 50
+        misconception: always-down
+        text: Die Zehnerziffer ist 5 oder mehr – aufrunden!
+    hints:
+      - Schau auf die Zehnerstelle.
+      - Ab 5 rundest du auf den nächsten Hunderter auf.
+    explanation: "{{a}} liegt am nächsten an {{round(a / 100) * 100}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1012,9988]
+      constraints:
+        - a % 100 != 50
+      defaults:
+        a: 4651
+
+  - kind: explain
+    id: ma-d3
+    depth: 2
+    body: "**Signifikante Stellen** zählen ab der ersten Ziffer, die nicht 0 ist. 0,00450 hat drei: 4, 5 und die letzte 0. Sie zeigen, wie genau gemessen wurde."
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: choice
+    prompt: Welche Zahl hat genau zwei signifikante Stellen?
+    params:
+      options:
+        - label: 0,052
+          correct: true
+        - label: 0,0520
+          feedback: Die Null am Ende zählt mit – das sind drei.
+        - label: 5,20
+          feedback: Die Null am Ende zählt – drei.
+        - label: 0,502
+          feedback: Die Null zwischen 5 und 2 zählt – drei.
+    hints:
+      - Nullen ganz vorne zählen nicht.
+      - Nullen in der Mitte und am Ende nach dem Komma zählen.
+    explanation: In 0,052 sind nur 5 und 2 signifikant. Die Nullen davor zeigen nur die Größe.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +166,48 @@ steps:
     hints:
       - Führ beide Wege wirklich durch.
     explanation: Mehrfaches Runden verfälscht. Runde immer **einmal** vom Originalwert.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Quadratseite misst gerundet 4,0 cm – also mindestens 3,95 und unter 4,05 cm. Wie groß kann die Fläche höchstens sein? In cm², auf zwei Stellen.
+    answer:
+      value: 16.4
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: ignore-error
+        text: Das ist mit 4,0 gerechnet. Nimm die größtmögliche Seite.
+    hints:
+      - "Nimm die größte Seite: 4,05 cm."
+      - $4{,}05^2 = ?$
+    explanation: "$4{,}05^2 \\approx 16{,}40$ cm². Der Fehler der Seite wird bei der Fläche etwa verdoppelt: Messfehler pflanzen sich fort."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Jeder auf Cent gerundete Betrag kann um höchstens einen halben Cent abweichen. Bei 100 Beträgen kann die Summe also bis zu 50 Cent danebenliegen. **Rundungsfehler** können sich aufaddieren.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: Beim »Runden auf gerade« wird 2,5 zu 2, aber 3,5 zu 4. Warum nutzen Banken und Computer das oft?
+    params:
+      options:
+        - label: Damit sich die Rundungsfehler im Mittel aufheben
+          correct: true
+        - label: Weil gerade Zahlen schöner sind
+          feedback: Es geht um die Summe vieler Rundungen.
+        - label: Weil es schneller geht
+          feedback: Die Rechenzeit ist praktisch gleich.
+    hints:
+      - Was passiert, wenn man jede 5 immer aufrundet?
+      - Dann wird die Summe im Schnitt zu groß.
+    explanation: Immer aufrunden verschiebt die Summe nach oben. Abwechselnd auf- und abrunden gleicht das aus.
     difficulty: 3
 
 srs:

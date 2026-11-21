@@ -5,7 +5,7 @@ summary: Winkel durch 360.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: viertel
@@ -107,6 +107,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: angle
+    prompt: In einem Tortendiagramm stehen 30 % für Sport. Stelle den Winkel des Stücks ein.
+    params:
+      initial: 10
+      snap: 1
+      max: 360
+    answer:
+      value: 108
+    hints:
+      - 1 % sind 3,6°.
+      - 30 · 3,6° = ?
+    explanation: 30 % von 360° = 108°.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie lang ist ein Kreisbogen mit Radius {{r}} cm und Winkel {{w}}°? Rechne mit π ≈ 3,14.
+    params:
+      unit: cm
+    answer:
+      value: "{{2 * 3.14 * r * w / 360}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 3.14 * r * r * w / 360) < 0.1
+        misconception: area-not-arc
+        text: Das ist die Fläche des Ausschnitts. Gefragt ist die Länge des Bogens.
+    hints:
+      - Der ganze Umfang ist 2 · 3,14 · {{r}}.
+      - "Davon der Anteil {{w}} : 360."
+    explanation: "{{2 * 3.14 * r}} cm · {{w}}/360 ≈ {{2 * 3.14 * r * w / 360}} cm."
+    difficulty: 2
+    variants:
+      params:
+        r: int[3,9]
+        w: choice[30,45,60,90,120,180]
+      defaults:
+        r: 6
+        w: 60
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Jedes Pizzastück hat einen Winkel von 45°. In wie viele Stücke ist die Pizza geteilt?
+    answer:
+      value: 8
+    hints:
+      - Alle Stücke zusammen ergeben 360°.
+      - "360 : 45 = ?"
+    explanation: "360° : 45° = 8 Stücke."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -117,6 +174,45 @@ steps:
     hints:
       - Der ganze Einheitskreis hat den Umfang 2π.
     explanation: 180° ist ein halber Kreis, also π. Im Bogenmaß werden viele Formeln einfacher.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Im **Bogenmaß** misst man einen Winkel als Bogenlänge auf dem Kreis mit Radius 1. Eine volle Drehung ist dann 2π ≈ 6,28. Der Bogen ist einfach b = r · Winkel.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viel sind 90° im Bogenmaß? Auf zwei Stellen.
+    answer:
+      value: 1.57
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 3.14) < 0.01
+        misconception: half-turn
+        text: Das sind 180°. 90° ist die Hälfte davon.
+    hints:
+      - "360° = 2π, also 90° = 2π : 4."
+      - "π : 2 ≈ ?"
+    explanation: π/2 ≈ 1,57. Ein Viertelkreis mit Radius 1 hat genau diese Bogenlänge.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: sim
+    prompt: "Am Einheitskreis: Stelle den Winkel so ein, dass cos und sin beide etwa −0,71 sind."
+    params:
+      scene: unitcircle
+    answer:
+      cos: -0.71
+      sin: -0.71
+    hints:
+      - "Beide negativ heißt: links unten."
+      - Genau in der Mitte zwischen 180° und 270°.
+    explanation: 225° – der Punkt liegt diagonal links unten. 0,71 ≈ √2/2.
     difficulty: 3
 
 srs:

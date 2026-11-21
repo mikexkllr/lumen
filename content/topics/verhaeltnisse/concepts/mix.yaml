@@ -5,7 +5,7 @@ summary: Verhältnisse beim Kochen und Mixen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: saft
@@ -81,6 +81,50 @@ steps:
     explanation: 3 Liter Frucht in 5 Litern sind 60 %. Das ist ein **gewichteter Mittelwert**.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Beim **Mischungsrechnen** zählst du die reine Menge. 2 L mit 30 % Frucht enthalten 0,6 L Frucht. Zum Schluss teilst du alle Frucht durch die ganze Menge.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Saft und Wasser werden 1 : {{k}} gemischt. Wie viele ml Saft brauchst du für {{m * (k + 1)}} ml Schorle?"
+    params:
+      unit: ml
+    answer:
+      value: "{{m}}"
+    feedback:
+      - when: numval(state.input) == m * (k + 1) / k
+        misconception: forgot-part
+        text: Es gibt {{k + 1}} Teile, nicht {{k}}. Der Saft zählt mit.
+    hints:
+      - 1 + {{k}} = {{k + 1}} Teile insgesamt.
+      - "Ein Teil ist {{m * (k + 1)}} : {{k + 1}}."
+    explanation: "{{m * (k + 1)}} ml : {{k + 1}} = {{m}} ml Saft."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,5]
+        m: step[100,400,100]
+      defaults:
+        k: 3
+        m: 200
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Rezept für 4 Personen braucht 3 Eier. Wie viele Eier sind es für 6 Personen?
+    answer:
+      value: 4.5
+    hints:
+      - 6 Personen sind das 1,5-Fache von 4.
+      - 3 · 1,5 = ?
+    explanation: 4,5 Eier – in der Küche nimmt man dann 4 große oder 5 kleine. Mathe und Alltag runden verschieden.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -93,6 +137,54 @@ steps:
     hints:
       - Die Fruchtmenge bleibt 2 Liter. Wovon sind 2 Liter genau 20 %?
     explanation: 2 Liter sind 20 % von 10 Litern. Es fehlen also 6 Liter Wasser.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Du brauchst 10 L Saft mit 40 % Frucht. Du hast Saft mit 20 % und Saft mit 70 %. Wie viele Liter vom 70 %-Saft brauchst du?
+    params:
+      unit: L
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: half-half
+        text: Halb-halb ergibt 45 %. Du brauchst etwas weniger vom starken Saft.
+    hints:
+      - "Nimm x Liter vom 70 %-Saft. Frucht: 0,7x + 0,2 · (10 − x) = 4."
+      - 0,5x + 2 = 4.
+    explanation: "x = 4 L vom 70 %-Saft und 6 L vom 20 %-Saft. Probe: 2,8 + 1,2 = 4 L Frucht."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Eine Mischung liegt immer zwischen ihren Zutaten. Ihr Wert ist ein **gewichtetes Mittel**: Was in größerer Menge drin ist, zieht stärker. Bei 40 % liegt man näher an 20 % – also braucht man mehr vom 20 %-Saft."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux, warum 1 : 3 gemischt ein Viertel Saft ergibt."
+    params:
+      keywords:
+        - - vier
+          - four
+          - teile
+          - parts
+        - - zusammen
+          - insgesamt
+          - alle
+          - total
+          - together
+          - all
+        - - viertel
+          - quarter
+          - 1/4
+      sample: Ein Teil Saft und drei Teile Wasser sind zusammen vier Teile. Einer davon ist Saft. Also ist ein Viertel der Mischung Saft.
+    explanation: "Kernidee: Erst alle Teile zusammenzählen – der Anteil ist Teil durch Summe."
     difficulty: 3
 
 srs:

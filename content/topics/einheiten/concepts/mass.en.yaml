@@ -1,0 +1,204 @@
+id: math.units.mass
+type: concept
+title: "Grams, kilos, tonnes"
+summary: "Measuring, converting and estimating mass."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how much does a bar of chocolate weigh in grams?"
+    params:
+      min: 0
+      max: 500
+      unit: g
+    answer:
+      value: 100
+      tolerance: 20
+    explanation: Most bars weigh 100 g – a tenth of a kilogram.
+
+  - kind: explain
+    id: c1
+    body: We measure mass in **grams** and kilograms. 1 kg = 1000 g. And 1 t (tonne) = 1000 kg. A bar of chocolate weighs about 100 g.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many grams are {{k}} kg?
+    params:
+      unit: g
+    answer:
+      value: "{{k * 1000}}"
+    feedback:
+      - when: numval(state.input) == k * 100
+        misconception: factor-100
+        text: A kilo is 1000 g, not 100 g.
+    hints:
+      - Kilo means thousand.
+      - "{{k}} · 1000."
+    explanation: "{{k}} · 1000 = {{k * 1000}} g."
+    variants:
+      params:
+        k: choice[2,1.5,0.25,3.2,0.75]
+      defaults:
+        k: 1.5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many kilograms are {{g}} g?
+    params:
+      unit: kg
+    answer:
+      value: "{{g / 1000}}"
+    feedback:
+      - when: numval(state.input) == g / 100
+        misconception: factor-100
+        text: Divide by 1000 – the decimal point moves three places.
+    hints:
+      - Big unit, small number.
+      - "{{g}} : 1000."
+    explanation: "{{g}} : 1000 = {{g / 1000}} kg."
+    variants:
+      params:
+        g: choice[2500,750,50,1200,300]
+      defaults:
+        g: 750
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Grams, kilograms or tonnes?
+    params:
+      buckets:
+        - id: b1
+          label: g
+        - id: b2
+          label: kg
+        - id: b3
+          label: t
+      items:
+        - label: Gummy bear
+          bucket: b1
+        - label: Letter
+          bucket: b1
+        - label: Cat
+          bucket: b2
+        - label: Sack of potatoes
+          bucket: b2
+        - label: Car
+          bucket: b3
+        - label: Elephant
+          bucket: b3
+    hints:
+      - Can you hold it in one hand?
+      - Cars and elephants weigh more than 1000 kg.
+    explanation: Small things in g, pets and shopping in kg, vehicles and large animals in t.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: In a backpack there are a bottle (750 g), a loaf (0.5 kg) and a book (450 g). How many kilograms is that in total?
+    params:
+      unit: kg
+    answer:
+      value: 1.7
+    feedback:
+      - when: abs(numval(state.input) - 1200.5) < 0.01
+        misconception: mixed-units
+        text: Convert everything to the same unit first!
+    hints:
+      - 0.5 kg = 500 g.
+      - 750 + 500 + 450 = 1700 g.
+    explanation: 1700 g = 1.7 kg. Same units first, then add.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An apple weighs about 150 g. Roughly how many apples are in a 3 kg bag?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: units
+        text: First convert 3 kg into grams.
+    hints:
+      - 3 kg = 3000 g.
+      - "3000 : 150 = ?"
+    explanation: "3000 : 150 = 20 apples."
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Strictly, kg measures **mass**. It is the same everywhere. On the Moon you still feel lighter: it pulls only about one sixth as strongly as the Earth."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A child has a mass of 36 kg. On the Moon it presses on scales as hard as how many kilos on Earth?
+    params:
+      unit: kg
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: mass-vs-weight
+        text: The mass stays 36 kg – but the Moon pulls more weakly.
+    hints:
+      - One sixth of the pull.
+      - "36 : 6 = ?"
+    explanation: "36 : 6 = 6. The scales show 6 kg – but the mass is still 36 kg."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: 1 litre of water weighs about 1 kg. An empty bucket weighs 400 g. How many kilograms does it weigh with 10 litres of water?
+    params:
+      unit: kg
+    answer:
+      value: 10.4
+    feedback:
+      - when: numval(state.input) == 410
+        misconception: units
+        text: The bucket weighs 400 g, not 400 kg.
+    hints:
+      - 10 litres of water = 10 kg.
+      - 400 g = 0.4 kg.
+    explanation: 10 kg + 0.4 kg = 10.4 kg.
+    difficulty: 3
+
+  - kind: explain
+    id: x2
+    depth: 3
+    body: Since 2019 the **kilogram** has been defined by a constant of nature, the Planck constant. Before that it was a metal cylinder kept in a safe near Paris.
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Gold has a density of 19.3 g per cm³. How much does a gold cube with 2 cm edges weigh?
+    params:
+      unit: g
+    answer:
+      value: 154.4
+    feedback:
+      - when: abs(numval(state.input) - 38.6) < 0.01
+        misconception: edge-not-volume
+        text: The cube has 2 · 2 · 2 = 8 cm³, not 2 cm³.
+    hints:
+      - "Volume: 2 · 2 · 2 = 8 cm³."
+      - 8 · 19.3 = ?
+    explanation: 8 · 19.3 = 154.4 g – heavy for such a small cube!
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

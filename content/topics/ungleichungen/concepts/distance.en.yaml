@@ -5,7 +5,7 @@ summary: At most this far from the target.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: schraube
@@ -73,6 +73,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numberline
+    prompt: Put the marker on a number with $|x + 2| \le 1$.
+    params:
+      min: -5
+      max: 2
+      ticks: 2
+      labels: integers
+    check:
+      predicate: abs(state.value + 2) <= 1
+    hints:
+      - $|x + 2| = |x - (-2)|$ – the distance from −2.
+      - "At most 1 away from −2: from −3 to −1."
+    explanation: "All numbers from −3 to −1 work. Plus 2 inside means: distance from −2."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: How many integers satisfy $|x - {{m}}| \le {{d}}$?
+    answer:
+      value: "{{2 * d + 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * d
+        misconception: forgot-centre
+        text: The centre {{m}} itself counts too.
+    hints:
+      - From {{m - d}} to {{m + d}}.
+      - "{{d}} left, {{d}} right and the centre."
+    explanation: "{{d}} + {{d}} + 1 = {{2 * d + 1}} numbers."
+    difficulty: 2
+    variants:
+      params:
+        m: int[-5,9]
+        d: int[1,6]
+      defaults:
+        m: 4
+        d: 3
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: How do you write »x is at most 0.5 away from 10«?
+    params:
+      options:
+        - label: $|x - 10| \le 0.5$
+          correct: true
+        - label: $|x - 0.5| \le 10$
+          feedback: Centre and distance are swapped.
+        - label: $|x| \le 10.5$
+          feedback: That would be the distance from 0.
+    hints:
+      - The absolute value measures the distance from the centre.
+      - Centre 10, distance at most 0.5.
+    explanation: $|x - 10| \le 0.5$ means 9.5 ≤ x ≤ 10.5 – a tolerance.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -88,6 +149,41 @@ steps:
     hints:
       - Try a = 3, b = −3 and a = 2, b = 5.
     explanation: With different signs parts cancel. The inequality is a basic tool of analysis.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: For which x is $|x - 1| = |x - 5|$?
+    answer:
+      value: 3
+    hints:
+      - x is equally far from 1 and from 5.
+      - The midpoint between 1 and 5.
+    explanation: x = 3 – 2 away from each. In the plane this becomes the perpendicular bisector.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Absolute values define **limits**. A sequence goes to a if the gap $|a_n - a|$ gets smaller than any small number ε you pick. That is the language of calculus.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: From which n is $\frac{1}{n}$ less than 0.01 away from 0? Give the smallest n.
+    answer:
+      value: 101
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: boundary
+        text: At n = 100 the distance is exactly 0.01 – not less.
+    hints:
+      - $\frac{1}{n} < 0.01$ means $n > 100$.
+      - The first integer above 100.
+    explanation: n = 101. For any tolerance you can find such an n – that is why the limit of 1/n is 0.
     difficulty: 3
 
 srs:

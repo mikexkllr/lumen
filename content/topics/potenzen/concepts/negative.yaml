@@ -5,7 +5,7 @@ summary: Hoch minus heißt geteilt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: muster
@@ -98,6 +98,52 @@ steps:
     explanation: "Nach 7 Halbierungen: 2⁻⁷ = 1/128 ≈ 0,8 %."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Setz das Muster fort: $10^3 = 1000$, $10^2 = 100$, $10^1 = 10$, $10^0 = \\;?$, $10^{-1} = \\;?$"
+    reveal:
+      body: 1 und 0,1. Jeder Schritt nach rechts teilt durch 10 – auch unter null.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Ergänze den Exponenten: {{10 ** (0 - n)}} = $10^{?}$"
+    answer:
+      value: "{{0 - n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: sign
+        text: Die Zahl ist kleiner als 1. Der Exponent muss negativ sein.
+    hints:
+      - Zähle die Stellen nach dem Komma bis zur 1.
+      - Es sind {{n}} Stellen – also minus {{n}}.
+    explanation: "{{10 ** (0 - n)}} = $10^{ {{0 - n}} }$: die 1 steht an der {{n}}. Stelle nach dem Komma."
+    difficulty: 2
+    variants:
+      params:
+        n: int[1,6]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Bakterium ist 0,000002 m lang. Das sind $2 \cdot 10^{?}$ m.
+    answer:
+      value: -6
+    feedback:
+      - when: numval(state.input) == -5
+        misconception: off-by-one
+        text: "Zähle bis einschließlich der 2: Sie steht an der 6. Stelle."
+    hints:
+      - Wie viele Stellen nach dem Komma bis zur 2?
+      - Sechs.
+    explanation: $2 \cdot 10^{-6}$ m = 2 Mikrometer.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +154,45 @@ steps:
     hints:
       - Der Nenner 3 heißt dritte Wurzel, der Zähler 2 heißt quadrieren.
     explanation: ∛8 = 2 und 2² = 4. Bruch-Exponenten sind Wurzeln – so bleiben alle Potenzregeln gültig.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "Brüche im Exponenten sind **Wurzeln**: $a^{1/2} = \\sqrt{a}$, denn $a^{1/2} \\cdot a^{1/2} = a^1$. Ebenso ist $a^{1/3}$ die dritte Wurzel."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Berechne $27^{1/3}$.
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: divide-instead
+        text: "$27^{1/3}$ heißt dritte Wurzel, nicht 27 : 3."
+    hints:
+      - Welche Zahl hoch 3 ergibt 27?
+      - $3 \cdot 3 \cdot 3$.
+    explanation: $3^3 = 27$, also $27^{1/3} = 3$.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Berechne $16^{-1/2}$ als Bruch.
+    answer:
+      value: 1/4
+    feedback:
+      - when: numval(state.input) == -4
+        misconception: negative-result
+        text: Minus im Exponenten heißt Kehrwert, nicht negativ.
+    hints:
+      - $16^{1/2} = 4$.
+      - Das Minus macht den Kehrwert.
+    explanation: $16^{-1/2} = \frac{1}{\sqrt{16}} = \frac{1}{4}$.
     difficulty: 3
 
 srs:

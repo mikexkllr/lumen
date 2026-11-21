@@ -5,7 +5,7 @@ summary: Percentages of income.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: anteil
@@ -50,6 +50,37 @@ steps:
     explanation: €27.97 · 12 ≈ €336. Small amounts add up.
 
   - kind: problem
+    id: ma-c1
+    widget: chart
+    prompt: Split €2000 using the 50-30-20 rule. Set the bars.
+    params:
+      labels:
+        - Needs
+        - Wants
+        - Savings
+      values:
+        - 200
+        - 200
+        - 200
+      editable:
+        - 0
+        - 1
+        - 2
+      min: 0
+      max: 1200
+      step: 100
+      unit: €
+    answer:
+      values:
+        - 1000
+        - 600
+        - 400
+    hints:
+      - 50 % of €2000 is €1000.
+      - 10 % is €200.
+    explanation: €1000 + €600 + €400 = €2000.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -61,6 +92,55 @@ steps:
     hints:
       - 5 years are 60 months.
     explanation: 60 · €150 = €9000.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: buckets
+    prompt: Need or want?
+    params:
+      buckets:
+        - id: b1
+          label: need
+        - id: b2
+          label: want
+      items:
+        - label: Rent
+          bucket: b1
+        - label: Electricity
+          bucket: b1
+        - label: Groceries
+          bucket: b1
+        - label: Cinema
+          bucket: b2
+        - label: Streaming plan
+          bucket: b2
+        - label: New trainers
+          bucket: b2
+    hints:
+      - What do you need to live well?
+      - What could you do without for a month?
+    explanation: Rent, electricity and food are needs. Cinema, streaming and trainers are wants – nice, but optional.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: You get €40 a month and save 25 % of it. After how many months do you have €120 for a game?
+    params:
+      unit: months
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: all-saved
+        text: "You do not save all of it, only a quarter: €10 a month."
+    hints:
+      - 25 % of €40 is €10.
+      - "€120 : €10 = ?"
+    explanation: €10 per month, so 12 months. Saving 50 % would be twice as fast.
     difficulty: 2
 
   - kind: problem
@@ -79,6 +159,49 @@ steps:
     hints:
       - "First one year: 220 · €3.50."
     explanation: €770 a year, €7700 in ten. Small regular amounts add up.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Take-home €2000, spending €1800. Then pay rises 10 %, but spending rises 15 %. What is the savings rate afterwards? In %, to one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 5.9
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: old-rate
+        text: That was the old rate. Compute new pay minus new spending.
+    hints:
+      - "New: €2200 pay, €2070 spending."
+      - €130 of €2200.
+    explanation: "130 : 2200 ≈ 5.9 %. Before it was 10 %. If spending grows faster than pay, saving shrinks."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: You pay in €1000 at the start of each year for three years, at 5 % compound interest. How much is there at the end of year three? To the euro.
+    params:
+      unit: €
+    answer:
+      value: 3310
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: no-interest
+        text: Every payment earns interest – the first one three times.
+      - when: numval(state.input) == 3473
+        misconception: all-three-years
+        text: Not every payment sits for three years. The last one only one.
+    hints:
+      - The first payment grows 3 years, the second 2, the third 1.
+      - $1000 \cdot (1.05^3 + 1.05^2 + 1.05)$
+    explanation: 1157.63 + 1102.50 + 1050 ≈ €3310. A sum of powers like this is a geometric series.
     difficulty: 3
 
 srs:

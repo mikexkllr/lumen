@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [geo.pythagoras]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 130
       tolerance: 6
     explanation: 130 cm. Nur 10 cm mehr als die Breite – gleich siehst du, wie man das ausrechnet.
-
 
   - kind: problem
     id: drei-vier
@@ -118,6 +117,77 @@ steps:
     explanation: 13² − 5² = 144 = 12². Die Höhe macht aus dem Dreieck zwei rechtwinklige.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Warum gilt $a^2 + b^2 = c^2$?
+    reveal:
+      body: Lege vier gleiche Dreiecke in ein Quadrat der Seite a + b. Frei bleibt ein Quadrat $c^2$. Schiebst du sie anders, bleiben $a^2$ und $b^2$ frei. Die freie Fläche ist beide Male gleich.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Die längste Seite eines rechtwinkligen Dreiecks ist {{13 * k}} cm, eine kurze Seite {{5 * k}} cm. Wie lang ist die andere kurze Seite?
+    params:
+      unit: cm
+    answer:
+      value: "{{12 * k}}"
+    feedback:
+      - when: numval(state.input) == 8 * k
+        misconception: subtract-sides
+        text: Man zieht nicht die Seiten ab, sondern ihre Quadrate.
+    hints:
+      - $b^2 = c^2 - a^2$.
+      - "{{169 * k * k}} − {{25 * k * k}} = {{144 * k * k}}."
+    explanation: $\sqrt{ {{144 * k * k}} } = {{12 * k}}$ cm.
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,3]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: graph
+    prompt: Ziehe B so, dass die Strecke AB genau 5 lang ist – aber weder waagerecht noch senkrecht.
+    params:
+      x:
+        - -1
+        - 5
+      y:
+        - -1
+        - 5
+      points:
+        - id: A
+          x: 0
+          y: 0
+          draggable: false
+        - id: B
+          x: 1
+          y: 1
+      segments:
+        - - A
+          - B
+    check:
+      predicate: dist('A', 'B') == 5 && state.points.B.x != 0 && state.points.B.y != 0
+    solution:
+      state:
+        points:
+          A:
+            x: 0
+            y: 0
+          B:
+            x: 3
+            y: 4
+    hints:
+      - "Gesucht: x² + y² = 25 mit ganzen Zahlen."
+      - Denk an 3, 4, 5.
+    explanation: "B = (3 | 4) oder (4 | 3): $3^2 + 4^2 = 25 = 5^2$."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -128,6 +198,64 @@ steps:
     hints:
       - "Wende Pythagoras zweimal an: erst die Bodendiagonale, dann nach oben."
     explanation: 2² + 3² + 6² = 49 = 7². In drei Dimensionen kommt einfach ein Quadrat dazu.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Ist ein Dreieck mit den Seiten 20, 21 und 29 rechtwinklig? Berechne $20^2 + 21^2$.
+    answer:
+      value: 841
+    hints:
+      - 400 + 441.
+      - Vergleiche mit $29^2$.
+    explanation: 400 + 441 = 841 = 29². Ja – die Umkehrung des Satzes garantiert den rechten Winkel.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Pythagoras gilt nur mit rechtem Winkel. Allgemein gilt der **Kosinussatz**: $c^2 = a^2 + b^2 - 2ab \\cos\\gamma$. Bei 90° ist $\\cos\\gamma = 0$, und Pythagoras bleibt übrig."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie weit ist der Punkt (1 | 2 | 2) im Raum vom Ursprung entfernt?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: sum-coordinates
+        text: Das ist die Summe der Koordinaten. Quadriere sie erst.
+    hints:
+      - "Im Raum: $\\sqrt{x^2 + y^2 + z^2}$."
+      - 1 + 4 + 4 = 9.
+    explanation: $\sqrt{9} = 3$. Pythagoras zweimal angewendet – so misst man später Vektorlängen.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wann man den Satz des Pythagoras benutzen darf und was er sagt.
+    params:
+      keywords:
+        - - rechtwinklig
+          - rechter winkel
+          - right angle
+          - right triangle
+          - right-angled
+        - - quadrat
+          - square
+        - - längste
+          - hypotenuse
+          - longest
+          - gegenüber
+          - opposite
+      sample: Nur im rechtwinkligen Dreieck. Die Quadrate der beiden kurzen Seiten ergeben zusammen das Quadrat der längsten Seite, die gegenüber vom rechten Winkel liegt.
+    explanation: "Kernidee: a² + b² = c² – nur mit rechtem Winkel, c gegenüber."
     difficulty: 3
 
 srs:

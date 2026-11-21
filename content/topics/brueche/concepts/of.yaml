@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [frac.of]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: euro
@@ -106,6 +106,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{k}}/{{n}} einer Zahl sind {{k * m}}. Wie heißt die Zahl?"
+    answer:
+      value: "{{n * m}}"
+    feedback:
+      - when: numval(state.input) == k * m * k / n
+        misconception: forward-instead-of-back
+        text: Du hast {{k}}/{{n}} davon genommen. Rechne rückwärts.
+    hints:
+      - "{{k}} Teile sind {{k * m}}. Wie viel ist ein Teil?"
+      - Ein Teil ist {{m}}. Das Ganze hat {{n}} Teile.
+    explanation: "{{k * m}} : {{k}} = {{m}}, und {{m}} · {{n}} = {{n * m}}."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,4]
+        n: int[5,9]
+        m: int[2,9]
+      defaults:
+        k: 3
+        n: 5
+        m: 4
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: fraction
+    prompt: Von 24 Kindern spielen 18 Fußball. Färbe den Anteil – der Streifen hat 4 Teile.
+    params:
+      parts: 4
+    answer:
+      fraction: 3/4
+      parts: 4
+    hints:
+      - Kürze 18/24.
+      - Teile oben und unten durch 6.
+    explanation: $\frac{18}{24} = \frac{3}{4}$. Drei von vier Teilen.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d3
+    depth: 2
+    body: "»Von« heißt **Multiplikation**: $\\frac{3}{4}$ von 20 ist $\\frac{3}{4} \\cdot 20$. Darum ist $\\frac{2}{3}$ von $\\frac{3}{4}$ dasselbe wie $\\frac{2}{3} \\cdot \\frac{3}{4}$."
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Wie viel ist $\frac{3}{4}$ von $\frac{2}{5}$?
+    answer:
+      value: 3/10
+    feedback:
+      - when: numval(state.input) == 5/9
+        misconception: add-instead
+        text: "Brüche malnehmen: Zähler mal Zähler, Nenner mal Nenner."
+    hints:
+      - »Von« heißt mal.
+      - $\frac{3 \cdot 2}{4 \cdot 5}$
+    explanation: $\frac{3 \cdot 2}{4 \cdot 5} = \frac{6}{20} = \frac{3}{10}$.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -115,6 +179,72 @@ steps:
     hints:
       - "»Von« heißt malnehmen: Zähler mal Zähler, Nenner mal Nenner."
     explanation: (2 · 3) / (3 · 4) = 6/12 = 1/2. Ein Bruchteil von einem Bruch ist ein Produkt.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Erbe wird geteilt: Anna bekommt die Hälfte, Ben ein Drittel. Cleo erhält den Rest, und das sind 600 €. Wie groß war das Erbe?"
+    params:
+      unit: €
+    answer:
+      value: 3600
+    feedback:
+      - when: numval(state.input) == 1200
+        misconception: wrong-rest
+        text: "Prüfe den Anteil von Cleo: 1 − 1/2 − 1/3."
+    hints:
+      - "Cleos Anteil: $1 - \\frac{1}{2} - \\frac{1}{3}$."
+      - Ein Sechstel sind 600 €.
+    explanation: Cleo bekommt $\frac{1}{6}$. $600 \cdot 6 = 3600$ €.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: choice
+    prompt: Macht Malnehmen eine Zahl immer größer?
+    params:
+      options:
+        - label: Ja, immer
+          feedback: $\frac{1}{2} \cdot 10 = 5$ ist kleiner als 10.
+        - label: Nein – mal einen Bruch unter 1 wird es kleiner
+          correct: true
+        - label: Nur bei negativen Zahlen nicht
+          feedback: Auch $\frac{1}{2} \cdot 10$ ist kleiner.
+    hints:
+      - Was ist die Hälfte von 10?
+      - »Die Hälfte von« ist »mal 1/2«.
+    explanation: Mal eine Zahl zwischen 0 und 1 nimmt nur einen Teil – das Ergebnis schrumpft.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man $\frac{3}{4}$ von 20 ausrechnet – und warum das klappt.
+    params:
+      keywords:
+        - - teil
+          - durch
+          - geteilt
+          - divid
+          - split
+        - - vier
+          - four
+          - nenner
+          - denominator
+          - viertel
+          - quarter
+        - - drei
+          - three
+          - zähler
+          - numerator
+          - mal
+          - times
+      sample: "Man teilt 20 durch 4, weil der Nenner vier gleiche Teile verlangt. Ein Viertel sind 5. Dann nimmt man drei solche Teile: 3 mal 5 sind 15."
+    explanation: "Kernidee: erst durch den Nenner teilen (ein Teil), dann mit dem Zähler malnehmen (so viele Teile)."
     difficulty: 3
 
 srs:

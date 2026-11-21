@@ -5,7 +5,7 @@ summary: Jeder Kreis hat dasselbe Verhältnis.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 16
       tolerance: 4
     explanation: "1 m : (2π) ≈ 16 cm – egal wie groß die Kugel ist. Eine Katze passt darunter durch."
-
 
   - kind: problem
     id: rad
@@ -117,6 +116,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Eine Dose hat 10 cm Durchmesser. Wie lang ist ein Band, das einmal herumreicht?"
+    params:
+      min: 10
+      max: 50
+      unit: cm
+    answer:
+      value: 31.4
+      tolerance: 2
+    explanation: π · 10 cm ≈ 31,4 cm – gut dreimal der Durchmesser.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: "Warum hebt das Seil am Äquator 16 cm ab? Aus U = 2πr folgt: 1 m mehr Umfang sind 1 m : 2π ≈ 16 cm mehr **Radius**. Das gilt für jeden Kreis – ob Erde oder Orange."
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Du verlängerst ein Seil um einen Kreis um {{L}} m. Um wie viele Zentimeter wächst der Radius? Rechne mit π ≈ 3,14 und runde auf ganze cm.
+    params:
+      unit: cm
+    answer:
+      value: "{{round(L * 100 / 6.28)}}"
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == round(L * 100 / 3.14)
+        misconception: diameter-not-radius
+        text: Das ist der Zuwachs des Durchmessers. Der Radius ist die Hälfte.
+    hints:
+      - Mehr Umfang = 2π · mehr Radius.
+      - "{{L * 100}} cm : 6,28."
+    explanation: "{{L * 100}} : 6,28 ≈ {{round(L * 100 / 6.28)}} cm – egal, wie groß der Kreis ist."
+    difficulty: 2
+    variants:
+      params:
+        L: choice[1,2,3,5]
+      defaults:
+        L: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -132,6 +176,65 @@ steps:
     hints:
       - Der Umfang des Kreises liegt zwischen zwei Größen, die man berechnen kann.
     explanation: Mit 96 Ecken fand er 3,1408 < π < 3,1429. Dieses **Einschachteln** ist der Kern des Grenzwerts.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "π ist **irrational**: Es ist kein Bruch, und seine Stellen wiederholen sich nie. 22/7 = 3,1428… ist nur eine Näherung. Johann Heinrich Lambert bewies das 1761."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein regelmäßiges Sechseck im Kreis mit Radius 1 hat den Umfang 6. Welche Näherung für π ergibt Umfang geteilt durch Durchmesser?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-diameter
+        text: Teile noch durch den Durchmesser 2.
+    hints:
+      - Der Durchmesser ist 2.
+      - "6 : 2 = ?"
+    explanation: 3 – etwas zu klein, weil das Sechseck innen liegt. Archimedes ging bis zum 96-Eck und fand 3,1408 < π < 3,1429.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie weit liegt 22/7 von π ≈ 3,14159 entfernt? Auf vier Stellen nach dem Komma.
+    answer:
+      value: 0.0013
+      tolerance: 0.0001
+    hints:
+      - "22 : 7 ≈ 3,14286."
+      - 3,14286 − 3,14159.
+    explanation: ≈ 0,0013. 22/7 ist auf zwei Stellen genau – 355/113 sogar auf sechs.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Zahl π bedeutet.
+    params:
+      keywords:
+        - - umfang
+          - circumference
+          - herum
+          - around
+        - - durchmesser
+          - diameter
+        - - jeder
+          - immer
+          - every
+          - always
+          - gleich
+          - same
+      sample: Bei jedem Kreis ist der Umfang etwa 3,14-mal so lang wie der Durchmesser. Dieses Verhältnis ist immer gleich, egal wie groß der Kreis ist. Man nennt es π.
+    explanation: "Kernidee: π = Umfang : Durchmesser – für alle Kreise dieselbe Zahl."
     difficulty: 3
 
 srs:

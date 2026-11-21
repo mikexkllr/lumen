@@ -5,7 +5,7 @@ summary: Was dein Geld morgen noch wert ist.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 12
 steps:
   - kind: problem
     id: kaufkraft
@@ -123,6 +123,59 @@ steps:
     explanation: "100 : 1,219 ≈ 82 €. Nicht 80 € – der Verlust wirkt jedes Jahr auf einen kleineren Rest."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Inflation misst man mit einem **Warenkorb**: Lebensmittel, Miete, Energie, Kleidung und vieles mehr. Kostet der ganze Korb 3 % mehr als vor einem Jahr, ist die Inflation 3 %."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Bei 3 % Inflation im Jahr: Wie viel sind 1000 € nach 5 Jahren in heutiger Kaufkraft noch wert? Auf ganze Euro."
+    params:
+      unit: €
+    answer:
+      value: 863
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 850
+        misconception: linear-inflation
+        text: Das ist linear gerechnet. Die Preise steigen aber jedes Jahr auf die schon gestiegenen.
+    hints:
+      - Teile durch den Preisfaktor $1{,}03^5$.
+      - $1{,}03^5 \approx 1{,}159$.
+    explanation: "1000 € : 1,159 ≈ 863 €. Du verlierst fast 14 % Kaufkraft."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Wer verliert bei hoher Inflation, wer gewinnt?
+    params:
+      buckets:
+        - id: b1
+          label: verliert
+        - id: b2
+          label: gewinnt
+      items:
+        - label: Bargeld unter der Matratze
+          bucket: b1
+        - label: Feste Rente ohne Anpassung
+          bucket: b1
+        - label: Sparbuch mit 0,5 % Zins
+          bucket: b1
+        - label: Kredit mit festem Zins
+          bucket: b2
+        - label: Staat mit hohen Schulden
+          bucket: b2
+    hints:
+      - Wer Geld besitzt, verliert Kaufkraft.
+      - Wer Geld schuldet, zahlt mit weniger wertvollem Geld zurück.
+    explanation: Inflation entwertet Geld. Gläubiger verlieren, Schuldner mit festem Zins gewinnen.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -136,6 +189,42 @@ steps:
     hints:
       - Rechne 1,05 geteilt durch 1,03.
     explanation: 1,05 / 1,03 = 1,0194. Die Faustregel 5 − 3 = 2 ist nur eine Näherung.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: In einer Hyperinflation verdoppeln sich die Preise jeden Monat. Mit welchem Faktor sind sie nach einem Jahr gestiegen?
+    answer:
+      value: 4096
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: add-doublings
+        text: Verdoppeln heißt mal 2 – zwölfmal hintereinander.
+    hints:
+      - Zwölfmal verdoppeln.
+      - $2^{12} = ?$
+    explanation: $2^{12} = 4096$. Ein Brot für 2 € kostet dann über 8000 €. In Deutschland 1923 war es noch viel schlimmer.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: choice
+    prompt: Bei Deflation sinken die Preise. Warum fürchten Ökonomen das?
+    params:
+      options:
+        - label: Menschen warten mit Käufen, Firmen verkaufen weniger und die Wirtschaft schrumpft
+          correct: true
+        - label: Weil dann alles zu billig ist
+          feedback: Billig klingt gut – das Problem ist das Warten.
+        - label: Weil Geld dann wertlos wird
+          feedback: Bei Deflation wird Geld wertvoller.
+    hints:
+      - Was tust du, wenn ein Handy nächsten Monat billiger ist?
+      - Wenn alle warten, verkauft niemand.
+    explanation: Sinkende Preise verleiten zum Abwarten. Das kann eine Abwärtsspirale auslösen. Darum zielen Zentralbanken auf etwa 2 % Inflation.
     difficulty: 3
 
 srs:
