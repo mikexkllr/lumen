@@ -46,6 +46,6 @@ export { estimateWidget, estimateSnap, estimateStep, estimateToValue, estimateTo
 export { swipeWidget, type SwipeParams, type SwipeState } from './widgets/swipe.ts';
 export { clozeWidget, clozeParts, clozeBank, type ClozeParams, type ClozeState } from './widgets/cloze.ts';
 export { teachWidget, teachHits, teachNeeded, TEACH_MAX, type TeachParams, type TeachState } from './widgets/teach.ts';
-export { simWidget, simControls, simOutputs, simCompute, SIM_SCENES, NEURON_POINTS, type SimParams, type SimState, type SimControl, type SimOutput } from './widgets/sim.ts';
+export { simWidget, simControls, simOutputs, simCompute, SIM_SCENES, NEURON_POINTS, sirSeries, logisticSeries, predatorSeries, type SimParams, type SimState, type SimControl, type SimOutput } from './widgets/sim.ts';
 export * from './tutor.ts';
 export * from './recall.ts';

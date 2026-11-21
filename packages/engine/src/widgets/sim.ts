@@ -43,6 +43,62 @@ const fx = (p: SimParams, fallback: string) => {
   return (x: number) => evalMath(node, { x });
 };
 
+/** SIR epidemic, daily steps for 365 days: share of susceptible, infected and recovered (0–1). Vaccinated people are immune from day 0. */
+export function sirSeries(r0: number, vaccinated: number, recovery = 7): { s: number; i: number; r: number }[] {
+  const gamma = 1 / recovery;
+  const beta = r0 * gamma;
+  const v = vaccinated / 100;
+  let S = Math.max(0, 1 - v - 0.001);
+  let I = 0.001;
+  let R = 0;
+  const out = [{ s: S, i: I, r: R }];
+  for (let d = 0; d < 365; d++) {
+    for (let k = 0; k < 4; k++) {
+      const inf = beta * S * I * 0.25;
+      const rec = gamma * I * 0.25;
+      S -= inf;
+      I += inf - rec;
+      R += rec;
+    }
+    out.push({ s: S, i: I, r: R });
+  }
+  return out;
+}
+
+/** Logistic growth, one value per generation: N(t+1) = N + r·N·(1 − N/K). */
+export function logisticSeries(rate: number, capacity: number, start: number, gens: number): number[] {
+  const out = [start];
+  let n = start;
+  for (let g = 0; g < gens; g++) {
+    n = Math.max(0, n + (rate / 100) * n * (1 - n / capacity));
+    out.push(n);
+  }
+  return out;
+}
+
+/** Predator–prey (Lotka–Volterra), RK4 in 0.02-year steps over 30 years: [prey, predators]. Equilibrium: prey 40, predators birth/hunt·10. */
+export function predatorSeries(birth: number, hunt: number, prey0 = 60, pred0 = 10): [number, number][] {
+  const a = birth / 100;
+  const b = hunt / 1000;
+  const c = 0.4;
+  const d = 0.01;
+  const f = (x: number, y: number): [number, number] => [a * x - b * x * y, d * x * y - c * y];
+  let x = prey0;
+  let y = pred0;
+  const h = 0.02;
+  const out: [number, number][] = [[x, y]];
+  for (let k = 0; k < 1500; k++) {
+    const k1 = f(x, y);
+    const k2 = f(x + (h / 2) * k1[0], y + (h / 2) * k1[1]);
+    const k3 = f(x + (h / 2) * k2[0], y + (h / 2) * k2[1]);
+    const k4 = f(x + h * k3[0], y + h * k3[1]);
+    x = Math.max(1e-6, x + (h / 6) * (k1[0] + 2 * k2[0] + 2 * k3[0] + k4[0]));
+    y = Math.max(1e-6, y + (h / 6) * (k1[1] + 2 * k2[1] + 2 * k3[1] + k4[1]));
+    out.push([x, y]);
+  }
+  return out;
+}
+
 export const SIM_SCENES: Record<string, SimScene> = {
   projectile: {
     title: { de: 'Wurfbahn', en: 'Projectile' },
@@ -284,6 +340,214 @@ export const SIM_SCENES: Record<string, SimScene> = {
       const peri = q < 1 ? (v.radius / (2 - q)) * (1 - ecc) : v.radius;
       const kind = q >= 2 ? 1 : peri < 1 - 1e-9 ? -1 : 0;
       return { circular: r(vc, 1), escape: r(vc * Math.SQRT2, 1), ecc: r(ecc, 2), kind };
+    },
+  },
+  // ---------- Biologie ----------
+  population: {
+    title: { de: 'Population', en: 'Population' },
+    controls: [
+      { id: 'rate', label: { de: 'Vermehrung pro Generation', en: 'Growth per generation' }, unit: '%', min: 0, max: 100, step: 5, value: 30 },
+      { id: 'capacity', label: { de: 'Kapazität', en: 'Carrying capacity' }, min: 100, max: 1000, step: 50, value: 500 },
+      { id: 'gens', label: { de: 'Generationen', en: 'Generations' }, min: 0, max: 40, step: 1, value: 10 },
+      { id: 'start', label: { de: 'Startbestand', en: 'Start size' }, min: 2, max: 100, step: 1, value: 10, fixed: true },
+    ],
+    outputs: [
+      { id: 'size', label: { de: 'Bestand', en: 'Population' }, digits: 0 },
+      { id: 'unlimited', label: { de: 'Ohne Grenze', en: 'Unlimited' }, digits: 0 },
+      { id: 'share', label: { de: 'Anteil an K', en: 'Share of K' }, unit: '%', digits: 0 },
+    ],
+    compute: (v) => {
+      const n = logisticSeries(v.rate, v.capacity, v.start, v.gens).at(-1)!;
+      return { size: r(n, 0), unlimited: r(Math.min(1e9, v.start * (1 + v.rate / 100) ** v.gens), 0), share: r((100 * n) / v.capacity, 0) };
+    },
+  },
+  epidemic: {
+    title: { de: 'Epidemie', en: 'Epidemic' },
+    controls: [
+      { id: 'r0', label: { de: 'Basisreproduktionszahl R₀', en: 'Basic reproduction number R₀' }, min: 0.5, max: 6, step: 0.1, value: 2.5 },
+      { id: 'vaccinated', label: { de: 'Geimpft', en: 'Vaccinated' }, unit: '%', min: 0, max: 95, step: 5, value: 0 },
+      { id: 'recovery', label: { de: 'Krankheitsdauer', en: 'Days infectious' }, unit: 'd', min: 3, max: 14, step: 1, value: 7, fixed: true },
+    ],
+    outputs: [
+      { id: 'peak', label: { de: 'Höchstens gleichzeitig krank', en: 'Peak infected' }, unit: '%', digits: 1 },
+      { id: 'total', label: { de: 'Insgesamt angesteckt', en: 'Ever infected' }, unit: '%', digits: 0 },
+      { id: 'herd', label: { de: 'Herdenschutz ab', en: 'Herd immunity at' }, unit: '%', digits: 0 },
+      { id: 'reff', label: { de: 'R zu Beginn', en: 'R at the start' }, digits: 2 },
+    ],
+    compute: (v) => {
+      const series = sirSeries(v.r0, v.vaccinated, v.recovery);
+      const peak = Math.max(...series.map((x) => x.i));
+      const end = series.at(-1)!;
+      return { peak: r(100 * peak, 1), total: r(100 * (end.r + end.i), 0), herd: r(Math.max(0, 100 * (1 - 1 / v.r0)), 0), reff: r(v.r0 * (1 - v.vaccinated / 100), 2) };
+    },
+  },
+  hardy: {
+    title: { de: 'Hardy-Weinberg', en: 'Hardy–Weinberg' },
+    controls: [{ id: 'p', label: { de: 'Anteil Allel A (p)', en: 'Share of allele A (p)' }, min: 0, max: 1, step: 0.05, value: 0.5 }],
+    outputs: [
+      { id: 'AA', label: { de: 'AA (p²)', en: 'AA (p²)' }, unit: '%', digits: 1 },
+      { id: 'Aa', label: { de: 'Aa (2pq)', en: 'Aa (2pq)' }, unit: '%', digits: 1 },
+      { id: 'aa', label: { de: 'aa (q²)', en: 'aa (q²)' }, unit: '%', digits: 1 },
+    ],
+    compute: (v) => {
+      const q = 1 - v.p;
+      return { q: r(q, 2), AA: r(100 * v.p * v.p, 1), Aa: r(200 * v.p * q, 1), aa: r(100 * q * q, 1) };
+    },
+  },
+  enzyme: {
+    title: { de: 'Enzym-Kinetik', en: 'Enzyme kinetics' },
+    controls: [
+      { id: 'substrate', label: { de: 'Substrat [S]', en: 'Substrate [S]' }, unit: 'mM', min: 0, max: 50, step: 1, value: 5 },
+      { id: 'km', label: { de: 'Michaelis-Konstante Kₘ', en: 'Michaelis constant Kₘ' }, unit: 'mM', min: 1, max: 20, step: 1, value: 5 },
+      { id: 'inhibitor', label: { de: 'Kompetitiver Hemmstoff', en: 'Competitive inhibitor' }, unit: '×Kₘ', min: 1, max: 5, step: 0.5, value: 1, fixed: true },
+      { id: 'vmax', label: { de: 'vₘₐₓ', en: 'vₘₐₓ' }, unit: '%', min: 10, max: 100, step: 10, value: 100, fixed: true },
+    ],
+    outputs: [
+      { id: 'rate', label: { de: 'Reaktionstempo', en: 'Reaction rate' }, unit: '% vₘₐₓ', digits: 0 },
+      { id: 'kmeff', label: { de: 'Wirksames Kₘ', en: 'Apparent Kₘ' }, unit: 'mM', digits: 1 },
+    ],
+    compute: (v) => {
+      const km = v.km * v.inhibitor;
+      return { rate: r((v.vmax * v.substrate) / (km + v.substrate), 0), kmeff: r(km, 1) };
+    },
+  },
+  predator: {
+    title: { de: 'Räuber und Beute', en: 'Predator and prey' },
+    controls: [
+      { id: 'birth', label: { de: 'Vermehrung der Beute', en: 'Prey growth' }, unit: '%/a', min: 20, max: 100, step: 5, value: 60 },
+      { id: 'hunt', label: { de: 'Jagderfolg', en: 'Hunting success' }, unit: '‰', min: 5, max: 40, step: 1, value: 20 },
+    ],
+    outputs: [
+      { id: 'preymax', label: { de: 'Beute höchstens', en: 'Prey at most' }, digits: 0 },
+      { id: 'predmax', label: { de: 'Räuber höchstens', en: 'Predators at most' }, digits: 0 },
+      { id: 'preymean', label: { de: 'Beute im Mittel', en: 'Prey on average' }, digits: 0 },
+      { id: 'predmean', label: { de: 'Räuber im Mittel', en: 'Predators on average' }, digits: 0 },
+    ],
+    compute: (v) => {
+      const s = predatorSeries(v.birth, v.hunt);
+      return { preymax: r(Math.max(...s.map((x) => x[0])), 0), predmax: r(Math.max(...s.map((x) => x[1])), 0), preymean: r(s.reduce((a, x) => a + x[0], 0) / s.length, 0), predmean: r(s.reduce((a, x) => a + x[1], 0) / s.length, 0) };
+    },
+  },
+  // ---------- Elektrotechnik ----------
+  rc: {
+    title: { de: 'Kondensator laden', en: 'Charging a capacitor' },
+    controls: [
+      { id: 'resistance', label: { de: 'Widerstand R', en: 'Resistance R' }, unit: 'kΩ', min: 1, max: 100, step: 1, value: 10 },
+      { id: 'capacitance', label: { de: 'Kapazität C', en: 'Capacitance C' }, unit: 'µF', min: 1, max: 100, step: 1, value: 10 },
+      { id: 'time', label: { de: 'Zeit t', en: 'Time t' }, unit: 'ms', min: 0, max: 2000, step: 10, value: 100 },
+      { id: 'voltage', label: { de: 'Quellspannung', en: 'Source voltage' }, unit: 'V', min: 1, max: 24, step: 1, value: 10, fixed: true },
+    ],
+    outputs: [
+      { id: 'tau', label: { de: 'Zeitkonstante τ = R·C', en: 'Time constant τ = R·C' }, unit: 'ms', digits: 0 },
+      { id: 'charge', label: { de: 'Ladezustand', en: 'Charge level' }, unit: '%', digits: 1 },
+      { id: 'uc', label: { de: 'Spannung am C', en: 'Capacitor voltage' }, unit: 'V', digits: 2 },
+    ],
+    compute: (v) => {
+      const tau = v.resistance * v.capacitance; // kΩ · µF = ms
+      const q = 1 - Math.exp(-v.time / tau);
+      return { tau: r(tau, 0), charge: r(100 * q, 1), uc: r(v.voltage * q, 2), taus: r(v.time / tau, 2) };
+    },
+  },
+  divider: {
+    title: { de: 'Spannungsteiler', en: 'Voltage divider' },
+    controls: [
+      { id: 'voltage', label: { de: 'Eingangsspannung', en: 'Input voltage' }, unit: 'V', min: 1, max: 24, step: 1, value: 12 },
+      { id: 'r1', label: { de: 'R₁ (oben)', en: 'R₁ (top)' }, unit: 'kΩ', min: 1, max: 20, step: 1, value: 10 },
+      { id: 'r2', label: { de: 'R₂ (unten)', en: 'R₂ (bottom)' }, unit: 'kΩ', min: 1, max: 20, step: 1, value: 10 },
+      { id: 'load', label: { de: 'Last am Ausgang', en: 'Load at the output' }, unit: 'kΩ', min: 1, max: 1000000, step: 1, value: 1000000, fixed: true },
+    ],
+    outputs: [
+      { id: 'out', label: { de: 'Ausgangsspannung', en: 'Output voltage' }, unit: 'V', digits: 2 },
+      { id: 'current', label: { de: 'Querstrom', en: 'Divider current' }, unit: 'mA', digits: 2 },
+      { id: 'ratio', label: { de: 'Teilerverhältnis', en: 'Divider ratio' }, digits: 2 },
+    ],
+    compute: (v) => {
+      const r2 = (v.r2 * v.load) / (v.r2 + v.load);
+      const ratio = r2 / (v.r1 + r2);
+      return { out: r(v.voltage * ratio, 2), current: r(v.voltage / (v.r1 + r2), 2), ratio: r(ratio, 2) };
+    },
+  },
+  lowpass: {
+    title: { de: 'RC-Tiefpass', en: 'RC low-pass filter' },
+    controls: [
+      { id: 'resistance', label: { de: 'Widerstand R', en: 'Resistance R' }, unit: 'kΩ', min: 1, max: 20, step: 1, value: 10 },
+      { id: 'capacitance', label: { de: 'Kapazität C', en: 'Capacitance C' }, unit: 'nF', min: 1, max: 100, step: 1, value: 16 },
+      { id: 'frequency', label: { de: 'Signalfrequenz', en: 'Signal frequency' }, unit: 'Hz', min: 10, max: 10000, step: 10, value: 100 },
+    ],
+    outputs: [
+      { id: 'cutoff', label: { de: 'Grenzfrequenz', en: 'Cut-off frequency' }, unit: 'Hz', digits: 0 },
+      { id: 'gain', label: { de: 'Durchgelassen', en: 'Passed through' }, unit: '%', digits: 1 },
+      { id: 'db', label: { de: 'Dämpfung', en: 'Gain' }, unit: 'dB', digits: 1 },
+    ],
+    compute: (v) => {
+      const cutoff = 1 / (2 * Math.PI * v.resistance * 1e3 * v.capacitance * 1e-9);
+      const g = 1 / Math.sqrt(1 + (v.frequency / cutoff) ** 2);
+      return { cutoff: r(cutoff, 0), gain: r(100 * g, 1), db: r(20 * Math.log10(g), 1) };
+    },
+  },
+  resonance: {
+    title: { de: 'Schwingkreis', en: 'LC resonance' },
+    controls: [
+      { id: 'inductance', label: { de: 'Induktivität L', en: 'Inductance L' }, unit: 'mH', min: 1, max: 100, step: 1, value: 10 },
+      { id: 'capacitance', label: { de: 'Kapazität C', en: 'Capacitance C' }, unit: 'µF', min: 1, max: 100, step: 1, value: 10 },
+    ],
+    outputs: [
+      { id: 'f0', label: { de: 'Resonanzfrequenz', en: 'Resonant frequency' }, unit: 'Hz', digits: 0 },
+      { id: 'period', label: { de: 'Periode', en: 'Period' }, unit: 'ms', digits: 2 },
+    ],
+    compute: (v) => {
+      const f0 = 1 / (2 * Math.PI * Math.sqrt(v.inductance * 1e-3 * v.capacitance * 1e-6));
+      return { f0: r(f0, 0), period: r(1000 / f0, 2) };
+    },
+  },
+  transformer: {
+    title: { de: 'Transformator', en: 'Transformer' },
+    controls: [
+      { id: 'n1', label: { de: 'Windungen primär', en: 'Primary turns' }, min: 50, max: 2000, step: 50, value: 1000 },
+      { id: 'n2', label: { de: 'Windungen sekundär', en: 'Secondary turns' }, min: 10, max: 2000, step: 10, value: 100 },
+      { id: 'u1', label: { de: 'Primärspannung', en: 'Primary voltage' }, unit: 'V', min: 10, max: 400, step: 10, value: 230, fixed: true },
+      { id: 'i2', label: { de: 'Strom sekundär', en: 'Secondary current' }, unit: 'A', min: 0.1, max: 10, step: 0.1, value: 1, fixed: true },
+    ],
+    outputs: [
+      { id: 'u2', label: { de: 'Sekundärspannung', en: 'Secondary voltage' }, unit: 'V', digits: 1 },
+      { id: 'i1', label: { de: 'Strom primär', en: 'Primary current' }, unit: 'A', digits: 3 },
+      { id: 'ratio', label: { de: 'Übersetzung n₁ : n₂', en: 'Turns ratio n₁ : n₂' }, digits: 2 },
+    ],
+    compute: (v) => ({ u2: r((v.u1 * v.n2) / v.n1, 1), i1: r((v.i2 * v.n2) / v.n1, 3), ratio: r(v.n1 / v.n2, 2) }),
+  },
+  sampling: {
+    title: { de: 'Abtasten', en: 'Sampling' },
+    controls: [
+      { id: 'signal', label: { de: 'Signalfrequenz', en: 'Signal frequency' }, unit: 'Hz', min: 1, max: 20, step: 1, value: 3 },
+      { id: 'rate', label: { de: 'Abtastrate', en: 'Sample rate' }, unit: 'Hz', min: 2, max: 50, step: 1, value: 20 },
+    ],
+    outputs: [
+      { id: 'nyquist', label: { de: 'Nyquist-Grenze', en: 'Nyquist limit' }, unit: 'Hz', digits: 1 },
+      { id: 'seen', label: { de: 'Gemessene Frequenz', en: 'Frequency you see' }, unit: 'Hz', digits: 1 },
+      { id: 'aliased', label: { de: 'Aliasing (1 = ja)', en: 'Aliasing (1 = yes)' }, digits: 0 },
+    ],
+    compute: (v) => {
+      const k = Math.round(v.signal / v.rate);
+      const seen = Math.abs(v.signal - k * v.rate);
+      return { nyquist: r(v.rate / 2, 1), seen: r(seen, 1), aliased: v.signal > v.rate / 2 ? 1 : 0 };
+    },
+  },
+  // ---------- Physik ----------
+  spring: {
+    title: { de: 'Federpendel', en: 'Mass on a spring' },
+    controls: [
+      { id: 'mass', label: { de: 'Masse', en: 'Mass' }, unit: 'kg', min: 0.1, max: 5, step: 0.1, value: 1 },
+      { id: 'stiffness', label: { de: 'Federhärte D', en: 'Spring constant k' }, unit: 'N/m', min: 1, max: 100, step: 1, value: 10 },
+      { id: 'amplitude', label: { de: 'Auslenkung', en: 'Amplitude' }, unit: 'cm', min: 1, max: 20, step: 1, value: 10, fixed: true },
+    ],
+    outputs: [
+      { id: 'period', label: { de: 'Periode', en: 'Period' }, unit: 's', digits: 2 },
+      { id: 'frequency', label: { de: 'Frequenz', en: 'Frequency' }, unit: 'Hz', digits: 2 },
+      { id: 'energy', label: { de: 'Schwingungsenergie', en: 'Energy' }, unit: 'J', digits: 3 },
+    ],
+    compute: (v) => {
+      const T = 2 * Math.PI * Math.sqrt(v.mass / v.stiffness);
+      return { period: r(T, 2), frequency: r(1 / T, 2), energy: r(0.5 * v.stiffness * (v.amplitude / 100) ** 2, 3) };
     },
   },
 };

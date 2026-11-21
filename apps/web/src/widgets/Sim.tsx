@@ -1,6 +1,6 @@
 /** Animated lab scenes for the `sim` widget. Physics lives in the engine; this file only draws. */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { evalMath, formatNumber, NEURON_POINTS, parseMath, simCompute, simControls, simOutputs, simWidget, type SimParams, type SimState } from '@lumen/engine';
+import { evalMath, formatNumber, logisticSeries, NEURON_POINTS, parseMath, predatorSeries, sirSeries, simCompute, simControls, simOutputs, simWidget, type SimParams, type SimState } from '@lumen/engine';
 import { tr, type WidgetViewProps } from './types.ts';
 
 const W = 320;
@@ -459,11 +459,290 @@ function Orbit({ v, o, t }: SceneProps) {
   );
 }
 
+/** A plain chart frame: x axis at the bottom, y axis on the left. */
+function Axes({ x0 = 24, y0 = 160 }: { x0?: number; y0?: number }) {
+  return (
+    <>
+      <line x1={x0} y1={y0} x2={W - 10} y2={y0} stroke="var(--axis)" />
+      <line x1={x0} y1="14" x2={x0} y2={y0} stroke="var(--axis)" />
+    </>
+  );
+}
+const Label = ({ x, y, children, color = 'var(--ink-3)', anchor = 'start' }: { x: number | string; y: number | string; children: ReactNode; color?: string; anchor?: 'start' | 'middle' | 'end' }) => (
+  <text x={x} y={y} fontSize="10" textAnchor={anchor} fill={color}>{children}</text>
+);
+
+function Population({ v, o }: SceneProps) {
+  const series = logisticSeries(v.rate, v.capacity, v.start, 40);
+  const top = 1100;
+  const sx = (g: number) => 24 + (g / 40) * (W - 40);
+  const sy = (n: number) => 160 - (Math.min(n, top) / top) * 144;
+  const unl = (g: number) => v.start * (1 + v.rate / 100) ** g;
+  const d = series.map((n, g) => `${g ? 'L' : 'M'}${sx(g).toFixed(1)} ${sy(n).toFixed(1)}`).join(' ');
+  const gEnd = v.rate > 0 ? Math.min(40, Math.log(top / v.start) / Math.log(1 + v.rate / 100)) : 40;
+  return (
+    <>
+      <Axes />
+      <line x1="24" y1={sy(v.capacity)} x2={W - 10} y2={sy(v.capacity)} stroke="var(--amber)" strokeDasharray="5 4" />
+      <Label x={W - 12} y={sy(v.capacity) - 4} anchor="end" color="var(--amber-deep)">K = {v.capacity}</Label>
+      <path d={plot(unl, 0, gEnd, sx, sy)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeDasharray="3 3" />
+      <path d={d} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+      <line x1={sx(v.gens)} y1="14" x2={sx(v.gens)} y2="160" stroke="var(--line-2)" strokeDasharray="3 4" />
+      <circle cx={sx(v.gens)} cy={sy(o.size)} r="6" fill="var(--accent)" stroke="var(--surface)" strokeWidth="2" />
+    </>
+  );
+}
+
+function Epidemic({ v }: SceneProps) {
+  const series = sirSeries(v.r0, v.vaccinated, v.recovery);
+  const sx = (d: number) => 24 + (d / 365) * (W - 40);
+  const sy = (q: number) => 160 - q * 144;
+  const line = (k: 's' | 'i' | 'r', base = 0) => series.filter((_x, d) => d % 3 === 0).map((x, i) => `${i ? 'L' : 'M'}${sx(i * 3).toFixed(1)} ${sy(x[k] + base).toFixed(1)}`).join(' ');
+  const vacc = v.vaccinated / 100;
+  return (
+    <>
+      <Axes />
+      {vacc > 0 && <rect x="24" y={sy(1)} width={W - 34} height={vacc * 144} fill="color-mix(in srgb, var(--ok) 14%, transparent)" />}
+      {vacc > 0 && <Label x={W - 14} y={sy(1) + 12} anchor="end" color="var(--ok)">{v.vaccinated} %</Label>}
+      <path d={line('s')} fill="none" stroke="var(--accent)" strokeWidth="2" />
+      <path d={line('r')} fill="none" stroke="var(--ink-3)" strokeWidth="2" strokeDasharray="4 3" />
+      <path d={`${line('i')} L${sx(363)} 160 L24 160 Z`} fill="color-mix(in srgb, var(--bad) 30%, transparent)" stroke="var(--bad)" strokeWidth="2.5" />
+      <Label x="30" y="174" color="var(--accent)">S</Label>
+      <Label x="44" y="174" color="var(--bad)">I</Label>
+      <Label x="56" y="174">R</Label>
+    </>
+  );
+}
+
+function Hardy({ v, o }: SceneProps) {
+  const size = 140;
+  const x0 = 40;
+  const y0 = 22;
+  const a = v.p * size;
+  return (
+    <>
+      <rect x={x0} y={y0} width={a} height={a} fill="var(--accent)" opacity="0.85" />
+      <rect x={x0 + a} y={y0} width={size - a} height={a} fill="var(--amber)" opacity="0.7" />
+      <rect x={x0} y={y0 + a} width={a} height={size - a} fill="var(--amber)" opacity="0.7" />
+      <rect x={x0 + a} y={y0 + a} width={size - a} height={size - a} fill="var(--ink-3)" opacity="0.55" />
+      <rect x={x0} y={y0} width={size} height={size} fill="none" stroke="var(--ink-2)" strokeWidth="1.5" />
+      <Label x={x0 + a / 2} y={y0 - 6} anchor="middle">A</Label>
+      <Label x={x0 + a + (size - a) / 2} y={y0 - 6} anchor="middle">a</Label>
+      <Label x={x0 - 10} y={y0 + a / 2 + 3} anchor="middle">A</Label>
+      <Label x={x0 - 10} y={y0 + a + (size - a) / 2 + 3} anchor="middle">a</Label>
+      {[['AA', o.AA, 'var(--accent)'], ['Aa', o.Aa, 'var(--amber)'], ['aa', o.aa, 'var(--ink-3)']].map(([k, val, c], i) => (
+        <g key={String(k)}>
+          <rect x="210" y={34 + i * 40} width={Math.max(2, Number(val))} height="18" rx="3" fill={String(c)} opacity="0.85" />
+          <Label x="196" y={47 + i * 40} anchor="end">{String(k)}</Label>
+        </g>
+      ))}
+    </>
+  );
+}
+
+function Enzyme({ v, o }: SceneProps) {
+  const sx = (s: number) => 24 + (s / 50) * (W - 40);
+  const sy = (rate: number) => 160 - (rate / 100) * 140;
+  const km = v.km * v.inhibitor;
+  return (
+    <>
+      <Axes />
+      <line x1="24" y1={sy(v.vmax)} x2={W - 10} y2={sy(v.vmax)} stroke="var(--amber)" strokeDasharray="5 4" />
+      <line x1="24" y1={sy(v.vmax / 2)} x2={sx(Math.min(50, km))} y2={sy(v.vmax / 2)} stroke="var(--line-2)" strokeDasharray="3 3" />
+      <line x1={sx(Math.min(50, km))} y1={sy(v.vmax / 2)} x2={sx(Math.min(50, km))} y2="160" stroke="var(--line-2)" strokeDasharray="3 3" />
+      <Label x={sx(Math.min(50, km))} y="174" anchor="middle">Kₘ</Label>
+      {v.inhibitor > 1 && <path d={plot((s) => (v.vmax * s) / (v.km + s), 0, 50, sx, sy)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeDasharray="3 3" />}
+      <path d={plot((s) => (v.vmax * s) / (km + s), 0, 50, sx, sy)} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+      <circle cx={sx(v.substrate)} cy={sy(o.rate)} r="6" fill="var(--accent)" stroke="var(--surface)" strokeWidth="2" />
+    </>
+  );
+}
+
+function Predator({ v }: SceneProps) {
+  const s = predatorSeries(v.birth, v.hunt);
+  const top = Math.max(60, ...s.map((x) => Math.max(x[0], x[1]))) * 1.05;
+  const sx = (k: number) => 24 + (k / (s.length - 1)) * (W - 40);
+  const sy = (n: number) => 160 - (n / top) * 144;
+  const path = (i: 0 | 1) => s.filter((_x, k) => k % 5 === 0).map((x, k) => `${k ? 'L' : 'M'}${sx(k * 5).toFixed(1)} ${sy(x[i]).toFixed(1)}`).join(' ');
+  return (
+    <>
+      <Axes />
+      <path d={path(0)} fill="none" stroke="var(--ok)" strokeWidth="2.5" />
+      <path d={path(1)} fill="none" stroke="var(--bad)" strokeWidth="2.5" />
+      <Label x="30" y="174" color="var(--ok)">●</Label>
+      <Label x="44" y="174" color="var(--bad)">●</Label>
+    </>
+  );
+}
+
+function Rc({ v, o }: SceneProps) {
+  const span = Math.max(2000, o.tau * 5);
+  const sx = (t: number) => 24 + (t / span) * (W - 40);
+  const sy = (u: number) => 160 - (u / v.voltage) * 136;
+  return (
+    <>
+      <Axes />
+      <line x1="24" y1={sy(v.voltage)} x2={W - 10} y2={sy(v.voltage)} stroke="var(--amber)" strokeDasharray="5 4" />
+      <Label x={W - 12} y={sy(v.voltage) - 4} anchor="end" color="var(--amber-deep)">{v.voltage} V</Label>
+      <path d={plot((t) => v.voltage * (1 - Math.exp(-t / o.tau)), 0, span, sx, sy, 120)} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+      {o.tau <= span && <line x1={sx(o.tau)} y1={sy(v.voltage * 0.632)} x2={sx(o.tau)} y2="160" stroke="var(--line-2)" strokeDasharray="3 3" />}
+      {o.tau <= span && <Label x={sx(o.tau)} y="174" anchor="middle">τ</Label>}
+      <line x1={sx(v.time)} y1="14" x2={sx(v.time)} y2="160" stroke="var(--line-2)" strokeDasharray="3 4" />
+      <circle cx={sx(v.time)} cy={sy(o.uc)} r="6" fill="var(--accent)" stroke="var(--surface)" strokeWidth="2" />
+    </>
+  );
+}
+
+function Resistor({ x, y, vertical = false, label }: { x: number; y: number; vertical?: boolean; label: string }) {
+  return (
+    <g transform={`translate(${x} ${y})${vertical ? ' rotate(90)' : ''}`}>
+      <rect x="-20" y="-8" width="40" height="16" rx="3" fill="var(--bg)" stroke="var(--amber-deep)" strokeWidth="2.5" />
+      <text x="0" y={vertical ? -14 : -12} fontSize="10" textAnchor="middle" fill="var(--ink-3)" transform={vertical ? 'rotate(-90 0 -14) translate(20 14)' : undefined}>{label}</text>
+    </g>
+  );
+}
+
+function Divider({ v, o }: SceneProps) {
+  const level = clamp(o.out / Math.max(1, v.voltage), 0, 1);
+  return (
+    <>
+      <path d="M60 20 H150 V160 H60" fill="none" stroke="var(--ink-3)" strokeWidth="2.5" />
+      <line x1="44" y1="84" x2="76" y2="84" stroke="var(--ink)" strokeWidth="3" />
+      <line x1="50" y1="94" x2="70" y2="94" stroke="var(--ink)" strokeWidth="3" />
+      <rect x="40" y="40" width="40" height="40" fill="var(--bg)" />
+      <rect x="40" y="98" width="40" height="40" fill="var(--bg)" />
+      <line x1="60" y1="20" x2="60" y2="84" stroke="var(--ink-3)" strokeWidth="2.5" />
+      <line x1="60" y1="94" x2="60" y2="160" stroke="var(--ink-3)" strokeWidth="2.5" />
+      <Label x="30" y="92" anchor="end">{v.voltage} V</Label>
+      <Resistor x={150} y={55} vertical label={`R₁ ${v.r1} kΩ`} />
+      <Resistor x={150} y={125} vertical label={`R₂ ${v.r2} kΩ`} />
+      <line x1="150" y1="90" x2="230" y2="90" stroke="var(--ink-3)" strokeWidth="2.5" />
+      <circle cx="230" cy="90" r="4" fill="var(--accent)" />
+      <rect x="250" y={160 - level * 130} width="30" height={level * 130} rx="4" fill="var(--accent)" opacity="0.8" />
+      <rect x="250" y="30" width="30" height="130" rx="4" fill="none" stroke="var(--line-2)" />
+      <Label x="265" y="174" anchor="middle" color="var(--accent)">{formatNumber(o.out, 'en')} V</Label>
+    </>
+  );
+}
+
+function Lowpass({ v, o, t }: SceneProps) {
+  // log frequency axis from 10 Hz to 100 kHz
+  const sx = (f: number) => 24 + ((Math.log10(f) - 1) / 4) * (W - 40);
+  const sy = (g: number) => 90 - g * 72;
+  const gain = (f: number) => 1 / Math.sqrt(1 + (f / o.cutoff) ** 2);
+  let d = '';
+  for (let i = 0; i <= 100; i++) {
+    const f = 10 ** (1 + (4 * i) / 100);
+    d += `${i ? 'L' : 'M'}${sx(f).toFixed(1)} ${sy(gain(f)).toFixed(1)}`;
+  }
+  const g = gain(v.frequency);
+  const wave = (amp: number) => plot((x) => 150 - amp * 14 * Math.sin(x * 0.25 - t * 6), 24, W - 10, (x) => x, (y) => y, 120);
+  return (
+    <>
+      <line x1="24" y1="90" x2={W - 10} y2="90" stroke="var(--axis)" />
+      <line x1="24" y1="14" x2="24" y2="90" stroke="var(--axis)" />
+      <path d={d} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+      <line x1={sx(o.cutoff)} y1="14" x2={sx(o.cutoff)} y2="90" stroke="var(--amber)" strokeDasharray="4 3" />
+      <Label x={sx(o.cutoff) + 3} y="24" color="var(--amber-deep)">f_g</Label>
+      <circle cx={sx(v.frequency)} cy={sy(g)} r="5" fill="var(--accent)" stroke="var(--surface)" strokeWidth="2" />
+      <path d={wave(1)} fill="none" stroke="var(--line-2)" strokeWidth="1.5" />
+      <path d={wave(g)} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+    </>
+  );
+}
+
+function Resonance({ v, o, t }: SceneProps) {
+  // energy sloshes between the capacitor (electric field) and the coil (magnetic field)
+  const phase = Math.sin(t * Math.min(12, 2 + o.f0 / 200));
+  const e = phase * phase;
+  return (
+    <>
+      <rect x="60" y="40" width="200" height="100" rx="8" fill="none" stroke="var(--ink-3)" strokeWidth="2.5" />
+      <rect x="40" y="70" width="40" height="40" fill="var(--bg)" />
+      <line x1="46" y1="84" x2="74" y2="84" stroke="var(--ink)" strokeWidth="3" />
+      <line x1="46" y1="96" x2="74" y2="96" stroke="var(--ink)" strokeWidth="3" />
+      <rect x="44" y="84" width="32" height="12" fill="var(--accent)" opacity={e * 0.6} />
+      <Label x="30" y="94" anchor="end">C</Label>
+      <rect x="240" y="60" width="40" height="60" fill="var(--bg)" />
+      {[0, 1, 2, 3].map((i) => <path key={i} d={`M260 ${64 + i * 13} a8 6.5 0 1 1 0 13`} fill="none" stroke="var(--ink)" strokeWidth="2.5" />)}
+      <circle cx="260" cy="90" r="30" fill="var(--amber)" opacity={(1 - e) * 0.3} />
+      <Label x="292" y="94">L</Label>
+      <rect x={110} y={150} width={100 * e} height="10" rx="3" fill="var(--accent)" />
+      <rect x={210 - 100 * (1 - e)} y={164} width={100 * (1 - e)} height="10" rx="3" fill="var(--amber)" />
+    </>
+  );
+}
+
+function Transformer({ v, o }: SceneProps) {
+  const coil = (x: number, n: number) => {
+    const k = clamp(Math.round(n / 100), 1, 14);
+    return Array.from({ length: k }, (_x, i) => <line key={i} x1={x - 16} y1={44 + (i * 92) / k} x2={x + 16} y2={50 + (i * 92) / k} stroke="var(--amber-deep)" strokeWidth="2.5" />);
+  };
+  return (
+    <>
+      <rect x="110" y="30" width="100" height="120" rx="6" fill="none" stroke="var(--ink-3)" strokeWidth="14" opacity="0.45" />
+      {coil(110, v.n1)}
+      {coil(210, v.n2)}
+      <Label x="70" y="94" anchor="middle">{v.u1} V</Label>
+      <Label x="110" y="170" anchor="middle">n₁ = {v.n1}</Label>
+      <Label x="210" y="170" anchor="middle">n₂ = {v.n2}</Label>
+      <rect x="262" y={160 - clamp(o.u2 / 400, 0, 1) * 130} width="30" height={clamp(o.u2 / 400, 0, 1) * 130} rx="4" fill="var(--accent)" opacity="0.85" />
+      <rect x="262" y="30" width="30" height="130" rx="4" fill="none" stroke="var(--line-2)" />
+      <Label x="277" y="24" anchor="middle" color="var(--accent)">{formatNumber(o.u2, 'en')} V</Label>
+    </>
+  );
+}
+
+function Sampling({ v, o }: SceneProps) {
+  // one second of signal
+  const sx = (s: number) => 16 + s * (W - 32);
+  const sy = (y: number) => 90 - y * 60;
+  const n = Math.floor(v.rate);
+  return (
+    <>
+      <line x1="16" y1="90" x2={W - 16} y2="90" stroke="var(--axis)" />
+      <path d={plot((s) => Math.sin(2 * Math.PI * v.signal * s), 0, 1, sx, sy, 400)} fill="none" stroke="var(--line-2)" strokeWidth="1.5" />
+      {o.aliased ? <path d={plot((s) => Math.sin(2 * Math.PI * (v.signal - Math.round(v.signal / v.rate) * v.rate) * s), 0, 1, sx, sy, 200)} fill="none" stroke="var(--bad)" strokeWidth="2.5" strokeDasharray="5 3" /> : null}
+      {Array.from({ length: n + 1 }, (_x, k) => {
+        const s = k / v.rate;
+        const y = Math.sin(2 * Math.PI * v.signal * s);
+        return (
+          <g key={k}>
+            <line x1={sx(s)} y1="90" x2={sx(s)} y2={sy(y)} stroke="var(--accent)" strokeWidth="1.5" />
+            <circle cx={sx(s)} cy={sy(y)} r="3.5" fill="var(--accent)" />
+          </g>
+        );
+      })}
+    </>
+  );
+}
+
+function Spring({ v, o, t }: SceneProps) {
+  const x = Math.cos((2 * Math.PI * t) / Math.max(0.2, o.period)) * v.amplitude * 2.4;
+  const top = 14;
+  const yMass = 88 + x;
+  const coils = 12;
+  let d = `M160 ${top}`;
+  for (let i = 1; i <= coils; i++) d += ` L${i % 2 ? 146 : 174} ${top + ((yMass - top - 10) * i) / (coils + 1)}`;
+  d += ` L160 ${yMass - 10}`;
+  const size = 18 + Math.sqrt(v.mass) * 10;
+  return (
+    <>
+      <line x1="110" y1={top} x2="210" y2={top} stroke="var(--ink-2)" strokeWidth="4" />
+      <path d={d} fill="none" stroke="var(--ink-3)" strokeWidth={1 + v.stiffness / 40} strokeLinejoin="round" />
+      <rect x={160 - size / 2} y={yMass - 10} width={size} height={size} rx="4" fill="var(--accent)" />
+      <line x1="230" y1="88" x2="260" y2="88" stroke="var(--line-2)" strokeDasharray="3 3" />
+    </>
+  );
+}
+
 const SCENES: Record<string, (p: SceneProps) => ReactNode> = {
   projectile: Projectile, pendulum: Pendulum, wave: Wave, circuit: Circuit, gas: Gas, lever: Lever, tangent: Tangent, riemann: Riemann,
   unitcircle: UnitCircle, neuron: Neuron, descent: Descent, normal: Normal, decay: Decay, growth: Growth, lens: Lens, orbit: Orbit,
+  population: Population, epidemic: Epidemic, hardy: Hardy, enzyme: Enzyme, predator: Predator,
+  rc: Rc, divider: Divider, lowpass: Lowpass, resonance: Resonance, transformer: Transformer, sampling: Sampling, spring: Spring,
 };
-const ANIMATED = new Set(['projectile', 'pendulum', 'wave', 'circuit', 'gas', 'orbit']);
+const ANIMATED = new Set(['projectile', 'pendulum', 'wave', 'circuit', 'gas', 'orbit', 'lowpass', 'resonance', 'spring']);
 
 function AnimatedStage({ p, v, o, locale }: { p: SimParams; v: Record<string, number>; o: Record<string, number>; locale: string }) {
   const t = useClock();
