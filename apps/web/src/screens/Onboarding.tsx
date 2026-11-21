@@ -43,6 +43,8 @@ const AREAS = [
   { id: 'math', motif: 'function', color: '#4f46e5' },
   { id: 'physics', motif: 'space', color: '#c2410c' },
   { id: 'chemistry', motif: 'atom', color: '#15803d' },
+  { id: 'biology', motif: 'cell', color: '#65a30d' },
+  { id: 'ee', motif: 'chip', color: '#b45309' },
   { id: 'cs', motif: 'code', color: '#0e7490' },
   { id: 'data', motif: 'bell', color: '#be185d' },
   { id: 'ai', motif: 'neural', color: '#7c3aed' },

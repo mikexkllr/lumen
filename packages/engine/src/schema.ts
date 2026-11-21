@@ -114,7 +114,7 @@ export const UnitSchema = z.object({
 });
 
 /** Subjects (Fächer). Each has one learning path that runs from zero to hero. */
-export const SUBJECTS = ['math', 'physics', 'chemistry', 'cs', 'data', 'ai', 'logic'] as const;
+export const SUBJECTS = ['math', 'physics', 'chemistry', 'biology', 'ee', 'cs', 'data', 'ai', 'logic'] as const;
 export type Subject = (typeof SUBJECTS)[number];
 /** Difficulty stages of a course, from zero to hero. */
 export const LEVELS = ['Einstieg', 'Grundlagen', 'Aufbau', 'Fortgeschritten', 'Experte'] as const;

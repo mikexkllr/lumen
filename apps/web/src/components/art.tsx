@@ -1165,6 +1165,155 @@ function Motif({ name, tint }: { name: string; tint: string }): ReactNode {
           <path d="M264 162 H300" {...line(0.5, 2.5)} strokeDasharray="3 5" />
         </g>
       );
+    case 'cell':
+      return (
+        <g>
+          <ellipse cx="200" cy="125" rx="138" ry="92" {...op(0.18)} />
+          <ellipse cx="200" cy="125" rx="138" ry="92" {...line(0.75, 3)} />
+          <circle cx="214" cy="118" r="38" {...op(0.9)} />
+          <circle cx="222" cy="112" r="13" fill={tint} />
+          <ellipse cx="118" cy="150" rx="28" ry="13" transform="rotate(-20 118 150)" fill={tint} fillOpacity="0.85" />
+          <path d="M106 146 q6 -8 12 0 t12 0" {...line(0.8, 2)} transform="rotate(-20 118 150)" />
+          <ellipse cx="290" cy="166" rx="22" ry="10" transform="rotate(25 290 166)" fill={tint} fillOpacity="0.7" />
+          {[[140, 82], [160, 196], [300, 92], [262, 190], [96, 112]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="5" {...op(0.7)} />)}
+        </g>
+      );
+    case 'dna':
+      return (
+        <g>
+          {Array.from({ length: 13 }, (_, i) => {
+            const x = 70 + i * 22;
+            const a = Math.sin(i * 0.62) * 62;
+            return <path key={i} d={`M${x} ${125 - a} V${125 + a}`} {...line(0.35 + 0.4 * (i % 2), 4)} />;
+          })}
+          <path d={Array.from({ length: 61 }, (_, i) => `${i ? 'L' : 'M'}${70 + i * 4.4} ${(125 - Math.sin(i * 0.124) * 62).toFixed(1)}`).join(' ')} stroke={tint} strokeWidth="7" fill="none" strokeLinecap="round" />
+          <path d={Array.from({ length: 61 }, (_, i) => `${i ? 'L' : 'M'}${70 + i * 4.4} ${(125 + Math.sin(i * 0.124) * 62).toFixed(1)}`).join(' ')} {...line(0.92, 7)} />
+        </g>
+      );
+    case 'leaf':
+      return (
+        <g>
+          <circle cx="318" cy="62" r="30" fill={tint} />
+          {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => <path key={i} d={`M${318 + Math.cos(i * 0.785) * 40} ${62 + Math.sin(i * 0.785) * 40} l${Math.cos(i * 0.785) * 14} ${Math.sin(i * 0.785) * 14}`} stroke={tint} strokeWidth="3" strokeLinecap="round" />)}
+          <path d="M90 210 C90 110 170 60 270 70 C270 170 190 214 90 210 Z" {...op(0.9)} />
+          <path d="M94 206 C150 160 200 120 262 76" stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" />
+          {[0, 1, 2, 3].map((i) => <path key={i} d={`M${130 + i * 32} ${178 - i * 26} l${-6 - i} ${-34 + i * 4} M${130 + i * 32} ${178 - i * 26} l${30 - i * 2} ${6 + i}`} stroke={tint} strokeWidth="2.5" fill="none" strokeLinecap="round" />)}
+        </g>
+      );
+    case 'heart':
+      return (
+        <g>
+          <path d="M200 212 C120 160 86 120 100 84 C114 48 170 46 200 86 C230 46 286 48 300 84 C314 120 280 160 200 212 Z" {...op(0.9)} />
+          <path d="M40 132 H150 L166 100 L186 170 L206 72 L224 150 L236 132 H360" stroke={tint} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      );
+    case 'brain':
+      return (
+        <g>
+          <path d="M200 60 C150 40 96 70 100 118 C70 140 92 196 140 196 C160 218 196 212 200 196 C204 212 240 218 260 196 C308 196 330 140 300 118 C304 70 250 40 200 60 Z" {...op(0.88)} />
+          <path d="M200 60 V196" stroke={tint} strokeWidth="4" />
+          <path d="M136 100 q22 10 10 34 q-12 20 14 34 M264 100 q-22 10 -10 34 q12 20 -14 34" stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" />
+          {[[120, 60], [290, 54], [80, 186], [330, 196]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="6" fill={tint} />)}
+        </g>
+      );
+    case 'virus':
+      return (
+        <g>
+          {Array.from({ length: 12 }, (_, i) => {
+            const a = (i * Math.PI) / 6;
+            return (
+              <g key={i}>
+                <path d={`M${200 + Math.cos(a) * 66} ${125 + Math.sin(a) * 66} L${200 + Math.cos(a) * 96} ${125 + Math.sin(a) * 96}`} {...line(0.75, 4)} />
+                <circle cx={200 + Math.cos(a) * 100} cy={125 + Math.sin(a) * 100} r="9" fill={tint} />
+              </g>
+            );
+          })}
+          <circle cx="200" cy="125" r="68" {...op(0.9)} />
+          <path d="M166 110 q16 -20 34 0 t34 0 M166 140 q16 -20 34 0 t34 0" stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" />
+        </g>
+      );
+    case 'evolution':
+      return (
+        <g>
+          <path d="M200 226 V160 M200 160 L130 110 M200 160 L270 110 M130 110 L96 60 M130 110 L160 60 M270 110 L240 60 M270 110 L310 60 M310 60 L296 30 M310 60 L336 34" {...line(0.85, 5)} />
+          {[[96, 60], [160, 60], [240, 60], [296, 30], [336, 34]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r={i === 4 ? 13 : 9} fill={i === 4 ? tint : W} fillOpacity={i === 4 ? 1 : 0.9} />)}
+          <circle cx="200" cy="226" r="10" fill={tint} />
+        </g>
+      );
+    case 'ecosystem':
+      return (
+        <g>
+          {[0, 1, 2, 3].map((i) => <rect key={i} x={120 + i * 22} y={60 + i * 40} width={160 - i * 44} height="34" rx="8" {...op(0.25 + i * 0.22)} />)}
+          <path d="M70 200 A130 130 0 0 1 330 200" stroke={tint} strokeWidth="5" fill="none" strokeDasharray="10 9" strokeLinecap="round" />
+          <path d={arrowHead(330, 200, Math.PI / 2, 14)} stroke={tint} strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      );
+    case 'chip':
+      return (
+        <g>
+          {Array.from({ length: 6 }, (_, i) => (
+            <g key={i}>
+              <path d={`M${142 + i * 23} 48 V72 M${142 + i * 23} 178 V202`} {...line(0.7, 4)} />
+              <path d={`M100 ${78 + i * 19} H124 M276 ${78 + i * 19} H300`} {...line(0.7, 4)} />
+            </g>
+          ))}
+          <rect x="124" y="72" width="152" height="106" rx="12" {...op(0.9)} />
+          <rect x="168" y="98" width="64" height="54" rx="6" fill={tint} />
+          <circle cx="142" cy="90" r="5" fill={tint} />
+        </g>
+      );
+    case 'capacitor':
+      return (
+        <g>
+          <path d="M50 125 H180 M220 125 H350" {...line(0.7, 4)} />
+          <rect x="172" y="60" width="14" height="130" rx="3" {...op(0.95)} />
+          <rect x="214" y="60" width="14" height="130" rx="3" fill={tint} />
+          {[0, 1, 2, 3].map((i) => <text key={i} x="156" y={86 + i * 30} fontSize="20" fontWeight="700" fill={W} fillOpacity="0.85" textAnchor="middle">+</text>)}
+          {[0, 1, 2, 3].map((i) => <text key={i} x="246" y={86 + i * 30} fontSize="22" fontWeight="700" fill={tint} textAnchor="middle">−</text>)}
+        </g>
+      );
+    case 'transistor':
+      return (
+        <g>
+          <circle cx="210" cy="125" r="80" {...op(0.14)} />
+          <circle cx="210" cy="125" r="80" {...line(0.6, 3)} />
+          <path d="M70 125 H186 M186 82 V168" {...line(0.95, 6)} />
+          <path d="M186 106 L252 62 V30 M186 144 L252 188 V220" {...line(0.85, 5)} />
+          <path d={arrowHead(244, 183, 0.58, 14)} stroke={tint} strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="70" cy="125" r="9" fill={tint} />
+        </g>
+      );
+    case 'signal':
+      return (
+        <g>
+          <path d="M50 200 H350 M50 200 V40" {...line(0.4, 2)} />
+          <path d={Array.from({ length: 101 }, (_, i) => `${i ? 'L' : 'M'}${50 + i * 3} ${(110 - 40 * Math.sin(i * 0.19) - 16 * Math.sin(i * 0.57)).toFixed(1)}`).join(' ')} {...line(0.9, 4)} />
+          {[0, 1, 2, 3, 4, 5].map((i) => <rect key={i} x={80 + i * 44} y={200 - [20, 60, 18, 34, 8, 12][i]} width="20" height={[20, 60, 18, 34, 8, 12][i]} rx="3" fill={tint} />)}
+        </g>
+      );
+    case 'motor':
+      return (
+        <g>
+          <circle cx="200" cy="125" r="92" {...op(0.16)} />
+          <rect x="70" y="70" width="40" height="110" rx="8" fill={tint} />
+          <rect x="290" y="70" width="40" height="110" rx="8" {...op(0.9)} />
+          <text x="90" y="134" textAnchor="middle" fontSize="26" fontWeight="700" fill={W}>N</text>
+          <text x="310" y="134" textAnchor="middle" fontSize="26" fontWeight="700" fill={tint}>S</text>
+          <path d="M150 90 H250 V160 H150 Z" {...line(0.95, 5)} transform="rotate(-24 200 125)" />
+          <circle cx="200" cy="125" r="10" {...op(0.95)} />
+          <path d="M200 30 A95 95 0 0 1 290 80" stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" />
+          <path d={arrowHead(290, 80, 1.1, 12)} stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </g>
+      );
+    case 'body':
+      return (
+        <g>
+          <circle cx="200" cy="54" r="26" {...op(0.9)} />
+          <path d="M200 84 V160 M200 100 L146 140 M200 100 L254 140 M200 160 L164 222 M200 160 L236 222" {...line(0.9, 12)} />
+          <circle cx="210" cy="112" r="11" fill={tint} />
+          <path d="M120 60 q-30 30 0 60 M280 60 q30 30 0 60" stroke={tint} strokeWidth="4" fill="none" strokeLinecap="round" />
+        </g>
+      );
     default:
       return (
         <g>

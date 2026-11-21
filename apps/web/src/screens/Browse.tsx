@@ -73,7 +73,7 @@ export function TopicScreen({ topicId }: { topicId: string }) {
   );
 }
 
-const SUBJECT_ORDER = ['math', 'physics', 'chemistry', 'cs', 'data', 'ai', 'logic'] as const;
+const SUBJECT_ORDER = ['math', 'physics', 'chemistry', 'biology', 'ee', 'cs', 'data', 'ai', 'logic'] as const;
 
 /** Course catalogue: subjects overview, one zero-to-hero roadmap per subject, and search. */
 export function Discover({ subject }: { subject?: string }) {
