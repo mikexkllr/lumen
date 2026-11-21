@@ -1,0 +1,246 @@
+id: ee.digital.levels
+type: concept
+title: "Logikpegel und Addierer"
+summary: "Wann eine Spannung als 1 gilt – und wie Gatter rechnen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Warum rechnen Computer mit nur zwei Zuständen statt mit zehn Spannungsstufen?
+    params:
+      options:
+        - label: Zwei weit getrennte Zustände sind unempfindlich gegen Störungen
+          correct: true
+        - label: Weil Strom nur an oder aus sein kann
+          feedback: Strom kann jeden Wert haben.
+        - label: Weil zehn Stufen nicht gehen
+          feedback: Sie gehen, aber kleine Störungen würden sie verwechseln.
+    hints:
+      - Stell dir 3,3 V in zehn Stufen geteilt vor.
+      - Jede Stufe wäre nur 0,33 V breit.
+    explanation: Bei zwei Zuständen darf die Spannung stark schwanken und wird trotzdem richtig erkannt. Jedes Gatter erneuert den Pegel wieder.
+
+  - kind: explain
+    id: c1
+    body: Ein **Logikpegel** ist ein Spannungsbereich. Bei 3,3-V-Logik gilt alles unter 0,8 V als 0 und alles über 2,0 V als 1. Dazwischen ist der Zustand undefiniert.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Wie liest ein 3,3-V-Eingang diese Spannung?
+    params:
+      buckets:
+        - id: b1
+          label: "0"
+        - id: b2
+          label: Undefiniert
+        - id: b3
+          label: "1"
+      items:
+        - label: 0,2 V
+          bucket: b1
+        - label: 0,7 V
+          bucket: b1
+        - label: 1,4 V
+          bucket: b2
+        - label: 1,9 V
+          bucket: b2
+        - label: 2,4 V
+          bucket: b3
+        - label: 3,3 V
+          bucket: b3
+    hints:
+      - Unter 0,8 V ist es 0.
+      - Über 2,0 V ist es 1.
+    explanation: Zwischen 0,8 V und 2,0 V garantiert der Chip nichts. Gute Schaltungen durchqueren diesen Bereich nur kurz.
+
+  - kind: problem
+    id: c3
+    widget: gates
+    prompt: Ein Halbaddierer addiert zwei Bits A und B. Wähle die Gatter so, dass S die Summenstelle und C den Übertrag liefert.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: s
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: c
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: S
+          from: s
+        - id: C
+          from: c
+    check:
+      predicate: table('S') == [0, 1, 1, 0] && table('C') == [0, 0, 0, 1]
+    hints:
+      - "1 + 1 = 10 im Binärsystem: Summe 0, Übertrag 1."
+      - Die Summe ist 1, wenn genau ein Bit 1 ist.
+    explanation: S = A XOR B, C = A UND B. Damit ist die kleinste Rechenmaschine fertig.
+
+  - kind: problem
+    id: c4
+    widget: bits
+    prompt: Vier Volladdierer in Reihe rechnen 0101 + 0011. Stell das Ergebnis ein.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: 8
+    hints:
+      - Rechne Stelle für Stelle von rechts, mit Übertrag.
+      - 5 + 3 im Kopf hilft beim Prüfen.
+    explanation: "1 + 1 = 10, der Übertrag wandert durch alle Stellen: 0101 + 0011 = 1000, also 5 + 3 = 8."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: gates
+    prompt: Ein Volladdierer addiert A, B und den Übertrag Cᵢ von der Stelle davor. Wähle die zwei offenen Gatter richtig.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: Ci
+          label: Cᵢ
+      gates:
+        - id: x
+          type: XOR
+          in:
+            - A
+            - B
+        - id: s
+          type: "?"
+          in:
+            - x
+            - Ci
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: a1
+          type: AND
+          in:
+            - A
+            - B
+        - id: a2
+          type: AND
+          in:
+            - x
+            - Ci
+        - id: c
+          type: "?"
+          in:
+            - a1
+            - a2
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: S
+          from: s
+        - id: Co
+          from: c
+          label: Cₒ
+    check:
+      predicate: table('S') == [0, 1, 1, 0, 1, 0, 0, 1] && table('Co') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - Die Summe ist 1, wenn eine ungerade Zahl von Bits 1 ist.
+      - Ein Übertrag entsteht, wenn der eine ODER der andere Weg einen liefert.
+    explanation: S = A ⊕ B ⊕ Cᵢ, Cₒ = (A · B) + ((A ⊕ B) · Cᵢ). Viele davon in Reihe ergeben einen Addierer für ganze Zahlen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Ausgang liefert als 1 mindestens 2,4 V. Ein Eingang erkennt eine 1 ab 2,0 V. Wie groß ist der Störabstand, also die Reserve, in V?
+    params:
+      unit: V
+    answer:
+      value: 0.4
+      tolerance: 0.001
+    hints:
+      - Der Störabstand ist die Lücke zwischen beiden Grenzen.
+      - 2,4 − 2,0.
+    explanation: 0,4 V darf eine Störung den Pegel absenken, ohne dass ein Fehler entsteht.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein 32-Bit-Addierer reicht den Übertrag von Stelle zu Stelle weiter. Jede Stelle braucht dafür 2 Gatterlaufzeiten zu je 20 ps. Wie lange dauert die Addition im schlimmsten Fall, in ps?
+    params:
+      unit: ps
+    answer:
+      value: 1280
+    hints:
+      - 32 Stellen · 2 Gatter.
+      - 64 · 20 ps.
+    explanation: 1280 ps = 1,28 ns – zu langsam für 3 GHz. Darum berechnen echte Addierer die Überträge vorausschauend parallel (Carry-Lookahead).
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Prozessor hat nur Addierer. Wie rechnet er trotzdem A − B?
+    params:
+      options:
+        - label: Er kippt alle Bits von B, addiert 1 und dann A
+          correct: true
+        - label: Er rechnet rückwärts durch den Addierer
+          feedback: Gatter haben keine Rückwärtsrichtung.
+        - label: Gar nicht, dafür gibt es eigene Chips
+          feedback: Dieselbe Schaltung kann beides.
+    hints:
+      - Negative Zahlen speichert man im Zweierkomplement.
+      - −B = (alle Bits von B gekippt) + 1.
+    explanation: A − B = A + (−B), und −B ist das Zweierkomplement. Ein paar XOR-Gatter kippen die Bits, der Übertragseingang liefert die +1.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Halbaddierer zwei Bits addiert.
+    params:
+      keywords:
+        - - xor
+          - exklusiv
+          - exclusive
+        - - und
+          - and
+        - - summe
+          - sum
+        - - übertrag
+          - uebertrag
+          - carry
+      sample: "Die Summenstelle ist 1, wenn genau eines der beiden Bits 1 ist: Das macht ein XOR-Gatter. Einen Übertrag gibt es nur bei 1 + 1: Das macht ein UND-Gatter. 1 + 1 ergibt also Summe 0 und Übertrag 1, binär 10."
+    explanation: "Kern: XOR für die Stelle, UND für den Übertrag."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

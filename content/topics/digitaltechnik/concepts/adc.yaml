@@ -1,0 +1,193 @@
+id: ee.digital.adc
+type: concept
+title: "Analog trifft digital: ADC und DAC"
+summary: "Wie viele Bits eine Messung braucht und wie aus Zahlen wieder Spannung wird."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Analog-Digital-Wandler hat 10 Bit. Wie viele verschiedene Spannungsstufen kann er unterscheiden?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 1024
+      within: 10
+    explanation: 2¹⁰ = 1024 Stufen, von 0 bis 1023.
+
+  - kind: explain
+    id: c1
+    body: "Ein ADC wandelt eine Spannung in eine Zahl. Mit n Bits gibt es 2ⁿ Stufen. Die **Auflösung** ist die Breite einer Stufe: U_ref : 2ⁿ. U_ref ist die größte messbare Spannung."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein {{n}}-Bit-ADC misst von 0 bis {{u}} V. Wie breit ist eine Stufe, in mV? Auf zwei Nachkommastellen.
+    params:
+      unit: mV
+    answer:
+      value: "{{u * 1000 / 2 ** n}}"
+      tolerance: 0.006
+    hints:
+      - "Stufe = U_ref : 2ⁿ."
+      - "{{u * 1000}} mV : {{2 ** n}}."
+    explanation: "{{u * 1000}} : {{2 ** n}} ≈ {{round(u * 1000 / 2 ** n, 2)}} mV. Jedes Bit mehr halbiert die Stufe."
+    variants:
+      params:
+        n: choice[8,10,12]
+        u: choice[3.3,5]
+      defaults:
+        n: 10
+        u: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein 10-Bit-ADC mit 5 V Referenz liefert den Wert {{k}}. Welche Spannung liegt etwa an? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: "{{k * 5 / 1024}}"
+      tolerance: 0.006
+    hints:
+      - "U = Wert · 5 V : 1024."
+      - "{{k}} · 5 : 1024."
+    explanation: "≈ {{round(k * 5 / 1024, 2)}} V. Der Wert 512 liegt genau in der Mitte: 2,5 V."
+    variants:
+      params:
+        k: choice[128,256,512,768,1000]
+      defaults:
+        k: 512
+
+  - kind: problem
+    id: c4
+    widget: bits
+    prompt: Ein 4-Bit-DAC gibt pro Stufe 1 V aus, also 0 bis 15 V. Er soll {{v}} V liefern. Stell die Bits ein.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{v}}"
+    hints:
+      - Die Stellen wiegen 8, 4, 2 und 1 V.
+      - Fang mit der größten Stelle an, die noch passt.
+    explanation: "{{v}} V = {{bin(v)}}. Ein DAC addiert gewichtete Spannungen oder Ströme."
+    variants:
+      params:
+        v: int[3,15]
+      constraints:
+        - v != 4 && v != 8
+      defaults:
+        v: 11
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Faustregel: Jedes Bit bringt 6,02 dB Signal-Rausch-Abstand, dazu kommen 1,76 dB. Wie viele dB schafft ein {{n}}-Bit-Wandler? Auf eine Nachkommastelle."
+    params:
+      unit: dB
+    answer:
+      value: "{{6.02 * n + 1.76}}"
+      tolerance: 0.06
+    hints:
+      - 6,02 · {{n}} + 1,76.
+      - Erst multiplizieren, dann addieren.
+    explanation: ≈ {{round(6.02 * n + 1.76, 1)}} dB. Bei 16 Bit fast 98 dB – leiser als das Rauschen der meisten Verstärker.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[8,12,16,24]
+      defaults:
+        n: 16
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Audio-CD speichert zwei Kanäle mit je 16 Bit und 44 100 Werten pro Sekunde. Wie viele kbit/s sind das? Auf ganze kbit/s.
+    params:
+      unit: kbit/s
+    answer:
+      value: 1411
+      tolerance: 0.6
+    hints:
+      - 2 · 16 · 44 100 bit/s.
+      - 1 411 200 bit/s in kbit/s.
+    explanation: 1411 kbit/s. Ein MP3 mit 128 kbit/s ist also etwa elfmal kleiner – es lässt weg, was man kaum hört.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein ADC rundet auf die nächste Stufe. Wie groß ist der Rundungsfehler höchstens bei 10 Bit und 5 V, in mV? Auf zwei Nachkommastellen.
+    params:
+      unit: mV
+    answer:
+      value: 2.44
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - 4.88) < 0.01
+        misconception: full-step
+        text: Das ist eine ganze Stufe. Beim Runden liegt man höchstens eine halbe daneben.
+    hints:
+      - "Eine Stufe ist 5000 mV : 1024 ≈ 4,88 mV."
+      - Höchstens eine halbe Stufe daneben.
+    explanation: ±2,44 mV, ein halbes LSB. Dieser Quantisierungsfehler wirkt wie ein leises Rauschen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: order
+    prompt: Ein 3-Bit-ADC mit Stufen von 1 V misst 5,3 V durch schrittweises Annähern. Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "Teste 100 (4 V): 5,3 ≥ 4, Bit bleibt 1"
+        - label: "Teste 110 (6 V): 5,3 < 6, Bit wird 0"
+        - label: "Teste 101 (5 V): 5,3 ≥ 5, Bit bleibt 1"
+        - label: Ergebnis 101 = 5
+    hints:
+      - "Wie bei der binären Suche: zuerst die Mitte."
+      - Pro Bit ein Vergleich, das höchste zuerst.
+    explanation: "Der Wandler sucht binär: n Bits brauchen nur n Vergleiche. So arbeiten die ADCs in den meisten Mikrocontrollern."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Auflösung eines ADC bedeutet und warum mehr Bits helfen.
+    params:
+      keywords:
+        - - stufe
+          - step
+          - auflösung
+          - aufloesung
+          - resolution
+        - - bit
+        - - 2ⁿ
+          - 2^n
+          - verdopp
+          - doubl
+          - halb
+          - half
+        - - genau
+          - fein
+          - fine
+          - precis
+          - rausch
+          - noise
+      sample: "Ein ADC teilt den Messbereich in 2ⁿ Stufen. Die Auflösung ist die Breite einer Stufe, U_ref : 2ⁿ. Jedes Bit mehr verdoppelt die Zahl der Stufen und halbiert ihre Breite. Die Messung wird feiner, und das Rundungsrauschen sinkt um 6 dB."
+    explanation: "Kern: Stufenbreite = U_ref : 2ⁿ. Mehr Bits nutzen aber nur, wenn das Signal selbst rauscharm ist."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4"]

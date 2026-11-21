@@ -1,0 +1,185 @@
+id: ee.digital.counter
+type: concept
+title: "Clocks and counters"
+summary: "Flip-flops in a row count pulses and divide frequencies."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: bits
+    prompt: A 4-bit counter shows 1111. One more clock pulse arrives. Set the new count.
+    params:
+      bits: 4
+      initial: "1111"
+      showValue: false
+    answer:
+      value: 0
+    hints:
+      - 1111 is 15, the largest 4-bit number.
+      - 16 would need a fifth digit.
+    explanation: All digits flip to 0 and the carry falls off the end. That is an overflow.
+
+  - kind: explain
+    id: c1
+    body: The **clock** is a square wave that sets the rhythm. On every rising edge a counter counts one further. After its largest value it wraps back to 0.
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: A 4-bit counter starts at 0000 and receives {{n}} clock pulses. Set the count.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{n % 16}}"
+    hints:
+      - After 16 pulses it is back at 0.
+      - "{{n}} divided by 16, the remainder counts."
+    explanation: "{{n}} mod 16 = {{n % 16}} = {{bin(n % 16)}}."
+    variants:
+      params:
+        n: int[17,60]
+      constraints:
+        - n % 16 != 0
+      defaults:
+        n: 21
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A processor runs at {{f}} GHz. How long is one clock cycle, in ns? To three decimal places.
+    params:
+      unit: ns
+    answer:
+      value: "{{1 / f}}"
+      tolerance: 0.0006
+    hints:
+      - T = 1 ÷ f.
+      - 1 ÷ {{f}} GHz in ns.
+    explanation: T = {{round(1 / f, 3)}} ns. In that time every signal must reach the next flip-flop.
+    variants:
+      params:
+        f: choice[1,2,3,4,5]
+      defaults:
+        f: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Up to which number does an {{n}}-bit counter count before it overflows?
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: off-by-one
+        text: "Zero counts too: 2ⁿ values end at 2ⁿ − 1."
+    hints:
+      - n bits give 2ⁿ different values.
+      - The first value is 0.
+    explanation: 2^{{n}} − 1 = {{2 ** n - 1}}.
+    variants:
+      params:
+        n: choice[3,4,8,10,16]
+      defaults:
+        n: 8
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Each flip-flop in a counter chain toggles half as often as the one before. So it divides the frequency by 2. That is why a counter is also a **frequency divider**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A watch crystal oscillates at 32,768 Hz. How many divider flip-flops are needed to get exactly 1 Hz for the seconds?
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: off-by-one
+        text: "Close: 2¹⁶ would be 65,536."
+    hints:
+      - 32,768 is a power of two.
+      - 2 to what power is 32,768?
+    explanation: "2¹⁵ = 32,768. That is why every quartz watch uses exactly this frequency: halving 15 times gives 1 Hz."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A 3-bit counter counts from 0 to 7. It starts at {{s}} and receives {{n}} pulses. What value does it show?
+    answer:
+      value: "{{(s + n) % 8}}"
+    feedback:
+      - when: numval(state.input) == s + n
+        misconception: no-wrap
+        text: The counter overflows after 7 and starts again at 0.
+    hints:
+      - Work out {{s}} + {{n}}.
+      - Take the remainder after dividing by 8.
+    explanation: ({{s}} + {{n}}) mod 8 = {{(s + n) % 8}}. Counters compute modulo 2ⁿ.
+    difficulty: 2
+    variants:
+      params:
+        s: int[0,7]
+        n: int[3,20]
+      constraints:
+        - s + n > 8
+      defaults:
+        s: 5
+        n: 6
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: The longest signal path between two flip-flops passes 20 gates of 15 ps each. What is the highest allowed clock, in GHz? To two decimal places.
+    params:
+      unit: GHz
+    answer:
+      value: 3.33
+      tolerance: 0.006
+    hints:
+      - "Delay: 20 × 15 ps = 300 ps."
+      - f = 1 ÷ 300 ps.
+    explanation: 1 ÷ 0.3 ns ≈ 3.33 GHz. This critical path sets the clock. Chip designers shorten it with pipelines.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a counter made of flip-flops counts and why it goes back to 0000 after 1111.
+    params:
+      keywords:
+        - - takt
+          - clock
+          - puls
+          - pulse
+          - flanke
+          - edge
+        - - flipflop
+          - flip-flop
+        - - übertrag
+          - uebertrag
+          - carry
+          - kipp
+          - toggle
+        - - überlauf
+          - ueberlauf
+          - overflow
+          - vier
+          - four
+          - "16"
+      sample: "Each flip-flop stores one binary digit. Every clock pulse adds one. When a digit flips from 1 to 0, it passes a carry to the next. After 1111 all four flip to 0 and the carry has nowhere to go: an overflow."
+    explanation: "The core: counting in binary with carry, modulo 2ⁿ."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

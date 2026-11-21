@@ -1,0 +1,180 @@
+id: ee.digital.flipflop
+type: concept
+title: "Flip-flops: memory from feedback"
+summary: "Two gates holding each other remember one bit."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A stair light has an “on” button and an “off” button. When you let go it stays as it is. What does the circuit need for that?
+    params:
+      options:
+        - label: "A memory: the output feeds back on itself"
+          correct: true
+        - label: An AND gate
+          feedback: A plain gate forgets as soon as the inputs are 0.
+        - label: A battery
+          feedback: It remembers a state, not energy.
+    hints:
+      - After release both buttons are 0.
+      - Still the circuit must know which was pressed last.
+    explanation: "Storage requires feedback: the output holds itself via the gates."
+
+  - kind: explain
+    id: c1
+    body: A **flip-flop** is two gates whose outputs feed crosswise into each other’s inputs. In an SR flip-flop S sets the output to 1, R resets it to 0. If both are 0, the old value stays.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: An SR flip-flop starts with Q = 0. Order the steps so that Q is 1, then 1, then 0, then 0.
+    params:
+      items:
+        - label: Press S = 1 briefly
+        - label: Release both (S = R = 0)
+        - label: Press R = 1 briefly
+        - label: Release both again
+    hints:
+      - S sets, R resets.
+      - Releasing changes nothing.
+    explanation: Set → 1, hold → 1, reset → 0, hold → 0. The flip-flop stores one bit.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: What happens in an SR flip-flop made of NOR gates when S and R are both 1?
+    params:
+      options:
+        - label: Both outputs go 0, and on release the outcome is random
+          correct: true
+        - label: Q becomes 1
+          feedback: Set and reset at once contradict each other.
+        - label: The gate burns out
+          feedback: It is a logic problem, not an electrical one.
+    hints:
+      - A NOR outputs 0 as soon as one input is 1.
+      - Release both at once and the faster gate wins.
+    explanation: That is why S = R = 1 counts as forbidden. Clocked flip-flops avoid the problem.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "A **D flip-flop** takes the value at input D only on the rising edge of the clock. The rest of the time it holds it. Eight of them side by side store a byte: a register."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A static memory cell (SRAM) needs 6 transistors per bit. How many million transistors are in 1 MiB = 8,388,608 bits? To the nearest million.
+    params:
+      unit: million
+    answer:
+      value: 50
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - 8.4) < 0.1
+        misconception: bits
+        text: Those are the bits. Each needs 6 transistors.
+    hints:
+      - 8,388,608 × 6.
+      - That is about 50,331,648.
+    explanation: About 50 million. That is why caches are often the largest part of a processor.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: How many flip-flops does a store need for numbers from 0 to {{m}}?
+    answer:
+      value: "{{len(bin(m))}}"
+    hints:
+      - With n bits you count up to 2ⁿ − 1.
+      - Find the smallest n with 2ⁿ > {{m}}.
+    explanation: "{{m}} in binary is {{bin(m)}}, so {{len(bin(m))}} digits."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[7,15,100,255,1000]
+      defaults:
+        m: 1000
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: swipe
+    prompt: Does the circuit remember anything?
+    params:
+      cards:
+        - text: SR flip-flop
+          right: true
+        - text: AND gate
+          right: false
+        - text: Register of 8 D flip-flops
+          right: true
+        - text: Full adder
+          right: false
+        - text: SRAM cell
+          right: true
+        - text: Inverter
+          right: false
+      left: Forgets
+      right: Stores
+    explanation: Storing needs feedback. Gates without feedback depend only on their present inputs.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A signal changes exactly at the clock edge. What can happen in the flip-flop?
+    params:
+      options:
+        - label: It hangs briefly between 0 and 1 before randomly tipping
+          correct: true
+        - label: It always takes the new value
+          feedback: For that D must be stable a while before.
+        - label: It stores both values
+          feedback: A flip-flop has only one state.
+    hints:
+      - Flip-flops need setup and hold time.
+      - Like a pencil balanced on its tip.
+    explanation: This is metastability. Signals from other clock domains therefore pass two flip-flops in a row; the second almost always sees a clean level.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how two gates can remember a bit.
+    params:
+      keywords:
+        - - rückkopp
+          - rueckkopp
+          - feedback
+          - über kreuz
+          - ueber kreuz
+          - cross
+        - - ausgang
+          - ausgae
+          - output
+        - - halt
+          - hold
+          - bleib
+          - stay
+          - merk
+          - remember
+        - - setz
+          - set
+          - reset
+      sample: The outputs of the two gates feed crosswise into each other’s input. This feedback keeps a state stable. A set pulse tips it to 1, a reset pulse to 0. Without a pulse it stays as it is.
+    explanation: "The core: feedback creates two stable states. That is the basis of all memory."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]
