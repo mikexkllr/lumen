@@ -286,9 +286,11 @@ function newLesson(id: string, spec: Entry, dry: boolean) {
     // hang it into the topic
     const tp = join('content/topics', spec.topic, `topic${lang ? '.en' : ''}.yaml`);
     let t = readFileSync(tp, 'utf8');
-    if (typeof spec.unit === 'string') {
-      const re = new RegExp(`(- id: ${spec.unit.replace(/\./g, '\\.')}\\n(?:    .*\\n)*?    concepts: \\[)([^\\]]*)(\\])`);
-      if (!re.test(t)) throw new Error(`${tp}: unit ${spec.unit} with flow-style concepts not found`);
+    // a unit object whose unit already exists (patch re-applied) is treated like its id
+    const unitId: string = typeof spec.unit === 'string' ? spec.unit : spec.unit.id;
+    if (typeof spec.unit === 'string' || new RegExp(`- id: ${unitId.replace(/\./g, '\\.')}\\n`).test(t)) {
+      const re = new RegExp(`(- id: ${unitId.replace(/\./g, '\\.')}\\n(?:    .*\\n)*?    concepts: \\[)([^\\]]*)(\\])`);
+      if (!re.test(t)) throw new Error(`${tp}: unit ${unitId} with flow-style concepts not found`);
       t = t.replace(re, (_m, a, list, c) => {
         const ids = String(list).split(',').map((s) => s.trim()).filter(Boolean);
         if (ids.includes(id)) return _m;
