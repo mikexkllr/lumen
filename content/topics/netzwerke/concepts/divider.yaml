@@ -1,0 +1,248 @@
+id: ee.networks.divider
+type: concept
+title: "Der Spannungsteiler"
+summary: "Zwei Widerstände machen aus einer Spannung jede kleinere – solange niemand zu viel Strom zieht."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Aus 12 V soll genau die Hälfte werden. Stell die Widerstände ein.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+        r1:
+          value: 5
+      show:
+        - out
+        - ratio
+    answer:
+      out: 6
+    explanation: Gleiche Widerstände teilen die Spannung genau in der Mitte.
+
+  - kind: explain
+    id: c1
+    body: Ein **Spannungsteiler** sind zwei Widerstände in Reihe. Am unteren liegt der Anteil $\frac{R_2}{R_1 + R_2}$ der Spannung. Ist R₂ doppelt so groß wie R₁, bekommt er zwei Drittel.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Teiler mit R₁ = {{r1}} kΩ und R₂ = {{r2}} kΩ hängt an {{u}} V. Welche Spannung liegt an R₂? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: "{{u * r2 / (r1 + r2)}}"
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - u * r1 / (r1 + r2)) < 0.006
+        misconception: swap
+        text: Das ist die Spannung an R₁. Gefragt ist R₂.
+    hints:
+      - "Anteil = R₂ : (R₁ + R₂)."
+      - "{{u}} · {{r2}} : {{r1 + r2}}."
+    explanation: "{{u}} V · {{r2}}/{{r1 + r2}} = {{round(u * r2 / (r1 + r2), 2)}} V."
+    variants:
+      params:
+        u: choice[10,12,20]
+        r1: int[1,9]
+        r2: int[1,9]
+      constraints:
+        - r1 != r2
+      defaults:
+        u: 12
+        r1: 1
+        r2: 2
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Ein Sensor braucht 5 V, du hast nur 12 V. Bau den passenden Teiler.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 4.95
+        - 5.05
+    explanation: "Zum Beispiel R₁ = 7 kΩ und R₂ = 5 kΩ: 12 · 5/12 = 5 V. Auch 14 kΩ und 10 kΩ gehen."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Du vertauschst R₁ und R₂ in einem Teiler mit 12 V, der vorher 4 V lieferte. Was misst du jetzt?
+    params:
+      options:
+        - label: 8 V
+          correct: true
+        - label: 4 V
+          feedback: Der Anteil hängt davon ab, welcher Widerstand unten sitzt.
+        - label: 3 V
+          feedback: Die beiden Teilspannungen ergeben zusammen 12 V.
+    hints:
+      - Vorher lagen 4 V unten und 8 V oben.
+      - Nach dem Tausch sitzt der andere Widerstand unten.
+    explanation: "Die Spannungen tauschen mit: Jetzt liegen 8 V unten. Zusammen bleiben es 12 V."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Hängt ein Verbraucher am Ausgang, liegt er parallel zu R₂. Der untere Widerstand wird dadurch kleiner, die Spannung sinkt. Diese **Belastung** ist die Schwäche jedes Teilers.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: R₁ = R₂ = 10 kΩ an 12 V. Schließ eine Last an und senke sie so weit, dass nur noch 4 V ankommen.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+        r1:
+          fixed: true
+        r2:
+          fixed: true
+        load:
+          fixed: false
+          min: 1
+          max: 100
+          step: 1
+          value: 100
+      show:
+        - out
+        - current
+    answer:
+      out:
+        - 3.95
+        - 4.05
+    explanation: "Bei 10 kΩ Last: 10 kΩ parallel zu 10 kΩ sind 5 kΩ. 12 · 5/15 = 4 V. Die Last halbiert den unteren Widerstand."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: R₁ = R₂ = 10 kΩ an 12 V. Am Ausgang hängt eine Last von 100 kΩ. Welche Spannung kommt an? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: 5.71
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: ignore-load
+        text: Das wäre der Teiler ohne Last. Die Last liegt parallel zu R₂.
+    hints:
+      - 10 kΩ parallel 100 kΩ = 1000/110 kΩ ≈ 9,09 kΩ.
+      - "12 · 9,09 : (10 + 9,09)."
+    explanation: "12 · 9,09/19,09 ≈ 5,71 V statt 6 V. Faustregel: Die Last sollte mindestens 10-mal größer sein als R₂."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: sim
+    prompt: Ein Mikrocontroller misst höchstens 3,3 V. Teile 12 V auf 3,25 bis 3,35 V herunter.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 3.25
+        - 3.35
+    explanation: "Etwa R₁ = 13 kΩ und R₂ = 5 kΩ: 12 · 5/18 ≈ 3,33 V. So misst man oft die Spannung eines Akkus."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Von außen wirkt ein Teiler wie eine Quelle mit Innenwiderstand R₁ ∥ R₂. Wie groß ist er für R₁ = {{a}} kΩ und R₂ = {{b}} kΩ?
+    params:
+      unit: kΩ
+    answer:
+      value: "{{a * b / (a + b)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: series-parallel
+        text: Für die Last liegen R₁ und R₂ parallel, nicht in Reihe.
+    hints:
+      - Denk dir die Quelle als Kurzschluss. Dann liegen R₁ und R₂ parallel.
+      - "R = R₁ · R₂ : (R₁ + R₂)."
+    explanation: "{{a}} · {{b}} : {{a + b}} = {{round(a * b / (a + b), 2)}} kΩ. Diese Ersatzquelle heißt Thévenin-Quelle."
+    difficulty: 3
+    variants:
+      params:
+        a: choice[2,4,6,10,12]
+        b: choice[3,4,6,12]
+      defaults:
+        a: 10
+        b: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum baut niemand ein 5-V-Netzteil für ein Handy aus einem Spannungsteiler an 230 V?
+    params:
+      options:
+        - label: Er verheizt viel Energie und bricht unter Last ein
+          correct: true
+        - label: Weil Spannungsteiler nur Gleichspannung teilen
+          feedback: Teiler aus Widerständen teilen auch Wechselspannung.
+        - label: Weil der Teiler zu teuer ist
+          feedback: Zwei Widerstände kosten fast nichts.
+    hints:
+      - Durch beide Widerstände fließt ständig Strom.
+      - Denk an die Belastung beim Laden.
+    explanation: Der Querstrom erwärmt R₁ dauernd, und beim Laden sinkt die Spannung stark. Außerdem bleibt der Ausgang mit dem Netz verbunden. Netzteile nutzen deshalb Wandler.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wann ein Spannungsteiler gut funktioniert und wann nicht.
+    params:
+      keywords:
+        - - reihe
+          - series
+          - zwei widerst
+          - two resist
+        - - verhältnis
+          - verhaeltnis
+          - ratio
+          - anteil
+          - share
+        - - last
+          - load
+          - verbraucher
+          - device
+        - - parallel
+          - sinkt
+          - drops
+          - kleiner
+          - smaller
+      sample: Zwei Widerstände in Reihe teilen die Spannung im Verhältnis ihrer Werte. Das klappt, solange am Ausgang kaum Strom gezogen wird. Eine kleine Last liegt parallel zu R₂, macht ihn kleiner und die Spannung sinkt.
+    explanation: "Kern: Teilerverhältnis plus Belastung. Gut für Messsignale, schlecht für Stromversorgung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

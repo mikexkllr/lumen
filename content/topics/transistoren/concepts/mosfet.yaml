@@ -1,0 +1,170 @@
+id: ee.transistors.mosfet
+type: concept
+title: "MOSFET und CMOS"
+summary: "Spannung statt Strom steuert – und zwei Transistoren als Paar sparen fast alle Energie."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Welcher Transistor steckt milliardenfach in deinem Handy?
+    params:
+      options:
+        - label: Der MOSFET
+          correct: true
+        - label: Der Bipolartransistor
+          feedback: Er braucht ständig Basisstrom – zu viel für Milliarden.
+        - label: Die Elektronenröhre
+          feedback: Röhren sind groß und heiß.
+    hints:
+      - Gesucht ist ein Transistor, der fast keinen Steuerstrom braucht.
+      - Sein Steueranschluss ist isoliert.
+    explanation: Der MOSFET wird über eine Spannung gesteuert. Sein Gate ist durch eine hauchdünne Oxidschicht isoliert.
+
+  - kind: explain
+    id: c1
+    body: Ein **MOSFET** hat Gate, Drain und Source. Eine Spannung am Gate zieht Ladungen unter die Isolierschicht. Dort entsteht ein leitender Kanal. Ins Gate fließt im Ruhezustand kein Strom.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein MOSFET hat eingeschaltet R_DS(on) = {{r}} mΩ und führt {{i}} A. Wie viel Watt verheizt er?
+    params:
+      unit: W
+    answer:
+      value: "{{i * i * r / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - i * r / 1000) < 0.01
+        misconception: ui
+        text: Das wäre die Spannung in V. Leistung ist I² · R.
+    hints:
+      - P = I² · R, R in Ohm.
+      - "{{i * i}} · {{r / 1000}}."
+    explanation: "{{i * i}} · {{r / 1000}} Ω = {{i * i * r / 1000}} W. Moderne MOSFETs schalten so Ströme von E-Bikes und Autos."
+    variants:
+      params:
+        r: choice[2,5,10]
+        i: choice[10,20,30]
+      defaults:
+        r: 10
+        i: 20
+
+  - kind: explain
+    id: c3
+    body: Ein **CMOS-Inverter** besteht aus einem nMOS nach Masse und einem pMOS zur Versorgung. Am Eingang 1 leitet der nMOS, der Ausgang wird 0. Bei 0 leitet der pMOS. Einer sperrt immer, also fließt im Ruhezustand kein Strom.
+
+  - kind: problem
+    id: c4
+    widget: gates
+    prompt: Mit NAND-Gattern allein lässt sich jede Logik bauen. Wähle das Gatter so, dass aus einem Eingang ein Inverter wird.
+    params:
+      inputs:
+        - id: A
+      gates:
+        - id: g
+          type: "?"
+          in:
+            - A
+            - A
+          options:
+            - AND
+            - OR
+            - NAND
+      outputs:
+        - id: Q
+          from: g
+    check:
+      predicate: table('Q') == [1, 0]
+    hints:
+      - Beide Eingänge des Gatters hängen an A.
+      - UND und ODER von A mit A ergeben wieder A.
+    explanation: NAND(A, A) = NICHT A. In CMOS braucht ein NAND nur vier Transistoren, darum baut man gern alles daraus.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "CMOS braucht nur beim Umschalten Energie: Dann werden winzige Kapazitäten geladen. Die **Schaltleistung** ist P = α · C · U² · f. α ist der Anteil der Gatter, die schalten, f die Taktfrequenz."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Chip senkt seine Spannung von 1,2 V auf 0,6 V. Auf welchen Bruchteil sinkt die Schaltleistung? Als Dezimalzahl.
+    answer:
+      value: 0.25
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: linear
+        text: "U steht im Quadrat: halbe Spannung, ein Viertel der Leistung."
+    hints:
+      - P ∝ U².
+      - "(0,6 : 1,2)² = ?"
+    explanation: (½)² = 0,25. Darum senken Handychips im Leerlauf Spannung und Takt gleichzeitig.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wie ist ein CMOS-NAND aufgebaut?
+    params:
+      options:
+        - label: Zwei pMOS parallel nach oben, zwei nMOS in Reihe nach unten
+          correct: true
+        - label: Zwei nMOS parallel, zwei pMOS in Reihe
+          feedback: Das wäre ein NOR.
+        - label: Ein Inverter und ein Widerstand
+          feedback: CMOS kommt ohne Widerstände aus.
+    hints:
+      - Der Ausgang ist nur 0, wenn A und B beide 1 sind.
+      - "Der Weg nach Masse braucht beide nMOS: also in Reihe."
+    explanation: nMOS in Reihe ziehen nur bei A = B = 1 auf 0. Die parallelen pMOS ziehen auf 1, sobald einer der Eingänge 0 ist. Beide Netze sind immer genau gegensätzlich.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Prozessor hat α · C = 10 nF wirksame Schaltkapazität, läuft mit 1 V und 3 GHz. Wie viel Watt Schaltleistung sind das?
+    params:
+      unit: W
+    answer:
+      value: 30
+    hints:
+      - P = α C · U² · f.
+      - 10⁻⁸ F · 1 V² · 3 · 10⁹ Hz.
+    explanation: 30 W. Diese Wärme muss vom Chip weg – darum begrenzt heute die Kühlung, nicht die Zahl der Transistoren, die Rechenleistung.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein CMOS-Inverter im Ruhezustand fast keinen Strom braucht.
+    params:
+      keywords:
+        - - nmos
+          - n-kanal
+          - n-channel
+        - - pmos
+          - p-kanal
+          - p-channel
+        - - sperr
+          - block
+          - aus
+          - off
+        - - umschalt
+          - switch
+          - laden
+          - charg
+      sample: Ein nMOS führt nach Masse, ein pMOS zur Versorgung. In jedem Zustand sperrt einer der beiden, also gibt es keinen durchgehenden Weg. Strom fließt nur kurz beim Umschalten, um die kleinen Kapazitäten zu laden.
+    explanation: "Kern: komplementäre Paare, einer sperrt immer. Energie kostet nur das Umladen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

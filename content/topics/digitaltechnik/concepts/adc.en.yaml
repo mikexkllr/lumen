@@ -1,0 +1,193 @@
+id: ee.digital.adc
+type: concept
+title: "Analogue meets digital: ADC and DAC"
+summary: "How many bits a measurement needs and how numbers become voltage again."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: An analogue-to-digital converter has 10 bits. How many different voltage steps can it tell apart?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 1024
+      within: 10
+    explanation: 2¹⁰ = 1024 steps, from 0 to 1023.
+
+  - kind: explain
+    id: c1
+    body: "An ADC converts a voltage into a number. With n bits there are 2ⁿ steps. The **resolution** is the width of one step: U_ref ÷ 2ⁿ. U_ref is the largest measurable voltage."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: An {{n}}-bit ADC measures from 0 to {{u}} V. How wide is one step, in mV? To two decimal places.
+    params:
+      unit: mV
+    answer:
+      value: "{{u * 1000 / 2 ** n}}"
+      tolerance: 0.006
+    hints:
+      - Step = U_ref ÷ 2ⁿ.
+      - "{{u * 1000}} mV ÷ {{2 ** n}}."
+    explanation: "{{u * 1000}} ÷ {{2 ** n}} ≈ {{round(u * 1000 / 2 ** n, 2)}} mV. Every extra bit halves the step."
+    variants:
+      params:
+        n: choice[8,10,12]
+        u: choice[3.3,5]
+      defaults:
+        n: 10
+        u: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A 10-bit ADC with a 5 V reference reads {{k}}. Roughly what voltage is applied? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{k * 5 / 1024}}"
+      tolerance: 0.006
+    hints:
+      - U = reading × 5 V ÷ 1024.
+      - "{{k}} × 5 ÷ 1024."
+    explanation: "≈ {{round(k * 5 / 1024, 2)}} V. The reading 512 sits exactly in the middle: 2.5 V."
+    variants:
+      params:
+        k: choice[128,256,512,768,1000]
+      defaults:
+        k: 512
+
+  - kind: problem
+    id: c4
+    widget: bits
+    prompt: A 4-bit DAC outputs 1 V per step, so 0 to 15 V. It should deliver {{v}} V. Set the bits.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{v}}"
+    hints:
+      - The digits weigh 8, 4, 2 and 1 V.
+      - Start with the largest digit that still fits.
+    explanation: "{{v}} V = {{bin(v)}}. A DAC adds weighted voltages or currents."
+    variants:
+      params:
+        v: int[3,15]
+      constraints:
+        - v != 4 && v != 8
+      defaults:
+        v: 11
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: every bit adds 6.02 dB of signal-to-noise ratio, plus 1.76 dB. How many dB does an {{n}}-bit converter achieve? To one decimal place."
+    params:
+      unit: dB
+    answer:
+      value: "{{6.02 * n + 1.76}}"
+      tolerance: 0.06
+    hints:
+      - 6.02 × {{n}} + 1.76.
+      - Multiply first, then add.
+    explanation: ≈ {{round(6.02 * n + 1.76, 1)}} dB. At 16 bits almost 98 dB – quieter than the noise of most amplifiers.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[8,12,16,24]
+      defaults:
+        n: 16
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An audio CD stores two channels of 16 bits at 44,100 samples per second. How many kbit/s is that? To the nearest kbit/s.
+    params:
+      unit: kbit/s
+    answer:
+      value: 1411
+      tolerance: 0.6
+    hints:
+      - 2 × 16 × 44,100 bit/s.
+      - 1,411,200 bit/s in kbit/s.
+    explanation: 1411 kbit/s. A 128 kbit/s MP3 is about eleven times smaller – it drops what you can barely hear.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: An ADC rounds to the nearest step. What is the largest rounding error at 10 bits and 5 V, in mV? To two decimal places.
+    params:
+      unit: mV
+    answer:
+      value: 2.44
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - 4.88) < 0.01
+        misconception: full-step
+        text: That is a whole step. Rounding is off by at most half of one.
+    hints:
+      - One step is 5000 mV ÷ 1024 ≈ 4.88 mV.
+      - At most half a step off.
+    explanation: ±2.44 mV, half an LSB. This quantisation error acts like a faint noise.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: order
+    prompt: A 3-bit ADC with 1 V steps measures 5.3 V by successive approximation. Put the steps in order.
+    params:
+      items:
+        - label: "Test 100 (4 V): 5.3 ≥ 4, bit stays 1"
+        - label: "Test 110 (6 V): 5.3 < 6, bit becomes 0"
+        - label: "Test 101 (5 V): 5.3 ≥ 5, bit stays 1"
+        - label: Result 101 = 5
+    hints:
+      - "Like binary search: the middle first."
+      - One comparison per bit, the highest first.
+    explanation: "The converter searches in binary: n bits need only n comparisons. Most microcontroller ADCs work like this."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what an ADC’s resolution means and why more bits help.
+    params:
+      keywords:
+        - - stufe
+          - step
+          - auflösung
+          - aufloesung
+          - resolution
+        - - bit
+        - - 2ⁿ
+          - 2^n
+          - verdopp
+          - doubl
+          - halb
+          - half
+        - - genau
+          - fein
+          - fine
+          - precis
+          - rausch
+          - noise
+      sample: An ADC splits the range into 2ⁿ steps. The resolution is the width of one step, U_ref ÷ 2ⁿ. Every extra bit doubles the number of steps and halves their width. The measurement gets finer, and rounding noise drops by 6 dB.
+    explanation: "The core: step width = U_ref ÷ 2ⁿ. More bits only help if the signal itself is low-noise."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4"]

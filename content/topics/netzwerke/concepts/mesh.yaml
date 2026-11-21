@@ -1,0 +1,204 @@
+id: ee.networks.mesh
+type: concept
+title: "Die Maschenregel"
+summary: "Einmal im Kreis herum ergibt die Summe der Spannungen null."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Du wanderst eine Runde: bergauf, bergab, über einen Hügel, zurück zum Start. Wie viele Höhenmeter hast du am Ende gewonnen?"
+    params:
+      options:
+        - label: "Null"
+          correct: true
+        - label: Alle Anstiege zusammen
+          feedback: Die Abstiege zählen negativ.
+        - label: Hängt vom Weg ab
+          feedback: Am Start ist die Höhe dieselbe wie am Ziel.
+    hints:
+      - Wo endest du?
+      - Start und Ziel liegen gleich hoch.
+    explanation: Zurück am Start ist die Höhe gleich. Spannung ist wie ein Höhenunterschied für Ladung.
+
+  - kind: explain
+    id: c1
+    body: Eine **Masche** ist ein geschlossener Weg durch eine Schaltung. Gehst du einmal herum, ist die Summe aller Spannungen null. Die Quelle hebt die Ladung an, die Widerstände lassen sie wieder fallen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine {{u}}-V-Batterie speist drei Widerstände in Reihe. An zweien misst du {{a}} V und {{b}} V. Wie viel Spannung liegt am dritten?
+    params:
+      unit: V
+    answer:
+      value: "{{u - a - b}}"
+    hints:
+      - Die drei Teilspannungen ergeben zusammen die Batteriespannung.
+      - "{{u}} − {{a}} − {{b}}."
+    explanation: "{{u}} − {{a}} − {{b}} = {{u - a - b}} V. Einmal herum: +{{u}} − {{a}} − {{b}} − {{u - a - b}} = 0."
+    variants:
+      params:
+        u: choice[9,12,24]
+        a: int[1,5]
+        b: int[1,5]
+      constraints:
+        - a + b < u
+      defaults:
+        u: 12
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: An 9 V hängen 1 kΩ und 2 kΩ in Reihe. Welche Spannung liegt am 2-kΩ-Widerstand?
+    params:
+      unit: V
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: swap
+        text: Das ist die Spannung am 1-kΩ-Widerstand. Der größere bekommt mehr.
+    hints:
+      - "Strom: 9 V : 3 kΩ = 3 mA."
+      - U = 3 mA · 2 kΩ.
+    explanation: 3 mA · 2 kΩ = 6 V, am 1-kΩ-Widerstand bleiben 3 V. Zusammen 9 V – die Masche geht auf.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: In einer Masche ist die Summe aller [[Spannungen]] null. An einem Knoten ist die Summe aller [[Ströme]] null.
+      distractors:
+        - Widerstände
+        - Leistungen
+    explanation: Das sind die beiden Kirchhoff-Regeln. Mit ihnen lässt sich jede Schaltung berechnen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Batterien stecken gegeneinander in einem Kreis: 9 V und 3 V. Dazu kommt ein Widerstand von 2 Ω. Welcher Strom fließt?"
+    params:
+      unit: A
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: add-opposed
+        text: "Gegeneinander heißt: Die Spannungen ziehen sich ab."
+    hints:
+      - Gegeneinander geschaltet heben sich die Spannungen teilweise auf.
+      - "(9 − 3) V : 2 Ω."
+    explanation: "6 V bleiben übrig, 6 V : 2 Ω = 3 A."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Ladegerät mit 14,4 V lädt eine Autobatterie mit 12,6 V. Kabel und Batterie haben zusammen 0,1 Ω. Welcher Ladestrom fließt?
+    params:
+      unit: A
+    answer:
+      value: 18
+      tolerance: 0.01
+    hints:
+      - Nur der Unterschied der Spannungen treibt den Strom.
+      - "(14,4 − 12,6) V : 0,1 Ω."
+    explanation: "1,8 V : 0,1 Ω = 18 A. Darum regelt ein gutes Ladegerät den Strom und nicht nur die Spannung."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: order
+    prompt: In welcher Reihenfolge löst du ein Netzwerk mit Kirchhoff?
+    params:
+      items:
+        - label: Ströme mit Pfeilen benennen
+        - label: Knotengleichungen aufstellen
+        - label: Maschengleichungen aufstellen
+        - label: Gleichungssystem lösen
+        - label: Vorzeichen deuten und prüfen
+    hints:
+      - Erst brauchst du Namen für die Unbekannten.
+      - Am Ende verrät ein negatives Vorzeichen die echte Richtung.
+    explanation: Die Pfeilrichtung darfst du frei wählen. Kommt ein Strom negativ heraus, fließt er einfach andersherum.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Quelle A (10 V) speist über 2 Ω einen Knoten K. Quelle B (4 V) speist K ebenfalls über 2 Ω. Von K führt ein 4-Ω-Widerstand nach Masse. Welche Spannung hat K?
+    params:
+      unit: V
+    answer:
+      value: 5.6
+      tolerance: 0.01
+    hints:
+      - "Knotenregel bei K: (10 − U)/2 + (4 − U)/2 = U/4."
+      - "Mal 4: 28 − 4U = U."
+    explanation: "28 = 5U, also U = 5,6 V. Durch B fließt (4 − 5,6) : 2 = −0,8 A: Die Quelle B wird sogar geladen."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine Schaltung hat 4 Knoten und 6 Zweige. Wie viele unabhängige Knotengleichungen gibt es?
+    params:
+      options:
+        - label: "3"
+          correct: true
+        - label: "4"
+          feedback: Die letzte Knotengleichung folgt aus den anderen.
+        - label: "6"
+          feedback: Gleichungen pro Zweig sind die Maschen, nicht die Knoten.
+    hints:
+      - Was jeder Knoten abgibt, nimmt ein anderer auf.
+      - Mit k Knoten bekommst du k − 1 unabhängige Gleichungen.
+    explanation: k − 1 = 3 Knotengleichungen. Dazu kommen z − (k − 1) = 3 Maschengleichungen. Zusammen 6 Gleichungen für 6 Zweigströme.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die Maschenregel mit dem Bild einer Wanderung.
+    params:
+      keywords:
+        - - masche
+          - loop
+          - kreis
+          - circle
+          - runde
+          - round
+        - - spannung
+          - voltage
+        - - "null"
+          - zero
+          - gleich
+          - same
+          - start
+        - - höhe
+          - hoehe
+          - height
+          - berg
+          - hill
+          - auf und ab
+          - up
+      sample: Spannung ist wie ein Höhenunterschied. Die Batterie trägt die Ladung bergauf, die Widerstände lassen sie bergab. Läufst du einmal im Kreis zum Start, hast du null Höhenmeter gewonnen. Also ist die Summe aller Spannungen null.
+    explanation: "Kern: Spannung hängt nur von Start- und Endpunkt ab, und auf einem Rundweg sind die gleich."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]

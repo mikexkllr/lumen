@@ -1,0 +1,205 @@
+id: ee.semiconductors.led
+type: concept
+title: "LEDs und der Vorwiderstand"
+summary: "Warum eine LED ohne Widerstand stirbt und wie man ihn berechnet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du hältst eine rote LED direkt an eine 9-V-Batterie. Was passiert?
+    params:
+      options:
+        - label: Sie leuchtet grell auf und ist schnell kaputt
+          correct: true
+        - label: Sie leuchtet schön hell, für immer
+          feedback: Ohne Begrenzung fließt viel zu viel Strom.
+        - label: Nichts, 9 V sind zu wenig
+          feedback: Eine rote LED braucht nur etwa 2 V.
+    hints:
+      - "Eine LED ist eine Diode: Über ihrer Durchlassspannung steigt der Strom steil."
+      - Was begrenzt dann den Strom?
+    explanation: Nur der Innenwiderstand der Batterie bremst. Es fließt ein Vielfaches der erlaubten 20 mA. Eine LED braucht immer eine Strombegrenzung.
+
+  - kind: explain
+    id: c1
+    body: "Der **Vorwiderstand** nimmt die überschüssige Spannung auf und begrenzt so den Strom. Rechne R = (U − U_F) : I. U_F ist die Durchlassspannung der LED, rot etwa 2 V, blau und weiß etwa 3 V."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine LED mit U_F = {{f}} V soll an {{u}} V mit 20 mA leuchten. Welchen Vorwiderstand brauchst du?
+    params:
+      unit: Ω
+    answer:
+      value: "{{(u - f) / 0.02}}"
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - u / 0.02) < 0.5
+        misconception: ignore-vf
+        text: Zieh erst die Spannung der LED ab.
+    hints:
+      - Am Widerstand liegen {{u}} − {{f}} V.
+      - "{{u - f}} V : 0,02 A."
+    explanation: "{{u - f}} V : 0,02 A = {{(u - f) / 0.02}} Ω."
+    variants:
+      params:
+        u: choice[5,9,12]
+        f: choice[2,3]
+      defaults:
+        u: 5
+        f: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Licht der Wellenlänge λ hat die Photonenenergie E ≈ 1240 : λ, mit λ in nm und E in eV. Wie viel eV hat rotes Licht mit {{l}} nm? Auf zwei Nachkommastellen."
+    params:
+      unit: eV
+    answer:
+      value: "{{1240 / l}}"
+      tolerance: 0.006
+    hints:
+      - "E = 1240 : λ."
+      - "1240 : {{l}}."
+    explanation: "≈ {{round(1240 / l, 2)}} eV. Darum braucht die rote LED rund 2 V: Jedes Elektron muss mindestens die Energie eines Photons mitbringen."
+    variants:
+      params:
+        l: choice[620,630,650]
+      defaults:
+        l: 620
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Sortiere die LEDs nach ihrer Durchlassspannung, die kleinste zuerst.
+    params:
+      items:
+        - label: Infrarot (Fernbedienung)
+        - label: Rot
+        - label: Gelb
+        - label: Blau
+        - label: Ultraviolett
+    hints:
+      - Kürzere Wellenlänge, mehr Energie pro Photon.
+      - Infrarot hat die längste Wellenlänge.
+    explanation: Etwa 1,2 V · 2 V · 2,1 V · 3 V · 3,5 V. Die Spannung folgt der Photonenenergie.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Für 9 V und eine rote LED (2 V) hast du 350 Ω berechnet. Du nimmst den nächstgrößeren Normwert 390 Ω. Welcher Strom fließt? In mA, auf eine Nachkommastelle.
+    params:
+      unit: mA
+    answer:
+      value: 17.9
+      tolerance: 0.06
+    hints:
+      - "I = 7 V : 390 Ω."
+      - "In mA: mal 1000."
+    explanation: "7 : 390 ≈ 17,9 mA – etwas weniger, aber sicherer. Den Unterschied sieht das Auge kaum."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viel Leistung verheizt der 350-Ω-Vorwiderstand bei 20 mA? In W, auf zwei Nachkommastellen.
+    params:
+      unit: W
+    answer:
+      value: 0.14
+      tolerance: 0.005
+    hints:
+      - P = I² · R.
+      - 0,0004 · 350.
+    explanation: 0,14 W – ein normaler 0,25-W-Widerstand reicht. Die LED selbst bekommt nur 2 V · 20 mA = 0,04 W.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Drei rote LEDs (je 2 V) liegen in Reihe an 12 V und sollen 20 mA führen. Wie groß ist der Vorwiderstand?
+    params:
+      unit: Ω
+    answer:
+      value: 300
+    hints:
+      - Die LEDs brauchen zusammen 6 V.
+      - "(12 − 6) V : 0,02 A."
+    explanation: "6 V : 20 mA = 300 Ω. In Reihe wird weniger verheizt als mit drei einzelnen Widerständen."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: estimate
+    prompt: Eine Glühlampe liefert etwa 12 Lumen Licht pro Watt. Wie viele Lumen pro Watt schafft eine gute LED-Lampe?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 150
+      within: 40
+    explanation: Gute LED-Lampen erreichen 100 bis 200 lm/W, also etwa zehnmal so viel. Die Glühlampe macht vor allem Wärme.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum betreibt man starke LEDs mit einer Konstantstromquelle statt mit einem Vorwiderstand?
+    params:
+      options:
+        - label: Der Widerstand verheizt viel, und der Strom hinge stark von Spannung und Temperatur ab
+          correct: true
+        - label: Weil Widerstände bei LEDs verboten sind
+          feedback: Bei kleinen LEDs sind sie völlig üblich.
+        - label: Weil LEDs Wechselstrom brauchen
+          feedback: LEDs brauchen Gleichstrom.
+    hints:
+      - Wärmer werdend sinkt U_F – der Strom steigt.
+      - Ein Regler hält den Strom unabhängig davon fest.
+    explanation: Ein getakteter LED-Treiber regelt den Strom mit über 90 % Wirkungsgrad. Ein Vorwiderstand an 12 V für eine 3-V-LED verheizt drei Viertel der Leistung.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man den Vorwiderstand einer LED berechnet.
+    params:
+      keywords:
+        - - durchlass
+          - forward
+          - u_f
+          - led-spannung
+          - led voltage
+        - - abzieh
+          - subtract
+          - minus
+          - rest
+          - übrig
+          - left
+        - - strom
+          - current
+          - 20 ma
+          - ma
+        - - teil
+          - divid
+          - ohm
+          - widerstand
+          - resistor
+      sample: "Von der Versorgungsspannung ziehst du die Durchlassspannung der LED ab, etwa 2 V bei Rot. Der Rest muss am Widerstand abfallen. Teile diese Restspannung durch den gewünschten Strom, meist 20 mA. Bei 9 V: 7 V : 0,02 A = 350 Ω."
+    explanation: "Kern: R = (U − U_F) : I, dann den nächstgrößeren Normwert wählen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d3"]

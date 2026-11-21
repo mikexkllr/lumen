@@ -1,0 +1,235 @@
+id: ee.signals.decibel
+type: concept
+title: "Decibels"
+summary: "Ratios on a log scale: multiplying turns into adding."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A jet engine is 120 dB, a conversation 60 dB. How many times more sound power is that?
+    params:
+      min: 1
+      max: 1000000000
+      scale: log
+    answer:
+      value: 1000000
+      within: 30
+    explanation: A 60 dB difference is 10⁶, a million. Twice the dB does not mean twice the power.
+
+  - kind: explain
+    id: c1
+    body: "The **decibel** measures a ratio on a log scale: 10 × lg(P₂ ÷ P₁). Plus 10 dB is ten times the power, plus 3 dB roughly double. 0 dB means: the same."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Which power factor belongs to which value?
+    params:
+      pairs:
+        - left: 0 dB
+          right: × 1
+        - left: 3 dB
+          right: × 2
+        - left: 10 dB
+          right: × 10
+        - left: 20 dB
+          right: × 100
+        - left: −3 dB
+          right: × ½
+      leftTitle: Level
+      rightTitle: Power
+    hints:
+      - Each 10 dB is a power of ten.
+      - Negative dB means smaller.
+    explanation: 10 dB = 10¹, 20 dB = 10², 3 dB ≈ 10^0.3 ≈ 2.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A radio signal passes an amplifier with +{{a}} dB, a cable with −{{b}} dB and a filter with −{{c}} dB. What is the total gain in dB?
+    params:
+      unit: dB
+    answer:
+      value: "{{a - b - c}}"
+    hints:
+      - In dB you add instead of multiplying.
+      - "{{a}} − {{b}} − {{c}}."
+    explanation: "{{a - b - c}} dB. That is exactly why engineers use dB: chains become sums."
+    variants:
+      params:
+        a: choice[10,20,30]
+        b: int[2,8]
+        c: int[1,4]
+      defaults:
+        a: 20
+        b: 6
+        c: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: By what factor does the power change at +{{d}} dB?
+    answer:
+      value: "{{10 ** (d / 10)}}"
+    feedback:
+      - when: numval(state.input) == d
+        misconception: linear
+        text: "dB is logarithmic: each 10 dB is a factor of 10."
+    hints:
+      - Factor = 10^(dB ÷ 10).
+      - 10 to the power {{d / 10}}.
+    explanation: 10^{{d / 10}} = {{10 ** (d / 10)}}.
+    variants:
+      params:
+        d: choice[20,30,40,50]
+      defaults:
+        d: 30
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: For voltages you use 20 × lg(U₂ ÷ U₁), because power grows with U². A tenfold **voltage gain** is therefore 20 dB, not 10 dB. Both formulas give the same dB value for the same circuit.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An amplifier boosts the voltage by a factor of {{v}}. How many dB is that?
+    params:
+      unit: dB
+    answer:
+      value: "{{20 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: ten-not-twenty
+        text: For voltages use 20 × lg, not 10 × lg.
+    hints:
+      - dB = 20 × lg({{v}}).
+      - lg({{v}}) = {{n}}.
+    explanation: 20 × {{n}} = {{20 * n}} dB.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1,2,3,4]
+      derive:
+        v: 10 ** n
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: Set the frequency so that the low-pass attenuates by 20 dB.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - cutoff
+        - db
+        - gain
+    answer:
+      db:
+        - -20.5
+        - -19.5
+    explanation: "At about 10 kHz: −20 dB means a tenth of the voltage, one decade above the cut-off."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: In radio, power is referred to 1 mW and written dBm. How many mW is {{d}} dBm?
+    params:
+      unit: mW
+    answer:
+      value: "{{10 ** (d / 10)}}"
+    hints:
+      - 0 dBm = 1 mW.
+      - Times 10 for each 10 dB.
+    explanation: "{{10 ** (d / 10)}} mW. In Europe, wi-fi in the 2.4 GHz band may radiate at most 20 dBm, which is 100 mW."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[0,10,20,30]
+      defaults:
+        d: 20
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: −3 dB marks a filter’s edge. To what percentage does the voltage fall there, 10^(−3/20)? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: 70.8
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 50) < 0.2
+        misconception: power
+        text: That would be the power. For voltage divide by 20.
+    hints:
+      - −3 ÷ 20 = −0.15.
+      - 10^(−0.15) ≈ ?
+    explanation: ≈ 70.8 % of the voltage but 50 % of the power. The value 1/√2 = 70.7 % is exactly −3.01 dB.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why is sound measured in dB rather than directly in watts per m²?
+    params:
+      options:
+        - label: The ear perceives ratios, and the powers span 12 powers of ten
+          correct: true
+        - label: Because watts are wrong for sound
+          feedback: Sound does have a power in watts.
+        - label: Because dB are more precise
+          feedback: It is a scale, not more precision.
+    hints:
+      - From the threshold of hearing to the pain threshold is a factor of 10¹².
+      - Twice as loud as perceived is about +10 dB.
+    explanation: On the dB scale 10¹² becomes a handy 120 dB. And perception roughly follows the logarithm of the stimulus.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 3 dB more means roughly twice the power.
+    params:
+      keywords:
+        - - logarith
+          - lg
+          - log
+        - - verhältnis
+          - verhaeltnis
+          - ratio
+          - faktor
+          - factor
+        - - "10"
+          - zehn
+          - ten
+        - - 0,3
+          - "0.3"
+          - doppel
+          - double
+          - zwei
+          - two
+      sample: Decibels are ten times the logarithm of the power ratio. For a factor of 2, lg 2 ≈ 0.3, so 10 × 0.3 = 3 dB. That is why +3 dB is about double and −3 dB about half the power.
+    explanation: "The core: dB = 10 × lg(ratio). All the rules of thumb follow from it."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

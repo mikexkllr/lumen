@@ -1,0 +1,199 @@
+id: ee.transistors.switch
+type: concept
+title: "The transistor as a switch"
+summary: "A small current switches a large one – with no moving parts."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A microcontroller pin supplies 20 mA at most. A motor needs 1 A. How do you still switch it from the chip?
+    params:
+      options:
+        - label: With a transistor that controls the large current
+          correct: true
+        - label: Several pins in parallel
+          feedback: Even 10 pins can’t deliver an amp and soon overload.
+        - label: A bigger resistor in front
+          feedback: A resistor reduces the current even more.
+    hints:
+      - You need an electrically controlled switch.
+      - A relay would work, but there is a part with no moving parts.
+    explanation: The chip only controls the small base current; the transistor switches the large motor current.
+
+  - kind: explain
+    id: c1
+    body: A **transistor** has three terminals. In a bipolar transistor they are called base, collector and emitter. A small base current opens the path from collector to emitter for a much larger current.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A transistor has a current gain β = {{b}}. What is the collector current for a {{i}} mA base current, in mA?
+    params:
+      unit: mA
+    answer:
+      value: "{{b * i}}"
+    hints:
+      - I_C = β × I_B.
+      - "{{b}} × {{i}} mA."
+    explanation: "{{b}} × {{i}} = {{b * i}} mA. That holds as long as the load circuit allows that much current at all."
+    variants:
+      params:
+        b: choice[50,100,200]
+        i: choice[0.1,0.5,1,2]
+      defaults:
+        b: 100
+        i: 1
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A 5 V pin should send 2 mA into the base. The base–emitter path is a diode with 0.7 V. Which base resistor fits?
+    params:
+      unit: Ω
+    answer:
+      value: 2150
+    feedback:
+      - when: numval(state.input) == 2500
+        misconception: ignore-vbe
+        text: The 0.7 V at the base is missing for the resistor.
+    hints:
+      - The resistor gets 5 − 0.7 V.
+      - 4.3 V ÷ 0.002 A.
+    explanation: 4.3 V ÷ 2 mA = 2150 Ω. You use the standard value 2.2 kΩ.
+
+  - kind: problem
+    id: c4
+    widget: gates
+    prompt: Two transistors in series switch a lamp. Each conducts only when its input is on. What logic is that?
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: g
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: Q
+          from: g
+          label: Lamp
+    check:
+      predicate: table('Q') == [0, 0, 0, 1]
+    hints:
+      - The current must pass both transistors.
+      - Only when A and B are on.
+    explanation: "In series: AND. In parallel they would be OR. All logic gates are built from such switches."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A transistor switches 1 A. Fully on, only 0.2 V is across it. Half open it is 6 V at 0.5 A. By what factor does it heat more when half open?
+    answer:
+      value: 15
+    hints:
+      - P = U × I in both cases.
+      - 0.2 W versus 3 W.
+    explanation: 3 W ÷ 0.2 W = 15. That is why power electronics switch transistors only fully on or fully off – never halfway.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A transistor switches a relay. It dies when switching off. What is missing?
+    params:
+      options:
+        - label: A flyback diode across the relay coil
+          correct: true
+        - label: A bigger base resistor
+          feedback: The base current is not the problem.
+        - label: A second battery
+          feedback: The problem is the induction spike.
+    hints:
+      - What does a coil do when its current is cut?
+      - The voltage spike reaches hundreds of volts.
+    explanation: The coil’s self-induction makes a high spike. The diode lets the current die away safely.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A motor needs 500 mA. The transistor has β = 100. What base current does it need at least, in mA?
+    params:
+      unit: mA
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 50000
+        misconception: multiply
+        text: "Divide, don’t multiply: I_B = I_C ÷ β."
+    hints:
+      - I_B = I_C ÷ β.
+      - 500 mA ÷ 100.
+    explanation: 5 mA. For reliable switching you usually give two to three times that, because β varies widely.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why are npn transistors usually faster than pnp transistors of the same size?
+    params:
+      options:
+        - label: In npn mostly electrons conduct, and in silicon they are about three times more mobile than holes
+          correct: true
+        - label: Because npn contains more silicon
+          feedback: At equal size it is the same amount.
+        - label: Because n comes before p alphabetically
+          feedback: It is about the charge carriers.
+    hints:
+      - Which carriers flow through the base of an npn?
+      - Holes are gaps that electrons must move into.
+    explanation: "Electron mobility in silicon is about 1400, hole mobility about 450 cm²/(V·s). This affects MOSFETs too: pMOS are made wider."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a transistor works as a switch.
+    params:
+      keywords:
+        - - basis
+          - base
+          - gate
+          - steuer
+          - control
+        - - klein
+          - small
+        - - groß
+          - gross
+          - large
+          - big
+          - last
+          - load
+        - - an
+          - on
+          - aus
+          - off
+          - schalt
+          - switch
+      sample: A small control current into the base opens the path from collector to emitter. Then a much larger load current flows there, for example for a motor. With no base current the transistor blocks. That is how a chip switches large loads on and off.
+    explanation: "The core: small control current, large load current, fully on or fully off."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

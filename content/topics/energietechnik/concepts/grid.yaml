@@ -1,0 +1,188 @@
+id: ee.power.grid
+type: concept
+title: "Das Stromnetz"
+summary: "Vom Kraftwerk über vier Spannungsebenen bis zur Steckdose."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Deutschland verbraucht rund 500 TWh Strom im Jahr. Wie viele Gigawatt sind das im Mittel?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 57
+      within: 40
+    explanation: "500 000 GWh : 8760 h ≈ 57 GW. Tagsüber sind es mehr, nachts weniger – grob zwischen 40 und 75 GW."
+
+  - kind: explain
+    id: c1
+    body: Das Netz hat mehrere **Spannungsebenen**. Höchstspannung mit 220 oder 380 kV trägt Strom über weite Strecken. 110 kV verteilt ihn in Regionen, 10 bis 30 kV in Städte und Dörfer. Zuletzt kommen 230/400 V ins Haus.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring den Weg des Stroms in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Generator im Kraftwerk
+        - label: Höchstspannungsleitung 380 kV
+        - label: Umspannwerk auf 110 kV
+        - label: Mittelspannung 20 kV
+        - label: Ortsnetztrafo
+        - label: Hausanschluss 400 V
+    hints:
+      - Zuerst wird die Spannung hochgesetzt, dann Schritt für Schritt herunter.
+      - Der kleine Trafo im Viertel kommt kurz vor dem Haus.
+    explanation: Jede Stufe hat ihre Trafos. Kraftwerksgeneratoren liefern meist 10 bis 27 kV, ein Maschinentrafo setzt sie auf 380 kV hoch.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Wer hängt typischerweise an welcher Ebene?
+    params:
+      pairs:
+        - left: 380 kV
+          right: Großkraftwerke und Fernleitungen
+        - left: 110 kV
+          right: Großstädte und Industrie
+        - left: 20 kV
+          right: Windräder und Betriebe
+        - left: 400 V
+          right: Haushalte
+      leftTitle: Ebene
+      rightTitle: Nutzer
+    hints:
+      - Je größer die Leistung, desto höher die Ebene.
+      - Ein einzelnes Windrad hat wenige Megawatt.
+    explanation: Große Leistung braucht hohe Spannung, damit der Strom klein bleibt. Kleine Verbraucher hängen ganz unten.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Land verbraucht {{e}} TWh im Jahr. Wie groß ist die mittlere Leistung in GW? Ein Jahr hat 8760 h. Auf eine Nachkommastelle.
+    params:
+      unit: GW
+    answer:
+      value: "{{e * 1000 / 8760}}"
+      tolerance: 0.06
+    hints:
+      - "{{e}} TWh = {{e * 1000}} GWh."
+      - Teile durch 8760 h.
+    explanation: ≈ {{round(e * 1000 / 8760, 1)}} GW. So viel müssen Kraftwerke im Schnitt rund um die Uhr liefern.
+    variants:
+      params:
+        e: choice[60,300,500,4000]
+      defaults:
+        e: 500
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Drehstromleitung mit 380 kV überträgt 1 GW. Wie groß ist der Strom pro Leiter, I = P : (√3 · U)? Auf ganze Ampere."
+    params:
+      unit: A
+    answer:
+      value: 1519
+      tolerance: 1
+    hints:
+      - √3 · 380 kV ≈ 658 kV.
+      - "1 000 000 000 W : 658 179 V."
+    explanation: ≈ 1519 A pro Leiter. Bei 400 V wären es für dieselbe Leistung 1,4 Millionen Ampere.
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Netzbetreiber planen nach dem **n-1-Kriterium**: Fällt irgendein einzelnes Element aus, eine Leitung, ein Trafo oder ein Kraftwerk, muss das Netz weiterlaufen. Darum sind Netze vermascht statt sternförmig."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Eine 380-kV-Leitung fällt durch einen Blitz aus. Was passiert in einem vermaschten Netz?
+    params:
+      options:
+        - label: Der Strom verteilt sich sofort auf die anderen Leitungen
+          correct: true
+        - label: In der ganzen Region geht das Licht aus
+          feedback: Gerade das verhindert die Vermaschung.
+        - label: Ein Techniker schaltet den Strom von Hand um
+          feedback: Die Physik verteilt ihn von selbst, in Millisekunden.
+    hints:
+      - Strom nimmt alle verfügbaren Wege.
+      - Die anderen Leitungen müssen genug Reserve haben.
+    explanation: Nach Kirchhoff teilt sich der Strom auf die verbleibenden Wege auf. Das n-1-Kriterium stellt sicher, dass keiner davon überlastet wird.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Für sehr lange Strecken und Seekabel baut man Gleichstromleitungen (HGÜ), etwa mit ±525 kV. Warum nicht Wechselstrom?
+    params:
+      options:
+        - label: Lange Kabel haben große Kapazität; Wechselstrom würde sie ständig umladen
+          correct: true
+        - label: Weil Gleichstrom sicherer ist
+          feedback: Beide sind bei 525 kV lebensgefährlich.
+        - label: Weil Trafos Gleichstrom brauchen
+          feedback: Trafos brauchen gerade Wechselstrom; HGÜ nutzt Stromrichter.
+    hints:
+      - Ein Kabel ist ein langer Kondensator.
+      - Bei Wechselstrom fließt dauernd ein Ladestrom, auch ohne Last.
+    explanation: Nach einigen Dutzend Kilometern Seekabel wäre der Ladestrom so groß wie der Nutzstrom. Gleichstrom lädt das Kabel nur einmal. Dazu fehlen Blindleistung und Skin-Effekt.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Das europäische Verbundnetz läuft synchron: Ein Generator in Portugal dreht im exakt selben Takt wie einer in Polen. Was folgt daraus?"
+    params:
+      options:
+        - label: Alle helfen sich bei Störungen sofort, aber eine Störung spürt man auch überall
+          correct: true
+        - label: Jedes Land muss seine Frequenz selbst einstellen
+          feedback: Es gibt nur eine gemeinsame Frequenz.
+        - label: Die Länder tauschen keinen Strom aus
+          feedback: Sie tauschen ständig Strom aus.
+    hints:
+      - Gekoppelte Generatoren verhalten sich wie eine riesige Maschine.
+      - Die Netzfrequenz ist im ganzen Verbund gleich.
+    explanation: Die riesige rotierende Masse macht das Netz stabil. 2021 trennte sich Südosteuropa nach einer Störung kurz ab – automatische Schutzsysteme verhinderten einen großen Ausfall.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Strom über weite Strecken mit 380 kV statt mit 230 V transportiert wird.
+    params:
+      keywords:
+        - - spannung
+          - voltage
+          - kv
+        - - strom
+          - current
+        - - verlust
+          - loss
+          - wärme
+          - waerme
+          - heat
+        - - trafo
+          - transformer
+          - umspann
+      sample: Für dieselbe Leistung P = U · I braucht hohe Spannung nur wenig Strom. Die Verluste in der Leitung wachsen mit dem Quadrat des Stroms. Darum setzen Trafos die Spannung für den Transport hoch und vor dem Haus wieder herunter.
+    explanation: "Kern: hohe Spannung, kleiner Strom, kleine Verluste. Die nächste Lektion rechnet das nach."
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d1", "x1"]

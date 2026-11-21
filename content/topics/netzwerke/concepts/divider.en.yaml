@@ -1,0 +1,248 @@
+id: ee.networks.divider
+type: concept
+title: "The voltage divider"
+summary: "Two resistors turn one voltage into any smaller one – as long as nobody draws too much current."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Turn 12 V into exactly half. Set the resistors.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+        r1:
+          value: 5
+      show:
+        - out
+        - ratio
+    answer:
+      out: 6
+    explanation: Equal resistors split the voltage exactly in half.
+
+  - kind: explain
+    id: c1
+    body: A **voltage divider** is two resistors in series. The bottom one gets the share $\frac{R_2}{R_1 + R_2}$ of the voltage. If R₂ is twice R₁, it gets two thirds.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A divider with R₁ = {{r1}} kΩ and R₂ = {{r2}} kΩ is connected to {{u}} V. What voltage is across R₂? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{u * r2 / (r1 + r2)}}"
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - u * r1 / (r1 + r2)) < 0.006
+        misconception: swap
+        text: That is the voltage across R₁. The question asks for R₂.
+    hints:
+      - Share = R₂ ÷ (R₁ + R₂).
+      - "{{u}} × {{r2}} ÷ {{r1 + r2}}."
+    explanation: "{{u}} V × {{r2}}/{{r1 + r2}} = {{round(u * r2 / (r1 + r2), 2)}} V."
+    variants:
+      params:
+        u: choice[10,12,20]
+        r1: int[1,9]
+        r2: int[1,9]
+      constraints:
+        - r1 != r2
+      defaults:
+        u: 12
+        r1: 1
+        r2: 2
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: A sensor needs 5 V, but you only have 12 V. Build the right divider.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 4.95
+        - 5.05
+    explanation: "For example R₁ = 7 kΩ and R₂ = 5 kΩ: 12 × 5/12 = 5 V. 14 kΩ and 10 kΩ work too."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You swap R₁ and R₂ in a 12 V divider that delivered 4 V. What do you measure now?
+    params:
+      options:
+        - label: 8 V
+          correct: true
+        - label: 4 V
+          feedback: The share depends on which resistor is at the bottom.
+        - label: 3 V
+          feedback: The two partial voltages add up to 12 V.
+    hints:
+      - Before, 4 V were at the bottom and 8 V at the top.
+      - After the swap the other resistor is at the bottom.
+    explanation: "The voltages swap too: now 8 V are at the bottom. Together it is still 12 V."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A device connected to the output sits in parallel with R₂. That makes the bottom resistance smaller, so the voltage drops. This **loading** is the weak spot of every divider.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: R₁ = R₂ = 10 kΩ at 12 V. Connect a load and lower it until only 4 V arrive.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+        r1:
+          fixed: true
+        r2:
+          fixed: true
+        load:
+          fixed: false
+          min: 1
+          max: 100
+          step: 1
+          value: 100
+      show:
+        - out
+        - current
+    answer:
+      out:
+        - 3.95
+        - 4.05
+    explanation: "With a 10 kΩ load: 10 kΩ parallel to 10 kΩ is 5 kΩ. 12 × 5/15 = 4 V. The load halves the bottom resistance."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: R₁ = R₂ = 10 kΩ at 12 V. A 100 kΩ load hangs on the output. What voltage arrives? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: 5.71
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: ignore-load
+        text: That would be the unloaded divider. The load is in parallel with R₂.
+    hints:
+      - 10 kΩ parallel 100 kΩ = 1000/110 kΩ ≈ 9.09 kΩ.
+      - 12 × 9.09 ÷ (10 + 9.09).
+    explanation: "12 × 9.09/19.09 ≈ 5.71 V instead of 6 V. Rule of thumb: the load should be at least 10 times R₂."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: sim
+    prompt: A microcontroller can measure 3.3 V at most. Divide 12 V down to 3.25–3.35 V.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 3.25
+        - 3.35
+    explanation: "For example R₁ = 13 kΩ and R₂ = 5 kΩ: 12 × 5/18 ≈ 3.33 V. This is how battery voltage is often measured."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Seen from outside, a divider acts like a source with internal resistance R₁ ∥ R₂. How large is it for R₁ = {{a}} kΩ and R₂ = {{b}} kΩ?
+    params:
+      unit: kΩ
+    answer:
+      value: "{{a * b / (a + b)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: series-parallel
+        text: Seen from the load, R₁ and R₂ are in parallel, not in series.
+    hints:
+      - Imagine the source as a short. Then R₁ and R₂ are in parallel.
+      - R = R₁ × R₂ ÷ (R₁ + R₂).
+    explanation: "{{a}} × {{b}} ÷ {{a + b}} = {{round(a * b / (a + b), 2)}} kΩ. This equivalent is called a Thévenin source."
+    difficulty: 3
+    variants:
+      params:
+        a: choice[2,4,6,10,12]
+        b: choice[3,4,6,12]
+      defaults:
+        a: 10
+        b: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why does nobody build a 5 V phone charger from a voltage divider on 230 V?
+    params:
+      options:
+        - label: It burns lots of energy and sags under load
+          correct: true
+        - label: Because dividers only work on DC
+          feedback: Resistor dividers also divide AC.
+        - label: Because the divider is too expensive
+          feedback: Two resistors cost almost nothing.
+    hints:
+      - Current flows through both resistors all the time.
+      - Think about loading while charging.
+    explanation: The divider current constantly heats R₁, and the voltage drops a lot while charging. The output also stays connected to the mains. Chargers use converters instead.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux when a voltage divider works well and when it doesn’t.
+    params:
+      keywords:
+        - - reihe
+          - series
+          - zwei widerst
+          - two resist
+        - - verhältnis
+          - verhaeltnis
+          - ratio
+          - anteil
+          - share
+        - - last
+          - load
+          - verbraucher
+          - device
+        - - parallel
+          - sinkt
+          - drops
+          - kleiner
+          - smaller
+      sample: Two resistors in series split the voltage in the ratio of their values. That works as long as hardly any current is drawn from the output. A small load sits in parallel with R₂, makes it smaller, and the voltage drops.
+    explanation: "The core: divider ratio plus loading. Good for measuring signals, bad for power supply."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

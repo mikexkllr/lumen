@@ -1,0 +1,216 @@
+id: ee.power.machines
+type: concept
+title: "Generators and motors"
+summary: "The same machine turns motion into electricity – and electricity into motion."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You spin the shaft of a small electric motor quickly by hand. An attached LED lights up. Why?
+    params:
+      options:
+        - label: The motor runs backwards as a generator
+          correct: true
+        - label: There is a battery inside
+          feedback: There is no battery, it is induction.
+        - label: From friction heat
+          feedback: Heat doesn’t light an LED.
+    hints:
+      - In the motor, coils turn in a magnetic field.
+      - Motion in a magnetic field induces voltage.
+    explanation: "Motor and generator are the same machine. Electric cars use this when braking: the motor charges the battery."
+
+  - kind: explain
+    id: c1
+    body: In a **generator** a magnet turns inside fixed coils and induces AC. With p pole pairs and n revolutions per second the frequency is f = p × n.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A generator has {{p}} pole pair(s). At how many revolutions per minute must it turn for 50 Hz?
+    params:
+      unit: rpm
+    answer:
+      value: "{{3000 / p}}"
+    feedback:
+      - when: numval(state.input) == 50 / p
+        misconception: per-second
+        text: That is revolutions per second. Multiply by 60 for per minute.
+    hints:
+      - n = f ÷ p = 50 ÷ {{p}} per second.
+      - Times 60 for per minute.
+    explanation: "{{3000 / p}} rpm. Steam turbines spin at 3000, hydro generators with many poles turn quite leisurely."
+    variants:
+      params:
+        p: choice[1,2,4,40]
+      defaults:
+        p: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In a motor, a {{l}} m wire lies in a {{b}} T field and carries {{i}} A. What force acts on it? F = B × I × l.
+    params:
+      unit: N
+    answer:
+      value: "{{b * i * l}}"
+      tolerance: 0.001
+    hints:
+      - F = B × I × l.
+      - "{{b}} × {{i}} × {{l}}."
+    explanation: "{{b * i * l}} N. Many turns multiply the force – that becomes the torque."
+    variants:
+      params:
+        l: choice[0.1,0.2,0.5]
+        b: choice[0.5,1,1.5]
+        i: choice[5,10,20]
+      defaults:
+        l: 0.2
+        b: 1
+        i: 10
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Is the machine running as a motor or a generator here?
+    params:
+      buckets:
+        - id: b1
+          label: Motor
+        - id: b2
+          label: Generator
+      items:
+        - label: Cordless drill
+          bucket: b1
+        - label: Wind turbine
+          bucket: b2
+        - label: EV while braking
+          bucket: b2
+        - label: Fan
+          bucket: b1
+        - label: Hydro plant
+          bucket: b2
+        - label: EV pulling away
+          bucket: b1
+    hints:
+      - "Motor: electricity in, motion out."
+      - "Generator: motion in, electricity out."
+    explanation: When braking, the wheel turns the motor, which then generates electricity. This is called regenerative braking.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: The induction motor has a rotating field. Its rotor turns slightly slower, otherwise nothing would be induced in it. This **slip** is s = (n_field − n) ÷ n_field, usually a few percent.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The rotating field turns at 1500 rpm, the rotor at {{n}} rpm. What is the slip in percent? To two decimal places.
+    params:
+      unit: "%"
+    answer:
+      value: "{{(1500 - n) / 15}}"
+      tolerance: 0.006
+    hints:
+      - s = (1500 − {{n}}) ÷ 1500.
+      - Times 100 for percent.
+    explanation: "{{1500 - n}} ÷ 1500 ≈ {{round((1500 - n) / 15, 2)}} %. More load, more slip, more torque."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1440,1450,1470,1485]
+      defaults:
+        n: 1450
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A motor delivers {{m}} Nm at 3000 rpm. What mechanical power is that, P = 2π × n × M with n in 1/s? In kW, to one decimal place.
+    params:
+      unit: kW
+    answer:
+      value: "{{2 * 3.14159265 * 50 * m / 1000}}"
+      tolerance: 0.06
+    hints:
+      - 3000 rpm = 50 per second.
+      - 2π × 50 × {{m}} W.
+    explanation: ≈ {{round(2 * 3.14159265 * 50 * m / 1000, 1)}} kW. Power is torque times angular velocity.
+    difficulty: 2
+    variants:
+      params:
+        m: choice[10,50,100,200]
+      defaults:
+        m: 100
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An EV motor delivers 150 kW at 6000 rpm. What torque does it produce there? To the nearest Nm.
+    params:
+      unit: Nm
+    answer:
+      value: 239
+      tolerance: 0.6
+    hints:
+      - M = P ÷ (2π n), n = 100 per second.
+      - 150,000 ÷ 628.3.
+    explanation: ≈ 239 Nm. Electric motors deliver full torque from standstill – that is why EVs accelerate so strongly.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: An electric motor reaches over 90 % efficiency, a petrol engine about 25 to 35 %. Where does the difference come from?
+    params:
+      options:
+        - label: The petrol engine is a heat engine and must reject a lot of waste heat
+          correct: true
+        - label: Because electricity contains more energy
+          feedback: Energy is energy – it is about conversion.
+        - label: Because electric motors are smaller
+          feedback: Size isn’t the reason.
+    hints:
+      - Which limit applies to heat engines?
+      - The electric motor converts directly, without a detour through heat.
+    explanation: Heat engines are limited by Carnot. Electric machines only lose through resistance, remagnetisation and friction.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a motor and a generator are really the same machine.
+    params:
+      keywords:
+        - - magnet
+          - feld
+          - field
+        - - spule
+          - coil
+          - draht
+          - wire
+        - - kraft
+          - force
+          - bewegung
+          - motion
+          - dreh
+          - turn
+        - - induz
+          - induc
+          - spannung
+          - voltage
+      sample: "In both, something turns in a magnetic field. Send current through the coils and a force turns the shaft: motor. Turn the shaft from outside and the motion in the field induces a voltage: generator. The same parts, just used the other way round."
+    explanation: "The core: the Lorentz force and induction are two sides of the same effect."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

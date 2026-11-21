@@ -1,0 +1,182 @@
+id: ee.semiconductors.diode
+type: concept
+title: "Die Diode: ein Ventil für Strom"
+summary: "Der pn-Übergang lässt Strom nur in eine Richtung – ab etwa 0,7 V."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Diode verhält sich für Strom wie …
+    params:
+      options:
+        - label: ein Rückschlagventil im Wasserrohr
+          correct: true
+        - label: ein Wasserhahn, den man aufdreht
+          feedback: Eine Diode kann man nicht einstellen.
+        - label: ein enges Rohr
+          feedback: Ein enges Rohr bremst in beide Richtungen.
+    hints:
+      - In eine Richtung fließt es, in die andere nicht.
+      - Welches Bauteil im Rohr lässt Wasser nur vorwärts?
+    explanation: Wie ein Rückschlagventil öffnet die Diode nur in Durchlassrichtung – und braucht dafür einen kleinen Druck, etwa 0,7 V.
+
+  - kind: explain
+    id: c1
+    body: Am **pn-Übergang** treffen p- und n-Silizium aufeinander. Dort wandern Elektronen in die Löcher, es entsteht eine Sperrschicht ohne freie Ladungen. Erst eine Spannung in Durchlassrichtung baut sie ab.
+
+  - kind: explain
+    id: c2
+    body: Eine Siliziumdiode leitet ab etwa 0,7 V. Diese **Durchlassspannung** fällt immer an ihr ab, fast egal wie groß der Strom ist. In Sperrrichtung fließt praktisch nichts.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine {{u}}-V-Quelle, eine Siliziumdiode (0,7 V) und {{r}} kΩ liegen in Reihe. Welcher Strom fließt, in mA?
+    params:
+      unit: mA
+    answer:
+      value: "{{(u - 0.7) / r}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - u / r) < 0.01
+        misconception: ignore-vf
+        text: Die 0,7 V an der Diode fehlen dem Widerstand.
+    hints:
+      - Am Widerstand liegen {{u}} − 0,7 V.
+      - "I = {{u - 0.7}} V : {{r}} kΩ."
+    explanation: "{{u - 0.7}} V : {{r}} kΩ ≈ {{round((u - 0.7) / r, 2)}} mA."
+    variants:
+      params:
+        u: choice[3,5,9,12]
+        r: choice[1,2,10]
+      defaults:
+        u: 5
+        r: 1
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Leuchtet die Lampe? Batterie 9 V, eine Diode in Reihe.
+    params:
+      cards:
+        - text: Diode mit dem Strich zum Minuspol
+          right: true
+        - text: Diode mit dem Strich zum Pluspol
+          right: false
+        - text: Zwei Dioden gegeneinander
+          right: false
+        - text: Zwei Dioden in gleicher Richtung
+          right: true
+      left: Aus
+      right: An
+    explanation: Der Strich markiert die Kathode. Strom fließt vom Plus durch die Diode zum Strich. Gegeneinander sperrt immer eine.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Der Diodenstrom wächst pro 60 mV mehr Spannung etwa auf das Zehnfache. Wie viel mehr Spannung brauchst du für {{k}}-mal so viel Strom?
+    params:
+      unit: mV
+    answer:
+      value: "{{60 * n}}"
+    feedback:
+      - when: numval(state.input) == 60 * k
+        misconception: linear
+        text: "Nicht proportional: Pro Zehnerfaktor kommen nur 60 mV dazu."
+    hints:
+      - Wie viele Zehnerfaktoren stecken in {{k}}?
+      - Pro Zehnerfaktor 60 mV.
+    explanation: "Das folgt aus I = I_S · e^(U/U_T) mit U_T ≈ 26 mV: 26 mV · ln 10 ≈ 60 mV. Darum ist »0,7 V« eine gute Faustregel."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1,2,3]
+      derive:
+        k: 10 ** n
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Z-Diode hält in Sperrrichtung 5,1 V fest. Sie bekommt 12 V über einen Vorwiderstand und soll 10 mA führen. Wie groß ist der Widerstand?
+    params:
+      unit: Ω
+    answer:
+      value: 690
+    hints:
+      - Am Widerstand liegen 12 − 5,1 V.
+      - "6,9 V : 0,01 A."
+    explanation: "6,9 V : 10 mA = 690 Ω. Die Z-Diode nutzt den Durchbruch gezielt als Spannungsreferenz."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Die Durchlassspannung einer Siliziumdiode sinkt um etwa 2 mV pro Kelvin. Um wie viel Volt sinkt sie, wenn die Diode 50 K wärmer wird?
+    params:
+      unit: V
+    answer:
+      value: 0.1
+      tolerance: 0.001
+    hints:
+      - 50 · 2 mV.
+      - 100 mV in V.
+    explanation: 0,1 V. Mit genau diesem Effekt messen viele Chips ihre eigene Temperatur.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine Schottky-Diode hat nur 0,3 V Durchlassspannung. Warum ist das in einem Netzteil mit 5 V und 3 A wichtig?
+    params:
+      options:
+        - label: Sie verheizt nur 0,9 W statt 2,1 W
+          correct: true
+        - label: Sie ist schneller kaputt
+          feedback: Weniger Wärme schont sie eher.
+        - label: Weil 0,7 V gefährlich sind
+          feedback: Es geht um Verluste.
+    hints:
+      - Verlust = U_F · I.
+      - 0,3 · 3 und 0,7 · 3.
+    explanation: "Bei kleinen Spannungen zählt jedes Zehntelvolt: 0,7 V sind 14 % von 5 V. Noch besser sind MOSFETs als »aktive Gleichrichter«."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Diode Strom nur in eine Richtung durchlässt.
+    params:
+      keywords:
+        - - pn
+          - p-
+          - n-
+        - - sperrschicht
+          - depletion
+          - grenz
+          - junction
+        - - richtung
+          - direction
+          - durchlass
+          - forward
+        - - 0,7
+          - "0.7"
+          - spannung
+          - voltage
+      sample: In der Diode treffen p- und n-Silizium aufeinander. An der Grenze entsteht eine Sperrschicht ohne freie Ladungsträger. In Durchlassrichtung drückt eine Spannung von etwa 0,7 V Elektronen und Löcher hinein und baut sie ab. Andersherum wird die Sperrschicht nur breiter.
+    explanation: "Kern: Sperrschicht am pn-Übergang, abgebaut nur in einer Richtung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d2"]

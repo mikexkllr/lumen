@@ -1,0 +1,209 @@
+id: ee.opamps.comparator
+type: concept
+title: "Komparator und Schmitt-Trigger"
+summary: "Ohne Gegenkopplung wird der OPV zum Entscheider – mit Hysterese ohne Flattern."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Straßenlaterne soll angehen, wenn es dunkel wird. Was braucht ihre Schaltung im Kern?
+    params:
+      options:
+        - label: "Einen Vergleich: Sensorspannung gegen eine feste Schwelle"
+          correct: true
+        - label: Einen Verstärker mit Faktor 10
+          feedback: Verstärken allein entscheidet nichts.
+        - label: Einen Kondensator
+          feedback: Ein Kondensator kann nicht vergleichen.
+    hints:
+      - Die Lampe kennt nur an oder aus.
+      - "Sie fragt: Ist es dunkler als ein bestimmter Wert?"
+    explanation: Ein Komparator vergleicht zwei Spannungen und gibt ein klares Ja oder Nein aus.
+
+  - kind: explain
+    id: c1
+    body: Ein **Komparator** ist ein OPV ohne Gegenkopplung. Ist U₊ größer als U₋, springt der Ausgang nach oben an die Versorgung. Sonst nach unten. Schon Millivolt entscheiden.
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: Hoch oder tief? Gegeben sind U₊ und U₋.
+    params:
+      cards:
+        - text: U₊ = 2,0 V, U₋ = 1,5 V
+          right: true
+        - text: U₊ = 1,0 V, U₋ = 1,2 V
+          right: false
+        - text: U₊ = 3,301 V, U₋ = 3,300 V
+          right: true
+        - text: U₊ = −1 V, U₋ = 0 V
+          right: false
+      left: Tief
+      right: Hoch
+    explanation: Nur das Vorzeichen der Differenz zählt. Selbst 1 mV Unterschied reicht.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Die Schwelle kommt aus einem Spannungsteiler an 12 V. Stell sie auf 3 V ein.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 2.99
+        - 3.01
+    explanation: "R₁ muss dreimal so groß sein wie R₂, zum Beispiel 15 kΩ und 5 kΩ: 12 · 5/20 = 3 V."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Fotowiderstand (LDR) sitzt unten in einem Teiler. Im Dunkeln steigt sein Widerstand stark. Was macht dann die Spannung an ihm?
+    params:
+      options:
+        - label: Sie steigt – über die Schwelle schaltet der Komparator die Lampe ein
+          correct: true
+        - label: Sie sinkt
+          feedback: Ein größerer unterer Widerstand bekommt einen größeren Anteil.
+        - label: Sie bleibt gleich
+          feedback: Das Teilerverhältnis ändert sich.
+    hints:
+      - "U_aus = U · R₂ : (R₁ + R₂)."
+      - R₂ wird größer.
+    explanation: "Der Anteil R₂ : (R₁ + R₂) wächst. So wird aus Helligkeit eine Spannung, die der Komparator mit der Schwelle vergleicht."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "In der Dämmerung schwankt das Licht. Ein einfacher Komparator würde dann flattern: an, aus, an. Die **Hysterese** hilft: Ein Schmitt-Trigger schaltet bei steigendem Signal an einer höheren Schwelle als bei fallendem."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Schmitt-Trigger schaltet bei 3 V ein und bei 2 V aus. Das Signal kommt von 0 V und steigt auf 2,5 V. Was zeigt der Ausgang?
+    params:
+      options:
+        - label: Weiter aus, denn 3 V wurden nicht erreicht
+          correct: true
+        - label: An, denn 2,5 V liegen über 2 V
+          feedback: 2 V gilt nur für das Ausschalten von oben.
+        - label: Er flattert
+          feedback: Gerade das verhindert die Hysterese.
+    hints:
+      - Von unten kommend zählt die obere Schwelle.
+      - Zwischen 2 und 3 V behält er seinen alten Zustand.
+    explanation: Zwischen den Schwellen bleibt der letzte Zustand. Der Schmitt-Trigger hat also ein Gedächtnis, ähnlich einem Flipflop.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Sensorsignal rauscht um ±{{n}} mV. Wie breit muss die Hysterese mindestens sein, damit der Ausgang nicht flattert, in mV?
+    params:
+      unit: mV
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: half
+        text: "Das Rauschen geht in beide Richtungen: von −{{n}} bis +{{n}} mV."
+    hints:
+      - Das Signal schwankt um insgesamt {{2 * n}} mV.
+      - Die Lücke zwischen den Schwellen muss größer sein.
+    explanation: Mindestens {{2 * n}} mV, besser mit Reserve. Dann kann das Rauschen allein nie beide Schwellen überqueren.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[50,100,200]
+      defaults:
+        n: 100
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Flash-ADC vergleicht die Spannung gleichzeitig mit allen Stufen. Wie viele Komparatoren braucht er für {{n}} Bit?
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: per-bit
+        text: "Nicht ein Komparator pro Bit: einer pro Schwelle zwischen den Stufen."
+    hints:
+      - "{{n}} Bit ergeben {{2 ** n}} Stufen."
+      - Zwischen {{2 ** n}} Stufen liegen {{2 ** n}} − 1 Schwellen.
+    explanation: "{{2 ** n - 1}} Komparatoren. Flash-ADCs sind extrem schnell, aber für viele Bits zu groß. Darum gibt es sie selten über 8 Bit."
+    difficulty: 3
+    variants:
+      params:
+        n: choice[3,4,6,8]
+      defaults:
+        n: 8
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum nimmt man für schnelle Vergleiche einen eigenen Komparator-Chip statt eines OPV?
+    params:
+      options:
+        - label: OPVs erholen sich langsam aus der Sättigung; Komparatoren sind dafür gebaut
+          correct: true
+        - label: OPVs können nicht vergleichen
+          feedback: Sie können, aber langsam und mit falschen Pegeln.
+        - label: Komparatoren verstärken mehr
+          feedback: Es geht um Tempo und Ausgangspegel.
+    hints:
+      - Ein OPV ist für Betrieb mit Gegenkopplung optimiert.
+      - Ein Komparator läuft ständig an den Anschlägen.
+    explanation: Komparatoren schalten in Nanosekunden und liefern oft direkt Logikpegel, etwa über einen Open-Collector-Ausgang.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Dämmerungsschalter Hysterese braucht.
+    params:
+      keywords:
+        - - schwelle
+          - threshold
+        - - zwei
+          - two
+          - höher
+          - hoeher
+          - higher
+          - tiefer
+          - lower
+        - - flatter
+          - chatter
+          - an aus
+          - on off
+          - schwank
+          - flicker
+          - rausch
+          - noise
+        - - zustand
+          - state
+          - bleib
+          - stay
+          - halt
+          - keep
+      sample: "In der Dämmerung schwankt das Licht genau um die Schwelle. Ein einfacher Komparator würde dauernd an- und ausschalten, die Lampe würde flattern. Mit Hysterese gibt es zwei Schwellen: Eingeschaltet wird bei einem tieferen Lichtwert als ausgeschaltet. Dazwischen bleibt der alte Zustand."
+    explanation: "Kern: zwei Schwellen und ein Gedächtnis dazwischen. Thermostate arbeiten genauso."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

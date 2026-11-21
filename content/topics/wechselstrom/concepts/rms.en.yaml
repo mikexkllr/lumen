@@ -1,0 +1,205 @@
+id: ee.ac.rms
+type: concept
+title: "RMS: 230 V or 325 V?"
+summary: "The socket peaks at 325 V – so why does it say 230 V?"
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: The socket is rated “230 V”. What voltage does it reach at its peak?
+    params:
+      min: 100
+      max: 1000
+    answer:
+      value: 325
+      tolerance: 15
+    explanation: About 325 V. The 230 V is an average, the RMS value.
+
+  - kind: explain
+    id: c1
+    body: The **RMS value** is the DC voltage that heats a resistor just as much. For a sine it is the peak divided by √2. So 325 V peak becomes 230 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A sine has {{u}} V RMS. What is its peak value? To the nearest volt.
+    params:
+      unit: V
+    answer:
+      value: "{{u * 1.41421356}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - u / 1.41421356) < 0.6
+        misconception: divide
+        text: The peak is larger than the RMS value. Multiply by √2.
+    hints:
+      - Û = U × √2.
+      - √2 ≈ 1.414.
+    explanation: "{{u}} V × 1.414 ≈ {{round(u * 1.41421356)}} V."
+    variants:
+      params:
+        u: choice[12,24,120,230,400]
+      defaults:
+        u: 120
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: What is the voltage from the lowest to the highest point of 230 V mains? To the nearest volt.
+    params:
+      unit: V
+    answer:
+      value: 650
+      tolerance: 2
+    hints:
+      - The sine goes from −325 V to +325 V.
+      - 2 × 325.
+    explanation: Peak to peak is about 650 V. That is the height of the curve on an oscilloscope.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A capacitor will sit directly on 230 V mains. What voltage must it withstand at least?
+    params:
+      options:
+        - label: Over 325 V, better with margin
+          correct: true
+        - label: 230 V is enough
+          feedback: The capacitor sees the peaks, not the average.
+        - label: 115 V, because the average is zero
+          feedback: The average is zero, but the peaks are 325 V.
+    hints:
+      - Insulation breaks down at the highest voltage.
+      - What peak does 230 V RMS have?
+    explanation: Insulation and parts must withstand the 325 V peak, plus surges from the grid. That is why special X capacitors exist for mains use.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Why √2? Heating power is u² ÷ R. The average of sin² is exactly ½. So P = Û² ÷ (2R) = (Û/√2)² ÷ R. The **root mean square** is abbreviated RMS.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: slider
+    prompt: The dashed curve is sin². Move the horizontal line to its average.
+    params:
+      expr: a
+      x:
+        - 0
+        - 6.3
+      y:
+        - 0
+        - 1.2
+      showCoordinates: false
+      sliders:
+        - id: a
+          label: Height
+          min: 0
+          max: 1
+          step: 0.1
+          initial: 0.9
+      target:
+        expr: sin(x)^2
+        label: sin²
+    check:
+      predicate: a == 0.5
+    hints:
+      - The hills above the line should exactly fill the valleys below.
+      - sin² swings between 0 and 1, symmetrically.
+    explanation: The average is ½, because sin² + cos² = 1 and both have the same average.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A 52.9 Ω heating element is connected to 230 V AC. What is its power?
+    params:
+      unit: W
+    answer:
+      value: 1000
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 1997) < 5
+        misconception: peak
+        text: You used the peak. For power, use the RMS value.
+    hints:
+      - P = U² ÷ R with the RMS value.
+      - 230² ÷ 52.9.
+    explanation: 52,900 ÷ 52.9 = 1000 W. With RMS values AC is calculated just like DC.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A triangle wave has a 10 V peak. Its RMS value is Û ÷ √3. How large is it? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: 5.77
+      tolerance: 0.01
+    hints:
+      - √3 ≈ 1.732.
+      - 10 ÷ 1.732.
+    explanation: 10 ÷ 1.732 ≈ 5.77 V. A ±10 V square wave would have 10 V RMS, a sine 7.07 V. The shape matters.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A cheap multimeter measures the average of the rectified voltage and multiplies by 1.11. What does it show for a ±10 V square wave?
+    params:
+      options:
+        - label: 11.1 V instead of the correct 10 V
+          correct: true
+        - label: 10 V, correct
+          feedback: The factor 1.11 is only right for sines.
+        - label: 7.07 V
+          feedback: That would be the RMS of a 10 V peak sine.
+    hints:
+      - Rectified, the square wave is a constant 10 V.
+      - Times 1.11.
+    explanation: The factor 1.11 = π ÷ (2√2) only fits sines. Other shapes need a “true RMS” meter.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the socket says 230 V even though the voltage reaches 325 V.
+    params:
+      keywords:
+        - - effektiv
+          - rms
+          - root mean
+        - - heiz
+          - heat
+          - leistung
+          - power
+          - wärme
+          - waerme
+        - - gleich
+          - dc
+          - direct
+          - same
+        - - wurzel
+          - root
+          - √2
+          - 1,41
+          - "1.41"
+          - spitze
+          - peak
+      sample: 230 V is the RMS value. That much DC voltage would heat an element just as much. The peak is higher, 230 × √2 ≈ 325 V, but most of the time the voltage is lower.
+    explanation: "The core: RMS is defined through power. For a sine the factor is √2."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

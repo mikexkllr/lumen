@@ -1,0 +1,210 @@
+id: ee.power.efficiency
+type: concept
+title: "Wirkungsgrad"
+summary: "Was ankommt, geteilt durch das, was hineingeht – über ganze Ketten hinweg."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Von der Energie in der Kohle: Wie viel Prozent kommen als Strom aus deiner Steckdose?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 35
+      tolerance: 10
+    explanation: Etwa 35 %. Ein Kohlekraftwerk schafft rund 40 %, das Netz verliert noch einige Prozent. Der Rest ist Abwärme.
+
+  - kind: explain
+    id: c1
+    body: "Der **Wirkungsgrad** η sagt, welcher Anteil der zugeführten Leistung nutzbar herauskommt: η = P_ab : P_zu. Er liegt immer unter 100 %. Der Rest wird meist zu Wärme."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Netzteil nimmt {{p}} W auf und gibt {{q}} W ab. Wie groß ist sein Wirkungsgrad in Prozent? Auf eine Nachkommastelle.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * q / p}}"
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 100 * p / q) < 0.06
+        misconception: flip
+        text: "Umgekehrt: Abgabe geteilt durch Aufnahme."
+    hints:
+      - "η = P_ab : P_zu."
+      - "{{q}} : {{p}}, mal 100."
+    explanation: "{{q}} : {{p}} = {{round(100 * q / p, 1)}} %. Die fehlenden {{p - q}} W wärmen das Gehäuse."
+    variants:
+      params:
+        p: choice[25,50,80,100]
+        q: choice[20,45,60]
+      constraints:
+        - q < p
+      defaults:
+        p: 50
+        q: 45
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Kraftwerk 40 %, Netz 95 %, Ladegerät 90 %. Wie viel Prozent der Kohle-Energie landet im Akku? Auf eine Nachkommastelle.
+    params:
+      unit: "%"
+    answer:
+      value: 34.2
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 75) < 0.1
+        misconception: subtract
+        text: Wirkungsgrade in einer Kette werden multipliziert, nicht abgezogen.
+    hints:
+      - Jede Stufe nimmt ihren Anteil vom Rest.
+      - 0,40 · 0,95 · 0,90.
+    explanation: 0,342, also 34,2 %. Lange Ketten fressen viel, auch wenn jedes Glied gut aussieht.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Sortiere nach Wirkungsgrad, den kleinsten zuerst.
+    params:
+      items:
+        - label: Glühlampe (als Lichtquelle)
+        - label: Automotor
+        - label: Kohlekraftwerk
+        - label: Gas-und-Dampf-Kraftwerk
+        - label: Elektromotor
+        - label: Großtransformator
+    hints:
+      - Die Glühlampe macht vor allem Wärme.
+      - Ein Großtrafo verliert unter 1 %.
+    explanation: Etwa 5 %, 30 %, 40 %, 60 %, 95 % und 99 %. Wärmekraftmaschinen liegen unten, rein elektrische Wandler oben.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Eine Wärmepumpe scheint mehr als 100 % zu schaffen. Sie erzeugt Wärme aber nicht, sie pumpt sie aus der Umgebung ins Haus. Die **Leistungszahl** sagt, wie viele kWh Wärme pro kWh Strom ankommen, typisch 3 bis 4.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Haus braucht {{q}} kWh Wärme im Jahr. Die Wärmepumpe hat eine Leistungszahl von {{c}}. Wie viel Strom braucht sie, in kWh? Auf ganze kWh.
+    params:
+      unit: kWh
+    answer:
+      value: "{{q / c}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - q * c) < 1
+        misconception: multiply
+        text: "Andersherum: Strom = Wärme : Leistungszahl."
+    hints:
+      - Pro kWh Strom kommen {{c}} kWh Wärme.
+      - "{{q}} : {{c}}."
+    explanation: ≈ {{round(q / c)}} kWh. Eine Elektroheizung bräuchte die vollen {{q}} kWh.
+    difficulty: 2
+    variants:
+      params:
+        q: choice[7000,10500,14000]
+        c: choice[3,3.5,4]
+      defaults:
+        q: 14000
+        c: 3.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Ladegerät mit 90 % Wirkungsgrad gibt 20 W ab. Wie viel Watt werden zu Wärme? Auf eine Nachkommastelle.
+    params:
+      unit: W
+    answer:
+      value: 2.2
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 2) < 0.06
+        misconception: base
+        text: Die 10 % beziehen sich auf die Aufnahme, nicht auf die Abgabe.
+    hints:
+      - "Aufnahme: 20 W : 0,9 ≈ 22,2 W."
+      - Wärme = Aufnahme − Abgabe.
+    explanation: 22,2 − 20 ≈ 2,2 W. Darum werden kleine Netzteile handwarm.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Eine Wärmekraftmaschine schafft höchstens η = 1 − T_kalt : T_heiß, in Kelvin. Wie viel Prozent sind das für Dampf mit 600 °C und Kühlwasser mit 30 °C? Auf eine Nachkommastelle."
+    params:
+      unit: "%"
+    answer:
+      value: 65.3
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 95) < 0.1
+        misconception: celsius
+        text: "Temperaturen in Kelvin einsetzen: +273."
+    hints:
+      - 873 K und 303 K.
+      - "1 − 303 : 873."
+    explanation: ≈ 65,3 % – die Carnot-Grenze. Echte Kraftwerke schaffen davon gut zwei Drittel.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Gas-und-Dampf-Kraftwerke erreichen rund 60 %, reine Dampfkraftwerke etwa 40 %. Warum?
+    params:
+      options:
+        - label: Die heißen Abgase der Gasturbine treiben noch eine Dampfturbine an
+          correct: true
+        - label: Gas enthält mehr Energie als Kohle
+          feedback: Der Brennstoff ist nicht der Grund.
+        - label: Sie haben größere Generatoren
+          feedback: Generatoren sind in beiden fast verlustfrei.
+    hints:
+      - Eine Gasturbine arbeitet mit über 1400 °C.
+      - Ihr Abgas ist noch über 500 °C heiß.
+    explanation: Zwei Kreisprozesse hintereinander nutzen einen viel größeren Temperaturbereich. Das hebt die Carnot-Grenze.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Wärmepumpe mehr Wärme liefert, als sie Strom verbraucht – ohne Energie aus dem Nichts.
+    params:
+      keywords:
+        - - umgebung
+          - surround
+          - luft
+          - air
+          - erde
+          - ground
+          - draußen
+          - draussen
+          - outside
+        - - pump
+          - transport
+          - befördert
+          - moves
+        - - strom
+          - electric
+        - - wärme
+          - waerme
+          - heat
+      sample: "Die Wärmepumpe erzeugt die Wärme nicht, sie pumpt sie aus der Umgebung, etwa aus der Außenluft, ins Haus. Der Strom treibt nur den Kompressor an. Darum kommen pro kWh Strom drei bis vier kWh Wärme an. Die Energiebilanz stimmt: Strom plus Umweltwärme."
+    explanation: "Kern: Wärme transportieren statt erzeugen. Wie ein Kühlschrank, nur andersherum."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

@@ -1,0 +1,216 @@
+id: ee.induction.transformer
+type: concept
+title: "Der Transformator"
+summary: "Zwei Spulen auf einem Eisenkern machen aus jeder Wechselspannung eine andere."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Die Steckdose liefert 230 V. Bau einen Trafo, der etwa 12 V ausgibt.
+    params:
+      scene: transformer
+      show:
+        - u2
+        - ratio
+    answer:
+      u2:
+        - 11.5
+        - 12.5
+    explanation: "Das Verhältnis muss etwa 230 : 12 ≈ 19 : 1 sein, zum Beispiel 1150 zu 60 Windungen."
+
+  - kind: explain
+    id: c1
+    body: "Ein Trafo hat zwei Spulen auf einem Eisenkern. Wechselstrom in der ersten erzeugt ein wechselndes Feld, das in der zweiten Spannung induziert. Das **Übersetzungsverhältnis** ist U₁ : U₂ = N₁ : N₂."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Primär 230 V und {{a}} Windungen, sekundär {{b}} Windungen. Welche Spannung liefert der Trafo?
+    params:
+      unit: V
+    answer:
+      value: "{{230 * b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 230 * a / b) < 0.01
+        misconception: flip
+        text: "Verhältnis umgedreht: Weniger Windungen heißt weniger Spannung."
+    hints:
+      - "U₂ = U₁ · N₂ : N₁."
+      - "230 · {{b}} : {{a}}."
+    explanation: 230 V · {{b}}/{{a}} = {{230 * b / a}} V. Jede Windung bekommt dieselbe Spannung ab.
+    variants:
+      params:
+        a: choice[500,1000,2000]
+        b: choice[50,100,200]
+      defaults:
+        a: 1000
+        b: 50
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Sekundär fließen 2 A. Stell die Windungen so ein, dass primär nur 0,1 A fließen.
+    params:
+      scene: transformer
+      controls:
+        i2:
+          value: 2
+      show:
+        - i1
+        - u2
+        - ratio
+    answer:
+      i1: 0.1
+    explanation: "Die Leistung bleibt fast gleich. Weniger Spannung heißt mehr Strom: Der Strom übersetzt sich umgekehrt, I₁ : I₂ = N₂ : N₁. Hier 20 : 1."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Du schließt einen Trafo an eine 12-V-Autobatterie an. Was kommt sekundär heraus?
+    params:
+      options:
+        - label: Nur beim Ein- und Ausschalten ein kurzer Puls
+          correct: true
+        - label: Die übersetzte Gleichspannung
+          feedback: Gleichstrom ändert das Feld nicht.
+        - label: Wechselspannung
+          feedback: Der Trafo erzeugt keinen Wechsel, er braucht einen.
+    hints:
+      - Induktion braucht ein sich änderndes Feld.
+      - Wann ändert sich der Strom aus einer Batterie?
+    explanation: Konstanter Strom gibt ein konstantes Feld, also keine Induktion. Und weil nichts gegenwirkt, fließt primär ein großer Strom. Das ist ein Grund für Wechselstrom im Netz.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein idealer Trafo liefert 12 V und 5 A. Welcher Strom fließt auf der 230-V-Seite? Auf drei Nachkommastellen.
+    params:
+      unit: A
+    answer:
+      value: 0.261
+      tolerance: 0.001
+    hints:
+      - "Leistung sekundär: 12 V · 5 A = 60 W."
+      - "I₁ = 60 W : 230 V."
+    explanation: "60 W : 230 V ≈ 0,261 A. Ein echter Trafo braucht etwas mehr, denn er hat Verluste."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Wo entsteht dieser Verlust?
+    params:
+      buckets:
+        - id: b1
+          label: In den Wicklungen (Kupfer)
+        - id: b2
+          label: Im Kern (Eisen)
+      items:
+        - label: Wärme durch den Drahtwiderstand
+          bucket: b1
+        - label: Wirbelströme
+          bucket: b2
+        - label: Ständiges Ummagnetisieren
+          bucket: b2
+        - label: Wächst mit dem Quadrat des Laststroms
+          bucket: b1
+        - label: Fällt auch ohne Last an
+          bucket: b2
+    hints:
+      - Kupferverluste sind I² · R in den Drähten.
+      - Eisenverluste entstehen, sobald das Feld wechselt – auch ohne Last.
+    explanation: Gegen Wirbelströme baut man den Kern aus dünnen, isolierten Blechen. Große Trafos erreichen so über 99 % Wirkungsgrad.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Warum ist der Eisenkern aus vielen dünnen Blechen geschichtet statt aus einem Block?
+    params:
+      options:
+        - label: Die isolierten Schichten unterbrechen die Wirbelströme
+          correct: true
+        - label: Weil Bleche billiger sind
+          feedback: Es geht um Verluste, nicht um den Preis.
+        - label: Damit das Feld schwächer wird
+          feedback: Das Feld soll gerade stark bleiben.
+    hints:
+      - Im Kern selbst wird auch Spannung induziert.
+      - Ein Strom braucht einen geschlossenen Weg.
+    explanation: In einem massiven Block kreisen große Wirbelströme und heizen ihn auf. Dünne, isolierte Bleche lassen nur winzige Ströme zu.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Netztrafo für 40 MVA hat 99,5 % Wirkungsgrad. Wie viele kW Wärme entstehen bei Volllast?
+    params:
+      unit: kW
+    answer:
+      value: 200
+    hints:
+      - 0,5 % von 40 000 kW.
+      - 40 000 · 0,005.
+    explanation: 200 kW – so viel wie rund 100 Wasserkocher. Darum stehen große Trafos in Öl und haben Kühlrippen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Trafo übersetzt auch Widerstände, mit dem Quadrat: R₁ = (N₁ : N₂)² · R₂. Ein 8-Ω-Lautsprecher hängt an einem Trafo {{k}} : 1. Welchen Widerstand sieht die Primärseite?"
+    params:
+      unit: Ω
+    answer:
+      value: "{{8 * k * k}}"
+    feedback:
+      - when: numval(state.input) == 8 * k
+        misconception: linear
+        text: "Das Verhältnis steht im Quadrat: Spannung mal k, Strom durch k."
+    hints:
+      - "U₁ = k · U₂ und I₁ = I₂ : k."
+      - "R₁ = U₁ : I₁ = k² · R₂."
+    explanation: "{{k}}² · 8 Ω = {{8 * k * k}} Ω. So passten Röhrenverstärker ihre hochohmigen Röhren an kleine Lautsprecher an."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[2,5,10,20]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Trafo Wechselstrom braucht und wie er die Spannung ändert.
+    params:
+      keywords:
+        - - wechsel
+          - altern
+          - ac
+        - - feld
+          - field
+          - magnet
+        - - induz
+          - induc
+        - - windung
+          - turn
+          - verhältnis
+          - verhaeltnis
+          - ratio
+      sample: "Wechselstrom in der ersten Spule erzeugt im Eisenkern ein ständig wechselndes Magnetfeld. Das induziert in der zweiten Spule eine Spannung. Jede Windung bekommt gleich viel ab, darum gilt U₁ : U₂ = N₁ : N₂. Gleichstrom würde kein wechselndes Feld machen."
+    explanation: "Kern: Induktion braucht Änderung, und die Spannung pro Windung ist auf beiden Seiten gleich."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "x2"]

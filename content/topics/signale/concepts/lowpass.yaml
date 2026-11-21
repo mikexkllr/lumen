@@ -1,0 +1,231 @@
+id: ee.signals.lowpass
+type: concept
+title: "Der RC-Tiefpass"
+summary: "Tiefe Frequenzen durch, hohe gedämpft – mit nur einem R und einem C."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Ein Tiefpass lässt tiefe Töne durch. Dreh die Frequenz hoch, bis nur noch die Hälfte durchkommt.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - gain
+    answer:
+      gain:
+        - 49
+        - 51
+    explanation: Bei etwa 1,7 kHz. Je höher die Frequenz, desto mehr schließt der Kondensator das Signal kurz.
+
+  - kind: explain
+    id: c1
+    body: "Im RC-Tiefpass liegt der Kondensator parallel zum Ausgang. Bei hohen Frequenzen leitet er gut und schluckt das Signal. Die **Grenzfrequenz** ist f_g = 1 : (2π R C). Dort kommen noch 70,7 % durch."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Tiefpass hat R = {{r}} kΩ und C = {{c}} nF. Wie groß ist seine Grenzfrequenz? Auf ganze Hertz.
+    params:
+      unit: Hz
+    answer:
+      value: "{{1000000 / (2 * 3.14159265 * r * c)}}"
+      tolerance: 0.6
+    hints:
+      - R · C = {{r}} kΩ · {{c}} nF = {{r * c}} µs.
+      - "f = 1 : (2π · {{r * c}} µs)."
+    explanation: f_g ≈ {{round(1000000 / (2 * 3.14159265 * r * c))}} Hz.
+    variants:
+      params:
+        r: choice[1,10,16]
+        c: choice[10,16,100]
+      defaults:
+        r: 10
+        c: 16
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Stell R und C so ein, dass die Grenzfrequenz bei etwa 1 kHz liegt.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          value: 1
+        capacitance:
+          value: 1
+        frequency:
+          fixed: true
+      show:
+        - cutoff
+    answer:
+      cutoff:
+        - 950
+        - 1050
+    explanation: "Etwa 10 kΩ und 16 nF: 1 : (2π · 160 µs) ≈ 995 Hz. Auch 16 kΩ und 10 nF gehen."
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Grenzfrequenz 1 kHz: Kommt das Signal weitgehend durch?"
+    params:
+      cards:
+        - text: 50-Hz-Brummen
+          right: true
+        - text: Pfeifton mit 10 kHz
+          right: false
+        - text: Bass mit 100 Hz
+          right: true
+        - text: Ultraschall mit 30 kHz
+          right: false
+        - text: Stimme um 300 Hz
+          right: true
+      left: Gedämpft
+      right: Durch
+    explanation: Weit unter f_g kommt fast alles durch, weit darüber kaum etwas.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Oberhalb der Grenzfrequenz halbiert sich die Amplitude bei jeder Verdopplung der Frequenz. Diese **Flankensteilheit** ist −6 dB pro Oktave oder −20 dB pro Dekade, also pro Zehnfachem.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Finde die Frequenz, bei der nur noch etwa 10 % durchkommen.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - cutoff
+        - gain
+    answer:
+      gain:
+        - 9.5
+        - 10.5
+    explanation: "Bei etwa 10 kHz, dem Zehnfachen der Grenzfrequenz: eine Dekade, −20 dB, ein Zehntel der Amplitude."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Der Tiefpass lässt 1 : √(1 + (f : f_g)²) durch. Wie viel Prozent sind es bei der doppelten Grenzfrequenz? Auf eine Nachkommastelle."
+    params:
+      unit: "%"
+    answer:
+      value: 44.7
+      tolerance: 0.06
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: asymptote
+        text: "Fast: Die Halbierung gilt erst weit oberhalb der Grenzfrequenz."
+    hints:
+      - "f : f_g = 2, also 1 : √5."
+      - √5 ≈ 2,236.
+    explanation: "1 : 2,236 ≈ 44,7 %. Nahe der Grenzfrequenz ist die Kurve rund, die gerade Flanke gilt erst weiter oben."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: "Du tauschst R und C: Jetzt liegt der Widerstand parallel zum Ausgang. Was hast du gebaut?"
+    params:
+      options:
+        - label: "Einen Hochpass: Er lässt hohe Frequenzen durch"
+          correct: true
+        - label: Denselben Tiefpass
+          feedback: Die Rollen sind vertauscht.
+        - label: Gar keinen Filter
+          feedback: Es filtert, nur andersherum.
+    hints:
+      - Der Kondensator sitzt jetzt im Signalweg.
+      - Tiefe Frequenzen sperrt ein Kondensator.
+    explanation: "Ein Hochpass mit derselben Grenzfrequenz. Lautsprecherweichen nutzen beides: Tiefpass zum Bass, Hochpass zum Hochtöner."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein RC-Glied hat die Zeitkonstante τ = 1 ms. Wie groß ist seine Grenzfrequenz f_g = 1 : (2π τ)? Auf ganze Hertz."
+    params:
+      unit: Hz
+    answer:
+      value: 159
+      tolerance: 0.6
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: no-2pi
+        text: Der Faktor 2π fehlt.
+    hints:
+      - 2π · 0,001 s ≈ 0,006 28 s.
+      - "1 : 0,006 28."
+    explanation: ≈ 159 Hz. Zeitkonstante und Grenzfrequenz beschreiben dasselbe Bauteilpaar – einmal im Zeit-, einmal im Frequenzbereich.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Wie weit ist das Ausgangssignal eines RC-Tiefpasses an der Grenzfrequenz gegenüber dem Eingang verschoben?
+    params:
+      options:
+        - label: "Um 45°: Es hinkt eine Achtelperiode hinterher"
+          correct: true
+        - label: Gar nicht
+          feedback: Der Kondensator verschiebt immer etwas.
+        - label: Um 90°
+          feedback: Das erreicht er erst bei sehr hohen Frequenzen.
+    hints:
+      - An der Grenzfrequenz ist X_C = R.
+      - tan φ = 1.
+    explanation: "Bei X_C = R ist das Zeigerdreieck gleichschenklig: −45°. Die Phase läuft von 0° bei tiefen bis −90° bei hohen Frequenzen."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein RC-Tiefpass hohe Töne wegfiltert.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - hoch
+          - high
+          - tief
+          - low
+          - frequenz
+          - frequency
+        - - kurzschl
+          - short
+          - leitet
+          - conduct
+          - blindwiderstand
+          - reactance
+        - - grenzfrequenz
+          - cut-off
+          - cutoff
+          - "70"
+      sample: "Der Kondensator liegt parallel zum Ausgang. Für tiefe Frequenzen hat er einen großen Blindwiderstand und stört kaum. Für hohe leitet er gut und schließt das Signal fast kurz. An der Grenzfrequenz 1 : (2π R C) kommen noch 70 % durch, darüber immer weniger."
+    explanation: "Kern: frequenzabhängiger Spannungsteiler aus R und X_C."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

@@ -1,0 +1,226 @@
+id: ee.capacitors.charge
+type: concept
+title: "Ladung und Kapazität"
+summary: "Zwei Platten, eine Lücke und warum ein Farad riesig ist."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Superkondensator hat 3000 F. Ein typischer Kondensator auf einer Handy-Platine hat 1 µF, also ein Millionstel Farad. Wie viel mal größer ist der Superkondensator?
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 3000000000
+      within: 30
+    explanation: "3000 : 0,000 001 = 3 000 000 000 – drei Milliarden. Kapazitäten reichen über viele Zehnerpotenzen."
+
+  - kind: explain
+    id: c1
+    body: "Ein Kondensator sind zwei Metallflächen mit einer dünnen Isolierschicht dazwischen. Liegt Spannung an, sammelt sich Ladung. Die **Kapazität** C = Q : U sagt, wie viel Ladung Q pro Volt hineinpasst. Ihre Einheit ist das Farad (F)."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ladung misst man in Coulomb (C). Ein Kondensator mit {{c}} µF liegt an {{u}} V. Wie viel Ladung speichert er, in µC?
+    params:
+      unit: µC
+    answer:
+      value: "{{c * u}}"
+    feedback:
+      - when: numval(state.input) == c / u
+        misconception: divide
+        text: "Umgekehrt: Q = C · U, nicht C : U."
+    hints:
+      - Q = C · U.
+      - "{{c}} µF · {{u}} V."
+    explanation: "{{c}} µF · {{u}} V = {{c * u}} µC. Doppelte Spannung, doppelte Ladung."
+    variants:
+      params:
+        c: choice[1,10,47,100]
+        u: choice[5,9,12]
+      defaults:
+        c: 10
+        u: 12
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Coulomb ist ein Ampere eine Sekunde lang. Ein Strom von 2 mA lädt einen Kondensator 5 s lang. Wie viel Ladung hat er dann, in mC?
+    params:
+      unit: mC
+    answer:
+      value: 10
+    hints:
+      - Q = I · t.
+      - 2 mA · 5 s.
+    explanation: 2 mA · 5 s = 10 mAs = 10 mC. Mit C = 1000 µF wären das 10 V.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Was ändert die Kapazität eines Plattenkondensators?
+    params:
+      buckets:
+        - id: b1
+          label: Größer
+        - id: b2
+          label: Unverändert
+      items:
+        - label: Größere Plattenfläche
+          bucket: b1
+        - label: Kleinerer Abstand
+          bucket: b1
+        - label: Folie statt Luft dazwischen
+          bucket: b1
+        - label: Höhere Spannung
+          bucket: b2
+        - label: Mehr gespeicherte Ladung
+          bucket: b2
+        - label: Dickere Anschlussdrähte
+          bucket: b2
+    hints:
+      - Die Kapazität hängt nur von der Bauform ab.
+      - Spannung und Ladung wachsen gemeinsam, ihr Verhältnis bleibt.
+    explanation: "C hängt von Fläche, Abstand und Isolierstoff ab. Mehr Spannung bringt mehr Ladung, aber C = Q : U bleibt gleich."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Für zwei Platten gilt $C = \varepsilon_0 \varepsilon_r \frac{A}{d}$. A ist die Fläche, d der Abstand. Die **Feldkonstante** ε₀ ist 8,85 pF pro Meter. εᵣ sagt, wie viel besser der Isolierstoff ist als Luft.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Zwei Platten mit je 1 m² stehen 1 mm auseinander, dazwischen Luft. Wie groß ist die Kapazität in nF?
+    params:
+      unit: nF
+    answer:
+      value: 8.85
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.00885) < 0.0001
+        misconception: gap
+        text: 1 mm sind 0,001 m. Teile durch den Abstand, nicht mal.
+    hints:
+      - "C = 8,85 pF/m · 1 m² : 0,001 m."
+      - 8,85 pF · 1000 = 8850 pF.
+    explanation: 8850 pF = 8,85 nF. Ein ganzer Quadratmeter ergibt nur ein paar Nanofarad!
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Wie groß müssten die Platten bei 1 mm Luftspalt für 1 F sein? In km².
+    params:
+      unit: km²
+    answer:
+      value: 113
+      tolerance: 1
+    hints:
+      - "A = C · d : ε₀ = 1 · 0,001 : 8,85 · 10⁻¹² m²."
+      - Das sind etwa 1,13 · 10⁸ m². 1 km² = 10⁶ m².
+    explanation: Rund 113 km², so groß wie eine Großstadt. Ein Farad ist riesig.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Wie schafft ein Superkondensator in Daumengröße trotzdem 3000 F?
+    params:
+      options:
+        - label: Poröse Kohle mit riesiger Oberfläche und Ladungsschichten im Nanometer-Abstand
+          correct: true
+        - label: Mit sehr hoher Spannung
+          feedback: Superkondensatoren vertragen nur etwa 2,7 V pro Zelle.
+        - label: Mit einer eingebauten Batterie
+          feedback: Die Ladung sitzt elektrisch an der Oberfläche, nicht chemisch.
+    hints:
+      - "Schau auf die Formel: A groß, d klein."
+      - Aktivkohle hat über 1000 m² Oberfläche pro Gramm.
+    explanation: "Riesige Fläche A und winziger Abstand d: Beides treibt C = ε · A : d hoch. Der Preis ist die kleine Spannung von etwa 2,7 V."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Parallel addieren sich Kapazitäten, in Reihe gilt 1/C = 1/C₁ + 1/C₂. Wie groß ist {{a}} µF in Reihe mit {{b}} µF?
+    params:
+      unit: µF
+    answer:
+      value: "{{a * b / (a + b)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: series-add
+        text: Addieren gilt parallel. In Reihe wird es kleiner.
+    hints:
+      - In Reihe wirkt es, als würde der Abstand wachsen.
+      - "C = C₁ · C₂ : (C₁ + C₂)."
+    explanation: "{{a}} · {{b}} : {{a + b}} = {{round(a * b / (a + b), 2)}} µF. Genau umgekehrt wie bei Widerständen."
+    difficulty: 3
+    variants:
+      params:
+        a: choice[10,20,30,60]
+        b: choice[10,20,30,60]
+      defaults:
+        a: 10
+        b: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Modul für 16 V besteht aus sechs Superkondensator-Zellen mit je 2,7 V in Reihe. Warum in Reihe?
+    params:
+      options:
+        - label: Die Spannung verteilt sich, jede Zelle bekommt nur ihren Teil
+          correct: true
+        - label: Damit die Kapazität steigt
+          feedback: In Reihe sinkt sie auf ein Sechstel.
+        - label: Weil es billiger ist
+          feedback: Es geht um die Spannungsfestigkeit.
+    hints:
+      - Wie viel Spannung verträgt eine einzelne Zelle?
+      - 6 · 2,7 V = 16,2 V.
+    explanation: Jede Zelle sieht nur rund 2,7 V. Dafür hat das Modul nur ein Sechstel der Zellkapazität. Kleine Schaltungen gleichen die Zellspannungen aus.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Kapazität eines Kondensators bedeutet und wovon sie abhängt.
+    params:
+      keywords:
+        - - ladung
+          - charge
+        - - spannung
+          - voltage
+          - volt
+        - - fläche
+          - flaeche
+          - area
+          - platte
+          - plate
+        - - abstand
+          - gap
+          - distance
+          - isolier
+          - insulat
+      sample: "Die Kapazität sagt, wie viel Ladung pro Volt Spannung in den Kondensator passt: C = Q : U. Sie wird größer mit großer Plattenfläche, kleinem Abstand und einem guten Isolierstoff dazwischen."
+    explanation: "Kern: C = Q : U als Definition, C = ε · A : d als Bauform."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

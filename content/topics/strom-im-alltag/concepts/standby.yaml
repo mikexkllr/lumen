@@ -1,0 +1,211 @@
+id: ee.everyday.standby
+type: concept
+title: "Standby: der stille Verbraucher"
+summary: "Kleine Leistung mal 8760 Stunden ergibt eine spürbare Rechnung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Gerät zieht im Standby 5 W – Tag und Nacht. Wie viel Euro kostet das im Jahr bei 35 Cent pro kWh?
+    params:
+      min: 0
+      max: 60
+    answer:
+      value: 15.3
+      tolerance: 4
+    explanation: 5 W · 8760 h = 43,8 kWh. Mal 0,35 € sind das rund 15 €. Für eine leuchtende Lampe am Fernseher!
+
+  - kind: explain
+    id: c1
+    body: Im **Standby** wartet ein Gerät auf die Fernbedienung oder ein Signal. Es zieht wenig Leistung, aber rund um die Uhr. Ein Jahr hat 8760 Stunden.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Gerät zieht dauerhaft {{p}} W. Wie viele kWh sind das im Jahr?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * 8.76}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == p * 8760
+        misconception: unit-prefix
+        text: Das sind Wattstunden. Teile durch 1000.
+    hints:
+      - Leistung mal 8760 Stunden.
+      - "{{p}} W · 8760 h = {{p * 8760}} Wh."
+    explanation: "{{p}} W · 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Merke: 1 W rund um die Uhr ≈ 8,8 kWh im Jahr."
+    variants:
+      params:
+        p: choice[1,2,3,5,8,10]
+      defaults:
+        p: 3
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Zieht das Gerät im Ruhezustand Strom?
+    params:
+      buckets:
+        - id: b1
+          label: Ja, ständig
+        - id: b2
+          label: Nein, gar nicht
+      items:
+        - label: Fernseher, aus mit Fernbedienung
+          bucket: b1
+        - label: WLAN-Router
+          bucket: b1
+        - label: Mikrowelle mit Uhr
+          bucket: b1
+        - label: Toaster mit Drehschalter
+          bucket: b2
+        - label: Geräte an abgeschalteter Steckerleiste
+          bucket: b2
+        - label: Ladegerät ohne Handy in der Steckdose
+          bucket: b1
+    hints:
+      - Alles, was auf ein Signal wartet oder eine Uhr hat, zieht Strom.
+      - Ein echter Schalter trennt den Kreis ganz.
+    explanation: Fernbedienung, Uhr und Netzwerk brauchen Dauerstrom. Auch ein leeres Ladegerät zieht ein wenig. Ein mechanischer Schalter trennt dagegen den Stromkreis.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein WLAN-Router läuft immer mit 10 W. Was kostet er im Jahr bei 35 Cent pro kWh? In Euro, auf eine Nachkommastelle.
+    params:
+      unit: €
+    answer:
+      value: 30.7
+      tolerance: 0.1
+    hints:
+      - 10 W · 8760 h = 87,6 kWh.
+      - 87,6 · 0,35.
+    explanation: 87,6 kWh · 0,35 € ≈ 30,70 €. Kleine Dauerverbraucher summieren sich.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine schaltbare Steckerleiste kostet 10 €. Sie spart 20 W Standby von Fernseher und Konsole. Nach wie vielen Monaten hat sie sich bezahlt gemacht?
+    params:
+      unit: Monate
+    answer:
+      value: 2
+      tolerance: 0.1
+    hints:
+      - "Ersparnis im Jahr: 20 W · 8760 h · 0,35 €/kWh."
+      - Das sind etwa 61 € im Jahr, also gut 5 € pro Monat.
+    explanation: 175 kWh · 0,35 € ≈ 61 € im Jahr. 10 € sind nach knapp 2 Monaten wieder drin.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Seit 2013 dürfen neue Geräte in der EU im Standby meist nur noch 0,5 W ziehen. Warum lohnt sich diese Regel trotzdem?
+    params:
+      options:
+        - label: Hunderte Millionen Geräte laufen 8760 Stunden im Jahr
+          correct: true
+        - label: Weil 0,5 W gefährlich sind
+          feedback: Gefährlich ist das nicht. Es geht um die Menge.
+        - label: Weil Standby die Geräte kaputt macht
+          feedback: Es geht um Energie, nicht um Verschleiß.
+    hints:
+      - Denk an alle Geräte in Europa.
+      - Kleine Leistung mal riesige Stückzahl mal 8760 h.
+    explanation: Früher zogen viele Geräte 5 bis 10 W im Standby. Mal hunderte Millionen Geräte ergibt das die Leistung mehrerer Kraftwerke.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Nachts, wenn alles schläft, zeigt dein Stromzähler 150 W. Was kostet diese Grundlast im Jahr bei 35 Cent pro kWh? In ganzen Euro.
+    params:
+      unit: €
+    answer:
+      value: 460
+      tolerance: 2
+    hints:
+      - 150 W · 8760 h.
+      - 1314 kWh · 0,35 €.
+    explanation: "1314 kWh · 0,35 € ≈ 460 €. Ein Grund, die Grundlast mit dem Zähler aufzuspüren: Kühlschrank, Router, Pumpe, Standby."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Angenommen, 40 Millionen Haushalte haben je 20 W Standby. Wie viele Megawatt sind das zusammen?
+    params:
+      unit: MW
+    answer:
+      value: 800
+      tolerance: 1
+    hints:
+      - 40 000 000 · 20 W.
+      - 1 MW = 1 000 000 W.
+    explanation: 800 000 000 W = 800 MW. Das ist etwa ein großer Kraftwerksblock, der nur für leuchtende Lämpchen läuft.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Ein Energiemessgerät zeigt für ein Netzteil ohne Last 0,3 W. Ein Kollege sagt: »Das Netzteil ist doch aus – das kann nicht sein.« Was stimmt?"
+    params:
+      options:
+        - label: "Das Messgerät: Der Wandler im Netzteil bleibt in Betrieb"
+          correct: true
+        - label: "Der Kollege: ohne Last fließt kein Strom"
+          feedback: Der Wandler im Netzteil arbeitet weiter und hat Verluste.
+        - label: "Keiner: Netzteile erzeugen Strom"
+          feedback: Netzteile wandeln nur um.
+    hints:
+      - Was ist noch mit der Steckdose verbunden?
+      - Im Netzteil steckt eine Elektronik, die nie ganz aufhört zu arbeiten.
+    explanation: Solange das Netzteil steckt, läuft seine Elektronik weiter. Ihre Eigenverluste nennt man Leerlaufleistung. Gute Netzteile bleiben unter 0,1 W.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Gerät mit nur 5 W im Jahr mehr kosten kann als ein Föhn mit 2000 W.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - watt
+        - - zeit
+          - time
+          - stunden
+          - hours
+          - dauer
+          - immer
+          - always
+          - "8760"
+        - - energie
+          - energy
+          - kwh
+        - - föhn
+          - foehn
+          - dryer
+          - kurz
+          - short
+          - minuten
+          - minutes
+      sample: Es zählt die Energie, also Leistung mal Zeit. Der Föhn läuft nur wenige Minuten am Tag. Das Standby-Gerät läuft alle 8760 Stunden im Jahr. 5 W · 8760 h sind 44 kWh, der Föhn kommt vielleicht auf 30 kWh.
+    explanation: Wichtig sind die Kernideen. Vergleiche deine Erklärung mit der Musterantwort.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

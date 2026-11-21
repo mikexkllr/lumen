@@ -1,0 +1,220 @@
+id: ee.opamps.gain
+type: concept
+title: "Verstärker mit zwei Widerständen"
+summary: "Invertierend, nichtinvertierend, Summierer – die Verstärkung legen Widerstände fest."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du willst ein Mikrofonsignal genau zehnmal größer machen. Was entscheidet beim OPV-Verstärker über den Faktor 10?
+    params:
+      options:
+        - label: Das Verhältnis zweier Widerstände
+          correct: true
+        - label: Der Typ des OPV
+          feedback: Fast jeder OPV kann das, entscheidend ist die Beschaltung.
+        - label: Die Versorgungsspannung
+          feedback: Sie begrenzt nur den Ausgang.
+    hints:
+      - Denk an die Gegenkopplung.
+      - Ein Spannungsteiler in der Rückführung legt β fest.
+    explanation: "Die Verstärkung ist 1 : β, und β ist ein Teilerverhältnis aus zwei Widerständen."
+
+  - kind: explain
+    id: c1
+    body: "Beim **invertierenden Verstärker** kommt das Signal über R₁ an den Minuseingang, R₂ führt vom Ausgang zurück. Plus liegt an Masse. Die Verstärkung ist v = −R₂ : R₁. Das Minus heißt: Das Signal wird umgedreht."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Invertierender Verstärker mit R₁ = {{a}} kΩ und R₂ = {{b}} kΩ. Wie groß ist die Verstärkung, mit Vorzeichen?
+    answer:
+      value: "{{-b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - b / a) < 0.01
+        misconception: sign
+        text: "Fast: Der invertierende Verstärker dreht das Vorzeichen um."
+    hints:
+      - "v = −R₂ : R₁."
+      - "−{{b}} : {{a}}."
+    explanation: "v = −{{b}}/{{a}} = {{round(-b / a, 2)}}. Der Minuseingang bleibt auf 0 V: eine virtuelle Masse."
+    variants:
+      params:
+        a: choice[1,2,10]
+        b: choice[10,22,47,100]
+      defaults:
+        a: 10
+        b: 100
+
+  - kind: explain
+    id: c3
+    body: "Beim **nichtinvertierenden Verstärker** geht das Signal direkt an Plus. Ein Teiler aus R₂ und R₁ führt einen Teil des Ausgangs an Minus zurück. Die Verstärkung ist v = 1 + R₂ : R₁, immer mindestens 1."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Nichtinvertierender Verstärker mit R₁ = {{a}} kΩ und R₂ = {{b}} kΩ. Wie groß ist die Verstärkung?
+    answer:
+      value: "{{1 + b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - b / a) < 0.01
+        misconception: missing-one
+        text: "Die 1 nicht vergessen: v = 1 + R₂ : R₁."
+    hints:
+      - "v = 1 + R₂ : R₁."
+      - "1 + {{b}} : {{a}}."
+    explanation: v = 1 + {{b}}/{{a}} = {{round(1 + b / a, 2)}}.
+    variants:
+      params:
+        a: choice[1,2,10]
+        b: choice[9,10,47,100]
+      defaults:
+        a: 1
+        b: 9
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: Welche Verstärkung hat die Schaltung?
+    params:
+      pairs:
+        - left: Invertierend, R₁ = R₂
+          right: −1
+        - left: Nichtinvertierend, R₁ = R₂
+          right: "2"
+        - left: Spannungsfolger
+          right: "1"
+        - left: Nichtinvertierend, R₂ = 9 · R₁
+          right: "10"
+      leftTitle: Schaltung
+      rightTitle: Verstärkung
+    hints:
+      - "Invertierend: −R₂ : R₁. Nichtinvertierend: 1 + R₂ : R₁."
+      - Der Folger ist nichtinvertierend mit R₂ = 0.
+    explanation: −1, 2, 1 und 10. Mit zwei Widerständen stellst du jede Verstärkung ein.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein invertierender Verstärker mit R₁ = 1 kΩ und R₂ = 47 kΩ bekommt 0,2 V. Was liefert der Ausgang?
+    params:
+      unit: V
+    answer:
+      value: -9.4
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 9.4) < 0.01
+        misconception: sign
+        text: "Das Vorzeichen fehlt: Der Ausgang ist negativ."
+    hints:
+      - v = −47.
+      - −47 · 0,2 V.
+    explanation: −9,4 V. Bei ±12 V Versorgung passt das gerade noch, bei 0,3 V Eingang würde der Ausgang anschlagen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Mischpult addiert zwei Signale: Ein Summierer mit R_f = 10 kΩ und zwei Eingangswiderständen von 10 kΩ bekommt {{u1}} V und {{u2}} V. Was liefert er?"
+    params:
+      unit: V
+    answer:
+      value: "{{-(u1 + u2)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - (u1 + u2)) < 0.01
+        misconception: sign
+        text: "Es ist ein invertierender Summierer: Vorzeichen beachten."
+    hints:
+      - "Am Minuseingang summieren sich die Ströme U₁ : R und U₂ : R."
+      - "U_aus = −R_f · (U₁ : R₁ + U₂ : R₂)."
+    explanation: −({{u1}} + {{u2}}) = {{-(u1 + u2)}} V. Mit anderen Eingangswiderständen bekommt jeder Kanal seinen eigenen Regler.
+    difficulty: 2
+    variants:
+      params:
+        u1: choice[0.5,1,2]
+        u2: choice[-1,1,1.5,3]
+      constraints:
+        - u1 + u2 != 0
+      defaults:
+        u1: 1
+        u2: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Welcher Verstärker belastet eine empfindliche Quelle weniger?
+    params:
+      options:
+        - label: "Der nichtinvertierende: Das Signal geht direkt in den Pluseingang"
+          correct: true
+        - label: Der invertierende
+          feedback: Seine Quelle sieht R₁ gegen die virtuelle Masse.
+        - label: Beide gleich
+          feedback: Die Eingangswiderstände unterscheiden sich stark.
+    hints:
+      - In die Eingänge des OPV fließt kein Strom.
+      - Beim invertierenden fließt Strom durch R₁.
+    explanation: Nichtinvertierend ist der Eingangswiderstand riesig, invertierend nur R₁. Für Sensoren nimmt man darum meist die nichtinvertierende Schaltung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein OPV hat ein Verstärkungs-Bandbreite-Produkt von 1 MHz. Bis zu welcher Frequenz schafft er eine Verstärkung von {{g}}, in kHz?
+    params:
+      unit: kHz
+    answer:
+      value: "{{1000 / g}}"
+      tolerance: 0.01
+    hints:
+      - Verstärkung · Bandbreite = 1 MHz.
+      - "1000 kHz : {{g}}."
+    explanation: "{{1000 / g}} kHz. Für Audio bis 20 kHz mit Verstärkung 1000 braucht es zwei Stufen oder einen schnelleren OPV."
+    difficulty: 3
+    variants:
+      params:
+        g: choice[10,20,100,1000]
+      defaults:
+        g: 100
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux, warum beim invertierenden Verstärker v = −R₂ : R₁ gilt."
+    params:
+      keywords:
+        - - virtuell
+          - virtual
+          - masse
+          - ground
+          - 0 v
+        - - strom
+          - current
+        - - r₁
+          - r1
+          - r₂
+          - r2
+        - - umgekehrt
+          - invert
+          - minus
+          - negativ
+          - negative
+      sample: "Der Pluseingang liegt an Masse, also hält der OPV auch den Minuseingang auf 0 V: virtuelle Masse. Durch R₁ fließt der Strom U_ein : R₁. Er kann nicht in den OPV, also fließt er weiter durch R₂. Dafür muss der Ausgang auf −R₂ · U_ein : R₁ gehen."
+    explanation: "Kern: virtuelle Masse plus »kein Eingangsstrom« – derselbe Strom fließt durch beide Widerstände."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

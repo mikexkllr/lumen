@@ -1,0 +1,180 @@
+id: ee.digital.flipflop
+type: concept
+title: "Flipflops: Speicher aus Rückkopplung"
+summary: "Zwei Gatter, die sich gegenseitig halten, merken sich ein Bit."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Treppenlicht hat einen Taster »An« und einen »Aus«. Lässt du los, bleibt es, wie es ist. Was braucht die Schaltung dafür?
+    params:
+      options:
+        - label: "Ein Gedächtnis: Der Ausgang wirkt auf sich selbst zurück"
+          correct: true
+        - label: Ein UND-Gatter
+          feedback: Ein einfaches Gatter vergisst, sobald die Eingänge 0 sind.
+        - label: Eine Batterie
+          feedback: Gemerkt wird ein Zustand, nicht Energie.
+    hints:
+      - Beide Taster sind nach dem Loslassen 0.
+      - Trotzdem muss die Schaltung wissen, welcher zuletzt gedrückt war.
+    explanation: "Speichern geht nur mit Rückkopplung: Der Ausgang hält sich über die Gatter selbst fest."
+
+  - kind: explain
+    id: c1
+    body: Ein **Flipflop** sind zwei Gatter, deren Ausgänge über Kreuz an die Eingänge des anderen gehen. Beim RS-Flipflop setzt S den Ausgang auf 1, R setzt ihn auf 0. Sind beide 0, bleibt der alte Wert.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Ein RS-Flipflop startet mit Q = 0. Was zeigt Q nach jedem Schritt? Bring die Schritte in die Reihenfolge, in der Q zuerst 1, dann 1, dann 0, dann 0 ist.
+    params:
+      items:
+        - label: S = 1 kurz drücken
+        - label: Beide loslassen (S = R = 0)
+        - label: R = 1 kurz drücken
+        - label: Wieder beide loslassen
+    hints:
+      - S setzt, R setzt zurück.
+      - Loslassen ändert nichts.
+    explanation: Setzen → 1, halten → 1, zurücksetzen → 0, halten → 0. Das Flipflop speichert ein Bit.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Was passiert beim RS-Flipflop aus NOR-Gattern, wenn S und R gleichzeitig 1 sind?
+    params:
+      options:
+        - label: Beide Ausgänge werden 0, und beim Loslassen ist das Ergebnis Zufall
+          correct: true
+        - label: Q wird 1
+          feedback: Setzen und Rücksetzen zugleich widersprechen sich.
+        - label: Das Gatter brennt durch
+          feedback: Es ist ein logisches, kein elektrisches Problem.
+    hints:
+      - Ein NOR gibt 0, sobald ein Eingang 1 ist.
+      - Lässt man beide gleichzeitig los, gewinnt das schnellere Gatter.
+    explanation: Darum gilt S = R = 1 als verbotener Zustand. Getaktete Flipflops vermeiden das Problem.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ein **D-Flipflop** übernimmt den Wert am Eingang D nur bei der steigenden Flanke des Takts. Den Rest der Zeit hält es ihn fest. Acht davon nebeneinander speichern ein Byte: ein Register."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine statische Speicherzelle (SRAM) braucht 6 Transistoren pro Bit. Wie viele Millionen Transistoren stecken in 1 MiB = 8 388 608 Bit? Auf ganze Millionen.
+    params:
+      unit: Mio.
+    answer:
+      value: 50
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - 8.4) < 0.1
+        misconception: bits
+        text: Das sind die Bits. Jedes braucht 6 Transistoren.
+    hints:
+      - 8 388 608 · 6.
+      - Das sind etwa 50 331 648.
+    explanation: Rund 50 Millionen. Darum sind die Caches oft der größte Teil eines Prozessors.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Flipflops braucht ein Speicher für Zahlen von 0 bis {{m}}?
+    answer:
+      value: "{{len(bin(m))}}"
+    hints:
+      - Mit n Bits zählt man bis 2ⁿ − 1.
+      - Finde das kleinste n mit 2ⁿ > {{m}}.
+    explanation: "{{m}} ist binär {{bin(m)}}, also {{len(bin(m))}} Stellen."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[7,15,100,255,1000]
+      defaults:
+        m: 1000
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: swipe
+    prompt: Merkt sich die Schaltung etwas?
+    params:
+      cards:
+        - text: RS-Flipflop
+          right: true
+        - text: UND-Gatter
+          right: false
+        - text: Register aus 8 D-Flipflops
+          right: true
+        - text: Volladdierer
+          right: false
+        - text: SRAM-Zelle
+          right: true
+        - text: Inverter
+          right: false
+      left: Vergisst
+      right: Speichert
+    explanation: Speichern braucht Rückkopplung. Gatter ohne Rückkopplung hängen nur von den aktuellen Eingängen ab.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ein Signal ändert sich genau im Moment der Taktflanke. Was kann im Flipflop passieren?
+    params:
+      options:
+        - label: Es hängt kurz zwischen 0 und 1 fest, bevor es zufällig kippt
+          correct: true
+        - label: Es übernimmt immer den neuen Wert
+          feedback: Dafür muss D eine Weile vorher stabil sein.
+        - label: Es speichert beide Werte
+          feedback: Ein Flipflop hat nur einen Zustand.
+    hints:
+      - Flipflops brauchen Vorlauf- und Haltezeit.
+      - Wie ein Bleistift, der auf der Spitze balanciert.
+    explanation: Das heißt Metastabilität. Signale aus fremden Taktbereichen laufen deshalb durch zwei Flipflops hintereinander, das zweite sieht fast immer einen sauberen Pegel.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie zwei Gatter sich ein Bit merken können.
+    params:
+      keywords:
+        - - rückkopp
+          - rueckkopp
+          - feedback
+          - über kreuz
+          - ueber kreuz
+          - cross
+        - - ausgang
+          - ausgae
+          - output
+        - - halt
+          - hold
+          - bleib
+          - stay
+          - merk
+          - remember
+        - - setz
+          - set
+          - reset
+      sample: Die Ausgänge der beiden Gatter gehen über Kreuz an den Eingang des anderen. Diese Rückkopplung hält einen Zustand stabil. Ein Setzimpuls kippt ihn auf 1, ein Rücksetzimpuls auf 0. Ohne Impuls bleibt er, wie er ist.
+    explanation: "Kern: Rückkopplung erzeugt zwei stabile Zustände. Das ist die Grundlage jedes Speichers."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

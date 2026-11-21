@@ -1,0 +1,246 @@
+id: ee.control.stability
+type: concept
+title: "Stabilität und Überschwingen"
+summary: "Zu forsch geregelt schwingt alles – Dämpfung, Totzeit und die Grenze zur Instabilität."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: In einem Hotel kommt das warme Wasser erst nach drei Sekunden an. Du drehst sofort weit auf, dann ist es zu heiß, du drehst weit zu … Warum pendelt es?
+    params:
+      options:
+        - label: Du reagierst zu stark auf einen Zustand, der schon veraltet ist
+          correct: true
+        - label: Weil der Wasserhahn kaputt ist
+          feedback: Mit Geduld klappt es.
+        - label: Weil warmes Wasser schwankt
+          feedback: Die Schwankung kommt von deinem Drehen.
+    hints:
+      - Zwischen Drehen und Spüren liegen drei Sekunden.
+      - In dieser Zeit drehst du schon weiter.
+    explanation: Verzögerung plus kräftiges Eingreifen macht Schwingungen. Sanfter drehen und abwarten hilft.
+
+  - kind: explain
+    id: c1
+    body: Läuft der Istwert über den Sollwert hinaus, bevor er sich einpendelt, heißt das **Überschwingen**. Man gibt es in Prozent des Sprungs an. Wenig Überschwingen ist oft gewollt, denn es macht den Kreis schnell.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die Temperatur soll von 0 auf {{w}} °C springen. Sie erreicht kurz {{p}} °C. Wie viel Prozent Überschwingen sind das?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (p - w) / w}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - (p - w)) < 0.01
+        misconception: absolute
+        text: Das sind Kelvin. Gefragt ist der Anteil am Sprung in Prozent.
+    hints:
+      - "Überschwingen = (Spitze − Sollwert) : Sollwert."
+      - "({{p}} − {{w}}) : {{w}}, mal 100."
+    explanation: "{{p - w}} : {{w}} = {{round(100 * (p - w) / w, 2)}} %."
+    variants:
+      params:
+        w: choice[40,50]
+        o: choice[2,5,6,10]
+      derive:
+        p: w + o
+      defaults:
+        w: 50
+        o: 6
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: Die Kurve zeigt die Antwort eines Regelkreises auf einen Sprung auf 1. Stell die Dämpfung z so ein, dass das Überschwingen unter 10 % bleibt (Punkte bei 1,1) – aber so schnell wie möglich.
+    params:
+      expr: 1 - exp(-2*z*x)*(cos(2*sqrt(1-z^2)*x) + z/sqrt(1-z^2)*sin(2*sqrt(1-z^2)*x))
+      x:
+        - 0
+        - 6
+      y:
+        - 0
+        - 2
+      showCoordinates: false
+      sliders:
+        - id: z
+          label: Dämpfung z
+          min: 0.1
+          max: 0.9
+          step: 0.1
+          initial: 0.2
+      markers:
+        - x: 1
+          y: 1.1
+          group: b
+        - x: 3
+          y: 1.1
+          group: b
+        - x: 5
+          y: 1.1
+          group: b
+    check:
+      predicate: z > 0.55 && z < 0.65
+    hints:
+      - Mehr Dämpfung, weniger Überschwingen – aber langsamer.
+      - Bei z = 0,5 sind es etwa 16 %, bei 0,6 etwa 9,5 %.
+    explanation: "z = 0,6: knapp unter 10 % Überschwingen. Das Überschwingen ist e^(−zπ/√(1 − z²)). Viele Regler werden auf etwa diesen Wert eingestellt."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Macht das einen Regelkreis unruhiger?
+    params:
+      buckets:
+        - id: b1
+          label: Unruhiger
+        - id: b2
+          label: Ruhiger
+      items:
+        - label: Höhere Reglerverstärkung
+          bucket: b1
+        - label: Mehr Totzeit
+          bucket: b1
+        - label: Langsamer Sensor
+          bucket: b1
+        - label: Mehr Dämpfung durch einen D-Anteil
+          bucket: b2
+        - label: Kleinere Verstärkung
+          bucket: b2
+    hints:
+      - Verzögerungen lassen den Regler auf veraltete Werte reagieren.
+      - Der D-Anteil bremst, wenn sich der Fehler schnell ändert.
+    explanation: "Verstärkung und Verzögerung treiben Schwingungen an, Dämpfung bremst sie. Einstellen heißt: einen guten Kompromiss finden."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die **Totzeit** ist die Verzögerung, bis ein Eingriff überhaupt wirkt: das Wasser im Rohr, die Wärme in der Wand. In dieser Zeit sieht der Regler nichts. Je größer die Totzeit, desto sanfter muss er eingreifen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Totzeit T verschiebt eine Schwingung mit der Frequenz f um 360° · f · T. Bei welcher Frequenz verschiebt eine Totzeit von {{t}} s um genau 180°?
+    params:
+      unit: Hz
+    answer:
+      value: "{{0.5 / t}}"
+      tolerance: 0.001
+    hints:
+      - 180° = 360° · f · {{t}} s.
+      - "f = 0,5 : {{t}}."
+    explanation: f = {{0.5 / t}} Hz. Bei dieser Frequenz wird aus Gegenkopplung Mitkopplung – das ist die Gefahr.
+    difficulty: 2
+    variants:
+      params:
+        t: choice[0.1,0.25,0.5,2]
+      defaults:
+        t: 0.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kreis hat bei einer Frequenz 180° Phasenverschiebung und dort eine Kreisverstärkung von genau 1. Was passiert?
+    params:
+      options:
+        - label: Er schwingt dauerhaft – genau so baut man Oszillatoren
+          correct: true
+        - label: Er ist besonders stabil
+          feedback: Bei 180° verstärkt die Rückführung die Abweichung.
+        - label: Er geht sofort aus
+          feedback: Die Schwingung erhält sich selbst.
+    hints:
+      - 180° Verschiebung dreht das Vorzeichen um.
+      - Aus Gegenkopplung wird Mitkopplung.
+    explanation: Das ist die Schwingbedingung nach Barkhausen. Im Oszillator gewollt, im Regelkreis der Albtraum. Bei mehr als 1 wächst die Schwingung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Regelkreis schwingt mit K = {{k}} gerade an der Stabilitätsgrenze. Ingenieure wollen eine Amplitudenreserve von Faktor 2. Welches K stellen sie ein?
+    answer:
+      value: "{{k / 2}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 2 * k) < 0.001
+        misconception: direction
+        text: "Reserve heißt: weiter weg von der Grenze, also kleiner."
+    hints:
+      - An der Grenze ist K = {{k}}.
+      - Halb so viel Verstärkung lässt Reserve.
+    explanation: K = {{k / 2}}. Dann darf sich die Strecke um den Faktor 2 ändern, bevor der Kreis instabil wird.
+    difficulty: 3
+    variants:
+      params:
+        k: choice[4,6,10,20]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In der Regelungstheorie hat jede Eigenschwingung die Form e^(s t) mit einer komplexen Zahl s. Wann ist der Kreis stabil?
+    params:
+      options:
+        - label: Wenn alle s einen negativen Realteil haben – sie liegen links in der Zahlenebene
+          correct: true
+        - label: Wenn alle s reell sind
+          feedback: Auch komplexe s sind erlaubt; sie bedeuten gedämpfte Schwingungen.
+        - label: Wenn alle s positiv sind
+          feedback: Dann wächst e^(s t) über alle Grenzen.
+    hints:
+      - e^(−2t) klingt ab, e^(+2t) wächst.
+      - Der Imaginärteil sorgt nur für das Schwingen.
+    explanation: Die Pole der Übertragungsfunktion müssen in der linken Halbebene liegen. Der Realteil bestimmt das Abklingen, der Imaginärteil die Schwingfrequenz.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein zu kräftig eingestellter Regler zu schwingen beginnt.
+    params:
+      keywords:
+        - - verzöger
+          - verzoeger
+          - delay
+          - totzeit
+          - dead time
+          - träg
+          - traeg
+          - lag
+        - - stark
+          - strong
+          - verstärk
+          - verstaerk
+          - gain
+          - kräftig
+          - kraeftig
+          - aggress
+        - - über
+          - ueber
+          - over
+          - zu weit
+          - too far
+        - - schwing
+          - oscillat
+          - pendel
+          - swing
+      sample: Jeder Kreis hat Verzögerungen. Ein kräftiger Regler reagiert stark auf einen Fehler, den er erst verspätet sieht. Bis die Wirkung ankommt, hat er schon zu weit gedreht, und der Istwert schießt über das Ziel. Dann korrigiert er genauso heftig zurück, und der Kreis pendelt hin und her.
+    explanation: "Kern: hohe Verstärkung plus Verzögerung ergibt Überschwingen bis zur Instabilität."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

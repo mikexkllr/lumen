@@ -1,0 +1,218 @@
+id: ee.measure.errors
+type: concept
+title: "Understanding measurement errors"
+summary: "Accuracy, resolution, random and systematic – how good is your reading?"
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Your multimeter is accurate to ±1 %. It shows 230 V. By how many volts can it be off at most?
+    params:
+      min: 0
+      max: 20
+    answer:
+      value: 2.3
+      tolerance: 0.5
+    explanation: 1 % of 230 V is 2.3 V. The true voltage lies between 227.7 V and 232.3 V.
+
+  - kind: explain
+    id: c1
+    body: No meter is exact. The **measurement uncertainty** is in the data sheet, for example ±(0.5 % + 2 digits). One digit is one step of the last place. If the meter shows 12.00 V, one digit is 0.01 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A meter shows {{x}} V with two decimal places. Its spec is ±({{p}} % + 2 digits). What is the largest possible error in V?
+    params:
+      unit: V
+    answer:
+      value: "{{x * p / 100 + 0.02}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - x * p / 100) < 0.001
+        misconception: forgot-digits
+        text: "Add the 2 digits as well: 2 × 0.01 V."
+    hints:
+      - "{{p}} % of {{x}} V, plus 2 × 0.01 V."
+      - "{{x * p / 100}} V + 0.02 V."
+    explanation: "{{x * p / 100}} + 0.02 = {{x * p / 100 + 0.02}} V. So the true value lies between {{x - x * p / 100 - 0.02}} and {{x + x * p / 100 + 0.02}} V."
+    variants:
+      params:
+        x: choice[5,12,15]
+        p: choice[0.5,1]
+      defaults:
+        x: 12
+        p: 0.5
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Systematic or random error?
+    params:
+      buckets:
+        - id: b1
+          label: Systematic
+        - id: b2
+          label: Random
+      items:
+        - label: Meter is wrongly calibrated
+          bucket: b1
+        - label: Display jitters from interference
+          bucket: b2
+        - label: Test leads have resistance
+          bucket: b1
+        - label: Noise in the amplifier
+          bucket: b2
+        - label: Voltmeter loads the circuit
+          bucket: b1
+        - label: A draught briefly cools the sensor
+          bucket: b2
+    hints:
+      - "Systematic: always in the same direction."
+      - "Random: sometimes more, sometimes less."
+    explanation: Systematic errors shift every reading the same way. Repeating doesn’t help, only correcting. Random errors scatter and average out.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Meter A shows 4 decimal places, meter B only 2. Which one is more accurate?
+    params:
+      options:
+        - label: The display doesn’t tell you, only the data sheet does
+          correct: true
+        - label: A, it shows more digits
+          feedback: Many digits are resolution, not accuracy.
+        - label: B, fewer digits are more honest
+          feedback: That says nothing about accuracy either.
+    hints:
+      - Resolution is the smallest step, accuracy is closeness to the true value.
+      - A watch with a second hand can still be 5 minutes off.
+    explanation: Resolution says how finely the meter displays. Accuracy says how close it is to the true value. Both are listed separately in the data sheet.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Random errors shrink when you measure often and average. The scatter of the **mean** shrinks with the square root of the number. Four times as many readings halve it.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: You average {{n}} readings instead of one. By what factor does the random scatter of the mean shrink?
+    answer:
+      value: "{{sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: no-sqrt
+        text: "Not quite: the scatter only falls with the square root."
+    hints:
+      - Factor = √n.
+      - √{{n}}.
+    explanation: √{{n}} = {{sqrt(n)}}. For a ten times better result you need a hundred times as many readings.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,9,16,25,100]
+      defaults:
+        n: 100
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Your meter reads 0.3 V too high systematically. You average 1000 readings. How big is the error afterwards?
+    params:
+      options:
+        - label: Still 0.3 V
+          correct: true
+        - label: Almost zero
+          feedback: Averaging only helps against random errors.
+        - label: 0.3 V ÷ √1000
+          feedback: The square-root rule only applies to random scatter.
+    hints:
+      - Every single reading is 0.3 V too high.
+      - The mean of many high readings is high too.
+    explanation: "Only calibration helps against systematic errors: comparing against an accurate reference."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: You measure U = 12 V to ±1 % and I = 2 A to ±2 %. What is the largest error in the power P = U × I, in watts?
+    params:
+      unit: W
+    answer:
+      value: 0.72
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.24) < 0.01
+        misconception: one-error
+        text: Only the voltage error? For a product the relative errors add.
+    hints:
+      - For a product the relative errors add in the worst case.
+      - 1 % + 2 % = 3 % of 24 W.
+    explanation: P = 24 W ± 3 % = ± 0.72 W. That is the upper bound if both errors go the same way.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "If the two errors are random and independent, they add in quadrature: √(1² + 2²) %. What percentage is that? To two decimal places."
+    params:
+      unit: "%"
+    answer:
+      value: 2.24
+      tolerance: 0.01
+    hints:
+      - 1² + 2² = 5.
+      - √5 ≈ ?
+    explanation: √5 ≈ 2.24 %. Less than 3 %, because random errors partly cancel.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how resolution and accuracy differ. Give an example.
+    params:
+      keywords:
+        - - auflösung
+          - aufloesung
+          - resolution
+          - stelle
+          - digit
+          - fein
+          - fine
+        - - genauigkeit
+          - accura
+          - wahr
+          - "true"
+          - richtig
+          - correct
+        - - beispiel
+          - example
+          - uhr
+          - watch
+          - waage
+          - scale
+          - lineal
+          - ruler
+        - - datenblatt
+          - data sheet
+          - kalibr
+          - calibr
+          - unterschied
+          - differen
+      sample: "Resolution is the smallest step the device displays. Accuracy is how close the reading is to the true value. A watch showing seconds can still be five minutes wrong: high resolution, poor accuracy. Accuracy is given in the data sheet."
+    explanation: "The core: many digits are no guarantee. Accuracy comes from the data sheet or from calibration."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

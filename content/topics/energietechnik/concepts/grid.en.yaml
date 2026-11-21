@@ -1,0 +1,188 @@
+id: ee.power.grid
+type: concept
+title: "The power grid"
+summary: "From the power station across four voltage levels to the socket."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Germany uses about 500 TWh of electricity per year. How many gigawatts is that on average?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 57
+      within: 40
+    explanation: 500,000 GWh ÷ 8760 h ≈ 57 GW. More during the day, less at night – roughly between 40 and 75 GW.
+
+  - kind: explain
+    id: c1
+    body: The grid has several **voltage levels**. Extra-high voltage at 220 or 380 kV carries power over long distances. 110 kV distributes it across regions, 10 to 30 kV into towns and villages. Finally 230/400 V reach the house.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Put the path of the power in the right order.
+    params:
+      items:
+        - label: Generator in the power station
+        - label: 380 kV transmission line
+        - label: Substation to 110 kV
+        - label: Medium voltage 20 kV
+        - label: Local transformer
+        - label: House connection 400 V
+    hints:
+      - First the voltage is stepped up, then down step by step.
+      - The small transformer in the neighbourhood comes just before the house.
+    explanation: Each level has its transformers. Station generators usually produce 10 to 27 kV, and a generator transformer steps that up to 380 kV.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Who typically connects at which level?
+    params:
+      pairs:
+        - left: 380 kV
+          right: Large plants and long-distance lines
+        - left: 110 kV
+          right: Cities and heavy industry
+        - left: 20 kV
+          right: Wind turbines and businesses
+        - left: 400 V
+          right: Households
+      leftTitle: Level
+      rightTitle: Users
+    hints:
+      - The larger the power, the higher the level.
+      - A single wind turbine has a few megawatts.
+    explanation: Large power needs high voltage so the current stays small. Small consumers sit at the bottom.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A country uses {{e}} TWh per year. What is the average power in GW? A year has 8760 h. To one decimal place.
+    params:
+      unit: GW
+    answer:
+      value: "{{e * 1000 / 8760}}"
+      tolerance: 0.06
+    hints:
+      - "{{e}} TWh = {{e * 1000}} GWh."
+      - Divide by 8760 h.
+    explanation: ≈ {{round(e * 1000 / 8760, 1)}} GW. That is what power stations must deliver around the clock on average.
+    variants:
+      params:
+        e: choice[60,300,500,4000]
+      defaults:
+        e: 500
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A 380 kV three-phase line carries 1 GW. What is the current per conductor, I = P ÷ (√3 × U)? To the nearest amp.
+    params:
+      unit: A
+    answer:
+      value: 1519
+      tolerance: 1
+    hints:
+      - √3 × 380 kV ≈ 658 kV.
+      - 1,000,000,000 W ÷ 658,179 V.
+    explanation: ≈ 1519 A per conductor. At 400 V the same power would need 1.4 million amps.
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Grid operators plan by the **n-1 criterion**: if any single element fails, a line, a transformer or a plant, the grid must keep running. That is why grids are meshed rather than star-shaped."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A 380 kV line is knocked out by lightning. What happens in a meshed grid?
+    params:
+      options:
+        - label: The power immediately spreads over the other lines
+          correct: true
+        - label: The whole region goes dark
+          feedback: That is exactly what meshing prevents.
+        - label: A technician reroutes it by hand
+          feedback: Physics redistributes it by itself, in milliseconds.
+    hints:
+      - Current takes every available path.
+      - The other lines must have enough spare capacity.
+    explanation: By Kirchhoff the current splits over the remaining paths. The n-1 criterion makes sure none of them is overloaded.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: For very long routes and sea cables, DC lines (HVDC) are built, for example at ±525 kV. Why not AC?
+    params:
+      options:
+        - label: Long cables have large capacitance; AC would constantly recharge it
+          correct: true
+        - label: Because DC is safer
+          feedback: Both are deadly at 525 kV.
+        - label: Because transformers need DC
+          feedback: Transformers need AC; HVDC uses converters.
+    hints:
+      - A cable is a long capacitor.
+      - With AC a charging current flows all the time, even with no load.
+    explanation: After a few dozen kilometres of sea cable the charging current would equal the useful current. DC charges the cable only once. And there is no reactive power or skin effect.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "The continental European grid is synchronous: a generator in Portugal turns in exactly the same rhythm as one in Poland. What follows?"
+    params:
+      options:
+        - label: Everyone helps instantly in a disturbance, but a disturbance is felt everywhere too
+          correct: true
+        - label: Every country sets its own frequency
+          feedback: There is only one shared frequency.
+        - label: The countries exchange no power
+          feedback: They exchange power constantly.
+    hints:
+      - Coupled generators behave like one giant machine.
+      - The grid frequency is the same across the whole system.
+    explanation: The huge rotating mass makes the grid stable. In 2021 south-eastern Europe briefly split off after a fault – automatic protection prevented a large blackout.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why power travels long distances at 380 kV instead of 230 V.
+    params:
+      keywords:
+        - - spannung
+          - voltage
+          - kv
+        - - strom
+          - current
+        - - verlust
+          - loss
+          - wärme
+          - waerme
+          - heat
+        - - trafo
+          - transformer
+          - umspann
+      sample: For the same power P = U × I, high voltage needs only a small current. Line losses grow with the square of the current. So transformers step the voltage up for transport and back down before the house.
+    explanation: "The core: high voltage, small current, small losses. The next lesson works it out."
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d1", "x1"]

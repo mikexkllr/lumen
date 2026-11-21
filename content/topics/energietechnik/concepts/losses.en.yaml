@@ -1,0 +1,208 @@
+id: ee.power.losses
+type: concept
+title: "Line losses: P = I² × R"
+summary: "Why double the voltage means a quarter of the losses – and when an extension lead gets hot."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You want to send 100 MW over 100 km. Which voltage loses the least?
+    params:
+      options:
+        - label: 380 kV
+          correct: true
+        - label: 110 kV
+          feedback: Higher voltage means less current and less heat.
+        - label: It doesn’t matter, it’s the same line
+          feedback: The losses depend on the current.
+    hints:
+      - Same power, but how much current?
+      - I = P ÷ U.
+    explanation: At 380 kV only about a third of the current flows compared with 110 kV. The losses are then only about a twelfth.
+
+  - kind: explain
+    id: c1
+    body: "**Line losses** are P_loss = I² × R. For a fixed power, I = P ÷ U. So double the voltage halves the current and quarters the losses."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: You raise the transmission voltage {{k}}-fold at the same power. By what factor do the losses fall?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: linear
+        text: The current falls by {{k}}, the losses with its square.
+    hints:
+      - The current gets {{k}} times smaller.
+      - Losses ∝ I².
+    explanation: "{{k}}² = {{k * k}}. That is why huge transformers and insulators pay off."
+    variants:
+      params:
+        k: choice[2,3,5,10]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A 10 Ω line carries 100 MW at 110 kV. How many MW are lost? Simplified as if DC, to two decimal places.
+    params:
+      unit: MW
+    answer:
+      value: 8.26
+      tolerance: 0.01
+    hints:
+      - I = 100 MW ÷ 110 kV ≈ 909 A.
+      - P_loss = 909² × 10 Ω.
+    explanation: ≈ 8.26 MW, over 8 % of the power.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The same line and the same 100 MW, but at 380 kV. How many MW are lost now? To two decimal places.
+    params:
+      unit: MW
+    answer:
+      value: 0.69
+      tolerance: 0.006
+    hints:
+      - I = 100 MW ÷ 380 kV ≈ 263 A.
+      - P_loss = 263² × 10 Ω.
+    explanation: ≈ 0.69 MW instead of 8.26 MW – twelve times less, as (380 ÷ 110)² ≈ 11.9 predicts.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A wire’s resistance is R = ρ × l ÷ A. The **resistivity** ρ is a material constant. Copper has 0.0175 Ω·mm²/m, aluminium 0.028. Long and thin means a lot of resistance.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A copper extension lead is {{l}} m long with a {{a}} mm² cross-section. The current must go there and back. What is its resistance? To three decimal places.
+    params:
+      unit: Ω
+    answer:
+      value: "{{0.0175 * 2 * l / a}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.0175 * l / a) < 0.001
+        misconception: one-way
+        text: "There and back: the wire is twice as long."
+    hints:
+      - "Wire length: 2 × {{l}} m."
+      - R = 0.0175 × {{2 * l}} ÷ {{a}}.
+    explanation: R ≈ {{round(0.0175 * 2 * l / a, 3)}} Ω.
+    difficulty: 2
+    variants:
+      params:
+        l: choice[10,25,50]
+        a: choice[1.5,2.5]
+      defaults:
+        l: 25
+        a: 1.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: 16 A flow through a 0.583 Ω cable for a fan heater. How much heat arises in the cable? To the nearest watt.
+    params:
+      unit: W
+    answer:
+      value: 149
+      tolerance: 0.6
+    hints:
+      - P = I² × R.
+      - 256 × 0.583.
+    explanation: ≈ 149 W, plus 9.3 V less at the device. Spread over 25 m it is harmless – wound up on a reel it is not.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Why should you fully unwind a cable reel under heavy load?
+    params:
+      options:
+        - label: Wound up, the heat can’t escape and the cable can melt
+          correct: true
+        - label: Because the cable has more resistance when wound
+          feedback: The resistance is the same, but the heat builds up.
+        - label: Because otherwise a magnetic field forms
+          feedback: The two conductors almost cancel.
+    hints:
+      - The heat is the same, but where can it go?
+      - Inside the reel it gets hotter and hotter.
+    explanation: "That is why reels often say “wound: max 1000 W, unwound: 3500 W”."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: AC crowds to the surface. The skin depth is δ = √(ρ ÷ (π f µ₀)). How large is it in copper at 50 Hz, with ρ = 1.72 × 10⁻⁸ Ω·m and µ₀ = 1.257 × 10⁻⁶? In mm, to one decimal place.
+    params:
+      unit: mm
+    answer:
+      value: 9.3
+      tolerance: 0.06
+    hints:
+      - π × 50 × 1.257 × 10⁻⁶ ≈ 1.97 × 10⁻⁴.
+      - δ = √(1.72 × 10⁻⁸ ÷ 1.97 × 10⁻⁴) m.
+    explanation: ≈ 9.3 mm. Conductors thicker than about 2 cm are barely used inside. At 1 MHz it is only 0.07 mm.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Overhead lines are mostly aluminium with a steel core, although copper conducts better. Why?
+    params:
+      options:
+        - label: Aluminium conducts better per kilogram and is cheaper; the steel carries the load
+          correct: true
+        - label: Because copper rusts
+          feedback: Copper hardly corrodes.
+        - label: Because aluminium prevents the skin effect
+          feedback: Every metal has the skin effect.
+    hints:
+      - Pylons must carry the weight of the cables.
+      - Aluminium is three times lighter than copper.
+    explanation: For equal resistance aluminium needs 1.6 times the cross-section but weighs only half as much. The steel core gives tensile strength for spans of 400 m.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why doubling the voltage quarters the line losses.
+    params:
+      keywords:
+        - - leistung
+          - power
+        - - strom
+          - current
+          - halb
+          - half
+        - - quadrat
+          - square
+          - i²
+          - i^2
+        - - viertel
+          - quarter
+          - verlust
+          - loss
+      sample: Power is P = U × I. With double the voltage, half the current delivers the same power. Line losses are I² × R, they depend on the square of the current. So half the current gives a quarter of the losses.
+    explanation: "The core: I = P ÷ U and P_loss = I² × R give P_loss = P² × R ÷ U²."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

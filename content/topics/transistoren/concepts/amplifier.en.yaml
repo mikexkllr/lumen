@@ -1,0 +1,205 @@
+id: ee.transistors.amplifier
+type: concept
+title: "The transistor as an amplifier"
+summary: "Held half open, it turns small wiggles into big ones."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A microphone gives about 10 mV. A loudspeaker needs about 10 V. By what factor must the voltage be amplified?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 1000
+      within: 20
+    explanation: 10 V ÷ 0.01 V = 1000. That usually takes several amplifier stages in a row.
+
+  - kind: explain
+    id: c1
+    body: As an **amplifier** the transistor is kept half open. Small changes at the base change the collector current a lot. Across the collector resistor this becomes a large voltage change.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: An amplifier turns {{e}} mV at the input into {{a}} V at the output. What is the gain?
+    answer:
+      value: "{{a * 1000 / e}}"
+    feedback:
+      - when: abs(numval(state.input) - a / e) < 0.001
+        misconception: units
+        text: "Convert to the same unit first: {{a}} V = {{a * 1000}} mV."
+    hints:
+      - Gain = output ÷ input.
+      - "{{a * 1000}} mV ÷ {{e}} mV."
+    explanation: "{{a * 1000}} ÷ {{e}} = {{a * 1000 / e}}. Gain has no unit."
+    variants:
+      params:
+        e: choice[5,10,20,50]
+        a: choice[1,2,5]
+      defaults:
+        e: 10
+        a: 2
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Why is the amplifier set so that the transistor is half open with no signal?
+    params:
+      options:
+        - label: So the signal has room to swing up and down
+          correct: true
+        - label: So it uses less current
+          feedback: Half open it actually draws more idle current.
+        - label: Because otherwise it won’t conduct
+          feedback: It should respond in both directions.
+    hints:
+      - A sound signal swings positive and negative.
+      - Fully off or fully on it could only respond one way.
+    explanation: This resting point is called the operating point. If it is wrong, the peaks get clipped and the signal sounds distorted.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Two amplifier stages in a row: the first with a gain of {{a}}, the second with {{b}}. What is the total gain?"
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: add
+        text: "Gains multiply: the second stage amplifies the already amplified signal."
+    hints:
+      - The second stage gets the first one’s output.
+      - "{{a}} × {{b}}."
+    explanation: "{{a}} × {{b}} = {{a * b}}. That is why gains are often given in decibels: then you can add them."
+    variants:
+      params:
+        a: choice[10,20,50]
+        b: choice[10,20,100]
+      defaults:
+        a: 10
+        b: 100
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: In a common-emitter stage with emitter degeneration the gain is about R_C ÷ R_E. What is it for R_C = {{c}} kΩ and R_E = {{e}} kΩ?
+    answer:
+      value: "{{c / e}}"
+    hints:
+      - Gain ≈ R_C ÷ R_E.
+      - "{{c}} ÷ {{e}}."
+    explanation: "{{c}} ÷ {{e}} ≈ {{round(c / e, 2)}}. The output is inverted: when the base rises, the collector falls."
+    difficulty: 2
+    variants:
+      params:
+        c: choice[4.7,10,22]
+        e: choice[0.47,1,2.2]
+      constraints:
+        - c / e > 2
+      defaults:
+        c: 10
+        e: 1
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Why add the emitter resistor even though it lowers the gain?
+    params:
+      options:
+        - label: The gain then depends on two resistors, not on the scattering β
+          correct: true
+        - label: Because otherwise no current flows
+          feedback: Without R_E even more flows.
+        - label: Because otherwise the transistor runs backwards
+          feedback: The direction doesn’t change.
+    hints:
+      - β varies a lot between parts and with temperature.
+      - Resistors are precise and stable.
+    explanation: "This is negative feedback: part of the output works against the input. You trade gain for stability. The same principle is behind the op-amp."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Is the transistor working as a switch or an amplifier here?
+    params:
+      cards:
+        - text: Microphone preamp
+          right: true
+        - text: Blinking an LED
+          right: false
+        - text: Driving a relay
+          right: false
+        - text: Radio receiver
+          right: true
+        - text: Motor control by pulse width
+          right: false
+        - text: Guitar amplifier
+          right: true
+      left: Switch
+      right: Amplifier
+    explanation: For analogue signals the transistor is held half open. For power and logic it is switched fully on or off.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A bipolar transistor’s transconductance is g_m = I_C ÷ U_T with U_T ≈ 25.85 mV. What is it at I_C = {{i}} mA, in mS? To one decimal place.
+    params:
+      unit: mS
+    answer:
+      value: "{{i / 0.02585}}"
+      tolerance: 0.06
+    hints:
+      - g_m = {{i}} mA ÷ 25.85 mV.
+      - mA ÷ mV = S, so × 1000 for mS.
+    explanation: "g_m ≈ {{round(i / 0.02585, 1)}} mS. Without an emitter resistor the gain would be g_m × R_C: at 1 mA and 10 kΩ about 387."
+    difficulty: 3
+    variants:
+      params:
+        i: choice[0.5,1,2]
+      defaults:
+        i: 1
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a transistor amplifies a weak signal.
+    params:
+      keywords:
+        - - halb
+          - half
+          - arbeitspunkt
+          - operating point
+        - - basis
+          - base
+          - eingang
+          - input
+          - klein
+          - small
+        - - kollektor
+          - collector
+          - strom
+          - current
+        - - widerstand
+          - resistor
+          - spannung
+          - voltage
+      sample: The transistor is held half open at its operating point. The small signal at the base makes the collector current swing a lot. That current flows through the collector resistor, where it produces a much larger voltage swing.
+    explanation: "The core: small control change, large current change, a large voltage change across the resistor."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]

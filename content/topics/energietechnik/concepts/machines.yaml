@@ -1,0 +1,216 @@
+id: ee.power.machines
+type: concept
+title: "Generatoren und Motoren"
+summary: "Dieselbe Maschine wandelt Bewegung in Strom – und Strom in Bewegung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du drehst die Welle eines kleinen Elektromotors schnell von Hand. Eine angeschlossene LED leuchtet. Warum?
+    params:
+      options:
+        - label: Der Motor arbeitet rückwärts als Generator
+          correct: true
+        - label: In ihm steckt eine Batterie
+          feedback: Es gibt keine Batterie, es ist Induktion.
+        - label: Durch Reibungswärme
+          feedback: Wärme lässt keine LED leuchten.
+    hints:
+      - Im Motor drehen sich Spulen in einem Magnetfeld.
+      - Bewegung im Magnetfeld induziert Spannung.
+    explanation: "Motor und Generator sind dieselbe Maschine. E-Autos nutzen das beim Bremsen: Der Motor lädt den Akku."
+
+  - kind: explain
+    id: c1
+    body: Im **Generator** dreht sich ein Magnet in feststehenden Spulen und induziert Wechselspannung. Mit p Polpaaren und n Umdrehungen pro Sekunde ist die Frequenz f = p · n.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Generator hat {{p}} Polpaar(e). Mit wie vielen Umdrehungen pro Minute muss er für 50 Hz drehen?
+    params:
+      unit: U/min
+    answer:
+      value: "{{3000 / p}}"
+    feedback:
+      - when: numval(state.input) == 50 / p
+        misconception: per-second
+        text: Das sind Umdrehungen pro Sekunde. Mal 60 für pro Minute.
+    hints:
+      - "n = f : p = 50 : {{p}} pro Sekunde."
+      - Mal 60 für pro Minute.
+    explanation: "{{3000 / p}} U/min. Dampfturbinen drehen mit 3000, Wasserkraft-Generatoren mit vielen Polen ganz gemächlich."
+    variants:
+      params:
+        p: choice[1,2,4,40]
+      defaults:
+        p: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Im Motor liegt ein Draht von {{l}} m Länge in einem Feld von {{b}} T und führt {{i}} A. Welche Kraft wirkt auf ihn? F = B · I · l.
+    params:
+      unit: N
+    answer:
+      value: "{{b * i * l}}"
+      tolerance: 0.001
+    hints:
+      - F = B · I · l.
+      - "{{b}} · {{i}} · {{l}}."
+    explanation: "{{b * i * l}} N. Viele Windungen multiplizieren die Kraft – daraus wird das Drehmoment."
+    variants:
+      params:
+        l: choice[0.1,0.2,0.5]
+        b: choice[0.5,1,1.5]
+        i: choice[5,10,20]
+      defaults:
+        l: 0.2
+        b: 1
+        i: 10
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Läuft die Maschine hier als Motor oder als Generator?
+    params:
+      buckets:
+        - id: b1
+          label: Motor
+        - id: b2
+          label: Generator
+      items:
+        - label: Akkuschrauber
+          bucket: b1
+        - label: Windrad
+          bucket: b2
+        - label: E-Auto beim Bremsen
+          bucket: b2
+        - label: Ventilator
+          bucket: b1
+        - label: Wasserkraftwerk
+          bucket: b2
+        - label: E-Auto beim Anfahren
+          bucket: b1
+    hints:
+      - "Motor: Strom rein, Bewegung raus."
+      - "Generator: Bewegung rein, Strom raus."
+    explanation: Beim Bremsen dreht das Rad den Motor, der dann Strom erzeugt. Das heißt Rekuperation.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Der Asynchronmotor hat ein Drehfeld. Sein Läufer dreht etwas langsamer, sonst würde in ihm nichts induziert. Dieser **Schlupf** ist s = (n_Feld − n) : n_Feld, meist wenige Prozent."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Das Drehfeld läuft mit 1500 U/min, der Läufer mit {{n}} U/min. Wie groß ist der Schlupf in Prozent? Auf zwei Nachkommastellen.
+    params:
+      unit: "%"
+    answer:
+      value: "{{(1500 - n) / 15}}"
+      tolerance: 0.006
+    hints:
+      - "s = (1500 − {{n}}) : 1500."
+      - Mal 100 für Prozent.
+    explanation: "{{1500 - n}} : 1500 ≈ {{round((1500 - n) / 15, 2)}} %. Mehr Last, mehr Schlupf, mehr Drehmoment."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1440,1450,1470,1485]
+      defaults:
+        n: 1450
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Motor liefert {{m}} Nm bei 3000 U/min. Welche mechanische Leistung ist das, P = 2π · n · M mit n in 1/s? In kW, auf eine Nachkommastelle.
+    params:
+      unit: kW
+    answer:
+      value: "{{2 * 3.14159265 * 50 * m / 1000}}"
+      tolerance: 0.06
+    hints:
+      - 3000 U/min = 50 pro Sekunde.
+      - 2π · 50 · {{m}} W.
+    explanation: ≈ {{round(2 * 3.14159265 * 50 * m / 1000, 1)}} kW. Leistung ist Drehmoment mal Winkelgeschwindigkeit.
+    difficulty: 2
+    variants:
+      params:
+        m: choice[10,50,100,200]
+      defaults:
+        m: 100
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein E-Auto-Motor leistet 150 kW bei 6000 U/min. Welches Drehmoment liefert er dabei? Auf ganze Nm.
+    params:
+      unit: Nm
+    answer:
+      value: 239
+      tolerance: 0.6
+    hints:
+      - "M = P : (2π n), n = 100 pro Sekunde."
+      - "150 000 : 628,3."
+    explanation: ≈ 239 Nm. Elektromotoren liefern ihr volles Drehmoment schon ab Stillstand – darum ziehen E-Autos so kräftig an.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Elektromotor erreicht über 90 % Wirkungsgrad, ein Benzinmotor rund 25 bis 35 %. Woher kommt der Unterschied?
+    params:
+      options:
+        - label: Der Benzinmotor ist eine Wärmekraftmaschine und muss viel Abwärme abgeben
+          correct: true
+        - label: Weil Strom mehr Energie enthält
+          feedback: Energie ist Energie – es geht um die Umwandlung.
+        - label: Weil Elektromotoren kleiner sind
+          feedback: Größe ist nicht der Grund.
+    hints:
+      - Welche Grenze gilt für Wärmekraftmaschinen?
+      - Der Elektromotor wandelt direkt um, ohne Umweg über Wärme.
+    explanation: Wärmekraftmaschinen sind durch Carnot begrenzt. Elektrische Maschinen verlieren nur durch Widerstand, Ummagnetisieren und Reibung.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Motor und Generator eigentlich dieselbe Maschine sind.
+    params:
+      keywords:
+        - - magnet
+          - feld
+          - field
+        - - spule
+          - coil
+          - draht
+          - wire
+        - - kraft
+          - force
+          - bewegung
+          - motion
+          - dreh
+          - turn
+        - - induz
+          - induc
+          - spannung
+          - voltage
+      sample: "In beiden dreht sich etwas im Magnetfeld. Schickt man Strom durch die Spulen, entsteht eine Kraft und die Welle dreht sich: Motor. Dreht man die Welle von außen, induziert die Bewegung im Feld eine Spannung: Generator. Dieselben Teile, nur umgekehrt genutzt."
+    explanation: "Kern: Lorentzkraft und Induktion sind zwei Seiten desselben Effekts."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

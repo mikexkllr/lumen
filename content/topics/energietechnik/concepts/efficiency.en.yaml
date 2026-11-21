@@ -1,0 +1,210 @@
+id: ee.power.efficiency
+type: concept
+title: "Efficiency"
+summary: "What comes out divided by what goes in – across entire chains."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Of the energy in coal: what percentage comes out of your socket as electricity?"
+    params:
+      min: 0
+      max: 100
+    answer:
+      value: 35
+      tolerance: 10
+    explanation: About 35 %. A coal plant manages about 40 %, the grid loses a few percent more. The rest is waste heat.
+
+  - kind: explain
+    id: c1
+    body: "**Efficiency** η says what share of the input power comes out usefully: η = P_out ÷ P_in. It is always below 100 %. The rest mostly becomes heat."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A power supply takes in {{p}} W and gives out {{q}} W. What is its efficiency in percent? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * q / p}}"
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 100 * p / q) < 0.06
+        misconception: flip
+        text: "The other way round: output divided by input."
+    hints:
+      - η = P_out ÷ P_in.
+      - "{{q}} ÷ {{p}}, times 100."
+    explanation: "{{q}} ÷ {{p}} = {{round(100 * q / p, 1)}} %. The missing {{p - q}} W warm the case."
+    variants:
+      params:
+        p: choice[25,50,80,100]
+        q: choice[20,45,60]
+      constraints:
+        - q < p
+      defaults:
+        p: 50
+        q: 45
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Power plant 40 %, grid 95 %, charger 90 %. What percentage of the coal’s energy ends up in the battery? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: 34.2
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 75) < 0.1
+        misconception: subtract
+        text: Efficiencies in a chain multiply, they don’t subtract.
+    hints:
+      - Each stage takes its share of what is left.
+      - 0.40 × 0.95 × 0.90.
+    explanation: 0.342, so 34.2 %. Long chains eat a lot, even if every link looks good.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Sort by efficiency, smallest first.
+    params:
+      items:
+        - label: Incandescent bulb (as a light source)
+        - label: Car engine
+        - label: Coal power plant
+        - label: Combined-cycle gas plant
+        - label: Electric motor
+        - label: Large transformer
+    hints:
+      - The incandescent bulb mostly makes heat.
+      - A large transformer loses under 1 %.
+    explanation: About 5 %, 30 %, 40 %, 60 %, 95 % and 99 %. Heat engines are at the bottom, purely electrical converters at the top.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A heat pump seems to exceed 100 %. But it doesn’t make heat, it pumps it from the surroundings into the house. The **coefficient of performance** says how many kWh of heat arrive per kWh of electricity, typically 3 to 4.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A house needs {{q}} kWh of heat per year. The heat pump has a coefficient of performance of {{c}}. How much electricity does it need, in kWh? To the nearest kWh.
+    params:
+      unit: kWh
+    answer:
+      value: "{{q / c}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - q * c) < 1
+        misconception: multiply
+        text: "The other way round: electricity = heat ÷ COP."
+    hints:
+      - Each kWh of electricity gives {{c}} kWh of heat.
+      - "{{q}} ÷ {{c}}."
+    explanation: ≈ {{round(q / c)}} kWh. An electric heater would need the full {{q}} kWh.
+    difficulty: 2
+    variants:
+      params:
+        q: choice[7000,10500,14000]
+        c: choice[3,3.5,4]
+      defaults:
+        q: 14000
+        c: 3.5
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A charger with 90 % efficiency delivers 20 W. How many watts become heat? To one decimal place.
+    params:
+      unit: W
+    answer:
+      value: 2.2
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 2) < 0.06
+        misconception: base
+        text: The 10 % refers to the input, not the output.
+    hints:
+      - "Input: 20 W ÷ 0.9 ≈ 22.2 W."
+      - Heat = input − output.
+    explanation: 22.2 − 20 ≈ 2.2 W. That is why small adapters get hand-warm.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A heat engine reaches at most η = 1 − T_cold ÷ T_hot, in kelvin. What percentage is that for steam at 600 °C and cooling water at 30 °C? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: 65.3
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 95) < 0.1
+        misconception: celsius
+        text: "Use temperatures in kelvin: add 273."
+    hints:
+      - 873 K and 303 K.
+      - 1 − 303 ÷ 873.
+    explanation: ≈ 65.3 % – the Carnot limit. Real power plants reach a good two thirds of it.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Combined-cycle plants reach about 60 %, pure steam plants about 40 %. Why?
+    params:
+      options:
+        - label: The hot exhaust of the gas turbine drives a steam turbine as well
+          correct: true
+        - label: Gas contains more energy than coal
+          feedback: The fuel is not the reason.
+        - label: They have bigger generators
+          feedback: Generators are almost lossless in both.
+    hints:
+      - A gas turbine runs at over 1400 °C.
+      - Its exhaust is still above 500 °C.
+    explanation: Two cycles in series use a much larger temperature range. That raises the Carnot limit.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a heat pump delivers more heat than the electricity it uses – without energy from nothing.
+    params:
+      keywords:
+        - - umgebung
+          - surround
+          - luft
+          - air
+          - erde
+          - ground
+          - draußen
+          - draussen
+          - outside
+        - - pump
+          - transport
+          - befördert
+          - moves
+        - - strom
+          - electric
+        - - wärme
+          - waerme
+          - heat
+      sample: "The heat pump doesn’t make the heat, it pumps it from the surroundings, such as the outside air, into the house. The electricity only drives the compressor. So three to four kWh of heat arrive per kWh of electricity. The energy balance holds: electricity plus ambient heat."
+    explanation: "The core: moving heat instead of making it. Like a fridge, just the other way round."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

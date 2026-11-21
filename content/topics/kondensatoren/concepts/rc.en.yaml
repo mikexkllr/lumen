@@ -1,0 +1,241 @@
+id: ee.capacitors.rc
+type: concept
+title: "Charging through a resistor: τ = R × C"
+summary: "After one time constant 63 %, after five almost full – the RC circuit in the lab."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: "A capacitor charges through a resistor from 10 V. Slide the time: when is it about half full?"
+    params:
+      scene: rc
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - charge
+        - uc
+    answer:
+      charge:
+        - 49
+        - 52
+    explanation: With R = 10 kΩ and C = 10 µF after about 70 ms. It charges fast at first, then ever more slowly.
+
+  - kind: explain
+    id: c1
+    body: "The **time constant** τ = R × C says how fast an RC circuit charges. After one τ the capacitor is 63 % charged, after five τ over 99 %. Handy: kΩ times µF gives milliseconds."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: R = {{r}} kΩ, C = {{c}} µF. What is τ in ms?
+    params:
+      unit: ms
+    answer:
+      value: "{{r * c}}"
+    feedback:
+      - when: numval(state.input) == r + c
+        misconception: add
+        text: Don’t add, multiply.
+    hints:
+      - τ = R × C.
+      - "kΩ × µF = ms: {{r}} × {{c}}."
+    explanation: "{{r}} kΩ × {{c}} µF = {{r * c}} ms. After 5 τ = {{5 * r * c}} ms it is practically full."
+    variants:
+      params:
+        r: choice[1,4.7,10,22,47]
+        c: choice[1,10,22,100]
+      defaults:
+        r: 10
+        c: 22
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Set R and C so that the time constant is exactly 470 ms.
+    params:
+      scene: rc
+      controls:
+        time:
+          fixed: true
+      show:
+        - tau
+        - charge
+    answer:
+      tau: 470
+    explanation: For example 47 kΩ and 10 µF, or 10 kΩ and 47 µF. Only the product counts.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: How full is the capacitor after this time?
+    params:
+      pairs:
+        - left: 1 τ
+          right: 63 %
+        - left: 2 τ
+          right: 86 %
+        - left: 3 τ
+          right: 95 %
+        - left: 5 τ
+          right: 99.3 %
+      leftTitle: Time
+      rightTitle: Charge
+    hints:
+      - With every τ the missing remainder shrinks to 37 %.
+      - After 1 τ, 37 % are missing; after 2 τ, 14 %.
+    explanation: "The missing remainder is e⁻ⁿ: 37 %, 14 %, 5 %, and after 5 τ only 0.7 %."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: The **charging curve** follows $u_C = U \cdot (1 - e^{-t/\tau})$. The current is proportional to the voltage still missing. So charging keeps slowing down, and it is never completely full.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: slider
+    prompt: A capacitor charges from 10 V. At 2 s, 8.65 V were measured. Set the time constant τ so that the curve passes through the data point.
+    params:
+      expr: 10*(1-exp(-x/t))
+      x:
+        - 0
+        - 5
+      y:
+        - 0
+        - 11
+      showCoordinates: false
+      sliders:
+        - id: t
+          label: τ in s
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 2.5
+      markers:
+        - x: 2
+          y: 8.65
+          group: a
+    check:
+      predicate: t == 1
+    hints:
+      - 8.65 V is 86.5 % of 10 V.
+      - 86 % is reached after 2 τ.
+    explanation: 2 s = 2 τ, so τ = 1 s. This is how τ is found from a measured curve.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: The source is 10 V. At what time does the capacitor reach 9 V? Set the time.
+    params:
+      scene: rc
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - tau
+        - uc
+    answer:
+      uc:
+        - 8.95
+        - 9.05
+    explanation: It reaches 90 % after τ × ln 10 ≈ 2.3 τ, so here after 230 ms.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: "From {{u}} V: what voltage does the capacitor have after exactly one time constant? To two decimal places."
+    params:
+      unit: V
+    answer:
+      value: "{{u * 0.63212}}"
+      tolerance: 0.01
+    hints:
+      - After τ it is 1 − e⁻¹ ≈ 63.2 %.
+      - "{{u}} × 0.632."
+    explanation: "{{u}} × 0.632 ≈ {{round(u * 0.63212, 2)}} V."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[5,9,10,12]
+      defaults:
+        u: 10
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: If the capacitor kept charging at its initial rate, when would it be full?
+    params:
+      options:
+        - label: After exactly one τ
+          correct: true
+        - label: After five τ
+          feedback: At constant speed it would be much faster.
+        - label: Never
+          feedback: At constant speed you reach any target.
+    hints:
+      - At first the current is I = U ÷ R.
+      - Constant current fills Q = C × U in t = C U ÷ I.
+    explanation: t = C U ÷ (U/R) = R C = τ. The initial tangent hits the final voltage exactly at τ. That is how τ is read off curves.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: When discharging, u = U × e^(−t/τ). After how many τ is only 1 % left? To two decimal places.
+    params:
+      unit: τ
+    answer:
+      value: 4.61
+      tolerance: 0.01
+    hints:
+      - e^(−n) = 0.01.
+      - n = ln 100.
+    explanation: ln 100 ≈ 4.61. That is why “after 5 τ it is done” is the rule of thumb.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a capacitor charging through a resistor never gets completely full.
+    params:
+      keywords:
+        - - strom
+          - current
+        - - fehl
+          - missing
+          - rest
+          - remain
+          - unterschied
+          - difference
+        - - langsam
+          - slow
+          - kleiner
+          - smaller
+        - - tau
+          - zeitkonstante
+          - time constant
+          - exponent
+          - e-funktion
+      sample: The current depends on how much voltage is still missing. The fuller the capacitor, the smaller the difference and the smaller the current. Charging keeps slowing. After each time constant only 37 % of the rest is missing, but never zero.
+    explanation: "The core: the rate is proportional to what is left. That gives an exponential curve."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "d4"]

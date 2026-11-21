@@ -1,0 +1,221 @@
+id: ee.networks.node
+type: concept
+title: "Die Knotenregel"
+summary: "Was in einen Knoten hineinfließt, fließt auch wieder heraus."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: In ein Rohrkreuz fließen pro Sekunde 3 Liter Wasser von links und 2 Liter von oben. Wie viel fließt unten heraus?
+    params:
+      unit: L/s
+    answer:
+      value: 5
+    hints:
+      - Wasser verschwindet nicht einfach.
+      - Alles, was hineinfließt, muss hinaus.
+    explanation: 3 + 2 = 5 Liter pro Sekunde. Mit elektrischem Strom ist es genauso.
+
+  - kind: explain
+    id: c1
+    body: "An einem **Knoten** verzweigen sich Leitungen. Ladung geht dort nicht verloren und staut sich nicht. Darum gilt: Die Ströme hinein sind zusammen so groß wie die Ströme heraus."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: In einen Knoten fließen {{a}} A und {{b}} A hinein. Eine Leitung führt {{c}} A heraus. Wie viel fließt durch die zweite Leitung heraus?
+    params:
+      unit: A
+    answer:
+      value: "{{a + b - c}}"
+    feedback:
+      - when: numval(state.input) == a + b + c
+        misconception: direction
+        text: Der Strom {{c}} A fließt heraus, nicht hinein. Zieh ihn ab.
+    hints:
+      - "Hinein zusammen: {{a}} + {{b}}."
+      - Davon fließen {{c}} A schon heraus.
+    explanation: "{{a}} + {{b}} = {{a + b}} A hinein. {{a + b}} − {{c}} = {{a + b - c}} A für die zweite Leitung."
+    variants:
+      params:
+        a: int[2,9]
+        b: int[1,6]
+        c: int[1,8]
+      constraints:
+        - c < a + b
+      defaults:
+        a: 4
+        b: 3
+        c: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: An einer Leitung hängen ein Wasserkocher (8,7 A), ein Toaster (4,3 A) und eine Lampe (0,2 A). Welcher Strom fließt in der Zuleitung?
+    params:
+      unit: A
+    answer:
+      value: 13.2
+      tolerance: 0.01
+    hints:
+      - Die Geräte hängen parallel. Ihre Ströme treffen sich im Knoten.
+      - Addiere alle drei.
+    explanation: 8,7 + 4,3 + 0,2 = 13,2 A. Das ist noch unter der 16-A-Sicherung.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Stimmt das?
+    params:
+      cards:
+        - text: Drei parallele Lampen mit je 0,5 A ziehen zusammen 1,5 A.
+          right: true
+        - text: Hinter einer Lampe ist der Strom kleiner als davor.
+          right: false
+          why: Die Lampe verbraucht Energie, keinen Strom.
+        - text: In einer Reihenschaltung fließt überall derselbe Strom.
+          right: true
+        - text: Ein Knoten kann Strom speichern.
+          right: false
+          why: Ein Knoten hat keinen Speicher.
+      left: Falsch
+      right: Richtig
+    explanation: Strom wird nicht verbraucht. Er teilt sich an Knoten und vereinigt sich wieder.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ingenieure zählen Ströme hinein positiv und heraus negativ. Dann heißt die Regel kurz: Die **Summe aller Ströme** an einem Knoten ist null. Ein negatives Ergebnis bedeutet nur: Der Strom fließt andersherum."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An einem Knoten treffen sich vier Leitungen. I₁ = {{a}} A fließt hinein, I₂ = {{b}} A heraus, I₃ = {{c}} A hinein. Wie groß ist I₄, wenn hinein positiv zählt?
+    params:
+      unit: A
+    answer:
+      value: "{{b - a - c}}"
+    feedback:
+      - when: numval(state.input) == a + c - b
+        misconception: sign
+        text: "Vorzeichen prüfen: Die Summe aller Ströme mit Vorzeichen muss 0 ergeben."
+    hints:
+      - "{{a}} − {{b}} + {{c}} + I₄ = 0."
+      - Stell nach I₄ um.
+    explanation: "I₄ = {{b}} − {{a}} − {{c}} = {{b - a - c}} A. Positiv heißt: hinein. Negativ heißt: heraus."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[2,12]
+        c: int[1,6]
+      constraints:
+        - b != a + c
+      defaults:
+        a: 2
+        b: 5
+        c: 1
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: An 12 V hängen parallel ein 4-Ω- und ein 6-Ω-Widerstand. Welcher Strom fließt in der Zuleitung?
+    params:
+      unit: A
+    answer:
+      value: 5
+    hints:
+      - Jeder Widerstand bekommt die vollen 12 V.
+      - "12 : 4 und 12 : 6, dann addieren."
+    explanation: "3 A + 2 A = 5 A. Der Gesamtwiderstand ist 12 V : 5 A = 2,4 Ω."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Strom von {{i}} A teilt sich auf {{r1}} Ω und {{r2}} Ω parallel auf. Wie viel fließt durch {{r1}} Ω?
+    params:
+      unit: A
+    answer:
+      value: "{{i * r2 / (r1 + r2)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - i * r1 / (r1 + r2)) < 0.01
+        misconception: divider-swap
+        text: "Andersherum: Durch den kleineren Widerstand fließt mehr."
+    hints:
+      - Der kleinere Widerstand bekommt den größeren Anteil.
+      - "I₁ = I · R₂ : (R₁ + R₂)."
+    explanation: "{{i}} · {{r2}} : {{r1 + r2}} = {{round(i * r2 / (r1 + r2), 2)}} A. Der Strom nimmt bevorzugt den leichteren Weg."
+    difficulty: 3
+    variants:
+      params:
+        i: choice[3,6,12]
+        r1: choice[1,2,3,6]
+        r2: choice[2,3,6]
+      constraints:
+        - r1 != r2
+      defaults:
+        i: 6
+        r1: 2
+        r2: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Kondensator wird geladen. In seine obere Platte fließt Strom, heraus fließt keiner. Verletzt das die Knotenregel?
+    params:
+      options:
+        - label: "Nein: Die Platte ist kein Knoten, sie speichert Ladung"
+          correct: true
+        - label: Ja, die Regel gilt nur für Gleichstrom
+          feedback: Sie gilt auch für Wechselstrom, solange der Knoten nichts speichert.
+        - label: Ja, Ladung geht verloren
+          feedback: Ladung bleibt immer erhalten. Sie sammelt sich auf der Platte.
+    hints:
+      - Woher kommt die Knotenregel?
+      - Sie folgt aus der Ladungserhaltung – wenn sich nichts anstaut.
+    explanation: Die Regel setzt voraus, dass sich im Knoten keine Ladung sammelt. Auf einer Kondensatorplatte sammelt sie sich gerade. Zählt man den Kondensator als Ganzes, stimmt die Bilanz wieder.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die Knotenregel und warum Strom nicht »verbraucht« wird.
+    params:
+      keywords:
+        - - knoten
+          - junction
+          - node
+          - verzweig
+          - branch
+        - - hinein
+          - "in "
+          - zufl
+          - inflow
+        - - heraus
+          - out
+          - abfl
+          - outflow
+        - - ladung
+          - charge
+          - erhalt
+          - conserv
+          - verloren
+          - lost
+      sample: An einem Knoten verzweigt sich der Strom. Was hineinfließt, fließt auch heraus, weil Ladung nicht verloren geht und sich nicht staut. Verbraucht wird Energie, nicht der Strom.
+    explanation: "Kern: Ladungserhaltung. Strom transportiert Energie, er selbst bleibt erhalten."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

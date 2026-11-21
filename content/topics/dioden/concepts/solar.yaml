@@ -1,0 +1,195 @@
+id: ee.semiconductors.solar
+type: concept
+title: "Die Solarzelle"
+summary: "Eine große Diode, die Licht in Strom verwandelt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie viel Leistung bringt die Mittagssonne im Sommer auf einen Quadratmeter? In Watt.
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 1000
+      within: 30
+    explanation: Rund 1000 W pro m². Mit diesem Wert werden Solarmodule genormt getestet.
+
+  - kind: explain
+    id: c1
+    body: Eine **Solarzelle** ist ein großflächiger pn-Übergang. Licht schlägt Elektronen aus ihren Bindungen. Das Feld der Sperrschicht trennt Elektronen und Löcher, und es fließt Strom. Eine Siliziumzelle liefert etwa 0,5 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Modul hat {{n}} Zellen in Reihe, jede mit 0,5 V im Arbeitspunkt. Welche Spannung liefert es?
+    params:
+      unit: V
+    answer:
+      value: "{{n * 0.5}}"
+    hints:
+      - In Reihe addieren sich die Spannungen.
+      - "{{n}} · 0,5 V."
+    explanation: "{{n * 0.5}} V. Der Strom bleibt der einer einzelnen Zelle, rund 10 A bei voller Sonne."
+    variants:
+      params:
+        n: choice[36,60,72,120]
+      defaults:
+        n: 60
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Modul hat {{a}} m² und einen Wirkungsgrad von {{e}} %. Wie viel Watt liefert es bei 1000 W/m²?
+    params:
+      unit: W
+    answer:
+      value: "{{a * 10 * e}}"
+      tolerance: 0.5
+    hints:
+      - "Einfallende Leistung: {{a}} · 1000 W."
+      - Davon {{e}} %.
+    explanation: "{{a * 1000}} W · {{e / 100}} = {{a * 10 * e}} W. Der Rest wird zu Wärme."
+    variants:
+      params:
+        a: choice[1.7,2,2.6]
+        e: choice[18,20,22]
+      defaults:
+        a: 1.7
+        e: 20
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Liefert das Modul mehr oder weniger Leistung?
+    params:
+      cards:
+        - text: Heißer Sommertag statt kühler Frühlingstag
+          right: false
+          why: Wärme senkt die Zellspannung.
+        - text: Sonne steht senkrecht zum Modul
+          right: true
+        - text: Ein Blatt liegt auf einer Zelle
+          right: false
+          why: In Reihe bremst die schwächste Zelle alle.
+        - text: Kalter, klarer Wintermittag
+          right: true
+          why: Kälte hebt die Spannung, auch wenn der Tag kurz ist.
+      left: Weniger
+      right: Mehr
+    explanation: Solarzellen mögen viel Licht und Kälte. Wärme kostet etwa 0,4 % Leistung pro Kelvin.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: In Deutschland liefert 1 kW Modulleistung etwa 950 kWh pro Jahr. Wie viele kWh bringt eine Anlage mit {{p}} kW?
+    params:
+      unit: kWh
+    answer:
+      value: "{{950 * p}}"
+    hints:
+      - 950 kWh pro kW.
+      - 950 · {{p}}.
+    explanation: "{{950 * p}} kWh pro Jahr. Ein Balkonkraftwerk mit 0,8 kW deckt so etwa ein Fünftel eines Haushalts."
+    difficulty: 2
+    variants:
+      params:
+        p: choice[0.8,5,10]
+      defaults:
+        p: 10
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Auf eine Zelle in einem Modul fällt Schatten. Warum bricht dann fast die Leistung des ganzen Strangs ein – und was hilft?
+    params:
+      options:
+        - label: In Reihe bestimmt die schwächste Zelle den Strom; Bypass-Dioden umgehen sie
+          correct: true
+        - label: Der Schatten kühlt das Modul
+          feedback: Kühlung würde eher helfen.
+        - label: Der Wechselrichter schaltet ab
+          feedback: Er arbeitet weiter, bekommt aber weniger Strom.
+    hints:
+      - In einer Reihenschaltung fließt überall derselbe Strom.
+      - Eine Diode parallel zu einer Zellgruppe öffnet einen Umweg.
+    explanation: Die beschattete Zelle liefert kaum Strom und bremst alle anderen. Bypass-Dioden schließen die betroffene Gruppe kurz. Es fehlt dann nur ein Drittel des Moduls.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Einfache Siliziumzellen können höchstens etwa 33 % des Sonnenlichts umwandeln. Woher kommt diese Grenze?
+    params:
+      options:
+        - label: Photonen unter der Bandlücke gehen durch, Überschussenergie darüber wird Wärme
+          correct: true
+        - label: Vom Schmutz auf dem Glas
+          feedback: Das Limit gilt auch für perfekt saubere Zellen.
+        - label: Weil Silizium Licht reflektiert
+          feedback: Antireflexschichten lösen das fast ganz.
+    hints:
+      - Jedes Photon kann höchstens ein Elektron über die Bandlücke heben.
+      - Ein blaues Photon hat viel mehr Energie als 1,12 eV.
+    explanation: Das ist die Shockley-Queisser-Grenze. Tandemzellen aus mehreren Schichten mit verschiedenen Bandlücken liegen darüber, im Labor bei über 40 %.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Zelle liefert im Leerlauf 0,65 V und kurzgeschlossen 10 A. Die beste Leistung liegt bei 0,53 V und 9,4 A. Wie viel Watt sind das? Auf zwei Nachkommastellen.
+    params:
+      unit: W
+    answer:
+      value: 4.98
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - 6.5) < 0.01
+        misconception: voc-isc
+        text: Leerlaufspannung und Kurzschlussstrom gibt es nie gleichzeitig.
+    hints:
+      - P = U · I im besten Punkt.
+      - 0,53 · 9,4.
+    explanation: "0,53 · 9,4 ≈ 4,98 W. Den besten Punkt sucht der Wechselrichter ständig: MPP-Tracking."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Solarzelle aus Licht Strom macht.
+    params:
+      keywords:
+        - - licht
+          - light
+          - photon
+        - - elektron
+          - electron
+          - loch
+          - hole
+        - - pn
+          - sperrschicht
+          - depletion
+          - feld
+          - field
+          - diode
+        - - trenn
+          - separat
+          - strom
+          - current
+      sample: "Ein Photon schlägt ein Elektron aus seiner Bindung, zurück bleibt ein Loch. Am pn-Übergang trennt das eingebaute Feld beide: Elektronen gehen zur n-Seite, Löcher zur p-Seite. Verbindet man die Seiten, fließt Strom."
+    explanation: "Kern: Lichtenergie erzeugt Paare, das Feld der Sperrschicht trennt sie."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

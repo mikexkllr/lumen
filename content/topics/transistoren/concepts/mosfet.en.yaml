@@ -1,0 +1,170 @@
+id: ee.transistors.mosfet
+type: concept
+title: "MOSFETs and CMOS"
+summary: "Voltage instead of current controls – and two transistors as a pair save almost all energy."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Which transistor sits in your phone by the billions?
+    params:
+      options:
+        - label: The MOSFET
+          correct: true
+        - label: The bipolar transistor
+          feedback: It constantly needs base current – too much for billions.
+        - label: The vacuum tube
+          feedback: Tubes are big and hot.
+    hints:
+      - You need a transistor that needs almost no control current.
+      - Its control terminal is insulated.
+    explanation: The MOSFET is controlled by a voltage. Its gate is insulated by a wafer-thin oxide layer.
+
+  - kind: explain
+    id: c1
+    body: A **MOSFET** has a gate, drain and source. A voltage at the gate pulls charges under the insulating layer. A conducting channel forms there. In steady state no current flows into the gate.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A MOSFET has an on-resistance R_DS(on) = {{r}} mΩ and carries {{i}} A. How many watts does it dissipate?
+    params:
+      unit: W
+    answer:
+      value: "{{i * i * r / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - i * r / 1000) < 0.01
+        misconception: ui
+        text: That would be the voltage in V. Power is I² × R.
+    hints:
+      - P = I² × R, R in ohms.
+      - "{{i * i}} × {{r / 1000}}."
+    explanation: "{{i * i}} × {{r / 1000}} Ω = {{i * i * r / 1000}} W. Modern MOSFETs switch the currents of e-bikes and cars like this."
+    variants:
+      params:
+        r: choice[2,5,10]
+        i: choice[10,20,30]
+      defaults:
+        r: 10
+        i: 20
+
+  - kind: explain
+    id: c3
+    body: A **CMOS inverter** consists of an nMOS to ground and a pMOS to the supply. With input 1 the nMOS conducts and the output becomes 0. With 0 the pMOS conducts. One always blocks, so no current flows at rest.
+
+  - kind: problem
+    id: c4
+    widget: gates
+    prompt: NAND gates alone can build any logic. Pick the gate so that, fed from one input, it becomes an inverter.
+    params:
+      inputs:
+        - id: A
+      gates:
+        - id: g
+          type: "?"
+          in:
+            - A
+            - A
+          options:
+            - AND
+            - OR
+            - NAND
+      outputs:
+        - id: Q
+          from: g
+    check:
+      predicate: table('Q') == [1, 0]
+    hints:
+      - Both gate inputs are tied to A.
+      - AND and OR of A with A give A again.
+    explanation: NAND(A, A) = NOT A. In CMOS a NAND needs only four transistors, which is why everything is often built from it.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "CMOS only uses energy when switching: tiny capacitances are charged then. The **switching power** is P = α × C × U² × f. α is the share of gates that switch, f the clock frequency."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A chip lowers its voltage from 1.2 V to 0.6 V. To what fraction does the switching power fall? As a decimal.
+    answer:
+      value: 0.25
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: linear
+        text: "U is squared: half the voltage, a quarter of the power."
+    hints:
+      - P ∝ U².
+      - (0.6 ÷ 1.2)² = ?
+    explanation: (½)² = 0.25. That is why phone chips lower voltage and clock together when idle.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: How is a CMOS NAND built?
+    params:
+      options:
+        - label: Two pMOS in parallel at the top, two nMOS in series at the bottom
+          correct: true
+        - label: Two nMOS in parallel, two pMOS in series
+          feedback: That would be a NOR.
+        - label: One inverter and a resistor
+          feedback: CMOS works without resistors.
+    hints:
+      - The output is only 0 when A and B are both 1.
+      - "The path to ground needs both nMOS: so in series."
+    explanation: nMOS in series pull down only when A = B = 1. The parallel pMOS pull up as soon as any input is 0. The two networks are always exactly complementary.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A processor has α × C = 10 nF of effective switched capacitance and runs at 1 V and 3 GHz. How many watts of switching power is that?
+    params:
+      unit: W
+    answer:
+      value: 30
+    hints:
+      - P = α C × U² × f.
+      - 10⁻⁸ F × 1 V² × 3 × 10⁹ Hz.
+    explanation: 30 W. That heat must leave the chip – which is why today cooling, not transistor count, limits computing power.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a CMOS inverter draws almost no current at rest.
+    params:
+      keywords:
+        - - nmos
+          - n-kanal
+          - n-channel
+        - - pmos
+          - p-kanal
+          - p-channel
+        - - sperr
+          - block
+          - aus
+          - off
+        - - umschalt
+          - switch
+          - laden
+          - charg
+      sample: One nMOS leads to ground, one pMOS to the supply. In every state one of them blocks, so there is no path straight through. Current only flows briefly during switching, to charge the small capacitances.
+    explanation: "The core: complementary pairs, one always blocks. Only recharging costs energy."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

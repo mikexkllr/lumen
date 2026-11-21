@@ -1,0 +1,246 @@
+id: ee.digital.levels
+type: concept
+title: "Logic levels and adders"
+summary: "When a voltage counts as 1 – and how gates do arithmetic."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Why do computers use just two states instead of ten voltage levels?
+    params:
+      options:
+        - label: Two widely separated states are robust against noise
+          correct: true
+        - label: Because current can only be on or off
+          feedback: Current can take any value.
+        - label: Because ten levels are impossible
+          feedback: They are possible, but small noise would mix them up.
+    hints:
+      - Imagine 3.3 V split into ten levels.
+      - Each level would be only 0.33 V wide.
+    explanation: With two states the voltage can wobble a lot and still be read correctly. Every gate restores the level again.
+
+  - kind: explain
+    id: c1
+    body: A **logic level** is a voltage range. In 3.3 V logic everything below 0.8 V counts as 0 and everything above 2.0 V as 1. In between the state is undefined.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: How does a 3.3 V input read this voltage?
+    params:
+      buckets:
+        - id: b1
+          label: "0"
+        - id: b2
+          label: Undefined
+        - id: b3
+          label: "1"
+      items:
+        - label: 0.2 V
+          bucket: b1
+        - label: 0.7 V
+          bucket: b1
+        - label: 1.4 V
+          bucket: b2
+        - label: 1.9 V
+          bucket: b2
+        - label: 2.4 V
+          bucket: b3
+        - label: 3.3 V
+          bucket: b3
+    hints:
+      - Below 0.8 V it is 0.
+      - Above 2.0 V it is 1.
+    explanation: Between 0.8 V and 2.0 V the chip guarantees nothing. Good circuits cross this range only briefly.
+
+  - kind: problem
+    id: c3
+    widget: gates
+    prompt: A half adder adds two bits A and B. Pick the gates so that S gives the sum bit and C the carry.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: s
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: c
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: S
+          from: s
+        - id: C
+          from: c
+    check:
+      predicate: table('S') == [0, 1, 1, 0] && table('C') == [0, 0, 0, 1]
+    hints:
+      - "1 + 1 = 10 in binary: sum 0, carry 1."
+      - The sum is 1 when exactly one bit is 1.
+    explanation: S = A XOR B, C = A AND B. That completes the smallest calculating machine.
+
+  - kind: problem
+    id: c4
+    widget: bits
+    prompt: Four full adders in a row compute 0101 + 0011. Set the result.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: 8
+    hints:
+      - Work digit by digit from the right, with carry.
+      - 5 + 3 in your head helps to check.
+    explanation: "1 + 1 = 10 and the carry ripples through every digit: 0101 + 0011 = 1000, so 5 + 3 = 8."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: gates
+    prompt: A full adder adds A, B and the carry Cᵢ from the previous column. Pick the two open gates correctly.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: Ci
+          label: Cᵢ
+      gates:
+        - id: x
+          type: XOR
+          in:
+            - A
+            - B
+        - id: s
+          type: "?"
+          in:
+            - x
+            - Ci
+          options:
+            - AND
+            - OR
+            - XOR
+        - id: a1
+          type: AND
+          in:
+            - A
+            - B
+        - id: a2
+          type: AND
+          in:
+            - x
+            - Ci
+        - id: c
+          type: "?"
+          in:
+            - a1
+            - a2
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: S
+          from: s
+        - id: Co
+          from: c
+          label: Cₒ
+    check:
+      predicate: table('S') == [0, 1, 1, 0, 1, 0, 0, 1] && table('Co') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - The sum is 1 when an odd number of bits is 1.
+      - A carry arises when one path OR the other produces one.
+    explanation: S = A ⊕ B ⊕ Cᵢ, Cₒ = (A · B) + ((A ⊕ B) · Cᵢ). Many in a row make an adder for whole numbers.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An output delivers at least 2.4 V for a 1. An input recognises a 1 from 2.0 V. How large is the noise margin, the reserve, in V?
+    params:
+      unit: V
+    answer:
+      value: 0.4
+      tolerance: 0.001
+    hints:
+      - The noise margin is the gap between the two limits.
+      - 2.4 − 2.0.
+    explanation: A disturbance may lower the level by 0.4 V without causing an error.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A 32-bit adder passes the carry from column to column. Each column takes 2 gate delays of 20 ps each. How long does addition take in the worst case, in ps?
+    params:
+      unit: ps
+    answer:
+      value: 1280
+    hints:
+      - 32 columns × 2 gates.
+      - 64 × 20 ps.
+    explanation: 1280 ps = 1.28 ns – too slow for 3 GHz. So real adders compute carries ahead in parallel (carry-lookahead).
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A processor has only adders. How does it still compute A − B?
+    params:
+      options:
+        - label: It flips all bits of B, adds 1, then adds A
+          correct: true
+        - label: It runs the adder backwards
+          feedback: Gates have no reverse direction.
+        - label: It can’t, separate chips do that
+          feedback: The same circuit can do both.
+    hints:
+      - Negative numbers are stored in two’s complement.
+      - −B = (all bits of B flipped) + 1.
+    explanation: A − B = A + (−B), and −B is the two’s complement. A few XOR gates flip the bits and the carry input supplies the +1.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a half adder adds two bits.
+    params:
+      keywords:
+        - - xor
+          - exklusiv
+          - exclusive
+        - - und
+          - and
+        - - summe
+          - sum
+        - - übertrag
+          - uebertrag
+          - carry
+      sample: "The sum bit is 1 when exactly one of the two bits is 1: that is an XOR gate. There is only a carry for 1 + 1: that is an AND gate. So 1 + 1 gives sum 0 and carry 1, binary 10."
+    explanation: "The core: XOR for the digit, AND for the carry."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

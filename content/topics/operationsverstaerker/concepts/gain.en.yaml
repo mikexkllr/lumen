@@ -1,0 +1,220 @@
+id: ee.opamps.gain
+type: concept
+title: "Amplifiers with two resistors"
+summary: "Inverting, non-inverting, summing – resistors set the gain."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You want to make a microphone signal exactly ten times bigger. What decides the factor 10 in an op-amp amplifier?
+    params:
+      options:
+        - label: The ratio of two resistors
+          correct: true
+        - label: The op-amp type
+          feedback: Almost any op-amp can do it, the circuit decides.
+        - label: The supply voltage
+          feedback: It only limits the output.
+    hints:
+      - Think of the negative feedback.
+      - A divider in the feedback sets β.
+    explanation: The gain is 1 ÷ β, and β is a divider ratio of two resistors.
+
+  - kind: explain
+    id: c1
+    body: In an **inverting amplifier** the signal enters the minus input through R₁, and R₂ leads back from the output. Plus sits at ground. The gain is v = −R₂ ÷ R₁. The minus means the signal is flipped.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Inverting amplifier with R₁ = {{a}} kΩ and R₂ = {{b}} kΩ. What is the gain, with sign?
+    answer:
+      value: "{{-b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - b / a) < 0.01
+        misconception: sign
+        text: "Almost: the inverting amplifier flips the sign."
+    hints:
+      - v = −R₂ ÷ R₁.
+      - −{{b}} ÷ {{a}}.
+    explanation: "v = −{{b}}/{{a}} = {{round(-b / a, 2)}}. The minus input stays at 0 V: a virtual ground."
+    variants:
+      params:
+        a: choice[1,2,10]
+        b: choice[10,22,47,100]
+      defaults:
+        a: 10
+        b: 100
+
+  - kind: explain
+    id: c3
+    body: In a **non-inverting amplifier** the signal goes straight into plus. A divider of R₂ and R₁ feeds part of the output back to minus. The gain is v = 1 + R₂ ÷ R₁, always at least 1.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Non-inverting amplifier with R₁ = {{a}} kΩ and R₂ = {{b}} kΩ. What is the gain?
+    answer:
+      value: "{{1 + b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - b / a) < 0.01
+        misconception: missing-one
+        text: "Don’t forget the 1: v = 1 + R₂ ÷ R₁."
+    hints:
+      - v = 1 + R₂ ÷ R₁.
+      - 1 + {{b}} ÷ {{a}}.
+    explanation: v = 1 + {{b}}/{{a}} = {{round(1 + b / a, 2)}}.
+    variants:
+      params:
+        a: choice[1,2,10]
+        b: choice[9,10,47,100]
+      defaults:
+        a: 1
+        b: 9
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: What gain does the circuit have?
+    params:
+      pairs:
+        - left: Inverting, R₁ = R₂
+          right: −1
+        - left: Non-inverting, R₁ = R₂
+          right: "2"
+        - left: Voltage follower
+          right: "1"
+        - left: Non-inverting, R₂ = 9 × R₁
+          right: "10"
+      leftTitle: Circuit
+      rightTitle: Gain
+    hints:
+      - "Inverting: −R₂ ÷ R₁. Non-inverting: 1 + R₂ ÷ R₁."
+      - The follower is non-inverting with R₂ = 0.
+    explanation: −1, 2, 1 and 10. Two resistors set any gain you like.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An inverting amplifier with R₁ = 1 kΩ and R₂ = 47 kΩ receives 0.2 V. What does the output deliver?
+    params:
+      unit: V
+    answer:
+      value: -9.4
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 9.4) < 0.01
+        misconception: sign
+        text: "The sign is missing: the output is negative."
+    hints:
+      - v = −47.
+      - −47 × 0.2 V.
+    explanation: −9.4 V. With a ±12 V supply that just fits; with 0.3 V in, the output would hit the rail.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "A mixing desk adds two signals: a summer with R_f = 10 kΩ and two 10 kΩ input resistors receives {{u1}} V and {{u2}} V. What does it output?"
+    params:
+      unit: V
+    answer:
+      value: "{{-(u1 + u2)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - (u1 + u2)) < 0.01
+        misconception: sign
+        text: "It is an inverting summer: mind the sign."
+    hints:
+      - At the minus input the currents U₁ ÷ R and U₂ ÷ R add up.
+      - U_out = −R_f × (U₁ ÷ R₁ + U₂ ÷ R₂).
+    explanation: −({{u1}} + {{u2}}) = {{-(u1 + u2)}} V. With different input resistors each channel gets its own fader.
+    difficulty: 2
+    variants:
+      params:
+        u1: choice[0.5,1,2]
+        u2: choice[-1,1,1.5,3]
+      constraints:
+        - u1 + u2 != 0
+      defaults:
+        u1: 1
+        u2: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Which amplifier loads a sensitive source less?
+    params:
+      options:
+        - label: "The non-inverting one: the signal goes straight into plus"
+          correct: true
+        - label: The inverting one
+          feedback: Its source sees R₁ to virtual ground.
+        - label: Both the same
+          feedback: The input resistances differ a lot.
+    hints:
+      - No current flows into the op-amp inputs.
+      - In the inverting one current flows through R₁.
+    explanation: Non-inverting the input resistance is huge, inverting it is only R₁. That is why sensors usually get the non-inverting circuit.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An op-amp has a gain–bandwidth product of 1 MHz. Up to what frequency can it deliver a gain of {{g}}, in kHz?
+    params:
+      unit: kHz
+    answer:
+      value: "{{1000 / g}}"
+      tolerance: 0.01
+    hints:
+      - Gain × bandwidth = 1 MHz.
+      - 1000 kHz ÷ {{g}}.
+    explanation: "{{1000 / g}} kHz. For audio up to 20 kHz with a gain of 1000 you need two stages or a faster op-amp."
+    difficulty: 3
+    variants:
+      params:
+        g: choice[10,20,100,1000]
+      defaults:
+        g: 100
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the inverting amplifier has v = −R₂ ÷ R₁.
+    params:
+      keywords:
+        - - virtuell
+          - virtual
+          - masse
+          - ground
+          - 0 v
+        - - strom
+          - current
+        - - r₁
+          - r1
+          - r₂
+          - r2
+        - - umgekehrt
+          - invert
+          - minus
+          - negativ
+          - negative
+      sample: "The plus input is grounded, so the op-amp also holds the minus input at 0 V: a virtual ground. The current U_in ÷ R₁ flows through R₁. It can’t enter the op-amp, so it continues through R₂. For that the output must go to −R₂ × U_in ÷ R₁."
+    explanation: "The core: virtual ground plus “no input current” – the same current flows through both resistors."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

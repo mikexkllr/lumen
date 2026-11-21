@@ -1,0 +1,208 @@
+id: ee.induction.resonance
+type: concept
+title: "Der Schwingkreis"
+summary: "Spule und Kondensator schaukeln Energie hin und her – die Grundlage jedes Radios."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Stimme den Schwingkreis auf etwa 500 Hz ab.
+    params:
+      scene: resonance
+      controls:
+        inductance:
+          value: 50
+        capacitance:
+          value: 50
+    answer:
+      f0:
+        - 480
+        - 520
+    explanation: Zum Beispiel 10 mH und 10 µF ergeben 503 Hz. Kleinere Bauteile machen die Schwingung schneller.
+
+  - kind: explain
+    id: c1
+    body: Im **Schwingkreis** pendelt Energie zwischen Kondensator und Spule. Der volle Kondensator entlädt sich durch die Spule, ihr Feld treibt den Strom weiter und lädt ihn umgekehrt auf. Wie bei einer Schaukel.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Die Eigenfrequenz ist f₀ = 1 : (2π √(L C)). Wie groß ist sie für L = {{l}} mH und C = {{c}} µF? Auf ganze Hertz."
+    params:
+      unit: Hz
+    answer:
+      value: "{{1 / (2 * 3.14159265 * sqrt(l * c / 1000000000))}}"
+      tolerance: 0.6
+    hints:
+      - "L · C in s²: {{l}} · 10⁻³ · {{c}} · 10⁻⁶."
+      - Wurzel ziehen, mal 2π, Kehrwert.
+    explanation: f₀ ≈ {{round(1 / (2 * 3.14159265 * sqrt(l * c / 1000000000)))}} Hz. Das Produkt L · C bestimmt die Frequenz.
+    variants:
+      params:
+        l: choice[1,10,100]
+        c: choice[1,10,100]
+      defaults:
+        l: 10
+        c: 10
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Mit L = 10 mH und C = 10 µF schwingt der Kreis mit 503 Hz. Lass L bei 10 mH und finde das C, bei dem er halb so schnell schwingt.
+    params:
+      scene: resonance
+      controls:
+        capacitance:
+          value: 20
+    answer:
+      inductance: 10
+      capacitance: 40
+    explanation: "C = 40 µF: Vierfaches C halbiert die Frequenz, weil C unter der Wurzel steht."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Was passiert mit f₀, wenn du L und C beide verdoppelst?
+    params:
+      options:
+        - label: Sie halbiert sich
+          correct: true
+        - label: Sie bleibt gleich
+          feedback: Beide stehen im Nenner. Das Produkt vervierfacht sich.
+        - label: Sie viertelt sich
+          feedback: Die Wurzel macht aus Faktor 4 den Faktor 2.
+    hints:
+      - L · C wird viermal so groß.
+      - √4 = 2.
+    explanation: L · C wächst um 4, die Wurzel um 2, also halbiert sich f₀.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Radio mit L = 250 µH soll einen Sender mit 1 MHz empfangen. Welche Kapazität braucht der Drehkondensator, in pF? Auf ganze pF.
+    params:
+      unit: pF
+    answer:
+      value: 101
+      tolerance: 1
+    hints:
+      - "C = 1 : ((2π f)² · L)."
+      - (2π · 10⁶)² ≈ 3,95 · 10¹³. Mal 2,5 · 10⁻⁴ H.
+    explanation: "C ≈ 1 : (9,87 · 10⁹) F ≈ 1,01 · 10⁻¹⁰ F = 101 pF. Drehst du am Kondensator, wählst du den Sender."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Kondensator mit 10 µF ist auf 10 V geladen und schwingt mit einer Spule von 10 mH. Wie groß wird der Strom höchstens? Aus ½ C U² = ½ L I². Auf drei Nachkommastellen.
+    params:
+      unit: A
+    answer:
+      value: 0.316
+      tolerance: 0.001
+    hints:
+      - "I = U · √(C : L)."
+      - "C : L = 10⁻⁵ : 10⁻² = 10⁻³."
+    explanation: 10 · √0,001 ≈ 0,316 A. Die ganze elektrische Energie steckt dann im Magnetfeld der Spule.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Steckt darin ein elektrischer Schwingkreis?
+    params:
+      cards:
+        - text: UKW-Radio
+          right: true
+        - text: Metalldetektor
+          right: true
+        - text: Glühlampe
+          right: false
+        - text: Diebstahlsicherung im Kaufhaus
+          right: true
+        - text: Batterie
+          right: false
+      left: Nein
+      right: Ja
+    explanation: "Radio, Metallsuchgerät und Etiketten nutzen Resonanz: Sie reagieren stark auf genau eine Frequenz."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Die Güte Q beschreibt, wie scharf ein Kreis abgestimmt ist. Seine Bandbreite ist B = f₀ : Q. Wie groß ist B bei f₀ = {{f}} kHz und Q = {{q}}, in kHz?"
+    params:
+      unit: kHz
+    answer:
+      value: "{{f / q}}"
+      tolerance: 0.001
+    hints:
+      - "B = f₀ : Q."
+      - "{{f}} : {{q}}."
+    explanation: "{{f}} : {{q}} = {{f / q}} kHz. Hohe Güte trennt dicht benachbarte Sender, braucht aber kleine Verluste."
+    difficulty: 3
+    variants:
+      params:
+        f: choice[500,1000,1500]
+        q: choice[50,100,200]
+      defaults:
+        f: 1000
+        q: 100
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein echter Schwingkreis klingt nach einigen Schwingungen ab. Wie bauen Ingenieure daraus einen Oszillator, der ewig schwingt?
+    params:
+      options:
+        - label: Ein Verstärker ersetzt in jeder Periode die Verluste im richtigen Takt
+          correct: true
+        - label: Man nimmt größere Bauteile
+          feedback: Auch große Bauteile haben Widerstand.
+        - label: Man kühlt den Kreis
+          feedback: Selbst kalt bleiben Verluste, solange man nicht supraleitend ist.
+    hints:
+      - Wie hältst du eine Schaukel in Gang?
+      - Kleine Stöße im richtigen Moment.
+    explanation: "Mitkopplung: Ein Teil des Ausgangs wird phasenrichtig zurückgeführt. Ist die Verstärkung in der Schleife mindestens 1, bleibt die Schwingung stehen."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie in einem Schwingkreis die Energie hin und her pendelt.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+          - elektrisch
+          - electric
+        - - spule
+          - coil
+          - magnet
+        - - energie
+          - energy
+        - - hin und her
+          - back and forth
+          - pendel
+          - swing
+          - schaukel
+          - umgekehrt
+          - reverse
+      sample: Erst steckt die Energie im elektrischen Feld des geladenen Kondensators. Er entlädt sich über die Spule, jetzt steckt die Energie in ihrem Magnetfeld. Die Spule treibt den Strom weiter und lädt den Kondensator umgekehrt auf. So pendelt die Energie hin und her wie bei einer Schaukel.
+    explanation: "Kern: elektrische und magnetische Energie wechseln sich ab, wie Höhen- und Bewegungsenergie beim Pendel."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]

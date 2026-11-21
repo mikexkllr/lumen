@@ -1,0 +1,233 @@
+id: ee.networks.bridge
+type: concept
+title: "The bridge circuit"
+summary: "Two dividers side by side detect tiny changes."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Inside a kitchen scale sits a metal strip of 350 Ω. One kilogram changes it by 0.35 Ω. What percentage is that?
+    params:
+      min: 0.001
+      max: 10
+      scale: log
+    answer:
+      value: 0.1
+      within: 30
+    explanation: "0.35 ÷ 350 = 0.001 = 0.1 %. Changes this small need a trick to detect: the bridge."
+
+  - kind: explain
+    id: c1
+    body: A **bridge circuit** is two voltage dividers side by side. A meter connects their midpoints. If both divide equally, it reads 0 V. The bridge is then balanced.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: The right divider gives 4 V from 12 V. Set the left one so that the bridge is balanced.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 3.99
+        - 4.01
+    explanation: "The left divider must also deliver one third: R₁ twice R₂, for example 10 kΩ and 5 kΩ."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Left: R₁ = {{a}} Ω on top, R₂ = {{b}} Ω below. Right: R₃ = {{c}} Ω on top. Which resistor Rₓ at the bottom right balances the bridge?"
+    params:
+      unit: Ω
+    answer:
+      value: "{{b * c / a}}"
+    feedback:
+      - when: numval(state.input) == a * c / b
+        misconception: ratio-flip
+        text: "Ratio flipped: it must be R₁ : R₂ = R₃ : Rₓ."
+    hints:
+      - "Balanced means R₁ : R₂ = R₃ : Rₓ."
+      - Rₓ = R₂ × R₃ ÷ R₁.
+    explanation: Rₓ = {{b}} × {{c}} ÷ {{a}} = {{b * c / a}} Ω. This is how unknown resistors used to be measured very precisely.
+    variants:
+      params:
+        a: choice[100,200,500]
+        b: choice[100,200,400]
+        c: choice[100,150,300]
+      constraints:
+        - a != b
+      defaults:
+        a: 200
+        b: 400
+        c: 150
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Balanced or not? Each bridge is connected to 10 V.
+    params:
+      cards:
+        - text: Left 1 kΩ/1 kΩ, right 5 kΩ/5 kΩ
+          right: true
+        - text: Left 1 kΩ/2 kΩ, right 2 kΩ/1 kΩ
+          right: false
+        - text: Left 2 kΩ/6 kΩ, right 1 kΩ/3 kΩ
+          right: true
+        - text: Left 3 kΩ/3 kΩ, right 3 kΩ/4 kΩ
+          right: false
+      left: Not balanced
+      right: Balanced
+    explanation: Only the top-to-bottom ratio matters, not the size of the resistors.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "A bridge at 10 V: left 1000 Ω and 1000 Ω, right 1000 Ω on top and a 1010 Ω sensor below. What bridge voltage does the meter show in mV?"
+    params:
+      unit: mV
+    answer:
+      value: 24.9
+      tolerance: 0.1
+    hints:
+      - "Left midpoint: 5 V. Right: 10 × 1010/2010 V."
+      - The right side gives about 5.0249 V. Take the difference.
+    explanation: 5.0249 V − 5 V ≈ 24.9 mV. Instead of resolving 5.025 V out of 10 V, you measure 25 mV against zero – much easier.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Why measure the change with a bridge rather than directly on a single divider?
+    params:
+      options:
+        - label: The bridge subtracts the large baseline, leaving only the change
+          correct: true
+        - label: A bridge amplifies the voltage
+          feedback: It doesn’t amplify, it subtracts.
+        - label: A bridge needs no voltage source
+          feedback: It needs one too.
+    hints:
+      - What does the balanced bridge show?
+      - Zero plus a small deviation is easy to measure.
+    explanation: Without load the bridge reads 0 V. A sensitive meter or amplifier then sees only the change. If the supply drifts, both sides drift alike.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Is there typically a measuring bridge inside?
+    params:
+      buckets:
+        - id: b1
+          label: Yes
+        - id: b2
+          label: No
+      items:
+        - label: Digital kitchen scale
+          bucket: b1
+        - label: Pressure sensor in a car
+          bucket: b1
+        - label: Precision Pt100 thermometer
+          bucket: b1
+        - label: Torch
+          bucket: b2
+        - label: Kettle
+          bucket: b2
+    hints:
+      - Bridges are needed when a resistance changes only slightly.
+      - Weight, pressure and temperature change resistances.
+    explanation: Strain gauges, pressure sensors and Pt100 probes change their resistance only a little. A bridge makes the change measurable.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "For small changes: bridge voltage ≈ U × ΔR ÷ (4R). A bridge at {{u}} V has a sensor that changes by {{p}} ‰. How many mV does it show?"
+    params:
+      unit: mV
+    answer:
+      value: "{{u * p / 4}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - u * p) < 0.01
+        misconception: missing-quarter
+        text: Don’t forget the factor 1/4.
+    hints:
+      - "{{p}} ‰ means ΔR ÷ R = {{p / 1000}}."
+      - "{{u}} V × {{p / 1000}} ÷ 4, then convert to mV."
+    explanation: "{{u}} × {{p / 1000}} ÷ 4 V = {{u * p / 4}} mV. With 1 ‰ and 10 V that is 2.5 mV, matching the previous task."
+    difficulty: 3
+    variants:
+      params:
+        u: choice[2,5,10]
+        p: choice[1,2,4]
+      defaults:
+        u: 10
+        p: 1
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "A load cell has four strain gauges: two are stretched, two compressed. What does that gain over a single gauge?"
+    params:
+      options:
+        - label: Four times the signal, and temperature effects cancel
+          correct: true
+        - label: Nothing, only extra cost
+          feedback: Every gauge adds to the bridge voltage.
+        - label: The bridge is always balanced then
+          feedback: Under load it is precisely unbalanced.
+    hints:
+      - Stretched and compressed act in the same direction in the bridge.
+      - Heat changes all four equally.
+    explanation: "Arranged correctly, all four changes add up: U × ΔR/R instead of U × ΔR/(4R). Heating affects all four equally and cancels out."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a bridge circuit makes a tiny change in resistance visible.
+    params:
+      keywords:
+        - - teiler
+          - divider
+        - - vergleich
+          - compar
+          - differenz
+          - difference
+          - abzieh
+          - subtract
+        - - "null"
+          - zero
+          - 0 v
+          - abgeglichen
+          - balanced
+        - - klein
+          - small
+          - tiny
+          - winzig
+          - änderung
+          - aenderung
+          - change
+      sample: Two voltage dividers are compared. If they are equal, the voltage between their midpoints is zero. If one resistor changes slightly, a small difference appears. It can be measured sensitively because the large baseline has been subtracted.
+    explanation: "The core: comparing two dividers, zero balance, only the difference is measured."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x1"]

@@ -1,0 +1,225 @@
+id: ee.power.balance
+type: concept
+title: "Grid frequency, renewables and storage"
+summary: "The 50 Hz are a balance between generation and consumption."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: The grid frequency drops to 49.9 Hz. What does that tell you?
+    params:
+      options:
+        - label: Right now more is consumed than generated
+          correct: true
+        - label: A measurement error
+          feedback: Such fluctuations are real and everyday.
+        - label: More is generated than consumed
+          feedback: Then the frequency would rise.
+    hints:
+      - The generators turn in step with the frequency.
+      - If power is lacking, the load brakes the generators.
+    explanation: The missing energy comes from the rotation of the generators. They slow down and the frequency falls.
+
+  - kind: explain
+    id: c1
+    body: "**Grid frequency** is like a balance. If power stations generate more than is used, the generators speed up and the frequency rises. If power is lacking, it falls. At exactly 50 Hz there is balance."
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: Does the frequency rise or fall?
+    params:
+      cards:
+        - text: A large power station suddenly trips
+          right: false
+        - text: A factory shuts down abruptly
+          right: true
+        - text: At football half-time millions of kettles switch on
+          right: false
+        - text: Noon on a sunny holiday with low demand
+          right: true
+        - text: A high-voltage line from a wind farm breaks
+          right: false
+      left: Falls
+      right: Rises
+    explanation: "Too little generation or sudden extra load: frequency falls. Too much generation or load gone: frequency rises."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: The frequency keeps falling. At what point does the grid cut off users by itself? This stops a blackout.
+    params:
+      options:
+        - label: From 49.0 Hz
+          correct: true
+        - label: From 49.99 Hz
+          feedback: Such small deviations are normal.
+        - label: Only below 45 Hz
+          feedback: By then many power stations would have tripped long ago.
+    hints:
+      - Normal fluctuations are about ±0.1 Hz.
+      - Load shedding starts a whole step lower.
+    explanation: From 49.0 Hz protection devices disconnect parts of the grid in stages. Better some districts briefly dark than all of Europe.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A pumped-storage plant lifts 1 m³ of water (1000 kg) by 300 m. How many kWh are stored? E = m × g × h with g = 9.81 m/s². To two decimal places.
+    params:
+      unit: kWh
+    answer:
+      value: 0.82
+      tolerance: 0.006
+    hints:
+      - 1000 × 9.81 × 300 J ≈ 2.94 MJ.
+      - 1 kWh = 3.6 MJ.
+    explanation: ≈ 0.82 kWh per cubic metre. So 1 GWh needs over a million cubic metres of water – a whole reservoir.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: To counter deviations, the grid keeps **balancing reserve** ready. The fastest stage, primary control, totals 3000 MW in continental Europe. At a 200 mHz deviation it is fully active within 30 seconds.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Primary control acts in proportion to the deviation. How many MW are called up at a {{d}} mHz deviation?
+    params:
+      unit: MW
+    answer:
+      value: "{{15 * d}}"
+    hints:
+      - 3000 MW at 200 mHz.
+      - 3000 × {{d}} ÷ 200.
+    explanation: "{{15 * d}} MW. That is a P controller, as in control engineering."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[20,50,100,150]
+      defaults:
+        d: 50
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Can this generation be ramped up and down on demand?
+    params:
+      buckets:
+        - id: b1
+          label: Yes, dispatchable
+        - id: b2
+          label: No, weather-dependent
+      items:
+        - label: Gas turbine
+          bucket: b1
+        - label: Wind farm
+          bucket: b2
+        - label: Pumped storage
+          bucket: b1
+        - label: Solar farm
+          bucket: b2
+        - label: Grid battery
+          bucket: b1
+        - label: Biogas plant
+          bucket: b1
+    hints:
+      - Wind and sun can only be curtailed, not ramped up.
+      - Storage can both absorb and deliver.
+    explanation: The more wind and sun, the more important storage and flexible generators become to fill the gaps.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: A home battery holds 10 kWh. At night the household draws {{p}} W on average. How many hours does the battery last?
+    params:
+      unit: h
+    answer:
+      value: "{{10000 / p}}"
+      tolerance: 0.01
+    hints:
+      - Time = energy ÷ power.
+      - 10,000 Wh ÷ {{p}} W.
+    explanation: "{{10000 / p}} h. Enough for a night; not for a windless winter week."
+    difficulty: 2
+    variants:
+      params:
+        p: choice[250,400,500,800]
+      defaults:
+        p: 500
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A turbine with its generator has a moment of inertia J = 50,000 kg·m² and turns at 3000 rpm (ω = 314 1/s). How much energy is in the rotation, E = ½ J ω²? In MJ, to the nearest MJ.
+    params:
+      unit: MJ
+    answer:
+      value: 2467
+      tolerance: 5
+    hints:
+      - ω² ≈ 98,700.
+      - ½ × 50,000 × 98,700 J.
+    explanation: ≈ 2467 MJ, almost 0.7 MWh. This flywheel absorbs the first seconds of a disturbance before control kicks in.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Solar panels and batteries connect via inverters and have no rotating mass. What does that mean for the future grid?
+    params:
+      options:
+        - label: Inverters must emulate inertia and actively support the grid
+          correct: true
+        - label: Nothing, inertia is unnecessary
+          feedback: Without it the frequency changes much faster in a disturbance.
+        - label: We must stick with coal
+          feedback: Grid-forming inverters solve the problem technically.
+    hints:
+      - Less flywheel mass means faster frequency change.
+      - Electronics can react within milliseconds.
+    explanation: Grid-forming inverters and big batteries provide “synthetic inertia”. They even respond faster than turbines.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why grid frequency reveals whether enough power is being generated.
+    params:
+      keywords:
+        - - generator
+          - turbine
+          - dreh
+          - rotat
+        - - schneller
+          - faster
+          - langsamer
+          - slow
+          - speed
+        - - erzeug
+          - generat
+          - verbrauch
+          - consum
+          - last
+          - load
+        - - gleichgewicht
+          - balance
+          - waage
+          - "50"
+      sample: All the big generators turn in step with the grid frequency. If more is consumed than generated, the grid takes the missing energy from their rotation, they slow down and the frequency falls. With a surplus they speed up. At 50 Hz there is balance.
+    explanation: "The core: frequency is a gauge for the balance. Control reserves respond to it."
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2", "d4"]

@@ -1,0 +1,223 @@
+id: ee.everyday.ratings
+type: concept
+title: "Das Typenschild lesen"
+summary: "Volt, Ampere, Watt und mAh auf Ladegerät, Akku und Netzteil."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Auf einem Ladegerät steht: »Output 5 V ⎓ 2 A«. Wie stark ist es?"
+    params:
+      options:
+        - label: 10 W
+          correct: true
+        - label: 7 W
+          feedback: Volt und Ampere werden nicht addiert.
+        - label: 2,5 W
+          feedback: "Nicht teilen: Leistung ist Spannung mal Strom."
+    hints:
+      - Leistung hängt von Spannung und Strom ab.
+      - Multipliziere die beiden Zahlen.
+    explanation: P = U · I = 5 V · 2 A = 10 W.
+
+  - kind: explain
+    id: c1
+    body: Das **Typenschild** verrät, was ein Gerät braucht oder liefert. Dort stehen Spannung U in Volt, Strom I in Ampere und Leistung P in Watt. Es gilt P = U · I.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein USB-C-Ladegerät liefert {{u}} V bei {{i}} A. Wie viel Leistung ist das?
+    params:
+      unit: W
+    answer:
+      value: "{{u * i}}"
+    feedback:
+      - when: numval(state.input) == u + i
+        misconception: add-not-multiply
+        text: "Nicht addieren: Leistung ist Spannung mal Strom."
+    hints:
+      - P = U · I.
+      - Rechne {{u}} · {{i}}.
+    explanation: "{{u}} V · {{i}} A = {{u * i}} W. Schnellladen erhöht vor allem die Spannung."
+    variants:
+      params:
+        u: choice[5,9,15,20]
+        i: choice[2,3,5]
+      constraints:
+        - "!(i == 5 && u < 20)"
+      defaults:
+        u: 20
+        i: 3
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Was bedeutet welches Zeichen auf dem Typenschild?
+    params:
+      pairs:
+        - left: ⎓
+          right: Gleichspannung
+        - left: "~"
+          right: Wechselspannung
+        - left: 100–240 V
+          right: Läuft weltweit an jeder Steckdose
+        - left: 50/60 Hz
+          right: Frequenz des Netzes
+        - left: Doppeltes Quadrat ⧈
+          right: Schutzisoliert, ohne Schutzleiter
+      leftTitle: Zeichen
+      rightTitle: Bedeutung
+    hints:
+      - Der gerade Strich mit Punkten steht für Gleich-, die Welle für Wechselspannung.
+      - Hz ist die Einheit der Frequenz.
+    explanation: Ein Weitbereichsnetzteil mit 100–240 V und 50/60 Hz funktioniert in Europa, den USA und Japan.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Handy-Akku hat 5000 mAh bei 3,85 V. Wie viele Wattstunden sind das?
+    params:
+      unit: Wh
+    answer:
+      value: 19.25
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 19250
+        misconception: unit-prefix
+        text: "Milliamperestunden erst in Amperestunden umrechnen: 5000 mAh = 5 Ah."
+    hints:
+      - 5000 mAh = 5 Ah.
+      - Energie = 3,85 V · 5 Ah.
+    explanation: 3,85 V · 5 Ah = 19,25 Wh.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Das Laden hat einen Wirkungsgrad von 85 %. Wie viele Wh muss das Ladegerät liefern, damit der Akku 19,25 Wh bekommt? Auf eine Nachkommastelle.
+    params:
+      unit: Wh
+    answer:
+      value: 22.6
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 16.4) < 0.1
+        misconception: efficiency-direction
+        text: Mit Verlusten muss mehr hinein, nicht weniger. Teile durch 0,85.
+    hints:
+      - Mit Verlusten muss mehr hinein, als ankommt.
+      - Teile 19,25 durch 0,85.
+    explanation: "19,25 : 0,85 ≈ 22,6 Wh. Die übrigen 3,4 Wh werden zu Wärme – darum wird das Handy beim Laden warm."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Im Flugzeug sind Powerbanks bis 100 Wh erlaubt. Eine hat 26 800 mAh bei 3,7 V. Wie viele Wh hat sie? Auf eine Nachkommastelle.
+    params:
+      unit: Wh
+    answer:
+      value: 99.2
+      tolerance: 0.1
+    hints:
+      - 26 800 mAh = 26,8 Ah.
+      - 26,8 · 3,7.
+    explanation: 26,8 Ah · 3,7 V ≈ 99,2 Wh – knapp unter der Grenze. Darum gibt es so viele Powerbanks mit etwa 26 800 mAh.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Stimmt das?
+    params:
+      cards:
+        - text: Ein 65-W-Ladegerät kann auch ein Handy laden, das nur 20 W nimmt.
+          right: true
+          why: Das Handy nimmt sich nur, was es braucht.
+        - text: Ein Ladegerät drückt immer seine volle Leistung ins Gerät.
+          right: false
+          why: Gerät und Ladegerät handeln Spannung und Strom aus.
+        - text: Mehr mAh bedeutet bei gleicher Spannung mehr Energie.
+          right: true
+          why: Bei gleicher Spannung ist die Energie proportional zur Ladung.
+        - text: Ein Gerät mit 12 V ⎓ darf an 12 V ~.
+          right: false
+          why: Gleich- und Wechselspannung sind nicht austauschbar.
+      left: Falsch
+      right: Richtig
+    explanation: Moderne USB-Ladegeräte liefern nur so viel, wie das Gerät anfordert.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Ladekabel hat hin und zurück 0,2 Ω. Wie viele Watt werden im Kabel zu Wärme, wenn 60 W mit 5 V übertragen werden?
+    params:
+      unit: W
+    answer:
+      value: 28.8
+      tolerance: 0.1
+    hints:
+      - "Erst den Strom: I = P : U = 12 A."
+      - Verlust = I² · R = 144 · 0,2.
+    explanation: 12 A, also 144 · 0,2 Ω = 28,8 W Verlust – fast die Hälfte! Mit 20 V und 3 A wären es nur 9 · 0,2 = 1,8 W.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum erhöhen Schnellladegeräte die Spannung auf 9 V oder 20 V, statt einfach mehr Strom zu schicken?
+    params:
+      options:
+        - label: Weil die Verluste im Kabel mit dem Quadrat des Stroms wachsen
+          correct: true
+        - label: Weil hohe Spannung den Akku schneller macht
+          feedback: Der Akku bekommt intern immer seine eigene Spannung von etwa 4 V.
+        - label: Weil Strom gefährlicher ist als Spannung
+          feedback: Bei 20 V ist beides ungefährlich. Es geht um Wärme im Kabel.
+    hints:
+      - Denk an die Aufgabe davor.
+      - Verlust = I² · R.
+    explanation: Für dieselbe Leistung braucht man bei 4-facher Spannung nur ein Viertel des Stroms. Die Verluste sinken dann auf ein Sechzehntel. Im Handy wird wieder auf Akkuspannung heruntergewandelt.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »5000 mAh« auf einem Akku bedeutet und warum Wattstunden die bessere Angabe sind.
+    params:
+      keywords:
+        - - ladung
+          - charge
+          - mah
+          - amperestunde
+          - amp-hour
+        - - spannung
+          - voltage
+          - volt
+        - - energie
+          - energy
+          - wattstunde
+          - watt-hour
+          - wh
+        - - vergleich
+          - compar
+          - unterschied
+          - different
+      sample: "5000 mAh heißt: Der Akku kann 5 A eine Stunde lang liefern, oder 1 A fünf Stunden lang. Das ist eine Ladung. Die Energie ist Ladung mal Spannung, also Wh. Nur Wh lassen sich zwischen Akkus mit verschiedener Spannung vergleichen."
+    explanation: Wichtig sind die Kernideen. Vergleiche deine Erklärung mit der Musterantwort.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

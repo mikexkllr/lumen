@@ -1,0 +1,225 @@
+id: ee.power.balance
+type: concept
+title: "Netzfrequenz, Erneuerbare und Speicher"
+summary: "Die 50 Hz sind eine Waage zwischen Erzeugung und Verbrauch."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Die Netzfrequenz fällt auf 49,9 Hz. Was verrät das?
+    params:
+      options:
+        - label: Gerade wird mehr verbraucht als erzeugt
+          correct: true
+        - label: Ein Messfehler
+          feedback: Solche Schwankungen sind echt und alltäglich.
+        - label: Es wird mehr erzeugt als verbraucht
+          feedback: Dann würde die Frequenz steigen.
+    hints:
+      - Die Generatoren drehen im Takt der Frequenz.
+      - Fehlt Leistung, bremst die Last die Generatoren.
+    explanation: Die fehlende Energie kommt aus der Drehbewegung der Generatoren. Sie werden langsamer, die Frequenz sinkt.
+
+  - kind: explain
+    id: c1
+    body: Die **Netzfrequenz** ist wie eine Waage. Erzeugen Kraftwerke mehr, als verbraucht wird, drehen die Generatoren schneller und die Frequenz steigt. Fehlt Leistung, sinkt sie. Bei genau 50 Hz herrscht Gleichgewicht.
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: Steigt oder fällt die Frequenz?
+    params:
+      cards:
+        - text: Ein großes Kraftwerk fällt plötzlich aus
+          right: false
+        - text: Eine Fabrik schaltet abrupt ab
+          right: true
+        - text: In der Fußball-Halbzeit gehen Millionen Wasserkocher an
+          right: false
+        - text: Mittags an einem sonnigen Feiertag mit wenig Verbrauch
+          right: true
+        - text: Eine Hochspannungsleitung zu einem Windpark reißt
+          right: false
+      left: Fällt
+      right: Steigt
+    explanation: "Zu wenig Erzeugung oder plötzlich mehr Last: Frequenz sinkt. Zu viel Erzeugung oder Last weg: Frequenz steigt."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Die Frequenz fällt immer weiter. Ab wann schaltet das Netz von selbst Verbraucher ab? So verhindert es einen Blackout.
+    params:
+      options:
+        - label: Ab 49,0 Hz
+          correct: true
+        - label: Ab 49,99 Hz
+          feedback: Solche kleinen Abweichungen sind normal.
+        - label: Erst unter 45 Hz
+          feedback: Dann wären viele Kraftwerke längst vom Netz gegangen.
+    hints:
+      - Normal sind Schwankungen um etwa ±0,1 Hz.
+      - Der Lastabwurf beginnt eine ganze Stufe tiefer.
+    explanation: Ab 49,0 Hz trennen Schutzgeräte stufenweise Teile des Netzes ab. Lieber einige Stadtteile kurz dunkel als ganz Europa.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Pumpspeicher hebt 1 m³ Wasser (1000 kg) um 300 m. Wie viele kWh sind darin gespeichert? E = m · g · h mit g = 9,81 m/s². Auf zwei Nachkommastellen.
+    params:
+      unit: kWh
+    answer:
+      value: 0.82
+      tolerance: 0.006
+    hints:
+      - 1000 · 9,81 · 300 J ≈ 2,94 MJ.
+      - 1 kWh = 3,6 MJ.
+    explanation: ≈ 0,82 kWh pro Kubikmeter. Für 1 GWh braucht man also über eine Million Kubikmeter Wasser – einen ganzen Stausee.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Gegen Abweichungen hält das Netz **Regelleistung** bereit. Die schnellste Stufe, die Primärregelung, umfasst in Kontinentaleuropa 3000 MW. Sie ist bei 200 mHz Abweichung innerhalb von 30 Sekunden voll aktiv.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Primärregelung wirkt proportional zur Abweichung. Wie viele MW werden bei {{d}} mHz Abweichung abgerufen?
+    params:
+      unit: MW
+    answer:
+      value: "{{15 * d}}"
+    hints:
+      - 3000 MW bei 200 mHz.
+      - "3000 · {{d}} : 200."
+    explanation: "{{15 * d}} MW. Das ist ein P-Regler, wie in der Regelungstechnik."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[20,50,100,150]
+      defaults:
+        d: 50
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Kann man diese Erzeugung nach Bedarf hoch- und herunterfahren?
+    params:
+      buckets:
+        - id: b1
+          label: Ja, regelbar
+        - id: b2
+          label: Nein, wetterabhängig
+      items:
+        - label: Gasturbine
+          bucket: b1
+        - label: Windpark
+          bucket: b2
+        - label: Pumpspeicher
+          bucket: b1
+        - label: Solarpark
+          bucket: b2
+        - label: Großbatterie
+          bucket: b1
+        - label: Biogasanlage
+          bucket: b1
+    hints:
+      - Wind und Sonne kann man nur abregeln, nicht hochfahren.
+      - Speicher können sowohl aufnehmen als auch abgeben.
+    explanation: Je mehr Wind und Sonne, desto wichtiger werden Speicher und flexible Erzeuger, die die Lücken füllen.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: Ein Heimspeicher hat 10 kWh. Nachts zieht der Haushalt im Mittel {{p}} W. Wie viele Stunden reicht der Speicher?
+    params:
+      unit: h
+    answer:
+      value: "{{10000 / p}}"
+      tolerance: 0.01
+    hints:
+      - "Zeit = Energie : Leistung."
+      - "10 000 Wh : {{p}} W."
+    explanation: "{{10000 / p}} h. Für eine Nacht reicht das; für eine windstille Winterwoche nicht."
+    difficulty: 2
+    variants:
+      params:
+        p: choice[250,400,500,800]
+      defaults:
+        p: 500
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Turbine samt Generator hat das Trägheitsmoment J = 50 000 kg·m² und dreht mit 3000 U/min (ω = 314 1/s). Wie viel Energie steckt in der Drehung, E = ½ J ω²? In MJ, auf ganze MJ.
+    params:
+      unit: MJ
+    answer:
+      value: 2467
+      tolerance: 5
+    hints:
+      - ω² ≈ 98 700.
+      - ½ · 50 000 · 98 700 J.
+    explanation: ≈ 2467 MJ, also knapp 0,7 MWh. Diese Schwungmasse fängt die ersten Sekunden einer Störung ab, bevor die Regelung greift.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Solarmodule und Batterien hängen über Wechselrichter am Netz und haben keine rotierende Masse. Was bedeutet das für das Netz der Zukunft?
+    params:
+      options:
+        - label: Wechselrichter müssen Trägheit nachbilden und das Netz aktiv stützen
+          correct: true
+        - label: Nichts, Trägheit ist überflüssig
+          feedback: Ohne sie ändert sich die Frequenz bei Störungen viel schneller.
+        - label: Man muss bei Kohle bleiben
+          feedback: Netzbildende Wechselrichter lösen das Problem technisch.
+    hints:
+      - Weniger Schwungmasse heißt schnellere Frequenzänderung.
+      - Elektronik kann in Millisekunden reagieren.
+    explanation: Netzbildende Wechselrichter und Großbatterien liefern »synthetische Trägheit«. Sie reagieren sogar schneller als Turbinen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Netzfrequenz verrät, ob genug Strom erzeugt wird.
+    params:
+      keywords:
+        - - generator
+          - turbine
+          - dreh
+          - rotat
+        - - schneller
+          - faster
+          - langsamer
+          - slow
+          - speed
+        - - erzeug
+          - generat
+          - verbrauch
+          - consum
+          - last
+          - load
+        - - gleichgewicht
+          - balance
+          - waage
+          - "50"
+      sample: Alle großen Generatoren drehen im Takt der Netzfrequenz. Wird mehr verbraucht als erzeugt, holt sich das Netz die fehlende Energie aus ihrer Drehung, sie werden langsamer und die Frequenz sinkt. Bei Überschuss drehen sie schneller. Bei 50 Hz herrscht Gleichgewicht.
+    explanation: "Kern: Die Frequenz ist ein Messgerät für das Gleichgewicht. Regelkraftwerke reagieren auf sie."
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2", "d4"]

@@ -1,0 +1,228 @@
+id: ee.signals.fourier
+type: concept
+title: "Jedes Signal ist eine Summe von Sinuswellen"
+summary: "Grundton, Obertöne und das Spektrum – die Idee von Fourier."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Geige und Flöte spielen denselben Ton a mit 440 Hz. Warum klingen sie trotzdem verschieden?
+    params:
+      options:
+        - label: Zu den 440 Hz kommen verschieden starke Obertöne bei 880, 1320 Hz …
+          correct: true
+        - label: Weil die Geige lauter ist
+          feedback: Auch gleich laut klingen sie verschieden.
+        - label: Weil sie verschiedene Frequenzen spielen
+          feedback: Die Grundfrequenz ist bei beiden 440 Hz.
+    hints:
+      - Ein echter Ton ist kein reiner Sinus.
+      - Die Form der Schwingung bestimmt die Klangfarbe.
+    explanation: Die Klangfarbe entsteht aus der Mischung der Obertöne. Eine Flöte klingt fast sinusförmig, eine Geige hat viele kräftige Obertöne.
+
+  - kind: explain
+    id: c1
+    body: "Die **Fourier-Reihe** sagt: Jedes periodische Signal ist eine Summe von Sinuswellen. Die tiefste hat die Grundfrequenz f. Alle anderen, die Obertöne, haben 2f, 3f, 4f und so weiter."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Ton hat die Grundfrequenz {{f}} Hz. Welche Frequenz hat sein {{k}}. Vielfaches, also die {{k}}. Harmonische?
+    params:
+      unit: Hz
+    answer:
+      value: "{{k * f}}"
+    hints:
+      - Harmonische sind ganzzahlige Vielfache.
+      - "{{k}} · {{f}} Hz."
+    explanation: "{{k}} · {{f}} = {{k * f}} Hz."
+    variants:
+      params:
+        f: choice[110,220,440]
+        k: choice[2,3,5]
+      defaults:
+        f: 440
+        k: 3
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: "Bau eine Rechteckwelle aus drei Sinuswellen: sin x + sin(3x)/b + sin(5x)/c. Stell b und c so ein, dass deine Kurve die gestrichelte trifft."
+    params:
+      expr: sin(x) + sin(3*x)/b + sin(5*x)/c
+      x:
+        - 0
+        - 6.3
+      y:
+        - -1.5
+        - 1.5
+      showCoordinates: false
+      sliders:
+        - id: b
+          label: b
+          min: 1
+          max: 9
+          step: 1
+          initial: 1
+        - id: c
+          label: c
+          min: 1
+          max: 9
+          step: 1
+          initial: 1
+      target:
+        expr: sin(x) + sin(3*x)/3 + sin(5*x)/5
+        label: Ziel
+    answer:
+      matchTarget: true
+    hints:
+      - Die Teiler sind genau die Ordnungszahlen der Obertöne.
+      - Die n-te Harmonische hat die Stärke 1/n.
+    explanation: b = 3 und c = 5. Mit immer mehr ungeraden Obertönen, je mit 1/n, wird die Kurve immer eckiger.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Steckt diese Frequenz in einer Rechteckwelle mit 1 kHz?
+    params:
+      buckets:
+        - id: b1
+          label: Enthalten
+        - id: b2
+          label: Fehlt
+      items:
+        - label: 1 kHz
+          bucket: b1
+        - label: 2 kHz
+          bucket: b2
+        - label: 3 kHz
+          bucket: b1
+        - label: 4 kHz
+          bucket: b2
+        - label: 5 kHz
+          bucket: b1
+        - label: 500 Hz
+          bucket: b2
+    hints:
+      - Ein symmetrisches Rechteck hat nur ungerade Harmonische.
+      - Unter der Grundfrequenz gibt es nichts.
+    explanation: 1, 3, 5, 7 … kHz. Die geraden fehlen, weil die obere und untere Hälfte spiegelbildlich sind.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Das **Spektrum** zeigt, welche Frequenzen wie stark in einem Signal stecken. Ein reiner Sinus ist eine einzelne Linie. Ein Rechteck hat eine Linie bei jeder ungeraden Harmonischen, jede schwächer als die davor.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: match
+    prompt: Welches Spektrum gehört zu welchem Signal?
+    params:
+      pairs:
+        - left: Reiner Sinus
+          right: Eine einzige Linie
+        - left: Rechteck
+          right: Ungerade Linien, je 1/n
+        - left: Sägezahn
+          right: Alle Linien, je 1/n
+        - left: Weißes Rauschen
+          right: Überall gleich stark
+      leftTitle: Signal
+      rightTitle: Spektrum
+    hints:
+      - Der Sägezahn ist nicht symmetrisch, darum hat er auch gerade Linien.
+      - Rauschen hat keine feste Periode.
+    explanation: Die Form im Zeitbereich und das Spektrum im Frequenzbereich beschreiben dasselbe Signal auf zwei Arten.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Rechteck springt zwischen −1 V und +1 V. Seine Grundschwingung hat die Amplitude 4/π V. Wie viel sind das? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: 1.27
+      tolerance: 0.006
+    hints:
+      - π ≈ 3,1416.
+      - "4 : 3,1416."
+    explanation: ≈ 1,27 V – mehr als das Rechteck selbst! Die Obertöne drücken die Spitzen wieder auf 1 V herunter.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Baut man ein Rechteck aus immer mehr Obertönen, bleibt an den Sprungstellen ein Überschwinger von etwa 9 %. Was passiert mit ihm bei unendlich vielen Obertönen?
+    params:
+      options:
+        - label: Er wird immer schmaler, aber nicht niedriger
+          correct: true
+        - label: Er verschwindet
+          feedback: Seine Höhe bleibt bei etwa 9 %.
+        - label: Er wird immer höher
+          feedback: Er bleibt gleich hoch.
+    hints:
+      - Das ist das Gibbs-Phänomen.
+      - Die Fläche unter dem Überschwinger geht gegen null.
+    explanation: Die Höhe bleibt, die Breite schrumpft. Im Mittel konvergiert die Reihe trotzdem. Bei Bildern sieht man das als Ringe um scharfe Kanten.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Rechteck mit 1 kHz läuft durch ein Filter, das nur Frequenzen bis 10 kHz durchlässt. Wie viele Spektrallinien kommen durch?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: all-harmonics
+        text: Das Rechteck hat nur ungerade Harmonische.
+    hints:
+      - Welche Harmonischen liegen unter 10 kHz?
+      - 1, 3, 5, 7, 9 kHz.
+    explanation: "Fünf Linien: 1, 3, 5, 7 und 9 kHz. Das Ergebnis sieht aus wie ein Rechteck mit abgerundeten Kanten."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Fourier-Idee »jedes Signal ist eine Summe von Sinuswellen« bedeutet.
+    params:
+      keywords:
+        - - sinus
+          - sine
+        - - summe
+          - sum
+          - addier
+          - add
+          - zusammen
+          - together
+        - - frequenz
+          - frequency
+          - vielfach
+          - multiple
+          - oberton
+          - harmonic
+        - - spektrum
+          - spectrum
+          - stärke
+          - staerke
+          - strength
+          - amplitude
+      sample: Jedes periodische Signal lässt sich aus Sinuswellen zusammensetzen. Die erste hat die Grundfrequenz, die anderen ganzzahlige Vielfache davon, die Obertöne. Wie stark jede ist, zeigt das Spektrum. Ein Rechteck zum Beispiel ist sin x + sin 3x/3 + sin 5x/5 + …
+    explanation: "Kern: Zerlegen in Sinuswellen mit Vielfachen der Grundfrequenz. Filter, MP3 und JPEG nutzen genau das."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x2"]

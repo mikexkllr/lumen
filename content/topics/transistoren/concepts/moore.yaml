@@ -1,0 +1,170 @@
+id: ee.transistors.moore
+type: concept
+title: "Milliarden auf einem Chip"
+summary: "Das mooresche Gesetz, winzige Strukturen und warum der Takt nicht mehr steigt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie viele Transistoren stecken im Hauptchip eines aktuellen Smartphones?
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 20000000000
+      within: 50
+    explanation: Rund 20 Milliarden. Der erste Mikroprozessor, der Intel 4004 von 1971, hatte 2300.
+
+  - kind: explain
+    id: c1
+    body: "Das **mooresche Gesetz** ist eine Beobachtung von Gordon Moore: Die Zahl der Transistoren pro Chip verdoppelt sich etwa alle zwei Jahre. Das hielt erstaunlich lange, rund fünf Jahrzehnte."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Um welchen Faktor wächst die Transistorzahl in {{y}} Jahren, wenn sie sich alle 2 Jahre verdoppelt?
+    answer:
+      value: "{{2 ** (y / 2)}}"
+    feedback:
+      - when: numval(state.input) == y
+        misconception: linear
+        text: "Nicht linear: Jede Verdopplung multipliziert."
+    hints:
+      - "{{y}} Jahre sind {{y / 2}} Verdopplungen."
+      - 2 hoch {{y / 2}}.
+    explanation: "2^{{y / 2}} = {{2 ** (y / 2)}}. Exponentielles Wachstum: Nach 20 Jahren das Tausendfache."
+    variants:
+      params:
+        y: choice[10,20,30]
+      defaults:
+        y: 20
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Von 2300 Transistoren im Jahr 1971 aus: Wie viele Milliarden wären es nach 50 Jahren mit einer Verdopplung alle 2 Jahre? Auf ganze Milliarden."
+    params:
+      unit: Mrd.
+    answer:
+      value: 77
+      tolerance: 0.6
+    hints:
+      - "50 Jahre sind 25 Verdopplungen: 2²⁵ ≈ 33,5 Millionen."
+      - 2300 · 33 554 432.
+    explanation: Rund 77 Milliarden. Die größten Chips von heute liegen tatsächlich in dieser Größenordnung.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Bring die Chips in die zeitliche Reihenfolge, den ältesten zuerst.
+    params:
+      items:
+        - label: Intel 4004 (2300 Transistoren)
+        - label: Intel 8086 (29 000)
+        - label: Pentium (3,1 Millionen)
+        - label: Chip des ersten iPhones
+        - label: Heutiger Handychip (20 Milliarden)
+    hints:
+      - Mehr Transistoren heißt meist jünger.
+      - Das erste iPhone kam 2007.
+    explanation: 1971, 1978, 1993, 2007, heute. Jede Generation brachte ein Vielfaches an Transistoren.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Ein Chip wird im »3-nm-Prozess« gefertigt. Was bedeutet das?
+    params:
+      options:
+        - label: Es ist ein Name für eine Technologiegeneration, kein gemessenes Maß
+          correct: true
+        - label: Jeder Transistor ist 3 nm groß
+          feedback: Die echten Abstände sind deutlich größer, etwa 20 bis 50 nm.
+        - label: Die Drähte sind 3 nm lang
+          feedback: Leitungen sind viel länger.
+    hints:
+      - Früher entsprach die Zahl der Gatelänge.
+      - Heute ist es ein Marketingname.
+    explanation: Die Zahl wurde über die Jahre weitergezählt, auch als die Strukturen anders schrumpften. Ein Siliziumatom hat nur etwa 0,2 nm Abstand zum Nachbarn.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Um 2005 blieben die Taktfrequenzen bei einigen GHz stehen, obwohl die Transistoren weiter schrumpften. Warum?
+    params:
+      options:
+        - label: Die Spannung ließ sich nicht weiter senken, die Wärme pro Fläche wurde zu groß
+          correct: true
+        - label: Weil höhere Takte verboten sind
+          feedback: Es ist ein physikalisches Problem.
+        - label: Weil niemand schnellere Chips brauchte
+          feedback: Der Bedarf stieg weiter.
+    hints:
+      - P = α · C · U² · f.
+      - Vorher wurde U mit jeder Generation kleiner, das glich höheres f aus.
+    explanation: "Das Ende dieser Dennard-Skalierung führte zu Mehrkernprozessoren: mehr Kerne statt höherer Takt."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Licht legt in 1 ns etwa 30 cm zurück. Wie viele Zentimeter schafft es in einem Takt bei 3 GHz?
+    params:
+      unit: cm
+    answer:
+      value: 10
+      tolerance: 0.1
+    hints:
+      - "Ein Takt dauert 1 : 3 GHz ≈ 0,33 ns."
+      - 30 cm · 0,33.
+    explanation: 10 cm. Signale auf dem Chip sind noch deutlich langsamer. Die Größe eines Chips begrenzt also, wie weit ein Signal pro Takt kommt.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: estimate
+    prompt: Ein Kanal ist 20 nm lang. Siliziumatome sitzen etwa 0,235 nm auseinander. Wie viele Atomabstände sind das?
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 85
+      within: 15
+    explanation: "20 : 0,235 ≈ 85. Bei so wenigen Atomen zählt jedes einzelne Fremdatom, und Elektronen tunneln durch dünne Schichten."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Chips immer mehr Transistoren bekommen, aber kaum noch schneller takten.
+    params:
+      keywords:
+        - - transistor
+        - - wärme
+          - waerme
+          - heat
+          - leistung
+          - power
+        - - spannung
+          - voltage
+        - - kern
+          - core
+          - parallel
+      sample: Kleinere Transistoren passen dichter, also verdoppelt sich ihre Zahl weiter. Früher sank dabei auch die Spannung, und man konnte den Takt erhöhen. Heute lässt sich die Spannung kaum senken. Höherer Takt brächte zu viel Wärme. Darum nutzt man die Transistoren für mehr Kerne, die parallel arbeiten.
+    explanation: "Kern: Wärme begrenzt den Takt. Mehr Transistoren gehen in Parallelität und Spezialeinheiten."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "x1"]

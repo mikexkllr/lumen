@@ -1,0 +1,220 @@
+id: ee.signals.sampling
+type: concept
+title: "Sampling and aliasing"
+summary: "Sample more than twice as fast as the highest frequency – or the signal lies."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: A 3 Hz signal is measured 20 times a second. Turn the sample rate down until the measured frequency is wrong.
+    params:
+      scene: sampling
+      controls:
+        signal:
+          fixed: true
+    answer:
+      aliased: 1
+    explanation: Below a 6 Hz sample rate a false, lower frequency appears. The sample points join up into a different wave.
+
+  - kind: explain
+    id: c1
+    body: "The **sampling theorem** says: a signal can only be rebuilt from its samples if you sample more than twice as often as its highest frequency. Half the sample rate is called the Nyquist frequency."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A signal contains frequencies up to {{f}} kHz. Above what sample rate in kHz must you stay?
+    params:
+      unit: kHz
+    answer:
+      value: "{{2 * f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: single
+        text: "That isn’t enough: you need more than double."
+    hints:
+      - More than twice the highest frequency.
+      - 2 × {{f}}.
+    explanation: More than {{2 * f}} kHz. Telephones use 8 kHz for speech up to just under 4 kHz, the CD 44.1 kHz for music up to 20 kHz.
+    variants:
+      params:
+        f: choice[4,8,20,24]
+      defaults:
+        f: 20
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: The signal is 7 Hz. Set the smallest whole-number sample rate that is more than twice as high.
+    params:
+      scene: sampling
+      controls:
+        signal:
+          fixed: true
+          value: 7
+      show:
+        - nyquist
+        - seen
+    answer:
+      rate: 15
+    explanation: 15 Hz, since 2 × 7 = 14 Hz would be exactly on the limit. There, depending on where the samples fall, you might measure only zeros.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: An audio CD samples at 44.1 kHz. Up to what frequency can it store sound, in kHz?
+    params:
+      unit: kHz
+    answer:
+      value: 22.05
+      tolerance: 0.001
+    hints:
+      - The limit is half the sample rate.
+      - 44.1 ÷ 2.
+    explanation: 22.05 kHz – just above the hearing limit of about 20 kHz.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Sample too slowly and a high frequency shows up as a false low one. That is **aliasing**. The frequency you see is the distance to the nearest multiple of the sample rate: |f − k × f_s|."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A {{f}} Hz signal is sampled at {{s}} Hz. Which frequency do you appear to measure?
+    params:
+      unit: Hz
+    answer:
+      value: "{{s - f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: no-alias
+        text: The real signal is above the Nyquist limit – it appears folded.
+    hints:
+      - The Nyquist limit is {{s / 2}} Hz. {{f}} Hz is above it.
+      - "Seen: |{{f}} − {{s}}|."
+    explanation: "|{{f}} − {{s}}| = {{s - f}} Hz. The signal is folded at the Nyquist limit."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[20,30,50]
+        f: int[11,29]
+      constraints:
+        - f > s / 2
+        - f < s
+      defaults:
+        s: 20
+        f: 18
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: In films, car wheels sometimes seem to turn slowly backwards. Why?
+    params:
+      options:
+        - label: The frame rate samples the fast rotation too slowly – aliasing
+          correct: true
+        - label: The camera mirrors the picture
+          feedback: The picture isn’t mirrored.
+        - label: The wheels really turn backwards
+          feedback: The car drives forward.
+    hints:
+      - A film has 24 frames per second.
+      - If a spoke moves almost one full spacing per frame, it looks like a small step back.
+    explanation: The wagon-wheel effect is aliasing in time. The same maths explains moiré patterns in photos.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: What must sit in front of every ADC so that no aliasing occurs?
+    params:
+      options:
+        - label: A low-pass that removes everything above the Nyquist frequency
+          correct: true
+        - label: A high-pass
+          feedback: That would remove the low, wanted frequencies.
+        - label: An amplifier
+          feedback: Amplifying prevents no aliases.
+    hints:
+      - The dangerous frequencies are the ones that are too high.
+      - They must be gone before sampling.
+    explanation: This anti-aliasing filter must act before sampling. Afterwards an aliased frequency can no longer be told apart from a real one.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A radio receiver deliberately samples a 10.7 MHz signal at only 4 MHz. At which frequency does it appear, in MHz?
+    params:
+      unit: MHz
+    answer:
+      value: 1.3
+      tolerance: 0.001
+    hints:
+      - Find the nearest multiple of 4 MHz.
+      - "|10.7 − 3 × 4|."
+    explanation: "|10.7 − 12| = 1.3 MHz. Undersampling uses aliasing on purpose as a mixer – as long as the signal is narrowband."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Hearing goes up to 20 kHz. Why does the CD sample at 44.1 kHz and not exactly 40 kHz?
+    params:
+      options:
+        - label: The anti-aliasing filter needs room to roll off between 20 kHz and 22 kHz
+          correct: true
+        - label: Because 44.1 is a round number
+          feedback: It isn’t round at all.
+        - label: To make the CD louder
+          feedback: The sample rate doesn’t change loudness.
+    hints:
+      - No real filter jumps vertically from “pass” to “block”.
+      - Between 20 kHz and the Nyquist limit lies a transition band.
+    explanation: The filter needs a transition band. At 40 kHz it would have to cut off vertically at 20 kHz, which is impossible. The exact figure 44.1 kHz comes from old video recorders.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what aliasing is and how to prevent it.
+    params:
+      keywords:
+        - - abtast
+          - sampl
+        - - doppelt
+          - twice
+          - double
+          - nyquist
+          - hälfte
+          - haelfte
+          - half
+        - - falsch
+          - "false"
+          - wrong
+          - tiefer
+          - lower
+          - spiegel
+          - fold
+        - - tiefpass
+          - low-pass
+          - lowpass
+          - filter
+      sample: "If a signal is sampled too rarely, the samples also fit a lower frequency. You then see a false wave: aliasing. You prevent it by sampling more than twice as fast as the highest frequency. And a low-pass in front of the converter removes everything above the Nyquist limit."
+    explanation: "The core: sample rate above 2 × f_max and an anti-aliasing filter in front."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

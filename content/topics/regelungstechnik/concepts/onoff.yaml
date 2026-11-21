@@ -1,0 +1,198 @@
+id: ee.control.onoff
+type: concept
+title: "Der Zweipunktregler"
+summary: "Nur an oder aus: Thermostat, Kühlschrank und Pulsbreitensteuerung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Ein Kühlschrank klickt: Der Kompressor läuft ein paar Minuten, dann ist wieder Ruhe. Warum läuft er nicht einfach dauernd mit wenig Leistung?"
+    params:
+      options:
+        - label: Ein einfacher Regler kennt nur an oder aus – das ist billig und robust
+          correct: true
+        - label: Weil der Kompressor sonst explodiert
+          feedback: Er hält Dauerbetrieb aus; es geht um einfache Technik.
+        - label: Weil Kühlschränke nachts abschalten
+          feedback: Er schaltet Tag und Nacht.
+    hints:
+      - Welche Stellgrößen kennt ein Bimetall-Schalter?
+      - Moderne Inverter-Kühlschränke regeln tatsächlich stufenlos.
+    explanation: Der klassische Kühlschrank hat einen Zweipunktregler. Inverter-Geräte drehen den Kompressor stufenlos und sparen damit Energie.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Zweipunktregler** schaltet nur ganz an oder ganz aus. Damit er nicht ständig klickt, hat er zwei Schwellen: Unter 20 °C an, über 22 °C aus. Die Temperatur pendelt dazwischen."
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: Thermostat mit den Schwellen 20 °C (an) und 22 °C (aus). Ist die Heizung an?
+    params:
+      cards:
+        - text: 19,5 °C
+          right: true
+        - text: 22,5 °C
+          right: false
+        - text: 21 °C, Raum wird gerade aufgeheizt
+          right: true
+        - text: 21 °C, Raum kühlt gerade ab
+          right: false
+      left: Aus
+      right: An
+    explanation: Zwischen den Schwellen bleibt der alte Zustand. Das ist dieselbe Hysterese wie beim Schmitt-Trigger.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Die Heizung hebt die Temperatur um 0,5 K pro Minute, ohne Heizung fällt sie um 0,25 K pro Minute. Die Schwellen liegen {{h}} K auseinander. Wie viele Minuten dauert ein voller Zyklus?
+    params:
+      unit: min
+    answer:
+      value: "{{6 * h}}"
+      tolerance: 0.001
+    hints:
+      - "Aufheizen: {{h}} : 0,5 min. Abkühlen: {{h}} : 0,25 min."
+      - Addiere beide Zeiten.
+    explanation: "{{2 * h}} min an + {{4 * h}} min aus = {{6 * h}} min."
+    variants:
+      params:
+        h: choice[0.5,1,2]
+      defaults:
+        h: 1
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Du halbierst den Abstand der Schwellen. Was passiert?
+    params:
+      options:
+        - label: Die Temperatur schwankt weniger, aber es wird doppelt so oft geschaltet
+          correct: true
+        - label: Es wird seltener geschaltet
+          feedback: Der Weg zwischen den Schwellen ist kürzer.
+        - label: Nichts ändert sich
+          feedback: Die Zykluszeit hängt direkt von der Hysterese ab.
+    hints:
+      - Schau auf die Zykluszeit aus der Aufgabe davor.
+      - Halbe Strecke, halbe Zeit.
+    explanation: "Genauigkeit gegen Verschleiß: Jeder Schaltvorgang belastet Relais und Kompressor."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Das **Tastverhältnis** ist der Anteil der Zeit, in der eingeschaltet ist. Im Mittel liefert ein Zweipunktregler Tastverhältnis mal volle Leistung. So entsteht aus »an–aus« eine stufenlose mittlere Leistung.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein 2-kW-Heizer ist in jedem 6-Minuten-Zyklus 2 Minuten an. Welche mittlere Leistung liefert er? Auf ganze Watt.
+    params:
+      unit: W
+    answer:
+      value: 667
+      tolerance: 0.6
+    hints:
+      - "Tastverhältnis: 2 : 6 = ⅓."
+      - 2000 W · ⅓.
+    explanation: ≈ 667 W. Genau so viel verliert der Raum im Mittel an Wärme.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Pulsbreitenmodulation (PWM) schaltet 12 V tausende Male pro Sekunde. Bei {{d}} % Tastverhältnis: Welche mittlere Spannung sieht ein Motor?"
+    params:
+      unit: V
+    answer:
+      value: "{{12 * d / 100}}"
+      tolerance: 0.001
+    hints:
+      - Mittelwert = Tastverhältnis · 12 V.
+      - "{{d / 100}} · 12."
+    explanation: "{{12 * d / 100}} V. Der Transistor ist dabei immer ganz an oder ganz aus und verheizt kaum etwas."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[10,25,50,75]
+      defaults:
+        d: 25
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum taktet man PWM für LEDs und Motoren mit einigen Kilohertz und nicht mit 1 Hz?
+    params:
+      options:
+        - label: Auge und Motorträgheit glätten nur schnelle Pulse zu einem Mittelwert
+          correct: true
+        - label: Weil 1 Hz verboten ist
+          feedback: Es ist eine Frage der Wahrnehmung und Physik.
+        - label: Weil langsame PWM mehr Strom braucht
+          feedback: Der Mittelwert wäre gleich – aber man sähe Blinken.
+    hints:
+      - Was siehst du bei einer LED, die einmal pro Sekunde blinkt?
+      - Die Pulse müssen schneller sein als die Trägheit des Empfängers.
+    explanation: Das Auge mittelt ab etwa 100 Hz, ein Motor durch seine Induktivität und Masse. Zu hohe Frequenzen erhöhen aber die Schaltverluste.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine LED wird mit 1 kHz PWM auf 30 % gedimmt. Wie lange ist sie in jeder Periode an, in ms?
+    params:
+      unit: ms
+    answer:
+      value: 0.3
+      tolerance: 0.001
+    hints:
+      - "Periode bei 1 kHz: 1 ms."
+      - 30 % von 1 ms.
+    explanation: 0,3 ms an, 0,7 ms aus – tausendmal pro Sekunde.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Thermostat zwei Schaltschwellen hat.
+    params:
+      keywords:
+        - - zwei
+          - two
+          - schwelle
+          - threshold
+        - - ständig
+          - staendig
+          - constant
+          - oft
+          - often
+          - flatter
+          - chatter
+          - klick
+        - - hysterese
+          - hysteresis
+          - abstand
+          - gap
+        - - schwank
+          - swing
+          - pendel
+          - oscillat
+          - verschleiß
+          - verschleiss
+          - wear
+      sample: Mit nur einer Schwelle würde der Thermostat ständig klicken, bei jedem winzigen Wackeln der Temperatur an- und ausschalten. Mit zwei Schwellen, also Hysterese, heizt er bis zur oberen und wartet dann bis zur unteren. Die Temperatur schwankt etwas, aber es wird seltener geschaltet und weniger Verschleiß entsteht.
+    explanation: "Kern: Hysterese tauscht etwas Genauigkeit gegen seltenes Schalten."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

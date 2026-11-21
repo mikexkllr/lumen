@@ -1,0 +1,185 @@
+id: ee.digital.counter
+type: concept
+title: "Takt und Zähler"
+summary: "Flipflops in Reihe zählen Pulse und teilen Frequenzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: bits
+    prompt: Ein 4-Bit-Zähler steht auf 1111. Jetzt kommt noch ein Taktpuls. Stell den neuen Zählerstand ein.
+    params:
+      bits: 4
+      initial: "1111"
+      showValue: false
+    answer:
+      value: 0
+    hints:
+      - 1111 ist 15, die größte 4-Bit-Zahl.
+      - Für 16 bräuchte man eine fünfte Stelle.
+    explanation: Alle Stellen kippen auf 0, der Übertrag fällt hinten heraus. Das ist ein Überlauf.
+
+  - kind: explain
+    id: c1
+    body: Der **Takt** ist ein Rechtecksignal, das den Rhythmus vorgibt. Bei jeder steigenden Flanke zählt ein Zähler eins weiter. Nach dem größten Wert springt er wieder auf 0.
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: Ein 4-Bit-Zähler startet bei 0000 und bekommt {{n}} Taktpulse. Stell den Stand ein.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{n % 16}}"
+    hints:
+      - Nach 16 Pulsen steht er wieder auf 0.
+      - "{{n}} geteilt durch 16, der Rest zählt."
+    explanation: "{{n}} mod 16 = {{n % 16}} = {{bin(n % 16)}}."
+    variants:
+      params:
+        n: int[17,60]
+      constraints:
+        - n % 16 != 0
+      defaults:
+        n: 21
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Prozessor taktet mit {{f}} GHz. Wie lange dauert ein Takt, in ns? Auf drei Nachkommastellen.
+    params:
+      unit: ns
+    answer:
+      value: "{{1 / f}}"
+      tolerance: 0.0006
+    hints:
+      - "T = 1 : f."
+      - "1 : {{f}} GHz in ns."
+    explanation: T = {{round(1 / f, 3)}} ns. In dieser Zeit muss jedes Signal seinen Weg zum nächsten Flipflop schaffen.
+    variants:
+      params:
+        f: choice[1,2,3,4,5]
+      defaults:
+        f: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Bis zu welcher Zahl zählt ein {{n}}-Bit-Zähler, bevor er überläuft?
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: off-by-one
+        text: "Die Null zählt mit: 2ⁿ Werte enden bei 2ⁿ − 1."
+    hints:
+      - n Bits ergeben 2ⁿ verschiedene Werte.
+      - Der erste Wert ist 0.
+    explanation: 2^{{n}} − 1 = {{2 ** n - 1}}.
+    variants:
+      params:
+        n: choice[3,4,8,10,16]
+      defaults:
+        n: 8
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Jedes Flipflop in einer Zählerkette kippt halb so oft wie das davor. Es teilt also die Frequenz durch 2. Darum ist ein Zähler zugleich ein **Frequenzteiler**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Uhrenquarz schwingt mit 32 768 Hz. Wie viele Teiler-Flipflops braucht man, um daraus genau 1 Hz für den Sekundentakt zu machen?
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: off-by-one
+        text: "Fast: 2¹⁶ wäre 65 536."
+    hints:
+      - 32 768 ist eine Zweierpotenz.
+      - 2 hoch wie viel ist 32 768?
+    explanation: "2¹⁵ = 32 768. Darum hat jede Quarzuhr genau diese Frequenz: 15-mal halbieren ergibt 1 Hz."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein 3-Bit-Zähler zählt von 0 bis 7. Er startet bei {{s}} und bekommt {{n}} Pulse. Welchen Wert zeigt er?
+    answer:
+      value: "{{(s + n) % 8}}"
+    feedback:
+      - when: numval(state.input) == s + n
+        misconception: no-wrap
+        text: Der Zähler läuft nach 7 über und beginnt wieder bei 0.
+    hints:
+      - Rechne {{s}} + {{n}}.
+      - Nimm den Rest beim Teilen durch 8.
+    explanation: ({{s}} + {{n}}) mod 8 = {{(s + n) % 8}}. Zähler rechnen modulo 2ⁿ.
+    difficulty: 2
+    variants:
+      params:
+        s: int[0,7]
+        n: int[3,20]
+      constraints:
+        - s + n > 8
+      defaults:
+        s: 5
+        n: 6
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Der längste Signalweg zwischen zwei Flipflops führt durch 20 Gatter mit je 15 ps. Wie hoch darf der Takt höchstens sein, in GHz? Auf zwei Nachkommastellen.
+    params:
+      unit: GHz
+    answer:
+      value: 3.33
+      tolerance: 0.006
+    hints:
+      - "Laufzeit: 20 · 15 ps = 300 ps."
+      - "f = 1 : 300 ps."
+    explanation: "1 : 0,3 ns ≈ 3,33 GHz. Dieser kritische Pfad bestimmt den Takt. Chipdesigner kürzen ihn mit Pipelines."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Zähler aus Flipflops zählt und warum er nach 1111 wieder bei 0000 landet.
+    params:
+      keywords:
+        - - takt
+          - clock
+          - puls
+          - pulse
+          - flanke
+          - edge
+        - - flipflop
+          - flip-flop
+        - - übertrag
+          - uebertrag
+          - carry
+          - kipp
+          - toggle
+        - - überlauf
+          - ueberlauf
+          - overflow
+          - vier
+          - four
+          - "16"
+      sample: "Jedes Flipflop speichert eine Binärstelle. Bei jedem Taktpuls kommt eins dazu. Kippt eine Stelle von 1 auf 0, gibt sie einen Übertrag an die nächste. Nach 1111 kippen alle vier auf 0, und der Übertrag hat keinen Platz mehr: ein Überlauf."
+    explanation: "Kern: binär zählen mit Übertrag, modulo 2ⁿ."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

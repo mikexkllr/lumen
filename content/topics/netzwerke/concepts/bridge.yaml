@@ -1,0 +1,233 @@
+id: ee.networks.bridge
+type: concept
+title: "Die Brückenschaltung"
+summary: "Zwei Teiler gegeneinander messen winzige Änderungen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: In einer Küchenwaage steckt ein Metallstreifen mit 350 Ω. Ein Kilogramm ändert ihn um 0,35 Ω. Wie viel Prozent sind das?
+    params:
+      min: 0.001
+      max: 10
+      scale: log
+    answer:
+      value: 0.1
+      within: 30
+    explanation: "0,35 : 350 = 0,001 = 0,1 %. So kleine Änderungen sieht man nur mit einem Trick: der Brücke."
+
+  - kind: explain
+    id: c1
+    body: Eine **Brückenschaltung** sind zwei Spannungsteiler nebeneinander. Ein Messgerät verbindet ihre Mittelpunkte. Teilen beide gleich, zeigt es 0 V. Dann ist die Brücke abgeglichen.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Der rechte Teiler liefert 4 V aus 12 V. Stell den linken so ein, dass die Brücke abgeglichen ist.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 3.99
+        - 4.01
+    explanation: "Der linke Teiler muss auch ein Drittel liefern: R₁ doppelt so groß wie R₂, etwa 10 kΩ und 5 kΩ."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Links: R₁ = {{a}} Ω oben, R₂ = {{b}} Ω unten. Rechts: R₃ = {{c}} Ω oben. Welcher Widerstand Rₓ rechts unten gleicht die Brücke ab?"
+    params:
+      unit: Ω
+    answer:
+      value: "{{b * c / a}}"
+    feedback:
+      - when: numval(state.input) == a * c / b
+        misconception: ratio-flip
+        text: "Verhältnis umgedreht: Es muss R₁ : R₂ = R₃ : Rₓ gelten."
+    hints:
+      - "Abgeglichen heißt: R₁ : R₂ = R₃ : Rₓ."
+      - "Rₓ = R₂ · R₃ : R₁."
+    explanation: "Rₓ = {{b}} · {{c}} : {{a}} = {{b * c / a}} Ω. So hat man früher unbekannte Widerstände sehr genau gemessen."
+    variants:
+      params:
+        a: choice[100,200,500]
+        b: choice[100,200,400]
+        c: choice[100,150,300]
+      constraints:
+        - a != b
+      defaults:
+        a: 200
+        b: 400
+        c: 150
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Abgeglichen oder nicht? Jede Brücke hängt an 10 V.
+    params:
+      cards:
+        - text: Links 1 kΩ/1 kΩ, rechts 5 kΩ/5 kΩ
+          right: true
+        - text: Links 1 kΩ/2 kΩ, rechts 2 kΩ/1 kΩ
+          right: false
+        - text: Links 2 kΩ/6 kΩ, rechts 1 kΩ/3 kΩ
+          right: true
+        - text: Links 3 kΩ/3 kΩ, rechts 3 kΩ/4 kΩ
+          right: false
+      left: Nicht abgeglichen
+      right: Abgeglichen
+    explanation: Es zählt nur das Verhältnis oben zu unten, nicht die Größe der Widerstände.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Brücke an 10 V: links 1000 Ω und 1000 Ω, rechts 1000 Ω oben und ein Sensor mit 1010 Ω unten. Welche Brückenspannung zeigt das Messgerät in mV?"
+    params:
+      unit: mV
+    answer:
+      value: 24.9
+      tolerance: 0.1
+    hints:
+      - "Links liegen 5 V in der Mitte. Rechts: 10 · 1010/2010 V."
+      - Rechts sind es etwa 5,0249 V. Bilde die Differenz.
+    explanation: 5,0249 V − 5 V ≈ 24,9 mV. Statt »5,025 V auf 10 V genau« misst du 25 mV auf null – viel leichter.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Warum misst man die Änderung lieber mit einer Brücke statt direkt an einem einzelnen Teiler?
+    params:
+      options:
+        - label: Die Brücke zieht den großen Grundwert ab, übrig bleibt nur die Änderung
+          correct: true
+        - label: Eine Brücke verstärkt die Spannung
+          feedback: Sie verstärkt nicht, sie zieht ab.
+        - label: Eine Brücke braucht keine Spannungsquelle
+          feedback: Auch sie braucht eine Quelle.
+    hints:
+      - Was zeigt die abgeglichene Brücke?
+      - Null plus eine kleine Abweichung ist leicht zu messen.
+    explanation: Ohne Last zeigt die Brücke 0 V. Ein empfindliches Messgerät oder ein Verstärker sieht dann nur die Änderung. Schwankt die Quelle, wirkt das auf beide Seiten gleich.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Steckt darin typischerweise eine Messbrücke?
+    params:
+      buckets:
+        - id: b1
+          label: Ja
+        - id: b2
+          label: Nein
+      items:
+        - label: Digitale Küchenwaage
+          bucket: b1
+        - label: Drucksensor im Auto
+          bucket: b1
+        - label: Präzises Thermometer mit Pt100
+          bucket: b1
+        - label: Taschenlampe
+          bucket: b2
+        - label: Wasserkocher
+          bucket: b2
+    hints:
+      - Brücken braucht man, wenn sich ein Widerstand nur winzig ändert.
+      - Waage, Druck und Temperatur ändern Widerstände.
+    explanation: Dehnungsmessstreifen, Drucksensoren und Pt100-Fühler ändern ihren Widerstand nur wenig. Mit einer Brücke wird die Änderung messbar.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Für kleine Änderungen gilt: Brückenspannung ≈ U · ΔR : (4R). Eine Brücke an {{u}} V hat einen Sensor, der sich um {{p}} ‰ ändert. Wie viel mV zeigt sie?"
+    params:
+      unit: mV
+    answer:
+      value: "{{u * p / 4}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - u * p) < 0.01
+        misconception: missing-quarter
+        text: Den Faktor 1/4 nicht vergessen.
+    hints:
+      - "{{p}} ‰ heißt ΔR : R = {{p / 1000}}."
+      - "{{u}} V · {{p / 1000}} : 4, in mV umrechnen."
+    explanation: "{{u}} · {{p / 1000}} : 4 V = {{u * p / 4}} mV. Mit 1 ‰ und 10 V ergibt das 2,5 mV, passend zur Rechnung davor."
+    difficulty: 3
+    variants:
+      params:
+        u: choice[2,5,10]
+        p: choice[1,2,4]
+      defaults:
+        u: 10
+        p: 1
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "In einer Waage sitzen vier Messstreifen: zwei werden gedehnt, zwei gestaucht. Was bringt das gegenüber einem einzigen Streifen?"
+    params:
+      options:
+        - label: Viermal so viel Signal, und Temperatureffekte heben sich auf
+          correct: true
+        - label: Nichts, nur mehr Kosten
+          feedback: Jeder Streifen trägt zur Brückenspannung bei.
+        - label: Die Brücke ist dann immer abgeglichen
+          feedback: Unter Last ist sie gerade nicht abgeglichen.
+    hints:
+      - Gedehnt und gestaucht wirken in der Brücke in dieselbe Richtung.
+      - Wärme ändert alle vier gleich.
+    explanation: "Richtig angeordnet addieren sich alle vier Änderungen: U · ΔR/R statt U · ΔR/(4R). Eine Erwärmung wirkt auf alle gleich und kürzt sich heraus."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Brücke eine kleine Änderung sichtbar macht.
+    params:
+      keywords:
+        - - teiler
+          - divider
+        - - vergleich
+          - compar
+          - differenz
+          - difference
+          - abzieh
+          - subtract
+        - - "null"
+          - zero
+          - 0 v
+          - abgeglichen
+          - balanced
+        - - klein
+          - small
+          - tiny
+          - winzig
+          - änderung
+          - aenderung
+          - change
+      sample: Zwei Spannungsteiler werden verglichen. Sind sie gleich, ist die Spannung zwischen ihren Mitten null. Ändert sich ein Widerstand ein wenig, entsteht eine kleine Differenz. Die kann man empfindlich messen, weil der große Grundwert abgezogen ist.
+    explanation: "Kern: Vergleich zweier Teiler, Nullabgleich, nur die Differenz wird gemessen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "x1"]

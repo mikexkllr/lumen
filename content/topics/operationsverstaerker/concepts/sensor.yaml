@@ -1,0 +1,182 @@
+id: ee.opamps.sensor
+type: concept
+title: "Messverstärker und Integrator"
+summary: "Winzige Sensorsignale verstärken und Signale über die Zeit aufsummieren."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Eine Wägezellen-Brücke liefert bei Volllast 2 mV. Der ADC dahinter misst bis 2 V. Um welchen Faktor musst du verstärken?
+    params:
+      min: 1
+      max: 1000000
+      scale: log
+    answer:
+      value: 1000
+      within: 10
+    explanation: "2 V : 2 mV = 1000. Das schafft ein Messverstärker in einer Stufe."
+
+  - kind: explain
+    id: c1
+    body: "Ein **Differenzverstärker** verstärkt nur den Unterschied zweier Eingänge: U_aus = (R₂ : R₁) · (U₂ − U₁). Liegen beide auf derselben Spannung, ist der Ausgang null – egal wie groß diese Spannung ist."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Ein Differenzverstärker mit R₂ : R₁ = {{k}} sieht U₂ − U₁ = {{d}} mV. Was liefert er, in mV?"
+    params:
+      unit: mV
+    answer:
+      value: "{{k * d}}"
+    hints:
+      - U_aus = Verstärkung · Differenz.
+      - "{{k}} · {{d}} mV."
+    explanation: "{{k}} · {{d}} = {{k * d}} mV."
+    variants:
+      params:
+        k: choice[10,47,100]
+        d: choice[2,5,12]
+      defaults:
+        k: 100
+        d: 5
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Die Mitten einer Messbrücke liegen beide bei etwa 2,5 V, der Unterschied ist nur 2 mV. Warum nimmt man einen Differenzverstärker statt eines normalen?
+    params:
+      options:
+        - label: Er ignoriert die gemeinsamen 2,5 V und verstärkt nur die 2 mV
+          correct: true
+        - label: Weil er mehr verstärkt
+          feedback: Die Verstärkung kann gleich sein.
+        - label: Weil normale Verstärker keine Brücken mögen
+          feedback: Sie würden die 2,5 V mitverstärken und anschlagen.
+    hints:
+      - 2,5 V · 1000 wären 2500 V.
+      - Gefragt ist nur der Unterschied.
+    explanation: Die gemeinsame Spannung heißt Gleichtakt. Ein guter Differenzverstärker unterdrückt sie und verstärkt nur das Gegentaktsignal.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Brücke an 10 V mit einem Sensor, der sich um 1 ‰ ändert, liefert 2,5 mV. Welche Verstärkung brauchst du für 1 V am Ausgang?
+    answer:
+      value: 400
+    hints:
+      - "Verstärkung = Ausgang : Eingang."
+      - "1000 mV : 2,5 mV."
+    explanation: "1000 : 2,5 = 400. Messverstärker-Chips stellen das mit einem einzigen Widerstand ein."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Setzt man statt R₂ einen Kondensator in die Rückführung, entsteht ein **Integrator**. Ein konstanter Eingang lädt den Kondensator mit konstantem Strom. Der Ausgang läuft als Rampe mit der Steigung −U_ein : (R · C)."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Integrator mit R = 10 kΩ und C = 1 µF bekommt konstant 1 V. Welche Spannung hat der Ausgang nach 50 ms, wenn er bei 0 V startet?
+    params:
+      unit: V
+    answer:
+      value: -5
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 5) < 0.01
+        misconception: sign
+        text: "Der Integrator ist invertierend: Die Rampe läuft nach unten."
+    hints:
+      - "R · C = 10 ms. Steigung: −1 V : 10 ms = −100 V/s."
+      - −100 V/s · 0,05 s.
+    explanation: −5 V. Nach 150 ms wäre er bei −15 V und schlüge an. Integratoren brauchen darum einen Rücksetzer.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wofür braucht ein PI-Regler einen Integrator?
+    params:
+      options:
+        - label: Er summiert die Regelabweichung über die Zeit und beseitigt so bleibende Fehler
+          correct: true
+        - label: Damit der Regler schneller wird
+          feedback: Der I-Anteil macht ihn eher langsamer.
+        - label: Um Rauschen zu verstärken
+          feedback: Ein Integrator glättet Rauschen eher.
+    hints:
+      - Solange ein Fehler bleibt, wächst das Integral.
+      - Erst bei Fehler null hört es auf zu wachsen.
+    explanation: Der Integrator drückt so lange, bis der Fehler wirklich null ist. Mehr dazu im Kurs Regelungstechnik.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Messverstärker unterdrückt Gleichtakt mit 100 dB, das ist Faktor 100 000. Wie viel µV Fehler am Eingang erzeugen 1 V Gleichtakt?
+    params:
+      unit: µV
+    answer:
+      value: 10
+    hints:
+      - "Fehler = Gleichtakt : 100 000."
+      - "1 V : 100 000 in µV."
+    explanation: 10 µV – klein gegen 2 mV Brückensignal, aber nicht null. Diese Gleichtaktunterdrückung (CMRR) steht im Datenblatt.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Messverstärker-Chip hat vorn zwei Spannungsfolger. Wozu?
+    params:
+      options:
+        - label: Sie machen beide Eingänge hochohmig, sodass die Brücke nicht belastet wird
+          correct: true
+        - label: Um die Verstärkung zu verdoppeln
+          feedback: Folger verstärken nicht.
+        - label: Um das Signal umzudrehen
+          feedback: Folger drehen nichts um.
+    hints:
+      - Ein einfacher Differenzverstärker zieht Strom durch R₁.
+      - Das verstimmt die Brücke.
+    explanation: Mit Folgern davor zieht der Verstärker praktisch keinen Strom aus der Brücke. Das ist der klassische Drei-OPV-Messverstärker.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Integrator mit OPV und Kondensator funktioniert.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - strom
+          - current
+        - - rampe
+          - ramp
+          - steig
+          - slope
+          - lädt
+          - laedt
+          - charg
+        - - summ
+          - sum
+          - integral
+          - zeit
+          - time
+      sample: "Der Minuseingang bleibt auf virtueller Masse. Darum fließt durch R ein Strom U_ein : R, der den Kondensator in der Rückführung lädt. Bei konstantem Eingang ist der Strom konstant, und der Ausgang läuft als Rampe. Der Ausgang summiert also den Eingang über die Zeit."
+    explanation: "Kern: konstanter Strom in einen Kondensator ergibt eine Rampe. Das ist ein Integral."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

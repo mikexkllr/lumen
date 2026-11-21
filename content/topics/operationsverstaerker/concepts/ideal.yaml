@@ -1,0 +1,201 @@
+id: ee.opamps.ideal
+type: concept
+title: "Der ideale Operationsverstärker"
+summary: "Riesige Verstärkung, gezähmt durch Gegenkopplung – und zwei goldene Regeln."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein OPV hat zwei Eingänge. Er verstärkt ihren Unterschied. Um welchen Faktor etwa, wenn sonst nichts angeschlossen ist?
+    params:
+      min: 1
+      max: 100000000
+      scale: log
+    answer:
+      value: 100000
+      within: 90
+    explanation: Typisch 100 000 bis über eine Million. So viel, dass man fast nie ohne Gegenkopplung arbeitet.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Operationsverstärker** (OPV) hat einen Plus- und einen Minuseingang und einen Ausgang. Er verstärkt die Differenz: U_aus = A · (U₊ − U₋). Die Leerlaufverstärkung A ist riesig."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein OPV mit A = 100 000 sieht zwischen seinen Eingängen {{d}} µV. Welche Ausgangsspannung ergibt das rechnerisch?
+    params:
+      unit: V
+    answer:
+      value: "{{d / 10}}"
+    hints:
+      - U_aus = 100 000 · {{d}} µV.
+      - "{{d}} µV = {{d / 1000000}} V."
+    explanation: 100 000 · {{d / 1000000}} V = {{d / 10}} V. Schon Mikrovolt reichen für Volt am Ausgang.
+    variants:
+      params:
+        d: choice[10,20,50,100]
+      defaults:
+        d: 20
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Der OPV hängt an ±15 V. Am Eingang liegt 1 mV Differenz. Was macht der Ausgang?
+    params:
+      options:
+        - label: Er geht an den Anschlag, knapp unter +15 V
+          correct: true
+        - label: 100 V
+          feedback: Mehr als die Versorgung kann er nicht liefern.
+        - label: 1 mV
+          feedback: Ohne Gegenkopplung verstärkt er voll.
+    hints:
+      - 100 000 · 1 mV = 100 V.
+      - Woher sollten 100 V kommen?
+    explanation: Der Ausgang sättigt an der Versorgungsspannung. Ohne Gegenkopplung kennt ein OPV praktisch nur »ganz oben« oder »ganz unten«.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Welchen Wert hat diese Größe beim idealen OPV?
+    params:
+      buckets:
+        - id: b1
+          label: "Null"
+        - id: b2
+          label: Unendlich
+      items:
+        - label: Strom in die Eingänge
+          bucket: b1
+        - label: Leerlaufverstärkung
+          bucket: b2
+        - label: Ausgangswiderstand
+          bucket: b1
+        - label: Eingangswiderstand
+          bucket: b2
+        - label: Offsetspannung
+          bucket: b1
+    hints:
+      - Ein idealer OPV belastet nichts und lässt sich nicht belasten.
+      - Kein Eingangsstrom heißt unendlicher Eingangswiderstand.
+    explanation: "Echte OPVs kommen nah heran: Eingangsströme im Pikoampere-Bereich, Verstärkung über 10⁵. Darum rechnet man meist ideal."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Führt man den Ausgang auf den Minuseingang zurück, entsteht **Gegenkopplung**. Dann gelten zwei goldene Regeln: 1. In die Eingänge fließt kein Strom. 2. Der Ausgang stellt sich so ein, dass U₊ = U₋ wird."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Der Ausgang ist direkt mit dem Minuseingang verbunden, das Signal kommt an Plus. Was liefert der Ausgang?
+    params:
+      options:
+        - label: Genau die Eingangsspannung
+          correct: true
+        - label: Das Doppelte
+          feedback: Es gibt keinen Spannungsteiler in der Rückführung.
+        - label: "Null"
+          feedback: Der Ausgang folgt dem Pluseingang.
+    hints:
+      - "Regel 2: U₊ = U₋."
+      - U₋ ist hier der Ausgang selbst.
+    explanation: U_aus = U₋ = U₊ = U_ein. Dieser Spannungsfolger verstärkt nicht, aber er zieht keinen Strom vom Eingang und kann trotzdem eine Last treiben.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Teiler mit 10 kΩ und 10 kΩ an 12 V speist einen Spannungsfolger. Dessen Ausgang treibt eine Last von 1 kΩ. Welche Spannung liegt an der Last?
+    params:
+      unit: V
+    answer:
+      value: 6
+    feedback:
+      - when: abs(numval(state.input) - 1) < 0.05
+        misconception: no-buffer
+        text: "So wäre es ohne Folger: Die Last läge parallel zu R₂. Der OPV entkoppelt sie."
+    hints:
+      - In den Pluseingang fließt kein Strom.
+      - Der Teiler ist also unbelastet.
+    explanation: 6 V. Ohne Folger kämen nur etwa 1 V an. Der OPV holt den Laststrom aus seiner Versorgung, nicht aus dem Teiler.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Mit Gegenkopplung β gilt genau v = A : (1 + A · β). Wie groß ist v für A = {{a}} und β = 0,1? Auf drei Nachkommastellen."
+    answer:
+      value: "{{a / (1 + a * 0.1)}}"
+      tolerance: 0.0006
+    hints:
+      - "Setz ein: {{a}} : (1 + {{a * 0.1}})."
+      - "Für großes A nähert sich v dem Wert 1 : β = 10."
+    explanation: "v ≈ {{round(a / (1 + a * 0.1), 3)}}. Je größer A, desto genauer gilt v = 1 : β – nur die Rückführung zählt."
+    difficulty: 3
+    variants:
+      params:
+        a: choice[100,1000,100000]
+      defaults:
+        a: 100000
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Die Verstärkung A eines OPV schwankt zwischen Exemplaren um den Faktor 3. Warum stört das in einer gegengekoppelten Schaltung kaum?
+    params:
+      options:
+        - label: Die Gesamtverstärkung hängt fast nur von den Widerständen der Rückführung ab
+          correct: true
+        - label: Weil man jeden OPV einzeln abgleicht
+          feedback: Das ist dank Gegenkopplung nicht nötig.
+        - label: Weil A immer genau 100 000 ist
+          feedback: A streut stark.
+    hints:
+      - Schau auf die Formel aus der Aufgabe davor.
+      - A · β ≫ 1.
+    explanation: Gegenkopplung tauscht überschüssige Verstärkung gegen Genauigkeit. Dieselbe Idee steckt in jedem Regelkreis.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die zwei goldenen Regeln des OPV.
+    params:
+      keywords:
+        - - gegenkopp
+          - negative feedback
+          - rückführ
+          - rueckfuehr
+          - feedback
+        - - strom
+          - current
+          - eingang
+          - input
+        - - gleich
+          - equal
+          - same
+          - u₊ = u₋
+          - differenz null
+          - difference zero
+        - - ausgang
+          - output
+          - stellt sich
+          - adjust
+      sample: "Mit Gegenkopplung gilt erstens: In die Eingänge fließt kein Strom. Zweitens stellt sich der Ausgang so ein, dass beide Eingänge gleich viel Spannung haben. Denn schon die kleinste Differenz würde riesig verstärkt und sofort ausgeglichen."
+    explanation: "Kern: Die riesige Verstärkung zwingt die Differenz gegen null. Damit lassen sich alle OPV-Schaltungen im Kopf rechnen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

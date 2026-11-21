@@ -1,0 +1,215 @@
+id: ee.ac.phase
+type: concept
+title: "Phase, reactance and impedance"
+summary: "Capacitors and coils hold back AC depending on frequency – and shift it in time."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A capacitor is connected to AC. There is insulation between its plates. Does current flow in its leads?
+    params:
+      options:
+        - label: Yes, it is constantly recharged
+          correct: true
+        - label: No, insulation always blocks
+          feedback: It blocks DC. AC charges the plates back and forth.
+        - label: Only when it is broken
+          feedback: That is its normal behaviour.
+    hints:
+      - The voltage keeps changing sign.
+      - Charging and discharging is current in the leads.
+    explanation: With every reversal, charge flows onto one plate and off the other. AC flows in the leads.
+
+  - kind: explain
+    id: c1
+    body: In a capacitor the current is largest when the voltage changes fastest. It runs a quarter period ahead of the voltage. In a coil it lags behind. This is the **phase shift** of 90°.
+
+  - kind: explain
+    id: c2
+    body: "Capacitors and coils have a **reactance** X, measured in ohms. It depends on frequency: $X_C = \\frac{1}{2\\pi f C}$ and $X_L = 2\\pi f L$."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: What is the reactance of a {{c}} µF capacitor at 50 Hz? To the nearest ohm.
+    params:
+      unit: Ω
+    answer:
+      value: "{{1000000 / (2 * 3.14159265 * 50 * c)}}"
+      tolerance: 0.6
+    hints:
+      - X = 1 ÷ (2π × 50 × C), C in farads.
+      - 2π × 50 ≈ 314. Work out 1,000,000 ÷ (314 × {{c}}).
+    explanation: X ≈ {{round(1000000 / (2 * 3.14159265 * 50 * c))}} Ω. Bigger capacitor, smaller reactance.
+    variants:
+      params:
+        c: choice[1,10,100]
+      defaults:
+        c: 10
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: What is the reactance of a {{l}} mH coil at 50 Hz? To one decimal place.
+    params:
+      unit: Ω
+    answer:
+      value: "{{2 * 3.14159265 * 50 * l / 1000}}"
+      tolerance: 0.06
+    hints:
+      - X = 2π × 50 × L, L in henries.
+      - 314 × {{l / 1000}}.
+    explanation: X ≈ {{round(2 * 3.14159265 * 50 * l / 1000, 1)}} Ω. Bigger coil, bigger reactance.
+    variants:
+      params:
+        l: choice[10,100,500,1000]
+      defaults:
+        l: 100
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: The frequency rises. What happens?
+    params:
+      buckets:
+        - id: b1
+          label: Increases
+        - id: b2
+          label: Decreases
+        - id: b3
+          label: Stays the same
+      items:
+        - label: Reactance of a coil
+          bucket: b1
+        - label: Reactance of a capacitor
+          bucket: b2
+        - label: Ordinary resistance
+          bucket: b3
+        - label: Current through a capacitor
+          bucket: b1
+        - label: Current through a coil
+          bucket: b2
+    hints:
+      - f is in the numerator of X_L and in the denominator of X_C.
+      - More resistance means less current.
+    explanation: Coils block high frequencies, capacitors low ones. Every filter and crossover is based on this.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "When resistance and reactance are in series, they don’t simply add. They stand at right angles, like the legs of a triangle. The **impedance** is the hypotenuse: $Z = \\sqrt{R^2 + X^2}$."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: In series are R = {{3 * k}} Ω and a coil with X = {{4 * k}} Ω. What is the impedance?
+    params:
+      unit: Ω
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: add
+        text: Don’t just add – they are at right angles.
+    hints:
+      - Z = √(R² + X²).
+      - √({{9 * k * k}} + {{16 * k * k}}).
+    explanation: √{{25 * k * k}} = {{5 * k}} Ω – a 3-4-5 triangle.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,2,10,20,100]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A circuit has an impedance of 50 Ω at 50 Hz. What current flows at 230 V? To one decimal place.
+    params:
+      unit: A
+    answer:
+      value: 4.6
+      tolerance: 0.01
+    hints:
+      - With impedance you calculate like Ohm’s law.
+      - I = U ÷ Z.
+    explanation: 230 ÷ 50 = 4.6 A. Ohm’s law holds with Z in place of R.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "With R = 30 Ω and X = 40 Ω: by how many degrees is the current shifted from the voltage? tan φ = X ÷ R. To one decimal place."
+    params:
+      unit: °
+    answer:
+      value: 53.1
+      tolerance: 0.06
+    hints:
+      - tan φ = 40 ÷ 30 = 1.333.
+      - φ = arctan 1.333.
+    explanation: arctan(4/3) ≈ 53.1°. With only R it would be 0°, with only X exactly 90°.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Engineers write impedance as a complex number Z = R + jX. Why j instead of i?
+    params:
+      options:
+        - label: Because i already stands for current in electrical engineering
+          correct: true
+        - label: Because j is a different number
+          feedback: j² = −1, just like i² = −1.
+        - label: Because j stands for “joule”
+          feedback: Joules have nothing to do with it.
+    hints:
+      - Which letter stands for an alternating current in electrical engineering?
+      - They wanted to avoid confusion.
+    explanation: "j is the imaginary unit, j² = −1. With complex numbers, phase shifts turn into simple multiplication: Z = R + j ω L."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a capacitor holds back low notes and lets high ones through.
+    params:
+      keywords:
+        - - blindwiderstand
+          - reactance
+          - widerstand
+          - resistance
+        - - frequenz
+          - frequency
+          - hoch
+          - high
+          - tief
+          - low
+        - - umlad
+          - recharg
+          - lad
+          - charg
+        - - kleiner
+          - smaller
+          - größer
+          - groesser
+          - larger
+          - weniger
+          - less
+      sample: At high frequency the capacitor is recharged very often before it fills up. It hardly opposes the current; its reactance 1 ÷ (2π f C) is then smaller. At low frequencies it has time to fill and holds the current back.
+    explanation: "The core: X_C falls with frequency. That is how a capacitor separates the tweeter from the bass."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

@@ -1,0 +1,215 @@
+id: ee.ac.phase
+type: concept
+title: "Phase, Blindwiderstand und Impedanz"
+summary: "Kondensator und Spule bremsen Wechselstrom je nach Frequenz – und verschieben ihn."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Kondensator hängt an Wechselspannung. Zwischen seinen Platten ist Isolierung. Fließt in den Zuleitungen Strom?
+    params:
+      options:
+        - label: Ja, er wird ständig umgeladen
+          correct: true
+        - label: Nein, Isolierung sperrt immer
+          feedback: Gleichstrom sperrt sie. Wechselstrom lädt die Platten hin und her.
+        - label: Nur wenn er kaputt ist
+          feedback: Das ist sein normales Verhalten.
+    hints:
+      - Die Spannung ändert ständig ihr Vorzeichen.
+      - Laden und Entladen ist Strom in den Leitungen.
+    explanation: Bei jeder Umpolung fließt Ladung auf die eine Platte und von der anderen weg. In den Zuleitungen fließt Wechselstrom.
+
+  - kind: explain
+    id: c1
+    body: Beim Kondensator ist der Strom am größten, wenn sich die Spannung am schnellsten ändert. Er eilt der Spannung eine Viertelperiode voraus. Bei der Spule hinkt er hinterher. Das ist die **Phasenverschiebung** von 90°.
+
+  - kind: explain
+    id: c2
+    body: "Kondensator und Spule haben einen **Blindwiderstand** X, gemessen in Ohm. Er hängt von der Frequenz ab: $X_C = \\frac{1}{2\\pi f C}$ und $X_L = 2\\pi f L$."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie groß ist der Blindwiderstand eines Kondensators mit {{c}} µF bei 50 Hz? Auf ganze Ohm.
+    params:
+      unit: Ω
+    answer:
+      value: "{{1000000 / (2 * 3.14159265 * 50 * c)}}"
+      tolerance: 0.6
+    hints:
+      - "X = 1 : (2π · 50 · C), C in Farad."
+      - "2π · 50 ≈ 314. Rechne 1 000 000 : (314 · {{c}})."
+    explanation: X ≈ {{round(1000000 / (2 * 3.14159265 * 50 * c))}} Ω. Größerer Kondensator, kleinerer Blindwiderstand.
+    variants:
+      params:
+        c: choice[1,10,100]
+      defaults:
+        c: 10
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie groß ist der Blindwiderstand einer Spule mit {{l}} mH bei 50 Hz? Auf eine Nachkommastelle.
+    params:
+      unit: Ω
+    answer:
+      value: "{{2 * 3.14159265 * 50 * l / 1000}}"
+      tolerance: 0.06
+    hints:
+      - X = 2π · 50 · L, L in Henry.
+      - 314 · {{l / 1000}}.
+    explanation: X ≈ {{round(2 * 3.14159265 * 50 * l / 1000, 1)}} Ω. Größere Spule, größerer Blindwiderstand.
+    variants:
+      params:
+        l: choice[10,100,500,1000]
+      defaults:
+        l: 100
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Die Frequenz steigt. Was passiert?
+    params:
+      buckets:
+        - id: b1
+          label: Wird größer
+        - id: b2
+          label: Wird kleiner
+        - id: b3
+          label: Bleibt gleich
+      items:
+        - label: Blindwiderstand einer Spule
+          bucket: b1
+        - label: Blindwiderstand eines Kondensators
+          bucket: b2
+        - label: Ohmscher Widerstand
+          bucket: b3
+        - label: Strom durch einen Kondensator
+          bucket: b1
+        - label: Strom durch eine Spule
+          bucket: b2
+    hints:
+      - f steht bei X_L im Zähler, bei X_C im Nenner.
+      - Mehr Widerstand heißt weniger Strom.
+    explanation: Spulen sperren hohe Frequenzen, Kondensatoren tiefe. Darauf beruhen alle Filter und Frequenzweichen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Liegen Widerstand und Blindwiderstand in Reihe, addieren sie sich nicht einfach. Sie stehen senkrecht aufeinander wie Katheten. Die **Impedanz** ist die Hypotenuse: $Z = \\sqrt{R^2 + X^2}$."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: In Reihe liegen R = {{3 * k}} Ω und eine Spule mit X = {{4 * k}} Ω. Wie groß ist die Impedanz?
+    params:
+      unit: Ω
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: add
+        text: Nicht einfach addieren – sie stehen senkrecht aufeinander.
+    hints:
+      - Z = √(R² + X²).
+      - √({{9 * k * k}} + {{16 * k * k}}).
+    explanation: √{{25 * k * k}} = {{5 * k}} Ω – ein 3-4-5-Dreieck.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,2,10,20,100]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Schaltung hat bei 50 Hz eine Impedanz von 50 Ω. Welcher Strom fließt an 230 V? Auf eine Nachkommastelle.
+    params:
+      unit: A
+    answer:
+      value: 4.6
+      tolerance: 0.01
+    hints:
+      - Mit Impedanz rechnest du wie mit dem ohmschen Gesetz.
+      - "I = U : Z."
+    explanation: "230 : 50 = 4,6 A. Das ohmsche Gesetz gilt mit Z statt R."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Bei R = 30 Ω und X = 40 Ω: Um wie viel Grad ist der Strom gegen die Spannung verschoben? tan φ = X : R. Auf eine Nachkommastelle."
+    params:
+      unit: °
+    answer:
+      value: 53.1
+      tolerance: 0.06
+    hints:
+      - "tan φ = 40 : 30 = 1,333."
+      - φ = arctan 1,333.
+    explanation: arctan(4/3) ≈ 53,1°. Nur mit R wären es 0°, nur mit X genau 90°.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ingenieure schreiben die Impedanz als komplexe Zahl Z = R + jX. Warum j statt i?
+    params:
+      options:
+        - label: Weil i in der Elektrotechnik schon für den Strom steht
+          correct: true
+        - label: Weil j eine andere Zahl ist
+          feedback: j² = −1, genau wie i² = −1.
+        - label: Weil j für »Joule« steht
+          feedback: Joule hat damit nichts zu tun.
+    hints:
+      - Welcher Buchstabe steht in der Elektrotechnik für einen Wechselstrom?
+      - Man wollte Verwechslungen vermeiden.
+    explanation: "j ist die imaginäre Einheit, j² = −1. Mit komplexen Zahlen werden Phasenverschiebungen zu einfacher Multiplikation: Z = R + j ω L."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Kondensator tiefe Töne bremst und hohe durchlässt.
+    params:
+      keywords:
+        - - blindwiderstand
+          - reactance
+          - widerstand
+          - resistance
+        - - frequenz
+          - frequency
+          - hoch
+          - high
+          - tief
+          - low
+        - - umlad
+          - recharg
+          - lad
+          - charg
+        - - kleiner
+          - smaller
+          - größer
+          - groesser
+          - larger
+          - weniger
+          - less
+      sample: "Bei hoher Frequenz wird der Kondensator sehr oft umgeladen, bevor er voll ist. Er setzt dem Strom kaum etwas entgegen, sein Blindwiderstand 1 : (2π f C) ist dann kleiner. Bei tiefen Frequenzen hat er Zeit, sich zu füllen, und bremst den Strom."
+    explanation: "Kern: X_C sinkt mit der Frequenz. Damit trennt ein Kondensator den Hochtöner vom Bass."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]
