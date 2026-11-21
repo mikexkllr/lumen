@@ -1,0 +1,201 @@
+id: ee.opamps.ideal
+type: concept
+title: "The ideal op-amp"
+summary: "Huge gain, tamed by negative feedback – and two golden rules."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: An op-amp on its own amplifies the difference between its two inputs. By roughly what factor?
+    params:
+      min: 1
+      max: 100000000
+      scale: log
+    answer:
+      value: 100000
+      within: 90
+    explanation: Typically 100,000 to over a million. So much that you almost never use it without feedback.
+
+  - kind: explain
+    id: c1
+    body: "An **op-amp** has a plus input, a minus input and an output. It amplifies the difference: U_out = A × (U₊ − U₋). The open-loop gain A is huge."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: An op-amp with A = 100,000 sees {{d}} µV between its inputs. What output voltage does that give on paper?
+    params:
+      unit: V
+    answer:
+      value: "{{d / 10}}"
+    hints:
+      - U_out = 100,000 × {{d}} µV.
+      - "{{d}} µV = {{d / 1000000}} V."
+    explanation: 100,000 × {{d / 1000000}} V = {{d / 10}} V. Microvolts are enough for volts at the output.
+    variants:
+      params:
+        d: choice[10,20,50,100]
+      defaults:
+        d: 20
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: The op-amp runs on ±15 V. There is 1 mV of difference at the input. What does the output do?
+    params:
+      options:
+        - label: It hits the rail, just below +15 V
+          correct: true
+        - label: 100 V
+          feedback: It cannot deliver more than its supply.
+        - label: 1 mV
+          feedback: Without feedback it amplifies fully.
+    hints:
+      - 100,000 × 1 mV = 100 V.
+      - Where would 100 V come from?
+    explanation: The output saturates at the supply voltage. Without feedback an op-amp practically knows only “top” or “bottom”.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: What value does this quantity have in an ideal op-amp?
+    params:
+      buckets:
+        - id: b1
+          label: Zero
+        - id: b2
+          label: Infinite
+      items:
+        - label: Current into the inputs
+          bucket: b1
+        - label: Open-loop gain
+          bucket: b2
+        - label: Output resistance
+          bucket: b1
+        - label: Input resistance
+          bucket: b2
+        - label: Offset voltage
+          bucket: b1
+    hints:
+      - An ideal op-amp loads nothing and cannot be loaded.
+      - No input current means infinite input resistance.
+    explanation: "Real op-amps come close: input currents in the picoamp range, gain above 10⁵. So one usually calculates with the ideal."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Feeding the output back to the minus input creates **negative feedback**. Then two golden rules apply: 1. No current flows into the inputs. 2. The output adjusts itself so that U₊ = U₋."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: The output is wired straight to the minus input, the signal goes into plus. What does the output deliver?
+    params:
+      options:
+        - label: Exactly the input voltage
+          correct: true
+        - label: Twice as much
+          feedback: There is no divider in the feedback.
+        - label: Zero
+          feedback: The output follows the plus input.
+    hints:
+      - "Rule 2: U₊ = U₋."
+      - Here U₋ is the output itself.
+    explanation: U_out = U₋ = U₊ = U_in. This voltage follower doesn’t amplify, but it draws no current from its input and can still drive a load.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A 10 kΩ / 10 kΩ divider at 12 V feeds a voltage follower. Its output drives a 1 kΩ load. What voltage is across the load?
+    params:
+      unit: V
+    answer:
+      value: 6
+    feedback:
+      - when: abs(numval(state.input) - 1) < 0.05
+        misconception: no-buffer
+        text: "That would be without the follower: the load would sit across R₂. The op-amp decouples it."
+    hints:
+      - No current flows into the plus input.
+      - So the divider is unloaded.
+    explanation: 6 V. Without the follower only about 1 V would arrive. The op-amp takes the load current from its supply, not from the divider.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: With feedback β the exact gain is v = A ÷ (1 + A × β). What is v for A = {{a}} and β = 0.1? To three decimal places.
+    answer:
+      value: "{{a / (1 + a * 0.1)}}"
+      tolerance: 0.0006
+    hints:
+      - "Substitute: {{a}} ÷ (1 + {{a * 0.1}})."
+      - For large A, v approaches 1 ÷ β = 10.
+    explanation: v ≈ {{round(a / (1 + a * 0.1), 3)}}. The larger A, the more exactly v = 1 ÷ β – only the feedback counts.
+    difficulty: 3
+    variants:
+      params:
+        a: choice[100,1000,100000]
+      defaults:
+        a: 100000
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: The gain A of an op-amp varies by a factor of 3 between parts. Why does that hardly matter in a feedback circuit?
+    params:
+      options:
+        - label: The overall gain depends almost only on the feedback resistors
+          correct: true
+        - label: Because every op-amp is trimmed individually
+          feedback: Thanks to feedback that isn’t needed.
+        - label: Because A is always exactly 100,000
+          feedback: A varies widely.
+    hints:
+      - Look at the formula from the previous task.
+      - A × β ≫ 1.
+    explanation: Negative feedback trades surplus gain for precision. The same idea is in every control loop.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain the two golden rules of the op-amp to Lux.
+    params:
+      keywords:
+        - - gegenkopp
+          - negative feedback
+          - rückführ
+          - rueckfuehr
+          - feedback
+        - - strom
+          - current
+          - eingang
+          - input
+        - - gleich
+          - equal
+          - same
+          - u₊ = u₋
+          - differenz null
+          - difference zero
+        - - ausgang
+          - output
+          - stellt sich
+          - adjust
+      sample: "With negative feedback, first: no current flows into the inputs. Second, the output adjusts so that both inputs have the same voltage. Because even the smallest difference would be amplified hugely and immediately corrected."
+    explanation: "The core: the huge gain forces the difference toward zero. With that, every op-amp circuit can be worked out in your head."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

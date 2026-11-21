@@ -1,0 +1,182 @@
+id: ee.opamps.sensor
+type: concept
+title: "Instrumentation amplifier and integrator"
+summary: "Amplifying tiny sensor signals and summing signals over time."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A load-cell bridge delivers 2 mV at full load. The ADC behind it measures up to 2 V. By what factor must you amplify?
+    params:
+      min: 1
+      max: 1000000
+      scale: log
+    answer:
+      value: 1000
+      within: 10
+    explanation: 2 V ÷ 2 mV = 1000. An instrumentation amplifier manages that in one stage.
+
+  - kind: explain
+    id: c1
+    body: "A **differential amplifier** amplifies only the difference between two inputs: U_out = (R₂ ÷ R₁) × (U₂ − U₁). If both sit at the same voltage, the output is zero – however large that voltage is."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A differential amplifier with R₂ ÷ R₁ = {{k}} sees U₂ − U₁ = {{d}} mV. What does it output, in mV?
+    params:
+      unit: mV
+    answer:
+      value: "{{k * d}}"
+    hints:
+      - U_out = gain × difference.
+      - "{{k}} × {{d}} mV."
+    explanation: "{{k}} × {{d}} = {{k * d}} mV."
+    variants:
+      params:
+        k: choice[10,47,100]
+        d: choice[2,5,12]
+      defaults:
+        k: 100
+        d: 5
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: The midpoints of a bridge both sit near 2.5 V, differing by only 2 mV. Why use a differential amplifier rather than an ordinary one?
+    params:
+      options:
+        - label: It ignores the common 2.5 V and amplifies only the 2 mV
+          correct: true
+        - label: Because it amplifies more
+          feedback: The gain can be the same.
+        - label: Because ordinary amplifiers dislike bridges
+          feedback: They would amplify the 2.5 V too and hit the rail.
+    hints:
+      - 2.5 V × 1000 would be 2500 V.
+      - Only the difference is wanted.
+    explanation: The common voltage is called common mode. A good differential amplifier rejects it and amplifies only the differential signal.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A bridge at 10 V with a sensor changing by 1 ‰ delivers 2.5 mV. What gain do you need for 1 V at the output?
+    answer:
+      value: 400
+    hints:
+      - Gain = output ÷ input.
+      - 1000 mV ÷ 2.5 mV.
+    explanation: 1000 ÷ 2.5 = 400. Instrumentation amp chips set this with a single resistor.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Put a capacitor in place of R₂ in the feedback and you get an **integrator**. A constant input charges the capacitor with a constant current. The output ramps with slope −U_in ÷ (R × C).
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: An integrator with R = 10 kΩ and C = 1 µF receives a constant 1 V. What is the output after 50 ms, starting from 0 V?
+    params:
+      unit: V
+    answer:
+      value: -5
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 5) < 0.01
+        misconception: sign
+        text: "The integrator is inverting: the ramp runs downward."
+    hints:
+      - "R × C = 10 ms. Slope: −1 V ÷ 10 ms = −100 V/s."
+      - −100 V/s × 0.05 s.
+    explanation: −5 V. After 150 ms it would reach −15 V and hit the rail. Integrators therefore need a reset.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Why does a PI controller need an integrator?
+    params:
+      options:
+        - label: It sums the error over time and so removes lasting errors
+          correct: true
+        - label: To make the controller faster
+          feedback: The I part rather makes it slower.
+        - label: To amplify noise
+          feedback: An integrator rather smooths noise.
+    hints:
+      - As long as an error remains, the integral grows.
+      - Only at zero error does it stop growing.
+    explanation: The integrator keeps pushing until the error is truly zero. More on this in the control engineering course.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An instrumentation amp rejects common mode by 100 dB, a factor of 100,000. How many µV of input error do 1 V of common mode cause?
+    params:
+      unit: µV
+    answer:
+      value: 10
+    hints:
+      - Error = common mode ÷ 100,000.
+      - 1 V ÷ 100,000 in µV.
+    explanation: 10 µV – small compared with a 2 mV bridge signal, but not zero. This common-mode rejection ratio (CMRR) is in the data sheet.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: An instrumentation amp chip has two voltage followers at the front. What for?
+    params:
+      options:
+        - label: They make both inputs high-impedance so the bridge isn’t loaded
+          correct: true
+        - label: To double the gain
+          feedback: Followers don’t amplify.
+        - label: To invert the signal
+          feedback: Followers invert nothing.
+    hints:
+      - A plain differential amplifier draws current through R₁.
+      - That unbalances the bridge.
+    explanation: With followers in front the amplifier draws practically no current from the bridge. This is the classic three-op-amp instrumentation amplifier.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an integrator with an op-amp and a capacitor works.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - strom
+          - current
+        - - rampe
+          - ramp
+          - steig
+          - slope
+          - lädt
+          - laedt
+          - charg
+        - - summ
+          - sum
+          - integral
+          - zeit
+          - time
+      sample: The minus input stays at virtual ground. So a current U_in ÷ R flows through R and charges the capacitor in the feedback. With a constant input the current is constant and the output ramps. So the output sums the input over time.
+    explanation: "The core: a constant current into a capacitor gives a ramp. That is an integral."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

@@ -1,0 +1,209 @@
+id: ee.opamps.comparator
+type: concept
+title: "Comparators and Schmitt triggers"
+summary: "Without feedback the op-amp becomes a decision maker – with hysteresis, without chatter."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A street lamp should switch on when it gets dark. What does its circuit need at its core?
+    params:
+      options:
+        - label: "A comparison: sensor voltage against a fixed threshold"
+          correct: true
+        - label: An amplifier with gain 10
+          feedback: Amplifying alone decides nothing.
+        - label: A capacitor
+          feedback: A capacitor cannot compare.
+    hints:
+      - The lamp only knows on or off.
+      - "It asks: is it darker than a certain value?"
+    explanation: A comparator compares two voltages and outputs a clear yes or no.
+
+  - kind: explain
+    id: c1
+    body: A **comparator** is an op-amp without feedback. If U₊ is larger than U₋, the output jumps up to the supply. Otherwise down. Even millivolts decide.
+
+  - kind: problem
+    id: c2
+    widget: swipe
+    prompt: High or low? You are given U₊ and U₋.
+    params:
+      cards:
+        - text: U₊ = 2.0 V, U₋ = 1.5 V
+          right: true
+        - text: U₊ = 1.0 V, U₋ = 1.2 V
+          right: false
+        - text: U₊ = 3.301 V, U₋ = 3.300 V
+          right: true
+        - text: U₊ = −1 V, U₋ = 0 V
+          right: false
+      left: Low
+      right: High
+    explanation: Only the sign of the difference counts. Even 1 mV is enough.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: The threshold comes from a voltage divider at 12 V. Set it to 3 V.
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+      show:
+        - out
+        - ratio
+    answer:
+      out:
+        - 2.99
+        - 3.01
+    explanation: "R₁ must be three times R₂, for example 15 kΩ and 5 kΩ: 12 × 5/20 = 3 V."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A light-dependent resistor (LDR) sits at the bottom of a divider. In the dark its resistance rises sharply. What does the voltage across it do?
+    params:
+      options:
+        - label: It rises – above the threshold the comparator switches the lamp on
+          correct: true
+        - label: It falls
+          feedback: A larger bottom resistor gets a larger share.
+        - label: It stays the same
+          feedback: The divider ratio changes.
+    hints:
+      - U_out = U × R₂ ÷ (R₁ + R₂).
+      - R₂ gets larger.
+    explanation: The share R₂ ÷ (R₁ + R₂) grows. Brightness becomes a voltage that the comparator checks against the threshold.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "At dusk the light flickers. A plain comparator would chatter: on, off, on. **Hysteresis** helps: a Schmitt trigger switches at a higher threshold for a rising signal than for a falling one."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A Schmitt trigger switches on at 3 V and off at 2 V. The signal starts at 0 V and rises to 2.5 V. What does the output show?
+    params:
+      options:
+        - label: Still off, because 3 V was not reached
+          correct: true
+        - label: On, since 2.5 V is above 2 V
+          feedback: The 2 V only applies when switching off from above.
+        - label: It chatters
+          feedback: That is exactly what hysteresis prevents.
+    hints:
+      - Coming from below, the upper threshold counts.
+      - Between 2 and 3 V it keeps its old state.
+    explanation: Between the thresholds the last state remains. So the Schmitt trigger has a memory, much like a flip-flop.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A sensor signal is noisy by ±{{n}} mV. How wide must the hysteresis be at least so the output doesn’t chatter, in mV?
+    params:
+      unit: mV
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: half
+        text: "The noise goes both ways: from −{{n}} to +{{n}} mV."
+    hints:
+      - The signal swings by {{2 * n}} mV in total.
+      - The gap between the thresholds must be larger.
+    explanation: At least {{2 * n}} mV, better with margin. Then noise alone can never cross both thresholds.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[50,100,200]
+      defaults:
+        n: 100
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A flash ADC compares the voltage against every level at once. How many comparators does it need for {{n}} bits?
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: per-bit
+        text: "Not one comparator per bit: one per threshold between levels."
+    hints:
+      - "{{n}} bits give {{2 ** n}} levels."
+      - Between {{2 ** n}} levels there are {{2 ** n}} − 1 thresholds.
+    explanation: "{{2 ** n - 1}} comparators. Flash ADCs are extremely fast but too big for many bits. That is why they rarely exceed 8 bits."
+    difficulty: 3
+    variants:
+      params:
+        n: choice[3,4,6,8]
+      defaults:
+        n: 8
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why use a dedicated comparator chip for fast comparisons instead of an op-amp?
+    params:
+      options:
+        - label: Op-amps recover slowly from saturation; comparators are built for it
+          correct: true
+        - label: Op-amps can’t compare
+          feedback: They can, but slowly and with the wrong levels.
+        - label: Comparators amplify more
+          feedback: It is about speed and output levels.
+    hints:
+      - An op-amp is optimised for operation with feedback.
+      - A comparator constantly runs at the rails.
+    explanation: Comparators switch in nanoseconds and often deliver logic levels directly, for example via an open-collector output.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a twilight switch needs hysteresis.
+    params:
+      keywords:
+        - - schwelle
+          - threshold
+        - - zwei
+          - two
+          - höher
+          - hoeher
+          - higher
+          - tiefer
+          - lower
+        - - flatter
+          - chatter
+          - an aus
+          - on off
+          - schwank
+          - flicker
+          - rausch
+          - noise
+        - - zustand
+          - state
+          - bleib
+          - stay
+          - halt
+          - keep
+      sample: "At dusk the light wobbles right around the threshold. A plain comparator would keep switching on and off, and the lamp would chatter. With hysteresis there are two thresholds: switching on happens at a lower light level than switching off. In between, the old state stays."
+    explanation: "The core: two thresholds and a memory in between. Thermostats work the same way."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]
