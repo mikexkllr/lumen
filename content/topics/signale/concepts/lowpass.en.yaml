@@ -1,0 +1,231 @@
+id: ee.signals.lowpass
+type: concept
+title: "The RC low-pass filter"
+summary: "Low frequencies pass, high ones are damped – with just one R and one C."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: A low-pass filter lets low notes through. Turn the frequency up until only half gets through.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - gain
+    answer:
+      gain:
+        - 49
+        - 51
+    explanation: At about 1.7 kHz. The higher the frequency, the more the capacitor shorts the signal out.
+
+  - kind: explain
+    id: c1
+    body: In an RC low-pass the capacitor sits across the output. At high frequencies it conducts well and swallows the signal. The **cut-off frequency** is f_c = 1 ÷ (2π R C). There, 70.7 % still gets through.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A low-pass has R = {{r}} kΩ and C = {{c}} nF. What is its cut-off frequency? To the nearest hertz.
+    params:
+      unit: Hz
+    answer:
+      value: "{{1000000 / (2 * 3.14159265 * r * c)}}"
+      tolerance: 0.6
+    hints:
+      - R × C = {{r}} kΩ × {{c}} nF = {{r * c}} µs.
+      - f = 1 ÷ (2π × {{r * c}} µs).
+    explanation: f_c ≈ {{round(1000000 / (2 * 3.14159265 * r * c))}} Hz.
+    variants:
+      params:
+        r: choice[1,10,16]
+        c: choice[10,16,100]
+      defaults:
+        r: 10
+        c: 16
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Set R and C so that the cut-off frequency is about 1 kHz.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          value: 1
+        capacitance:
+          value: 1
+        frequency:
+          fixed: true
+      show:
+        - cutoff
+    answer:
+      cutoff:
+        - 950
+        - 1050
+    explanation: "About 10 kΩ and 16 nF: 1 ÷ (2π × 160 µs) ≈ 995 Hz. 16 kΩ and 10 nF also work."
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Cut-off frequency 1 kHz: does the signal mostly get through?"
+    params:
+      cards:
+        - text: 50 Hz hum
+          right: true
+        - text: 10 kHz whistle
+          right: false
+        - text: 100 Hz bass
+          right: true
+        - text: 30 kHz ultrasound
+          right: false
+        - text: Voice around 300 Hz
+          right: true
+      left: Damped
+      right: Passes
+    explanation: Well below f_c almost everything passes, well above hardly anything.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Above the cut-off the amplitude halves with every doubling of frequency. This **roll-off** is −6 dB per octave, or −20 dB per decade, per factor of ten.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Find the frequency at which only about 10 % gets through.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - cutoff
+        - gain
+    answer:
+      gain:
+        - 9.5
+        - 10.5
+    explanation: "At about 10 kHz, ten times the cut-off: one decade, −20 dB, a tenth of the amplitude."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The low-pass passes 1 ÷ √(1 + (f ÷ f_c)²). What percentage is it at twice the cut-off? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: 44.7
+      tolerance: 0.06
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: asymptote
+        text: "Close: halving only holds well above the cut-off."
+    hints:
+      - f ÷ f_c = 2, so 1 ÷ √5.
+      - √5 ≈ 2.236.
+    explanation: 1 ÷ 2.236 ≈ 44.7 %. Near the cut-off the curve is rounded; the straight slope only holds further up.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: "You swap R and C: now the resistor sits across the output. What have you built?"
+    params:
+      options:
+        - label: "A high-pass: it lets high frequencies through"
+          correct: true
+        - label: The same low-pass
+          feedback: The roles are swapped.
+        - label: No filter at all
+          feedback: It filters, just the other way round.
+    hints:
+      - The capacitor now sits in the signal path.
+      - A capacitor blocks low frequencies.
+    explanation: "A high-pass with the same cut-off frequency. Speaker crossovers use both: low-pass to the woofer, high-pass to the tweeter."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: An RC circuit has a time constant τ = 1 ms. What is its cut-off frequency f_c = 1 ÷ (2π τ)? To the nearest hertz.
+    params:
+      unit: Hz
+    answer:
+      value: 159
+      tolerance: 0.6
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: no-2pi
+        text: The factor 2π is missing.
+    hints:
+      - 2π × 0.001 s ≈ 0.00628 s.
+      - 1 ÷ 0.00628.
+    explanation: ≈ 159 Hz. Time constant and cut-off describe the same pair of parts – once in the time domain, once in the frequency domain.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: How far is the output of an RC low-pass shifted from the input at the cut-off frequency?
+    params:
+      options:
+        - label: "By 45°: it lags an eighth of a period"
+          correct: true
+        - label: Not at all
+          feedback: The capacitor always shifts it somewhat.
+        - label: By 90°
+          feedback: That is only reached at very high frequencies.
+    hints:
+      - At the cut-off, X_C = R.
+      - tan φ = 1.
+    explanation: "With X_C = R the phasor triangle is isosceles: −45°. The phase goes from 0° at low to −90° at high frequencies."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an RC low-pass filters out high notes.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - hoch
+          - high
+          - tief
+          - low
+          - frequenz
+          - frequency
+        - - kurzschl
+          - short
+          - leitet
+          - conduct
+          - blindwiderstand
+          - reactance
+        - - grenzfrequenz
+          - cut-off
+          - cutoff
+          - "70"
+      sample: The capacitor sits across the output. For low frequencies its reactance is large and it hardly interferes. For high ones it conducts well and nearly shorts the signal. At the cut-off 1 ÷ (2π R C), 70 % still gets through, above it less and less.
+    explanation: "The core: a frequency-dependent voltage divider made of R and X_C."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

@@ -1,0 +1,220 @@
+id: ee.signals.sampling
+type: concept
+title: "Abtasten und Aliasing"
+summary: "Mehr als doppelt so oft messen wie die höchste Frequenz – sonst lügt das Signal."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Ein 3-Hz-Signal wird 20-mal pro Sekunde gemessen. Dreh die Abtastrate herunter, bis die gemessene Frequenz nicht mehr stimmt.
+    params:
+      scene: sampling
+      controls:
+        signal:
+          fixed: true
+    answer:
+      aliased: 1
+    explanation: Unter 6 Hz Abtastrate erscheint eine falsche, tiefere Frequenz. Die Messpunkte verbinden sich zu einer anderen Welle.
+
+  - kind: explain
+    id: c1
+    body: "Das **Abtasttheorem** sagt: Ein Signal lässt sich nur dann aus Messpunkten rekonstruieren, wenn man mehr als doppelt so oft misst wie seine höchste Frequenz. Die halbe Abtastrate heißt Nyquist-Frequenz."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Signal enthält Frequenzen bis {{f}} kHz. Über welcher Abtastrate in kHz muss man bleiben?
+    params:
+      unit: kHz
+    answer:
+      value: "{{2 * f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: single
+        text: "Das reicht nicht: Man braucht mehr als das Doppelte."
+    hints:
+      - Mehr als das Doppelte der höchsten Frequenz.
+      - 2 · {{f}}.
+    explanation: Mehr als {{2 * f}} kHz. Telefon nutzt 8 kHz für Sprache bis knapp 4 kHz, die CD 44,1 kHz für Musik bis 20 kHz.
+    variants:
+      params:
+        f: choice[4,8,20,24]
+      defaults:
+        f: 20
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Das Signal hat 7 Hz. Stell die kleinste ganzzahlige Abtastrate ein, die mehr als doppelt so hoch ist.
+    params:
+      scene: sampling
+      controls:
+        signal:
+          fixed: true
+          value: 7
+      show:
+        - nyquist
+        - seen
+    answer:
+      rate: 15
+    explanation: 15 Hz, denn 2 · 7 = 14 Hz wäre genau die Grenze. Dort kann man je nach Lage der Punkte nur Nullen messen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Audio-CD tastet mit 44,1 kHz ab. Bis zu welcher Frequenz kann sie Töne speichern, in kHz?
+    params:
+      unit: kHz
+    answer:
+      value: 22.05
+      tolerance: 0.001
+    hints:
+      - Die Grenze ist die halbe Abtastrate.
+      - "44,1 : 2."
+    explanation: 22,05 kHz – knapp über der Hörgrenze von etwa 20 kHz.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Tastet man zu langsam ab, erscheint eine hohe Frequenz als falsche tiefe. Das ist **Aliasing**. Die gesehene Frequenz ist der Abstand zum nächsten Vielfachen der Abtastrate: |f − k · f_A|."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Signal mit {{f}} Hz wird mit {{s}} Hz abgetastet. Welche Frequenz scheint man zu messen?
+    params:
+      unit: Hz
+    answer:
+      value: "{{s - f}}"
+    feedback:
+      - when: numval(state.input) == f
+        misconception: no-alias
+        text: Das echte Signal liegt über der Nyquist-Grenze – es erscheint gespiegelt.
+    hints:
+      - Die Nyquist-Grenze ist {{s / 2}} Hz. {{f}} Hz liegen darüber.
+      - "Gesehen: |{{f}} − {{s}}|."
+    explanation: "|{{f}} − {{s}}| = {{s - f}} Hz. Das Signal wird an der Nyquist-Grenze gespiegelt."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[20,30,50]
+        f: int[11,29]
+      constraints:
+        - f > s / 2
+        - f < s
+      defaults:
+        s: 20
+        f: 18
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Im Film scheinen sich Autoräder manchmal langsam rückwärts zu drehen. Warum?
+    params:
+      options:
+        - label: Die Bildrate tastet die schnelle Drehung zu langsam ab – Aliasing
+          correct: true
+        - label: Die Kamera spiegelt das Bild
+          feedback: Das Bild ist nicht gespiegelt.
+        - label: Die Räder drehen wirklich rückwärts
+          feedback: Das Auto fährt vorwärts.
+    hints:
+      - Ein Film hat 24 Bilder pro Sekunde.
+      - Dreht sich eine Speiche pro Bild fast eine volle Teilung weiter, sieht es wie ein kleiner Schritt zurück aus.
+    explanation: Der Wagenrad-Effekt ist Aliasing in der Zeit. Dieselbe Mathematik erklärt Moiré-Muster auf Fotos.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Was muss vor jedem ADC sitzen, damit kein Aliasing entsteht?
+    params:
+      options:
+        - label: Ein Tiefpass, der alles über der Nyquist-Frequenz entfernt
+          correct: true
+        - label: Ein Hochpass
+          feedback: Der würde die tiefen, erwünschten Frequenzen entfernen.
+        - label: Ein Verstärker
+          feedback: Verstärken verhindert keine Spiegelfrequenzen.
+    hints:
+      - Gefährlich sind Frequenzen, die zu hoch sind.
+      - Sie müssen vor dem Abtasten weg sein.
+    explanation: Dieses Anti-Aliasing-Filter muss vor dem Abtasten wirken. Danach lässt sich eine gespiegelte Frequenz nicht mehr von einer echten unterscheiden.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Funkempfänger tastet ein Signal bei 10,7 MHz absichtlich mit nur 4 MHz ab. Bei welcher Frequenz erscheint es, in MHz?
+    params:
+      unit: MHz
+    answer:
+      value: 1.3
+      tolerance: 0.001
+    hints:
+      - Suche das nächste Vielfache von 4 MHz.
+      - "|10,7 − 3 · 4|."
+    explanation: "|10,7 − 12| = 1,3 MHz. Unterabtastung nutzt Aliasing gezielt als Mischer – solange das Signal schmalbandig ist."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Hörbar ist bis 20 kHz. Warum tastet die CD mit 44,1 kHz ab und nicht mit genau 40 kHz?
+    params:
+      options:
+        - label: Das Anti-Aliasing-Filter braucht Platz, um von 20 kHz bis 22 kHz abzufallen
+          correct: true
+        - label: Weil 44,1 eine runde Zahl ist
+          feedback: Rund ist sie gerade nicht.
+        - label: Damit die CD lauter klingt
+          feedback: Die Abtastrate ändert die Lautstärke nicht.
+    hints:
+      - Kein echtes Filter springt senkrecht von »durch« auf »gesperrt«.
+      - Zwischen 20 kHz und der Nyquist-Grenze liegt ein Übergangsbereich.
+    explanation: Das Filter braucht einen Übergangsbereich. Bei 40 kHz müsste es bei 20 kHz senkrecht abbrechen, was unmöglich ist. Die genaue Zahl 44,1 kHz stammt von alten Videorekordern.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Aliasing ist und wie man es verhindert.
+    params:
+      keywords:
+        - - abtast
+          - sampl
+        - - doppelt
+          - twice
+          - double
+          - nyquist
+          - hälfte
+          - haelfte
+          - half
+        - - falsch
+          - "false"
+          - wrong
+          - tiefer
+          - lower
+          - spiegel
+          - fold
+        - - tiefpass
+          - low-pass
+          - lowpass
+          - filter
+      sample: "Tastet man ein Signal zu selten ab, passen die Messpunkte auch zu einer tieferen Frequenz. Man sieht dann eine falsche Welle: Aliasing. Man verhindert es, indem man mehr als doppelt so schnell abtastet wie die höchste Frequenz. Und ein Tiefpass vor dem Wandler entfernt alles über der Nyquist-Grenze."
+    explanation: "Kern: Abtastrate über 2 · f_max und ein Anti-Aliasing-Filter davor."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

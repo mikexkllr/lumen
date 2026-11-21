@@ -1,0 +1,235 @@
+id: ee.signals.decibel
+type: concept
+title: "Dezibel"
+summary: "Verhältnisse logarithmisch: Aus Multiplizieren wird Addieren."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Düsenjet hat 120 dB, ein Gespräch 60 dB. Wie viel mal mehr Schallleistung ist das?
+    params:
+      min: 1
+      max: 1000000000
+      scale: log
+    answer:
+      value: 1000000
+      within: 30
+    explanation: 60 dB Unterschied sind 10⁶, eine Million. Doppelt so viele dB heißt nicht doppelt so viel Leistung.
+
+  - kind: explain
+    id: c1
+    body: "Das **Dezibel** misst ein Verhältnis logarithmisch: 10 · lg(P₂ : P₁). Plus 10 dB ist zehnfache Leistung, plus 3 dB ungefähr doppelte. 0 dB heißt: gleich groß."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Welcher Leistungsfaktor gehört zu welchem Wert?
+    params:
+      pairs:
+        - left: 0 dB
+          right: × 1
+        - left: 3 dB
+          right: × 2
+        - left: 10 dB
+          right: × 10
+        - left: 20 dB
+          right: × 100
+        - left: −3 dB
+          right: × ½
+      leftTitle: Pegel
+      rightTitle: Leistung
+    hints:
+      - Je 10 dB eine Zehnerpotenz.
+      - Negative dB heißt kleiner.
+    explanation: 10 dB = 10¹, 20 dB = 10², 3 dB ≈ 10^0,3 ≈ 2.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Funksignal durchläuft einen Verstärker mit +{{a}} dB, ein Kabel mit −{{b}} dB und einen Filter mit −{{c}} dB. Wie groß ist die Gesamtverstärkung in dB?
+    params:
+      unit: dB
+    answer:
+      value: "{{a - b - c}}"
+    hints:
+      - In dB addiert man statt zu multiplizieren.
+      - "{{a}} − {{b}} − {{c}}."
+    explanation: "{{a - b - c}} dB. Genau dafür nutzen Ingenieure dB: Ketten werden zu Summen."
+    variants:
+      params:
+        a: choice[10,20,30]
+        b: int[2,8]
+        c: int[1,4]
+      defaults:
+        a: 20
+        b: 6
+        c: 3
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Um welchen Faktor ändert sich die Leistung bei +{{d}} dB?
+    answer:
+      value: "{{10 ** (d / 10)}}"
+    feedback:
+      - when: numval(state.input) == d
+        misconception: linear
+        text: "dB ist logarithmisch: Je 10 dB ein Faktor 10."
+    hints:
+      - "Faktor = 10^(dB : 10)."
+      - 10 hoch {{d / 10}}.
+    explanation: 10^{{d / 10}} = {{10 ** (d / 10)}}.
+    variants:
+      params:
+        d: choice[20,30,40,50]
+      defaults:
+        d: 30
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Für Spannungen rechnet man 20 · lg(U₂ : U₁), weil die Leistung mit U² wächst. Eine zehnfache **Spannungsverstärkung** sind also 20 dB, nicht 10 dB. Beide Formeln geben für dieselbe Schaltung denselben dB-Wert."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Verstärker verstärkt die Spannung um den Faktor {{v}}. Wie viele dB sind das?
+    params:
+      unit: dB
+    answer:
+      value: "{{20 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: ten-not-twenty
+        text: Für Spannungen gilt 20 · lg, nicht 10 · lg.
+    hints:
+      - dB = 20 · lg({{v}}).
+      - lg({{v}}) = {{n}}.
+    explanation: 20 · {{n}} = {{20 * n}} dB.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1,2,3,4]
+      derive:
+        v: 10 ** n
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: Stell die Frequenz so ein, dass der Tiefpass um 20 dB dämpft.
+    params:
+      scene: lowpass
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - cutoff
+        - db
+        - gain
+    answer:
+      db:
+        - -20.5
+        - -19.5
+    explanation: "Etwa bei 10 kHz: −20 dB heißt ein Zehntel der Spannung, eine Dekade über der Grenzfrequenz."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: In der Funktechnik bezieht man Leistungen auf 1 mW und schreibt dBm. Wie viele mW sind {{d}} dBm?
+    params:
+      unit: mW
+    answer:
+      value: "{{10 ** (d / 10)}}"
+    hints:
+      - 0 dBm = 1 mW.
+      - Je 10 dB mal 10.
+    explanation: "{{10 ** (d / 10)}} mW. WLAN im 2,4-GHz-Band darf in Europa höchstens 20 dBm abstrahlen, also 100 mW."
+    difficulty: 2
+    variants:
+      params:
+        d: choice[0,10,20,30]
+      defaults:
+        d: 20
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: −3 dB gelten als Grenze eines Filters. Auf wie viel Prozent sinkt dort die Spannung, 10^(−3/20)? Auf eine Nachkommastelle.
+    params:
+      unit: "%"
+    answer:
+      value: 70.8
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 50) < 0.2
+        misconception: power
+        text: Das wäre die Leistung. Für die Spannung teilt man durch 20.
+    hints:
+      - "−3 : 20 = −0,15."
+      - 10^(−0,15) ≈ ?
+    explanation: ≈ 70,8 % der Spannung, aber 50 % der Leistung. Der Wert 1/√2 = 70,7 % entspricht genau −3,01 dB.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum misst man Schall in dB und nicht direkt in Watt pro m²?
+    params:
+      options:
+        - label: Das Ohr nimmt Verhältnisse wahr, und die Leistungen reichen über 12 Zehnerpotenzen
+          correct: true
+        - label: Weil Watt für Schall falsch ist
+          feedback: Schall hat eine Leistung in Watt.
+        - label: Weil dB genauer sind
+          feedback: Es ist eine Skala, keine höhere Genauigkeit.
+    hints:
+      - Von der Hörschwelle bis zur Schmerzgrenze ist es ein Faktor 10¹².
+      - Doppelt so laut empfunden sind etwa +10 dB.
+    explanation: Auf der dB-Skala werden aus 10¹² handliche 120 dB. Und Wahrnehmung folgt grob dem Logarithmus des Reizes.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 3 dB mehr ungefähr die doppelte Leistung bedeuten.
+    params:
+      keywords:
+        - - logarith
+          - lg
+          - log
+        - - verhältnis
+          - verhaeltnis
+          - ratio
+          - faktor
+          - factor
+        - - "10"
+          - zehn
+          - ten
+        - - 0,3
+          - "0.3"
+          - doppel
+          - double
+          - zwei
+          - two
+      sample: Dezibel sind zehnmal der Logarithmus des Leistungsverhältnisses. Für den Faktor 2 ist lg 2 ≈ 0,3, also 10 · 0,3 = 3 dB. Darum heißen +3 dB etwa doppelte und −3 dB etwa halbe Leistung.
+    explanation: "Kern: dB = 10 · lg(Verhältnis). Daraus folgen alle Faustregeln."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]
