@@ -1,0 +1,200 @@
+id: stats.distributions.poisson
+type: concept
+title: "Seltene Ereignisse: Poisson"
+summary: "Tore, Anrufe, Zerfälle – wenn man zählt, wie oft etwas Seltenes passiert."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "In einem Fußballspiel fallen im Schnitt etwa 3 Tore. Wie oft endet ein Spiel ungefähr 0 : 0?"
+    params:
+      options:
+        - label: Selten – nach dem Modell in etwa 5 % der Spiele
+          correct: true
+        - label: Fast nie
+          feedback: Bei 3 Toren im Schnitt ist ein torloses Spiel selten, aber nicht unmöglich.
+        - label: In etwa 30 % der Spiele
+          feedback: Das wäre viel zu häufig für 3 Tore im Schnitt.
+    hints:
+      - Tore sind seltene, unabhängige Ereignisse in 90 Minuten.
+      - Die Formel für »gar keins« ist e^(−λ).
+    explanation: e^(−3) ≈ 0,05. Torzahlen folgen recht gut der **Poisson-Verteilung** – das schauen wir uns jetzt an.
+
+  - kind: explain
+    id: c1
+    body: "Die **Poisson-Verteilung** zählt seltene, unabhängige Ereignisse in einem Zeitraum: Anrufe pro Stunde, Tore pro Spiel. Sie hat nur eine Zahl: den Schnitt λ."
+    visual:
+      widget: distribution
+      params:
+        items:
+          - label: "0"
+            weight: 135
+          - label: "1"
+            weight: 271
+          - label: "2"
+            weight: 271
+          - label: "3"
+            weight: 180
+          - label: "4"
+            weight: 90
+          - label: "5"
+            weight: 36
+          - label: 6+
+            weight: 17
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Hotline bekommt im Schnitt 2 Anrufe pro Minute. Wie wahrscheinlich kommt in einer Minute **kein** Anruf? P(0) = e^(−2). In Prozent, auf eine Stelle. (e² ≈ 7,389)
+    answer:
+      value: 13.5
+      tolerance: 0.1
+    hints:
+      - "e^(−2) = 1 : e²."
+      - "1 : 7,389 ≈ 0,135."
+    explanation: "Etwa 13,5 %. Allgemein: P(k) = λᵏ · e^(−λ) : k!."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Gleiche Hotline (λ = 2). Wie wahrscheinlich kommt **genau ein** Anruf? P(1) = λ · e^(−λ). In Prozent, auf eine Stelle.
+    answer:
+      value: 27.1
+      tolerance: 0.1
+    hints:
+      - e^(−2) ≈ 0,135.
+      - Rechne 2 · 0,135.
+    explanation: 2 · 0,1353 ≈ 27,1 % – genauso viel wie für 2 Anrufe. Bei ganzzahligem λ haben λ − 1 und λ dieselbe Chance.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Was ist ungefähr Poisson-verteilt – und mit welchem Zeitraum?
+    params:
+      pairs:
+        - left: Tore
+          right: pro Spiel
+        - left: Anrufe
+          right: pro Stunde
+        - left: Zerfälle im Zähler
+          right: pro Sekunde
+        - left: Druckfehler
+          right: pro Seite
+      leftTitle: Ereignis
+      rightTitle: Zeitraum
+    hints:
+      - Poisson braucht seltene, unabhängige Ereignisse in einem festen Rahmen.
+      - Der Rahmen kann Zeit, Fläche oder Länge sein.
+    explanation: "Immer gilt: viele Gelegenheiten, jede mit winziger Chance, und die Ereignisse stören sich nicht."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Ladislaus von Bortkiewicz zählte 1898 Tote durch Pferdetritte in preußischen Armeekorps: im Schnitt 0,61 pro Korps und Jahr. In wie viel Prozent der Korps-Jahre gab es keinen Toten? Gerundet. (e^(−0,61) ≈ 0,543)"
+    answer:
+      value: 54
+      tolerance: 0.6
+    hints:
+      - Gesucht ist P(0) = e^(−λ).
+      - "Der Wert steht schon da: 0,543."
+    explanation: Etwa 54 %. Gezählt hatte er 109 von 200 Korps-Jahren ohne Toten, also 54,5 %. Das Modell trifft fast genau.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Maschine macht 1000 Teile, jedes ist mit Chance 0,2 % defekt. Mit welchem λ beschreibt Poisson die Zahl der Defekte?
+    answer:
+      value: 2
+    hints:
+      - "λ ist die erwartete Zahl: n · p."
+      - 1000 · 0,002.
+    explanation: λ = n · p = 2. Poisson ist der **Grenzfall** der Binomialverteilung für großes n und kleines p.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "Bei der Poisson-Verteilung sind Mittelwert und Varianz beide λ. Ein Händler zählt Kunden pro Stunde: Schnitt 10, Varianz 40. Was folgt?"
+    params:
+      options:
+        - label: Die Kunden kommen nicht unabhängig – eher in Gruppen oder Stoßzeiten
+          correct: true
+        - label: Alles passt zu Poisson
+          feedback: Bei Poisson wäre die Varianz etwa 10.
+        - label: Der Händler hat sich verzählt
+          feedback: Zu große Streuung hat meist echte Gründe.
+    hints:
+      - Vergleiche Varianz und Mittelwert.
+      - Was macht Zählungen zusätzlich unruhig?
+    explanation: Man nennt das **Überdispersion**. Familien, die zusammen kommen, oder Stoßzeiten erzeugen mehr Schwankung als reiner Zufall.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Geigerzähler misst im Schnitt 100 Klicks pro Minute. Wie groß ist die typische Schwankung einer Minuten-Zählung (Standardabweichung)?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: variance-not-sd
+        text: Das ist die Varianz. Die Standardabweichung ist die Wurzel daraus.
+    hints:
+      - Bei Poisson ist die Varianz gleich λ = 100.
+      - Zieh die Wurzel.
+    explanation: √100 = 10, also ± 10 %. Bei 10 000 Klicks wären es nur ± 1 %. Physiker messen darum lange, um das **Zählrauschen** zu drücken.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum taucht e^(−λ) auf? Teile die Minute in n winzige Stücke, jedes mit Anruf-Chance λ/n. Wie wahrscheinlich ist in **keinem** Stück ein Anruf?
+    params:
+      options:
+        - label: (1 − λ/n)ⁿ – und das geht für große n gegen e^(−λ)
+          correct: true
+        - label: λ/n
+          feedback: Das ist die Chance für ein einzelnes Stück.
+        - label: 1 − λ
+          feedback: Das kann bei λ = 2 sogar negativ werden.
+    hints:
+      - Jedes Stück muss leer bleiben – multipliziere die Chancen.
+      - Kennst du den Grenzwert (1 + x/n)ⁿ → eˣ?
+    explanation: Mit x = −λ ergibt der Grenzwert e^(−λ). So folgt die ganze Poisson-Formel aus der Binomialverteilung mit n → ∞.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wann Ereignisse Poisson-verteilt sind.
+    params:
+      keywords:
+        - - selten
+          - rare
+          - klein
+          - small
+        - - unabhängig
+          - independent
+        - - schnitt
+          - mittel
+          - lambda
+          - average
+          - rate
+      sample: Es gibt viele Gelegenheiten, aber jedes Ereignis ist selten. Die Ereignisse sind unabhängig voneinander. Dann reicht der Schnitt λ, um die ganze Verteilung zu kennen.
+    explanation: Selten, unabhängig, gleichmäßige Rate – dann bestimmt eine einzige Zahl alles.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

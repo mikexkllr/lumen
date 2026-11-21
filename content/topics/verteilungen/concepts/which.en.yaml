@@ -1,0 +1,207 @@
+id: stats.distributions.which
+type: concept
+title: "Which distribution fits?"
+summary: "From the story to the model – and when models mislead."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A clinic counts births per day, 3 on average. Which distribution fits best?
+    params:
+      options:
+        - label: Poisson – rare, independent events per time span
+          correct: true
+        - label: 0 and 10 births are not equally likely.
+          feedback: 0 und 10 Geburten sind nicht gleich wahrscheinlich.
+        - label: With such small counts the distribution is skewed and whole-numbered.
+          feedback: Bei so kleinen Zahlen ist die Verteilung schief und ganzzahlig.
+    hints:
+      - We count how often something happens in a time span.
+      - "There is just one parameter: the average."
+    explanation: Counts per time span are the classic case for Poisson. The story behind the data reveals the model.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: Which distribution fits the story?
+    params:
+      pairs:
+        - left: Hits in 10 shots
+          right: Binomial
+        - left: Calls per hour
+          right: Poisson
+        - left: Time to the next call
+          right: Exponential
+        - left: Roll of one die
+          right: Uniform
+        - left: Sum of many small errors
+          right: Normal
+      leftTitle: Story
+      rightTitle: Distribution
+    hints:
+      - Do you count hits in a fixed number of tries, or events without a fixed upper limit?
+      - Waiting times are continuous, counts are whole numbers.
+    explanation: "Each distribution tells a story: fixed tries, rare events, waiting, equality or many small summands."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Whole-number count or continuous measurement?
+    params:
+      buckets:
+        - id: b1
+          label: Count
+        - id: b2
+          label: Continuous
+      items:
+        - label: Number of emails today
+          bucket: b1
+        - label: Waiting time at the counter
+          bucket: b2
+        - label: Body height
+          bucket: b2
+        - label: Goals in a match
+          bucket: b1
+        - label: Errors on a page
+          bucket: b1
+        - label: Battery lifetime
+          bucket: b2
+    hints:
+      - Can the value be 2.7?
+      - Counts are 0, 1, 2, …
+    explanation: Binomial and Poisson are discrete; uniform, exponential and normal are continuous (or discrete for the die). That is the first step to a model.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: An inspector draws 50 parts from a huge delivery. 4 % are defective. How many defective parts do you expect among the 50?
+    answer:
+      value: 2
+    hints:
+      - "A fixed number of tries with the same chance: binomial."
+      - n · p = 50 · 0.04.
+    explanation: 50 · 0.04 = 2. Because p is small, Poisson with λ = 2 would be an almost equally good approximation here.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Data: number of children per family. Mean 1.8, variance 1.1. Does Poisson fit?"
+    params:
+      options:
+        - label: Not really – under Poisson mean and variance would be about equal
+          correct: true
+        - label: Counting alone is not enough – mean and variance must match.
+          feedback: Zählung allein reicht nicht – Mittel und Varianz müssen passen.
+        - label: That is exactly what speaks against Poisson.
+          feedback: Gerade das spricht gegen Poisson.
+    hints:
+      - What holds for mean and variance under Poisson?
+      - 1.8 and 1.1 differ clearly.
+    explanation: The variance is smaller than the mean – underdispersion. Families plan; children are not independent random events.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: "In epidemics simple distributions stop working: cases infect others. Set R₀ so that at most half of all people get infected in total. No vaccination."
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          value: 0
+          fixed: true
+    answer:
+      total:
+        - 0
+        - 50
+    explanation: Already from R₀ ≈ 1.4 about half get infected. Contagion makes cases dependent – that is why there are outbreaks instead of steady Poisson counts.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A model assumes daily stock-market losses are normal. A 5 σ loss would then happen once in millions of years. In reality it happened several times in 50 years. What do we learn?
+    params:
+      options:
+        - label: The real distribution has fat tails – the model underestimates extremes
+          correct: true
+        - label: Repeated bad luck at 1 in millions is no longer bad luck.
+          feedback: Mehrmals Pech bei 1 zu Millionen ist kein Pech mehr.
+        - label: For many measurement errors it fits very well.
+          feedback: Für viele Messfehler passt sie sehr gut.
+    hints:
+      - Compare how often the model expects the case and how often it came.
+      - The tails of the bell fall off extremely fast.
+    explanation: A model is only as good as its assumptions. For financial data one uses fat-tailed distributions, such as the t-distribution.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How do you check whether data fit a suspected distribution?
+    params:
+      options:
+        - label: Compare expected and observed frequencies, e.g. with a chi-squared test
+          correct: true
+        - label: Many distributions share the same mean.
+          feedback: Viele Verteilungen haben denselben Mittelwert.
+        - label: The fit can be measured.
+          feedback: Die Passung lässt sich messen.
+    hints:
+      - Bortkiewicz compared counted corps-years with the Poisson values.
+      - Large deviations in many classes speak against the model.
+    explanation: The test sums (observed − expected)² ÷ expected over all classes. A quantile plot also quickly shows where things go wrong.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A die is rolled 60 times and the 6 comes up 16 times. Expected is 10. What does this class contribute to the chi-squared value, (observed − expected)² ÷ expected?
+    answer:
+      value: 3.6
+    hints:
+      - "Difference: 16 − 10 = 6."
+      - 6² ÷ 10.
+    explanation: 36 ÷ 10 = 3.6. You add such contributions over all six faces and compare with the chi-squared distribution with 5 degrees of freedom.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to find the right distribution for a situation.
+    params:
+      keywords:
+        - - geschichte
+          - entsteh
+          - story
+          - arise
+          - mechanism
+          - mechanismus
+        - - zähl
+          - stetig
+          - count
+          - continuous
+          - diskret
+          - discrete
+        - - prüf
+          - vergleich
+          - test
+          - check
+          - compar
+      sample: "First ask how the data arise: do you count hits, rare events, or measure waiting times? Then pick the model, such as binomial or Poisson. Finally check whether it fits the data."
+    explanation: First the story of how data arise, then the model, then the test – never the other way round.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

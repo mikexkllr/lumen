@@ -1,0 +1,207 @@
+id: stats.distributions.which
+type: concept
+title: "Welche Verteilung passt?"
+summary: "Von der Geschichte zum Modell – und wann Modelle täuschen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Klinik zählt Geburten pro Tag, im Schnitt 3. Welche Verteilung passt am ehesten?
+    params:
+      options:
+        - label: Poisson – seltene, unabhängige Ereignisse pro Zeitraum
+          correct: true
+        - label: Gleichverteilung
+          feedback: 0 und 10 Geburten sind nicht gleich wahrscheinlich.
+        - label: Normalverteilung
+          feedback: Bei so kleinen Zahlen ist die Verteilung schief und ganzzahlig.
+    hints:
+      - Gezählt wird, wie oft etwas in einem Zeitraum passiert.
+      - "Es gibt nur eine Kenngröße: den Schnitt."
+    explanation: Zählungen pro Zeitraum sind der klassische Fall für **Poisson**. Die Geschichte hinter den Daten verrät das Modell.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: Welche Verteilung passt zur Geschichte?
+    params:
+      pairs:
+        - left: Treffer bei 10 Würfen
+          right: Binomial
+        - left: Anrufe pro Stunde
+          right: Poisson
+        - left: Zeit bis zum nächsten Anruf
+          right: Exponential
+        - left: Augenzahl eines Würfels
+          right: Gleichverteilung
+        - left: Summe vieler kleiner Fehler
+          right: Normal
+      leftTitle: Geschichte
+      rightTitle: Verteilung
+    hints:
+      - Zählt man Treffer bei fester Versuchszahl oder Ereignisse ohne feste Obergrenze?
+      - Wartezeiten sind stetig, Zählungen ganzzahlig.
+    explanation: "Jede Verteilung erzählt eine Geschichte: feste Versuche, seltene Ereignisse, Warten, Gleichheit oder viele kleine Summanden."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Ganzzahlige Zählung oder stetiger Messwert?
+    params:
+      buckets:
+        - id: b1
+          label: Zählung
+        - id: b2
+          label: Stetig
+      items:
+        - label: Anzahl der E-Mails heute
+          bucket: b1
+        - label: Wartezeit am Schalter
+          bucket: b2
+        - label: Körpergröße
+          bucket: b2
+        - label: Tore im Spiel
+          bucket: b1
+        - label: Fehler auf einer Seite
+          bucket: b1
+        - label: Lebensdauer einer Batterie
+          bucket: b2
+    hints:
+      - Kann der Wert 2,7 sein?
+      - Zählungen sind 0, 1, 2, …
+    explanation: Binomial und Poisson sind **diskret**, Gleich-, Exponential- und Normalverteilung stetig (oder diskret beim Würfel). Der erste Schritt zum Modell.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Prüfer zieht 50 Teile aus einer riesigen Lieferung. 4 % sind defekt. Wie viele defekte Teile erwartest du unter den 50?
+    answer:
+      value: 2
+    hints:
+      - "Feste Zahl von Versuchen mit gleicher Chance: binomial."
+      - n · p = 50 · 0,04.
+    explanation: 50 · 0,04 = 2. Weil p klein ist, wäre Poisson mit λ = 2 hier eine fast gleich gute Näherung.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Daten: Anzahl Kinder pro Familie. Mittelwert 1,8, Varianz 1,1. Passt Poisson?"
+    params:
+      options:
+        - label: Eher nicht – bei Poisson wären Mittelwert und Varianz etwa gleich
+          correct: true
+        - label: Ja, es sind Zählungen
+          feedback: Zählung allein reicht nicht – Mittel und Varianz müssen passen.
+        - label: Ja, die Varianz ist sogar kleiner
+          feedback: Gerade das spricht gegen Poisson.
+    hints:
+      - Was gilt bei Poisson für Mittelwert und Varianz?
+      - 1,8 und 1,1 sind deutlich verschieden.
+    explanation: Die Varianz ist kleiner als der Mittelwert – **Unterdispersion**. Familien planen, Kinder sind keine unabhängigen Zufallsereignisse.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: "Bei Epidemien gelten einfache Verteilungen nicht mehr: Fälle stecken andere an. Stell R₀ so ein, dass insgesamt höchstens die Hälfte angesteckt wird. Ohne Impfung."
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          value: 0
+          fixed: true
+    answer:
+      total:
+        - 0
+        - 50
+    explanation: Schon ab R₀ ≈ 1,4 wird rund die Hälfte angesteckt. Ansteckung macht Fälle **abhängig** – darum gibt es Ausbrüche statt gleichmäßiger Poisson-Zahlen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Modell nimmt für Tagesverluste an der Börse eine Normalverteilung an. Ein Verlust von 5 σ passiert dann einmal in Millionen Jahren. In Wirklichkeit kam er mehrmals in 50 Jahren. Was lernt man daraus?
+    params:
+      options:
+        - label: Die echte Verteilung hat dicke Ränder – das Modell unterschätzt Extreme
+          correct: true
+        - label: Die Börse hatte Pech
+          feedback: Mehrmals Pech bei 1 zu Millionen ist kein Pech mehr.
+        - label: Die Normalverteilung ist immer falsch
+          feedback: Für viele Messfehler passt sie sehr gut.
+    hints:
+      - Vergleiche, wie oft das Modell den Fall erwartet und wie oft er kam.
+      - Die Ränder der Glocke fallen extrem schnell ab.
+    explanation: Ein Modell ist nur so gut wie seine Annahmen. Für Finanzdaten nutzt man **Verteilungen mit dicken Rändern**, etwa die t-Verteilung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie prüft man, ob Daten zu einer vermuteten Verteilung passen?
+    params:
+      options:
+        - label: Erwartete und beobachtete Häufigkeiten vergleichen, etwa mit einem Chi-Quadrat-Test
+          correct: true
+        - label: Den Mittelwert ansehen
+          feedback: Viele Verteilungen haben denselben Mittelwert.
+        - label: Gar nicht, Verteilungen sind Geschmackssache
+          feedback: Die Passung lässt sich messen.
+    hints:
+      - Bortkiewicz verglich gezählte Korps-Jahre mit den Poisson-Werten.
+      - Große Abweichungen in vielen Klassen sprechen gegen das Modell.
+    explanation: "Der Test summiert (beobachtet − erwartet)² : erwartet über alle Klassen. Auch ein Blick auf ein **Quantil-Diagramm** zeigt schnell, wo es hakt."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Würfel wird 60-mal geworfen, die 6 kommt 16-mal. Erwartet sind 10. Wie groß ist der Beitrag dieser Klasse zum Chi-Quadrat-Wert, (beobachtet − erwartet)² : erwartet?"
+    answer:
+      value: 3.6
+    hints:
+      - "Differenz: 16 − 10 = 6."
+      - "6² : 10."
+    explanation: "36 : 10 = 3,6. Man addiert solche Beiträge über alle sechs Augenzahlen und vergleicht mit der Chi-Quadrat-Verteilung mit 5 Freiheitsgraden."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man die passende Verteilung für eine Situation findet.
+    params:
+      keywords:
+        - - geschichte
+          - entsteh
+          - story
+          - arise
+          - mechanism
+          - mechanismus
+        - - zähl
+          - stetig
+          - count
+          - continuous
+          - diskret
+          - discrete
+        - - prüf
+          - vergleich
+          - test
+          - check
+          - compar
+      sample: "Man fragt erst, wie die Daten entstehen: zählt man Treffer, seltene Ereignisse oder misst man Wartezeiten? Dann wählt man das Modell, etwa Binomial oder Poisson. Zum Schluss prüft man, ob es zu den Daten passt."
+    explanation: Erst die Entstehungsgeschichte, dann das Modell, dann der Test – nie umgekehrt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]
