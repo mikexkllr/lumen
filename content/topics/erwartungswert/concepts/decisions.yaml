@@ -5,7 +5,7 @@ summary: Wann sich Absichern lohnt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: schaden
@@ -91,6 +91,49 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Versicherung kostet {{p}} € im Jahr. Sie deckt einen Schaden von 2000 €, der mit {{q}} % pro Jahr eintritt. Wie viel zahlst du im Schnitt pro Jahr drauf?
+    params:
+      unit: €
+    answer:
+      value: "{{p - 20 * q}}"
+    hints:
+      - Der erwartete Schaden ist 2000 € · {{q}} %.
+      - "Zieh ihn von der Prämie ab: {{p}} − {{20 * q}}."
+    explanation: "Erwarteter Schaden {{20 * q}} €, Prämie {{p}} €: im Schnitt {{p - 20 * q}} € Aufschlag. Das ist der Preis dafür, nie 2000 € auf einmal zahlen zu müssen."
+    difficulty: 2
+    variants:
+      params:
+        p: step[60,150,10]
+        q: int[1,4]
+      constraints:
+        - p > 20 * q
+      defaults:
+        p: 100
+        q: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Für jemanden mit 100 € sind 100 € mehr ein großes Glück. Für eine Millionärin kaum. Was beschreibt das?
+    params:
+      options:
+        - label: Abnehmender Grenznutzen – jeder weitere Euro bringt weniger Freude
+          correct: true
+        - label: Gier
+          feedback: Es geht nicht um Charakter, sondern um den Nutzen pro Euro.
+        - label: Den Erwartungswert
+          feedback: Der Erwartungswert zählt jeden Euro gleich.
+    hints:
+      - Wie viel ist der hundertste Euro wert, wie viel der millionste?
+      - Bernoulli schlug 1738 vor, mit dem Logarithmus des Geldes zu rechnen.
+    explanation: Weil der **Nutzen** langsamer wächst als das Geld, ist ein sicherer Betrag mehr wert als eine Wette mit gleichem Erwartungswert. Daraus erklärt sich, warum man sich versichert.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +149,37 @@ steps:
     hints:
       - Was bleibt nach einem Gewinn und einem Verlust?
     explanation: Bei wiederholten Wetten zählt das **geometrische** Mittel. Das Kelly-Kriterium sagt, welcher Anteil optimal wäre.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Eine Wette gewinnt mit 60 % und zahlt den Einsatz doppelt zurück, sonst ist er weg. Die **Kelly-Formel** sagt: Setze den Anteil p − q deines Vermögens. Wie viel Prozent sind das?"
+    answer:
+      value: 20
+    hints:
+      - p = 0,6, q = 1 − p = 0,4.
+      - Rechne 0,6 − 0,4.
+    explanation: 20 %. Kelly maximiert das langfristige Wachstum. Wer alles setzt, geht trotz Vorteil irgendwann pleite.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Münzwurf: +50 % oder −40 % deines Vermögens. Nach einem Gewinn und einem Verlust hast du das 1,5 · 0,6 = 0,9-Fache. Wie viel Prozent verlierst du im Schnitt **pro Runde**? (√0,9 ≈ 0,949)"
+    answer:
+      value: 5.1
+      tolerance: 0.2
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: two-rounds
+        text: Das ist der Verlust für zwei Runden. Pro Runde ist es die Wurzel davon.
+    hints:
+      - Pro Runde wächst das Vermögen um den Faktor √0,9.
+      - 1 − 0,949 = ?
+    explanation: Etwa −5,1 % pro Runde – obwohl der Erwartungswert +5 % ist. Für dein Vermögen zählt das geometrische Mittel, nicht das arithmetische.
     difficulty: 3
 
 srs:

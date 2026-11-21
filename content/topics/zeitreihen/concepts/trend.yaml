@@ -5,7 +5,7 @@ summary: Die große Richtung erkennen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -93,6 +93,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Umsatz verdoppelt sich in 10 Jahren von 100 auf 200. Um wie viel Prozent wuchs er im Schnitt **pro Jahr**? Auf eine Stelle. (2^0,1 ≈ 1,0718)
+    answer:
+      value: 7.2
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: linear-growth
+        text: 10 % pro Jahr wären nach 10 Jahren das 2,59-Fache – Zinseszins!
+    hints:
+      - Gesucht ist der Faktor q mit q¹⁰ = 2.
+      - q = 2^0,1 ≈ 1,0718.
+    explanation: Etwa 7,2 % pro Jahr. Diese **mittlere Wachstumsrate** ist ein geometrisches Mittel, kein einfacher Durchschnitt.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Faustregel: Bei p % Wachstum pro Jahr verdoppelt sich ein Wert in etwa 70/p Jahren. Wie lange dauert es bei {{p}} %?"
+    params:
+      unit: Jahre
+    answer:
+      value: "{{70 / p}}"
+    hints:
+      - Teile 70 durch {{p}}.
+      - "70 : {{p}} = ?"
+    explanation: Etwa {{70 / p}} Jahre. Die 70 kommt von ln 2 ≈ 0,693.
+    difficulty: 2
+    variants:
+      params:
+        p: choice[2,5,7,10,14,35]
+      defaults:
+        p: 7
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -108,6 +146,44 @@ steps:
     hints:
       - Gilt, was 10 Jahre galt, auch für 50?
     explanation: "**Extrapolation** setzt voraus, dass sich die Ursachen nicht ändern. Je weiter hinaus, desto gewagter."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Die Zahl der Smartphones und der Ausstoß einer Fabrik steigen seit Jahren. Ihre Korrelation ist r = 0,95. Was ist der wichtigste Einwand?
+    params:
+      options:
+        - label: Zwei Reihen mit Trend korrelieren fast immer – man muss die Änderungen vergleichen
+          correct: true
+        - label: r = 0,95 ist zu klein
+          feedback: r ist sogar sehr groß – genau das täuscht.
+        - label: Kein Einwand, der Zusammenhang ist klar
+          feedback: Fast alles, was wächst, korreliert.
+    hints:
+      - Wovon hängen beide Reihen gemeinsam ab?
+      - Vergleiche, ob gute Jahre der einen auch gute Jahre der anderen sind.
+    explanation: "Das ist eine **Scheinregression**. Statistiker bilden darum Differenzen: Jahr minus Vorjahr. Erst wenn auch die Änderungen korrelieren, wird es interessant."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Reihe lautet 3, 5, 9, 15, 23. Die Differenzen sind 2, 4, 6, 8. Welcher Trend passt?
+    params:
+      options:
+        - label: Quadratisch – die zweiten Differenzen sind konstant
+          correct: true
+        - label: Linear
+          feedback: Bei linearem Trend wären schon die ersten Differenzen gleich.
+        - label: Exponentiell
+          feedback: Dann wüchsen die Quotienten gleich, nicht die zweiten Differenzen.
+    hints:
+      - "Bilde noch einmal Differenzen: 4 − 2, 6 − 4, 8 − 6."
+      - Immer 2 – was bedeutet das?
+    explanation: "Konstante zweite Differenzen bedeuten einen quadratischen Trend: hier n² − n + 3. Differenzen bilden ist ein Kernwerkzeug der Zeitreihen-Analyse."
     difficulty: 3
 
 srs:

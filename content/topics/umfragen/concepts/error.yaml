@@ -5,7 +5,7 @@ summary: Viermal mehr Befragte, halber Fehler.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 1000
       within: 60
     explanation: Rund 1000 genügen. Entscheidend ist die Größe der Stichprobe – nicht die des Landes.
-
 
   - kind: explain
     id: s1
@@ -84,6 +83,57 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Genauer gilt für 95 %: Fehlerspanne = 1,96 · √(p(1 − p)/n). Für p = 0,5 und n = 1000 ist die Wurzel etwa 0,0158. Wie viele Prozentpunkte sind das mal 1,96? Auf eine Stelle."
+    answer:
+      value: 3.1
+      tolerance: 0.05
+    hints:
+      - 1,96 · 0,0158 ≈ 0,031.
+      - "Als Prozentpunkte: mal 100."
+    explanation: "± 3,1 Prozentpunkte – fast genau die Faustregel 100/√1000 ≈ 3,2. Die 1,96 kommt aus der Glockenkurve: 95 % liegen innerhalb von 1,96 σ."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Du willst die Fehlerspanne nach der Faustregel 100/√n auf ± {{e}} Prozentpunkte drücken. Wie viele Befragte brauchst du?
+    answer:
+      value: "{{(100 / e) ** 2}}"
+    hints:
+      - "Stell um: √n = 100 : {{e}}."
+      - Quadriere {{100 / e}}.
+    explanation: √n = {{100 / e}}, also n = {{(100 / e) ** 2}}. Halb so viel Fehler kostet viermal so viele Befragte.
+    difficulty: 2
+    variants:
+      params:
+        e: choice[1,2,4,5,10]
+      defaults:
+        e: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: choice
+    prompt: Eine kleine Partei liegt bei 5 %, eine große bei 50 %. Beide aus derselben Umfrage mit 1000 Befragten. Wessen Fehlerspanne ist kleiner?
+    params:
+      options:
+        - label: Die der kleinen Partei
+          correct: true
+        - label: Beide gleich
+          feedback: Die Faustregel gilt für 50 %. Am Rand wird p(1 − p) kleiner.
+        - label: Die der großen Partei
+          feedback: Bei 50 % ist p(1 − p) = 0,25 – so groß wie nie sonst.
+    hints:
+      - Vergleiche 0,05 · 0,95 mit 0,5 · 0,5.
+      - 0,0475 ist viel kleiner als 0,25.
+    explanation: "Bei 5 % ist die Spanne etwa ± 1,4 Punkte, bei 50 % etwa ± 3,1. Relativ zur kleinen Zahl ist sie aber groß: 5 ± 1,4 heißt 3,6 bis 6,4 %."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +149,38 @@ steps:
     hints:
       - Stell dir vor, dieselbe Umfrage würde 100-mal wiederholt.
     explanation: Das ist ein **Konfidenzintervall**. Es erfasst nur den Zufallsfehler – nicht schiefe Stichproben oder Suggestivfragen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Umfragen fragen oft ganze Haushalte oder Orte auf einmal. Das ergibt einen **Designeffekt** von 2: Die Streuung ist so, als hätte man nur halb so viele befragt. Wie viele »echte« Befragte sind 1000 dann wert?"
+    answer:
+      value: 500
+    hints:
+      - Teile durch den Designeffekt.
+      - "1000 : 2."
+    explanation: Effektiv 500 – die Fehlerspanne wächst um den Faktor √2 ≈ 1,4. Leute aus einem Ort ähneln sich und liefern weniger neue Information.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Partei A hat 30 %, Partei B 30 %, ± 3 Punkte für jede. Wie groß ist die Fehlerspanne für den **Abstand** A − B?
+    params:
+      options:
+        - label: Deutlich größer, etwa ± 5 Punkte
+          correct: true
+        - label: Auch ± 3 Punkte
+          feedback: Beide Werte schwanken – und zwar gegenläufig.
+        - label: Null, weil beide gleich sind
+          feedback: Gleich in der Umfrage heißt nicht gleich in Wirklichkeit.
+    hints:
+      - Wenn A zufällig zu hoch ist, fehlen diese Stimmen oft bei B.
+      - Die Fehler beider Werte addieren sich teilweise.
+    explanation: Für den Abstand gilt √((pA + pB − (pA − pB)²)/n) – hier rund 1,7-mal die Einzelspanne. Ein Vorsprung muss also viel größer als ± 3 sein.
     difficulty: 3
 
 srs:

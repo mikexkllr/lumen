@@ -5,7 +5,7 @@ summary: What forecasts can and cannot do.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: schritte
@@ -74,6 +74,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "A forecast missed four times: +2, −1, +3 and −2. What is the mean absolute error?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: signed-error
+        text: You kept the signs. The absolute error counts only the size.
+    hints:
+      - "Drop the signs: 2, 1, 3, 2."
+      - Compute 8 ÷ 4.
+    explanation: (2 + 1 + 3 + 2) ÷ 4 = 2. Without absolute values the errors would net out to 0.5 and flatter the forecast.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: An expensive forecasting model predicts tomorrow's sales. What should you compare it with first?
+    params:
+      options:
+        - label: With »tomorrow like today« – the simplest forecast
+          correct: true
+        - label: First it must beat the simplest thing.
+          feedback: Erst muss es das Einfachste schlagen.
+        - label: Without a comparison you do not know if it is any good.
+          feedback: Ohne Vergleich weiß man nicht, ob es etwas taugt.
+    hints:
+      - How good would a forecast be that needs no computing at all?
+      - This simple forecast is called the naive forecast.
+    explanation: The naive forecast is hard to beat. Many elaborate models barely do better – forecasting competitions show this again and again.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -100,6 +136,42 @@ steps:
           - plan
           - risk
       sample: Nobody can predict the future exactly. A range shows honestly how uncertain the forecast is – and only with it can you decide sensibly and plan for risks.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "A price behaves like a random walk: for one day the uncertainty is σ = 1. How big is it {{h}} days ahead?"
+    answer:
+      value: "{{sqrt(h)}}"
+    feedback:
+      - when: numval(state.input) == h
+        misconception: linear-uncertainty
+        text: Uncertainty does not grow linearly, but with √h.
+    hints:
+      - "Variances add up: after {{h}} days it is {{h}}."
+      - σ is its square root.
+    explanation: √{{h}} = {{sqrt(h)}}. The forecast funnel opens like a square-root curve – wide, but slower than linear.
+    difficulty: 3
+    variants:
+      params:
+        h: choice[4,9,16,25,100]
+      defaults:
+        h: 16
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "The Brier score measures probability forecasts: (forecast − outcome)². The app said 70 % rain, and it rained (outcome 1). What is the score?"
+    answer:
+      value: 0.09
+      tolerance: 0.001
+    hints:
+      - Forecast 0.7, outcome 1.
+      - (0.7 − 1)² = (−0.3)².
+    explanation: "0.09. Smaller is better: 0 means perfect, and always saying 50 % scores 0.25. That is how forecasts are judged fairly over many days."
     difficulty: 3
 
 srs:

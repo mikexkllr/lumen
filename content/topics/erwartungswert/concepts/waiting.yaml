@@ -5,7 +5,7 @@ summary: Im Schnitt sechs Würfe bis zur Sechs.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: sechs
@@ -63,6 +63,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie wahrscheinlich kommt die erste 6 **genau** beim dritten Wurf? Als Bruch.
+    answer:
+      value: 25/216
+    hints:
+      - Die ersten zwei Würfe sind keine 6, der dritte ist eine 6.
+      - 5/6 · 5/6 · 1/6.
+    explanation: (5/6)² · 1/6 = 25/216 ≈ 11,6 %. Das ist die **geometrische Verteilung**. Ihr Erwartungswert ist 1/p = 6.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Ein Album hat 50 verschiedene Bilder, jede Packung enthält ein zufälliges. Wie viele Packungen brauchst du im Schnitt für alle 50?"
+    params:
+      min: 50
+      max: 1000
+    answer:
+      value: 225
+      within: 20
+    explanation: "50 · (1/50 + 1/49 + … + 1/1) ≈ 50 · 4,5 ≈ 225. Die letzten Bilder kosten am meisten: Für das allerletzte wartest du im Schnitt 50 Packungen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -78,6 +105,42 @@ steps:
     hints:
       - Lange Lücken nehmen mehr Zeit ein – du landest öfter in ihnen.
     explanation: Das **Wartezeitparadox**. Bei völlig zufälligen Abständen wartet man im Schnitt sogar volle 10 Minuten.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Du wirfst eine Münze, bis zweimal hintereinander Kopf kommt (KK). Wie viele Würfe dauert das im Schnitt?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: hh-vs-ht
+        text: 4 Würfe braucht man im Schnitt für KZ. Bei KK ist es mehr.
+    hints:
+      - Nach einem Fehlwurf Z beginnst du von vorn. Nach KZ auch.
+      - Setze E = Wartezeit. Es gilt E = ½(1 + E) + ¼(2 + E) + ¼ · 2.
+    explanation: Löst man die Gleichung, kommt E = 6 heraus. Für KZ sind es nur 4 Würfe, obwohl beide Muster die Chance 1/4 haben.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Warum wartet man auf KK länger als auf KZ, obwohl beide gleich wahrscheinlich sind?
+    params:
+      options:
+        - label: Bei KK zerstört ein Fehlwurf den Fortschritt, bei KZ nicht
+          correct: true
+        - label: Kopf ist seltener als Zahl
+          feedback: Die Münze ist fair.
+        - label: Das stimmt nicht, beide dauern 4 Würfe
+          feedback: Simulationen zeigen 6 gegen 4.
+    hints:
+      - Du hast schon ein K. Was passiert beim nächsten Z?
+      - "Bei KZ: Nach K wartet man einfach auf Z – ein weiteres K stört nicht."
+    explanation: Bei KZ bleibt ein K nach einem K ein guter Anfang. Bei KK wirft ein Z alles auf null zurück. Muster mit Selbstüberlappung warten anders – wichtig für die Suche in DNA und Texten.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Zusammenhänge in Zahlen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: bedeutung
@@ -76,6 +76,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Größe und Gewicht korrelieren mit r = {{r}}. Die Standardabweichungen sind {{sy}} kg und {{sx}} cm. Wie viele kg mehr sagt die Gerade pro cm voraus? Auf zwei Stellen.
+    answer:
+      value: "{{r * sy / sx}}"
+      tolerance: 0.006
+    hints:
+      - "Steigung = r · sᵧ : sₓ."
+      - "Rechne {{r}} · {{sy}} : {{sx}}."
+    explanation: "{{r}} · {{sy}} : {{sx}} ≈ {{round(100 * r * sy / sx) / 100}} kg pro cm. Die Steigung hat immer die Einheit »y pro x«."
+    difficulty: 2
+    variants:
+      params:
+        r: choice[0.4,0.5,0.6,0.8]
+        sy: choice[10,12,15]
+        sx: choice[5,6,10]
+      defaults:
+        r: 0.5
+        sy: 12
+        sx: 6
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: "Ein Modell für Mieten: Miete = 300 € + 11 € · Fläche in m². Du rechnest die Fläche in dm² statt m² (1 m² = 100 dm²). Was passiert mit der Steigung?"
+    params:
+      options:
+        - label: "Sie wird 100-mal kleiner: 0,11 € pro dm²"
+          correct: true
+        - label: Sie bleibt 11
+          feedback: Dann würde jeder dm² 11 € kosten – viel zu viel.
+        - label: Sie wird 100-mal größer
+          feedback: Ein dm² ist kleiner als ein m², also kostet er weniger.
+    hints:
+      - Wie viel kostet ein m² mehr? Wie viele dm² sind das?
+      - 11 € verteilen sich auf 100 dm².
+    explanation: Die Steigung hängt an den Einheiten, r nicht. Wer Steigungen vergleicht, muss die Einheiten prüfen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -91,6 +133,44 @@ steps:
     hints:
       - »Alles andere gleich« ist der entscheidende Zusatz.
     explanation: Die **multiple Regression** trennt Einflüsse, indem sie die anderen rechnerisch konstant hält.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Modell lautet ln(Preis) = 9 + 0,05 · Baujahre-jünger. Was bedeutet die 0,05?
+    params:
+      options:
+        - label: Jedes Jahr jünger bringt etwa 5 % höheren Preis
+          correct: true
+        - label: Jedes Jahr bringt 0,05 € mehr
+          feedback: Im Logarithmus wirken Koeffizienten als Faktoren.
+        - label: Der Preis steigt um 5 €
+          feedback: Gemeint sind Prozente, nicht Euro.
+    hints:
+      - ln(Preis) steigt um 0,05. Was heißt das für den Preis selbst?
+      - e^0,05 ≈ 1,051.
+    explanation: e^0,05 ≈ 1,051, also etwa +5,1 % pro Jahr. Log-Modelle beschreiben **relative** Effekte – typisch für Preise und Einkommen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Modell »Lohn aus Körpergröße« ergibt +200 € pro 10 cm. Nimmt man das Geschlecht dazu, schrumpft der Effekt auf +40 €. Warum?
+    params:
+      options:
+        - label: Größe stand teils für das Geschlecht – eine ausgelassene Größe verzerrte die Steigung
+          correct: true
+        - label: Das Modell ist jetzt falsch
+          feedback: "Im Gegenteil: Es trennt jetzt zwei Einflüsse."
+        - label: Zufall
+          feedback: "Der Effekt ist systematisch: Männer sind im Schnitt größer."
+    hints:
+      - Hängen Größe und Geschlecht zusammen?
+      - Ohne Geschlecht im Modell übernimmt die Größe dessen Wirkung.
+    explanation: Das ist die **Verzerrung durch ausgelassene Variablen**. Eine Steigung gilt immer »bei Konstanthalten der übrigen Größen im Modell«.
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [prob.law]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: explain
     id: s1
@@ -90,6 +90,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: distribution
+    prompt: Wirf die Münze in großen Schritten, bis du 1000 Würfe hast. Beobachte, wie nah der Anteil an 50 % rückt.
+    params:
+      items:
+        - label: Kopf
+        - label: Zahl
+      sample:
+        - 10
+        - 100
+        - 1000
+    check:
+      predicate: draws >= 1000
+    hints:
+      - Nutze den Knopf für 1000 Würfe.
+      - Vergleiche Strich und Balken nach 10, 100 und 1000 Würfen.
+    explanation: Nach 1000 Würfen weicht der Anteil meist nur ein bis drei Prozentpunkte von 50 % ab. Nach 10 Würfen sind 30 % oder 70 % normal.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: "Nach vielen Würfen: Was wird kleiner?"
+    params:
+      options:
+        - label: Die Abweichung des Anteils von 50 %
+          correct: true
+        - label: Der Abstand »Zahl der Köpfe minus Zahl der Zahlen«
+          feedback: Dieser Abstand wächst typisch sogar – wie √n. Nur geteilt durch n wird er klein.
+        - label: Die Chance auf Kopf beim nächsten Wurf
+          feedback: Die bleibt immer 1/2.
+    hints:
+      - "Bei 100 Würfen sind 55 : 45 normal, bei 10 000 Würfen 5050 : 4950."
+      - Vergleiche Abstand (10 bzw. 100) und Anteil (55 % bzw. 50,5 %).
+    explanation: Der Abstand wächst wie √n, der Anteil schwankt wie 1/√n. Das **Gesetz der großen Zahlen** gleicht nicht aus – es verdünnt.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: numeric
+    prompt: "Faustregel: Der Kopf-Anteil schwankt typisch um 50/√n Prozentpunkte. Wie groß ist diese Schwankung bei {{n}} Würfen?"
+    answer:
+      value: "{{50 / sqrt(n)}}"
+    hints:
+      - Zieh die Wurzel aus {{n}}.
+      - Teile 50 durch {{sqrt(n)}}.
+    explanation: "50 : {{sqrt(n)}} = {{50 / sqrt(n)}} Prozentpunkte. Für viermal so viele Würfe halbiert sich die Schwankung."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[25,100,400,625,2500,10000]
+      defaults:
+        n: 400
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -99,6 +157,45 @@ steps:
     hints:
       - Zehnmal genauer braucht 10² so viele Würfe.
     explanation: "100 · 100 = 10 000. Genauigkeit ist teuer: Sie wächst nur mit der Wurzel."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Die **Tschebyschow-Ungleichung** gilt für jede Verteilung: Weiter als k Standardabweichungen vom Mittelwert liegt höchstens der Anteil 1/k². Wie viel Prozent sind es höchstens bei k = 2?"
+    answer:
+      value: 25
+    hints:
+      - Rechne 1/k² für k = 2.
+      - 1/4 sind wie viel Prozent?
+    explanation: "Höchstens 25 %. Bei der Glockenkurve sind es nur 5 % – Tschebyschow ist grob, aber gilt immer. Daraus folgt das Gesetz der großen Zahlen: Die Streuung des Mittels σ/√n geht gegen null."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum das Gesetz der großen Zahlen nicht heißt, dass sich Glück und Pech ausgleichen.
+    params:
+      keywords:
+        - - anteil
+          - relativ
+          - share
+          - proportion
+          - fraction
+        - - gedächtnis
+          - unabhängig
+          - memory
+          - independent
+        - - verdünn
+          - viele
+          - dilut
+          - many
+          - wächst
+          - grow
+      sample: Die Münze hat kein Gedächtnis, jeder Wurf ist unabhängig. Ein Vorsprung von Kopf bleibt im Schnitt bestehen. Aber bei vielen Würfen wird er im Anteil verdünnt, darum geht der Anteil gegen 50 %.
+    explanation: Nichts wird zurückgezahlt. Ein alter Überschuss wird nur von immer mehr neuen Würfen verdünnt.
     difficulty: 3
 
 srs:

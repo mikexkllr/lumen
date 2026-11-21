@@ -5,7 +5,7 @@ summary: Bayes ohne Formel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -88,6 +88,41 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Eine Schublade hat {{k}} Münzen: eine mit zwei Köpfen, die übrigen fair. Du ziehst eine und wirfst Kopf. Wie wahrscheinlich ist es die doppelköpfige? Als Bruch."
+    answer:
+      value: 2/{{k + 1}}
+    feedback:
+      - when: numval(state.input) == 1 / k
+        misconception: ignore-evidence
+        text: Das ist der Prior. Der Kopf-Wurf spricht für die doppelköpfige.
+    hints:
+      - "Stell dir 2 Würfe pro Münze vor: Die doppelköpfige gibt 2 Köpfe, jede faire 1."
+      - "Köpfe insgesamt: 2 + {{k - 1}} = {{k + 1}}."
+    explanation: 2 von {{k + 1}} Köpfen stammen von der doppelköpfigen. Natürliche Häufigkeiten machen Bayes zur Strichliste.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,3,4,5,7,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Schublade mit 3 Münzen (2 fair, 1 doppelköpfig). Du wirfst die gezogene Münze **zweimal**: zweimal Kopf. Wie wahrscheinlich ist es die doppelköpfige? Als Bruch."
+    answer:
+      value: 2/3
+    hints:
+      - "Doppelköpfig: Chance 1 auf KK. Fair: Chance 1/4 auf KK."
+      - "Gewichte: 1/3 · 1 gegen 2/3 · 1/4 = 1/3 gegen 1/6."
+    explanation: "(1/3) : (1/3 + 1/6) = 2/3. Nach einem Kopf 1/2, nach zwei 2/3, nach zehn fast 100 %. Jeder Wurf **aktualisiert** die Einschätzung."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -100,6 +135,38 @@ steps:
     hints:
       - "Neue Chance: 10 zu 99. Das sind 10 von 109."
     explanation: 10/109 ≈ 9 %. In Chancen gerechnet ist Bayes eine einzige Multiplikation.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Laplace fragte: Die Sonne ging an n Tagen auf, nie nicht. Wie wahrscheinlich geht sie morgen auf? Seine **Folgeregel**: (Erfolge + 1) : (Versuche + 2). Wie groß ist das für 10 von 10? Als Bruch."
+    answer:
+      value: 11/12
+    hints:
+      - Erfolge 10, Versuche 10.
+      - "(10 + 1) : (10 + 2)."
+    explanation: 11/12. Die Regel folgt aus Bayes mit gleichverteiltem Prior. Sie sagt nie 100 % – selbst nach vielen Erfolgen bleibt Platz für eine Überraschung.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: "Zwei Hinweise kommen in einer Ärztin-Praxis an: erst Blutwert, dann Röntgenbild. Am Tag danach in anderer Reihenfolge. Was gilt für das Ergebnis nach Bayes?"
+    params:
+      options:
+        - label: Dasselbe – die Reihenfolge spielt keine Rolle
+          correct: true
+        - label: Der erste Hinweis zählt mehr
+          feedback: Bei Bayes nicht, bei Menschen oft schon.
+        - label: Der letzte Hinweis zählt mehr
+          feedback: Die Likelihoods werden einfach multipliziert.
+    hints:
+      - Bayes multipliziert die Chance mit jedem Likelihood-Verhältnis.
+      - Ist a · b dasselbe wie b · a?
+    explanation: Bei unabhängigen Hinweisen wird das **Posterior** von heute zum Prior von morgen. Wegen der Multiplikation ist die Reihenfolge egal.
     difficulty: 3
 
 srs:

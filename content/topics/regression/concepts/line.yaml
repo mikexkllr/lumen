@@ -5,7 +5,7 @@ summary: Eine Linie, die Daten zusammenfasst.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: anpassen
@@ -87,6 +87,41 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Vier Punkte: (1 | 1), (2 | 3), (3 | 2), (4 | 6). Mittelwerte: x = 2,5 und y = 3. Die Steigung der besten Geraden ist Σ(Δx · Δy) : Σ(Δx²). Wie groß ist sie?"
+    answer:
+      value: 1.4
+    hints:
+      - "Δx: −1,5; −0,5; 0,5; 1,5. Δy: −2; 0; −1; 3."
+      - Σ(Δx · Δy) = 3 + 0 − 0,5 + 4,5 = 7 und Σ(Δx²) = 5.
+    explanation: "7 : 5 = 1,4. Punkte weit weg vom Mittel (großes Δx) haben das meiste Gewicht."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Gerade geht durch den Schwerpunkt (2,5 | 3) und hat die Steigung 1,4. Wo schneidet sie die y-Achse?
+    answer:
+      value: -0.5
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: intercept-at-mean
+        text: Das ist der y-Wert bei x = 2,5, nicht bei x = 0.
+    hints:
+      - Geh von x = 2,5 nach x = 0 zurück.
+      - Rechne 3 − 1,4 · 2,5.
+    explanation: 3 − 3,5 = −0,5. Die Gerade lautet y = 1,4x − 0,5.
+    difficulty: 2
+
+  - kind: explain
+    id: da-d3
+    depth: 2
+    body: "Woher kommen diese Formeln? Man leitet die Summe der quadrierten Fehler nach Steigung und Achsenabschnitt ab und setzt beide Ableitungen null. Das ergibt zwei **Normalgleichungen**. Eine davon sagt: Die Residuen summieren sich zu null."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +137,50 @@ steps:
     hints:
       - R² ist das Quadrat des Korrelationskoeffizienten.
     explanation: Hier ist r = 0,8. Die übrigen 36 % stammen aus anderen Einflüssen oder Zufall.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Das **Bestimmtheitsmaß** ist R² = 1 − (Restfehler : Gesamtstreuung). Die Summe der quadrierten Residuen ist {{r}}, die quadrierten Abstände zum Mittel ergeben {{t}}. Wie groß ist R²?"
+    answer:
+      value: "{{1 - r / t}}"
+    feedback:
+      - when: numval(state.input) == r / t
+        misconception: unexplained-share
+        text: Das ist der Anteil, den die Gerade **nicht** erklärt. Zieh ihn von 1 ab.
+    hints:
+      - "Rechne {{r}} : {{t}}."
+      - Zieh das Ergebnis von 1 ab.
+    explanation: 1 − {{r / t}} = {{1 - r / t}}. Die Gerade erklärt {{100 - 100 * r / t}} % der Streuung von y.
+    difficulty: 3
+    variants:
+      params:
+        r: choice[2,4,5,10]
+        t: choice[20,25,40,50]
+      constraints:
+        - r < t
+        - isInt(100 * r / t)
+      defaults:
+        r: 4
+        t: 20
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Bei einer Geraden mit nur einer Einflussgröße gilt R² = r². Die Korrelation ist r = −0,5. Wie groß ist R²?
+    answer:
+      value: 0.25
+    feedback:
+      - when: numval(state.input) == -0.25
+        misconception: negative-square
+        text: Ein Quadrat ist nie negativ.
+    hints:
+      - Quadriere −0,5.
+      - (−0,5)² = 0,25.
+    explanation: "R² = 0,25: Nur ein Viertel der Streuung wird erklärt, obwohl r = −0,5 nach viel klingt."
     difficulty: 3
 
 srs:

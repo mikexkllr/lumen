@@ -5,7 +5,7 @@ summary: Switching doubles your chance.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: wechseln
@@ -95,6 +95,52 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Now with four doors: you pick one. The host opens one of the other three – always a goat. You switch at random to one of the two remaining doors. What is your chance? As a fraction."
+    answer:
+      value: 3/8
+    feedback:
+      - when: numval(state.input) == 1 / 4
+        misconception: stay-chance
+        text: That is the chance if you stay. Switching is better.
+      - when: numval(state.input) == 1 / 2
+        misconception: fifty-fifty
+        text: The two doors share 3/4 between them, not 1.
+    hints:
+      - With 3/4 the car is behind one of the three other doors.
+      - After the opening two doors share those 3/4.
+    explanation: 3/4 ÷ 2 = 3/8 – more than the 1/4 for staying. The host's knowledge pushes probability onto the closed doors.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: buckets
+    prompt: What is the chance of winning by switching?
+    params:
+      buckets:
+        - id: b1
+          label: 1/2
+        - id: b2
+          label: 2/3
+      items:
+        - label: Host knows, shows a goat
+          bucket: b2
+        - label: Host trips, a goat shows up
+          bucket: b1
+        - label: "A guest opens blindly: goat"
+          bucket: b1
+        - label: Host must always show a goat
+          bucket: b2
+    hints:
+      - What matters is whether the goat was shown on purpose.
+      - Goats revealed by chance say nothing about your door.
+    explanation: Only a host who knows and must always open a goat makes switching 2/3. If someone opens at random, it stays 1/2 to 1/2.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +156,25 @@ steps:
     hints:
       - It is the same problem as with the goats.
     explanation: The guard plays the host, A’s “door” is the first pick. The same structure in a different guise.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: You pick door 1. The host knows and **always** opens door 3 when he is allowed. Today he opens door 2. What is the chance if you switch to door 3?
+    params:
+      options:
+        - label: 100 % – otherwise he would have opened door 3
+          correct: true
+        - label: The host's preference reveals more here.
+          feedback: Die Vorliebe des Moderators verrät hier mehr.
+        - label: Check when he would open door 2 at all.
+          feedback: Prüfe, wann er Tür 2 überhaupt öffnet.
+    hints:
+      - When does he open door 2 although he prefers door 3?
+      - Only if the car is behind door 3.
+    explanation: He only falls back to door 2 when door 3 hides the car. The probability depends on how the information arises – that is Bayes.
     difficulty: 3
 
 srs:

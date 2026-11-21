@@ -5,7 +5,7 @@ summary: At least once? Calculate backward.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: gegenteil
@@ -68,6 +68,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: You roll a die {{n}} times. How likely is at least one 6? In percent, to one decimal.
+    answer:
+      value: "{{100 * (1 - (5 / 6) ** n)}}"
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 100 * n / 6) < 0.2
+        misconception: add-chances
+        text: Simply adding chances fails – with 7 rolls you would get over 100 %.
+    hints:
+      - "First compute the chance of no 6: (5/6) to the power {{n}}."
+      - Subtract the result from 1.
+    explanation: 1 − (5/6)^{{n}} ≈ {{round(1000 * (1 - (5 / 6) ** n)) / 10}} %. The opposite of »at least one 6« is »not a single 6«.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,8]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many rolls do you need for at least one 6 with more than 90 % chance?"
+    params:
+      min: 1
+      max: 40
+    answer:
+      value: 13
+      tolerance: 2
+    explanation: (5/6)¹² ≈ 11 %, (5/6)¹³ ≈ 9.3 %. Only from 13 rolls on is »at least one 6« above 90 %.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -80,6 +117,32 @@ steps:
     hints:
       - 1 − 0.366.
     explanation: About 63% – that is 1 − 1/e. A “hundred-year flood” is by no means certain within 100 years.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Three dice. How likely do at least two show the same number? As a fraction.
+    answer:
+      value: 4/9
+    hints:
+      - "Complement: all three different. That is 6 · 5 · 4 out of 216."
+      - 120/216 = 5/9. Subtract that from 1.
+    explanation: 1 − 5/9 = 4/9. That is the birthday paradox in miniature – with 6 instead of 365 days.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: "Among 300 patients a side effect never occurred. The rule of three says: with 95 % confidence its rate is below 3/n. Where is this limit, in percent?"
+    answer:
+      value: 1
+    hints:
+      - Compute 3 ÷ 300.
+      - 0.01 is what percent?
+    explanation: "3/300 = 1 %. Reason: (1 − p)ⁿ = 5 % gives p ≈ 3/n, since ln 0.05 ≈ −3. »Never seen« does not mean »does not exist«."
     difficulty: 3
 
 srs:

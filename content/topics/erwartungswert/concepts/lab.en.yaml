@@ -47,6 +47,42 @@ steps:
     explanation: x = 17 € – then the wheel pays back exactly the stake on average.
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: distribution
+    prompt: A wheel pays 0 € (half the wheel), 2 € (a quarter) or 6 € (a quarter). Spin it at least 100 times.
+    params:
+      items:
+        - label: 0 €
+          weight: 2
+        - label: 2 €
+          weight: 1
+        - label: 6 €
+          weight: 1
+    check:
+      predicate: draws >= 100
+    hints:
+      - Use the button for 100 spins.
+      - Roughly note how often each payout came up.
+    explanation: Half the spins pay nothing. Still the wheel pays on average – see the next task.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: How much does this wheel pay per spin on average?
+    params:
+      unit: €
+    answer:
+      value: 2
+    hints:
+      - Compute 0 · ½ + 2 · ¼ + 6 · ¼.
+      - 0.5 + 1.5.
+    explanation: 0 + 0.5 + 1.5 = 2 €. If a spin costs 2 €, the game is fair.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -75,6 +111,24 @@ steps:
           - protect
           - schutz
       sample: On average you lose a little money with insurance. But it protects against a rare, huge loss you could not bear alone – you swap a small certain loss for a ruinous risk.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: What is the standard deviation of this wheel? To two decimals. (E(X²) = 0 · ½ + 4 · ¼ + 36 · ¼)
+    answer:
+      value: 2.45
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 6) < 0.01
+        misconception: variance-not-sd
+        text: That is the variance. Now take the root.
+    hints:
+      - E(X²) = 1 + 9 = 10. Variance = 10 − 2².
+      - Take the square root of 6.
+    explanation: Variance 10 − 4 = 6, so σ = √6 ≈ 2.45 €. A wheel paying a fixed 2 € has the same mean but σ = 0.
     difficulty: 3
 
 srs:

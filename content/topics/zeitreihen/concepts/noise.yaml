@@ -5,7 +5,7 @@ summary: Zufall von echten Änderungen trennen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: einzeltag
@@ -58,6 +58,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Messwert schwankt mit σ = {{s}}. Du mittelst {{n}} Messungen. Wie stark schwankt der Mittelwert?
+    answer:
+      value: "{{s / sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == s / n
+        misconception: divide-by-n
+        text: Durch n zu teilen ist zu optimistisch. Rauschen sinkt mit √n.
+    hints:
+      - Das Rauschen schrumpft mit der Wurzel aus n.
+      - "Rechne {{s}} : {{sqrt(n)}}."
+    explanation: "{{s}} : {{sqrt(n)}} = {{s / sqrt(n)}}. Das ist der **Standardfehler** des Mittelwerts."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[6,10,12,20]
+        n: choice[4,16,25,100]
+      defaults:
+        s: 12
+        n: 16
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine **Kontrollkarte** setzt Grenzen bei Mittelwert ± 3σ. Die Fehlerquote liegt im Schnitt bei 50 mit σ = 2. Wo liegt die obere Grenze?
+    answer:
+      value: 56
+    hints:
+      - 3σ = 6.
+      - Rechne 50 + 6.
+    explanation: 50 + 6 = 56. Liegt ein Tag darüber, lohnt sich ein Blick. Werte innerhalb der Grenzen sind normales Rauschen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -67,6 +104,39 @@ steps:
     hints:
       - √n soll 10 sein.
     explanation: 100 Messungen. So holen Astronomen schwache Signale aus dem Rauschen – durch stundenlanges Belichten.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Bei reinem Rauschen liegt ein Wert mit 0,27 % Chance außerhalb von ± 3σ. Wie viele Fehlalarme erwartest du in 1000 Tagen? Gerundet.
+    answer:
+      value: 3
+      tolerance: 0.5
+    hints:
+      - Rechne 1000 · 0,0027.
+      - 2,7 – gerundet?
+    explanation: Etwa 3 Fehlalarme. Darum ergänzt man Regeln wie »7 Werte hintereinander über dem Mittel« – sie finden Verschiebungen, die einzelne Ausreißer verpassen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: "Du addierst jeden Tag einen zufälligen Münzwurf: +1 oder −1. Nach 100 Tagen sieht die Kurve aus wie ein klarer Trend. Was ist das?"
+    params:
+      options:
+        - label: Eine Irrfahrt – Zufall, der sich aufsummiert, wirkt wie ein Trend
+          correct: true
+        - label: Ein echter Trend
+          feedback: Jeder Schritt war ein fairer Münzwurf.
+        - label: Ein Saisonmuster
+          feedback: Nichts wiederholt sich regelmäßig.
+    hints:
+      - Jeder Tag startet dort, wo der letzte aufhörte.
+      - Summen von Zufall wandern weg – typisch um √n.
+    explanation: Eine **Irrfahrt** wandert nach 100 Schritten typisch etwa 10 weg. Aktienkurse ähneln ihr. Wer darin Trends sieht, sieht oft nur Zufall.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Ergebnis mal Wahrscheinlichkeit, dann addieren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wuerfelspiel
@@ -102,6 +102,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Spiel kostet 1 €. Bei einer 6 bekommst du {{g}} €, sonst nichts. Wie hoch ist dein Gewinn pro Spiel im Schnitt? Minus heißt Verlust.
+    params:
+      unit: €
+    answer:
+      value: "{{g / 6 - 1}}"
+    feedback:
+      - when: numval(state.input) == g / 6
+        misconception: forgot-stake
+        text: Den Einsatz von 1 € musst du noch abziehen.
+    hints:
+      - Im Schnitt zahlt das Spiel {{g}} · 1/6 aus.
+      - "Zieh den Einsatz ab: {{g / 6}} − 1."
+    explanation: "{{g}}/6 − 1 = {{g / 6 - 1}} €. Bei einer Auszahlung von 6 € wäre das Spiel genau fair."
+    difficulty: 2
+    variants:
+      params:
+        g: choice[3,6,9,12,18]
+      defaults:
+        g: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: Du wirfst drei Würfel und addierst. Welche Augensumme erwartest du im Schnitt?
+    answer:
+      value: 10.5
+    hints:
+      - Ein Würfel bringt im Schnitt 3,5.
+      - Erwartungswerte darf man einfach addieren.
+    explanation: "3 · 3,5 = 10,5. Die **Linearität**: E(X + Y) = E(X) + E(Y) – sogar, wenn X und Y voneinander abhängen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +154,33 @@ steps:
     hints:
       - ½ · 2 + ¼ · 4 + ⅛ · 8 + …
     explanation: "Trotzdem würde kaum jemand 100 € Einsatz zahlen. Das Paradox zeigt: Der Nutzen von Geld wächst nicht linear."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Die Varianz eines Würfels ist E(X²) − E(X)². Es gilt E(X²) = 91/6 und E(X) = 3,5. Wie groß ist die Varianz? Als Bruch.
+    answer:
+      value: 35/12
+      tolerance: 0.01
+    hints:
+      - 3,5² = 49/4.
+      - "Bring beides auf den Nenner 12: 182/12 − 147/12."
+    explanation: 91/6 − 49/4 = 35/12 ≈ 2,92. Die Standardabweichung ist √(35/12) ≈ 1,71 Augen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Zehn Briefe werden zufällig in zehn adressierte Umschläge gesteckt. Wie viele landen im Schnitt im richtigen Umschlag?
+    answer:
+      value: 1
+    hints:
+      - Jeder einzelne Brief trifft mit Chance 1/10.
+      - Addiere die Erwartung für alle zehn Briefe.
+    explanation: "10 · 1/10 = 1 – und das für jede Zahl von Briefen! Der Trick: Zähle jeden Brief einzeln mit 0 oder 1 und nutze die Linearität."
     difficulty: 3
 
 srs:

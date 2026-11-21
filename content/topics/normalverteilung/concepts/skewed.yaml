@@ -5,7 +5,7 @@ summary: Schiefe Verteilungen und der Median.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: form
@@ -69,6 +69,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: buckets
+    prompt: Wie ist diese Größe meist verteilt?
+    params:
+      buckets:
+        - id: b1
+          label: Langer Schwanz rechts
+        - id: b2
+          label: Langer Schwanz links
+        - id: b3
+          label: Etwa symmetrisch
+      items:
+        - label: Einkommen
+          bucket: b1
+        - label: Wartezeit beim Arzt
+          bucket: b1
+        - label: Sterbealter in reichen Ländern
+          bucket: b2
+        - label: Punkte in einem sehr leichten Test
+          bucket: b2
+        - label: Körpergröße von Erwachsenen
+          bucket: b3
+        - label: Messfehler einer Waage
+          bucket: b3
+    hints:
+      - Gibt es eine harte Grenze nach unten oder oben?
+      - Bei einem leichten Test stoßen viele an die volle Punktzahl.
+    explanation: "Grenzen erzeugen **Schiefe**: Einkommen können nicht unter null, Punkte nicht über das Maximum. Bei rechtsschiefen Daten liegt der Mittelwert über dem Median."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Werte: 10, 100, 1000. Das **geometrische Mittel** ist die dritte Wurzel aus dem Produkt. Wie groß ist es?"
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 370
+        misconception: arithmetic-mean
+        text: Das ist das arithmetische Mittel. Es wird von der 1000 nach oben gezogen.
+    hints:
+      - "Produkt: 10 · 100 · 1000 = 1 000 000."
+      - Welche Zahl hoch drei ergibt eine Million?
+    explanation: ∛1 000 000 = 100. Im Logarithmus liegen die Werte bei 1, 2, 3 – schön symmetrisch. Für schiefe, positive Daten ist das geometrische Mittel oft das bessere »typisch«.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -86,6 +135,25 @@ steps:
           - average
       min: 3
       sample: Bei einer Normalverteilung liegen etwa 68 % der Werte höchstens eine Standardabweichung vom Mittelwert entfernt und 95 % höchstens zwei. Beim IQ mit Mittelwert 100 und σ = 15 liegen also 95 % zwischen 70 und 130.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Viele kleine Zufälle, die man **addiert**, ergeben eine Glocke. Was kommt heraus, wenn man viele kleine Zufallsfaktoren **malnimmt** – etwa Zinsen?
+    params:
+      options:
+        - label: "Eine Log-Normalverteilung: rechtsschief, ihr Logarithmus ist glockenförmig"
+          correct: true
+        - label: Auch eine Glocke
+          feedback: Produkte verhalten sich anders als Summen.
+        - label: Eine Gleichverteilung
+          feedback: Wiederholtes Multiplizieren erzeugt Schiefe, keine Gleichheit.
+    hints:
+      - Der Logarithmus macht aus einem Produkt eine Summe.
+      - Und Summen vieler Zufälle werden zur Glocke.
+    explanation: log(Produkt) = Summe der Logs → Glocke. Das Produkt selbst ist **log-normal** verteilt. Das passt zu Einkommen, Stadtgrößen und Aktienkursen.
     difficulty: 3
 
 srs:

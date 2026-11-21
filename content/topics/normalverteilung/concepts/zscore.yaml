@@ -5,7 +5,7 @@ summary: Äpfel mit Birnen vergleichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "IQ-Werte: μ = 100, σ = 15. Ab welchem IQ gehört man zu den obersten 2,5 %?"
+    answer:
+      value: 130
+    hints:
+      - Über μ + 2σ liegen 2,5 %.
+      - Rechne 100 + 2 · 15.
+    explanation: "100 + 30 = 130. Vom Anteil zum Wert: erst den z-Wert finden, dann x = μ + z · σ."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: buckets
+    prompt: Wie ungewöhnlich ist dieser z-Wert bei einer Normalverteilung?
+    params:
+      buckets:
+        - id: b1
+          label: Üblich (|z| < 2)
+        - id: b2
+          label: Auffällig (2 bis 3)
+        - id: b3
+          label: Extrem (über 3)
+      items:
+        - label: z = 0,5
+          bucket: b1
+        - label: z = −1,2
+          bucket: b1
+        - label: z = 2,4
+          bucket: b2
+        - label: z = −2,7
+          bucket: b2
+        - label: z = 3,8
+          bucket: b3
+        - label: z = −4,5
+          bucket: b3
+    hints:
+      - Nur das Vorzeichen sagt oben oder unten. Für die Seltenheit zählt der Betrag.
+      - "|−2,7| = 2,7 liegt zwischen 2 und 3."
+    explanation: Über |z| = 2 liegen 5 %, über |z| = 3 nur 0,3 %. Werte jenseits von 4 sind bei echter Glocke fast unmöglich – oft ein Hinweis auf Fehler oder dicke Ränder.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +158,44 @@ steps:
     hints:
       - Wie viel liegt außerhalb von 3 σ? Und 5 σ ist viel weiter draußen.
     explanation: In der Teilchenphysik gilt erst »5 Sigma« als Entdeckung – so beim Higgs-Teilchen 2012.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: sim
+    prompt: μ = 100 ist fest. Stell σ so ein, dass 115 genau bei z = 1,5 liegt – und lies ab, wie viel darunter liegt.
+    params:
+      scene: normal
+      interval:
+        - 0
+        - 115
+      controls:
+        mean:
+          value: 100
+          fixed: true
+    answer:
+      sd: 10
+    explanation: "1,5 = 15 : σ ergibt σ = 10. Unter z = 1,5 liegen etwa 93,3 %. So entstehen die Werte in z-Tabellen."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Du wandelst alle Testergebnisse einer Klasse in z-Werte um. Welchen Mittelwert und welche Standardabweichung haben die z-Werte?
+    params:
+      options:
+        - label: Mittelwert 0, Standardabweichung 1 – immer
+          correct: true
+        - label: Dieselben wie die Punkte
+          feedback: Die z-Werte sind verschoben und gestaucht.
+        - label: Das hängt von der Klasse ab
+          feedback: Die Umrechnung erzwingt 0 und 1.
+    hints:
+      - Was passiert, wenn du von jedem Wert μ abziehst?
+      - Und wenn du dann durch σ teilst?
+    explanation: Minus μ setzt das Mittel auf 0, geteilt durch σ setzt die Streuung auf 1. Das heißt **Standardisieren** – die Form der Verteilung bleibt gleich.
     difficulty: 3
 
 srs:

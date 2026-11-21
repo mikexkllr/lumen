@@ -5,7 +5,7 @@ summary: On average, six rolls until a six.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: sechs
@@ -63,6 +63,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: How likely is it that the first 6 comes exactly on the third roll? As a fraction.
+    answer:
+      value: 25/216
+    hints:
+      - The first two rolls are not a 6, the third is.
+      - 5/6 · 5/6 · 1/6.
+    explanation: (5/6)² · 1/6 = 25/216 ≈ 11.6 %. That is the geometric distribution. Its expected value is 1/p = 6.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: an album has 50 different stickers; each pack has one at random. How many packs do you need on average for all 50?"
+    params:
+      min: 50
+      max: 1000
+    answer:
+      value: 225
+      within: 20
+    explanation: "50 · (1/50 + 1/49 + … + 1/1) ≈ 50 · 4.5 ≈ 225. The last stickers cost the most: for the very last one you wait 50 packs on average."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -78,6 +105,42 @@ steps:
     hints:
       - Long gaps take up more time – you land in them more often.
     explanation: The **waiting time paradox**. With completely random gaps you even wait a full 10 minutes on average.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: You flip a coin until two heads in a row appear (HH). How many flips does it take on average?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: hh-vs-ht
+        text: 4 flips is the average for HT. HH takes longer.
+    hints:
+      - After a miss T you start over. After HT as well.
+      - Let E be the waiting time. Then E = ½(1 + E) + ¼(2 + E) + ¼ · 2.
+    explanation: Solving the equation gives E = 6. For HT it is only 4 flips, although both patterns have probability 1/4.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Why do you wait longer for HH than for HT, although both are equally likely?
+    params:
+      options:
+        - label: With HH a miss destroys your progress, with HT it does not
+          correct: true
+        - label: The coin is fair.
+          feedback: Die Münze ist fair.
+        - label: Simulations show 6 versus 4.
+          feedback: Simulationen zeigen 6 gegen 4.
+    hints:
+      - You already have an H. What happens on the next T?
+      - "With HT: after H you just wait for T – another H does no harm."
+    explanation: With HT, an H after an H is still a good start. With HH a T resets everything. Patterns that overlap themselves wait differently – important for searching DNA and text.
     difficulty: 3
 
 srs:

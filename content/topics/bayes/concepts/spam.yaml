@@ -5,7 +5,7 @@ summary: Wörter als Beweise.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -70,6 +70,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: »Gratis« steht in 40 % der Spam-Mails und in 1 % der normalen. Wie groß ist das Likelihood-Verhältnis für dieses Wort?
+    answer:
+      value: 40
+    hints:
+      - Teile die Häufigkeit in Spam durch die in normalen Mails.
+      - "40 % : 1 %."
+    explanation: "Faktor 40: Das Wort ist in Spam 40-mal so häufig. Jedes Mal, wenn es vorkommt, wird die Spam-Chance mal 40 genommen."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Nur 20 % aller Mails sind Spam – die Chance steht also 1 : 4. Eine Mail enthält »Gratis« (Faktor 40). Wie wahrscheinlich ist sie Spam? In Prozent, auf eine Stelle."
+    answer:
+      value: 90.9
+      tolerance: 0.1
+    hints:
+      - "Neue Chance: 1 : 4 · 40 = 40 : 4 = 10 : 1."
+      - "Wahrscheinlichkeit = 10 : (10 + 1)."
+    explanation: 10/11 ≈ 90,9 %. Bei einer Basisrate von 50 % wären es 97,6 %. Der Prior zählt immer mit.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -85,6 +112,44 @@ steps:
     hints:
       - »Gratis« und »Gewinn« treten oft gemeinsam auf.
     explanation: Die Annahme ist falsch – und funktioniert trotzdem erstaunlich gut. Ein einfaches, robustes Modell schlägt oft ein kompliziertes.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Das Wort »Zebrastreifen« kam beim Lernen in keiner einzigen Spam-Mail vor. Der Filter rechnet mit 0 %. Was passiert bei einer Spam-Mail mit diesem Wort?
+    params:
+      options:
+        - label: Sie gilt als sicher kein Spam – egal welche anderen Wörter drinstehen
+          correct: true
+        - label: Nichts, ein Wort fällt nicht ins Gewicht
+          feedback: Mal null bleibt null.
+        - label: Sie wird sicher als Spam erkannt
+          feedback: Die Null wirkt in die andere Richtung.
+    hints:
+      - Bayes multipliziert. Was ergibt eine Multiplikation mit 0?
+      - Man zählt darum zu jedem Wort eine kleine Zahl dazu.
+    explanation: Ein einziges unbekanntes Wort würde alles auf null setzen. Die **Laplace-Glättung** zählt jedes Wort einmal extra – dann ist nichts unmöglich.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Echte Filter rechnen mit dem Logarithmus der Likelihood-Verhältnisse und addieren sie. Warum?
+    params:
+      options:
+        - label: Produkte vieler kleiner Zahlen werden für den Computer zu null – Summen nicht
+          correct: true
+        - label: Logarithmen sind genauer als die Wahrheit
+          feedback: Mathematisch ist es dasselbe Ergebnis.
+        - label: Damit Wörter weniger zählen
+          feedback: Jedes Wort zählt genau gleich viel wie vorher.
+    hints:
+      - log(a · b) = log a + log b.
+      - Was passiert, wenn man 1000 Zahlen wie 0,001 malnimmt?
+    explanation: "Im **Log-Odds**-Raum wird Bayes zur Addition: Jedes Wort gibt Punkte für oder gegen Spam. Das ist schnell und numerisch stabil."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Was die Reste verraten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -95,6 +95,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Die Residuen dreier Punkte sind {{a}}, −{{b}} und {{b - a}}. Wie groß ist die Summe ihrer Quadrate?
+    answer:
+      value: "{{a * a + b * b + (b - a) * (b - a)}}"
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-square
+        text: Die Residuen selbst summieren sich zu null – deshalb quadriert man sie.
+    hints:
+      - Quadriere jedes Residuum einzeln.
+      - "{{a * a}} + {{b * b}} + {{(b - a) * (b - a)}}."
+    explanation: Die Summe ist {{a * a + b * b + (b - a) * (b - a)}}. Genau diese Zahl macht die beste Gerade so klein wie möglich.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,4]
+        b: int[1,5]
+      constraints:
+        - a != b
+      defaults:
+        a: 1
+        b: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Bei Monatsdaten sind die Residuen erst monatelang positiv, dann monatelang negativ. Was verrät das?
+    params:
+      options:
+        - label: Das Modell übersieht ein zeitliches Muster – die Fehler hängen zusammen
+          correct: true
+        - label: Alles in Ordnung, Fehler sind eben da
+          feedback: Gute Residuen springen zufällig hin und her.
+        - label: Die Gerade ist zu steil
+          feedback: Eine falsche Steigung erzeugt einen Trend in den Residuen, keine Wellen.
+    hints:
+      - Wie sähen rein zufällige Fehler aus?
+      - Lange Serien gleicher Vorzeichen sind kein Zufall.
+    explanation: Zusammenhängende Fehler heißen **Autokorrelation**. Dann sind auch die Fehlerspannen des Modells zu optimistisch.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +155,46 @@ steps:
     hints:
       - Gleiche Zahlen, andere Bilder.
     explanation: Erst zeichnen, dann rechnen. Die Residuen zeigen, was die Gerade verschweigt.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Die Residuen sind 3, −1, −3 und 1. Der **RMSE** ist die Wurzel aus dem mittleren quadrierten Residuum. Wie groß ist er? Auf zwei Stellen.
+    answer:
+      value: 2.24
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: mse-not-rmse
+        text: Das ist der mittlere quadrierte Fehler. Zieh noch die Wurzel.
+      - when: numval(state.input) == 2
+        misconception: mae-not-rmse
+        text: Das ist der mittlere absolute Fehler. Der RMSE gewichtet große Fehler stärker.
+    hints:
+      - "Quadrate: 9 + 1 + 9 + 1 = 20. Mittel: 5."
+      - Zieh die Wurzel aus 5.
+    explanation: √5 ≈ 2,24. Der RMSE ist die typische Größe eines Vorhersagefehlers – in der Einheit von y.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Punkt liegt bei x weit außerhalb aller anderen – genau auf der Geraden der übrigen. Ein zweiter liegt mittendrin, aber weit über der Geraden. Welcher hat mehr **Hebelwirkung**?
+    params:
+      options:
+        - label: Der weit außen in x – er kann die Gerade kippen
+          correct: true
+        - label: Der über der Geraden
+          feedback: Er hat ein großes Residuum, aber in der Mitte wenig Hebel.
+        - label: Beide gleich
+          feedback: Hebel hängt nur vom Abstand in x ab.
+    hints:
+      - "Denk an eine Wippe: Wo wirkt ein Gewicht am stärksten?"
+      - Großes Δx bedeutet großes Gewicht in der Steigungsformel.
+    explanation: Hebel hängt vom Abstand in x ab. Ein Punkt mit großem Hebel **und** großem Residuum ist einflussreich – man prüft ihn mit Maßen wie der Cook-Distanz.
     difficulty: 3
 
 srs:

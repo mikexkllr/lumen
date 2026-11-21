@@ -5,7 +5,7 @@ summary: When false alarms outnumber true hits.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: bauchgefuehl
@@ -87,6 +87,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Of 10,000 people, {{s}} are ill. A test detects 90 % of the ill and gives a false alarm for 5 % of the healthy. What percent of the positives are ill? Rounded.
+    answer:
+      value: "{{100 * 0.9 * s / (0.9 * s + 0.05 * (10000 - s))}}"
+      tolerance: 0.6
+    hints:
+      - "True positives: {{0.9 * s}}. False positives: 5 % of {{10000 - s}} = {{0.05 * (10000 - s)}}."
+      - Divide the true positives by all positives.
+    explanation: "{{0.9 * s}} ÷ ({{0.9 * s}} + {{0.05 * (10000 - s)}}) ≈ {{round(100 * 0.9 * s / (0.9 * s + 0.05 * (10000 - s)))}} %. The rarer the disease, the more false alarms among the positives."
+    difficulty: 2
+    variants:
+      params:
+        s: choice[100,500,1000,2000]
+      defaults:
+        s: 100
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +121,50 @@ steps:
     hints:
       - "Of 10,000 people: 1 sick, but 100 false-positive healthy ones."
     explanation: "That is why risk groups are tested specifically: there the base rate is higher and the test meaningful."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: The same test (1000 people, 10 ill, 9 detected, 89 false alarms). Someone tests negative. How sure is it that they are healthy?
+    params:
+      options:
+        - label: Very sure – above 99.8 %
+          correct: true
+        - label: 91 % is the share of healthy people who test negative. The question asks the reverse.
+          feedback: 91 % ist der Anteil der Gesunden, die negativ testen. Gefragt ist der umgekehrte Anteil.
+        - label: Negative results are very reliable here.
+          feedback: Negative Ergebnisse sind hier sehr verlässlich.
+    hints:
+      - How many test negative? 1 ill and 901 healthy.
+      - Compute 901 ÷ 902.
+    explanation: 901/902 ≈ 99.9 %. For rare diseases a negative test says far more than a positive one.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: teach
+    prompt: Using 1000 people, explain to Lux why a positive test for a rare disease is often a false alarm.
+    params:
+      keywords:
+        - - "1000"
+          - tausend
+          - thousand
+        - - gesund
+          - fehlalarm
+          - falsch
+          - healthy
+          - "false"
+        - - selten
+          - basisrate
+          - wenige
+          - rare
+          - base rate
+          - few
+      sample: Of 1000 people only 10 are ill; the disease is rare. 9 of them test positive. But of the 990 healthy, 89 also test false positive. So only 9 of 98 positives are ill.
+    explanation: The many healthy people create more false alarms than there are ill people at all. Natural frequencies make this visible.
     difficulty: 3
 
 srs:

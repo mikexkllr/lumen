@@ -5,7 +5,7 @@ summary: Why the mean does not tell you everything.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: teams
@@ -95,6 +95,81 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Values: 4, 8, 6, 2. The mean is 5. What is the variance (mean of squared distances)?"
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: forgot-divide
+        text: That is the sum of squares. Now divide by 4.
+    hints:
+      - "Distances: −1, 3, 1, −3."
+      - "Squares: 1 + 9 + 1 + 9 = 20. Divide by 4."
+    explanation: 20 ÷ 4 = 5, so σ = √5 ≈ 2.24.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "A sample: 1, 3, 5. The sample standard deviation divides by n − 1. What is it?"
+    answer:
+      value: 2
+    feedback:
+      - when: abs(numval(state.input) - 1.633) < 0.01
+        misconception: divide-by-n
+        text: You divided by n = 3. For samples divide by n − 1 = 2.
+    hints:
+      - Mean 3, squares 4 + 0 + 4 = 8.
+      - 8 ÷ 2 = 4. Take the root.
+    explanation: √(8/2) = 2. With n it would be √(8/3) ≈ 1.63 – too small, because the sample mean sits right in the middle of the data.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: chart
+    prompt: Set the four bars so that the mean is 5 and the variance is exactly 8.
+    params:
+      labels:
+        - A
+        - B
+        - C
+        - D
+      values:
+        - 5
+        - 5
+        - 5
+        - 5
+      editable:
+        - 0
+        - 1
+        - 2
+        - 3
+      min: 0
+      max: 10
+      step: 1
+      show:
+        - mean
+    check:
+      predicate: avg == 5 && ((values[0] - 5) ** 2 + (values[1] - 5) ** 2 + (values[2] - 5) ** 2 + (values[3] - 5) ** 2) / 4 == 8
+    solution:
+      state:
+        values:
+          - 9
+          - 5
+          - 5
+          - 1
+    hints:
+      - The sum of squares must be 4 · 8 = 32.
+      - "Try it with just two bars: one 4 higher, one 4 lower."
+    explanation: "For example 9, 5, 5, 1: squares 16 + 0 + 0 + 16 = 32, divided by 4 is 8. Other solutions are possible too."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +185,23 @@ steps:
     hints:
       - The mean was estimated from the same data.
     explanation: "**Bessel’s correction**. One “degree of freedom” is already used up by the mean."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Temperatures vary with σ = 3 °C. What is σ in Fahrenheit? (°F = 1.8 · °C + 32)
+    answer:
+      value: 5.4
+    feedback:
+      - when: numval(state.input) == 37.4
+        misconception: shift-changes-sd
+        text: The + 32 only shifts all values – it does not touch the spread.
+    hints:
+      - What does the + 32 do to the distances?
+      - Only the factor 1.8 matters.
+    explanation: σ(aX + b) = |a| · σ(X) = 1.8 · 3 = 5.4 °F. The variance grows with a² = 3.24.
     difficulty: 3
 
 srs:

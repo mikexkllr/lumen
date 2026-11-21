@@ -5,7 +5,7 @@ summary: Ein Wert, der alles verzerrt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: millionaer
@@ -77,6 +77,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Faustregel: Ausreißer liegen mehr als 1,5 Quartilsabstände über dem oberen Quartil. Unteres Quartil {{q}}, oberes {{q + d}}. Ab welchem Wert ist ein Punkt oben ein Ausreißer?"
+    answer:
+      value: "{{q + d + 1.5 * d}}"
+    hints:
+      - Der Quartilsabstand ist {{d}}.
+      - Rechne {{q + d}} + 1,5 · {{d}}.
+    explanation: "{{q + d}} + 1,5 · {{d}} = {{q + d + 1.5 * d}}. So zeichnet auch der Boxplot seine Ausreißer-Punkte."
+    difficulty: 2
+    variants:
+      params:
+        q: step[10,40,5]
+        d: choice[4,6,10,20]
+      defaults:
+        q: 20
+        d: 10
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: swipe
+    prompt: Echter Wert oder eher ein Fehler?
+    params:
+      cards:
+        - text: "Körpergröße eines Erwachsenen: 17 cm"
+          right: false
+          why: Vermutlich fehlt eine Ziffer.
+        - text: Vermögen eines Milliardärs in einer Einkommensumfrage
+          right: true
+          why: Selten, aber echt – und wichtig.
+        - text: "Alter eines Schulkinds: 107 Jahre"
+          right: false
+          why: Wohl ein Tippfehler.
+        - text: Ein Tag mit 40 °C im Hitzesommer
+          right: true
+          why: Extrem, aber möglich.
+      left: Fehler
+      right: Echt
+    explanation: Ein Ausreißer ist erst ein Hinweis. Ob er Fehler oder Fund ist, klärt nur der Blick in die Daten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -101,6 +145,42 @@ steps:
           - affect
           - robust
       sample: Wenn die Daten Ausreißer haben oder schief verteilt sind, etwa bei Einkommen. Extreme Werte verzerren den Mittelwert, während der Median als Wert in der Mitte fast unberührt bleibt.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Werte: 1, 2, 3, 4, 5, 6, 7, 8, 9, 100. Beim **getrimmten Mittelwert** streichst du oben und unten je 10 % der Werte und mittelst den Rest. Wie groß ist er?"
+    answer:
+      value: 5.5
+    feedback:
+      - when: numval(state.input) == 14.5
+        misconception: no-trim
+        text: Das ist der normale Mittelwert mit der 100.
+    hints:
+      - 10 % von 10 Werten ist ein Wert pro Seite.
+      - Streiche die 1 und die 100. Mittle 2 bis 9.
+    explanation: "(2 + … + 9) : 8 = 44 : 8 = 5,5. Der normale Schnitt wäre 14,5. Getrimmte Mittel nutzt man etwa bei Punktrichtern im Sport."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Messgerät meldet einen Wert, der weit außerhalb aller anderen liegt. Was ist der beste Umgang damit?
+    params:
+      options:
+        - label: Prüfen, dokumentieren und die Auswertung mit und ohne ihn zeigen
+          correct: true
+        - label: Sofort löschen, er stört nur
+          feedback: Wer stört, kann auch die wichtigste Entdeckung sein.
+        - label: Ignorieren, der Mittelwert gleicht das aus
+          feedback: Gerade der Mittelwert reagiert stark auf Ausreißer.
+    hints:
+      - Könnte der Wert echt sein?
+      - Ehrlich ist, beide Ergebnisse offen zu zeigen.
+    explanation: Stillschweigend löschen ist Datenkosmetik. Wer beide Auswertungen zeigt, lässt andere selbst urteilen.
     difficulty: 3
 
 srs:

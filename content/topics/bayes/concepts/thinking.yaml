@@ -5,7 +5,7 @@ summary: Meinungen klug anpassen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -101,6 +101,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Die Chance steht {{k}} : 1. Wie viel Prozent sind das?"
+    answer:
+      value: "{{100 * k / (k + 1)}}"
+    feedback:
+      - when: numval(state.input) == 100 * k / (k + 2)
+        misconception: odds-count
+        text: "Bei {{k}} : 1 gibt es {{k + 1}} Fälle insgesamt, nicht {{k + 2}}."
+    hints:
+      - "{{k}} : 1 heißt {{k}} günstige auf 1 ungünstigen Fall."
+      - "Rechne {{k}} : {{k + 1}}."
+    explanation: "{{k}}/{{k + 1}} = {{100 * k / (k + 1)}} %. **Chancen** und Wahrscheinlichkeiten sind zwei Schreibweisen derselben Überzeugung."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[1,3,4,9,19,99]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Hinweis hat das Likelihood-Verhältnis 1. Was bewirkt er?
+    params:
+      options:
+        - label: Nichts – er ist unter beiden Annahmen gleich wahrscheinlich
+          correct: true
+        - label: Er bestätigt die Hypothese
+          feedback: Bestätigen kann nur ein Verhältnis über 1.
+        - label: Er widerlegt die Hypothese
+          feedback: Widerlegen kann nur ein Verhältnis unter 1.
+    hints:
+      - Chance mal 1 ergibt …?
+      - Ein Hinweis zählt nur, wenn er zwischen den Möglichkeiten unterscheidet.
+    explanation: Ein Hinweis, der zu allem passt, sagt nichts. Die Frage ist nie »passt das?«, sondern »wie viel besser passt es zu A als zu B?«.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -116,6 +157,38 @@ steps:
     hints:
       - Jeder Hinweis verschiebt beide in dieselbe Richtung.
     explanation: "Darum ist es klug, nie absolut sicher zu sein: Dann können Daten dich noch korrigieren."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: Du startest bei 50 %. Ein Hinweis hat Faktor 3, ein zweiter Faktor 1/3. Wo landest du? In Prozent.
+    answer:
+      value: 50
+    hints:
+      - "Startchance 1 : 1."
+      - 1 · 3 · 1/3 = 1.
+    explanation: "Zurück bei 50 %. In **Log-Odds** sind das +log 3 und −log 3: Hinweise sind Schritte auf einer Skala, die sich aufheben können."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Jemand sucht nur nach Hinweisen, die seine Meinung bestätigen, und übersieht Gegenbeweise. Was verletzt er im Sinne von Bayes?
+    params:
+      options:
+        - label: Er nutzt nicht alle Daten – Bayes braucht jeden Hinweis, auch unbequeme
+          correct: true
+        - label: Nichts, Bayes erlaubt Vorwissen
+          feedback: Vorwissen ja, aber Hinweise dürfen nicht ausgesiebt werden.
+        - label: Er hat einen zu kleinen Prior
+          feedback: Das Problem liegt bei der Auswahl der Daten.
+    hints:
+      - Was passiert mit der Rechnung, wenn Gegenbeweise fehlen?
+      - Ausgesiebte Daten sind eine verzerrte Stichprobe.
+    explanation: Der **Bestätigungsfehler** füttert Bayes nur mit halben Daten. Dann wandert die Überzeugung immer in dieselbe Richtung – egal, was wahr ist.
     difficulty: 3
 
 srs:

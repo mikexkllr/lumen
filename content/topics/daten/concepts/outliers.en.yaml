@@ -5,7 +5,7 @@ summary: One value that distorts everything.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: millionaer
@@ -77,6 +77,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: outliers lie more than 1.5 interquartile ranges above the upper quartile. Lower quartile {{q}}, upper {{q + d}}. From which value is a point an outlier at the top?"
+    answer:
+      value: "{{q + d + 1.5 * d}}"
+    hints:
+      - The interquartile range is {{d}}.
+      - Compute {{q + d}} + 1.5 · {{d}}.
+    explanation: "{{q + d}} + 1.5 · {{d}} = {{q + d + 1.5 * d}}. This is how a box plot picks its outlier dots."
+    difficulty: 2
+    variants:
+      params:
+        q: step[10,40,5]
+        d: choice[4,6,10,20]
+      defaults:
+        q: 20
+        d: 10
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: swipe
+    prompt: Real value or more likely an error?
+    params:
+      cards:
+        - text: "Height of an adult: 17 cm"
+          right: false
+          why: Probably a digit is missing.
+        - text: A billionaire's wealth in a wealth survey
+          right: true
+          why: Rare, but real – and important.
+        - text: "Age of a schoolchild: 107 years"
+          right: false
+          why: Probably a typo.
+        - text: A day of 40 °C in a heatwave summer
+          right: true
+          why: Extreme, but possible.
+      left: Error
+      right: Real
+    explanation: An outlier is only a clue. Whether it is an error or a discovery, only a look at the data can tell.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -101,6 +145,42 @@ steps:
           - affect
           - robust
       sample: When the data have outliers or are skewed, as with incomes. Extreme values distort the mean, while the median as the middle value stays almost untouched.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Values: 1, 2, 3, 4, 5, 6, 7, 8, 9, 100. For the trimmed mean you drop 10 % of the values at each end and average the rest. What is it?"
+    answer:
+      value: 5.5
+    feedback:
+      - when: numval(state.input) == 14.5
+        misconception: no-trim
+        text: That is the ordinary mean including the 100.
+    hints:
+      - 10 % of 10 values is one value at each end.
+      - Drop the 1 and the 100. Average 2 to 9.
+    explanation: (2 + … + 9) ÷ 8 = 44 ÷ 8 = 5.5. The plain mean would be 14.5. Judges in sport use trimmed means, for example.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: An instrument reports a value far outside all the others. What is the best way to handle it?
+    params:
+      options:
+        - label: Check it, document it and show the analysis with and without it
+          correct: true
+        - label: What disturbs can also be the most important discovery.
+          feedback: Wer stört, kann auch die wichtigste Entdeckung sein.
+        - label: The mean in particular reacts strongly to outliers.
+          feedback: Gerade der Mittelwert reagiert stark auf Ausreißer.
+    hints:
+      - Could the value be real?
+      - The honest way is to show both results openly.
+    explanation: Deleting silently is cosmetic surgery on data. Showing both analyses lets others judge for themselves.
     difficulty: 3
 
 srs:

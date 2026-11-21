@@ -5,7 +5,7 @@ summary: Was jedes Jahr wiederkommt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -99,6 +99,53 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: Im Juli verkauft ein Laden {{v}} €. Der Juli liegt saisonal {{k}} % über dem Schnitt. Wie hoch ist der **saisonbereinigte** Umsatz?
+    params:
+      unit: €
+    answer:
+      value: "{{base}}"
+    feedback:
+      - when: numval(state.input) == v - v * k / 100
+        misconception: wrong-base
+        text: Die {{k}} % beziehen sich auf den Schnitt, nicht auf den Juli. Teile statt abzuziehen.
+    hints:
+      - Juli = Schnitt · {{(100 + k) / 100}}.
+      - Teile {{v}} durch {{(100 + k) / 100}}.
+    explanation: "{{v}} : {{(100 + k) / 100}} = {{base}} €. So vergleicht man Monate trotz Saison fair."
+    difficulty: 2
+    variants:
+      params:
+        base: choice[20000,30000,40000]
+        k: choice[20,25,50,60]
+      derive:
+        v: base * (100 + k) / 100
+      defaults:
+        base: 25000
+        k: 60
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Paket-Dienst meldet im Dezember 40 % mehr Pakete als im November. Was ist die beste Frage dazu?
+    params:
+      options:
+        - label: Wie stark war der Sprung im Vorjahr?
+          correct: true
+        - label: Warum ist das Geschäft so gut?
+          feedback: Vielleicht ist es jedes Jahr so – Weihnachten.
+        - label: Wie viele Pakete gingen verloren?
+          feedback: Das ist eine andere Frage.
+    hints:
+      - Was passiert jedes Jahr im Dezember?
+      - Erst der Vergleich mit dem Vorjahr zeigt, ob es mehr als Saison ist.
+    explanation: War der Sprung im Vorjahr 35 %, ist das Signal nur +5 Punkte. Der **Vorjahresvergleich** trennt Saison von echtem Wachstum.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -114,6 +161,44 @@ steps:
     hints:
       - Welcher Vergleich schaltet die Saison aus?
     explanation: Der **Vorjahresvergleich** hält die Saison konstant und zeigt den Trend.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Hotel hat im Sommer 200 Gäste mehr als im Winter – egal wie groß es ist. Ein anderes hat im Sommer 50 % mehr. Wie heißen die beiden Saison-Modelle?
+    params:
+      options:
+        - label: Additiv und multiplikativ
+          correct: true
+        - label: Linear und quadratisch
+          feedback: Das beschreibt Trends, nicht Saisonmuster.
+        - label: Signal und Rauschen
+          feedback: Beides ist hier Signal.
+    hints:
+      - Bleibt der Ausschlag gleich groß oder wächst er mit dem Niveau?
+      - Plus 200 gegen mal 1,5.
+    explanation: "Additiv: Trend + Saison. Multiplikativ: Trend · Saison – die Zacken wachsen mit. Mit dem Logarithmus wird aus multiplikativ additiv."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: Im Februar (28 Tage) macht ein Laden 2800 € Umsatz, im März (31 Tage) 3100 €. Um wie viel Prozent ist der März **pro Tag** besser?
+    params:
+      unit: "%"
+    answer:
+      value: 0
+    feedback:
+      - when: abs(numval(state.input) - 10.7) < 0.2
+        misconception: calendar-effect
+        text: Das ist der Unterschied der Monatssummen. Der März hat aber 3 Tage mehr.
+    hints:
+      - Teile jeden Umsatz durch die Zahl der Tage.
+      - "Februar: 100 € pro Tag. März?"
+    explanation: Beide Monate bringen 100 € pro Tag – der März ist nicht besser. **Kalendereffekte** wie Monatslänge oder Feiertage täuschen leicht Wachstum vor.
     difficulty: 3
 
 srs:

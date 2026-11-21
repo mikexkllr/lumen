@@ -5,7 +5,7 @@ summary: Was typisch ist und was selten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 2.5
       tolerance: 2
     explanation: Nur etwa 2,5 %. Die Ränder der Glocke sind sehr dünn.
-
 
   - kind: explain
     id: s1
@@ -90,6 +89,40 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "Normalverteilung: Wie viel Prozent der Werte liegen **über** μ + {{k}}σ? Nutze die 68-95-99,7-Regel."
+    answer:
+      value: "{{k == 1 ? 16 : (k == 2 ? 2.5 : 0.15)}}"
+      tolerance: 0.05
+    hints:
+      - "Innerhalb von {{k}}σ liegen {{k == 1 ? 68 : (k == 2 ? 95 : 99.7)}} %."
+      - Der Rest verteilt sich gleich auf beide Seiten.
+    explanation: "(100 − {{k == 1 ? 68 : (k == 2 ? 95 : 99.7)}}) : 2 = {{k == 1 ? 16 : (k == 2 ? 2.5 : 0.15)}} %. Die Glocke ist **symmetrisch**."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,3]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Prozent der Werte liegen **weiter** als eine Standardabweichung vom Mittelwert entfernt?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 32
+      tolerance: 4
+    explanation: 100 − 68 = 32 %. Fast jeder dritte Wert liegt außerhalb von ± 1σ – das ist ganz normal.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -99,6 +132,39 @@ steps:
     hints:
       - 0,3 % von 1 000 000.
     explanation: 3000 pro Million. Bei 6 σ sind es nur noch 3,4 – die Ränder fallen extrem schnell ab.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ohne Glockenkurve hilft **Tschebyschow**: Innerhalb von k σ liegt mindestens der Anteil 1 − 1/k². Wie viel Prozent sind es mindestens bei k = 3? Auf eine Stelle."
+    answer:
+      value: 88.9
+      tolerance: 0.1
+    hints:
+      - 1/k² = 1/9.
+      - 1 − 1/9 = 8/9.
+    explanation: Mindestens 88,9 % – für **jede** Verteilung. Bei der Glocke sind es 99,7 %. Die Faustregel gilt also nur, wenn die Daten wirklich normal sind.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: Statistiker sagen oft »95 % liegen innerhalb von 1,96 σ« statt »innerhalb von 2 σ«. Warum?
+    params:
+      options:
+        - label: 2 σ umfasst genau genommen 95,4 %; für exakt 95 % braucht man 1,96 σ
+          correct: true
+        - label: Weil 2 σ falsch ist
+          feedback: Die Faustregel ist nur gerundet, nicht falsch.
+        - label: Wegen der n − 1 bei Stichproben
+          feedback: Das ist eine andere Korrektur.
+    hints:
+      - Die 68-95-99,7-Regel ist gerundet.
+      - Wo liegt die Grenze für genau 95 %?
+    explanation: "Exakt: ± 1 σ → 68,3 %, ± 1,96 σ → 95,0 %, ± 2 σ → 95,4 %, ± 3 σ → 99,7 %. Für Konfidenzintervalle nimmt man 1,96."
     difficulty: 3
 
 srs:

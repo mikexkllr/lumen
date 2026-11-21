@@ -5,7 +5,7 @@ summary: Bayes without a formula.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -88,6 +88,41 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "A drawer holds {{k}} coins: one with two heads, the rest fair. You draw one and flip heads. How likely is it the two-headed one? As a fraction."
+    answer:
+      value: 2/{{k + 1}}
+    feedback:
+      - when: numval(state.input) == 1 / k
+        misconception: ignore-evidence
+        text: That is the prior. The heads result points to the two-headed coin.
+    hints:
+      - "Imagine 2 flips per coin: the two-headed one gives 2 heads, each fair one gives 1."
+      - "Heads in total: 2 + {{k - 1}} = {{k + 1}}."
+    explanation: 2 of the {{k + 1}} heads come from the two-headed coin. Natural frequencies turn Bayes into a tally.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,3,4,5,7,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: "Drawer with 3 coins (2 fair, 1 two-headed). You flip the drawn coin twice: heads twice. How likely is it the two-headed one? As a fraction."
+    answer:
+      value: 2/3
+    hints:
+      - "Two-headed: chance 1 of HH. Fair: chance 1/4 of HH."
+      - "Weights: 1/3 · 1 versus 2/3 · 1/4 = 1/3 versus 1/6."
+    explanation: (1/3) ÷ (1/3 + 1/6) = 2/3. After one head 1/2, after two 2/3, after ten almost 100 %. Each flip updates the belief.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -100,6 +135,38 @@ steps:
     hints:
       - "New odds: 10 to 99. That is 10 out of 109."
     explanation: 10/109 ≈ 9%. Calculated in odds, Bayes is a single multiplication.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: "Laplace asked: the sun rose on n days, never failing. How likely does it rise tomorrow? His rule of succession: (successes + 1) ÷ (trials + 2). What is that for 10 out of 10? As a fraction."
+    answer:
+      value: 11/12
+    hints:
+      - Successes 10, trials 10.
+      - (10 + 1) ÷ (10 + 2).
+    explanation: 11/12. The rule follows from Bayes with a uniform prior. It never says 100 % – even after many successes there is room for surprise.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: "Two pieces of evidence arrive at a clinic: first a blood test, then an X-ray. The next day in the other order. What does Bayes say about the result?"
+    params:
+      options:
+        - label: The same – the order does not matter
+          correct: true
+        - label: Not for Bayes, though often for people.
+          feedback: Bei Bayes nicht, bei Menschen oft schon.
+        - label: The likelihoods are simply multiplied.
+          feedback: Die Likelihoods werden einfach multipliziert.
+    hints:
+      - Bayes multiplies the odds by each likelihood ratio.
+      - Is a · b the same as b · a?
+    explanation: With independent evidence, today's posterior becomes tomorrow's prior. Because of the multiplication, order does not matter.
     difficulty: 3
 
 srs:

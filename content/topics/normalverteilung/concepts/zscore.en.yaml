@@ -5,7 +5,7 @@ summary: Comparing apples to oranges.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: "IQ scores: μ = 100, σ = 15. From which IQ do you belong to the top 2.5 %?"
+    answer:
+      value: 130
+    hints:
+      - Above μ + 2σ lie 2.5 %.
+      - Compute 100 + 2 · 15.
+    explanation: "100 + 30 = 130. From share to value: find the z-score first, then x = μ + z · σ."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: buckets
+    prompt: How unusual is this z-score in a normal distribution?
+    params:
+      buckets:
+        - id: b1
+          label: Common (|z| < 2)
+        - id: b2
+          label: Notable (2 to 3)
+        - id: b3
+          label: Extreme (above 3)
+      items:
+        - label: z = 0.5
+          bucket: b1
+        - label: z = −1.2
+          bucket: b1
+        - label: z = 2.4
+          bucket: b2
+        - label: z = −2.7
+          bucket: b2
+        - label: z = 3.8
+          bucket: b3
+        - label: z = −4.5
+          bucket: b3
+    hints:
+      - The sign only says above or below. For rarity the size counts.
+      - "|−2.7| = 2.7 lies between 2 and 3."
+    explanation: Beyond |z| = 2 lie 5 %, beyond |z| = 3 only 0.3 %. Values past 4 are almost impossible for a true bell – often a sign of errors or fat tails.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +158,44 @@ steps:
     hints:
       - How much lies outside 3 σ? And 5 σ is much further out.
     explanation: In particle physics only “5 sigma” counts as a discovery – as with the Higgs particle in 2012.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: sim
+    prompt: μ = 100 is fixed. Set σ so that 115 sits exactly at z = 1.5 – and read off how much lies below it.
+    params:
+      scene: normal
+      interval:
+        - 0
+        - 115
+      controls:
+        mean:
+          value: 100
+          fixed: true
+    answer:
+      sd: 10
+    explanation: 1.5 = 15 ÷ σ gives σ = 10. Below z = 1.5 lie about 93.3 %. That is where z-table values come from.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: You convert all test scores of a class into z-scores. What mean and standard deviation do the z-scores have?
+    params:
+      options:
+        - label: Mean 0, standard deviation 1 – always
+          correct: true
+        - label: The z-scores are shifted and squeezed.
+          feedback: Die z-Werte sind verschoben und gestaucht.
+        - label: The conversion forces 0 and 1.
+          feedback: Die Umrechnung erzwingt 0 und 1.
+    hints:
+      - What happens if you subtract μ from every value?
+      - And if you then divide by σ?
+    explanation: Minus μ sets the mean to 0, dividing by σ sets the spread to 1. This is called standardising – the shape of the distribution stays the same.
     difficulty: 3
 
 srs:

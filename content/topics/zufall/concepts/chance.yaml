@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [prob.chance]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 23
       tolerance: 6
     explanation: Nur 23. Unser Gefühl für Wahrscheinlichkeiten liegt oft daneben – darum lohnt es sich zu rechnen.
-
 
   - kind: problem
     id: sechs-oder-eins
@@ -111,6 +110,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numberline
+    prompt: Markiere die Wahrscheinlichkeit, mit zwei Würfeln die Augensumme 7 zu werfen.
+    params:
+      min: 0
+      max: 1
+      ticks: 12
+      labels: fractions
+    answer:
+      value: 1/6
+    hints:
+      - Es gibt 6 · 6 = 36 gleich wahrscheinliche Paare.
+      - "Zähle: 1+6, 2+5, 3+4, 4+3, 5+2, 6+1."
+    explanation: 6 von 36 Paaren ergeben 7 – das ist 1/6 oder 2/12.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: choice
+    prompt: Zwei Würfel haben die Summen 2 bis 12 – also 11 mögliche Ergebnisse. Ist P(Summe 12) = 1/11?
+    params:
+      options:
+        - label: Nein – die Summen sind nicht gleich wahrscheinlich, P(12) = 1/36
+          correct: true
+        - label: Ja – 1 günstiges von 11 möglichen
+          feedback: Laplace gilt nur, wenn alle Ergebnisse gleich wahrscheinlich sind.
+        - label: Nein, es ist 1/12
+          feedback: Die 12 entsteht nur aus 6 + 6.
+    hints:
+      - Auf wie viele Arten entsteht eine 12, auf wie viele eine 7?
+      - Zähle die 36 Paare statt der 11 Summen.
+    explanation: Die **Laplace-Regel** braucht gleich wahrscheinliche Ergebnisse. Die 36 Paare sind es, die 11 Summen nicht. Nur 6 + 6 ergibt 12, also 1/36.
+    difficulty: 2
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Würfel: Wie wahrscheinlich ist eine Augensumme von {{s}}? Als Bruch."
+    answer:
+      value: "{{6 - abs(s - 7)}}/36"
+    hints:
+      - Zähle alle Paare (erster Würfel, zweiter Würfel) mit Summe {{s}}.
+      - Es sind {{6 - abs(s - 7)}} Paare von 36.
+    explanation: "Die Zahl der Paare steigt bis zur 7 und fällt danach: {{6 - abs(s - 7)}} von 36."
+    difficulty: 2
+    variants:
+      params:
+        s: int[2,12]
+      constraints:
+        - s != 7
+      defaults:
+        s: 9
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -126,6 +182,44 @@ steps:
     hints:
       - Stell dir viele Tage mit gleicher Ausgangslage vor.
     explanation: "Die **Häufigkeitsdeutung**. Daneben gibt es die bayessche: Wahrscheinlichkeit als Grad der Überzeugung."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: numeric
+    prompt: P(A) = 0,5, P(B) = 0,4 und P(A und B) = 0,2. Wie groß ist P(A oder B)?
+    answer:
+      value: 0.7
+    feedback:
+      - when: numval(state.input) == 0.9
+        misconception: double-count
+        text: Den Teil »A und B« hast du doppelt gezählt.
+    hints:
+      - Wer in beiden liegt, steckt in P(A) und in P(B).
+      - Rechne 0,5 + 0,4 − 0,2.
+    explanation: P(A oder B) = P(A) + P(B) − P(A und B) = 0,7. Die Überlappung wird einmal abgezogen.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: choice
+    prompt: In der modernen Mathematik ist Wahrscheinlichkeit durch drei **Axiome** festgelegt (Kolmogorow, 1933). Welche Regel gehört NICHT dazu?
+    params:
+      options:
+        - label: Alle Ergebnisse sind gleich wahrscheinlich
+          correct: true
+        - label: Keine Wahrscheinlichkeit ist negativ
+          feedback: Das ist das erste Axiom.
+        - label: Das sichere Ereignis hat Wahrscheinlichkeit 1
+          feedback: Das ist das zweite Axiom.
+        - label: Bei unvereinbaren Ereignissen addieren sich die Wahrscheinlichkeiten
+          feedback: Das ist das dritte Axiom.
+    hints:
+      - Ein gezinkter Würfel ist trotzdem ein Zufallsexperiment.
+      - Welche Regel wäre beim gezinkten Würfel falsch?
+    explanation: Gleich wahrscheinlich ist nur ein Sonderfall (Laplace). Die Axiome gelten auch für gezinkte Würfel, Wetter und Aktien.
     difficulty: 3
 
 srs:

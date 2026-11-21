@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [data.mean]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: saeule
@@ -96,6 +96,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: da-d1
+    depth: 2
+    widget: numeric
+    prompt: The values 3, 5 and 10 have the mean 6. Their distances from the mean are −3, −1 and +4. What is their sum?
+    answer:
+      value: 0
+    hints:
+      - Just add the three signed numbers.
+      - −3 − 1 = −4. What is left with +4?
+    explanation: "Zero – always. The mean is the balance point: what is missing below is too much above."
+    difficulty: 2
+
+  - kind: problem
+    id: da-d2
+    depth: 2
+    widget: numeric
+    prompt: The grade {{a}} counts twice, the grade {{b}} once. What is the weighted average?
+    answer:
+      value: "{{(2 * a + b) / 3}}"
+    feedback:
+      - when: numval(state.input) == (a + b) / 2
+        misconception: ignore-weights
+        text: That is the plain average. But the {{a}} counts twice.
+    hints:
+      - Count the double grade twice.
+      - Compute ({{a}} + {{a}} + {{b}}) ÷ 3.
+    explanation: ({{a}} + {{a}} + {{b}}) ÷ 3 = {{(2 * a + b) / 3}}. Weights say how often a value counts.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[1,6]
+      constraints:
+        - a != b
+        - isInt((2 * a + b) / 3)
+      defaults:
+        a: 2
+        b: 5
+
+  - kind: problem
+    id: da-d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: you drive there at 60 km/h and back at 40 km/h – same distance. What was your average speed?"
+    params:
+      min: 30
+      max: 70
+      unit: km/h
+    answer:
+      value: 48
+      tolerance: 1.5
+    explanation: Not 50! For 120 km you need 1 h + 1.5 h = 2.5 h. 120 ÷ 2.5 = 48 km/h. The slow leg takes longer, so it counts more.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -109,6 +164,69 @@ steps:
     hints:
       - "Compute the total points: 20 · 60 + 30 · 70."
     explanation: 3300 ÷ 50 = 66 – not 65. Larger groups pull the **weighted mean** towards themselves.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x1
+    depth: 3
+    widget: choice
+    prompt: You look for a number c that makes the sum of squared distances (x − c)² to all values as small as possible. Which one is it?
+    params:
+      options:
+        - label: The mean
+          correct: true
+        - label: The median minimises the sum of plain distances, not squared ones.
+          feedback: Der Median macht die Summe der **einfachen** Abstände klein, nicht der quadrierten.
+        - label: Then all other distances would be large.
+          feedback: Dann wären alle anderen Abstände groß.
+    hints:
+      - Try it with the values 0 and 10.
+      - At c = 5 the sum is 25 + 25 = 50. At c = 4 it is 16 + 36 = 52.
+    explanation: "Differentiate the sum with respect to c and set it to zero: c = mean. That is why the mean sits inside least squares."
+    difficulty: 3
+
+  - kind: problem
+    id: da-x2
+    depth: 3
+    widget: numeric
+    prompt: A course has 10 students with an average of 70. One with 92 points leaves. What is the average of the other 9?
+    answer:
+      value: 68
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 70 - 92 / 10
+        misconception: mean-subtract
+        text: You only subtracted 92 ÷ 10. Work out the new total first.
+    hints:
+      - First work out the total of all points.
+      - 700 − 92 = 608. Divide by 9.
+    explanation: Total 10 · 70 = 700. Without the 92, 608 is left; divided by 9 that is 67.6 – about 68.
+    difficulty: 3
+
+  - kind: problem
+    id: da-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the mean is a balance point.
+    params:
+      keywords:
+        - - summe
+          - sum
+          - addier
+          - add
+        - - anzahl
+          - teil
+          - count
+          - divid
+        - - ausgleich
+          - gleich
+          - balance
+          - schwerpunkt
+          - "null"
+          - zero
+          - cancel
+      sample: The mean is the sum divided by the count. Distances above and below cancel exactly – they add up to zero.
+    explanation: "Like a seesaw: the mean is the point where the data balance."
     difficulty: 3
 
 srs:
