@@ -1,0 +1,219 @@
+id: stats.experiments.control
+type: concept
+title: "Die Vergleichsgruppe"
+summary: "Was wäre ohne die Behandlung passiert?"
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Tim nimmt bei Schnupfen Vitamin C. Nach einer Woche ist der Schnupfen weg. Beweist das, dass Vitamin C hilft?
+    params:
+      options:
+        - label: Nein – Schnupfen geht meist auch von allein nach etwa einer Woche weg
+          correct: true
+        - label: Ja, der Schnupfen ist ja weg
+          feedback: Er wäre wohl auch ohne Vitamin C verschwunden.
+        - label: Ja, wenn Tim fest daran glaubt
+          feedback: Glaube ersetzt keinen Vergleich.
+    hints:
+      - Was passiert mit Schnupfen, wenn man gar nichts tut?
+      - "Uns fehlt ein Vergleich: Wie ging es Menschen ohne Vitamin C?"
+    explanation: Ein Einzelfall zeigt nicht, was **ohne** Behandlung passiert wäre. Dafür braucht man eine Vergleichsgruppe.
+
+  - kind: explain
+    id: c1
+    body: Eine **Kontrollgruppe** bekommt die Behandlung nicht. Sie zeigt, was ohnehin passiert. Erst der Unterschied zwischen beiden Gruppen ist die Wirkung.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Mit Mittel sind nach einer Woche 70 von 100 gesund, ohne Mittel 60 von 100. Wie viele Prozentpunkte bringt das Mittel zusätzlich?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: no-control
+        text: 70 % wären auch ohne Vergleich gesund? Nein – 60 % schaffen es ohnehin.
+    hints:
+      - 60 % werden auch ohne Mittel gesund.
+      - Rechne 70 − 60.
+    explanation: Nur 10 der 70 Gesunden verdanken es dem Mittel. Ohne Kontrollgruppe hätte man die Wirkung siebenmal überschätzt.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Mit Training laufen {{t}} % der Gruppe 5 km unter 30 Minuten, ohne Training {{c}} %. Wie groß ist der Effekt des Trainings in Prozentpunkten?
+    answer:
+      value: "{{t - c}}"
+    hints:
+      - Die Gruppe ohne Training ist die Kontrollgruppe.
+      - Rechne {{t}} − {{c}}.
+    explanation: "{{t}} − {{c}} = {{t - c}} Punkte. Die Kontrollgruppe zieht ab, was auch ohne Training geklappt hätte."
+    variants:
+      params:
+        t: step[40,90,5]
+        c: step[10,60,5]
+      constraints:
+        - t > c
+      defaults:
+        t: 55
+        c: 30
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Mit Vergleich oder ohne?
+    params:
+      buckets:
+        - id: b1
+          label: Mit Vergleichsgruppe
+        - id: b2
+          label: Ohne Vergleich
+      items:
+        - label: »Seit der Creme ist meine Haut besser.«
+          bucket: b2
+        - label: Halbe Gruppe mit Creme, halbe ohne
+          bucket: b1
+        - label: »Neun von zehn Kunden sind zufrieden.«
+          bucket: b2
+        - label: Zwei Klassen, nur eine lernt mit der App
+          bucket: b1
+    hints:
+      - Gibt es eine Gruppe, die die Behandlung nicht bekam?
+      - Zufriedene Kunden sagen nichts über Kunden ohne das Produkt.
+    explanation: Ohne Vergleich bleibt offen, wie es ohne Behandlung gewesen wäre. Werbung meidet Kontrollgruppen gern.
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: Stimmt das?
+    params:
+      cards:
+        - text: Auch Kranke ohne Behandlung werden oft gesund.
+          right: true
+        - text: Wenn es nach der Behandlung besser ist, hat sie gewirkt.
+          right: false
+          why: Besser könnte es auch von allein werden.
+        - text: Die Wirkung ist der Unterschied zur Kontrollgruppe.
+          right: true
+        - text: Eine Kontrollgruppe braucht man nur bei Medikamenten.
+          right: false
+          why: Auch bei Lern-Apps, Diäten und Werbung.
+    explanation: "Die Frage lautet immer: im Vergleich wozu?"
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: In eine Studie gegen Rückenschmerz kommen Menschen genau dann, wenn ihre Schmerzen am schlimmsten sind. Was passiert danach meist – auch ohne Behandlung?
+    params:
+      options:
+        - label: Es wird besser – extreme Phasen gehen von selbst zurück
+          correct: true
+        - label: Es wird schlimmer
+          feedback: Wer am Tiefpunkt startet, hat eher Luft nach oben.
+        - label: Es bleibt gleich
+          feedback: Schmerz schwankt – und vom Gipfel geht es meist abwärts.
+    hints:
+      - Schmerzen schwanken von Woche zu Woche.
+      - Wer am Gipfel startet, kann vor allem fallen.
+    explanation: Das ist **Regression zur Mitte**. Auch die Kontrollgruppe wird besser – erst der Vergleich trennt Wirkung und Rückkehr zur Mitte.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ohne [[Kontrollgruppe]] verwechselt man die Wirkung mit [[Selbstheilung]] und mit der Rückkehr zur [[Mitte]].
+      distractors:
+        - Zufall
+        - Ursache
+    hints:
+      - Was zeigt, wie es ohne Behandlung gelaufen wäre?
+      - Viele Beschwerden heilen von allein.
+    explanation: "Drei Dinge machen jede Vorher-nachher-Geschichte unzuverlässig: Selbstheilung, Regression zur Mitte und fehlender Vergleich."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Eine Lernmethode: Vorher hatte die Klasse im Schnitt 60 Punkte, nachher 72. Eine Vergleichsklasse ohne Methode stieg von 60 auf 68. Wie groß ist die Wirkung der Methode?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: no-control
+        text: Auch die Vergleichsklasse hat dazugelernt – 8 Punkte ohne Methode.
+    hints:
+      - Wie viel gewann jede Klasse?
+      - Rechne (72 − 60) − (68 − 60).
+    explanation: 12 − 8 = 4 Punkte. Zwei Drittel des Anstiegs wären auch ohne die Methode gekommen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Der **kausale Effekt** für eine Person ist: Ergebnis mit Behandlung minus Ergebnis ohne. Warum kann man ihn nie direkt messen?"
+    params:
+      options:
+        - label: Jede Person lebt nur eine der beiden Welten – die andere bleibt Gedankenexperiment
+          correct: true
+        - label: Weil Menschen lügen
+          feedback: Selbst ehrliche Messungen zeigen nur eine Welt.
+        - label: Weil die Geräte zu ungenau sind
+          feedback: Das Problem ist logisch, nicht technisch.
+    hints:
+      - Kann Tim gleichzeitig Vitamin C nehmen und es lassen?
+      - Das fehlende Ergebnis heißt »kontrafaktisch«.
+    explanation: "Das ist das Grundproblem der Kausalität. Gruppen lösen es im Schnitt: Die Kontrollgruppe vertritt die fehlende Welt."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Gedankenexperiment kennt beide Welten. Vier Personen haben (mit | ohne): (8 | 5), (6 | 6), (7 | 4), (5 | 5). Wie groß ist der mittlere Effekt der Behandlung?"
+    answer:
+      value: 1.5
+    hints:
+      - "Effekte: 3, 0, 3, 0."
+      - Mittle die vier Effekte.
+    explanation: "6 : 4 = 1,5. Für zwei Personen wirkt die Behandlung gar nicht – trotzdem ist der **Durchschnittseffekt** positiv. Studien messen genau diesen Mittelwert."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Behandlung ohne Kontrollgruppe nichts beweist.
+    params:
+      keywords:
+        - - vergleich
+          - kontroll
+          - compar
+          - control
+        - - ohnehin
+          - allein
+          - selbst
+          - anyway
+          - own
+          - itself
+        - - unterschied
+          - differenz
+          - difference
+          - minus
+      sample: Viele Beschwerden werden von allein besser. Ohne Kontrollgruppe weiß man nicht, was ohnehin passiert wäre. Die Wirkung ist erst der Unterschied zur Vergleichsgruppe.
+    explanation: Die Kontrollgruppe ersetzt die Welt ohne Behandlung, die man nie sehen kann.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

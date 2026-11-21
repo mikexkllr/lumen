@@ -1,0 +1,204 @@
+id: stats.experiments.random
+type: concept
+title: "Let the lottery decide"
+summary: "Randomisation makes groups comparable – even in unknown ways."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A doctor gives a new drug mostly to patients who are still fairly well. This group recovers faster. What is the problem?
+    params:
+      options:
+        - label: The groups differed beforehand – the drug is not what makes the difference
+          correct: true
+        - label: Fitter patients recover faster without the drug too.
+          feedback: Fittere Patienten erholen sich auch ohne Mittel schneller.
+        - label: Even a huge group would have the same flaw.
+          feedback: Auch eine riesige Gruppe hätte denselben Fehler.
+    hints:
+      - Who recovers faster anyway?
+      - The selection was linked to the outcome.
+    explanation: "The doctor – without meaning to – biased the groups. Health here is a confounder: it affects both the selection and the outcome."
+
+  - kind: explain
+    id: c1
+    body: With randomisation a lottery decides who gets treated. Then the groups are alike on average – even in things nobody measured.
+
+  - kind: problem
+    id: c2
+    widget: distribution
+    prompt: Assign 100 people to two groups by coin flip. How equal do they turn out?
+    params:
+      items:
+        - label: Group A
+        - label: Group B
+      sample:
+        - 1
+        - 10
+        - 100
+    check:
+      predicate: draws >= 100
+    hints:
+      - Use the button for 100 flips.
+      - Compare the size of both groups.
+    explanation: Usually 45 to 55 people end up in each group. Age, genes and habits spread just as randomly.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Among 200 participants there are 60 smokers. A lottery splits them into two equal groups. How many smokers do you expect in each group?
+    answer:
+      value: 30
+    hints:
+      - The lottery knows nothing about smoking.
+      - Half of 60.
+    explanation: On average 30 per group – with no arrangement at all. That holds for every trait, even unknown ones.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Fairly assigned or biased?
+    params:
+      buckets:
+        - id: b1
+          label: Fair
+        - id: b2
+          label: Biased
+      items:
+        - label: A computer draws the groups
+          bucket: b1
+        - label: Volunteers join the new group
+          bucket: b2
+        - label: The doctor chooses by feel
+          bucket: b2
+        - label: A coin flip for each person
+          bucket: b1
+        - label: First come, first treated
+          bucket: b2
+    hints:
+      - Can the assignment be linked to the outcome?
+      - Volunteers are often more motivated.
+    explanation: As soon as people choose – participants or researchers – a confounder can creep in. The lottery chooses blindly.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Why not simply balance the groups by hand – the same number of smokers, older people and women?
+    params:
+      options:
+        - label: You can only balance what you know – the lottery also balances the unknown
+          correct: true
+        - label: You may stratify on traits as well. It is just not enough on its own.
+          feedback: Man darf zusätzlich nach Merkmalen schichten. Es reicht nur nicht allein.
+        - label: Money is not the problem.
+          feedback: Das Problem ist nicht das Geld.
+    hints:
+      - Are there influences nobody measures?
+      - Genes, stress, sleep …
+    explanation: Unknown confounders cannot be balanced by hand. The lottery still spreads them evenly – that is the only reason experiments show causes.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The 60 smokers are spread by coin flip. The number in group A then varies with σ = √(60 · ½ · ½). What is σ? To one decimal.
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    hints:
+      - 60 · ¼ = 15.
+      - Take the square root of 15.
+    explanation: √15 ≈ 3.9. So typically 26 to 34 smokers land in group A. Small imbalances are normal – they are chance and go into the p-value.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: With only 20 participants the lottery might put all older people in one group by chance. What helps?
+    params:
+      options:
+        - label: Split by age into strata first, then draw lots within each stratum
+          correct: true
+        - label: Then selection bias comes back.
+          feedback: Dann kehrt die Verzerrung durch Auswahl zurück.
+        - label: That is hidden selection.
+          feedback: Das ist versteckte Auswahl.
+    hints:
+      - The lottery stays – but within subgroups.
+      - That way each age group is in both arms.
+    explanation: Stratified (block) randomisation forces balance on known traits. The lottery within the strata takes care of the rest.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: 10 people are split 5 and 5 at random. Two of them smoke. How likely do both land in the same group? As a fraction.
+    answer:
+      value: 4/9
+    feedback:
+      - when: numval(state.input) == 1 / 2
+        misconception: with-replacement
+        text: Almost – but one seat in the first smoker's group is already taken.
+    hints:
+      - The first smoker sits somewhere. How many seats remain in his group?
+      - 4 of the 9 remaining seats.
+    explanation: 4/9 ≈ 44 %. In small studies imbalances are common. That is why you need enough participants – or stratification.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ronald Fisher saw the lottery not just as fair but as the basis for the p-value. Why?
+    params:
+      options:
+        - label: Under »no effect« you know exactly how the groups could have fallen – you can play through all possible draws
+          correct: true
+        - label: The lottery does not change the effect.
+          feedback: Das Los ändert den Effekt nicht.
+        - label: You still need it – it just gets a sound basis.
+          feedback: Man braucht sie – sie wird nur sauber begründet.
+    hints:
+      - If there were no effect, the labels A and B would be arbitrary.
+      - The lottery itself creates the test's random distribution.
+    explanation: "That is the randomisation test: the chance you built in yourself provides the yardstick for »surprising«."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a coin flip makes better groups than a clever doctor.
+    params:
+      keywords:
+        - - los
+          - zufall
+          - münz
+          - random
+          - lottery
+          - coin
+        - - störfaktor
+          - unbekannt
+          - confound
+          - unknown
+          - hidden
+        - - gleich
+          - vergleichbar
+          - balance
+          - alike
+          - equal
+      sample: The doctor unintentionally chooses by things that affect the outcome. The coin knows no patients. So chance spreads even unknown confounders equally across both groups.
+    explanation: The lottery is dumb – and that is exactly why it cannot be bribed.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2", "x2"]

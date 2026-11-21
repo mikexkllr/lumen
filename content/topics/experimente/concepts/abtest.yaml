@@ -1,0 +1,215 @@
+id: stats.experiments.abtest
+type: concept
+title: "A/B-Tests"
+summary: "Wie Webseiten Experimente an Millionen machen – und wo sie sich täuschen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Ein Shop zeigt zwei Kauf-Knöpfe: A kauften 50 von 1000 Besuchern, B 60 von 1000. Ist B sicher besser?"
+    params:
+      options:
+        - label: Unklar – so ein Unterschied kann auch Zufall sein
+          correct: true
+        - label: Ja, 60 ist mehr als 50
+          feedback: Auch zwei gleiche Knöpfe zeigen nie genau dieselbe Zahl.
+        - label: Nein, A ist besser
+          feedback: Nichts spricht für A.
+    hints:
+      - Wie stark schwanken 50 Käufe von 1000 von allein?
+      - Ein Test muss das prüfen.
+    explanation: "Die Frage ist immer: Unterschied oder Rauschen? Das klären wir in dieser Lektion."
+
+  - kind: explain
+    id: c1
+    body: Bei einem **A/B-Test** sieht jeder Besucher per Zufall Version A oder B. Sonst ist alles gleich. Unterschiede im Verhalten kommen dann von der Version – oder vom Zufall.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Bei B kauften 60 von 1000 Besuchern. Wie hoch ist die Kaufquote in Prozent?
+    answer:
+      value: 6
+    hints:
+      - Teile 60 durch 1000.
+      - 0,06 sind wie viel Prozent?
+    explanation: 6 % gegen 5 % bei A. Diese Kennzahl heißt **Konversionsrate**.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Die Kaufquote steigt von 5 % auf 6 %. Um wie viel Prozent ist das **relativ** mehr?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: points-vs-percent
+        text: Das ist der Unterschied in Prozentpunkten. Relativ bezieht man ihn auf die 5 %.
+    hints:
+      - Der Zuwachs ist 1 Punkt.
+      - 1 von 5 sind wie viel Prozent?
+    explanation: +20 % relativ, +1 Punkt absolut. Firmen melden gern die 20 %.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Gute oder schlechte Praxis beim A/B-Test?
+    params:
+      buckets:
+        - id: b1
+          label: Gut
+        - id: b2
+          label: Schlecht
+      items:
+        - label: Besucher per Zufall zuteilen
+          bucket: b1
+        - label: A im Mai, B im Juni zeigen
+          bucket: b2
+        - label: Laufzeit vorher festlegen
+          bucket: b1
+        - label: Stoppen, sobald B vorn liegt
+          bucket: b2
+        - label: Nur eine Sache ändern
+          bucket: b1
+    hints:
+      - Was unterscheidet Mai und Juni außer der Version?
+      - Wer stoppt, sobald es passt, fängt Zufallsspitzen ein.
+    explanation: Gleichzeitig, zufällig, mit festem Plan – dann misst der Test die Version und nicht das Wetter oder das Glück.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Der Standardfehler für den Unterschied 6 % − 5 % ist hier etwa 1 Prozentpunkt. Wie viele Standardfehler beträgt der Unterschied (z-Wert)?
+    answer:
+      value: 1
+    hints:
+      - Der Unterschied ist 1 Punkt.
+      - Teile 1 durch den Standardfehler 1.
+    explanation: z ≈ 1 – weit unter 1,96. Bei 1000 Besuchern pro Version ist der Unterschied **nicht signifikant**. Man braucht deutlich mehr Besucher.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Für einen Unterschied von 1 Punkt braucht der Test etwa {{n}} Besucher pro Version. Wie viele braucht er für einen halb so großen Unterschied?
+    answer:
+      value: "{{4 * n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: linear-n
+        text: Die Fehlerspanne sinkt mit √n. Halbe Spanne braucht viermal so viele.
+    hints:
+      - Halber Unterschied braucht halbe Fehlerspanne.
+      - "Halbe Spanne: viermal so viele Besucher."
+    explanation: 4 · {{n}} = {{4 * n}}. Kleine Verbesserungen sicher nachzuweisen kostet sehr viele Besucher.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[5000,8000,10000,20000]
+      defaults:
+        n: 8000
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Team schaut jeden Tag auf den p-Wert und stoppt, sobald er unter 5 % fällt. Was passiert?
+    params:
+      options:
+        - label: Fehlalarme werden viel häufiger als 5 %
+          correct: true
+        - label: Nichts, 5 % sind 5 %
+          feedback: Jeder Blick ist ein neuer Test.
+        - label: Der Test wird genauer
+          feedback: Er wird nur früher – und öfter falsch.
+    hints:
+      - Der p-Wert schwankt auch ohne Effekt auf und ab.
+      - Wer oft schaut, erwischt irgendwann eine Zufallsspitze.
+    explanation: "Das ständige Nachschauen (**Peeking**) ist verstecktes p-Hacking. Abhilfe: feste Laufzeit oder Verfahren, die für wiederholtes Schauen gebaut sind."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Shop testet 20 Knopf-Farben gegen das Original, jede mit der 5-%-Grenze. Keine wirkt wirklich. Wie viele »Gewinner« erwartest du rein zufällig?
+    answer:
+      value: 1
+    hints:
+      - Jede Farbe hat 5 % Fehlalarm-Chance.
+      - 20 · 0,05.
+    explanation: Im Schnitt ein Gewinner – ohne jeden Effekt. Viele A/B-Erfolge schrumpfen beim zweiten Test, weil sie solche **Zufallsgewinner** waren.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine neue Funktion wirkt in den ersten Tagen großartig, dann flacht der Effekt ab. Was steckt oft dahinter?
+    params:
+      options:
+        - label: Der Neuheitseffekt – Neues wird anfangs aus Neugier öfter benutzt
+          correct: true
+        - label: Der Test war falsch
+          feedback: Der Test war korrekt, nur zu kurz.
+        - label: Die Besucher wurden müde
+          feedback: Gemeint ist das Interesse am Neuen, nicht Müdigkeit.
+    hints:
+      - Wie reagierst du auf einen neuen Knopf, den du noch nie gesehen hast?
+      - Gewöhnung verändert das Verhalten über die Zeit.
+    explanation: Gute Teams lassen Tests länger laufen und schauen auf neue und alte Nutzer getrennt. Kurzfristige Effekte sind nicht dasselbe wie langfristige.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: In einem sozialen Netzwerk bekommt Gruppe B eine neue Teilen-Funktion. Auch Gruppe A teilt plötzlich mehr. Warum stört das den Test?
+    params:
+      options:
+        - label: Die Gruppen beeinflussen sich – A ist keine saubere Kontrolle mehr
+          correct: true
+        - label: Es stört nicht, A teilt ja mehr
+          feedback: Der Unterschied zwischen A und B wird dadurch zu klein gemessen.
+        - label: Weil A die Funktion heimlich hat
+          feedback: A hat sie nicht – aber A sieht, was B teilt.
+    hints:
+      - Freunde aus B teilen Inhalte, die A sieht.
+      - Die Behandlung »sickert« in die Kontrollgruppe.
+    explanation: Experimente setzen voraus, dass die Behandlung des einen den anderen nicht verändert. In Netzwerken lost man darum oft ganze Freundeskreise oder Städte.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein fairer A/B-Test abläuft und welche Falle beim Auswerten lauert.
+    params:
+      keywords:
+        - - zufall
+          - zufällig
+          - random
+        - - gleichzeitig
+          - gleich
+          - same time
+          - simultan
+        - - stopp
+          - früh
+          - schauen
+          - peek
+          - stop
+          - early
+          - zufallsgewinn
+      sample: Jeder Besucher bekommt zufällig A oder B, und beide laufen gleichzeitig. Die Laufzeit legt man vorher fest. Wer früh stoppt, sobald B vorn liegt, findet oft nur einen Zufallsgewinner.
+    explanation: Zufall teilt fair ein, ein fester Plan verhindert Selbsttäuschung beim Auswerten.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d2"]

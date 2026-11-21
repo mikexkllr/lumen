@@ -1,0 +1,219 @@
+id: stats.experiments.control
+type: concept
+title: "The control group"
+summary: "What would have happened without the treatment?"
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Tim takes vitamin C for a cold. After a week the cold is gone. Does that prove vitamin C helps?
+    params:
+      options:
+        - label: No – a cold usually clears up on its own after about a week
+          correct: true
+        - label: It would probably have gone without vitamin C too.
+          feedback: Er wäre wohl auch ohne Vitamin C verschwunden.
+        - label: Belief does not replace a comparison.
+          feedback: Glaube ersetzt keinen Vergleich.
+    hints:
+      - What happens to a cold if you do nothing at all?
+      - "We lack a comparison: how did people without vitamin C do?"
+    explanation: A single case does not show what would have happened without the treatment. For that you need a comparison group.
+
+  - kind: explain
+    id: c1
+    body: A control group does not get the treatment. It shows what happens anyway. Only the difference between both groups is the effect.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: With the remedy 70 of 100 are well after a week, without it 60 of 100. How many percentage points does the remedy add?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: no-control
+        text: Would 70 % be well anyway? No – 60 % get there regardless.
+    hints:
+      - 60 % get well without the remedy too.
+      - Compute 70 − 60.
+    explanation: Only 10 of the 70 who got well owe it to the remedy. Without a control group the effect would have been overestimated sevenfold.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: With training {{t}} % of the group run 5 km in under 30 minutes, without training {{c}} %. How big is the training effect in percentage points?
+    answer:
+      value: "{{t - c}}"
+    hints:
+      - The group without training is the control group.
+      - Compute {{t}} − {{c}}.
+    explanation: "{{t}} − {{c}} = {{t - c}} points. The control group subtracts what would have worked without training too."
+    variants:
+      params:
+        t: step[40,90,5]
+        c: step[10,60,5]
+      constraints:
+        - t > c
+      defaults:
+        t: 55
+        c: 30
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: With a comparison or without?
+    params:
+      buckets:
+        - id: b1
+          label: With a control group
+        - id: b2
+          label: No comparison
+      items:
+        - label: »Since the cream my skin is better.«
+          bucket: b2
+        - label: Half the group with cream, half without
+          bucket: b1
+        - label: »Nine out of ten customers are happy.«
+          bucket: b2
+        - label: Two classes, only one uses the app
+          bucket: b1
+    hints:
+      - Is there a group that did not get the treatment?
+      - Happy customers say nothing about customers without the product.
+    explanation: Without a comparison it stays open how things would have been without the treatment. Adverts tend to avoid control groups.
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: True or false?
+    params:
+      cards:
+        - text: Sick people often recover without treatment too.
+          right: true
+        - text: If things are better after treatment, it worked.
+          right: false
+          why: It might have improved on its own.
+        - text: The effect is the difference to the control group.
+          right: true
+        - text: A control group is only needed for medicine.
+          right: false
+          why: Also for learning apps, diets and adverts.
+    explanation: "The question is always: compared with what?"
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: People enter a back-pain study exactly when their pain is at its worst. What usually happens next – even without treatment?
+    params:
+      options:
+        - label: It gets better – extreme phases recede on their own
+          correct: true
+        - label: Starting at the low point leaves room to improve.
+          feedback: Wer am Tiefpunkt startet, hat eher Luft nach oben.
+        - label: Pain fluctuates – and from the peak it usually goes down.
+          feedback: Schmerz schwankt – und vom Gipfel geht es meist abwärts.
+    hints:
+      - Pain varies from week to week.
+      - Whoever starts at the peak can mostly only fall.
+    explanation: That is regression to the mean. The control group improves too – only the comparison separates effect from the return to the mean.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Without a [[control]] group you confuse the effect with [[self-healing]] and with the return to the [[mean]].
+      distractors:
+        - chance
+        - cause
+    hints:
+      - What shows how things would have gone without treatment?
+      - Many complaints heal by themselves.
+    explanation: "Three things make every before-and-after story unreliable: self-healing, regression to the mean and a missing comparison."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "A learning method: before, the class averaged 60 points, afterwards 72. A comparison class without the method rose from 60 to 68. How big is the method's effect?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: no-control
+        text: The comparison class learned too – 8 points without the method.
+    hints:
+      - How much did each class gain?
+      - Compute (72 − 60) − (68 − 60).
+    explanation: 12 − 8 = 4 points. Two thirds of the rise would have come without the method too.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "The causal effect for one person is: outcome with treatment minus outcome without. Why can it never be measured directly?"
+    params:
+      options:
+        - label: Each person lives only one of the two worlds – the other stays a thought experiment
+          correct: true
+        - label: Even honest measurements show only one world.
+          feedback: Selbst ehrliche Messungen zeigen nur eine Welt.
+        - label: The problem is logical, not technical.
+          feedback: Das Problem ist logisch, nicht technisch.
+    hints:
+      - Can Tim take vitamin C and skip it at the same time?
+      - The missing outcome is called »counterfactual«.
+    explanation: "That is the fundamental problem of causal inference. Groups solve it on average: the control group stands in for the missing world."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "A thought experiment knows both worlds. Four people have (with | without): (8 | 5), (6 | 6), (7 | 4), (5 | 5). What is the average treatment effect?"
+    answer:
+      value: 1.5
+    hints:
+      - "Effects: 3, 0, 3, 0."
+      - Average the four effects.
+    explanation: 6 ÷ 4 = 1.5. For two people the treatment does nothing – yet the average effect is positive. Studies measure exactly this mean.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a treatment without a control group proves nothing.
+    params:
+      keywords:
+        - - vergleich
+          - kontroll
+          - compar
+          - control
+        - - ohnehin
+          - allein
+          - selbst
+          - anyway
+          - own
+          - itself
+        - - unterschied
+          - differenz
+          - difference
+          - minus
+      sample: Many complaints get better on their own. Without a control group you do not know what would have happened anyway. The effect is only the difference to the comparison group.
+    explanation: The control group replaces the world without treatment, which you can never see.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

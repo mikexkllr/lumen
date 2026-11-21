@@ -1,0 +1,204 @@
+id: stats.experiments.random
+type: concept
+title: "Das Los entscheidet"
+summary: "Randomisierung macht Gruppen vergleichbar – auch bei Unbekanntem."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Ärztin gibt ein neues Mittel vor allem Patienten, denen es noch recht gut geht. Diese Gruppe erholt sich schneller. Was ist das Problem?
+    params:
+      options:
+        - label: Die Gruppen waren schon vorher verschieden – nicht das Mittel macht den Unterschied
+          correct: true
+        - label: Kein Problem, das Mittel wirkt
+          feedback: Fittere Patienten erholen sich auch ohne Mittel schneller.
+        - label: Die Gruppe war zu klein
+          feedback: Auch eine riesige Gruppe hätte denselben Fehler.
+    hints:
+      - Wer erholt sich ohnehin schneller?
+      - Die Auswahl hing mit dem Ergebnis zusammen.
+    explanation: "Die Ärztin hat – ohne Absicht – die Gruppen verzerrt. Gesundheit ist hier ein **Störfaktor**: Sie beeinflusst die Auswahl und das Ergebnis."
+
+  - kind: explain
+    id: c1
+    body: Bei der **Randomisierung** entscheidet das Los, wer behandelt wird. Dann sind die Gruppen im Schnitt gleich – auch bei Dingen, die niemand gemessen hat.
+
+  - kind: problem
+    id: c2
+    widget: distribution
+    prompt: Lose 100 Menschen per Münzwurf in zwei Gruppen ein. Wie gleich groß werden sie?
+    params:
+      items:
+        - label: Gruppe A
+        - label: Gruppe B
+      sample:
+        - 1
+        - 10
+        - 100
+    check:
+      predicate: draws >= 100
+    hints:
+      - Nutze den Knopf für 100 Würfe.
+      - Vergleiche die Größe beider Gruppen.
+    explanation: Meist landen 45 bis 55 Menschen in jeder Gruppe. Genauso zufällig verteilen sich Alter, Gene und Gewohnheiten.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Unter 200 Teilnehmern sind 60 Raucher. Das Los teilt in zwei gleich große Gruppen. Wie viele Raucher erwartest du in jeder Gruppe?
+    answer:
+      value: 30
+    hints:
+      - Das Los kennt das Rauchen nicht.
+      - Die Hälfte von 60.
+    explanation: Im Schnitt 30 pro Gruppe – ganz ohne Absprache. Das gilt für jedes Merkmal, auch für unbekannte.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Fair zugeteilt oder verzerrt?
+    params:
+      buckets:
+        - id: b1
+          label: Fair
+        - id: b2
+          label: Verzerrt
+      items:
+        - label: Ein Computer lost die Gruppen aus
+          bucket: b1
+        - label: Freiwillige kommen in die neue Gruppe
+          bucket: b2
+        - label: Die Ärztin wählt nach Gefühl
+          bucket: b2
+        - label: Münzwurf für jede Person
+          bucket: b1
+        - label: Wer zuerst kommt, wird behandelt
+          bucket: b2
+    hints:
+      - Kann die Zuteilung mit dem Ergebnis zusammenhängen?
+      - Freiwillige sind oft motivierter.
+    explanation: Sobald Menschen wählen – Teilnehmer oder Forscher –, kann sich ein Störfaktor einschleichen. Das Los wählt blind.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Warum gleicht man Gruppen nicht einfach von Hand aus – gleich viele Raucher, Alte und Frauen?
+    params:
+      options:
+        - label: Man kann nur ausgleichen, was man kennt – das Los gleicht auch Unbekanntes aus
+          correct: true
+        - label: Das ist verboten
+          feedback: Man darf zusätzlich nach Merkmalen schichten. Es reicht nur nicht allein.
+        - label: Es wäre zu teuer
+          feedback: Das Problem ist nicht das Geld.
+    hints:
+      - Gibt es Einflüsse, die niemand misst?
+      - Gene, Stress, Schlaf …
+    explanation: Unbekannte **Störfaktoren** kann man nicht ausgleichen. Das Los verteilt sie trotzdem gleich – nur darum zeigen Experimente Ursachen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die 60 Raucher werden per Münzwurf verteilt. Die Zahl in Gruppe A schwankt dann mit σ = √(60 · ½ · ½). Wie groß ist σ? Auf eine Stelle.
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    hints:
+      - 60 · ¼ = 15.
+      - Zieh die Wurzel aus 15.
+    explanation: √15 ≈ 3,9. Typisch landen also 26 bis 34 Raucher in Gruppe A. Kleine Ungleichheiten sind normal – sie sind Zufall und gehen in den p-Wert ein.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Bei nur 20 Teilnehmern kann das Los zufällig alle Älteren in eine Gruppe stecken. Was hilft?
+    params:
+      options:
+        - label: Erst nach Alter in Schichten teilen, dann in jeder Schicht losen
+          correct: true
+        - label: Auf das Los verzichten
+          feedback: Dann kehrt die Verzerrung durch Auswahl zurück.
+        - label: Neu losen, bis es gut aussieht
+          feedback: Das ist versteckte Auswahl.
+    hints:
+      - Das Los bleibt – aber in Teilgruppen.
+      - So ist jede Altersgruppe in beiden Armen vertreten.
+    explanation: Die **Schichtung** (Block-Randomisierung) erzwingt Balance bei bekannten Merkmalen. Das Los innerhalb der Schichten kümmert sich um den Rest.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: 10 Personen werden zufällig 5 zu 5 geteilt. Zwei von ihnen rauchen. Wie wahrscheinlich landen beide in derselben Gruppe? Als Bruch.
+    answer:
+      value: 4/9
+    feedback:
+      - when: numval(state.input) == 1 / 2
+        misconception: with-replacement
+        text: Fast – aber in der Gruppe des ersten Rauchers ist schon ein Platz besetzt.
+    hints:
+      - Der erste Raucher sitzt irgendwo. Wie viele Plätze bleiben in seiner Gruppe?
+      - 4 von 9 restlichen Plätzen.
+    explanation: 4/9 ≈ 44 %. In kleinen Studien sind Ungleichgewichte häufig. Darum braucht man genug Teilnehmer – oder Schichtung.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ronald Fisher sah im Los nicht nur Fairness, sondern auch die Grundlage für den p-Wert. Warum?
+    params:
+      options:
+        - label: Unter »kein Effekt« kennt man genau, wie zufällig die Gruppen ausfallen – man kann alle Losungen durchspielen
+          correct: true
+        - label: Weil das Los den Effekt vergrößert
+          feedback: Das Los ändert den Effekt nicht.
+        - label: Weil man dann keine Statistik mehr braucht
+          feedback: Man braucht sie – sie wird nur sauber begründet.
+    hints:
+      - Gäbe es keinen Effekt, wären die Etiketten A und B beliebig.
+      - Das Los selbst erzeugt die Zufallsverteilung des Tests.
+    explanation: "Das ist der **Randomisierungstest**: Der Zufall, den man selbst eingebaut hat, liefert den Maßstab für »überraschend«."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Münzwurf bessere Gruppen macht als eine kluge Ärztin.
+    params:
+      keywords:
+        - - los
+          - zufall
+          - münz
+          - random
+          - lottery
+          - coin
+        - - störfaktor
+          - unbekannt
+          - confound
+          - unknown
+          - hidden
+        - - gleich
+          - vergleichbar
+          - balance
+          - alike
+          - equal
+      sample: Die Ärztin wählt, ohne es zu wollen, nach Dingen, die das Ergebnis beeinflussen. Der Münzwurf kennt keine Patienten. So verteilt der Zufall auch unbekannte Störfaktoren gleich auf beide Gruppen.
+    explanation: Das Los ist dumm – und gerade darum unbestechlich.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2", "x2"]
