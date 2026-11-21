@@ -1,0 +1,192 @@
+id: ee.measure.connect
+type: concept
+title: "Strom oder Spannung messen?"
+summary: "Voltmeter parallel, Amperemeter in Reihe – und warum jedes Messgerät die Schaltung ein wenig stört."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du willst wissen, wie viel Strom eine Lampe zieht. Wie schließt du das Messgerät an?
+    params:
+      options:
+        - label: Den Kreis auftrennen und das Messgerät dazwischensetzen
+          correct: true
+        - label: An die beiden Anschlüsse der Lampe halten
+          feedback: So misst du die Spannung an der Lampe.
+        - label: An die Batterie halten
+          feedback: Im Strombereich wäre das ein Kurzschluss.
+    hints:
+      - Strom fließt durch die Leitung.
+      - Der Strom muss selbst durch das Messgerät fließen.
+    explanation: Nur was durch das Messgerät fließt, kann es zählen. Darum kommt das Amperemeter in den Kreis hinein.
+
+  - kind: explain
+    id: c1
+    body: Spannung ist ein Unterschied zwischen zwei Punkten. Darum hältst du das Voltmeter **parallel** an das Bauteil. Der Kreis bleibt dabei geschlossen. Das Voltmeter selbst zieht fast keinen Strom.
+
+  - kind: explain
+    id: c2
+    body: "Strom fließt durch eine Leitung. Um ihn zu messen, muss er durch das Gerät fließen. Das Amperemeter kommt deshalb **in Reihe**: Kreis öffnen, Gerät dazwischen. Innen hat es fast keinen Widerstand."
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Richtig oder falsch angeschlossen?
+    params:
+      buckets:
+        - id: b1
+          label: Richtig
+        - id: b2
+          label: Falsch
+      items:
+        - label: Voltmeter parallel zur Lampe
+          bucket: b1
+        - label: Amperemeter in Reihe mit der Lampe
+          bucket: b1
+        - label: Amperemeter direkt an der Batterie
+          bucket: b2
+        - label: Voltmeter in Reihe mit der Lampe
+          bucket: b2
+        - label: Voltmeter direkt an der Batterie
+          bucket: b1
+    hints:
+      - Voltmeter immer parallel, Amperemeter immer in Reihe.
+      - Ein Amperemeter direkt an einer Quelle ist ein Kurzschluss.
+    explanation: "Ein Voltmeter in Reihe sperrt den Strom fast ganz: Die Lampe geht aus, und es zeigt nur die Batteriespannung. Ein Amperemeter an der Batterie schließt sie kurz."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Voltmeter wird aus Versehen in Reihe mit einer Lampe geschaltet. Was passiert?
+    params:
+      options:
+        - label: Die Lampe geht aus, das Voltmeter zeigt fast die volle Batteriespannung
+          correct: true
+        - label: Das Voltmeter brennt durch
+          feedback: Sein großer Widerstand lässt kaum Strom durch.
+        - label: Alles funktioniert normal
+          feedback: Ein Voltmeter hat etwa 10 MΩ. Das ist ein riesiger Widerstand in Reihe.
+    hints:
+      - Ein Voltmeter hat innen etwa 10 MΩ.
+      - Wo fällt in einer Reihenschaltung die meiste Spannung ab?
+    explanation: Fast die ganze Spannung fällt am riesigen Widerstand des Voltmeters ab. Für die Lampe bleibt praktisch nichts. Kaputt geht dabei nichts.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Zwei Widerstände mit je 10 MΩ teilen 10 V. Du misst am unteren mit einem Voltmeter, das selbst 10 MΩ hat. Was zeigt es? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: 3.33
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: ideal-meter
+        text: So wäre es mit einem idealen Voltmeter. Es liegt aber parallel zum unteren Widerstand.
+    hints:
+      - Voltmeter parallel zu 10 MΩ ergibt 5 MΩ unten.
+      - "10 V · 5 : (10 + 5)."
+    explanation: 3,33 V statt 5 V. Das Messgerät belastet den Teiler. Bei sehr großen Widerständen musst du das einrechnen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ein ideales Voltmeter hat einen [[unendlich großen]] Widerstand. Ein ideales Amperemeter hat einen Widerstand von [[null]].
+      distractors:
+        - mittleren
+        - einem Ohm
+    explanation: "So stört keines der beiden die Schaltung. Echte Geräte kommen dem nahe: etwa 10 MΩ beim Voltmeter, Bruchteile eines Ohms beim Amperemeter."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Im Amperemeter misst ein Messwiderstand (Shunt) von 0,01 Ω die Spannung. Wie viel mV fallen bei {{i}} A daran ab?
+    params:
+      unit: mV
+    answer:
+      value: "{{i * 10}}"
+    hints:
+      - U = I · R.
+      - "{{i}} A · 0,01 Ω in V, dann mal 1000."
+    explanation: "{{i}} · 0,01 = {{i / 100}} V = {{i * 10}} mV. Ein Amperemeter ist innen ein Voltmeter an einem winzigen Widerstand."
+    difficulty: 2
+    variants:
+      params:
+        i: choice[0.5,2,5,10]
+      defaults:
+        i: 5
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Du misst den Strom einer LED. Im mA-Bereich leuchtet sie sichtbar schwächer als ohne Messgerät. Warum?
+    params:
+      options:
+        - label: Der Shunt im mA-Bereich ist größer und schluckt Spannung
+          correct: true
+        - label: Das Messgerät verbraucht Strom
+          feedback: Strom wird nicht verbraucht, aber am Shunt fällt Spannung ab.
+        - label: Die LED ist kaputt
+          feedback: Ohne Messgerät leuchtet sie normal.
+    hints:
+      - Kleine Bereiche brauchen einen größeren Shunt, damit genug Spannung entsteht.
+      - Diese Spannung fehlt der LED.
+    explanation: Die Spannung am Shunt heißt Bürdenspannung, oft einige hundert mV. Bei kleinen Spannungen im Kreis verändert das den Strom spürbar.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Shunt von 0,001 Ω führt 200 A in einem E-Auto-Akku. Wie viel Leistung heizt er?
+    params:
+      unit: W
+    answer:
+      value: 40
+    hints:
+      - P = I² · R.
+      - 200² · 0,001.
+    explanation: 40 000 · 0,001 = 40 W. Darum sind Shunts für große Ströme winzig klein im Wert – oder man misst das Magnetfeld statt der Spannung.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man ein Voltmeter parallel und ein Amperemeter in Reihe anschließt.
+    params:
+      keywords:
+        - - parallel
+        - - reihe
+          - series
+        - - spannung
+          - voltage
+          - unterschied
+          - difference
+          - zwei punkte
+          - two points
+        - - durch
+          - through
+          - fließ
+          - fliess
+          - flow
+      sample: Spannung ist der Unterschied zwischen zwei Punkten, darum hält man das Voltmeter parallel an diese Punkte. Strom fließt durch die Leitung. Er muss also durch das Messgerät fließen, darum kommt das Amperemeter in Reihe.
+    explanation: "Kern: Spannung zwischen zwei Punkten, Strom durch einen Querschnitt. Daraus folgen auch die idealen Innenwiderstände."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d3"]

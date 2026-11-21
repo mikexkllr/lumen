@@ -1,0 +1,218 @@
+id: ee.measure.errors
+type: concept
+title: "Messfehler verstehen"
+summary: "Genauigkeit, Auflösung, Zufall und System – wie gut ist dein Messwert?"
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Dein Multimeter ist auf ±1 % genau. Es zeigt 230 V. Um wie viel Volt kann es höchstens danebenliegen?
+    params:
+      min: 0
+      max: 20
+    answer:
+      value: 2.3
+      tolerance: 0.5
+    explanation: 1 % von 230 V sind 2,3 V. Die echte Spannung liegt also zwischen 227,7 V und 232,3 V.
+
+  - kind: explain
+    id: c1
+    body: Kein Messgerät ist exakt. Die **Messabweichung** steht im Datenblatt, etwa ±(0,5 % + 2 Digits). Ein Digit ist ein Schritt der letzten Stelle. Zeigt das Gerät 12,00 V, ist ein Digit 0,01 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Gerät zeigt {{x}} V mit zwei Nachkommastellen. Die Angabe lautet ±({{p}} % + 2 Digits). Wie groß ist die größte Abweichung in V?
+    params:
+      unit: V
+    answer:
+      value: "{{x * p / 100 + 0.02}}"
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - x * p / 100) < 0.001
+        misconception: forgot-digits
+        text: "Die 2 Digits kommen noch dazu: 2 · 0,01 V."
+    hints:
+      - "{{p}} % von {{x}} V, dazu 2 · 0,01 V."
+      - "{{x * p / 100}} V + 0,02 V."
+    explanation: "{{x * p / 100}} + 0,02 = {{x * p / 100 + 0.02}} V. Der wahre Wert liegt also zwischen {{x - x * p / 100 - 0.02}} und {{x + x * p / 100 + 0.02}} V."
+    variants:
+      params:
+        x: choice[5,12,15]
+        p: choice[0.5,1]
+      defaults:
+        x: 12
+        p: 0.5
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Systematischer oder zufälliger Fehler?
+    params:
+      buckets:
+        - id: b1
+          label: Systematisch
+        - id: b2
+          label: Zufällig
+      items:
+        - label: Gerät ist falsch kalibriert
+          bucket: b1
+        - label: Anzeige zappelt durch Störungen
+          bucket: b2
+        - label: Messkabel haben Widerstand
+          bucket: b1
+        - label: Rauschen im Verstärker
+          bucket: b2
+        - label: Voltmeter belastet die Schaltung
+          bucket: b1
+        - label: Luftzug ändert kurz die Temperatur
+          bucket: b2
+    hints:
+      - "Systematisch: immer in dieselbe Richtung."
+      - "Zufällig: mal mehr, mal weniger."
+    explanation: Systematische Fehler verschieben jeden Messwert gleich. Wiederholen hilft nicht, nur Korrigieren. Zufällige Fehler streuen und mitteln sich heraus.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Gerät A zeigt 4 Nachkommastellen, Gerät B nur 2. Welches ist genauer?
+    params:
+      options:
+        - label: Das verrät die Anzeige nicht, nur das Datenblatt
+          correct: true
+        - label: A, es zeigt mehr Stellen
+          feedback: Viele Stellen sind Auflösung, nicht Genauigkeit.
+        - label: B, weniger Stellen sind ehrlicher
+          feedback: Auch das sagt nichts über die Genauigkeit.
+    hints:
+      - Auflösung ist die kleinste Stufe, Genauigkeit die Nähe zum wahren Wert.
+      - Eine Uhr mit Sekundenzeiger kann trotzdem 5 Minuten falsch gehen.
+    explanation: Die Auflösung sagt, wie fein das Gerät anzeigt. Die Genauigkeit sagt, wie nah es am wahren Wert liegt. Beides steht getrennt im Datenblatt.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Zufällige Fehler werden kleiner, wenn du oft misst und mittelst. Die Streuung des **Mittelwerts** schrumpft mit der Wurzel der Anzahl. Viermal so viele Messungen halbieren sie.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Du mittelst {{n}} Messungen statt einer. Um welchen Faktor wird die zufällige Streuung des Mittelwerts kleiner?
+    answer:
+      value: "{{sqrt(n)}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: no-sqrt
+        text: "Nicht ganz: Die Streuung sinkt nur mit der Wurzel."
+    hints:
+      - Faktor = √n.
+      - √{{n}}.
+    explanation: √{{n}} = {{sqrt(n)}}. Für eine zehnmal genauere Messung brauchst du hundertmal so viele Werte.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,9,16,25,100]
+      defaults:
+        n: 100
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Dein Gerät ist systematisch 0,3 V zu hoch. Du mittelst 1000 Messungen. Wie groß ist der Fehler danach?
+    params:
+      options:
+        - label: Immer noch 0,3 V
+          correct: true
+        - label: Fast null
+          feedback: Mitteln hilft nur gegen zufällige Fehler.
+        - label: "0,3 V : √1000"
+          feedback: Die Wurzel-Regel gilt nur für zufällige Streuung.
+    hints:
+      - Jeder einzelne Wert ist 0,3 V zu hoch.
+      - Der Mittelwert vieler zu hoher Werte ist auch zu hoch.
+    explanation: "Gegen systematische Fehler hilft nur Kalibrieren: Vergleich mit einer genauen Referenz."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Du misst U = 12 V auf ±1 % genau und I = 2 A auf ±2 %. Wie groß ist die größte Abweichung der Leistung P = U · I in Watt?
+    params:
+      unit: W
+    answer:
+      value: 0.72
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.24) < 0.01
+        misconception: one-error
+        text: Nur der Spannungsfehler? Beim Produkt addieren sich die relativen Fehler.
+    hints:
+      - Bei einem Produkt addieren sich im ungünstigsten Fall die relativen Fehler.
+      - 1 % + 2 % = 3 % von 24 W.
+    explanation: P = 24 W ± 3 % = ± 0,72 W. Das ist die obere Grenze, wenn beide Fehler in dieselbe Richtung gehen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Sind die beiden Fehler zufällig und unabhängig, addiert man sie quadratisch: √(1² + 2²) %. Wie viel Prozent sind das? Auf zwei Nachkommastellen."
+    params:
+      unit: "%"
+    answer:
+      value: 2.24
+      tolerance: 0.01
+    hints:
+      - 1² + 2² = 5.
+      - √5 ≈ ?
+    explanation: √5 ≈ 2,24 %. Weniger als 3 %, weil sich zufällige Fehler teilweise aufheben.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Auflösung und Genauigkeit an einem Beispiel.
+    params:
+      keywords:
+        - - auflösung
+          - aufloesung
+          - resolution
+          - stelle
+          - digit
+          - fein
+          - fine
+        - - genauigkeit
+          - accura
+          - wahr
+          - "true"
+          - richtig
+          - correct
+        - - beispiel
+          - example
+          - uhr
+          - watch
+          - waage
+          - scale
+          - lineal
+          - ruler
+        - - datenblatt
+          - data sheet
+          - kalibr
+          - calibr
+          - unterschied
+          - differen
+      sample: "Auflösung ist die kleinste Stufe, die das Gerät anzeigt. Genauigkeit ist, wie nah die Anzeige am wahren Wert liegt. Eine Uhr mit Sekunden kann trotzdem fünf Minuten falsch gehen: hohe Auflösung, schlechte Genauigkeit. Die Genauigkeit steht im Datenblatt."
+    explanation: "Kern: viele Stellen sind keine Garantie. Die Genauigkeit steht im Datenblatt oder kommt aus der Kalibrierung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

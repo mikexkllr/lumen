@@ -1,0 +1,191 @@
+id: ee.ac.sine
+type: concept
+title: "Sine waves and 50 hertz"
+summary: "Why the socket reverses 100 times a second and where the sine comes from."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: How many times per second does the current from a wall socket change direction?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 100
+      within: 10
+    explanation: 100 times. The grid runs at 50 Hz, and in each period the direction changes twice.
+
+  - kind: explain
+    id: c1
+    body: "**Frequency** f counts the complete oscillations per second. Its unit is the hertz (Hz). The European grid runs at 50 Hz. So one period lasts T = 1 ÷ f = 20 ms."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How long is one period at {{f}} Hz, in milliseconds?
+    params:
+      unit: ms
+    answer:
+      value: "{{1000 / f}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - f / 1000) < 0.001
+        misconception: inverse
+        text: "The other way round: T = 1 ÷ f."
+    hints:
+      - T = 1 ÷ f, in seconds.
+      - 1000 ÷ {{f}} gives ms.
+    explanation: "T = 1 ÷ {{f}} s = {{round(1000 / f, 2)}} ms. Aircraft use 400 Hz: it makes their transformers smaller and lighter."
+    variants:
+      params:
+        f: choice[50,60,400,500]
+      defaults:
+        f: 60
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: The picture shows 40 ms of mains voltage. Set the frequency so that one period lasts 20 ms.
+    params:
+      expr: 325*sin(2*pi*f*x)
+      x:
+        - 0
+        - 0.04
+      y:
+        - -400
+        - 400
+      showCoordinates: false
+      sliders:
+        - id: f
+          label: f in Hz
+          min: 10
+          max: 100
+          step: 10
+          initial: 20
+      markers:
+        - x: 0.02
+          y: 0
+          group: a
+        - x: 0.04
+          y: 0
+          group: a
+    check:
+      predicate: f == 50
+    hints:
+      - Exactly two periods should fit in 40 ms.
+      - f = 1 ÷ 0.02 s.
+    explanation: 1 ÷ 0.02 s = 50 Hz. The curve then ends exactly two waves later at the dots.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Which mains supply belongs where?
+    params:
+      pairs:
+        - left: Germany
+          right: 230 V, 50 Hz
+        - left: USA
+          right: 120 V, 60 Hz
+        - left: Tokyo
+          right: 100 V, 50 Hz
+        - left: Osaka
+          right: 100 V, 60 Hz
+        - left: German railway
+          right: 15 kV, 16.7 Hz
+      leftTitle: Where
+      rightTitle: Supply
+    hints:
+      - America has 60 Hz and a lower voltage.
+      - "Japan is split: the east has 50 Hz, the west 60 Hz."
+    explanation: Japan once bought generators from Germany for Tokyo and from the USA for Osaka. Railways use 16.7 Hz because old traction motors ran better on it.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Mains voltage follows u(t) = Û × sin(ω t). Û is the peak value. The **angular frequency** ω = 2π f says how much angle is covered per second. At 50 Hz that is 314 per second.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: A generator spins a coil in a magnetic field. The voltage is proportional to the sine of the angle. Turn the coil to the position with the largest positive voltage.
+    params:
+      scene: unitcircle
+    answer:
+      sin: 1
+    explanation: "At 90° the sine is 1: the coil cuts the field lines fastest. At 0° and 180° the voltage is zero."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: What is the mains voltage u = 325 V × sin(2π × 50 Hz × t) exactly 2.5 ms after a zero crossing? To the nearest volt.
+    params:
+      unit: V
+    answer:
+      value: 230
+      tolerance: 0.6
+    hints:
+      - 2.5 ms is an eighth of the period, so 45°.
+      - sin 45° ≈ 0.707.
+    explanation: "325 × 0.707 ≈ 230 V. Coincidence? Not quite: at 45°, sin = 1/√2, exactly the factor between peak and RMS."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why does the grid use a sine shape of all things?
+    params:
+      options:
+        - label: A sine stays a sine through coils, capacitors and resistors
+          correct: true
+        - label: Because sines are easier to measure
+          feedback: Measurability was not the reason.
+        - label: Because square waves are forbidden
+          feedback: There are technical reasons, not a ban.
+    hints:
+      - What happens to a sine when you differentiate it?
+      - Coils and capacitors differentiate or integrate.
+    explanation: The derivative and integral of a sine are sines again, just shifted. So no transformer or line distorts the shape. Rotating generators produce it naturally, too.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what “230 V, 50 Hz” tells you about the voltage in a socket.
+    params:
+      keywords:
+        - - sinus
+          - sine
+          - welle
+          - wave
+        - - "50"
+          - frequenz
+          - frequency
+          - hertz
+        - - periode
+          - period
+          - 20 ms
+          - pro sekunde
+          - per second
+        - - richtung
+          - direction
+          - umpol
+          - revers
+          - wechsel
+          - altern
+      sample: The voltage swings back and forth as a sine wave. 50 Hz means 50 complete periods per second, each lasting 20 ms. In each period the direction changes twice. 230 V is an average, the RMS value.
+    explanation: "The core: sine shape, frequency, period. What 230 V means exactly is the topic of the next lesson."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

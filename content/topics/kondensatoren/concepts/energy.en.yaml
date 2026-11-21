@@ -1,0 +1,212 @@
+id: ee.capacitors.energy
+type: concept
+title: "Energy in a capacitor"
+summary: "From camera flash to supercapacitor: W = ½ C U²."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A camera flash charges a 150 µF capacitor to 330 V. How many joules does it hold?
+    params:
+      min: 0.01
+      max: 1000
+      scale: log
+    answer:
+      value: 8.2
+      within: 30
+    explanation: ½ × 0.00015 F × 330² V² ≈ 8.2 J. It turns into light in about a millisecond.
+
+  - kind: explain
+    id: c1
+    body: The **stored energy** of a capacitor is W = ½ × C × U². The voltage is squared. So double the voltage means four times the energy.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A {{c}} µF capacitor is charged to {{u}} V. How much energy does it store, in mJ? To two decimal places.
+    params:
+      unit: mJ
+    answer:
+      value: "{{c * u * u / 2000}}"
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - c * u * u / 1000) < 0.006
+        misconception: missing-half
+        text: Don’t forget the factor ½.
+      - when: abs(numval(state.input) - c * u / 2000) < 0.006
+        misconception: no-square
+        text: The voltage must be squared.
+    hints:
+      - W = ½ × C × U², with C in F.
+      - ½ × {{c}} µF × {{u * u}} V² gives µJ.
+    explanation: ½ × {{c}} × {{u * u}} = {{c * u * u / 2}} µJ = {{c * u * u / 2000}} mJ.
+    variants:
+      params:
+        c: choice[100,470,1000,2200]
+        u: choice[5,10,12,24]
+      defaults:
+        c: 1000
+        u: 12
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: You charge the same capacitor to three times the voltage. How does the energy change?
+    params:
+      options:
+        - label: Nine times as much
+          correct: true
+        - label: Three times as much
+          feedback: The voltage is squared.
+        - label: The same, C stays the same
+          feedback: C stays the same, but U² grows.
+    hints:
+      - W depends on U².
+      - 3² = ?
+    explanation: "3² = 9. That is why flash units charge to over 300 V: the same size holds far more energy."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The flash releases 8 J in 1 ms. What power is that, in kW?
+    params:
+      unit: kW
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 8000
+        misconception: unit-prefix
+        text: That is in watts. The question asks for kW.
+    hints:
+      - P = W ÷ t.
+      - 8 J ÷ 0.001 s.
+    explanation: 8 J ÷ 0.001 s = 8000 W = 8 kW – more than four kettles. The small battery can’t do that directly, but the capacitor can.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A supercapacitor has 3000 F at 2.7 V. How many watt-hours does it store? To two decimal places. 1 Wh = 3600 J.
+    params:
+      unit: Wh
+    answer:
+      value: 3.04
+      tolerance: 0.01
+    hints:
+      - W = ½ × 3000 × 2.7² J.
+      - 10,935 J ÷ 3600.
+    explanation: 10,935 J ≈ 3.04 Wh – about as much as an AA battery. But it weighs over 500 g, the battery about 23 g.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A device only works down to half the voltage. What percentage of the stored energy can it use when the capacitor discharges from U to U/2?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: linear
+        text: "The energy depends on U²: at U/2 a quarter is still left."
+    hints:
+      - At U/2, (½)² of the energy is left.
+      - 100 % − 25 %.
+    explanation: A quarter is left, 75 % is used. Voltage converters can extract the rest too.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Capacitor or battery – which is better at this?
+    params:
+      cards:
+        - text: Charging in a fraction of a second
+          right: true
+        - text: Running a phone for a whole day
+          right: false
+        - text: Surviving a million charge cycles
+          right: true
+        - text: Storing lots of energy per kilogram
+          right: false
+        - text: Catching a tram’s braking energy
+          right: true
+      left: Battery
+      right: Capacitor
+    explanation: "Capacitors are sprinters: fast and durable, but with little energy per weight. Batteries are long-distance runners."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why is there a factor ½ in W = ½ C U²?
+    params:
+      options:
+        - label: While charging the voltage rises from 0 to U, on average it was U/2
+          correct: true
+        - label: Because half is lost as heat
+          feedback: That happens in the charging resistor, not in the capacitor.
+        - label: It is a measuring convention
+          feedback: It follows directly from the calculation.
+    hints:
+      - Each bit of charge must be pushed in against the voltage present at that moment.
+      - At the start the voltage is 0, at the end U.
+    explanation: "W = Q × average voltage = C U × U/2. As an integral: W = ∫ u dq = ∫₀^Q q/C dq = Q²/(2C)."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: You charge a capacitor fully through a resistor from a fixed voltage. How much energy becomes heat in the resistor?
+    params:
+      options:
+        - label: Exactly as much as ends up in the capacitor – whatever R is
+          correct: true
+        - label: Almost nothing with a small R
+          feedback: Small R means a big current for a short time. The heat stays the same.
+        - label: Twice as much
+          feedback: The source delivers Q × U = C U², the capacitor gets half.
+    hints:
+      - The source always delivers the charge Q at the full voltage U.
+      - So it gives out Q × U = C U².
+    explanation: The source gives C U², the capacitor stores ½ C U². The other half heats the resistor, regardless of R. Efficient charging needs a rising voltage.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a camera flash needs a capacitor even though the camera has a battery.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - batterie
+          - battery
+          - akku
+        - - schnell
+          - fast
+          - kurz
+          - short
+          - millisekunde
+          - millisecond
+        - - leistung
+          - power
+          - energie
+          - energy
+      sample: The battery can only deliver a little power. It slowly charges the capacitor over a few seconds. The capacitor then releases the stored energy in a millisecond. That gives a huge burst of power for the flash.
+    explanation: "The core: collect energy slowly, release it fast. Power is energy per time."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

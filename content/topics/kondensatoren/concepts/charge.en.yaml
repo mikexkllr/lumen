@@ -1,0 +1,226 @@
+id: ee.capacitors.charge
+type: concept
+title: "Charge and capacitance"
+summary: "Two plates, a gap, and why one farad is huge."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A supercapacitor has 3000 F. A typical capacitor on a phone board has 1 µF, a millionth of a farad. How many times larger is the supercapacitor?
+    params:
+      min: 1000
+      max: 1000000000000
+      scale: log
+    answer:
+      value: 3000000000
+      within: 30
+    explanation: 3000 ÷ 0.000001 = 3,000,000,000 – three billion. Capacitances span many powers of ten.
+
+  - kind: explain
+    id: c1
+    body: A capacitor is two metal plates with a thin insulating layer in between. With a voltage applied, charge collects. The **capacitance** C = Q ÷ U says how much charge Q fits in per volt. Its unit is the farad (F).
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Charge is measured in coulombs (C). A {{c}} µF capacitor is connected to {{u}} V. How much charge does it store, in µC?
+    params:
+      unit: µC
+    answer:
+      value: "{{c * u}}"
+    feedback:
+      - when: numval(state.input) == c / u
+        misconception: divide
+        text: "The other way round: Q = C × U, not C ÷ U."
+    hints:
+      - Q = C × U.
+      - "{{c}} µF × {{u}} V."
+    explanation: "{{c}} µF × {{u}} V = {{c * u}} µC. Double the voltage, double the charge."
+    variants:
+      params:
+        c: choice[1,10,47,100]
+        u: choice[5,9,12]
+      defaults:
+        c: 10
+        u: 12
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: One coulomb is one amp for one second. A current of 2 mA charges a capacitor for 5 s. How much charge does it then hold, in mC?
+    params:
+      unit: mC
+    answer:
+      value: 10
+    hints:
+      - Q = I × t.
+      - 2 mA × 5 s.
+    explanation: 2 mA × 5 s = 10 mAs = 10 mC. With C = 1000 µF that would be 10 V.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: What changes the capacitance of a plate capacitor?
+    params:
+      buckets:
+        - id: b1
+          label: Larger
+        - id: b2
+          label: Unchanged
+      items:
+        - label: Bigger plate area
+          bucket: b1
+        - label: Smaller gap
+          bucket: b1
+        - label: Plastic film instead of air
+          bucket: b1
+        - label: Higher voltage
+          bucket: b2
+        - label: More stored charge
+          bucket: b2
+        - label: Thicker leads
+          bucket: b2
+    hints:
+      - Capacitance depends only on the construction.
+      - Voltage and charge grow together, their ratio stays.
+    explanation: C depends on area, gap and insulating material. More voltage brings more charge, but C = Q ÷ U stays the same.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: For two plates, $C = \varepsilon_0 \varepsilon_r \frac{A}{d}$. A is the area, d the gap. The **vacuum permittivity** ε₀ is 8.85 pF per metre. εᵣ says how much better the insulator is than air.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Two plates of 1 m² each are 1 mm apart, with air in between. What is the capacitance in nF?
+    params:
+      unit: nF
+    answer:
+      value: 8.85
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 0.00885) < 0.0001
+        misconception: gap
+        text: 1 mm is 0.001 m. Divide by the gap, don’t multiply.
+    hints:
+      - C = 8.85 pF/m × 1 m² ÷ 0.001 m.
+      - 8.85 pF × 1000 = 8850 pF.
+    explanation: 8850 pF = 8.85 nF. A whole square metre gives only a few nanofarads!
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: How big would the plates need to be for 1 F with a 1 mm air gap? In km².
+    params:
+      unit: km²
+    answer:
+      value: 113
+      tolerance: 1
+    hints:
+      - A = C × d ÷ ε₀ = 1 × 0.001 ÷ 8.85 × 10⁻¹² m².
+      - That is about 1.13 × 10⁸ m². 1 km² = 10⁶ m².
+    explanation: About 113 km², the size of a city. One farad is huge.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: How does a thumb-sized supercapacitor still reach 3000 F?
+    params:
+      options:
+        - label: Porous carbon with a huge surface and charge layers nanometres apart
+          correct: true
+        - label: With very high voltage
+          feedback: Supercapacitors only take about 2.7 V per cell.
+        - label: With a built-in battery
+          feedback: The charge sits electrically on the surface, not chemically.
+    hints:
+      - "Look at the formula: big A, small d."
+      - Activated carbon has over 1000 m² of surface per gram.
+    explanation: Huge area A and tiny gap d both drive C = ε × A ÷ d up. The price is a low voltage of about 2.7 V.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: In parallel capacitances add; in series 1/C = 1/C₁ + 1/C₂. What is {{a}} µF in series with {{b}} µF?
+    params:
+      unit: µF
+    answer:
+      value: "{{a * b / (a + b)}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: series-add
+        text: Adding applies in parallel. In series it gets smaller.
+    hints:
+      - In series it is as if the gap grew.
+      - C = C₁ × C₂ ÷ (C₁ + C₂).
+    explanation: "{{a}} × {{b}} ÷ {{a + b}} = {{round(a * b / (a + b), 2)}} µF. Exactly the opposite of resistors."
+    difficulty: 3
+    variants:
+      params:
+        a: choice[10,20,30,60]
+        b: choice[10,20,30,60]
+      defaults:
+        a: 10
+        b: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A 16 V module consists of six 2.7 V supercapacitor cells in series. Why in series?
+    params:
+      options:
+        - label: The voltage is shared, each cell only gets its part
+          correct: true
+        - label: To increase the capacitance
+          feedback: In series it drops to a sixth.
+        - label: Because it is cheaper
+          feedback: It is about the voltage rating.
+    hints:
+      - How much voltage can one cell take?
+      - 6 × 2.7 V = 16.2 V.
+    explanation: Each cell only sees about 2.7 V. In return the module has only a sixth of the cell capacitance. Small circuits balance the cell voltages.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a capacitor’s capacitance means and what it depends on.
+    params:
+      keywords:
+        - - ladung
+          - charge
+        - - spannung
+          - voltage
+          - volt
+        - - fläche
+          - flaeche
+          - area
+          - platte
+          - plate
+        - - abstand
+          - gap
+          - distance
+          - isolier
+          - insulat
+      sample: "Capacitance says how much charge per volt fits into the capacitor: C = Q ÷ U. It grows with large plate area, a small gap and a good insulator in between."
+    explanation: "The core: C = Q ÷ U as the definition, C = ε × A ÷ d from the construction."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

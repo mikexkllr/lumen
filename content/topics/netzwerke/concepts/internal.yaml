@@ -1,0 +1,237 @@
+id: ee.networks.internal
+type: concept
+title: "Der Innenwiderstand"
+summary: "Warum echte Batterien unter Last einknicken – und wann sie die meiste Leistung abgeben."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du startest ein Auto bei eingeschaltetem Licht. Die Scheinwerfer werden kurz dunkler. Warum?
+    params:
+      options:
+        - label: Der Anlasser zieht so viel Strom, dass die Batteriespannung einbricht
+          correct: true
+        - label: Der Motor stiehlt den Lampen Strom
+          feedback: Lampen und Anlasser hängen parallel. Es geht um die Spannung der Batterie.
+        - label: Die Lampen sind kaputt
+          feedback: Danach leuchten sie wieder normal.
+    hints:
+      - Der Anlasser zieht rund 150 A.
+      - Auch in der Batterie selbst steckt ein kleiner Widerstand.
+    explanation: Am Widerstand in der Batterie fallen bei 150 A schnell 1 bis 2 V ab. Für die Lampen bleibt weniger.
+
+  - kind: explain
+    id: c1
+    body: Jede echte Quelle hat einen **Innenwiderstand** Rᵢ. Fließt Strom I, fällt an ihm Spannung ab. Außen bleibt die Klemmenspannung U = U₀ − I · Rᵢ. U₀ ist die Leerlaufspannung ohne Strom.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Autobatterie hat U₀ = 12,6 V und Rᵢ = {{r}} Ω. Der Anlasser zieht {{i}} A. Wie groß ist die Klemmenspannung?
+    params:
+      unit: V
+    answer:
+      value: "{{12.6 - i * r}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - i * r) < 0.01
+        misconception: drop-only
+        text: Das ist der Spannungsabfall innen. Zieh ihn von 12,6 V ab.
+    hints:
+      - "Abfall innen: I · Rᵢ = {{i}} · {{r}}."
+      - U = 12,6 V − {{i * r}} V.
+    explanation: 12,6 − {{i * r}} = {{12.6 - i * r}} V. Fällt sie unter etwa 9,6 V, gilt die Batterie als schwach.
+    variants:
+      params:
+        r: choice[0.005,0.01,0.02]
+        i: choice[100,150,200]
+      defaults:
+        r: 0.01
+        i: 200
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Zelle zeigt ohne Last {{u0}} V. Mit {{i}} A Last misst du {{u0 - d}} V. Wie groß ist ihr Innenwiderstand?
+    params:
+      unit: Ω
+    answer:
+      value: "{{d / i}}"
+      tolerance: 0.001
+    hints:
+      - Wie viel Spannung fehlt unter Last?
+      - "Rᵢ = fehlende Spannung : Strom."
+    explanation: "{{d}} V : {{i}} A = {{d / i}} Ω. So prüft ein Batterietester die Zellen."
+    variants:
+      params:
+        u0: choice[1.5,3.7]
+        d: choice[0.1,0.2,0.3]
+        i: choice[0.5,1,2]
+      defaults:
+        u0: 1.5
+        d: 0.2
+        i: 2
+
+  - kind: problem
+    id: c4
+    widget: sim
+    prompt: "Modell einer Batterie: Die Quelle ist U₀ = 12 V, R₁ = 4 kΩ ist der Innenwiderstand, R₂ der Verbraucher. Bei welchem Verbraucher sinkt die Klemmenspannung auf die Hälfte?"
+    params:
+      scene: divider
+      controls:
+        voltage:
+          fixed: true
+        r1:
+          fixed: true
+          value: 4
+        r2:
+          value: 20
+      show:
+        - out
+        - current
+    answer:
+      out: 6
+    explanation: Bei R₂ = Rᵢ = 4 kΩ teilt sich die Spannung halb und halb. Genau dort gibt die Quelle die meiste Leistung ab.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Der Kurzschlussstrom ist I = U₀ : Rᵢ. Wie groß ist er bei einer Autobatterie mit 12,6 V und 0,01 Ω?"
+    params:
+      unit: A
+    answer:
+      value: 1260
+    hints:
+      - Außen ist kein Widerstand mehr.
+      - "12,6 : 0,01."
+    explanation: 1260 A! Ein Schraubenschlüssel über den Polen glüht und schmilzt. Darum klemmt man zuerst Plus an und baut Minus zuerst ab.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Quelle hat U₀ = 9 V und Rᵢ = 3 Ω. Wie viel Leistung bekommt ein Verbraucher mit 3 Ω?
+    params:
+      unit: W
+    answer:
+      value: 6.75
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 27
+        misconception: ignore-ri
+        text: "Das wäre ohne Innenwiderstand. Der Strom ist 9 V : 6 Ω."
+    hints:
+      - "Strom: 9 V : (3 + 3) Ω = 1,5 A."
+      - P = I² · R = 1,5² · 3.
+    explanation: 2,25 · 3 = 6,75 W. Weitere 6,75 W heizen die Quelle. Der Wirkungsgrad ist nur 50 %.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: slider
+    prompt: Die Kurve zeigt die Leistung im Verbraucher über seinem Widerstand x bei 9 V. Stell den Innenwiderstand r so ein, dass das Maximum am Punkt liegt.
+    params:
+      expr: 81*x/(r+x)^2
+      x:
+        - 0
+        - 10
+      y:
+        - 0
+        - 12
+      showCoordinates: false
+      sliders:
+        - id: r
+          label: Rᵢ in Ω
+          min: 0.5
+          max: 5
+          step: 0.5
+          initial: 4
+      markers:
+        - x: 2
+          y: 10.125
+          group: a
+    check:
+      predicate: r == 2
+    hints:
+      - Der Punkt liegt bei x = 2 Ω.
+      - Das Maximum liegt immer dort, wo der Verbraucher so groß ist wie Rᵢ.
+    explanation: "Mit r = 2 Ω liegt der Gipfel bei x = 2 Ω: P = 81 : 8 ≈ 10,1 W. Das ist die Leistungsanpassung."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Bei Leistungsanpassung geht die Hälfte der Energie in der Quelle verloren. Wo nutzt man sie trotzdem?
+    params:
+      options:
+        - label: Bei Antennen und Signalleitungen, wo jedes Mikrowatt zählt
+          correct: true
+        - label: Im Kraftwerk, für maximale Leistung
+          feedback: Dort zählt der Wirkungsgrad. Netze arbeiten weit weg von der Anpassung.
+        - label: Beim Laden von Akkus
+          feedback: Dabei will man möglichst wenig Verlust.
+    hints:
+      - Wo ist das Signal winzig und die Energie egal?
+      - Denk an Funk und Kabel mit 50 Ω.
+    explanation: "In der Energietechnik will man hohen Wirkungsgrad: Der Verbraucher ist viel größer als Rᵢ. In der Funktechnik zählt die übertragene Leistung, darum passt man an, zum Beispiel auf 50 Ω."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Verbraucher mit R hängt an einer Quelle mit Rᵢ. Der Wirkungsgrad ist η = R : (R + Rᵢ). Wie viel Prozent sind es bei R = {{k}} · Rᵢ? Auf eine Nachkommastelle."
+    params:
+      unit: "%"
+    answer:
+      value: "{{round(100 * k / (k + 1), 1)}}"
+      tolerance: 0.05
+    hints:
+      - "Setz R = {{k}} Rᵢ ein: η = {{k}} : ({{k}} + 1)."
+      - Mal 100 für Prozent.
+    explanation: "{{k}} : {{k + 1}} ≈ {{round(100 * k / (k + 1), 1)}} %. Großer Verbraucher, kleiner Strom, wenig Verlust – aber auch weniger Leistung."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[1,3,9,19,99]
+      defaults:
+        k: 9
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Batterie unter Last weniger Spannung liefert.
+    params:
+      keywords:
+        - - innenwiderstand
+          - internal resistance
+          - innen
+          - inside
+        - - strom
+          - current
+        - - spannung
+          - voltage
+          - abfall
+          - drop
+          - fällt
+          - faellt
+        - - last
+          - load
+          - verbraucher
+          - device
+      sample: "In der Batterie steckt ein kleiner Innenwiderstand. Zieht ein Verbraucher Strom, fällt an diesem Widerstand Spannung ab: I mal Rᵢ. Diese Spannung fehlt dann außen an den Klemmen. Je mehr Strom, desto größer der Verlust."
+    explanation: "Kern: U = U₀ − I · Rᵢ. Der Innenwiderstand begrenzt auch den Kurzschlussstrom."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

@@ -1,0 +1,238 @@
+id: ee.everyday.kwh
+type: concept
+title: "Was kostet eine Kilowattstunde?"
+summary: "Leistung mal Zeit ergibt Energie – und Energie kostet Geld."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Strom kostet etwa 35 Cent pro Kilowattstunde. Wie viele Cent kostet es, einen Liter Wasser im Wasserkocher zu kochen?
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+    answer:
+      value: 3.5
+      within: 50
+    explanation: Etwa 0,1 kWh, also rund 3,5 Cent. Wasser von 20 °C auf 100 °C zu bringen braucht rund 335 kJ, dazu kommen kleine Verluste.
+
+  - kind: explain
+    id: c1
+    body: Die **Leistung** sagt, wie schnell ein Gerät Energie umsetzt. Man misst sie in Watt (W). Läuft ein Gerät mit 1000 W eine Stunde lang, verbraucht es 1 Kilowattstunde (kWh).
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Föhn mit {{p}} W läuft {{m}} Minuten. Wie viele kWh verbraucht er?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * m / 60000}}"
+      tolerance: 0.005
+    feedback:
+      - when: numval(state.input) == p * m
+        misconception: units
+        text: Das sind Wattminuten. Rechne in Stunden und Kilowatt um.
+    hints:
+      - Energie = Leistung · Zeit, in kW und h.
+      - "{{p / 1000}} kW · {{m}}/60 h."
+    explanation: "{{p / 1000}} kW · {{m / 60}} h = {{p * m / 60000}} kWh."
+    variants:
+      params:
+        p: choice[1200,1800,2400]
+        m: choice[10,15,20,30]
+      defaults:
+        p: 1800
+        m: 10
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Welche Leistung passt zu welchem Gerät?
+    params:
+      pairs:
+        - left: LED-Lampe
+          right: 8 W
+        - left: Laptop
+          right: 50 W
+        - left: Kühlschrank (Kompressor läuft)
+          right: 100 W
+        - left: Staubsauger
+          right: 700 W
+        - left: Wasserkocher
+          right: 2000 W
+      leftTitle: Gerät
+      rightTitle: Leistung
+    hints:
+      - Was heizt, braucht viel Leistung.
+      - Die LED-Lampe ist am sparsamsten.
+    explanation: "Heizen frisst Leistung: Wasserkocher und Föhn liegen bei 2000 W. Licht und Elektronik brauchen wenig."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Fernseher mit 100 W läuft jeden Tag 4 Stunden. Was kostet das im Jahr bei 35 Cent pro kWh? In Euro.
+    params:
+      unit: €
+    answer:
+      value: 51.1
+      tolerance: 0.2
+    hints:
+      - "Erst die kWh pro Tag: 0,1 kW · 4 h."
+      - 0,4 kWh · 365 · 0,35 €.
+    explanation: 0,4 kWh pro Tag · 365 = 146 kWh. Mal 0,35 € ergibt etwa 51,10 €.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Auf einem Wasserkocher steht »2 kW«. Was bedeutet das?
+    params:
+      options:
+        - label: Er setzt 2000 Joule pro Sekunde um
+          correct: true
+        - label: Er verbraucht 2 kWh pro Kochvorgang
+          feedback: kW ist eine Leistung, kWh eine Energie.
+        - label: Er verbraucht insgesamt 2 kWh
+          feedback: Wie viel Energie, hängt davon ab, wie lange er läuft.
+    hints:
+      - Watt ist eine Rate, wie km/h beim Auto.
+      - 1 W = 1 Joule pro Sekunde.
+    explanation: Leistung ist Energie pro Zeit. 2 kW heißt 2000 J pro Sekunde. Erst mit der Laufzeit wird daraus eine Energie in kWh.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: 1 W ist 1 Joule pro Sekunde. Wie viele Megajoule (MJ) sind 1 kWh?
+    params:
+      unit: MJ
+    answer:
+      value: 3.6
+      tolerance: 0.001
+    hints:
+      - 1 kWh = 1000 W für 3600 Sekunden.
+      - 1000 · 3600 J = 3 600 000 J.
+    explanation: 1 kWh = 3 600 000 J = 3,6 MJ. Damit könntest du eine Tonne etwa 367 m hochheben.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Handy lädt jeden Tag {{w}} Wh nach. Wie viel kostet das im Jahr bei 35 Cent pro kWh? In Euro, auf Cent gerundet.
+    params:
+      unit: €
+    answer:
+      value: "{{round(w * 365 * 0.35 / 1000, 2)}}"
+      tolerance: 0.011
+    hints:
+      - "Erst die kWh pro Jahr: {{w}} · 365 : 1000."
+      - Dann mal 0,35 €.
+    explanation: "{{w * 365 / 1000}} kWh · 0,35 € ≈ {{round(w * 365 * 0.35 / 1000, 2)}} €. Handyladen ist fast gratis."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[10,15,20,25]
+      defaults:
+        w: 15
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Großer oder kleiner Posten auf der Stromrechnung?
+    params:
+      buckets:
+        - id: b1
+          label: Kleiner Posten
+        - id: b2
+          label: Großer Posten
+      items:
+        - label: Handy laden
+          bucket: b1
+        - label: LED-Licht im Flur
+          bucket: b1
+        - label: Elektrischer Durchlauferhitzer
+          bucket: b2
+        - label: Wäschetrockner
+          bucket: b2
+        - label: Elektroauto laden
+          bucket: b2
+        - label: Wecker
+          bucket: b1
+    hints:
+      - Zählt Leistung mal Laufzeit.
+      - Wärme machen und Auto fahren kosten viel Energie.
+    explanation: Wärme und Bewegung brauchen viel Energie. Ein E-Auto braucht für 100 km etwa 15 bis 20 kWh, ein Handy im ganzen Jahr rund 5 kWh.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Haushalt verbraucht 3500 kWh im Jahr. Wie groß ist die mittlere Leistung in Watt? Ein Jahr hat 8760 Stunden.
+    params:
+      unit: W
+    answer:
+      value: 400
+      tolerance: 2
+    hints:
+      - "Leistung = Energie : Zeit."
+      - "3500 kWh : 8760 h in kW, dann mal 1000."
+    explanation: "3500 : 8760 ≈ 0,40 kW = 400 W. Der Haushalt verhält sich im Mittel wie ein 400-W-Gerät, das nie ausgeht."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Leistung ist [[Energie]] pro [[Zeit]]. Ein Gerät mit 2 kW braucht in einer halben Stunde [[1 kWh]].
+      distractors:
+        - Spannung
+        - 4 kWh
+        - Strom
+    explanation: 2 kW · 0,5 h = 1 kWh.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen kW und kWh mit einem Bild aus dem Alltag.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - kw
+        - - energie
+          - energy
+          - kwh
+          - menge
+          - amount
+        - - zeit
+          - time
+          - stunde
+          - hour
+          - lange
+          - long
+        - - tempo
+          - speed
+          - rate
+          - schnell
+          - fast
+          - strahl
+          - flow
+          - liter
+      sample: kW ist wie das Tempo beim Autofahren, kWh wie die gefahrene Strecke. Die Leistung sagt, wie schnell Energie fließt. Mal die Zeit ergibt die Energie in kWh, und die bezahlst du.
+    explanation: Wichtig sind die Kernideen. Vergleiche deine Erklärung mit der Musterantwort.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

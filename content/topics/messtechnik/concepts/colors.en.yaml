@@ -1,0 +1,211 @@
+id: ee.measure.colors
+type: concept
+title: "Resistor colour codes"
+summary: "Reading rings, understanding tolerances and why there is 4.7 kΩ but no 5 kΩ."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A resistor has the rings brown, black, red. Take a guess: how big is it, if brown means 1, black 0 and red 2?"
+    params:
+      options:
+        - label: 1000 Ω
+          correct: true
+        - label: 102 Ω
+          feedback: The third ring is not a digit. It says how many zeros follow.
+        - label: 12 Ω
+          feedback: Black stands for the digit 0.
+    hints:
+      - "The first two rings are digits: 1 and 0."
+      - "Red here means: append two zeros."
+    explanation: "1, 0 and two zeros: 1000 Ω = 1 kΩ."
+
+  - kind: explain
+    id: c1
+    body: "The **colour code** encodes the value in rings. Rings 1 and 2 are digits. Ring 3 says how many zeros follow. The colours run like a rainbow: from black 0 via red 2 and green 5 to white 9."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Put the colours in digit order, starting at 0.
+    params:
+      items:
+        - label: Black
+        - label: Brown
+        - label: Red
+        - label: Orange
+        - label: Yellow
+        - label: Green
+        - label: Blue
+        - label: Violet
+    hints:
+      - Black is 0, brown is 1.
+      - "From red on it follows the rainbow: red, orange, yellow, green, blue, violet."
+    explanation: Black 0, brown 1, red 2, orange 3, yellow 4, green 5, blue 6, violet 7 – then grey 8 and white 9.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Yellow, violet, orange. How many kΩ is the resistor?
+    params:
+      unit: kΩ
+    answer:
+      value: 47
+    feedback:
+      - when: numval(state.input) == 47000
+        misconception: unit-prefix
+        text: Right in Ω, but the question asks for kΩ.
+      - when: numval(state.input) == 4.7
+        misconception: zeros
+        text: "Orange means three zeros: 47,000 Ω."
+    hints:
+      - Yellow = 4, violet = 7, orange = 3 zeros.
+      - 47,000 Ω in kΩ.
+    explanation: "47 and three zeros: 47,000 Ω = 47 kΩ."
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Which resistor has which rings?
+    params:
+      pairs:
+        - left: Red, red, brown
+          right: 220 Ω
+        - left: Brown, black, orange
+          right: 10 kΩ
+        - left: Yellow, violet, red
+          right: 4.7 kΩ
+        - left: Brown, black, black
+          right: 10 Ω
+        - left: Brown, green, green
+          right: 1.5 MΩ
+      leftTitle: Rings
+      rightTitle: Value
+    hints:
+      - "Black as the third ring means: no zeros added."
+      - "Green as the third ring: five zeros."
+    explanation: 22 + 1 zero = 220 Ω. 10 + 3 zeros = 10 kΩ. 47 + 2 zeros = 4.7 kΩ. 10 + 0 zeros = 10 Ω. 15 + 5 zeros = 1.5 MΩ.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "A fourth ring gives the **tolerance**: how far the real value may deviate. Gold means ±5 %, silver ±10 %, brown ±1 %."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Yellow, violet, red, gold. What is the largest value the resistor may have? In Ω.
+    params:
+      unit: Ω
+    answer:
+      value: 4935
+    hints:
+      - Nominal 4.7 kΩ, gold = ±5 %.
+      - 4700 Ω × 1.05.
+    explanation: 4700 × 1.05 = 4935 Ω. So it lies between 4465 Ω and 4935 Ω.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: "The E12 series: 10, 12, [[15]], 18, [[22]], 27, 33, [[39]], 47, 56, 68, 82."
+      distractors:
+        - "20"
+        - "25"
+        - "40"
+    explanation: Each value is about 1.2 times the previous one. That is why there is 4.7 kΩ but no 5 kΩ.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: The E12 series splits one decade into 12 equal factors. How big is one factor, the 12th root of 10? To two decimal places.
+    answer:
+      value: 1.21
+      tolerance: 0.005
+    hints:
+      - You want q with q¹² = 10.
+      - q = 10^(1/12).
+    explanation: 10^(1/12) ≈ 1.21. With ±10 % tolerance the values just cover the gaps. The finer E24 series matches ±5 %.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Precision resistors have 5 rings: three digits, then zeros. Brown, black, black, brown. How many Ω?"
+    params:
+      unit: Ω
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: multiplier
+        text: "The fourth ring is the multiplier here: one zero."
+    hints:
+      - "Digits: 1, 0, 0."
+      - Brown as the fourth ring means one zero.
+    explanation: "100 and one zero: 1000 Ω. A fifth ring would be the tolerance."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Tiny SMD resistors carry numbers instead of rings: “472” means 47 with 2 zeros. How many Ω is “103”?"
+    params:
+      unit: Ω
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 103
+        misconception: literal
+        text: The last digit counts the zeros.
+    hints:
+      - The last digit is the number of zeros.
+      - 10 and three zeros.
+    explanation: "10 and three zeros: 10,000 Ω = 10 kΩ. An R marks the decimal point: “4R7” is 4.7 Ω."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to read a resistor with four rings.
+    params:
+      keywords:
+        - - ziffer
+          - digit
+          - zahl
+          - number
+        - - "null"
+          - zero
+          - multipli
+          - nullen
+        - - toleranz
+          - tolerance
+          - gold
+          - silber
+          - silver
+          - prozent
+          - percent
+        - - farbe
+          - colour
+          - color
+          - ring
+      sample: "The first two rings are digits, for example yellow 4 and violet 7. The third says how many zeros follow, red means two: 4700 Ω. The fourth ring is the tolerance, gold means ±5 %."
+    explanation: "The core: two digits, multiplier, tolerance. The tolerance ring usually sits a little apart, which shows the reading direction."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

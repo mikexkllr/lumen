@@ -1,0 +1,211 @@
+id: ee.everyday.standby
+type: concept
+title: "Standby: the silent consumer"
+summary: "Small power times 8760 hours adds up to a noticeable bill."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A device draws 5 W on standby, day and night. How many euros does that cost per year at 35 cents per kWh?
+    params:
+      min: 0
+      max: 60
+    answer:
+      value: 15.3
+      tolerance: 4
+    explanation: 5 W × 8760 h = 43.8 kWh. Times €0.35, that is about €15 – for a glowing light on the TV!
+
+  - kind: explain
+    id: c1
+    body: On **standby** a device waits for the remote or a signal. It draws little power, but around the clock. A year has 8760 hours.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A device draws {{p}} W all the time. How many kWh is that per year?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * 8.76}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == p * 8760
+        misconception: unit-prefix
+        text: Those are watt-hours. Divide by 1000.
+    hints:
+      - Power times 8760 hours.
+      - "{{p}} W × 8760 h = {{p * 8760}} Wh."
+    explanation: "{{p}} W × 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Rule of thumb: 1 W around the clock ≈ 8.8 kWh per year."
+    variants:
+      params:
+        p: choice[1,2,3,5,8,10]
+      defaults:
+        p: 3
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Does the device draw power while idle?
+    params:
+      buckets:
+        - id: b1
+          label: Yes, constantly
+        - id: b2
+          label: No, nothing
+      items:
+        - label: TV switched off by remote
+          bucket: b1
+        - label: Wi-fi router
+          bucket: b1
+        - label: Microwave with clock
+          bucket: b1
+        - label: Toaster with a mechanical switch
+          bucket: b2
+        - label: Devices on a switched-off power strip
+          bucket: b2
+        - label: Charger in the socket without a phone
+          bucket: b1
+    hints:
+      - Anything waiting for a signal or showing a clock draws power.
+      - A real switch breaks the circuit completely.
+    explanation: Remote receivers, clocks and networks need constant power. Even an empty charger draws a little. A mechanical switch breaks the circuit instead.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A wi-fi router always runs at 10 W. What does it cost per year at 35 cents per kWh? In euros, to one decimal place.
+    params:
+      unit: €
+    answer:
+      value: 30.7
+      tolerance: 0.1
+    hints:
+      - 10 W × 8760 h = 87.6 kWh.
+      - 87.6 × 0.35.
+    explanation: 87.6 kWh × €0.35 ≈ €30.70. Small constant loads add up.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A switchable power strip costs €10. It saves 20 W of standby from TV and console. After how many months has it paid for itself?
+    params:
+      unit: months
+    answer:
+      value: 2
+      tolerance: 0.1
+    hints:
+      - "Savings per year: 20 W × 8760 h × €0.35/kWh."
+      - That is about €61 per year, a bit over €5 per month.
+    explanation: 175 kWh × €0.35 ≈ €61 a year. The €10 come back after just under 2 months.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Since 2013 most new devices in the EU may draw only 0.5 W on standby. Why is such a small rule still worth it?
+    params:
+      options:
+        - label: Hundreds of millions of devices run 8760 hours a year
+          correct: true
+        - label: Because 0.5 W is dangerous
+          feedback: It is not dangerous. It is about the total.
+        - label: Because standby breaks devices
+          feedback: It is about energy, not wear.
+    hints:
+      - Think of every device in Europe.
+      - Small power times huge numbers times 8760 h.
+    explanation: Many devices used to draw 5 to 10 W on standby. Times hundreds of millions of devices, that is the output of several power stations.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: At night, when everything sleeps, your meter shows 150 W. What does this base load cost per year at 35 cents per kWh? In whole euros.
+    params:
+      unit: €
+    answer:
+      value: 460
+      tolerance: 2
+    hints:
+      - 150 W × 8760 h.
+      - 1314 kWh × €0.35.
+    explanation: "1314 kWh × €0.35 ≈ €460. A reason to hunt down the base load with the meter: fridge, router, pump, standby."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Suppose 40 million households each have 20 W of standby. How many megawatts is that altogether?
+    params:
+      unit: MW
+    answer:
+      value: 800
+      tolerance: 1
+    hints:
+      - 40,000,000 × 20 W.
+      - 1 MW = 1,000,000 W.
+    explanation: 800,000,000 W = 800 MW. That is about one large power station unit running just for little glowing lights.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "A plug-in energy meter shows 0.3 W for a power adapter with nothing attached. A colleague says: “The adapter is off, that’s impossible.” Who is right?"
+    params:
+      options:
+        - label: "The meter: the converter inside keeps running"
+          correct: true
+        - label: "The colleague: no load, no current"
+          feedback: The converter inside keeps working and has losses.
+        - label: "Neither: adapters generate power"
+          feedback: Adapters only convert.
+    hints:
+      - What is still connected to the socket?
+      - Inside is electronics that never quite stops working.
+    explanation: As long as the adapter is plugged in, its electronics keep running. These self-losses are called no-load power. Good adapters stay below 0.1 W.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a device with only 5 W can cost more per year than a 2000 W hair dryer.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - watt
+        - - zeit
+          - time
+          - stunden
+          - hours
+          - dauer
+          - immer
+          - always
+          - "8760"
+        - - energie
+          - energy
+          - kwh
+        - - föhn
+          - foehn
+          - dryer
+          - kurz
+          - short
+          - minuten
+          - minutes
+      sample: What counts is energy, power times time. The dryer runs only a few minutes a day. The standby device runs all 8760 hours of the year. 5 W × 8760 h is 44 kWh, the dryer maybe 30 kWh.
+    explanation: What matters are the key ideas. Compare your explanation with the model answer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

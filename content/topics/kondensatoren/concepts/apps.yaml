@@ -1,0 +1,214 @@
+id: ee.capacitors.apps
+type: concept
+title: "Kondensatoren im Einsatz"
+summary: "Taster entprellen, Netzteile glätten, Chips puffern und Zeiten erzeugen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du drückst einen Taster genau einmal. Der Mikrocontroller zählt aber fünf Drücke. Warum?
+    params:
+      options:
+        - label: Die Kontakte federn und schließen mehrmals kurz hintereinander
+          correct: true
+        - label: Der Mikrocontroller ist kaputt
+          feedback: Er ist schnell genug, jedes Prellen zu sehen.
+        - label: Der Taster hat fünf Kontakte
+          feedback: Es ist ein einziger Kontakt, der springt.
+    hints:
+      - Was macht Metall, wenn es aufeinanderschlägt?
+      - Ein Mikrocontroller liest millionenfach pro Sekunde.
+    explanation: Die Kontakte springen einige Millisekunden lang. Für das Auge ist das ein Klick, für den Chip mehrere Pulse.
+
+  - kind: explain
+    id: c1
+    body: "Dieses **Prellen** dauert meist unter 10 ms. Ein RC-Glied glättet es: Der Kondensator lädt und entlädt sich langsamer, als die Kontakte springen. Mit τ um 10 ms sieht der Chip nur einen sauberen Wechsel."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Du willst τ = 10 ms und hast einen Kondensator mit {{c}} µF. Welchen Widerstand brauchst du, in kΩ?
+    params:
+      unit: kΩ
+    answer:
+      value: "{{10 / c}}"
+    hints:
+      - "R = τ : C."
+      - "ms : µF = kΩ: 10 : {{c}}."
+    explanation: "10 ms : {{c}} µF = {{10 / c}} kΩ."
+    variants:
+      params:
+        c: choice[0.1,1,10]
+      defaults:
+        c: 1
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Stell ein Entprell-Glied mit τ = 20 ms ein.
+    params:
+      scene: rc
+      controls:
+        time:
+          fixed: true
+      show:
+        - tau
+    answer:
+      tau: 20
+    explanation: Etwa 2 kΩ und 10 µF oder 20 kΩ und 1 µF. In der Praxis nimmt man eher großes R und kleines C.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Wofür nimmt man hier einen Kondensator?
+    params:
+      buckets:
+        - id: b1
+          label: Energie puffern
+        - id: b2
+          label: Zeit erzeugen
+        - id: b3
+          label: Wechselspannung durchlassen
+      items:
+        - label: Glättung im Netzteil
+          bucket: b1
+        - label: Entprellen eines Tasters
+          bucket: b2
+        - label: Blinker-Takt einer LED
+          bucket: b2
+        - label: Audiosignal ohne Gleichanteil koppeln
+          bucket: b3
+        - label: Pufferkondensator am Chip
+          bucket: b1
+        - label: Kamerablitz
+          bucket: b1
+    hints:
+      - "Puffern heißt: Energie kurz speichern und bei Bedarf abgeben."
+      - Ein Kondensator sperrt Gleichstrom, lässt aber Wechselstrom durch.
+    explanation: Kondensatoren speichern Energie, bestimmen mit R Zeiten und trennen Gleich- von Wechselanteilen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Nach dem Gleichrichter pulsiert die Spannung 100-mal pro Sekunde. Ein großer Kondensator füllt die Lücken: Das ist die **Glättung**. Die Restwelligkeit ist etwa ΔU = I : (f · C)."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Netzteil liefert {{i}} A. Der Glättungskondensator hat {{c}} µF, die Pulse kommen mit 100 Hz. Wie groß ist die Restwelligkeit in V? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: "{{i / (100 * c / 1000000)}}"
+      tolerance: 0.006
+    hints:
+      - "C in Farad: {{c}} µF = {{c / 1000000}} F."
+      - "ΔU = {{i}} : (100 · {{c / 1000000}})."
+    explanation: ΔU ≈ {{round(i / (100 * c / 1000000), 2)}} V. Mehr Strom braucht mehr Kapazität, darum sind Netzteil-Elkos so dick.
+    difficulty: 2
+    variants:
+      params:
+        i: choice[0.2,0.5,1]
+        c: choice[2200,4700,10000]
+      defaults:
+        i: 0.5
+        c: 2200
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Neben jedem Chip sitzt ein kleiner 100-nF-Kondensator. Wozu?
+    params:
+      options:
+        - label: Er liefert kurze Stromspitzen sofort, bevor die lange Zuleitung reagiert
+          correct: true
+        - label: Er speichert Daten bei Stromausfall
+          feedback: Dafür ist 100 nF viel zu klein.
+        - label: Er misst die Temperatur
+          feedback: Es ist ein Puffer für die Versorgung.
+    hints:
+      - Ein Chip zieht bei jedem Taktschritt kurz viel Strom.
+      - Lange Leiterbahnen wirken wie Spulen und bremsen schnelle Änderungen.
+    explanation: Dieser Stützkondensator hält die Spannung am Chip stabil. Ohne ihn können Chips abstürzen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Zeitgeber-Chip (555) erzeugt einen Puls der Länge t = 1,1 · R · C. Wie lang ist er bei R = {{r}} kΩ und C = {{c}} µF, in Sekunden?
+    params:
+      unit: s
+    answer:
+      value: "{{1.1 * r * c / 1000}}"
+      tolerance: 0.001
+    hints:
+      - "R · C in ms: {{r}} · {{c}}."
+      - Mal 1,1, dann in Sekunden.
+    explanation: "1,1 · {{r * c}} ms = {{1.1 * r * c}} ms = {{1.1 * r * c / 1000}} s. Die 1,1 kommt von ln 3: Der Chip schaltet bei zwei Dritteln der Spannung."
+    difficulty: 3
+    variants:
+      params:
+        r: choice[10,47,100]
+        c: choice[1,10,100]
+      defaults:
+        r: 100
+        c: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum lässt ein Kondensator Wechselstrom durch, obwohl zwischen seinen Platten eine Isolierschicht liegt?
+    params:
+      options:
+        - label: Er wird ständig umgeladen, dabei fließt in den Leitungen Strom hin und her
+          correct: true
+        - label: Die Isolierschicht leitet bei Wechselstrom
+          feedback: Durch die Schicht fließen keine Ladungen.
+        - label: Er lässt ihn gar nicht durch
+          feedback: Am Ausgang kommt sehr wohl ein Wechselsignal an.
+    hints:
+      - Was passiert mit den Platten, wenn die Spannung ihr Vorzeichen wechselt?
+      - Laden und Entladen bedeutet Strom in den Zuleitungen.
+    explanation: Keine Ladung springt über die Lücke. Aber auf einer Platte kommt an, was die andere abgibt. Je höher die Frequenz, desto leichter geht das.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Kondensator einen prellenden Taster beruhigt.
+    params:
+      keywords:
+        - - prell
+          - bounce
+          - spring
+        - - kondensator
+          - capacitor
+          - rc
+        - - langsam
+          - slow
+          - zeitkonstante
+          - time constant
+          - tau
+        - - glätt
+          - glaett
+          - smooth
+          - sauber
+          - clean
+          - ein wechsel
+          - one change
+      sample: Der Taster springt ein paar Millisekunden hin und her. Mit Widerstand und Kondensator kann sich die Spannung nur langsam ändern, mit der Zeitkonstante τ. Das schnelle Prellen wird geglättet, und der Chip sieht einen sauberen Wechsel.
+    explanation: "Kern: τ größer als die Prellzeit. Oft folgt noch ein Schmitt-Trigger, der die langsame Flanke wieder steil macht."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

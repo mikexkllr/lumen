@@ -1,0 +1,200 @@
+id: ee.ac.reactive
+type: concept
+title: "Wirk-, Blind- und Scheinleistung"
+summary: "Warum ein Motor mehr Strom zieht, als seine Watt verraten."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Motor an 230 V zieht 5 A. Leistet er 1150 W?
+    params:
+      options:
+        - label: Nein, weniger, weil Strom und Spannung verschoben sind
+          correct: true
+        - label: Ja, P = U · I
+          feedback: Das gilt nur, wenn Strom und Spannung im Takt sind.
+        - label: Nein, mehr
+          feedback: Mehr als U · I geht nie.
+    hints:
+      - Ein Motor ist auch eine Spule.
+      - Was passiert mit dem Produkt, wenn der Strom hinterherhinkt?
+    explanation: Ein Teil des Stroms pendelt nur hin und her. 1150 VA ist die Scheinleistung, die Wirkleistung ist kleiner.
+
+  - kind: explain
+    id: c1
+    body: "Die **Wirkleistung** P verrichtet echte Arbeit: Wärme, Licht, Bewegung. Sind Strom und Spannung um φ verschoben, gilt P = U · I · cos φ. Den Faktor cos φ nennt man Leistungsfaktor."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Gerät an 230 V zieht {{i}} A bei cos φ = {{c}}. Wie groß ist die Wirkleistung? Auf ganze Watt.
+    params:
+      unit: W
+    answer:
+      value: "{{230 * i * c}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - 230 * i) < 0.6
+        misconception: apparent
+        text: Das ist die Scheinleistung in VA. Noch mal cos φ.
+    hints:
+      - P = U · I · cos φ.
+      - 230 · {{i}} · {{c}}.
+    explanation: "{{230 * i}} VA · {{c}} = {{230 * i * c}} W."
+    variants:
+      params:
+        i: choice[2,4,5,10]
+        c: choice[0.6,0.8,0.9]
+      defaults:
+        i: 5
+        c: 0.8
+
+  - kind: explain
+    id: c3
+    body: Der Rest ist **Blindleistung** Q. Sie pendelt jede halbe Periode zwischen Netz und Spule hin und her. Sie leistet nichts, belastet aber die Leitungen. Man misst sie in var, die Scheinleistung S = U · I in VA.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Motor hat S = 1000 VA und P = 800 W. Wie groß ist die Blindleistung? Es gilt S² = P² + Q².
+    params:
+      unit: var
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: subtract
+        text: "Nicht abziehen: Die drei Leistungen bilden ein rechtwinkliges Dreieck."
+    hints:
+      - Q = √(S² − P²).
+      - √(1 000 000 − 640 000).
+    explanation: √360 000 = 600 var. Das Leistungsdreieck ist wieder ein 3-4-5-Dreieck.
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: Welche Einheit gehört zu welcher Leistung?
+    params:
+      pairs:
+        - left: Wirkleistung P
+          right: W
+        - left: Blindleistung Q
+          right: var
+        - left: Scheinleistung S
+          right: VA
+        - left: Leistungsfaktor cos φ
+          right: ohne Einheit
+      leftTitle: Größe
+      rightTitle: Einheit
+    hints:
+      - Alle drei sind physikalisch Watt, aber man unterscheidet sie im Namen.
+      - VA steht für Volt mal Ampere.
+    explanation: W, var und VA zeigen sofort, welche Leistung gemeint ist. Der Leistungsfaktor ist ein Verhältnis zwischen 0 und 1.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Geräte nehmen je 1000 W an 230 V auf: eins mit cos φ = 1, eins mit cos φ = 0,5. Um welchen Faktor sind die Leitungsverluste beim zweiten größer?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear
+        text: Der Strom ist doppelt so groß. Die Verluste wachsen aber mit I².
+    hints:
+      - Bei cos φ = 0,5 braucht man doppelt so viel Strom.
+      - Verluste = I² · R.
+    explanation: Doppelter Strom, vierfache Verluste. Darum verlangen Netzbetreiber von Fabriken einen guten Leistungsfaktor.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Eine Fabrik mit vielen Motoren hat einen schlechten Leistungsfaktor. Was baut sie ein?
+    params:
+      options:
+        - label: Kondensatoren, die die Blindleistung der Motoren vor Ort liefern
+          correct: true
+        - label: Mehr Motoren
+          feedback: Die bringen noch mehr Blindleistung.
+        - label: Dickere Sicherungen
+          feedback: Das senkt keinen Strom.
+    hints:
+      - Kondensator und Spule verschieben den Strom in entgegengesetzte Richtungen.
+      - Ihre Blindleistungen können sich aufheben.
+    explanation: Die Kondensatoren tauschen die Blindleistung direkt mit den Motoren. Die Zuleitung trägt nur noch die Wirkleistung. Das heißt Blindleistungskompensation.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Welcher Kondensator liefert Q = 600 var an 230 V und 50 Hz? Es gilt Q = U² · 2π f C. In µF, auf eine Nachkommastelle.
+    params:
+      unit: µF
+    answer:
+      value: 36.1
+      tolerance: 0.1
+    hints:
+      - "C = Q : (U² · 2π f)."
+      - "600 : (52 900 · 314,16) F."
+    explanation: C ≈ 3,61 · 10⁻⁵ F = 36,1 µF. Solche Kondensatoren sitzen oft direkt am Motor.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Haushalte zahlen nur Kilowattstunden. Warum nicht auch Blindleistung?
+    params:
+      options:
+        - label: Haushaltsgeräte haben wenig Blindleistung, und ein einfacher Zähler misst nur Wirkenergie
+          correct: true
+        - label: Weil Blindleistung kostenlos zu erzeugen ist
+          feedback: Sie belastet Leitungen und Generatoren.
+        - label: Weil es sie im Haushalt nicht gibt
+          feedback: Jeder Motor und jedes Netzteil hat ein wenig.
+    hints:
+      - Wer verursacht viel Blindleistung?
+      - Großkunden haben eigene Zähler für Blindarbeit.
+    explanation: Bei Großkunden mit vielen Motoren lohnt sich das Messen. Moderne Netzteile müssen ab 75 W ohnehin einen guten Leistungsfaktor haben.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Wirkleistung und Blindleistung.
+    params:
+      keywords:
+        - - wirk
+          - real
+          - arbeit
+          - work
+        - - blind
+          - reactive
+        - - pendel
+          - slosh
+          - hin und her
+          - back and forth
+          - zurück
+          - back
+        - - leitung
+          - line
+          - strom
+          - current
+          - verlust
+          - loss
+      sample: Wirkleistung wird wirklich umgesetzt, in Wärme, Licht oder Bewegung. Blindleistung pendelt nur zwischen Netz und Spule oder Kondensator hin und her. Sie leistet nichts, braucht aber Strom. Dieser Strom verursacht Verluste in den Leitungen.
+    explanation: "Kern: P macht Arbeit, Q belastet nur. Zusammen ergeben sie S = √(P² + Q²)."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

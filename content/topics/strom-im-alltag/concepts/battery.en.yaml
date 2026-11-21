@@ -1,0 +1,246 @@
+id: ee.everyday.battery
+type: concept
+title: "Battery or socket?"
+summary: "Volts, watt-hours and why battery power is so expensive."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: An AA battery has 1.5 volts. How many in a row would you need for the 230 volts of a wall socket?
+    params:
+      min: 10
+      max: 1000
+      scale: log
+    answer:
+      value: 153
+      within: 10
+    explanation: 230 ÷ 1.5 ≈ 153. One after another, in series, the voltages add up.
+
+  - kind: explain
+    id: c1
+    body: "**Voltage** pushes the current along. It is measured in volts (V). An AA battery has 1.5 V, a USB port 5 V, a wall socket 230 V."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Sort by voltage, smallest first.
+    params:
+      items:
+        - label: AA battery
+        - label: Coin cell in a watch
+        - label: USB port
+        - label: Car battery
+        - label: Wall socket
+        - label: Overhead power line
+    hints:
+      - The socket is near the top.
+      - A coin cell has 3 V, a car battery 12 V.
+    explanation: AA 1.5 V · coin cell 3 V · USB 5 V · car 12 V · socket 230 V · overhead line up to 380,000 V.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Harmless to touch or deadly?
+    params:
+      buckets:
+        - id: b1
+          label: Harmless
+        - id: b2
+          label: Deadly
+      items:
+        - label: AA battery
+          bucket: b1
+        - label: USB plug
+          bucket: b1
+        - label: Car battery terminals
+          bucket: b1
+        - label: Socket contacts
+          bucket: b2
+        - label: Railway overhead line
+          bucket: b2
+        - label: Inside an open power supply
+          bucket: b2
+    hints:
+      - Below about 50 V, touching does no harm.
+      - Anything connected to mains voltage is dangerous.
+    explanation: Up to 50 V AC or 120 V DC counts as safety extra-low voltage. Above that, current through the body can kill.
+
+  - kind: explain
+    id: c4
+    body: Voltage does not tell you how long a battery lasts. That depends on its **energy**. It is given in watt-hours (Wh). Multiply the voltage by the charge in amp-hours (Ah).
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A power bank holds {{c}} Ah at 3.7 V. How many watt-hours does it store?
+    params:
+      unit: Wh
+    answer:
+      value: "{{3.7 * c}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == c
+        misconception: charge-not-energy
+        text: That is only the charge. Multiply by the voltage as well.
+    hints:
+      - Energy = voltage × charge.
+      - Work out 3.7 × {{c}}.
+    explanation: 3.7 V × {{c}} Ah = {{3.7 * c}} Wh. The box often says {{c * 1000}} mAh instead.
+    variants:
+      params:
+        c: choice[5,10,20,26]
+      defaults:
+        c: 10
+
+  - kind: problem
+    id: c6
+    widget: choice
+    prompt: An AA battery costs about 50 cents and delivers roughly 3 Wh. From the socket, 1000 Wh cost about 35 cents. Which is more expensive?
+    params:
+      options:
+        - label: The battery, hundreds of times per Wh
+          correct: true
+        - label: The socket
+          feedback: 35 cents buy 1000 Wh from the socket, but only about 2 Wh from batteries.
+        - label: Both the same
+          feedback: Compare the price per watt-hour.
+    hints:
+      - Work out both per watt-hour.
+      - 50 ÷ 3 ≈ 17 cents per Wh.
+    explanation: "Battery: about 17 cents per Wh. Socket: 0.035 cents per Wh – almost 500 times cheaper."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A battery supplies **direct current**. It always flows the same way. The socket supplies alternating current. It swings back and forth 50 times a second.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: swipe
+    prompt: Direct or alternating current?
+    params:
+      cards:
+        - text: Phone battery
+          right: false
+        - text: Wall socket
+          right: true
+        - text: Solar cell
+          right: false
+        - text: USB port
+          right: false
+        - text: Power station generator
+          right: true
+        - text: Car battery
+          right: false
+      left: Direct current
+      right: Alternating current
+    explanation: Batteries, solar cells and USB supply DC. Power station generators, and so the socket, supply AC.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A car battery has 12 V and 60 Ah. How many kilowatt-hours does it store?
+    params:
+      unit: kWh
+    answer:
+      value: 0.72
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 720
+        misconception: unit-prefix
+        text: Those are watt-hours. Divide by 1000.
+    hints:
+      - "First the watt-hours: 12 × 60."
+      - 1 kWh = 1000 Wh.
+    explanation: 12 V × 60 Ah = 720 Wh = 0.72 kWh.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: In theory, how long could this 720 Wh battery run a 2000 W kettle? Give minutes.
+    params:
+      unit: min
+    answer:
+      value: 21.6
+      tolerance: 0.5
+    hints:
+      - Time = energy ÷ power.
+      - 720 Wh ÷ 2000 W = 0.36 h.
+    explanation: "0.36 h × 60 = 21.6 min. In reality less: the voltage sags under such a heavy load."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: estimate
+    prompt: A lithium battery stores about 250 Wh per kilogram. How many Wh are in one kilogram of petrol?
+    params:
+      min: 100
+      max: 100000
+      scale: log
+    answer:
+      value: 12000
+      within: 25
+    explanation: About 12,000 Wh, roughly 50 times more. But a car engine uses a third of it at best, an electric motor over 90 %.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Battery A has 3.7 V and 3 Ah. Battery B has 7.4 V and 1.5 Ah. Which stores more energy?
+    params:
+      options:
+        - label: Both the same
+          correct: true
+        - label: A, it has more Ah
+          feedback: Amp-hours alone are not energy. Work out V × Ah.
+        - label: B, it has more volts
+          feedback: Volts alone are not energy. Work out V × Ah.
+    hints:
+      - Multiply voltage by charge for both.
+      - 3.7 × 3 and 7.4 × 1.5.
+    explanation: Both hold 11.1 Wh. That is why batteries are compared in Wh, not in mAh.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a 12 V battery does not automatically last longer than a 1.5 V battery.
+    params:
+      keywords:
+        - - spannung
+          - voltage
+          - volt
+        - - energie
+          - energy
+          - wattstunde
+          - watt-hour
+          - wh
+        - - ladung
+          - charge
+          - amperestunde
+          - amp-hour
+          - kapazit
+          - capacity
+        - - leistung
+          - power
+          - verbrauch
+          - consum
+      sample: Voltage only says how hard it pushes. How long it lasts depends on the energy, voltage times charge in Wh, and on how much power the device draws.
+    explanation: What matters are the key ideas. Compare your explanation with the model answer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c5", "d3", "x2"]

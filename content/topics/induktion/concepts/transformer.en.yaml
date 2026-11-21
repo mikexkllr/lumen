@@ -1,0 +1,216 @@
+id: ee.induction.transformer
+type: concept
+title: "The transformer"
+summary: "Two coils on an iron core turn any AC voltage into another."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: The socket supplies 230 V. Build a transformer that outputs about 12 V.
+    params:
+      scene: transformer
+      show:
+        - u2
+        - ratio
+    answer:
+      u2:
+        - 11.5
+        - 12.5
+    explanation: "The ratio must be about 230 : 12 ≈ 19 : 1, for example 1150 to 60 turns."
+
+  - kind: explain
+    id: c1
+    body: "A transformer has two coils on an iron core. AC in the first makes a changing field that induces a voltage in the second. The **turns ratio** is U₁ : U₂ = N₁ : N₂."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Primary 230 V and {{a}} turns, secondary {{b}} turns. What voltage does the transformer deliver?
+    params:
+      unit: V
+    answer:
+      value: "{{230 * b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 230 * a / b) < 0.01
+        misconception: flip
+        text: "Ratio flipped: fewer turns means less voltage."
+    hints:
+      - U₂ = U₁ × N₂ ÷ N₁.
+      - 230 × {{b}} ÷ {{a}}.
+    explanation: 230 V × {{b}}/{{a}} = {{230 * b / a}} V. Every turn gets the same share of voltage.
+    variants:
+      params:
+        a: choice[500,1000,2000]
+        b: choice[50,100,200]
+      defaults:
+        a: 1000
+        b: 50
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: 2 A flow on the secondary side. Set the turns so that only 0.1 A flows on the primary side.
+    params:
+      scene: transformer
+      controls:
+        i2:
+          value: 2
+      show:
+        - i1
+        - u2
+        - ratio
+    answer:
+      i1: 0.1
+    explanation: "Power stays almost the same. Less voltage means more current: current transforms inversely, I₁ : I₂ = N₂ : N₁. Here 20 : 1."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You connect a transformer to a 12 V car battery. What comes out on the secondary side?
+    params:
+      options:
+        - label: Only a short pulse when switching on and off
+          correct: true
+        - label: The transformed DC voltage
+          feedback: DC doesn’t change the field.
+        - label: AC voltage
+          feedback: The transformer doesn’t create alternation, it needs it.
+    hints:
+      - Induction needs a changing field.
+      - When does the current from a battery change?
+    explanation: A constant current gives a constant field, so no induction. And with nothing opposing it, a large primary current flows. This is one reason the grid uses AC.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An ideal transformer delivers 12 V and 5 A. What current flows on the 230 V side? To three decimal places.
+    params:
+      unit: A
+    answer:
+      value: 0.261
+      tolerance: 0.001
+    hints:
+      - "Secondary power: 12 V × 5 A = 60 W."
+      - I₁ = 60 W ÷ 230 V.
+    explanation: 60 W ÷ 230 V ≈ 0.261 A. A real transformer needs a little more because of losses.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Where does this loss arise?
+    params:
+      buckets:
+        - id: b1
+          label: In the windings (copper)
+        - id: b2
+          label: In the core (iron)
+      items:
+        - label: Heat from wire resistance
+          bucket: b1
+        - label: Eddy currents
+          bucket: b2
+        - label: Constant remagnetising
+          bucket: b2
+        - label: Grows with the square of load current
+          bucket: b1
+        - label: Occurs even with no load
+          bucket: b2
+    hints:
+      - Copper losses are I² × R in the wires.
+      - Iron losses occur as soon as the field alternates – even with no load.
+    explanation: To fight eddy currents the core is made of thin, insulated sheets. Large transformers thus reach over 99 % efficiency.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Why is the iron core stacked from many thin sheets instead of one solid block?
+    params:
+      options:
+        - label: The insulated layers interrupt the eddy currents
+          correct: true
+        - label: Because sheets are cheaper
+          feedback: It is about losses, not price.
+        - label: To weaken the field
+          feedback: The field should stay strong.
+    hints:
+      - A voltage is induced in the core itself too.
+      - A current needs a closed path.
+    explanation: In a solid block large eddy currents circle and heat it up. Thin, insulated sheets allow only tiny currents.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A 40 MVA grid transformer has 99.5 % efficiency. How many kW of heat arise at full load?
+    params:
+      unit: kW
+    answer:
+      value: 200
+    hints:
+      - 0.5 % of 40,000 kW.
+      - 40,000 × 0.005.
+    explanation: 200 kW – as much as about 100 kettles. That is why big transformers sit in oil with cooling fins.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "A transformer also transforms resistances, with the square: R₁ = (N₁ ÷ N₂)² × R₂. An 8 Ω loudspeaker hangs on a {{k}} : 1 transformer. What resistance does the primary see?"
+    params:
+      unit: Ω
+    answer:
+      value: "{{8 * k * k}}"
+    feedback:
+      - when: numval(state.input) == 8 * k
+        misconception: linear
+        text: "The ratio is squared: voltage times k, current divided by k."
+    hints:
+      - U₁ = k × U₂ and I₁ = I₂ ÷ k.
+      - R₁ = U₁ ÷ I₁ = k² × R₂.
+    explanation: "{{k}}² × 8 Ω = {{8 * k * k}} Ω. This is how valve amplifiers matched their high-impedance valves to small loudspeakers."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[2,5,10,20]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a transformer needs AC and how it changes the voltage.
+    params:
+      keywords:
+        - - wechsel
+          - altern
+          - ac
+        - - feld
+          - field
+          - magnet
+        - - induz
+          - induc
+        - - windung
+          - turn
+          - verhältnis
+          - verhaeltnis
+          - ratio
+      sample: "AC in the first coil creates a constantly changing magnetic field in the iron core. That induces a voltage in the second coil. Each turn gets the same share, so U₁ : U₂ = N₁ : N₂. DC would not make a changing field."
+    explanation: "The core: induction needs change, and the voltage per turn is the same on both sides."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "x2"]

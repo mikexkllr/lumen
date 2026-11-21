@@ -1,0 +1,241 @@
+id: ee.capacitors.rc
+type: concept
+title: "Laden mit Widerstand: τ = R · C"
+summary: "Nach einer Zeitkonstante 63 %, nach fünf fast voll – das RC-Glied im Labor."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: "Ein Kondensator lädt über einen Widerstand an 10 V. Schieb die Zeit: Wann ist er ungefähr halb voll?"
+    params:
+      scene: rc
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - charge
+        - uc
+    answer:
+      charge:
+        - 49
+        - 52
+    explanation: Bei R = 10 kΩ und C = 10 µF nach etwa 70 ms. Am Anfang lädt er schnell, dann immer langsamer.
+
+  - kind: explain
+    id: c1
+    body: "Die **Zeitkonstante** τ = R · C sagt, wie schnell ein RC-Glied lädt. Nach einem τ ist der Kondensator zu 63 % geladen, nach fünf τ zu über 99 %. Praktisch: kΩ mal µF ergibt Millisekunden."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: R = {{r}} kΩ, C = {{c}} µF. Wie groß ist τ in ms?
+    params:
+      unit: ms
+    answer:
+      value: "{{r * c}}"
+    feedback:
+      - when: numval(state.input) == r + c
+        misconception: add
+        text: Nicht addieren, multiplizieren.
+    hints:
+      - τ = R · C.
+      - "kΩ · µF = ms: {{r}} · {{c}}."
+    explanation: "{{r}} kΩ · {{c}} µF = {{r * c}} ms. Nach 5 τ = {{5 * r * c}} ms ist er praktisch voll."
+    variants:
+      params:
+        r: choice[1,4.7,10,22,47]
+        c: choice[1,10,22,100]
+      defaults:
+        r: 10
+        c: 22
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Stell R und C so ein, dass die Zeitkonstante genau 470 ms beträgt.
+    params:
+      scene: rc
+      controls:
+        time:
+          fixed: true
+      show:
+        - tau
+        - charge
+    answer:
+      tau: 470
+    explanation: Zum Beispiel 47 kΩ und 10 µF, oder 10 kΩ und 47 µF. Nur das Produkt zählt.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Wie voll ist der Kondensator nach dieser Zeit?
+    params:
+      pairs:
+        - left: 1 τ
+          right: 63 %
+        - left: 2 τ
+          right: 86 %
+        - left: 3 τ
+          right: 95 %
+        - left: 5 τ
+          right: 99,3 %
+      leftTitle: Zeit
+      rightTitle: Ladung
+    hints:
+      - Mit jedem τ schrumpft der fehlende Rest auf 37 %.
+      - Nach 1 τ fehlen 37 %, nach 2 τ fehlen 14 %.
+    explanation: "Der fehlende Rest ist e⁻ⁿ: 37 %, 14 %, 5 %, und nach 5 τ nur 0,7 %."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Die **Ladekurve** folgt $u_C = U \cdot (1 - e^{-t/\tau})$. Der Strom ist proportional zur Spannung, die noch fehlt. Darum wird das Laden immer langsamer, ganz voll wird er nie.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: slider
+    prompt: Ein Kondensator lädt an 10 V. Bei 2 s wurde 8,65 V gemessen. Stell die Zeitkonstante τ so ein, dass die Kurve durch den Messpunkt geht.
+    params:
+      expr: 10*(1-exp(-x/t))
+      x:
+        - 0
+        - 5
+      y:
+        - 0
+        - 11
+      showCoordinates: false
+      sliders:
+        - id: t
+          label: τ in s
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 2.5
+      markers:
+        - x: 2
+          y: 8.65
+          group: a
+    check:
+      predicate: t == 1
+    hints:
+      - 8,65 V sind 86,5 % von 10 V.
+      - 86 % erreicht man nach 2 τ.
+    explanation: 2 s = 2 τ, also τ = 1 s. So bestimmt man τ aus einer gemessenen Kurve.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: Die Quelle hat 10 V. Bei welcher Zeit erreicht der Kondensator 9 V? Stell die Zeit ein.
+    params:
+      scene: rc
+      controls:
+        resistance:
+          fixed: true
+        capacitance:
+          fixed: true
+      show:
+        - tau
+        - uc
+    answer:
+      uc:
+        - 8.95
+        - 9.05
+    explanation: 90 % erreicht er nach τ · ln 10 ≈ 2,3 τ, hier also nach 230 ms.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: "An {{u}} V: Welche Spannung hat der Kondensator nach genau einer Zeitkonstante? Auf zwei Nachkommastellen."
+    params:
+      unit: V
+    answer:
+      value: "{{u * 0.63212}}"
+      tolerance: 0.01
+    hints:
+      - Nach τ sind es 1 − e⁻¹ ≈ 63,2 %.
+      - "{{u}} · 0,632."
+    explanation: "{{u}} · 0,632 ≈ {{round(u * 0.63212, 2)}} V."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[5,9,10,12]
+      defaults:
+        u: 10
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Stell dir vor, der Kondensator lädt immer so schnell wie am Anfang. Wann wäre er voll?
+    params:
+      options:
+        - label: Nach genau einem τ
+          correct: true
+        - label: Nach fünf τ
+          feedback: Mit konstantem Tempo wäre es viel schneller.
+        - label: Nie
+          feedback: Mit konstantem Tempo erreicht man jedes Ziel.
+    hints:
+      - "Anfangs fließt der Strom I = U : R."
+      - "Konstanter Strom füllt Q = C · U in t = C U : I."
+    explanation: "t = C U : (U/R) = R C = τ. Die Tangente am Anfang trifft die Endspannung genau bei τ. So liest man τ aus Kurven ab."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Beim Entladen gilt u = U · e^(−t/τ). Nach wie vielen τ ist nur noch 1 % übrig? Auf zwei Nachkommastellen.
+    params:
+      unit: τ
+    answer:
+      value: 4.61
+      tolerance: 0.01
+    hints:
+      - e^(−n) = 0,01.
+      - n = ln 100.
+    explanation: ln 100 ≈ 4,61. Darum gilt »nach 5 τ ist es erledigt« als Faustregel.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Kondensator über einen Widerstand nie ganz voll wird.
+    params:
+      keywords:
+        - - strom
+          - current
+        - - fehl
+          - missing
+          - rest
+          - remain
+          - unterschied
+          - difference
+        - - langsam
+          - slow
+          - kleiner
+          - smaller
+        - - tau
+          - zeitkonstante
+          - time constant
+          - exponent
+          - e-funktion
+      sample: Der Strom hängt davon ab, wie viel Spannung noch fehlt. Je voller der Kondensator, desto kleiner die Differenz und desto kleiner der Strom. Das Laden wird immer langsamer. Nach jeder Zeitkonstante fehlen nur noch 37 % vom Rest, aber nie null.
+    explanation: "Kern: Das Tempo ist proportional zum Rest. Das ergibt eine Exponentialkurve."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "d4"]

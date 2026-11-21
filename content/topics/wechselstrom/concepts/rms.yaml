@@ -1,0 +1,205 @@
+id: ee.ac.rms
+type: concept
+title: "Effektivwert: 230 V oder 325 V?"
+summary: "Die Steckdose erreicht 325 V – warum steht trotzdem 230 V darauf?"
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Die Steckdose hat »230 V«. Welche Spannung erreicht sie in der Spitze?
+    params:
+      min: 100
+      max: 1000
+    answer:
+      value: 325
+      tolerance: 15
+    explanation: Etwa 325 V. Die 230 V sind ein Mittelwert, der Effektivwert.
+
+  - kind: explain
+    id: c1
+    body: Der **Effektivwert** ist die Gleichspannung, die einen Widerstand genauso stark heizt. Beim Sinus ist er der Scheitelwert geteilt durch √2. Aus 325 V Spitze werden so 230 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Sinus hat {{u}} V Effektivwert. Wie groß ist sein Scheitelwert? Auf ganze Volt.
+    params:
+      unit: V
+    answer:
+      value: "{{u * 1.41421356}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - u / 1.41421356) < 0.6
+        misconception: divide
+        text: Der Scheitelwert ist größer als der Effektivwert. Multipliziere mit √2.
+    hints:
+      - Û = U · √2.
+      - √2 ≈ 1,414.
+    explanation: "{{u}} V · 1,414 ≈ {{round(u * 1.41421356)}} V."
+    variants:
+      params:
+        u: choice[12,24,120,230,400]
+      defaults:
+        u: 120
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie groß ist die Spannung von der tiefsten bis zur höchsten Stelle bei 230 V Netzspannung? Auf ganze Volt.
+    params:
+      unit: V
+    answer:
+      value: 650
+      tolerance: 2
+    hints:
+      - Der Sinus geht von −325 V bis +325 V.
+      - 2 · 325.
+    explanation: Spitze-Spitze sind etwa 650 V. Das zeigt das Oszilloskop als Höhe der Kurve.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Kondensator soll direkt am 230-V-Netz hängen. Welche Spannung muss er mindestens aushalten?
+    params:
+      options:
+        - label: Über 325 V, besser mit Reserve
+          correct: true
+        - label: 230 V reichen
+          feedback: Der Kondensator sieht die Spitzen, nicht den Mittelwert.
+        - label: 115 V, weil der Mittelwert null ist
+          feedback: Der Mittelwert ist null, aber die Spitzen sind 325 V.
+    hints:
+      - Isolierungen schlagen bei der höchsten Spannung durch.
+      - Welche Spitze hat 230 V Effektivwert?
+    explanation: Isolierung und Bauteile müssen die Spitze von 325 V aushalten, dazu Überspannungen aus dem Netz. Darum gibt es spezielle X-Kondensatoren für Netzspannung.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Warum √2? Die Heizleistung ist u² : R. Der Mittelwert von sin² ist genau ½. Also ist P = Û² : (2R) = (Û/√2)² : R. Der **quadratische Mittelwert** heißt auf Englisch »root mean square«, kurz RMS."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: slider
+    prompt: Gestrichelt siehst du sin². Schieb die waagerechte Linie auf ihren Mittelwert.
+    params:
+      expr: a
+      x:
+        - 0
+        - 6.3
+      y:
+        - 0
+        - 1.2
+      showCoordinates: false
+      sliders:
+        - id: a
+          label: Höhe
+          min: 0
+          max: 1
+          step: 0.1
+          initial: 0.9
+      target:
+        expr: sin(x)^2
+        label: sin²
+    check:
+      predicate: a == 0.5
+    hints:
+      - Die Berge über der Linie sollen die Täler darunter genau füllen.
+      - sin² schwankt zwischen 0 und 1, symmetrisch.
+    explanation: Der Mittelwert ist ½, denn sin² + cos² = 1 und beide haben denselben Mittelwert.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Heizstab mit 52,9 Ω hängt an 230 V Wechselspannung. Welche Leistung hat er?
+    params:
+      unit: W
+    answer:
+      value: 1000
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 1997) < 5
+        misconception: peak
+        text: Mit dem Scheitelwert gerechnet. Für die Leistung zählt der Effektivwert.
+    hints:
+      - "P = U² : R mit dem Effektivwert."
+      - "230² : 52,9."
+    explanation: "52 900 : 52,9 = 1000 W. Mit Effektivwerten rechnet man bei Wechselstrom wie bei Gleichstrom."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Eine Dreieckspannung hat 10 V Scheitelwert. Ihr Effektivwert ist Û : √3. Wie groß ist er? Auf zwei Nachkommastellen."
+    params:
+      unit: V
+    answer:
+      value: 5.77
+      tolerance: 0.01
+    hints:
+      - √3 ≈ 1,732.
+      - "10 : 1,732."
+    explanation: "10 : 1,732 ≈ 5,77 V. Ein Rechteck mit ±10 V hätte 10 V Effektivwert, ein Sinus 7,07 V. Die Form zählt."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein billiges Multimeter misst den Mittelwert der gleichgerichteten Spannung und multipliziert mit 1,11. Was zeigt es bei einer Rechteckspannung von ±10 V?
+    params:
+      options:
+        - label: 11,1 V statt richtig 10 V
+          correct: true
+        - label: 10 V, richtig
+          feedback: Der Faktor 1,11 stimmt nur für Sinus.
+        - label: 7,07 V
+          feedback: Das wäre der Effektivwert eines Sinus mit 10 V Spitze.
+    hints:
+      - Gleichgerichtet ist das Rechteck konstant 10 V.
+      - Mal 1,11.
+    explanation: "Der Faktor 1,11 = π : (2√2) passt nur für Sinus. Für andere Formen braucht man ein »True RMS«-Messgerät."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum auf der Steckdose 230 V steht, obwohl die Spannung bis 325 V geht.
+    params:
+      keywords:
+        - - effektiv
+          - rms
+          - root mean
+        - - heiz
+          - heat
+          - leistung
+          - power
+          - wärme
+          - waerme
+        - - gleich
+          - dc
+          - direct
+          - same
+        - - wurzel
+          - root
+          - √2
+          - 1,41
+          - "1.41"
+          - spitze
+          - peak
+      sample: 230 V ist der Effektivwert. So viel Gleichspannung würde einen Heizstab genauso stark erwärmen. Die Spitze ist größer, nämlich 230 · √2 ≈ 325 V, aber die Spannung ist ja die meiste Zeit kleiner.
+    explanation: "Kern: Effektivwert ist über die Leistung definiert. Beim Sinus ist der Faktor √2."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d3", "x1"]

@@ -1,0 +1,191 @@
+id: ee.measure.scope
+type: concept
+title: "Das Oszilloskop"
+summary: "Spannung über der Zeit sehen: Kästchen zählen, Frequenz bestimmen, Tastkopf und Bandbreite."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Multimeter zeigt an der Steckdose einfach »230 V«. Was sieht man mit einem Oszilloskop zusätzlich?
+    params:
+      options:
+        - label: Wie die Spannung sich in jedem Moment ändert
+          correct: true
+        - label: Eine genauere Zahl
+          feedback: Nicht genauer, sondern als Bild über der Zeit.
+        - label: Den Strom statt der Spannung
+          feedback: Ein Oszilloskop misst Spannung.
+    hints:
+      - Das Multimeter zeigt einen Wert.
+      - Das Oszilloskop zeichnet einen Verlauf.
+    explanation: "Es zeichnet die Sinuskurve: Spitzen, Nulldurchgänge, Störungen. Ein Multimeter fasst all das zu einer Zahl zusammen."
+
+  - kind: explain
+    id: c1
+    body: Ein **Oszilloskop** zeichnet Spannung über der Zeit. Das Bild hat ein Raster aus Kästchen. Senkrecht stellst du Volt pro Kästchen ein, waagerecht Zeit pro Kästchen. Dann zählst du einfach Kästchen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die Spitze einer Kurve liegt {{k}} Kästchen über der Mittellinie. Eingestellt sind {{v}} V pro Kästchen. Wie groß ist die Spitzenspannung?
+    params:
+      unit: V
+    answer:
+      value: "{{k * v}}"
+    hints:
+      - Kästchen mal V pro Kästchen.
+      - "{{k}} · {{v}}."
+    explanation: "{{k}} · {{v}} V = {{k * v}} V."
+    variants:
+      params:
+        k: choice[2,3,4,2.5]
+        v: choice[0.5,1,2,5]
+      defaults:
+        k: 3
+        v: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Periode ist {{k}} Kästchen breit, eingestellt sind {{t}} ms pro Kästchen. Welche Frequenz hat das Signal?
+    params:
+      unit: Hz
+    answer:
+      value: "{{1000 / (k * t)}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - k * t) < 0.1
+        misconception: period-not-freq
+        text: Das ist die Periodendauer in ms. Die Frequenz ist ihr Kehrwert.
+    hints:
+      - Periode T = {{k}} · {{t}} ms.
+      - "f = 1 : T, mit T in Sekunden."
+    explanation: "T = {{k * t}} ms, also f = 1000 : {{k * t}} = {{round(1000 / (k * t), 1)}} Hz."
+    variants:
+      params:
+        k: choice[4,5,8,10]
+        t: choice[1,2,5]
+      defaults:
+        k: 4
+        t: 5
+
+  - kind: problem
+    id: c4
+    widget: sim
+    prompt: Stell das Signal so ein, dass eine Periode genau 0,5 s dauert.
+    params:
+      scene: wave
+      show:
+        - period
+    answer:
+      period: 0.5
+    explanation: "Periode 0,5 s heißt 2 Schwingungen pro Sekunde: f = 2 Hz."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Das Bild auf dem Oszilloskop läuft ständig durch und flackert. Was stellst du ein?
+    params:
+      options:
+        - label: "Den Trigger: Er startet jedes Bild an derselben Stelle der Kurve"
+          correct: true
+        - label: Die Volt pro Kästchen
+          feedback: Das ändert nur die Höhe.
+        - label: Die Messspitze
+          feedback: Das Signal ist ja da, es steht nur nicht still.
+    hints:
+      - Jedes neue Bild muss an der gleichen Stelle beginnen.
+      - Zum Beispiel immer dann, wenn die Kurve 0 V steigend durchquert.
+    explanation: Der Trigger wartet, bis das Signal eine Schwelle in einer Richtung kreuzt. Dann zeichnet er. So stehen periodische Signale still.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Ein Tastkopf teilt 10 : 1. Das Oszilloskop steht aber auf 1 : 1 und zeigt 1,2 V. Wie groß ist die echte Spannung?"
+    params:
+      unit: V
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 0.12
+        misconception: direction
+        text: Der Tastkopf macht das Signal kleiner. Die echte Spannung ist größer.
+    hints:
+      - Der Tastkopf lässt nur ein Zehntel durch.
+      - 1,2 V · 10.
+    explanation: "1,2 V · 10 = 12 V. Der 10:1-Tastkopf belastet die Schaltung zehnmal weniger: etwa 10 MΩ statt 1 MΩ."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Oszilloskop hat 100 MHz Bandbreite. Dort zeigt es nur noch 70,7 % der Amplitude. Wie hoch erscheint ein 2-V-Sinus mit 100 MHz? Auf zwei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: 1.41
+      tolerance: 0.01
+    hints:
+      - 70,7 % von 2 V.
+      - 2 · 0,707.
+    explanation: "2 · 0,707 ≈ 1,41 V. Faustregel: Die Bandbreite sollte mindestens fünfmal so hoch sein wie die höchste Signalfrequenz."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Die kürzeste Anstiegszeit, die ein Oszilloskop zeigen kann, ist etwa 0,35 : Bandbreite. Wie viele ns sind das bei 350 MHz?"
+    params:
+      unit: ns
+    answer:
+      value: 1
+      tolerance: 0.01
+    hints:
+      - "0,35 : 350 000 000 Hz in Sekunden."
+      - 1 ns = 0,000 000 001 s.
+    explanation: "0,35 : 350 MHz = 1 ns. Schnellere Flanken sieht das Gerät nur verschmiert."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit einem Oszilloskop die Frequenz eines Signals bestimmt.
+    params:
+      keywords:
+        - - kästchen
+          - kaestchen
+          - division
+          - raster
+          - grid
+        - - zeit
+          - time
+          - ms
+          - zeitbasis
+          - timebase
+        - - periode
+          - period
+          - schwingung
+          - cycle
+        - - kehrwert
+          - reciprocal
+          - "1 :"
+          - 1/
+          - geteilt
+          - divide
+      sample: "Ich zähle, wie viele Kästchen eine Periode breit ist, und multipliziere mit der Zeit pro Kästchen. Das ergibt die Periodendauer T. Die Frequenz ist der Kehrwert: f = 1 : T."
+    explanation: "Kern: Kästchen zählen, Periode ablesen, Kehrwert bilden. Viele Geräte rechnen das auch automatisch."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

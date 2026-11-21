@@ -1,0 +1,238 @@
+id: ee.everyday.kwh
+type: concept
+title: "What does a kilowatt-hour cost?"
+summary: "Power times time gives energy – and energy costs money."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Electricity costs about 35 cents per kilowatt-hour. How many cents does it cost to boil one litre of water in a kettle?
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+    answer:
+      value: 3.5
+      within: 50
+    explanation: About 0.1 kWh, so roughly 3.5 cents. Heating water from 20 °C to 100 °C takes about 335 kJ, plus small losses.
+
+  - kind: explain
+    id: c1
+    body: "**Power** tells you how fast a device uses energy. It is measured in watts (W). A 1000 W device running for one hour uses 1 kilowatt-hour (kWh)."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A {{p}} W hair dryer runs for {{m}} minutes. How many kWh does it use?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * m / 60000}}"
+      tolerance: 0.005
+    feedback:
+      - when: numval(state.input) == p * m
+        misconception: units
+        text: Those are watt-minutes. Convert to hours and kilowatts.
+    hints:
+      - Energy = power × time, in kW and h.
+      - "{{p / 1000}} kW × {{m}}/60 h."
+    explanation: "{{p / 1000}} kW × {{m / 60}} h = {{p * m / 60000}} kWh."
+    variants:
+      params:
+        p: choice[1200,1800,2400]
+        m: choice[10,15,20,30]
+      defaults:
+        p: 1800
+        m: 10
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Match each device to its typical power.
+    params:
+      pairs:
+        - left: LED bulb
+          right: 8 W
+        - left: Laptop
+          right: 50 W
+        - left: Fridge (compressor running)
+          right: 100 W
+        - left: Vacuum cleaner
+          right: 700 W
+        - left: Kettle
+          right: 2000 W
+      leftTitle: Device
+      rightTitle: Power
+    hints:
+      - Anything that heats needs a lot of power.
+      - The LED bulb is the most frugal.
+    explanation: "Heating eats power: kettles and hair dryers draw around 2000 W. Lighting and electronics need little."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A 100 W TV runs 4 hours every day. What does that cost per year at 35 cents per kWh? In euros.
+    params:
+      unit: €
+    answer:
+      value: 51.1
+      tolerance: 0.2
+    hints:
+      - "First the kWh per day: 0.1 kW × 4 h."
+      - 0.4 kWh × 365 × €0.35.
+    explanation: 0.4 kWh per day × 365 = 146 kWh. Times €0.35 gives about €51.10.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: A kettle is labelled “2 kW”. What does that mean?
+    params:
+      options:
+        - label: It converts 2000 joules per second
+          correct: true
+        - label: It uses 2 kWh per boil
+          feedback: kW is power, kWh is energy.
+        - label: It uses 2 kWh in total
+          feedback: The energy depends on how long it runs.
+    hints:
+      - A watt is a rate, like km/h for a car.
+      - 1 W = 1 joule per second.
+    explanation: Power is energy per time. 2 kW means 2000 J every second. Only the running time turns it into energy in kWh.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: 1 W is 1 joule per second. How many megajoules (MJ) is 1 kWh?
+    params:
+      unit: MJ
+    answer:
+      value: 3.6
+      tolerance: 0.001
+    hints:
+      - 1 kWh = 1000 W for 3600 seconds.
+      - 1000 × 3600 J = 3,600,000 J.
+    explanation: 1 kWh = 3,600,000 J = 3.6 MJ. That could lift a tonne about 367 m.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A phone takes {{w}} Wh every day. What does that cost per year at 35 cents per kWh? In euros, to the cent.
+    params:
+      unit: €
+    answer:
+      value: "{{round(w * 365 * 0.35 / 1000, 2)}}"
+      tolerance: 0.011
+    hints:
+      - "First the kWh per year: {{w}} × 365 ÷ 1000."
+      - Then multiply by €0.35.
+    explanation: "{{w * 365 / 1000}} kWh × €0.35 ≈ €{{round(w * 365 * 0.35 / 1000, 2)}}. Charging a phone is almost free."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[10,15,20,25]
+      defaults:
+        w: 15
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Big or small item on the electricity bill?
+    params:
+      buckets:
+        - id: b1
+          label: Small item
+        - id: b2
+          label: Big item
+      items:
+        - label: Charging a phone
+          bucket: b1
+        - label: LED light in the hall
+          bucket: b1
+        - label: Electric tankless water heater
+          bucket: b2
+        - label: Tumble dryer
+          bucket: b2
+        - label: Charging an electric car
+          bucket: b2
+        - label: Alarm clock
+          bucket: b1
+    hints:
+      - What counts is power times running time.
+      - Making heat and driving cost a lot of energy.
+    explanation: Heat and motion take a lot of energy. An EV needs about 15 to 20 kWh per 100 km, a phone about 5 kWh in a whole year.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A household uses 3500 kWh per year. What is its average power in watts? A year has 8760 hours.
+    params:
+      unit: W
+    answer:
+      value: 400
+      tolerance: 2
+    hints:
+      - Power = energy ÷ time.
+      - 3500 kWh ÷ 8760 h in kW, then × 1000.
+    explanation: 3500 ÷ 8760 ≈ 0.40 kW = 400 W. On average the household is like a 400 W device that never switches off.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Power is [[energy]] per [[time]]. A 2 kW device uses [[1 kWh]] in half an hour.
+      distractors:
+        - voltage
+        - 4 kWh
+        - current
+    explanation: 2 kW × 0.5 h = 1 kWh.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between kW and kWh with an everyday picture.
+    params:
+      keywords:
+        - - leistung
+          - power
+          - kw
+        - - energie
+          - energy
+          - kwh
+          - menge
+          - amount
+        - - zeit
+          - time
+          - stunde
+          - hour
+          - lange
+          - long
+        - - tempo
+          - speed
+          - rate
+          - schnell
+          - fast
+          - strahl
+          - flow
+          - liter
+      sample: kW is like a car’s speed, kWh like the distance driven. Power says how fast energy flows. Times the time it gives the energy in kWh, and that is what you pay for.
+    explanation: What matters are the key ideas. Compare your explanation with the model answer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

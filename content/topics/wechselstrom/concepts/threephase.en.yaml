@@ -1,0 +1,181 @@
+id: ee.ac.threephase
+type: concept
+title: "Three-phase power: 230 V and 400 V"
+summary: "Three phases, 120° apart – for stoves, wallboxes and every big motor."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: The connection for a stove or wallbox has five wires instead of three. What for?
+    params:
+      options:
+        - label: Three phase wires, one neutral and one earth
+          correct: true
+        - label: Double safety
+          feedback: The wires carry three different phases.
+        - label: For control data
+          feedback: Data runs on separate thin cables.
+    hints:
+      - A normal socket has a phase, a neutral and an earth.
+      - Here there are three phase wires.
+    explanation: L1, L2, L3, N and PE. This connection is called three-phase power.
+
+  - kind: explain
+    id: c1
+    body: With **three-phase power**, three wires each carry a sine voltage. They are offset by 120°, a third of a period. Each phase is 230 V against the neutral. Between two phases you measure 400 V.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Between two phases there is √3 times the phase voltage. How much is 230 V × √3? To one decimal place.
+    params:
+      unit: V
+    answer:
+      value: 398.4
+      tolerance: 0.06
+    feedback:
+      - when: numval(state.input) == 460
+        misconception: double
+        text: "Not double: the phases are only 120° apart, not 180°."
+    hints:
+      - √3 ≈ 1.732.
+      - 230 × 1.732.
+    explanation: 230 × 1.732 ≈ 398.4 V. This is rounded to the standard 400 V.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: The phases are pointers at 0°, 120° and 240°. L1 is at 0°, L2 at 120°. Set the pointer for L3.
+    params:
+      scene: unitcircle
+    answer:
+      angle: 240
+    explanation: L3 sits at 240°. The three pointers split the circle into three equal parts.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Three identical heaters hang on L1, L2 and L3 and share the neutral. How much current flows in the neutral?
+    params:
+      options:
+        - label: Zero
+          correct: true
+        - label: Three times one phase current
+          feedback: The three currents are offset and cancel.
+        - label: Exactly one phase current
+          feedback: With equal loads they cancel completely.
+    hints:
+      - The three currents are 120° apart.
+      - Three equal pointers at 0°, 120° and 240° add up to?
+    explanation: With equal loads the sum is zero at every moment. That is why a thin neutral suffices, and overhead lines have none at all.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A wallbox charges with {{i}} A on three-phase. Its power is P = √3 × 400 V × I. How many kW is that? To one decimal place.
+    params:
+      unit: kW
+    answer:
+      value: "{{1.7320508 * 400 * i / 1000}}"
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 0.23 * i) < 0.06
+        misconception: single-phase
+        text: That would be one phase. Three-phase has three.
+    hints:
+      - √3 × 400 ≈ 693.
+      - 693 V × {{i}} A in kW.
+    explanation: ≈ {{round(1.7320508 * 400 * i / 1000, 1)}} kW. That is why wallboxes come in 11 kW (16 A) and 22 kW (32 A).
+    difficulty: 2
+    variants:
+      params:
+        i: choice[10,16,25,32]
+      defaults:
+        i: 16
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Why do big motors prefer three-phase power?
+    params:
+      options:
+        - label: The three coils create a magnetic field that rotates by itself
+          correct: true
+        - label: Because 400 V is more dangerous
+          feedback: Danger is no advantage.
+        - label: Because three-phase is DC
+          feedback: It is three AC voltages.
+    hints:
+      - Three offset currents in three offset coils.
+      - "The name “rotating current” (German: Drehstrom) gives it away."
+    explanation: The rotating field drags the rotor along. Such an induction motor needs no brushes and runs for decades.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: "Proof for the neutral wire: sin x + sin(x − 120°) + sin(x + 120°) = sin x + 2 sin x × cos 120°. Since cos 120° = [[−½]], this gives [[0]]."
+      distractors:
+        - ½
+        - "1"
+        - √3
+    explanation: The addition formula sin(x ± y) = sin x cos y ± cos x sin y gives the middle step. The cos x terms cancel.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why three phases and not two or six?
+    params:
+      options:
+        - label: Three is the smallest number with a rotating field and steady power using little copper
+          correct: true
+        - label: Because three is lucky
+          feedback: There are solid technical reasons.
+        - label: Because six phases don’t work
+          feedback: They work but need more wires.
+    hints:
+      - With one phase the power pulses at 100 Hz.
+      - With three phases the total power is constant.
+    explanation: With three phases the total power is the same at every moment, so generators and motors run smoothly. More phases add little benefit but cost extra wires.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux where the 400 V in three-phase power come from.
+    params:
+      keywords:
+        - - drei
+          - three
+        - - "120"
+          - versetzt
+          - offset
+          - phase
+        - - zwischen
+          - between
+          - differenz
+          - difference
+        - - wurzel
+          - root
+          - √3
+          - 1,73
+          - "1.73"
+      sample: "There are three phases of 230 V against neutral, 120° apart. Measuring between two phases gives the difference of two sine waves. Because of the angle it is not twice as large but √3 times: 230 × 1.73 ≈ 400 V."
+    explanation: "The core: difference of two pointers 120° apart. Geometrically an isosceles triangle with 120° at the apex."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x2"]

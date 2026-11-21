@@ -1,0 +1,208 @@
+id: ee.induction.resonance
+type: concept
+title: "The resonant circuit"
+summary: "A coil and a capacitor swing energy back and forth – the basis of every radio."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Tune the resonant circuit to about 500 Hz.
+    params:
+      scene: resonance
+      controls:
+        inductance:
+          value: 50
+        capacitance:
+          value: 50
+    answer:
+      f0:
+        - 480
+        - 520
+    explanation: For example 10 mH and 10 µF give 503 Hz. Smaller parts make the oscillation faster.
+
+  - kind: explain
+    id: c1
+    body: In a **resonant circuit** energy swings between capacitor and coil. The full capacitor discharges through the coil, whose field keeps the current going and charges it the other way. Like a swing.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The natural frequency is f₀ = 1 ÷ (2π √(L C)). What is it for L = {{l}} mH and C = {{c}} µF? To the nearest hertz.
+    params:
+      unit: Hz
+    answer:
+      value: "{{1 / (2 * 3.14159265 * sqrt(l * c / 1000000000))}}"
+      tolerance: 0.6
+    hints:
+      - "L × C in s²: {{l}} × 10⁻³ × {{c}} × 10⁻⁶."
+      - Take the square root, multiply by 2π, take the reciprocal.
+    explanation: f₀ ≈ {{round(1 / (2 * 3.14159265 * sqrt(l * c / 1000000000)))}} Hz. The product L × C sets the frequency.
+    variants:
+      params:
+        l: choice[1,10,100]
+        c: choice[1,10,100]
+      defaults:
+        l: 10
+        c: 10
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: With L = 10 mH and C = 10 µF the circuit oscillates at 503 Hz. Keep L at 10 mH and find the C at which it oscillates half as fast.
+    params:
+      scene: resonance
+      controls:
+        capacitance:
+          value: 20
+    answer:
+      inductance: 10
+      capacitance: 40
+    explanation: "C = 40 µF: four times C halves the frequency, because C sits under the square root."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: What happens to f₀ if you double both L and C?
+    params:
+      options:
+        - label: It halves
+          correct: true
+        - label: It stays the same
+          feedback: Both are in the denominator. The product quadruples.
+        - label: It quarters
+          feedback: The square root turns a factor of 4 into 2.
+    hints:
+      - L × C becomes four times as large.
+      - √4 = 2.
+    explanation: L × C grows by 4, its square root by 2, so f₀ halves.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A radio with L = 250 µH should receive a 1 MHz station. What capacitance does the tuning capacitor need, in pF? To the nearest pF.
+    params:
+      unit: pF
+    answer:
+      value: 101
+      tolerance: 1
+    hints:
+      - C = 1 ÷ ((2π f)² × L).
+      - (2π × 10⁶)² ≈ 3.95 × 10¹³. Times 2.5 × 10⁻⁴ H.
+    explanation: C ≈ 1 ÷ (9.87 × 10⁹) F ≈ 1.01 × 10⁻¹⁰ F = 101 pF. Turning the capacitor selects the station.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A 10 µF capacitor charged to 10 V oscillates with a 10 mH coil. What is the peak current? From ½ C U² = ½ L I². To three decimal places.
+    params:
+      unit: A
+    answer:
+      value: 0.316
+      tolerance: 0.001
+    hints:
+      - I = U × √(C ÷ L).
+      - C ÷ L = 10⁻⁵ ÷ 10⁻² = 10⁻³.
+    explanation: 10 × √0.001 ≈ 0.316 A. All the electrical energy is then in the coil’s magnetic field.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Is there an electrical resonant circuit inside?
+    params:
+      cards:
+        - text: FM radio
+          right: true
+        - text: Metal detector
+          right: true
+        - text: Incandescent bulb
+          right: false
+        - text: Shop anti-theft tag
+          right: true
+        - text: Battery
+          right: false
+      left: No
+      right: Yes
+    explanation: "Radios, metal detectors and tags use resonance: they respond strongly to exactly one frequency."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: The quality factor Q describes how sharply a circuit is tuned. Its bandwidth is B = f₀ ÷ Q. What is B for f₀ = {{f}} kHz and Q = {{q}}, in kHz?
+    params:
+      unit: kHz
+    answer:
+      value: "{{f / q}}"
+      tolerance: 0.001
+    hints:
+      - B = f₀ ÷ Q.
+      - "{{f}} ÷ {{q}}."
+    explanation: "{{f}} ÷ {{q}} = {{f / q}} kHz. A high Q separates closely spaced stations, but needs low losses."
+    difficulty: 3
+    variants:
+      params:
+        f: choice[500,1000,1500]
+        q: choice[50,100,200]
+      defaults:
+        f: 1000
+        q: 100
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A real resonant circuit dies down after a few cycles. How do engineers make it an oscillator that keeps going forever?
+    params:
+      options:
+        - label: An amplifier makes up the losses in step, every cycle
+          correct: true
+        - label: Use bigger parts
+          feedback: Big parts have resistance too.
+        - label: Cool the circuit
+          feedback: Even cold, losses remain unless it is superconducting.
+    hints:
+      - How do you keep a swing going?
+      - Small pushes at the right moment.
+    explanation: "Positive feedback: part of the output is fed back in phase. If the loop gain is at least 1, the oscillation is sustained."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how energy swings back and forth in a resonant circuit.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+          - elektrisch
+          - electric
+        - - spule
+          - coil
+          - magnet
+        - - energie
+          - energy
+        - - hin und her
+          - back and forth
+          - pendel
+          - swing
+          - schaukel
+          - umgekehrt
+          - reverse
+      sample: First the energy sits in the electric field of the charged capacitor. It discharges through the coil, and now the energy is in the coil’s magnetic field. The coil keeps the current going and charges the capacitor the other way. So the energy swings back and forth like a swing.
+    explanation: "The core: electric and magnetic energy take turns, like potential and kinetic energy in a pendulum."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]

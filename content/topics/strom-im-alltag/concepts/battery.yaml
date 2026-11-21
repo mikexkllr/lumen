@@ -1,0 +1,246 @@
+id: ee.everyday.battery
+type: concept
+title: "Batterie oder Steckdose?"
+summary: "Volt, Wattstunden und warum Batteriestrom so teuer ist."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Eine AA-Batterie hat 1,5 Volt. Wie viele bräuchtest du hintereinander für die 230 Volt der Steckdose?
+    params:
+      min: 10
+      max: 1000
+      scale: log
+    answer:
+      value: 153
+      within: 10
+    explanation: "230 : 1,5 ≈ 153. Hintereinander, also in Reihe, addieren sich die Spannungen."
+
+  - kind: explain
+    id: c1
+    body: Die **Spannung** treibt den Strom an. Man misst sie in Volt (V). Eine AA-Batterie hat 1,5 V, ein USB-Anschluss 5 V, die Steckdose 230 V.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Sortiere nach der Spannung, die kleinste zuerst.
+    params:
+      items:
+        - label: AA-Batterie
+        - label: Knopfzelle einer Uhr
+        - label: USB-Anschluss
+        - label: Autobatterie
+        - label: Steckdose
+        - label: Überlandleitung
+    hints:
+      - Die Steckdose liegt weit oben.
+      - Eine Knopfzelle hat 3 V, eine Autobatterie 12 V.
+    explanation: AA 1,5 V · Knopfzelle 3 V · USB 5 V · Auto 12 V · Steckdose 230 V · Überlandleitung bis 380 000 V.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Anfassen ungefährlich oder lebensgefährlich?
+    params:
+      buckets:
+        - id: b1
+          label: Ungefährlich
+        - id: b2
+          label: Lebensgefährlich
+      items:
+        - label: AA-Batterie
+          bucket: b1
+        - label: USB-Stecker
+          bucket: b1
+        - label: Pole einer Autobatterie
+          bucket: b1
+        - label: Kontakte der Steckdose
+          bucket: b2
+        - label: Oberleitung der Bahn
+          bucket: b2
+        - label: Innenleben eines offenen Netzteils
+          bucket: b2
+    hints:
+      - Unter etwa 50 V passiert beim Anfassen nichts.
+      - Alles, was an der Netzspannung hängt, ist gefährlich.
+    explanation: Bis 50 V Wechselspannung oder 120 V Gleichspannung gilt als Schutzkleinspannung. Darüber kann Strom durch den Körper töten.
+
+  - kind: explain
+    id: c4
+    body: Die Spannung sagt nicht, wie lange ein Akku reicht. Dafür zählt die **Energie**. Man gibt sie in Wattstunden (Wh) an. Rechne Spannung mal Ladung in Amperestunden (Ah).
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Eine Powerbank hat {{c}} Ah bei 3,7 V. Wie viele Wattstunden speichert sie?
+    params:
+      unit: Wh
+    answer:
+      value: "{{3.7 * c}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == c
+        misconception: charge-not-energy
+        text: Das ist nur die Ladung. Multipliziere noch mit der Spannung.
+    hints:
+      - Energie = Spannung · Ladung.
+      - Rechne 3,7 · {{c}}.
+    explanation: 3,7 V · {{c}} Ah = {{3.7 * c}} Wh. Auf der Packung steht dafür oft {{c * 1000}} mAh.
+    variants:
+      params:
+        c: choice[5,10,20,26]
+      defaults:
+        c: 10
+
+  - kind: problem
+    id: c6
+    widget: choice
+    prompt: Eine AA-Batterie kostet etwa 50 Cent und liefert rund 3 Wh. Aus der Steckdose kosten 1000 Wh etwa 35 Cent. Was ist teurer?
+    params:
+      options:
+        - label: Die Batterie, pro Wh viele hundertmal
+          correct: true
+        - label: Die Steckdose
+          feedback: Für 35 Cent gibt es aus der Steckdose 1000 Wh, aus Batterien nur etwa 2 Wh.
+        - label: Beide gleich
+          feedback: Vergleiche den Preis pro Wattstunde.
+    hints:
+      - Rechne beides pro Wattstunde.
+      - "50 : 3 ≈ 17 Cent pro Wh."
+    explanation: "Batterie: rund 17 Cent pro Wh. Steckdose: 0,035 Cent pro Wh. Das ist fast 500-mal billiger."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Eine Batterie liefert **Gleichstrom**. Er fließt immer in dieselbe Richtung. Die Steckdose liefert Wechselstrom. Er pendelt 50-mal pro Sekunde hin und her.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: swipe
+    prompt: Gleichstrom oder Wechselstrom?
+    params:
+      cards:
+        - text: Handy-Akku
+          right: false
+        - text: Steckdose
+          right: true
+        - text: Solarzelle
+          right: false
+        - text: USB-Anschluss
+          right: false
+        - text: Generator im Kraftwerk
+          right: true
+        - text: Autobatterie
+          right: false
+      left: Gleichstrom
+      right: Wechselstrom
+    explanation: Batterien, Akkus, Solarzellen und USB liefern Gleichstrom. Kraftwerksgeneratoren und damit die Steckdose liefern Wechselstrom.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Autobatterie hat 12 V und 60 Ah. Wie viele Kilowattstunden speichert sie?
+    params:
+      unit: kWh
+    answer:
+      value: 0.72
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 720
+        misconception: unit-prefix
+        text: Das sind Wattstunden. Teile noch durch 1000.
+    hints:
+      - "Erst die Wattstunden: 12 · 60."
+      - 1 kWh = 1000 Wh.
+    explanation: 12 V · 60 Ah = 720 Wh = 0,72 kWh.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: Wie lange könnte diese Batterie mit 720 Wh rechnerisch einen Wasserkocher mit 2000 W betreiben? Gib Minuten an.
+    params:
+      unit: min
+    answer:
+      value: 21.6
+      tolerance: 0.5
+    hints:
+      - "Zeit = Energie : Leistung."
+      - "720 Wh : 2000 W = 0,36 h."
+    explanation: "0,36 h · 60 = 21,6 min. In Wirklichkeit weniger: Bei so viel Strom bricht die Spannung ein."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: estimate
+    prompt: Ein Lithium-Akku speichert etwa 250 Wh pro Kilogramm. Wie viele Wh stecken in einem Kilogramm Benzin?
+    params:
+      min: 100
+      max: 100000
+      scale: log
+    answer:
+      value: 12000
+      within: 25
+    explanation: Rund 12 000 Wh, also etwa 50-mal mehr. Ein Automotor nutzt davon aber höchstens ein Drittel, ein Elektromotor über 90 %.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Akku A hat 3,7 V und 3 Ah. Akku B hat 7,4 V und 1,5 Ah. Welcher speichert mehr Energie?
+    params:
+      options:
+        - label: Beide gleich viel
+          correct: true
+        - label: A, weil mehr Ah
+          feedback: Amperestunden allein sind keine Energie. Rechne V · Ah.
+        - label: B, weil mehr Volt
+          feedback: Volt allein sind keine Energie. Rechne V · Ah.
+    hints:
+      - Rechne für beide Spannung mal Ladung.
+      - 3,7 · 3 und 7,4 · 1,5.
+    explanation: Beide haben 11,1 Wh. Deshalb vergleicht man Akkus in Wh und nicht in mAh.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine 12-V-Batterie nicht automatisch länger hält als eine 1,5-V-Batterie.
+    params:
+      keywords:
+        - - spannung
+          - voltage
+          - volt
+        - - energie
+          - energy
+          - wattstunde
+          - watt-hour
+          - wh
+        - - ladung
+          - charge
+          - amperestunde
+          - amp-hour
+          - kapazit
+          - capacity
+        - - leistung
+          - power
+          - verbrauch
+          - consum
+      sample: "Die Spannung sagt nur, wie stark der Antrieb ist. Wie lange es reicht, hängt von der Energie ab: Spannung mal Ladung in Wh. Und davon, wie viel Leistung das Gerät braucht."
+    explanation: Wichtig sind die Kernideen. Vergleiche deine Erklärung mit der Musterantwort.
+    difficulty: 3
+
+srs:
+  cards_from: ["c5", "d3", "x2"]

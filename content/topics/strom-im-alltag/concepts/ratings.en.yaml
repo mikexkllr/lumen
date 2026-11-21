@@ -1,0 +1,223 @@
+id: ee.everyday.ratings
+type: concept
+title: "Reading the rating label"
+summary: "Volts, amps, watts and mAh on chargers, batteries and adapters."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A charger says: “Output 5 V ⎓ 2 A”. How powerful is it?"
+    params:
+      options:
+        - label: 10 W
+          correct: true
+        - label: 7 W
+          feedback: Volts and amps are not added.
+        - label: 2.5 W
+          feedback: "Don’t divide: power is voltage times current."
+    hints:
+      - Power depends on voltage and current.
+      - Multiply the two numbers.
+    explanation: P = U × I = 5 V × 2 A = 10 W.
+
+  - kind: explain
+    id: c1
+    body: The **rating label** tells you what a device needs or supplies. It shows voltage U in volts, current I in amps and power P in watts. They are linked by P = U × I.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A USB-C charger supplies {{u}} V at {{i}} A. How much power is that?
+    params:
+      unit: W
+    answer:
+      value: "{{u * i}}"
+    feedback:
+      - when: numval(state.input) == u + i
+        misconception: add-not-multiply
+        text: "Don’t add: power is voltage times current."
+    hints:
+      - P = U × I.
+      - Work out {{u}} × {{i}}.
+    explanation: "{{u}} V × {{i}} A = {{u * i}} W. Fast charging mainly raises the voltage."
+    variants:
+      params:
+        u: choice[5,9,15,20]
+        i: choice[2,3,5]
+      constraints:
+        - "!(i == 5 && u < 20)"
+      defaults:
+        u: 20
+        i: 3
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: What does each symbol on the rating label mean?
+    params:
+      pairs:
+        - left: ⎓
+          right: Direct voltage
+        - left: "~"
+          right: Alternating voltage
+        - left: 100–240 V
+          right: Works on any socket worldwide
+        - left: 50/60 Hz
+          right: Mains frequency
+        - left: Double square ⧈
+          right: Double insulated, no earth
+      leftTitle: Symbol
+      rightTitle: Meaning
+    hints:
+      - The straight line with dashes is DC, the wave is AC.
+      - Hz is the unit of frequency.
+    explanation: A wide-range adapter for 100–240 V and 50/60 Hz works in Europe, the USA and Japan.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A phone battery has 5000 mAh at 3.85 V. How many watt-hours is that?
+    params:
+      unit: Wh
+    answer:
+      value: 19.25
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 19250
+        misconception: unit-prefix
+        text: "Convert milliamp-hours to amp-hours first: 5000 mAh = 5 Ah."
+    hints:
+      - 5000 mAh = 5 Ah.
+      - Energy = 3.85 V × 5 Ah.
+    explanation: 3.85 V × 5 Ah = 19.25 Wh.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Charging is 85 % efficient. How many Wh must the charger supply for the battery to get 19.25 Wh? To one decimal place.
+    params:
+      unit: Wh
+    answer:
+      value: 22.6
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 16.4) < 0.1
+        misconception: efficiency-direction
+        text: With losses more must go in, not less. Divide by 0.85.
+    hints:
+      - With losses, more must go in than arrives.
+      - Divide 19.25 by 0.85.
+    explanation: 19.25 ÷ 0.85 ≈ 22.6 Wh. The other 3.4 Wh become heat, which is why phones get warm while charging.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: On planes, power banks up to 100 Wh are allowed. One has 26,800 mAh at 3.7 V. How many Wh is that? To one decimal place.
+    params:
+      unit: Wh
+    answer:
+      value: 99.2
+      tolerance: 0.1
+    hints:
+      - 26,800 mAh = 26.8 Ah.
+      - 26.8 × 3.7.
+    explanation: 26.8 Ah × 3.7 V ≈ 99.2 Wh, just under the limit. That is why so many power banks have about 26,800 mAh.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: True or false?
+    params:
+      cards:
+        - text: A 65 W charger can also charge a phone that only takes 20 W.
+          right: true
+          why: The phone only takes what it needs.
+        - text: A charger always forces its full power into the device.
+          right: false
+          why: Device and charger negotiate voltage and current.
+        - text: More mAh means more energy at the same voltage.
+          right: true
+          why: At equal voltage energy is proportional to charge.
+        - text: A 12 V ⎓ device may run on 12 V ~.
+          right: false
+          why: DC and AC are not interchangeable.
+      left: "False"
+      right: "True"
+    explanation: Modern USB chargers supply only what the device requests.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A charging cable has 0.2 Ω there and back. How many watts turn into heat in the cable when 60 W are sent at 5 V?
+    params:
+      unit: W
+    answer:
+      value: 28.8
+      tolerance: 0.1
+    hints:
+      - "First the current: I = P ÷ U = 12 A."
+      - Loss = I² × R = 144 × 0.2.
+    explanation: 12 A, so 144 × 0.2 Ω = 28.8 W of loss – almost half! At 20 V and 3 A it would be only 9 × 0.2 = 1.8 W.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why do fast chargers raise the voltage to 9 V or 20 V instead of simply sending more current?
+    params:
+      options:
+        - label: Because cable losses grow with the square of the current
+          correct: true
+        - label: Because high voltage makes the battery faster
+          feedback: The battery itself always gets its own voltage of about 4 V.
+        - label: Because current is more dangerous than voltage
+          feedback: At 20 V both are harmless. It is about heat in the cable.
+    hints:
+      - Think of the previous task.
+      - Loss = I² × R.
+    explanation: For the same power, 4 times the voltage needs only a quarter of the current. Losses then drop to a sixteenth. Inside the phone it is converted back down to battery voltage.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what “5000 mAh” on a battery means and why watt-hours are the better figure.
+    params:
+      keywords:
+        - - ladung
+          - charge
+          - mah
+          - amperestunde
+          - amp-hour
+        - - spannung
+          - voltage
+          - volt
+        - - energie
+          - energy
+          - wattstunde
+          - watt-hour
+          - wh
+        - - vergleich
+          - compar
+          - unterschied
+          - different
+      sample: 5000 mAh means the battery can deliver 5 A for an hour, or 1 A for five hours. That is a charge. Energy is charge times voltage, in Wh. Only Wh can be compared between batteries with different voltages.
+    explanation: What matters are the key ideas. Compare your explanation with the model answer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

@@ -1,0 +1,192 @@
+id: ee.measure.connect
+type: concept
+title: "Measuring current or voltage?"
+summary: "Voltmeter in parallel, ammeter in series – and why every meter disturbs the circuit a little."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You want to know how much current a lamp draws. How do you connect the meter?
+    params:
+      options:
+        - label: Break the circuit and put the meter in the gap
+          correct: true
+        - label: Hold it across the lamp’s terminals
+          feedback: That measures the voltage across the lamp.
+        - label: Hold it across the battery
+          feedback: On the current range that is a short circuit.
+    hints:
+      - Current flows through the wire.
+      - The current itself must flow through the meter.
+    explanation: A meter can only count what flows through it. That is why the ammeter goes into the circuit.
+
+  - kind: explain
+    id: c1
+    body: Voltage is a difference between two points. So you hold the voltmeter **in parallel** across the part. The circuit stays closed. The voltmeter itself draws almost no current.
+
+  - kind: explain
+    id: c2
+    body: "Current flows through a wire. To measure it, it must flow through the meter. So the ammeter goes **in series**: open the circuit, put the meter in between. Inside it has almost no resistance."
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Connected correctly or wrongly?
+    params:
+      buckets:
+        - id: b1
+          label: Correct
+        - id: b2
+          label: Wrong
+      items:
+        - label: Voltmeter across the lamp
+          bucket: b1
+        - label: Ammeter in series with the lamp
+          bucket: b1
+        - label: Ammeter straight across the battery
+          bucket: b2
+        - label: Voltmeter in series with the lamp
+          bucket: b2
+        - label: Voltmeter straight across the battery
+          bucket: b1
+    hints:
+      - Voltmeter always in parallel, ammeter always in series.
+      - An ammeter straight across a source is a short circuit.
+    explanation: "A voltmeter in series blocks almost all current: the lamp goes out and it just shows the battery voltage. An ammeter across the battery shorts it."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A voltmeter is accidentally connected in series with a lamp. What happens?
+    params:
+      options:
+        - label: The lamp goes out, the voltmeter shows almost the full battery voltage
+          correct: true
+        - label: The voltmeter burns out
+          feedback: Its large resistance lets hardly any current through.
+        - label: Everything works normally
+          feedback: A voltmeter has about 10 MΩ. That is a huge resistance in series.
+    hints:
+      - A voltmeter has about 10 MΩ inside.
+      - In a series circuit, where does most of the voltage drop?
+    explanation: Almost all the voltage drops across the voltmeter’s huge resistance. Practically nothing is left for the lamp. Nothing gets damaged.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Two 10 MΩ resistors divide 10 V. You measure across the bottom one with a voltmeter that itself has 10 MΩ. What does it show? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: 3.33
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: ideal-meter
+        text: That is what an ideal voltmeter would show. But it sits in parallel with the bottom resistor.
+    hints:
+      - The voltmeter in parallel with 10 MΩ gives 5 MΩ at the bottom.
+      - 10 V × 5 ÷ (10 + 5).
+    explanation: 3.33 V instead of 5 V. The meter loads the divider. With very large resistances you must take this into account.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: An ideal voltmeter has an [[infinitely large]] resistance. An ideal ammeter has a resistance of [[zero]].
+      distractors:
+        - medium
+        - one ohm
+    explanation: "That way neither disturbs the circuit. Real meters come close: about 10 MΩ for a voltmeter, fractions of an ohm for an ammeter."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Inside the ammeter, a 0.01 Ω measuring resistor (shunt) is used. How many mV drop across it at {{i}} A?
+    params:
+      unit: mV
+    answer:
+      value: "{{i * 10}}"
+    hints:
+      - U = I × R.
+      - "{{i}} A × 0.01 Ω in V, then × 1000."
+    explanation: "{{i}} × 0.01 = {{i / 100}} V = {{i * 10}} mV. Inside, an ammeter is a voltmeter across a tiny resistor."
+    difficulty: 2
+    variants:
+      params:
+        i: choice[0.5,2,5,10]
+      defaults:
+        i: 5
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: You measure an LED’s current. On the mA range it glows visibly dimmer than without the meter. Why?
+    params:
+      options:
+        - label: The shunt on the mA range is larger and eats voltage
+          correct: true
+        - label: The meter uses up current
+          feedback: Current isn’t used up, but voltage drops across the shunt.
+        - label: The LED is broken
+          feedback: Without the meter it glows normally.
+    hints:
+      - Small ranges need a larger shunt to produce enough voltage.
+      - That voltage is missing for the LED.
+    explanation: The voltage across the shunt is called burden voltage, often a few hundred mV. In low-voltage circuits it changes the current noticeably.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A 0.001 Ω shunt carries 200 A in an EV battery. How much power does it dissipate?
+    params:
+      unit: W
+    answer:
+      value: 40
+    hints:
+      - P = I² × R.
+      - 200² × 0.001.
+    explanation: 40,000 × 0.001 = 40 W. That is why high-current shunts have tiny values – or the magnetic field is measured instead.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a voltmeter goes in parallel and an ammeter in series.
+    params:
+      keywords:
+        - - parallel
+        - - reihe
+          - series
+        - - spannung
+          - voltage
+          - unterschied
+          - difference
+          - zwei punkte
+          - two points
+        - - durch
+          - through
+          - fließ
+          - fliess
+          - flow
+      sample: Voltage is the difference between two points, so the voltmeter is held across those points in parallel. Current flows through the wire. It must flow through the meter, so the ammeter goes in series.
+    explanation: "The core: voltage between two points, current through a cross-section. The ideal internal resistances follow from that."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d1", "d3"]

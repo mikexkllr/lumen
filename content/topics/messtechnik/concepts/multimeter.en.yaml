@@ -1,0 +1,216 @@
+id: ee.measure.multimeter
+type: concept
+title: "The multimeter"
+summary: "One device for volts, amps and ohms – on the right range."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Is the AA battery still full? Which setting do you turn the multimeter to?
+    params:
+      options:
+        - label: V⎓ on the 20 V range
+          correct: true
+        - label: A on the 10 A range
+          feedback: Current is measured in series. Across the battery alone that would be a short circuit.
+        - label: Ω
+          feedback: Resistance is only measured on parts without voltage.
+    hints:
+      - You want the battery’s voltage.
+      - Batteries supply direct voltage.
+    explanation: You measure voltage right at the terminals. A full cell shows about 1.5 to 1.6 V, an empty one below 1.2 V.
+
+  - kind: explain
+    id: c1
+    body: A **multimeter** measures voltage, current and resistance. The rotary switch picks the quantity and range. The black lead goes into COM. The red one goes into V for voltage and into A for current.
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: What does each setting measure?
+    params:
+      pairs:
+        - left: V⎓
+          right: DC voltage
+        - left: V~
+          right: AC voltage
+        - left: A⎓
+          right: DC current
+        - left: Ω
+          right: Resistance
+        - left: •)))
+          right: Continuity beep
+      leftTitle: Setting
+      rightTitle: Measures
+    hints:
+      - The straight line means DC, the wave means AC.
+      - Ω is the unit of resistance.
+    explanation: The continuity tester beeps when the resistance is very small, around 50 Ω or less. That finds broken wires quickly.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Which setting do you need?
+    params:
+      buckets:
+        - id: b1
+          label: V⎓
+        - id: b2
+          label: V~
+        - id: b3
+          label: Ω / continuity
+      items:
+        - label: Voltage of a wall socket
+          bucket: b2
+        - label: Voltage of a phone battery
+          bucket: b1
+        - label: Has the fuse blown?
+          bucket: b3
+        - label: Value of a removed resistor
+          bucket: b3
+        - label: Output of a USB charger
+          bucket: b1
+        - label: Find a break in a charging cable
+          bucket: b3
+    hints:
+      - Sockets supply AC.
+      - Fuses and cables are tested for continuity with the power off.
+    explanation: Batteries and USB are DC, the socket is AC. Fuses, cables and resistors are checked without power on the Ω range.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You measure a voltage. The red lead is still in the A socket. What happens?
+    params:
+      options:
+        - label: Short circuit through the meter – its internal fuse blows
+          correct: true
+        - label: Nothing, the meter detects it
+          feedback: The A socket has almost no resistance.
+        - label: It shows the voltage in amps
+          feedback: A huge current flows.
+    hints:
+      - How large is the resistance between A and COM?
+      - Almost zero ohms across a source means a short.
+    explanation: Between A and COM sits a tiny measuring resistor. Across a source, a huge current flows at once. Good meters have a fast-acting fuse for this.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: The **measuring range** is the largest value a setting can show. Pick the smallest range that is still big enough. If it is too small, the meter shows “OL” for overload.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A multimeter shows at most 1999 counts. What is its smallest step on the {{r}} V range?
+    params:
+      unit: V
+    answer:
+      value: "{{r / 2000}}"
+    hints:
+      - The range is split into about 2000 steps.
+      - "{{r}} V ÷ 2000."
+    explanation: "{{r}} V ÷ 2000 = {{r / 2000}} V. A smaller range shows finer steps."
+    difficulty: 2
+    variants:
+      params:
+        r: choice[2,20,200]
+      defaults:
+        r: 20
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: You measure 9 V on the 2 V range. What does the meter show?
+    params:
+      options:
+        - label: “OL” or a lone 1 for overload
+          correct: true
+        - label: "9.00"
+          feedback: More than 1.999 V does not fit into the 2 V range.
+        - label: "0.00"
+          feedback: The meter sees a voltage but cannot display it.
+    hints:
+      - What is the largest value on the 2 V range?
+      - 9 V is more than 1.999 V.
+    explanation: The value exceeds the range. Switch up to 20 V. Auto-ranging meters do this themselves.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: match
+    prompt: "Measurement categories: where may a meter with this rating measure?"
+    params:
+      pairs:
+        - left: CAT II
+          right: Appliances at a socket
+        - left: CAT III
+          right: Distribution in a building
+        - left: CAT IV
+          right: Service entrance and meter
+      leftTitle: Category
+      rightTitle: Location
+    hints:
+      - The closer to the source, the higher the category.
+      - The service entrance is right at the front.
+    explanation: Near the source, voltage spikes carry far more energy. A CAT II meter in the meter cabinet can explode.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why don’t you measure a component’s resistance while the circuit is switched on?
+    params:
+      options:
+        - label: The ohmmeter sends its own test current; outside voltage spoils or damages it
+          correct: true
+        - label: Because resistors only have a value when cold
+          feedback: Temperature hardly matters.
+        - label: Because you get too many decimal places
+          feedback: It is about the measuring principle.
+    hints:
+      - How does an ohmmeter measure?
+      - It measures the voltage at a known small current.
+    explanation: The ohmmeter computes R = U ÷ I with its own small current. Any outside voltage ruins that. Parallel paths in the circuit distort the value too.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux step by step how to measure a battery voltage safely with a multimeter.
+    params:
+      keywords:
+        - - com
+          - schwarz
+          - black
+        - - rot
+          - red
+          - v-buchse
+          - v socket
+        - - bereich
+          - range
+          - 20 v
+          - stellung
+          - setting
+        - - parallel
+          - pole
+          - terminal
+          - anlegen
+          - touch
+          - plus
+      sample: Black lead into COM, red into V. Switch to V⎓ and a range above the expected voltage, such as 20 V. Then hold the tips across plus and minus of the battery and read.
+    explanation: "The core: right sockets, right quantity, a suitable range, connect in parallel."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

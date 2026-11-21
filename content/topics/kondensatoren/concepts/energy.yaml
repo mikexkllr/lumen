@@ -1,0 +1,212 @@
+id: ee.capacitors.energy
+type: concept
+title: "Energie im Kondensator"
+summary: "Vom Kamerablitz bis zum Superkondensator: W = ½ C U²."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Kamerablitz lädt einen Kondensator mit 150 µF auf 330 V. Wie viel Joule stecken darin?
+    params:
+      min: 0.01
+      max: 1000
+      scale: log
+    answer:
+      value: 8.2
+      within: 30
+    explanation: ½ · 0,000 15 F · 330² V² ≈ 8,2 J. Das wird in etwa einer Millisekunde zu Licht.
+
+  - kind: explain
+    id: c1
+    body: Die **gespeicherte Energie** eines Kondensators ist W = ½ · C · U². Die Spannung steht im Quadrat. Doppelte Spannung heißt also vierfache Energie.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Kondensator mit {{c}} µF ist auf {{u}} V geladen. Wie viel Energie speichert er, in mJ? Auf zwei Nachkommastellen.
+    params:
+      unit: mJ
+    answer:
+      value: "{{c * u * u / 2000}}"
+      tolerance: 0.006
+    feedback:
+      - when: abs(numval(state.input) - c * u * u / 1000) < 0.006
+        misconception: missing-half
+        text: Den Faktor ½ nicht vergessen.
+      - when: abs(numval(state.input) - c * u / 2000) < 0.006
+        misconception: no-square
+        text: Die Spannung gehört ins Quadrat.
+    hints:
+      - W = ½ · C · U², mit C in F.
+      - ½ · {{c}} µF · {{u * u}} V² ergibt µJ.
+    explanation: ½ · {{c}} · {{u * u}} = {{c * u * u / 2}} µJ = {{c * u * u / 2000}} mJ.
+    variants:
+      params:
+        c: choice[100,470,1000,2200]
+        u: choice[5,10,12,24]
+      defaults:
+        c: 1000
+        u: 12
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Du lädst denselben Kondensator auf die dreifache Spannung. Wie ändert sich die Energie?
+    params:
+      options:
+        - label: Neunmal so viel
+          correct: true
+        - label: Dreimal so viel
+          feedback: Die Spannung steht im Quadrat.
+        - label: Gleich viel, C bleibt ja gleich
+          feedback: C bleibt gleich, aber U² wächst.
+    hints:
+      - W hängt von U² ab.
+      - 3² = ?
+    explanation: "3² = 9. Darum laden Blitzgeräte auf über 300 V: Bei gleicher Größe steckt viel mehr Energie darin."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Der Blitz gibt 8 J in 1 ms ab. Welche Leistung ist das, in kW?
+    params:
+      unit: kW
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 8000
+        misconception: unit-prefix
+        text: Das sind Watt. Gefragt ist kW.
+    hints:
+      - "P = W : t."
+      - "8 J : 0,001 s."
+    explanation: "8 J : 0,001 s = 8000 W = 8 kW – mehr als vier Wasserkocher. Das kann die kleine Batterie nicht direkt, der Kondensator schon."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Superkondensator hat 3000 F bei 2,7 V. Wie viele Wattstunden speichert er? Auf zwei Nachkommastellen. 1 Wh = 3600 J.
+    params:
+      unit: Wh
+    answer:
+      value: 3.04
+      tolerance: 0.01
+    hints:
+      - W = ½ · 3000 · 2,7² J.
+      - "10 935 J : 3600."
+    explanation: 10 935 J ≈ 3,04 Wh – so viel wie eine AA-Batterie. Er wiegt aber gut 500 g, die Batterie etwa 23 g.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Gerät funktioniert nur bis zur halben Spannung. Wie viel Prozent der gespeicherten Energie kann es nutzen, wenn der Kondensator von U auf U/2 entladen wird?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: linear
+        text: "Die Energie hängt von U² ab: Bei U/2 ist noch ein Viertel übrig."
+    hints:
+      - Bei U/2 ist noch (½)² der Energie übrig.
+      - 100 % − 25 %.
+    explanation: Übrig bleibt ein Viertel, genutzt werden 75 %. Spannungswandler holen auch den Rest heraus.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Kondensator oder Akku – wer kann das besser?
+    params:
+      cards:
+        - text: In Sekundenbruchteilen laden
+          right: true
+        - text: Ein Handy einen Tag lang betreiben
+          right: false
+        - text: Eine Million Ladezyklen überstehen
+          right: true
+        - text: Viel Energie pro Kilogramm speichern
+          right: false
+        - text: Bremsenergie einer Straßenbahn auffangen
+          right: true
+      left: Akku
+      right: Kondensator
+    explanation: "Kondensatoren sind Sprinter: schnell und langlebig, aber mit wenig Energie pro Gewicht. Akkus sind Langstreckenläufer."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum steht in W = ½ C U² der Faktor ½?
+    params:
+      options:
+        - label: Beim Laden steigt die Spannung von 0 auf U, im Mittel war sie U/2
+          correct: true
+        - label: Weil die Hälfte als Wärme verloren geht
+          feedback: Das passiert im Ladewiderstand, nicht im Kondensator.
+        - label: Das ist eine Messkonvention
+          feedback: Er folgt direkt aus der Rechnung.
+    hints:
+      - Jede Ladungsportion muss gegen die gerade vorhandene Spannung hinein.
+      - Am Anfang ist die Spannung 0, am Ende U.
+    explanation: "W = Q · mittlere Spannung = C U · U/2. Als Integral: W = ∫ u dq = ∫₀^Q q/C dq = Q²/(2C)."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Du lädst einen Kondensator über einen Widerstand an einer festen Spannung voll. Wie viel Energie wird dabei im Widerstand zu Wärme?
+    params:
+      options:
+        - label: Genau so viel, wie im Kondensator landet – egal wie groß R ist
+          correct: true
+        - label: Fast nichts bei kleinem R
+          feedback: Kleiner R heißt großer Strom für kurze Zeit. Die Wärme bleibt gleich.
+        - label: Doppelt so viel
+          feedback: Die Quelle liefert Q · U = C U², der Kondensator bekommt die Hälfte.
+    hints:
+      - Die Quelle liefert die Ladung Q immer bei voller Spannung U.
+      - Sie gibt also Q · U = C U² ab.
+    explanation: Die Quelle gibt C U² ab, der Kondensator speichert ½ C U². Die andere Hälfte heizt den Widerstand – unabhängig von R. Effizient laden geht nur mit steigender Spannung.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Kamerablitz einen Kondensator braucht, obwohl die Kamera eine Batterie hat.
+    params:
+      keywords:
+        - - kondensator
+          - capacitor
+        - - batterie
+          - battery
+          - akku
+        - - schnell
+          - fast
+          - kurz
+          - short
+          - millisekunde
+          - millisecond
+        - - leistung
+          - power
+          - energie
+          - energy
+      sample: Die Batterie kann nur wenig Leistung abgeben. Sie lädt den Kondensator langsam in ein paar Sekunden auf. Der Kondensator gibt die gespeicherte Energie dann in einer Millisekunde ab. So entsteht kurz eine riesige Leistung für den Blitz.
+    explanation: "Kern: Energie langsam sammeln, schnell abgeben. Leistung ist Energie pro Zeit."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

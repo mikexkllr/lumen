@@ -1,0 +1,191 @@
+id: ee.ac.sine
+type: concept
+title: "Sinus und 50 Hertz"
+summary: "Warum die Steckdose 100-mal pro Sekunde umpolt und woher der Sinus kommt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie oft pro Sekunde ändert der Strom aus der Steckdose seine Richtung?
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 100
+      within: 10
+    explanation: 100-mal. Das Netz hat 50 Hz, und in jeder Periode wechselt die Richtung zweimal.
+
+  - kind: explain
+    id: c1
+    body: "Die **Frequenz** f zählt die vollen Schwingungen pro Sekunde. Ihre Einheit ist Hertz (Hz). Im europäischen Netz sind es 50 Hz. Eine Periode dauert also T = 1 : f = 20 ms."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie lange dauert eine Periode bei {{f}} Hz, in Millisekunden?
+    params:
+      unit: ms
+    answer:
+      value: "{{1000 / f}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - f / 1000) < 0.001
+        misconception: inverse
+        text: "Umgekehrt: T = 1 : f."
+    hints:
+      - "T = 1 : f, in Sekunden."
+      - "1000 : {{f}} ergibt ms."
+    explanation: "T = 1 : {{f}} s = {{round(1000 / f, 2)}} ms. 400 Hz nutzen Flugzeuge: Ihre Trafos werden so kleiner und leichter."
+    variants:
+      params:
+        f: choice[50,60,400,500]
+      defaults:
+        f: 60
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: Das Bild zeigt 40 ms Netzspannung. Stell die Frequenz so ein, dass eine Periode 20 ms dauert.
+    params:
+      expr: 325*sin(2*pi*f*x)
+      x:
+        - 0
+        - 0.04
+      y:
+        - -400
+        - 400
+      showCoordinates: false
+      sliders:
+        - id: f
+          label: f in Hz
+          min: 10
+          max: 100
+          step: 10
+          initial: 20
+      markers:
+        - x: 0.02
+          y: 0
+          group: a
+        - x: 0.04
+          y: 0
+          group: a
+    check:
+      predicate: f == 50
+    hints:
+      - In 40 ms sollen genau zwei Perioden passen.
+      - "f = 1 : 0,02 s."
+    explanation: "1 : 0,02 s = 50 Hz. Die Kurve endet dann genau nach zwei Wellen an den Punkten."
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Welches Netz gehört wohin?
+    params:
+      pairs:
+        - left: Deutschland
+          right: 230 V, 50 Hz
+        - left: USA
+          right: 120 V, 60 Hz
+        - left: Tokio
+          right: 100 V, 50 Hz
+        - left: Osaka
+          right: 100 V, 60 Hz
+        - left: Bahnstrom in Deutschland
+          right: 15 kV, 16,7 Hz
+      leftTitle: Wo
+      rightTitle: Netz
+    hints:
+      - Amerika hat 60 Hz und eine kleinere Spannung.
+      - "Japan ist geteilt: Der Osten hat 50 Hz, der Westen 60 Hz."
+    explanation: Japan kaufte einst Generatoren aus Deutschland für Tokio und aus den USA für Osaka. Die Bahn nutzt 16,7 Hz, weil alte Bahnmotoren damit besser liefen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Die Netzspannung folgt u(t) = Û · sin(ω t). Û ist der Scheitelwert. Die **Kreisfrequenz** ω = 2π f sagt, wie viel Winkel pro Sekunde durchlaufen wird. Bei 50 Hz sind das 314 pro Sekunde.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Ein Generator dreht eine Spule im Magnetfeld. Die Spannung ist proportional zum Sinus des Winkels. Dreh die Spule in die Stellung mit der größten positiven Spannung.
+    params:
+      scene: unitcircle
+    answer:
+      sin: 1
+    explanation: "Bei 90° ist der Sinus 1: Die Spule schneidet die Feldlinien am schnellsten. Bei 0° und 180° ist die Spannung null."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist die Netzspannung u = 325 V · sin(2π · 50 Hz · t) genau 2,5 ms nach einem Nulldurchgang? Auf ganze Volt.
+    params:
+      unit: V
+    answer:
+      value: 230
+      tolerance: 0.6
+    hints:
+      - 2,5 ms sind ein Achtel der Periode, also 45°.
+      - sin 45° ≈ 0,707.
+    explanation: "325 · 0,707 ≈ 230 V. Zufall? Nicht ganz: Bei 45° ist sin = 1/√2, genau der Faktor zwischen Scheitel- und Effektivwert."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum nutzt man im Netz ausgerechnet eine Sinusform?
+    params:
+      options:
+        - label: Ein Sinus bleibt durch Spulen, Kondensatoren und Widerstände ein Sinus
+          correct: true
+        - label: Weil Sinus leichter zu messen ist
+          feedback: Messbarkeit war nicht der Grund.
+        - label: Weil Rechteckspannung verboten ist
+          feedback: Es gibt technische Gründe, kein Verbot.
+    hints:
+      - Was passiert mit einem Sinus, wenn man ihn ableitet?
+      - Spulen und Kondensatoren leiten ab oder integrieren.
+    explanation: Ableitung und Integral eines Sinus sind wieder Sinuswellen, nur verschoben. Darum verzerrt kein Trafo und keine Leitung die Form. Rotierende Generatoren liefern sie zudem von selbst.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »230 V, 50 Hz« über die Spannung in der Steckdose verrät.
+    params:
+      keywords:
+        - - sinus
+          - sine
+          - welle
+          - wave
+        - - "50"
+          - frequenz
+          - frequency
+          - hertz
+        - - periode
+          - period
+          - 20 ms
+          - pro sekunde
+          - per second
+        - - richtung
+          - direction
+          - umpol
+          - revers
+          - wechsel
+          - altern
+      sample: Die Spannung schwingt als Sinuswelle hin und her. 50 Hz heißt 50 volle Perioden pro Sekunde, jede dauert 20 ms. In jeder Periode wechselt die Richtung zweimal. 230 V ist ein Mittelwert, der Effektivwert.
+    explanation: "Kern: Sinusform, Frequenz, Periode. Was 230 V genau bedeuten, klärt die nächste Lektion."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3"]

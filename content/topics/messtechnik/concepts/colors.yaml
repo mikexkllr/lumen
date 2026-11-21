@@ -1,0 +1,211 @@
+id: ee.measure.colors
+type: concept
+title: "Der Farbcode der Widerstände"
+summary: "Ringe lesen, Toleranzen verstehen und warum es 4,7 kΩ gibt, aber keine 5 kΩ."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Auf einem Widerstand stehen die Ringe Braun, Schwarz, Rot. Rate mal: Wie groß ist er, wenn Braun 1, Schwarz 0 und Rot 2 bedeutet?"
+    params:
+      options:
+        - label: 1000 Ω
+          correct: true
+        - label: 102 Ω
+          feedback: Der dritte Ring ist keine Ziffer. Er sagt, wie viele Nullen folgen.
+        - label: 12 Ω
+          feedback: Schwarz steht für die Ziffer 0.
+    hints:
+      - "Die ersten beiden Ringe sind Ziffern: 1 und 0."
+      - "Rot heißt hier: zwei Nullen anhängen."
+    explanation: "1, 0 und zwei Nullen: 1000 Ω = 1 kΩ."
+
+  - kind: explain
+    id: c1
+    body: "Der **Farbcode** verschlüsselt den Wert in Ringen. Ring 1 und 2 sind Ziffern. Ring 3 sagt, wie viele Nullen folgen. Die Farben laufen wie ein Regenbogen: von Schwarz 0 über Rot 2 und Grün 5 bis Weiß 9."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring die Farben in die Reihenfolge der Ziffern, bei 0 beginnend.
+    params:
+      items:
+        - label: Schwarz
+        - label: Braun
+        - label: Rot
+        - label: Orange
+        - label: Gelb
+        - label: Grün
+        - label: Blau
+        - label: Violett
+    hints:
+      - Schwarz ist 0, Braun ist 1.
+      - "Ab Rot folgt der Regenbogen: Rot, Orange, Gelb, Grün, Blau, Violett."
+    explanation: Schwarz 0, Braun 1, Rot 2, Orange 3, Gelb 4, Grün 5, Blau 6, Violett 7 – danach Grau 8 und Weiß 9.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Gelb, Violett, Orange. Wie viele kΩ hat der Widerstand?
+    params:
+      unit: kΩ
+    answer:
+      value: 47
+    feedback:
+      - when: numval(state.input) == 47000
+        misconception: unit-prefix
+        text: Richtig in Ω – gefragt sind aber kΩ.
+      - when: numval(state.input) == 4.7
+        misconception: zeros
+        text: "Orange heißt drei Nullen: 47 000 Ω."
+    hints:
+      - Gelb = 4, Violett = 7, Orange = 3 Nullen.
+      - 47 000 Ω in kΩ.
+    explanation: "47 und drei Nullen: 47 000 Ω = 47 kΩ."
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Welcher Widerstand hat welche Ringe?
+    params:
+      pairs:
+        - left: Rot, Rot, Braun
+          right: 220 Ω
+        - left: Braun, Schwarz, Orange
+          right: 10 kΩ
+        - left: Gelb, Violett, Rot
+          right: 4,7 kΩ
+        - left: Braun, Schwarz, Schwarz
+          right: 10 Ω
+        - left: Braun, Grün, Grün
+          right: 1,5 MΩ
+      leftTitle: Ringe
+      rightTitle: Wert
+    hints:
+      - "Schwarz als dritter Ring heißt: keine Null anhängen."
+      - "Grün als dritter Ring: fünf Nullen."
+    explanation: 22 + 1 Null = 220 Ω. 10 + 3 Nullen = 10 kΩ. 47 + 2 Nullen = 4,7 kΩ. 10 + 0 Nullen = 10 Ω. 15 + 5 Nullen = 1,5 MΩ.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ein vierter Ring nennt die **Toleranz**: So weit darf der echte Wert abweichen. Gold heißt ±5 %, Silber ±10 %, Braun ±1 %."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Gelb, Violett, Rot, Gold. Wie groß darf der Widerstand höchstens sein? In Ω.
+    params:
+      unit: Ω
+    answer:
+      value: 4935
+    hints:
+      - Nennwert 4,7 kΩ, Gold = ±5 %.
+      - 4700 Ω · 1,05.
+    explanation: 4700 · 1,05 = 4935 Ω. Er liegt also zwischen 4465 Ω und 4935 Ω.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: "Die E12-Reihe: 10, 12, [[15]], 18, [[22]], 27, 33, [[39]], 47, 56, 68, 82."
+      distractors:
+        - "20"
+        - "25"
+        - "40"
+    explanation: Jeder Wert ist etwa 1,2-mal so groß wie der vorige. Darum gibt es 4,7 kΩ, aber keine 5 kΩ.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: numeric
+    prompt: Die E12-Reihe teilt eine Zehnerstufe in 12 gleiche Faktoren. Wie groß ist ein Faktor, also ¹²√10? Auf zwei Nachkommastellen.
+    answer:
+      value: 1.21
+      tolerance: 0.005
+    hints:
+      - Gesucht ist q mit q¹² = 10.
+      - q = 10^(1/12).
+    explanation: 10^(1/12) ≈ 1,21. Mit ±10 % Toleranz decken die Werte die Lücken gerade ab. Die feinere E24-Reihe passt zu ±5 %.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Präzisionswiderstände haben 5 Ringe: drei Ziffern, dann Nullen. Braun, Schwarz, Schwarz, Braun. Wie viele Ω?"
+    params:
+      unit: Ω
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: multiplier
+        text: "Der vierte Ring ist hier der Multiplikator: eine Null."
+    hints:
+      - "Ziffern: 1, 0, 0."
+      - Braun als vierter Ring heißt eine Null.
+    explanation: "100 und eine Null: 1000 Ω. Der fünfte Ring wäre die Toleranz."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Winzige SMD-Widerstände tragen Zahlen statt Ringe: »472« heißt 47 mit 2 Nullen. Wie viele Ω hat »103«?"
+    params:
+      unit: Ω
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 103
+        misconception: literal
+        text: Die letzte Ziffer zählt die Nullen.
+    hints:
+      - Die letzte Ziffer ist die Anzahl der Nullen.
+      - 10 und drei Nullen.
+    explanation: "10 und drei Nullen: 10 000 Ω = 10 kΩ. Ein R markiert das Komma: »4R7« sind 4,7 Ω."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man einen Widerstand mit vier Ringen abliest.
+    params:
+      keywords:
+        - - ziffer
+          - digit
+          - zahl
+          - number
+        - - "null"
+          - zero
+          - multipli
+          - nullen
+        - - toleranz
+          - tolerance
+          - gold
+          - silber
+          - silver
+          - prozent
+          - percent
+        - - farbe
+          - colour
+          - color
+          - ring
+      sample: "Die ersten zwei Ringe sind Ziffern, zum Beispiel Gelb 4 und Violett 7. Der dritte sagt, wie viele Nullen folgen, Rot heißt zwei: 4700 Ω. Der vierte Ring ist die Toleranz, Gold heißt ±5 %."
+    explanation: "Kern: zwei Ziffern, Multiplikator, Toleranz. Die Toleranz liegt meist etwas abgesetzt, so erkennt man die Leserichtung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "x2"]

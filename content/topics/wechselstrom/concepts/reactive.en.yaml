@@ -1,0 +1,200 @@
+id: ee.ac.reactive
+type: concept
+title: "Real, reactive and apparent power"
+summary: "Why a motor draws more current than its watts suggest."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A motor on 230 V draws 5 A. Does it deliver 1150 W?
+    params:
+      options:
+        - label: No, less, because current and voltage are shifted
+          correct: true
+        - label: Yes, P = U × I
+          feedback: That only holds if current and voltage are in step.
+        - label: No, more
+          feedback: More than U × I is never possible.
+    hints:
+      - A motor is also a coil.
+      - What happens to the product when the current lags?
+    explanation: Part of the current just sloshes back and forth. 1150 VA is the apparent power; the real power is less.
+
+  - kind: explain
+    id: c1
+    body: "**Real power** P does actual work: heat, light, motion. If current and voltage are shifted by φ, then P = U × I × cos φ. The factor cos φ is called the power factor."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A device on 230 V draws {{i}} A at cos φ = {{c}}. What is its real power? To the nearest watt.
+    params:
+      unit: W
+    answer:
+      value: "{{230 * i * c}}"
+      tolerance: 0.6
+    feedback:
+      - when: abs(numval(state.input) - 230 * i) < 0.6
+        misconception: apparent
+        text: That is the apparent power in VA. Multiply by cos φ.
+    hints:
+      - P = U × I × cos φ.
+      - 230 × {{i}} × {{c}}.
+    explanation: "{{230 * i}} VA × {{c}} = {{230 * i * c}} W."
+    variants:
+      params:
+        i: choice[2,4,5,10]
+        c: choice[0.6,0.8,0.9]
+      defaults:
+        i: 5
+        c: 0.8
+
+  - kind: explain
+    id: c3
+    body: The rest is **reactive power** Q. It sloshes between grid and coil every half period. It does no work but loads the lines. It is measured in var, the apparent power S = U × I in VA.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A motor has S = 1000 VA and P = 800 W. What is its reactive power? S² = P² + Q².
+    params:
+      unit: var
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: subtract
+        text: "Don’t subtract: the three powers form a right triangle."
+    hints:
+      - Q = √(S² − P²).
+      - √(1,000,000 − 640,000).
+    explanation: √360,000 = 600 var. The power triangle is again a 3-4-5 triangle.
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: Which unit belongs to which power?
+    params:
+      pairs:
+        - left: Real power P
+          right: W
+        - left: Reactive power Q
+          right: var
+        - left: Apparent power S
+          right: VA
+        - left: Power factor cos φ
+          right: no unit
+      leftTitle: Quantity
+      rightTitle: Unit
+    hints:
+      - Physically all three are watts, but they are named differently.
+      - VA stands for volts times amps.
+    explanation: W, var and VA show at once which power is meant. The power factor is a ratio between 0 and 1.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Two devices each take 1000 W at 230 V: one with cos φ = 1, one with cos φ = 0.5. By what factor are the line losses larger for the second?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear
+        text: The current is twice as large. But losses grow with I².
+    hints:
+      - At cos φ = 0.5 you need twice the current.
+      - Losses = I² × R.
+    explanation: Double the current, four times the losses. That is why grid operators demand a good power factor from factories.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A factory with many motors has a poor power factor. What does it install?
+    params:
+      options:
+        - label: Capacitors that supply the motors’ reactive power locally
+          correct: true
+        - label: More motors
+          feedback: They add even more reactive power.
+        - label: Bigger fuses
+          feedback: That reduces no current.
+    hints:
+      - Capacitor and coil shift the current in opposite directions.
+      - Their reactive powers can cancel.
+    explanation: The capacitors exchange reactive power directly with the motors. The supply line carries only real power. This is called power factor correction.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: What capacitor supplies Q = 600 var at 230 V and 50 Hz? Q = U² × 2π f C. In µF, to one decimal place.
+    params:
+      unit: µF
+    answer:
+      value: 36.1
+      tolerance: 0.1
+    hints:
+      - C = Q ÷ (U² × 2π f).
+      - 600 ÷ (52,900 × 314.16) F.
+    explanation: C ≈ 3.61 × 10⁻⁵ F = 36.1 µF. Such capacitors often sit right at the motor.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Households only pay for kilowatt-hours. Why not for reactive power too?
+    params:
+      options:
+        - label: Household devices have little reactive power, and a simple meter only measures real energy
+          correct: true
+        - label: Because reactive power is free to make
+          feedback: It loads lines and generators.
+        - label: Because homes don’t have any
+          feedback: Every motor and power supply has some.
+    hints:
+      - Who causes a lot of reactive power?
+      - Large customers have separate meters for reactive energy.
+    explanation: With large customers and many motors, metering pays off. Modern power supplies above 75 W must have a good power factor anyway.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between real and reactive power.
+    params:
+      keywords:
+        - - wirk
+          - real
+          - arbeit
+          - work
+        - - blind
+          - reactive
+        - - pendel
+          - slosh
+          - hin und her
+          - back and forth
+          - zurück
+          - back
+        - - leitung
+          - line
+          - strom
+          - current
+          - verlust
+          - loss
+      sample: Real power is actually converted into heat, light or motion. Reactive power only sloshes back and forth between grid and coil or capacitor. It does nothing but needs current. That current causes losses in the lines.
+    explanation: "The core: P does work, Q only loads the system. Together they give S = √(P² + Q²)."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

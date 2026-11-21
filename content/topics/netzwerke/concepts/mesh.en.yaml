@@ -1,0 +1,204 @@
+id: ee.networks.mesh
+type: concept
+title: "The loop rule"
+summary: "Once around a loop, the voltages add up to zero."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "You hike a loop: uphill, downhill, over a hill and back to the start. How much height have you gained in the end?"
+    params:
+      options:
+        - label: Zero
+          correct: true
+        - label: All the climbs together
+          feedback: The descents count as negative.
+        - label: Depends on the route
+          feedback: Start and finish are at the same height.
+    hints:
+      - Where do you end up?
+      - Start and finish are equally high.
+    explanation: Back at the start the height is the same. Voltage is like a height difference for charge.
+
+  - kind: explain
+    id: c1
+    body: A **loop** is a closed path through a circuit. Go round once and all the voltages add up to zero. The source lifts the charge up, the resistors let it fall again.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A {{u}} V battery feeds three resistors in series. Across two of them you measure {{a}} V and {{b}} V. What voltage is across the third?
+    params:
+      unit: V
+    answer:
+      value: "{{u - a - b}}"
+    hints:
+      - The three voltages add up to the battery voltage.
+      - "{{u}} − {{a}} − {{b}}."
+    explanation: "{{u}} − {{a}} − {{b}} = {{u - a - b}} V. Once around: +{{u}} − {{a}} − {{b}} − {{u - a - b}} = 0."
+    variants:
+      params:
+        u: choice[9,12,24]
+        a: int[1,5]
+        b: int[1,5]
+      constraints:
+        - a + b < u
+      defaults:
+        u: 12
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: 1 kΩ and 2 kΩ are connected in series to 9 V. What voltage is across the 2 kΩ resistor?
+    params:
+      unit: V
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: swap
+        text: That is the voltage across the 1 kΩ resistor. The larger one gets more.
+    hints:
+      - "Current: 9 V ÷ 3 kΩ = 3 mA."
+      - U = 3 mA × 2 kΩ.
+    explanation: 3 mA × 2 kΩ = 6 V, leaving 3 V across the 1 kΩ. Together 9 V – the loop adds up.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Around a loop the sum of all [[voltages]] is zero. At a junction the sum of all [[currents]] is zero.
+      distractors:
+        - resistances
+        - powers
+    explanation: These are Kirchhoff’s two laws. With them any circuit can be solved.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Two batteries face each other in a loop: 9 V and 3 V. A 2 Ω resistor completes the loop. What current flows?"
+    params:
+      unit: A
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: add-opposed
+        text: Facing each other means the voltages subtract.
+    hints:
+      - Facing each other, the voltages partly cancel.
+      - (9 − 3) V ÷ 2 Ω.
+    explanation: 6 V are left, 6 V ÷ 2 Ω = 3 A.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A 14.4 V charger charges a 12.6 V car battery. Cables and battery have 0.1 Ω together. What charging current flows?
+    params:
+      unit: A
+    answer:
+      value: 18
+      tolerance: 0.01
+    hints:
+      - Only the voltage difference drives the current.
+      - (14.4 − 12.6) V ÷ 0.1 Ω.
+    explanation: 1.8 V ÷ 0.1 Ω = 18 A. That is why a good charger controls the current, not just the voltage.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: order
+    prompt: In which order do you solve a network with Kirchhoff?
+    params:
+      items:
+        - label: Name the currents with arrows
+        - label: Write the junction equations
+        - label: Write the loop equations
+        - label: Solve the system of equations
+        - label: Interpret and check the signs
+    hints:
+      - First you need names for the unknowns.
+      - At the end a negative sign reveals the true direction.
+    explanation: You may choose arrow directions freely. If a current comes out negative, it simply flows the other way.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Source A (10 V) feeds a node K through 2 Ω. Source B (4 V) also feeds K through 2 Ω. From K a 4 Ω resistor goes to ground. What is the voltage at K?
+    params:
+      unit: V
+    answer:
+      value: 5.6
+      tolerance: 0.01
+    hints:
+      - "Junction rule at K: (10 − U)/2 + (4 − U)/2 = U/4."
+      - "Multiply by 4: 28 − 4U = U."
+    explanation: "28 = 5U, so U = 5.6 V. Through B flows (4 − 5.6) ÷ 2 = −0.8 A: source B is actually being charged."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A circuit has 4 junctions and 6 branches. How many independent junction equations are there?
+    params:
+      options:
+        - label: "3"
+          correct: true
+        - label: "4"
+          feedback: The last junction equation follows from the others.
+        - label: "6"
+          feedback: The branches count for loops, not junctions.
+    hints:
+      - What one junction gives, another receives.
+      - With k junctions you get k − 1 independent equations.
+    explanation: k − 1 = 3 junction equations, plus b − (k − 1) = 3 loop equations. Together 6 equations for 6 branch currents.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain the loop rule to Lux using a hike as the picture.
+    params:
+      keywords:
+        - - masche
+          - loop
+          - kreis
+          - circle
+          - runde
+          - round
+        - - spannung
+          - voltage
+        - - "null"
+          - zero
+          - gleich
+          - same
+          - start
+        - - höhe
+          - hoehe
+          - height
+          - berg
+          - hill
+          - auf und ab
+          - up
+      sample: Voltage is like a height difference. The battery carries charge uphill, the resistors let it go downhill. Walk once around back to the start and you have gained zero height. So all voltages add up to zero.
+    explanation: "The core idea: voltage depends only on start and end point, and on a loop they are the same."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "x1"]

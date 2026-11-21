@@ -1,0 +1,214 @@
+id: ee.capacitors.apps
+type: concept
+title: "Capacitors at work"
+summary: "Debouncing buttons, smoothing supplies, buffering chips and making delays."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You press a button exactly once. But the microcontroller counts five presses. Why?
+    params:
+      options:
+        - label: The contacts bounce and close several times in quick succession
+          correct: true
+        - label: The microcontroller is broken
+          feedback: It is fast enough to see every bounce.
+        - label: The button has five contacts
+          feedback: It is a single contact that bounces.
+    hints:
+      - What does metal do when it strikes metal?
+      - A microcontroller reads millions of times per second.
+    explanation: The contacts bounce for a few milliseconds. To your eye it is one click, to the chip several pulses.
+
+  - kind: explain
+    id: c1
+    body: "This **contact bounce** usually lasts under 10 ms. An RC circuit smooths it: the capacitor charges and discharges more slowly than the contacts bounce. With τ around 10 ms the chip sees one clean change."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: You want τ = 10 ms and have a {{c}} µF capacitor. What resistor do you need, in kΩ?
+    params:
+      unit: kΩ
+    answer:
+      value: "{{10 / c}}"
+    hints:
+      - R = τ ÷ C.
+      - "ms ÷ µF = kΩ: 10 ÷ {{c}}."
+    explanation: 10 ms ÷ {{c}} µF = {{10 / c}} kΩ.
+    variants:
+      params:
+        c: choice[0.1,1,10]
+      defaults:
+        c: 1
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Set up a debounce circuit with τ = 20 ms.
+    params:
+      scene: rc
+      controls:
+        time:
+          fixed: true
+      show:
+        - tau
+    answer:
+      tau: 20
+    explanation: For example 2 kΩ and 10 µF or 20 kΩ and 1 µF. In practice you would rather use a large R and a small C.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: What is the capacitor used for here?
+    params:
+      buckets:
+        - id: b1
+          label: Buffering energy
+        - id: b2
+          label: Creating a delay
+        - id: b3
+          label: Passing AC
+      items:
+        - label: Smoothing in a power supply
+          bucket: b1
+        - label: Debouncing a button
+          bucket: b2
+        - label: LED blink timing
+          bucket: b2
+        - label: Coupling audio without DC
+          bucket: b3
+        - label: Buffer capacitor at a chip
+          bucket: b1
+        - label: Camera flash
+          bucket: b1
+    hints:
+      - Buffering means storing energy briefly and releasing it when needed.
+      - A capacitor blocks DC but passes AC.
+    explanation: Capacitors store energy, set times together with R, and separate DC from AC parts.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "After the rectifier the voltage pulses 100 times per second. A large capacitor fills the gaps: that is **smoothing**. The remaining ripple is about ΔU = I ÷ (f × C)."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A power supply delivers {{i}} A. The smoothing capacitor is {{c}} µF and the pulses come at 100 Hz. How large is the ripple in V? To two decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{i / (100 * c / 1000000)}}"
+      tolerance: 0.006
+    hints:
+      - "C in farads: {{c}} µF = {{c / 1000000}} F."
+      - ΔU = {{i}} ÷ (100 × {{c / 1000000}}).
+    explanation: ΔU ≈ {{round(i / (100 * c / 1000000), 2)}} V. More current needs more capacitance, which is why power supply capacitors are so bulky.
+    difficulty: 2
+    variants:
+      params:
+        i: choice[0.2,0.5,1]
+        c: choice[2200,4700,10000]
+      defaults:
+        i: 0.5
+        c: 2200
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Next to every chip sits a small 100 nF capacitor. What for?
+    params:
+      options:
+        - label: It supplies short current spikes instantly, before the long supply line can react
+          correct: true
+        - label: It stores data during a power cut
+          feedback: 100 nF is far too small for that.
+        - label: It measures temperature
+          feedback: It is a buffer for the supply.
+    hints:
+      - A chip draws a burst of current on every clock step.
+      - Long traces act like coils and slow down fast changes.
+    explanation: This decoupling capacitor keeps the voltage at the chip steady. Without it chips can crash.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A timer chip (555) produces a pulse of length t = 1.1 × R × C. How long is it with R = {{r}} kΩ and C = {{c}} µF, in seconds?
+    params:
+      unit: s
+    answer:
+      value: "{{1.1 * r * c / 1000}}"
+      tolerance: 0.001
+    hints:
+      - "R × C in ms: {{r}} × {{c}}."
+      - Times 1.1, then convert to seconds.
+    explanation: "1.1 × {{r * c}} ms = {{1.1 * r * c}} ms = {{1.1 * r * c / 1000}} s. The 1.1 comes from ln 3: the chip switches at two thirds of the voltage."
+    difficulty: 3
+    variants:
+      params:
+        r: choice[10,47,100]
+        c: choice[1,10,100]
+      defaults:
+        r: 100
+        c: 10
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why does a capacitor pass AC even though there is an insulator between its plates?
+    params:
+      options:
+        - label: It is constantly recharged, so current flows back and forth in the wires
+          correct: true
+        - label: The insulator conducts with AC
+          feedback: No charges cross the layer.
+        - label: It doesn’t pass it at all
+          feedback: An AC signal does arrive at the output.
+    hints:
+      - What happens to the plates when the voltage changes sign?
+      - Charging and discharging means current in the leads.
+    explanation: No charge jumps the gap. But what arrives on one plate leaves the other. The higher the frequency, the easier this is.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a capacitor calms a bouncing button.
+    params:
+      keywords:
+        - - prell
+          - bounce
+          - spring
+        - - kondensator
+          - capacitor
+          - rc
+        - - langsam
+          - slow
+          - zeitkonstante
+          - time constant
+          - tau
+        - - glätt
+          - glaett
+          - smooth
+          - sauber
+          - clean
+          - ein wechsel
+          - one change
+      sample: The button bounces back and forth for a few milliseconds. With a resistor and capacitor the voltage can only change slowly, with the time constant τ. The fast bouncing is smoothed out and the chip sees one clean change.
+    explanation: "The core: τ longer than the bounce time. Often a Schmitt trigger follows, which turns the slow edge steep again."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]

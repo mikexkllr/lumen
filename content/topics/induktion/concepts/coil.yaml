@@ -1,0 +1,182 @@
+id: ee.induction.coil
+type: concept
+title: "Spule und Elektromagnet"
+summary: "Strom macht Magnetfeld – gewickelt wird daraus ein Elektromagnet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Kompass liegt neben einem Draht. Du schaltest Strom ein. Was passiert?
+    params:
+      options:
+        - label: Die Nadel dreht sich weg von Norden
+          correct: true
+        - label: Nichts, Kupfer ist nicht magnetisch
+          feedback: Nicht das Kupfer, der Strom erzeugt das Magnetfeld.
+        - label: Die Nadel wird warm
+          feedback: Es geht um eine Kraft, nicht um Wärme.
+    hints:
+      - Strom und Magnetismus hängen zusammen.
+      - Hans Christian Ørsted entdeckte das 1820 in einer Vorlesung.
+    explanation: Jeder Strom ist von einem Magnetfeld umgeben. Es läuft in Kreisen um den Draht.
+
+  - kind: explain
+    id: c1
+    body: Wickelst du den Draht zu einer **Spule**, addieren sich die Felder aller Windungen. Innen entsteht ein starkes, gerades Feld wie bei einem Stabmagneten. Mehr Windungen und mehr Strom machen es stärker.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Steckt darin ein Elektromagnet?
+    params:
+      buckets:
+        - id: b1
+          label: Ja
+        - id: b2
+          label: Nein
+      items:
+        - label: Türklingel
+          bucket: b1
+        - label: Lautsprecher
+          bucket: b1
+        - label: Relais
+          bucket: b1
+        - label: Elektromotor
+          bucket: b1
+        - label: Solarzelle
+          bucket: b2
+        - label: Heizlüfter-Heizdraht
+          bucket: b2
+        - label: LED
+          bucket: b2
+    hints:
+      - Wo bewegt sich etwas durch Magnetkraft?
+      - Heizdraht und LED nutzen den Strom anders.
+    explanation: Klingel, Lautsprecher, Relais und Motor ziehen mit einer stromdurchflossenen Spule an etwas. Heizung, LED und Solarzelle brauchen keine Spule.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "In einer langen Spule ist B = µ₀ · N · I : l mit µ₀ ≈ 1,257 µT·m/A. N = {{n}}, l = 10 cm, I = {{i}} A. Wie groß ist B in mT? Auf eine Nachkommastelle."
+    params:
+      unit: mT
+    answer:
+      value: "{{0.0125664 * n * i}}"
+      tolerance: 0.06
+    hints:
+      - "Die Länge in Metern: 0,1 m."
+      - "1,257 µT · {{n}} · {{i}} : 0,1 ergibt µT."
+    explanation: B ≈ {{round(0.0125664 * n * i, 1)}} mT. Die Feldeinheit heißt Tesla (T). Das Erdfeld hat nur etwa 0,05 mT.
+    variants:
+      params:
+        n: choice[500,1000,2000]
+        i: choice[0.5,1,2]
+      defaults:
+        n: 1000
+        i: 1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Ein **Relais** ist ein Schalter mit Elektromagnet. Ein kleiner Strom durch die Spule zieht einen Anker an, der einen großen Stromkreis schließt. Beide Kreise bleiben elektrisch getrennt.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Mikrocontroller mit 5 V soll eine 230-V-Pumpe schalten. Warum nimmt man ein Relais?
+    params:
+      options:
+        - label: Der kleine Steuerstrom schaltet den großen Laststrom, und die Netzspannung bleibt getrennt
+          correct: true
+        - label: Weil das Relais die Spannung auf 5 V senkt
+          feedback: Ein Relais wandelt nichts um, es schaltet nur.
+        - label: Weil 230 V zu langsam für den Chip sind
+          feedback: Es geht um Strom, Spannung und Sicherheit.
+    hints:
+      - Darf die Netzspannung an den Chip?
+      - Zwischen Spule und Kontakt gibt es keine leitende Verbindung.
+    explanation: Die Spule braucht vielleicht 70 mA bei 5 V. Der Kontakt schaltet 10 A bei 230 V. Dazwischen liegt nur ein Magnetfeld – eine sichere Trennung.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Eisenkern verstärkt das Feld um den Faktor µᵣ. Die Spule von vorhin hat ohne Kern 12,6 mT. Wie viel Tesla wären es rechnerisch mit µᵣ = 1000?
+    params:
+      unit: T
+    answer:
+      value: 12.6
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 12600
+        misconception: unit-prefix
+        text: Das sind mT. Rechne in Tesla um.
+    hints:
+      - 12,6 mT · 1000.
+      - 1000 mT = 1 T.
+    explanation: "12 600 mT = 12,6 T. In Wirklichkeit wird Eisen ab etwa 2 T gesättigt: Alle kleinen Magnetbereiche sind schon ausgerichtet. Mehr geht nicht."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Die **Induktivität** L sagt, wie stark eine Spule sich gegen Stromänderungen wehrt. Ihre Einheit ist das Henry (H). Es gilt $L = \mu_0 \mu_r \frac{N^2 A}{l}$. Die Windungszahl steht im Quadrat.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Du wickelst eine Spule mit {{k}}-mal so vielen Windungen, sonst bleibt alles gleich. Um welchen Faktor wächst L?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: linear
+        text: "N steht im Quadrat: Jede Windung spürt das Feld aller anderen."
+    hints:
+      - L hängt von N² ab.
+      - "{{k}}² = ?"
+    explanation: "{{k}}² = {{k * k}}. Mehr Windungen machen ein stärkeres Feld, und jede Windung umfasst dieses Feld. Darum zählt N doppelt."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[2,3,4,10]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Elektromagnet funktioniert und wie man ihn stärker macht.
+    params:
+      keywords:
+        - - strom
+          - current
+        - - spule
+          - coil
+          - windung
+          - turn
+        - - magnetfeld
+          - magnetic field
+          - feld
+          - field
+        - - eisen
+          - iron
+          - kern
+          - core
+          - mehr
+          - more
+      sample: Strom durch einen Draht erzeugt ein Magnetfeld. In einer Spule addieren sich die Felder aller Windungen. Mehr Windungen, mehr Strom und ein Eisenkern machen den Magneten stärker – bis das Eisen gesättigt ist.
+    explanation: "Kern: Strom erzeugt Feld, Windungen addieren, Eisen verstärkt. Ausschalten heißt: Feld weg."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3", "x2"]

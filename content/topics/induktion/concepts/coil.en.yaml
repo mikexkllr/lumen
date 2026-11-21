@@ -1,0 +1,182 @@
+id: ee.induction.coil
+type: concept
+title: "Coils and electromagnets"
+summary: "Current makes a magnetic field – wound up, it becomes an electromagnet."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A compass lies next to a wire. You switch on a current. What happens?
+    params:
+      options:
+        - label: The needle swings away from north
+          correct: true
+        - label: Nothing, copper isn’t magnetic
+          feedback: Not the copper, the current makes the magnetic field.
+        - label: The needle gets warm
+          feedback: It is about a force, not heat.
+    hints:
+      - Current and magnetism are linked.
+      - Hans Christian Ørsted discovered this in 1820 during a lecture.
+    explanation: Every current is surrounded by a magnetic field. It runs in circles around the wire.
+
+  - kind: explain
+    id: c1
+    body: Wind the wire into a **coil** and the fields of all turns add up. Inside you get a strong, straight field like a bar magnet. More turns and more current make it stronger.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Is there an electromagnet inside?
+    params:
+      buckets:
+        - id: b1
+          label: Yes
+        - id: b2
+          label: No
+      items:
+        - label: Door bell
+          bucket: b1
+        - label: Loudspeaker
+          bucket: b1
+        - label: Relay
+          bucket: b1
+        - label: Electric motor
+          bucket: b1
+        - label: Solar cell
+          bucket: b2
+        - label: Fan heater element
+          bucket: b2
+        - label: LED
+          bucket: b2
+    hints:
+      - Where does something move by magnetic force?
+      - Heating wire and LED use the current differently.
+    explanation: Bells, speakers, relays and motors pull on something with a current-carrying coil. Heaters, LEDs and solar cells need no coil.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In a long coil B = µ₀ × N × I ÷ l with µ₀ ≈ 1.257 µT·m/A. N = {{n}}, l = 10 cm, I = {{i}} A. What is B in mT? To one decimal place.
+    params:
+      unit: mT
+    answer:
+      value: "{{0.0125664 * n * i}}"
+      tolerance: 0.06
+    hints:
+      - "Length in metres: 0.1 m."
+      - 1.257 µT × {{n}} × {{i}} ÷ 0.1 gives µT.
+    explanation: B ≈ {{round(0.0125664 * n * i, 1)}} mT. The unit of field is the tesla (T). Earth’s field is only about 0.05 mT.
+    variants:
+      params:
+        n: choice[500,1000,2000]
+        i: choice[0.5,1,2]
+      defaults:
+        n: 1000
+        i: 1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A **relay** is a switch driven by an electromagnet. A small current through the coil pulls an armature that closes a large circuit. The two circuits stay electrically separate.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A 5 V microcontroller should switch a 230 V pump. Why use a relay?
+    params:
+      options:
+        - label: The small control current switches the large load current, and mains stays isolated
+          correct: true
+        - label: Because the relay lowers the voltage to 5 V
+          feedback: A relay converts nothing, it only switches.
+        - label: Because 230 V is too slow for the chip
+          feedback: It is about current, voltage and safety.
+    hints:
+      - May mains voltage reach the chip?
+      - There is no conductive link between coil and contact.
+    explanation: The coil may need 70 mA at 5 V. The contact switches 10 A at 230 V. Only a magnetic field links them – a safe isolation.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: An iron core boosts the field by the factor µᵣ. The earlier coil has 12.6 mT without a core. How many tesla would it be on paper with µᵣ = 1000?
+    params:
+      unit: T
+    answer:
+      value: 12.6
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 12600
+        misconception: unit-prefix
+        text: That is in mT. Convert to tesla.
+    hints:
+      - 12.6 mT × 1000.
+      - 1000 mT = 1 T.
+    explanation: "12,600 mT = 12.6 T. In reality iron saturates above about 2 T: all its tiny magnetic domains are already aligned. No more is possible."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "**Inductance** L says how strongly a coil resists changes in current. Its unit is the henry (H). It is $L = \\mu_0 \\mu_r \\frac{N^2 A}{l}$. The number of turns is squared."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: You wind a coil with {{k}} times as many turns, everything else unchanged. By what factor does L grow?
+    answer:
+      value: "{{k * k}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: linear
+        text: "N is squared: each turn feels the field of all the others."
+    hints:
+      - L depends on N².
+      - "{{k}}² = ?"
+    explanation: "{{k}}² = {{k * k}}. More turns make a stronger field, and each turn links that field. So N counts twice."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[2,3,4,10]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an electromagnet works and how to make it stronger.
+    params:
+      keywords:
+        - - strom
+          - current
+        - - spule
+          - coil
+          - windung
+          - turn
+        - - magnetfeld
+          - magnetic field
+          - feld
+          - field
+        - - eisen
+          - iron
+          - kern
+          - core
+          - mehr
+          - more
+      sample: Current through a wire creates a magnetic field. In a coil the fields of all turns add up. More turns, more current and an iron core make the magnet stronger – until the iron saturates.
+    explanation: "The core: current makes a field, turns add up, iron amplifies. Switching off means the field is gone."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3", "x2"]

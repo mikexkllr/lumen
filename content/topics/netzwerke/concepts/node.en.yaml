@@ -1,0 +1,221 @@
+id: ee.networks.node
+type: concept
+title: "The junction rule"
+summary: "What flows into a junction must flow out again."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: Into a pipe junction flow 3 litres of water per second from the left and 2 litres from above. How much flows out at the bottom?
+    params:
+      unit: L/s
+    answer:
+      value: 5
+    hints:
+      - Water does not just vanish.
+      - Everything that flows in must flow out.
+    explanation: 3 + 2 = 5 litres per second. Electric current behaves exactly the same.
+
+  - kind: explain
+    id: c1
+    body: At a **junction** wires branch off. Charge is neither lost nor piled up there. So the currents flowing in add up to the currents flowing out.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "{{a}} A and {{b}} A flow into a junction. One wire carries {{c}} A out. How much flows out through the second wire?"
+    params:
+      unit: A
+    answer:
+      value: "{{a + b - c}}"
+    feedback:
+      - when: numval(state.input) == a + b + c
+        misconception: direction
+        text: The {{c}} A flow out, not in. Subtract them.
+    hints:
+      - "Total in: {{a}} + {{b}}."
+      - "{{c}} A of that already flow out."
+    explanation: "{{a}} + {{b}} = {{a + b}} A in. {{a + b}} − {{c}} = {{a + b - c}} A for the second wire."
+    variants:
+      params:
+        a: int[2,9]
+        b: int[1,6]
+        c: int[1,8]
+      constraints:
+        - c < a + b
+      defaults:
+        a: 4
+        b: 3
+        c: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: One supply line feeds a kettle (8.7 A), a toaster (4.3 A) and a lamp (0.2 A). What current flows in the supply line?
+    params:
+      unit: A
+    answer:
+      value: 13.2
+      tolerance: 0.01
+    hints:
+      - The devices are in parallel. Their currents meet at a junction.
+      - Add all three.
+    explanation: 8.7 + 4.3 + 0.2 = 13.2 A. That is still below the 16 A fuse.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: True or false?
+    params:
+      cards:
+        - text: Three parallel lamps with 0.5 A each draw 1.5 A together.
+          right: true
+        - text: After a lamp the current is smaller than before it.
+          right: false
+          why: The lamp uses energy, not current.
+        - text: In a series circuit the same current flows everywhere.
+          right: true
+        - text: A junction can store current.
+          right: false
+          why: A junction has no storage.
+      left: "False"
+      right: "True"
+    explanation: Current is not used up. It splits at junctions and joins again.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Engineers count currents flowing in as positive and flowing out as negative. Then the rule is short: the **sum of all currents** at a junction is zero. A negative result just means the current flows the other way."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Four wires meet at a junction. I₁ = {{a}} A flows in, I₂ = {{b}} A out, I₃ = {{c}} A in. What is I₄, counting inflow as positive?
+    params:
+      unit: A
+    answer:
+      value: "{{b - a - c}}"
+    feedback:
+      - when: numval(state.input) == a + c - b
+        misconception: sign
+        text: "Check the sign: the signed sum of all currents must be 0."
+    hints:
+      - "{{a}} − {{b}} + {{c}} + I₄ = 0."
+      - Solve for I₄.
+    explanation: I₄ = {{b}} − {{a}} − {{c}} = {{b - a - c}} A. Positive means in, negative means out.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[2,12]
+        c: int[1,6]
+      constraints:
+        - b != a + c
+      defaults:
+        a: 2
+        b: 5
+        c: 1
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A 4 Ω and a 6 Ω resistor are connected in parallel to 12 V. What current flows in the supply line?
+    params:
+      unit: A
+    answer:
+      value: 5
+    hints:
+      - Each resistor gets the full 12 V.
+      - 12 ÷ 4 and 12 ÷ 6, then add.
+    explanation: 3 A + 2 A = 5 A. The total resistance is 12 V ÷ 5 A = 2.4 Ω.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A current of {{i}} A splits between {{r1}} Ω and {{r2}} Ω in parallel. How much flows through {{r1}} Ω?
+    params:
+      unit: A
+    answer:
+      value: "{{i * r2 / (r1 + r2)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - i * r1 / (r1 + r2)) < 0.01
+        misconception: divider-swap
+        text: "The other way round: more flows through the smaller resistor."
+    hints:
+      - The smaller resistor gets the larger share.
+      - I₁ = I × R₂ ÷ (R₁ + R₂).
+    explanation: "{{i}} × {{r2}} ÷ {{r1 + r2}} = {{round(i * r2 / (r1 + r2), 2)}} A. Current prefers the easier path."
+    difficulty: 3
+    variants:
+      params:
+        i: choice[3,6,12]
+        r1: choice[1,2,3,6]
+        r2: choice[2,3,6]
+      constraints:
+        - r1 != r2
+      defaults:
+        i: 6
+        r1: 2
+        r2: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A capacitor is charging. Current flows into its top plate, none flows out. Does that break the junction rule?
+    params:
+      options:
+        - label: "No: the plate is not a junction, it stores charge"
+          correct: true
+        - label: Yes, the rule only holds for DC
+          feedback: It also holds for AC, as long as the junction stores nothing.
+        - label: Yes, charge is lost
+          feedback: Charge is always conserved. It collects on the plate.
+    hints:
+      - Where does the junction rule come from?
+      - It follows from charge conservation, if nothing piles up.
+    explanation: The rule assumes no charge collects in the junction. On a capacitor plate it does. Treat the whole capacitor as one part and the balance holds again.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain the junction rule to Lux and why current is not “used up”.
+    params:
+      keywords:
+        - - knoten
+          - junction
+          - node
+          - verzweig
+          - branch
+        - - hinein
+          - "in "
+          - zufl
+          - inflow
+        - - heraus
+          - out
+          - abfl
+          - outflow
+        - - ladung
+          - charge
+          - erhalt
+          - conserv
+          - verloren
+          - lost
+      sample: At a junction the current branches. What flows in flows out again, because charge is neither lost nor piled up. Devices use energy, not current.
+    explanation: The core idea is charge conservation. Current carries energy, but the current itself is conserved.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "x1"]
