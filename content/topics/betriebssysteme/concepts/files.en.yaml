@@ -1,0 +1,191 @@
+id: cs.os.files
+type: concept
+title: "Files and file systems"
+summary: "Blocks, folders, paths – and what really happens when you delete."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many files are on a typical laptop?"
+    params:
+      min: 1000
+      max: 1000000000
+      scale: log
+    answer:
+      value: 1000000
+      within: 80
+    explanation: Usually around a million – the operating system alone brings hundreds of thousands.
+
+  - kind: explain
+    id: c1
+    body: The **file system** organises data into files and folders. On disk they sit in blocks, often 4 KiB each. It keeps track of which blocks belong to which file.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Blocks are 4 KiB. How many blocks does a file of {{s}} KiB occupy?
+    answer:
+      value: "{{ceil(s / 4)}}"
+    feedback:
+      - when: numval(state.input) == s / 4
+        misconception: fractional
+        text: A block cannot be split – partly used blocks count fully.
+    hints:
+      - Divide by 4.
+      - "Round up: a half-full block is still taken."
+    explanation: "{{s}} / 4 rounded up = {{ceil(s / 4)}} blocks. {{4 * ceil(s / 4) - s}} KiB stay unused in the last one."
+    variants:
+      params:
+        s: int[5,50]
+      constraints:
+        - mod(s, 4) > 0
+      defaults:
+        s: 10
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: You are in the folder /home/ana. Where does the relative path ../ben/notes.txt lead?
+    params:
+      options:
+        - label: /home/ben/notes.txt
+          correct: true
+        - label: /home/ana/ben/notes.txt
+          feedback: .. first goes up one level.
+        - label: /ben/notes.txt
+          feedback: .. goes up only one level, not to the very top.
+    hints:
+      - ".. means: the folder above."
+      - Above /home/ana is /home.
+    explanation: From /home/ana up one to /home, then into ben. Folders form a tree with the root /.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: Deleting overwrites the data at once.
+          right: false
+          why: Usually only the entry is removed and the blocks are freed.
+        - text: A folder is itself a kind of file – a list of names.
+          right: true
+          why: It records which name belongs to which file.
+        - text: The ending .jpg makes a file a picture.
+          right: false
+          why: The ending is just a hint – the content decides.
+        - text: Two files in the same folder may not have the same name.
+          right: true
+          why: Otherwise the path would not be unique.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: When a file lies in scattered blocks, that is called **fragmentation**. On hard disks with a read head every jump costs milliseconds. SSDs have no head – for them it hardly matters.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A hard disk needs about 10 ms per head jump. A file lies in 500 scattered pieces. How many seconds do the jumps alone cost?
+    params:
+      unit: s
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 5000
+        misconception: unit
+        text: Those are milliseconds. Seconds are asked for.
+    hints:
+      - 500 · 10 ms.
+      - 5000 ms in seconds.
+    explanation: 5000 ms = 5 s – read in one piece the file might arrive in a tenth of a second.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: The power fails in the middle of saving. How does a journaling file system prevent chaos?
+    params:
+      options:
+        - label: It first notes what it is about to do, then does it – after restart it finishes or discards
+          correct: true
+        - label: It saves everything twice
+          feedback: That costs a lot of space and does not solve half-finished changes.
+        - label: It blocks the power cut
+          feedback: No software helps against a power cut.
+    hints:
+      - Half-finished changes are the danger.
+      - "Like a transaction: all or nothing."
+    explanation: The journal is a small log book. Databases use the same idea for their transactions.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: On Linux an inode describes the file. Names in folders are just references to it. A file has two names and you delete one. What happens?
+    params:
+      options:
+        - label: The file stays – only when the last name is gone is it freed
+          correct: true
+        - label: The file is gone
+          feedback: A second name still points to it.
+        - label: Both names disappear
+          feedback: Only the one entry is deleted.
+    hints:
+      - The inode counts how many names point to it.
+      - Deleting subtracts one.
+    explanation: These are hard links. The inode has a counter – only at 0 does the system free the blocks.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A file system numbers blocks with 32 bits, and a block is 4 KiB. At most how many TiB can it manage? 1 TiB = $2^{40}$ bytes.
+    params:
+      unit: TiB
+    answer:
+      value: 16
+    hints:
+      - $2^{32}$ blocks of $2^{12}$ bytes each.
+      - $2^{44}$ / $2^{40}$.
+    explanation: $2^{44}$ bytes = 16 TiB. The older ext3 had exactly this limit – newer systems use longer block numbers.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a file system finds a file again.
+    params:
+      keywords:
+        - - ordner
+          - verzeichnis
+          - folder
+          - directory
+        - - block
+          - blöcke
+          - blocks
+        - - pfad
+          - path
+          - name
+        - - verweis
+          - liste
+          - tabelle
+          - inode
+          - refer
+          - table
+          - list
+      sample: The path leads through the folders, level by level. Each folder is a list that refers names to files. Each file has an entry, such as an inode, that says which blocks hold the data.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x2"]

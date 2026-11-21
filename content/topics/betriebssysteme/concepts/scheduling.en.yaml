@@ -1,0 +1,214 @@
+id: cs.os.scheduling
+type: concept
+title: "Who gets to compute?"
+summary: "Scheduling – orders, waiting times and fairness."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "At the checkout: you have one item, the person in front has 50. What would be fastest for everyone together?"
+    params:
+      options:
+        - label: Let the one with few items go first
+          correct: true
+        - label: The order does not matter
+          feedback: It does for the total waiting time.
+        - label: The one with many items first
+          feedback: Then everyone behind waits long.
+    hints:
+      - How long do you wait if the 50 items go first?
+      - And how long does the other wait if you go first?
+    explanation: Short jobs first lower the average waiting time. Schedulers use exactly this idea.
+
+  - kind: explain
+    id: c1
+    body: "The **scheduler** decides which process may compute next. The simplest rule: first come, first served."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Three jobs arrive at once: A needs 8 s, B 2 s, C 4 s. They run in the order A, B, C. How many seconds does C wait before it starts?"
+    params:
+      unit: s
+    answer:
+      value: 10
+    hints:
+      - C waits until A and B are done.
+      - 8 + 2.
+    explanation: C starts after 8 + 2 = 10 s.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Same order A, B, C. How long do the three wait on average before they start?
+    params:
+      unit: s
+    answer:
+      value: 6
+    hints:
+      - A waits 0 s, B 8 s, C 10 s.
+      - (0 + 8 + 10) / 3.
+    explanation: 18 / 3 = 6 s on average.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Now shortest job first: B, C, A. How long do they wait on average? Round to two decimals."
+    params:
+      unit: s
+    answer:
+      value: 2.67
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: same-order
+        text: "New order, new waits: B 0, C 2, A 6."
+    hints:
+      - B waits 0 s, C 2 s, A 6 s.
+      - (0 + 2 + 6) / 3.
+    explanation: 8 / 3 ≈ 2.67 s instead of 6 s. »Shortest first« is even provably optimal for the average wait.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: What is the catch with »shortest job first«?
+    params:
+      options:
+        - label: Long jobs may wait forever, and the duration is often unknown in advance
+          correct: true
+        - label: It is slower than first come, first served
+          feedback: On average it is faster.
+        - label: It only works with two jobs
+          feedback: It works with any number.
+    hints:
+      - What if new short jobs keep arriving?
+      - How does the scheduler know how long a program will run?
+    explanation: The »starvation« of long jobs is a real problem. Durations are estimated from the past – with errors.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: With **round robin** each process gets a time slice in turn. Whoever is not finished joins the back of the queue again. Nobody starves, and short tasks get through quickly.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Round robin with 2 s per slice. A needs 5 s, B 2 s, C 3 s, starting in the order A, B, C. After how many seconds is C done?
+    params:
+      unit: s
+    answer:
+      value: 9
+    hints:
+      - First A 2 s, then B 2 s, then C 2 s – and then?
+      - Then A for 2 more s, then C its last second.
+    explanation: A 0–2, B 2–4 (done), C 4–6, A 6–8, C 8–9 (done), A 9–10.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "In the same example: after how many seconds is B done?"
+    params:
+      unit: s
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: forgot-first
+        text: A runs for 2 s before B.
+    hints:
+      - B is second in line.
+      - A 2 s, then B 2 s.
+    explanation: B is done after 4 s. With first come, first served it would have been 7 s – short jobs benefit.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A time slice lasts 100 ms and 20 processes are ready. How many seconds can it take before a process gets its turn again?
+    params:
+      unit: s
+    answer:
+      value: 1.9
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: include-own
+        text: Its own slice does not count as waiting.
+    hints:
+      - 19 others go first.
+      - 19 · 0.1 s.
+    explanation: 1.9 s – very noticeable when typing. That is why schedulers favour interactive processes, which usually block again quickly.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: An important process waits for a lock held by an unimportant one. The unimportant one never runs, because medium ones keep computing. What is this called?
+    params:
+      options:
+        - label: Priority inversion
+          correct: true
+        - label: Deadlock
+          feedback: Nobody waits in a circle here – it is a priority problem.
+        - label: Context switch
+          feedback: That is just the switch itself.
+    hints:
+      - The important one has effectively ended up behind the medium ones.
+      - The priorities act the wrong way round.
+    explanation: "In 1997 exactly this stalled the Mars Pathfinder. Fix: the lock holder briefly inherits the high priority."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: For a long time Linux used a scheduler meant to give every process a fair share. Whom does such a scheduler pick next?
+    params:
+      options:
+        - label: The process that has had the least CPU time so far
+          correct: true
+        - label: The newest process
+          feedback: New does not mean disadvantaged.
+        - label: Always the same process
+          feedback: Then it would not be fair.
+    hints:
+      - "Fair means: whoever got too little goes next."
+      - The scheduler keeps accounts of CPU time.
+    explanation: The »Completely Fair Scheduler« kept processes in a search tree sorted by time used. The leftmost was next – O(log n) per decision.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why round robin is fair.
+    params:
+      keywords:
+        - - reihum
+          - abwechselnd
+          - turn
+          - round
+        - - zeitscheibe
+          - time slice
+          - slice
+          - kurz
+        - - hinten
+          - anstellen
+          - back
+          - queue
+          - schlange
+      sample: Every process gets its turn and a short time slice. Whoever is not finished joins the back of the queue again. So nobody waits forever, and short tasks finish quickly.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "x1"]

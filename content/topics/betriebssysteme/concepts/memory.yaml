@@ -1,0 +1,200 @@
+id: cs.os.memory
+type: concept
+title: "Virtueller Speicher"
+summary: "Jedes Programm bekommt seinen eigenen Adressraum."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Programme schreiben beide an die Adresse 1000. Überschreiben sie sich gegenseitig?
+    params:
+      options:
+        - label: Nein – jedes hat seinen eigenen Adressraum, das System bildet ihn auf verschiedene echte Adressen ab
+          correct: true
+        - label: Ja, Adresse ist Adresse
+          feedback: Das war bei sehr alten Rechnern so.
+        - label: Das Programm stürzt sofort ab
+          feedback: Beide laufen ganz normal.
+    hints:
+      - Sieht ein Programm die echten Speicheradressen?
+      - Dazwischen sitzt eine Übersetzung.
+    explanation: Adresse 1000 von Programm A und Adresse 1000 von Programm B landen an verschiedenen Stellen im Arbeitsspeicher.
+
+  - kind: explain
+    id: c1
+    body: Beim **virtuellen Speicher** sieht jedes Programm seinen eigenen Adressraum ab 0. Das Betriebssystem übersetzt diese Adressen in echte – in festen Stücken, den Seiten, meist je 4 KiB.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Seiten sind 4 KiB groß. Wie viele Seiten braucht ein Programm mit 1 MiB Speicher?
+    answer:
+      value: 256
+    hints:
+      - 1 MiB = 1024 KiB.
+      - 1024 / 4.
+    explanation: 1024 / 4 = 256 Seiten. Jede kann woanders im echten Speicher liegen.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Die Seitengröße ist 4096 Byte. Auf welcher Seite liegt die Adresse {{a}}? Gezählt wird ab Seite 0.
+    answer:
+      value: "{{floor(a / 4096)}}"
+    feedback:
+      - when: numval(state.input) == floor(a / 4096) + 1
+        misconception: off-by-one
+        text: "Gezählt wird ab 0: Adressen 0 bis 4095 liegen auf Seite 0."
+    hints:
+      - Teile die Adresse durch 4096.
+      - Abrunden – der Rest ist die Stelle innerhalb der Seite.
+    explanation: "{{a}} / 4096 ≈ {{round(a / 4096 * 100) / 100}}, also Seite {{floor(a / 4096)}}. Der Rest {{mod(a, 4096)}} heißt Versatz."
+    variants:
+      params:
+        a: int[5000,60000]
+      constraints:
+        - mod(a, 4096) > 0
+      defaults:
+        a: 12388
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Ein Programm greift auf eine Seite zu, die gerade nicht im Arbeitsspeicher liegt. Was passiert?
+    params:
+      options:
+        - label: "Ein Seitenfehler: Das System lädt die Seite von der Platte nach, dann geht es weiter"
+          correct: true
+        - label: Das Programm stürzt ab
+          feedback: Das passiert nur bei Adressen, die ihm gar nicht gehören.
+        - label: Der Prozessor rät die Daten
+          feedback: Geraten wird hier nichts.
+    hints:
+      - Ausgelagerte Seiten liegen auf der SSD.
+      - Das Programm merkt davon nichts – nur eine kleine Verzögerung.
+    explanation: So kann ein Rechner mehr Speicher versprechen, als er hat. Selten genutzte Seiten wandern auf die Platte.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Die **Seitentabelle** eines Prozesses sagt für jede virtuelle Seite, in welchem echten Rahmen sie liegt – oder dass sie ausgelagert ist. Der Prozessor schlägt bei jedem Zugriff darin nach.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Seite 3 liegt laut Seitentabelle in Rahmen 7, die Seitengröße ist 4096. Auf welche echte Adresse zeigt die virtuelle Adresse 12 388 = 3 · 4096 + 100?
+    answer:
+      value: 28772
+    feedback:
+      - when: numval(state.input) == 12388
+        misconception: no-translation
+        text: Die Seitennummer wird ersetzt – Rahmen statt Seite.
+    hints:
+      - Der Versatz 100 bleibt gleich.
+      - 7 · 4096 + 100.
+    explanation: 7 · 4096 + 100 = 28 772. Nur die Seitennummer wird übersetzt, der Versatz bleibt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Drei Rahmen sind frei. Ist alles voll, fliegt die Seite, die am längsten nicht benutzt wurde (LRU). Zugriffe: 1, 2, 3, 1, 4, 2, 5, 1. Wie viele Seitenfehler gibt es?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: fill-only
+        text: Auch nach dem Füllen gibt es Fehler – fast jeder neue Zugriff verdrängt etwas.
+    hints:
+      - Die ersten drei sind Fehler, die vierte (1) ein Treffer.
+      - Bei 4 fliegt die 2 raus, bei 2 die 3, bei 5 die 1 …
+    explanation: Nur der Zugriff auf 1 an vierter Stelle trifft. 7 Fehler bei 8 Zugriffen – drei Rahmen sind hier zu wenig.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Bei jedem Speicherzugriff in der Seitentabelle nachzuschlagen kostet einen zweiten Speicherzugriff. Wie löst der Prozessor das?
+    params:
+      options:
+        - label: Mit einem kleinen Cache nur für Übersetzungen, dem TLB
+          correct: true
+        - label: Er lässt die Übersetzung weg
+          feedback: Dann wären die Adressräume nicht mehr getrennt.
+        - label: Er verdoppelt den Takt
+          feedback: Das löst kein Speicherproblem.
+    hints:
+      - Programme nutzen meist wenige Seiten immer wieder.
+      - Was macht man mit Daten, die man oft braucht?
+    explanation: Der Translation Lookaside Buffer trifft meist über 99 %. Nach einem Kontextwechsel ist er oft leer – ein Grund, warum Wechsel teuer sind.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein 64-Bit-Rechner nutzt 48-Bit-Adressen für den virtuellen Speicher. Wie viele TiB Adressraum hat jeder Prozess? 1 TiB = $2^{40}$ Byte.
+    params:
+      unit: TiB
+    answer:
+      value: 256
+    hints:
+      - $2^{48}$ / $2^{40}$.
+      - $2^8$.
+    explanation: 256 TiB pro Prozess – weit mehr als echter Speicher. Fast alles davon ist leer und belegt gar nichts.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: "Zu viele Programme, zu wenig Speicher: Der Rechner lagert ständig ein und aus und wird quälend langsam. Wie heißt das?"
+    params:
+      options:
+        - label: Seitenflattern (Thrashing)
+          correct: true
+        - label: Fragmentierung
+          feedback: Die betrifft zerstückelte Dateien oder Speicherlücken.
+        - label: Deadlock
+          feedback: Beim Flattern arbeitet alles – nur fast nur noch am Umlagern.
+    hints:
+      - Jede Seite, die man braucht, verdrängt eine andere, die man gleich wieder braucht.
+      - Der Rechner flattert zwischen Platte und Speicher.
+    explanation: "Ein Plattenzugriff ist tausendfach langsamer als RAM. Hilfe: Programme schließen oder mehr Speicher."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was virtueller Speicher ist und wozu er gut ist.
+    params:
+      keywords:
+        - - eigene
+          - own
+          - adressraum
+          - address space
+        - - übersetz
+          - translat
+          - abbild
+          - map
+        - - seite
+          - page
+        - - schutz
+          - protect
+          - getrennt
+          - separat
+          - isolat
+      sample: Jedes Programm bekommt seinen eigenen Adressraum. Das Betriebssystem übersetzt dessen Adressen Seite für Seite in echte Adressen. So sind die Programme voneinander getrennt und geschützt, und selten genutzte Seiten können auf die Platte.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "d3"]

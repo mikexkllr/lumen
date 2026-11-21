@@ -1,0 +1,200 @@
+id: cs.os.memory
+type: concept
+title: "Virtual memory"
+summary: "Every program gets its own address space."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two programs both write to address 1000. Do they overwrite each other?
+    params:
+      options:
+        - label: No – each has its own address space, which the system maps to different real addresses
+          correct: true
+        - label: Yes, an address is an address
+          feedback: That was the case on very old computers.
+        - label: The program crashes at once
+          feedback: Both run quite normally.
+    hints:
+      - Does a program see the real memory addresses?
+      - A translation sits in between.
+    explanation: Address 1000 of program A and address 1000 of program B end up in different places in memory.
+
+  - kind: explain
+    id: c1
+    body: With **virtual memory** every program sees its own address space starting at 0. The operating system translates these addresses into real ones – in fixed pieces called pages, usually 4 KiB each.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Pages are 4 KiB. How many pages does a program with 1 MiB of memory need?
+    answer:
+      value: 256
+    hints:
+      - 1 MiB = 1024 KiB.
+      - 1024 / 4.
+    explanation: 1024 / 4 = 256 pages. Each can sit somewhere else in real memory.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: The page size is 4096 bytes. On which page is address {{a}}? Pages are counted from 0.
+    answer:
+      value: "{{floor(a / 4096)}}"
+    feedback:
+      - when: numval(state.input) == floor(a / 4096) + 1
+        misconception: off-by-one
+        text: "Counting starts at 0: addresses 0 to 4095 are on page 0."
+    hints:
+      - Divide the address by 4096.
+      - Round down – the remainder is the position within the page.
+    explanation: "{{a}} / 4096 ≈ {{round(a / 4096 * 100) / 100}}, so page {{floor(a / 4096)}}. The remainder {{mod(a, 4096)}} is called the offset."
+    variants:
+      params:
+        a: int[5000,60000]
+      constraints:
+        - mod(a, 4096) > 0
+      defaults:
+        a: 12388
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A program accesses a page that is not in main memory right now. What happens?
+    params:
+      options:
+        - label: "A page fault: the system loads the page from disk, then carries on"
+          correct: true
+        - label: The program crashes
+          feedback: That only happens with addresses it does not own.
+        - label: The processor guesses the data
+          feedback: Nothing is guessed here.
+    hints:
+      - Swapped-out pages live on the SSD.
+      - The program notices nothing – just a small delay.
+    explanation: That way a computer can promise more memory than it has. Rarely used pages move to the disk.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A process's **page table** says for every virtual page which real frame it is in – or that it has been swapped out. The processor looks it up on every access.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: According to the page table, page 3 sits in frame 7; the page size is 4096. Which real address does the virtual address 12,388 = 3 · 4096 + 100 point to?
+    answer:
+      value: 28772
+    feedback:
+      - when: numval(state.input) == 12388
+        misconception: no-translation
+        text: The page number gets replaced – frame instead of page.
+    hints:
+      - The offset 100 stays the same.
+      - 7 · 4096 + 100.
+    explanation: 7 · 4096 + 100 = 28,772. Only the page number is translated, the offset stays.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Three frames are free. When full, the page unused for longest is evicted (LRU). Accesses: 1, 2, 3, 1, 4, 2, 5, 1. How many page faults occur?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: fill-only
+        text: Faults continue after filling – almost every new access evicts something.
+    hints:
+      - The first three are faults, the fourth (1) a hit.
+      - At 4 the 2 is evicted, at 2 the 3, at 5 the 1 …
+    explanation: Only the access to 1 in fourth place hits. 7 faults in 8 accesses – three frames are too few here.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Looking up the page table on every access costs a second memory access. How does the processor solve this?
+    params:
+      options:
+        - label: With a small cache just for translations, the TLB
+          correct: true
+        - label: It skips the translation
+          feedback: Then the address spaces would no longer be separate.
+        - label: It doubles the clock
+          feedback: That does not solve a memory problem.
+    hints:
+      - Programs mostly use a few pages again and again.
+      - What do you do with data you need often?
+    explanation: The translation lookaside buffer usually hits over 99 %. After a context switch it is often empty – one reason switches are expensive.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A 64-bit computer uses 48-bit addresses for virtual memory. How many TiB of address space does each process have? 1 TiB = $2^{40}$ bytes.
+    params:
+      unit: TiB
+    answer:
+      value: 256
+    hints:
+      - $2^{48}$ / $2^{40}$.
+      - $2^8$.
+    explanation: 256 TiB per process – far more than real memory. Almost all of it is empty and takes up nothing.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: "Too many programs, too little memory: the computer keeps swapping in and out and becomes painfully slow. What is this called?"
+    params:
+      options:
+        - label: Thrashing
+          correct: true
+        - label: Fragmentation
+          feedback: That concerns scattered files or memory gaps.
+        - label: Deadlock
+          feedback: When thrashing, everything works – just almost only on swapping.
+    hints:
+      - Every needed page evicts another that is needed again soon.
+      - The computer flaps between disk and memory.
+    explanation: "A disk access is thousands of times slower than RAM. The cure: close programs or add memory."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what virtual memory is and what it is good for.
+    params:
+      keywords:
+        - - eigene
+          - own
+          - adressraum
+          - address space
+        - - übersetz
+          - translat
+          - abbild
+          - map
+        - - seite
+          - page
+        - - schutz
+          - protect
+          - getrennt
+          - separat
+          - isolat
+      sample: Every program gets its own address space. The operating system translates its addresses page by page into real ones. That keeps programs separate and protected, and rarely used pages can go to disk.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "d3"]

@@ -1,0 +1,211 @@
+id: cs.os.processes
+type: concept
+title: "Prozesse"
+summary: "Wie viele Programme sich einen Prozessor teilen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Prozesse laufen gerade auf einem typischen Laptop?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 300
+      within: 80
+    explanation: Meist einige Hundert – die meisten schlafen und warten auf etwas. Nachsehen kannst du im Taskmanager oder in der Aktivitätsanzeige.
+
+  - kind: explain
+    id: c1
+    body: "Das **Betriebssystem** verwaltet den Rechner: Es verteilt Rechenzeit, Speicher und Geräte an die Programme und schützt sie voreinander. Ein laufendes Programm heißt Prozess."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Ein Prozessor mit nur einem Kern – und doch laufen Browser, Musik und Chat »gleichzeitig«. Wie geht das?
+    params:
+      options:
+        - label: Das Betriebssystem wechselt blitzschnell zwischen ihnen – jeder bekommt kurze Zeitscheiben
+          correct: true
+        - label: Der Kern rechnet alles auf einmal
+          feedback: Ein Kern führt zu jedem Zeitpunkt nur einen Befehlsstrom aus.
+        - label: Zwei davon pausieren, bis eins fertig ist
+          feedback: Dann würde die Musik stocken.
+    hints:
+      - Wie lange dauert für dich eine Millisekunde?
+      - Schnelles Abwechseln sieht aus wie Gleichzeitigkeit.
+    explanation: Alle paar Millisekunden wechselt der Prozess. Für uns wirkt das gleichzeitig – wie die Einzelbilder eines Films.
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Ein Prozess braucht Daten von der Festplatte. Bring seine Zustände in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Laufend – er rechnet
+        - label: Blockiert – wartet auf die Platte
+        - label: Bereit – die Daten sind da
+        - label: Wieder laufend – er bekommt den Kern
+    hints:
+      - Wer wartet, braucht den Kern nicht.
+      - "Fertig mit Warten heißt noch nicht: rechnen dürfen."
+    explanation: Laufend, blockiert, bereit – zwischen diesen drei Zuständen wandert jeder Prozess. Blockierte Prozesse kosten keine Rechenzeit.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: In welchem Zustand ist der Prozess?
+    params:
+      buckets:
+        - id: b1
+          label: laufend
+        - id: b2
+          label: bereit
+        - id: b3
+          label: blockiert
+      items:
+        - label: Rechnet gerade auf dem Kern
+          bucket: b1
+        - label: Könnte rechnen, aber der Kern ist belegt
+          bucket: b2
+        - label: Wartet auf einen Tastendruck
+          bucket: b3
+        - label: Wartet auf Daten aus dem Netz
+          bucket: b3
+        - label: Seine Zeitscheibe ist gerade abgelaufen
+          bucket: b2
+    hints:
+      - "Blockiert heißt: wartet auf etwas von außen."
+      - "Bereit heißt: wartet nur auf den Kern."
+    explanation: Wer nur auf den Kern wartet, ist bereit. Wer auf ein Gerät oder eine Nachricht wartet, ist blockiert.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Vier Prozesse rechnen reihum, jeder 10 ms lang. Wie viele ms wartet ein Prozess zwischen zwei seiner Zeitscheiben?
+    params:
+      unit: ms
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: include-own
+        text: Seine eigenen 10 ms zählen nicht als Warten.
+    hints:
+      - Wer ist dran, während er wartet?
+      - Die drei anderen, je 10 ms.
+    explanation: 3 · 10 ms = 30 ms Pause. Viel kürzer, als ein Mensch bemerken kann.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Beim **Kontextwechsel** sichert das Betriebssystem Register und Befehlszähler des alten Prozesses und lädt die des neuen. Das kostet jedes Mal einige Mikrosekunden – und leert oft die Caches.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Kontextwechsel kostet 5 µs, eine Zeitscheibe dauert 1 ms. Wie viel Prozent der Zeit gehen für Wechsel drauf? Runde auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 0.5
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: unit
+        text: Eine Millisekunde sind 1000 µs, nicht 100.
+    hints:
+      - 1 ms = 1000 µs.
+      - 5 / 1005 ≈ ?
+    explanation: Rund 0,5 %. Kürzere Zeitscheiben machen das System flüssiger, aber der Anteil der Wechsel steigt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Was unterscheidet Threads von Prozessen?
+    params:
+      options:
+        - label: Threads eines Prozesses teilen sich den Speicher, Prozesse haben je einen eigenen
+          correct: true
+        - label: Threads sind langsamer
+          feedback: Sie sind leichter und schneller zu wechseln.
+        - label: Prozesse können nicht parallel laufen
+          feedback: Auch Prozesse laufen auf mehreren Kernen parallel.
+    hints:
+      - Ein Browser-Tab stürzt ab, die anderen nicht. Warum?
+      - Getrennte Prozesse sehen den Speicher des anderen nicht.
+    explanation: "Geteilter Speicher macht Threads schnell, aber gefährlich: Sie können sich gegenseitig Daten zerschießen. Prozesse sind sicher voneinander getrennt."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum darf ein normales Programm nicht selbst direkt auf die Festplatte zugreifen?
+    params:
+      options:
+        - label: Es läuft im Benutzermodus; nur der Kern des Systems darf Geräte steuern – Programme bitten per Systemaufruf
+          correct: true
+        - label: Weil Festplatten nur einen Nutzer kennen
+          feedback: Die Platte kennt gar keine Nutzer.
+        - label: Weil es zu langsam wäre
+          feedback: Es geht um Schutz, nicht um Tempo.
+    hints:
+      - Was könnte ein bösartiges Programm mit direktem Zugriff anrichten?
+      - Der Prozessor kennt zwei Modi mit verschiedenen Rechten.
+    explanation: Der Wechsel in den privilegierten Modus geht nur über festgelegte Systemaufrufe. So kann das System prüfen, ob ein Programm etwas darf.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Programm ruft dreimal hintereinander fork() auf. Jeder Aufruf verdoppelt alle laufenden Kopien. Wie viele Prozesse gibt es am Ende?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: linear
+        text: Auch die neuen Kopien rufen die folgenden fork() auf.
+      - when: numval(state.input) == 6
+        misconception: add
+        text: Jeder Aufruf verdoppelt – er addiert nicht zwei.
+    hints:
+      - Nach dem ersten fork sind es 2.
+      - Beide rufen den zweiten auf …
+    explanation: "1 → 2 → 4 → 8. So startet Unix neue Programme: erst kopieren, dann in der Kopie das neue Programm laden."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Rechner mit einem einzigen Kern viele Programme gleichzeitig laufen lässt.
+    params:
+      keywords:
+        - - wechsel
+          - abwechselnd
+          - reihum
+          - switch
+          - take turns
+        - - zeitscheibe
+          - millisek
+          - time slice
+          - slice
+        - - betriebssystem
+          - scheduler
+          - operating system
+      sample: Das Betriebssystem gibt jedem Prozess reihum eine kurze Zeitscheibe von wenigen Millisekunden und wechselt dann zum nächsten. Weil das so schnell geht, wirkt es für uns gleichzeitig.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d2", "x2"]
