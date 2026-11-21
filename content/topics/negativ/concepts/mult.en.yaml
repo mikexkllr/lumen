@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [neg.mult]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: schulden
@@ -96,6 +96,22 @@ steps:
       right: Positive
 
   - kind: problem
+    id: ma-c1
+    widget: numberline
+    prompt: "$(-3) \\cdot 4$ means: jump 3 to the left, four times. Where do you land?"
+    params:
+      min: -15
+      max: 5
+      ticks: 1
+      labels: integers
+    answer:
+      value: -12
+    hints:
+      - One jump takes you to −3, two to −6.
+      - Two more jumps.
+    explanation: −3, −6, −9, −12. So $(-3) \cdot 4 = -12$.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -105,6 +121,86 @@ steps:
     hints:
       - Five factors of −2. Is the count of minus signs even or odd?
     explanation: 2⁵ = 32, and five minus signs give minus. Even exponents give positive, odd give negative.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Continue the pattern: $2 \\cdot (-2) = -4$, $1 \\cdot (-2) = -2$, $0 \\cdot (-2) = 0$, $(-1) \\cdot (-2) = \\;?$"
+    reveal:
+      body: "Plus 2! Each line grows by 2. The pattern leaves no choice: minus times minus gives plus."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Calculate: $(-{{a}}) \\cdot (-{{b}}) \\cdot (-{{c}})$"
+    answer:
+      value: "{{-a * b * c}}"
+    feedback:
+      - when: numval(state.input) == a * b * c
+        misconception: sign-count
+        text: "Count the minus signs: there are three."
+    hints:
+      - "First the first two: minus times minus."
+      - $(+{{a * b}}) \cdot (-{{c}})$ – which sign?
+    explanation: $(-{{a}}) \cdot (-{{b}}) = {{a * b}}$, then times $(-{{c}})$ gives {{-a * b * c}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[2,5]
+        c: int[2,4]
+      defaults:
+        a: 2
+        b: 3
+        c: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Positive or negative? Do not calculate – count the minus signs.
+    params:
+      buckets:
+        - id: b1
+          label: positive
+        - id: b2
+          label: negative
+      items:
+        - label: (−2) · (−3) · (−4)
+          bucket: b2
+        - label: $(-1)^{10}$
+          bucket: b1
+        - label: $(-5)^3$
+          bucket: b2
+        - label: "(−6) : (−2)"
+          bucket: b1
+        - label: 7 · (−1) · (−1)
+          bucket: b1
+        - label: "(−8) : 2"
+          bucket: b2
+    hints:
+      - An even number of minus signs gives plus.
+      - With powers the exponent counts the minus signs.
+    explanation: "An even number of negative factors: positive. An odd number: negative."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Which number fits? $? \cdot (-6) = 42$
+    answer:
+      value: -7
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: sign
+        text: $7 \cdot (-6) = -42$. You need the other sign.
+    hints:
+      - 42 is positive, −6 is negative.
+      - "Divide: $42 : (-6)$."
+    explanation: "$42 : (-6) = -7$. Check: $(-7) \\cdot (-6) = 42$."
     difficulty: 2
 
   - kind: problem
@@ -149,6 +245,50 @@ steps:
           - negative
       min: 3
       sample: If both numbers have the same sign, the result is positive. If the signs are different, it is negative.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Calculate: $(-1)^{ {{n}} } \\cdot {{k}}$"
+    answer:
+      value: "{{(n % 2 == 0 ? 1 : -1) * k}}"
+    hints:
+      - Every pair $(-1) \cdot (-1)$ gives 1.
+      - Is {{n}} even or odd?
+    explanation: "An even exponent gives 1, an odd one −1. Here: {{(n % 2 == 0 ? 1 : -1) * k}}."
+    difficulty: 3
+    variants:
+      params:
+        n: int[11,40]
+        k: int[2,9]
+      defaults:
+        n: 17
+        k: 5
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Times −1 is a **rotation**: the number turns 180° around zero to the other side. Turning twice brings it back. Later, »times i« becomes a quarter turn – the complex numbers."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: A product has 7 factors, none of them 0. When is it negative?
+    params:
+      options:
+        - label: When an odd number of factors are negative
+          correct: true
+        - label: Two negative factors together give plus.
+          feedback: Zwei negative Faktoren ergeben zusammen plus.
+        - label: With 4 out of 7 it is positive.
+          feedback: Bei 4 von 7 ist es positiv.
+    hints:
+      - Group the negative factors in pairs.
+      - Is one left over?
+    explanation: Every two minus signs cancel. Only if one is left without a partner is the product negative.
     difficulty: 3
 
 srs:

@@ -5,8 +5,21 @@ summary: Erst 10 %, dann den Rest.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel sind 15 % von 60 €?"
+    params:
+      min: 0
+      max: 30
+      unit: €
+    answer:
+      value: 9
+      tolerance: 2
+    explanation: 10 % sind 6 €, 5 % sind 3 €. Zusammen 9 €.
+
   - kind: problem
     id: zehn
     widget: numeric
@@ -84,6 +97,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: match
+    prompt: Welcher Bruch gehört zu welchem Prozentsatz?
+    params:
+      pairs:
+        - left: 50 %
+          right: 1/2
+        - left: 25 %
+          right: 1/4
+        - left: 20 %
+          right: 1/5
+        - left: 10 %
+          right: 1/10
+        - left: 12,5 %
+          right: 1/8
+    hints:
+      - Prozent heißt »von Hundert«.
+      - 1/8 ist die Hälfte von 1/4.
+    explanation: 1/2 = 50/100, 1/4 = 25/100, 1/5 = 20/100, 1/10 = 10/100 und 1/8 = 12,5/100.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Rechne im Kopf: 12 % von {{n}} €."
+    params:
+      unit: €
+    answer:
+      value: "{{n * 0.12}}"
+    hints:
+      - 12 % = 10 % + 2 %.
+      - 10 % sind {{n / 10}} €, 1 % sind {{n / 100}} €.
+    explanation: "{{n / 10}} € + 2 · {{n / 100}} € = {{n * 0.12}} €."
+    difficulty: 2
+    variants:
+      params:
+        n: step[50,400,50]
+      defaults:
+        n: 150
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Von 12 Äpfeln sind 9 rot. Wie viel Prozent sind das?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: count-not-share
+        text: Das ist die Anzahl. Gefragt ist der Anteil von 100.
+    hints:
+      - Kürze 9/12 erst.
+      - 9/12 = 3/4. Wie viel Prozent sind drei Viertel?
+    explanation: 9/12 = 3/4 = 75/100 = 75 %.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -119,6 +194,54 @@ steps:
           - sum
           - dazu
       sample: Ich nehme 10 % – das ist ein Zehntel. Davon die Hälfte sind 5 %. Beides zusammen ergibt 15 %.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Prozent lässt sich als **Faktor** schreiben. Plus 15 % heißt mal 1,15. Minus 30 % heißt mal 0,7. Mehrere Schritte nimmt man einfach nacheinander mal.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Erst +{{p}} %, dann −{{p}} %. Wie viel Prozent vom Startpreis bleiben?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 + p / 100) * (1 - p / 100)}}"
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: same-base
+        text: Die −{{p}} % beziehen sich auf den höheren Preis. Sie nehmen mehr weg.
+    hints:
+      - Schreib beide Schritte als Faktoren.
+      - Rechne {{1 + p / 100}} · {{1 - p / 100}}.
+    explanation: "{{1 + p / 100}} · {{1 - p / 100}} = {{(1 + p / 100) * (1 - p / 100)}}. Es bleiben {{100 - p * p / 100}} %."
+    difficulty: 3
+    variants:
+      params:
+        p: choice[10,20,30,40,50]
+      defaults:
+        p: 20
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Preis steigt zweimal hintereinander um 10 %. Um wie viel Prozent ist er insgesamt gestiegen?
+    params:
+      unit: "%"
+    answer:
+      value: 21
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: add-percents
+        text: Die zweite Erhöhung rechnet auch auf die erste drauf.
+    hints:
+      - Zweimal mal 1,1.
+      - 1,1 · 1,1 = 1,21.
+    explanation: 1,1 · 1,1 = 1,21, also 21 % mehr. Das ist der Zinseszins-Effekt im Kleinen.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Welche Fliesen lückenlos passen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: fliesen
@@ -73,6 +73,71 @@ steps:
     explanation: 6 · 180° = 1080°, geteilt durch 8 sind 135°.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Die Winkelsumme im n-Eck ist $(n - 2) \\cdot 180°$. Ein **Innenwinkel** des regelmäßigen n-Ecks ist deshalb $(n - 2) \\cdot 180° : n$."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist ein Innenwinkel im regelmäßigen {{n}}-Eck?
+    params:
+      unit: °
+    answer:
+      value: "{{(n - 2) * 180 / n}}"
+    feedback:
+      - when: numval(state.input) == (n - 2) * 180
+        misconception: sum-not-single
+        text: Das ist die Summe aller Winkel. Teile durch {{n}}.
+    hints:
+      - "Erst die Winkelsumme: ({{n}} − 2) · 180°."
+      - "{{(n - 2) * 180}}° : {{n}} = ?"
+    explanation: ({{n}} − 2) · 180° = {{(n - 2) * 180}}°, geteilt durch {{n}} ergibt {{(n - 2) * 180 / n}}°.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[5,6,8,9,10,12]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: angle
+    prompt: Stelle den Innenwinkel eines regelmäßigen Sechsecks ein.
+    params:
+      initial: 30
+      snap: 5
+      max: 180
+    answer:
+      value: 120
+    hints:
+      - Drei Sechsecke füllen eine Ecke.
+      - "360° : 3 = ?"
+    explanation: "(6 − 2) · 180° : 6 = 120°. Drei davon ergeben genau 360°."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: choice
+    prompt: Warum fliesen von den regelmäßigen Vielecken nur Dreieck, Quadrat und Sechseck allein?
+    params:
+      options:
+        - label: An jeder Ecke treffen sich mindestens 3. Also ist der Winkel höchstens 120° – und er muss 360° glatt teilen.
+          correct: true
+        - label: Weil sie gerade Eckenzahlen haben
+          feedback: Das Dreieck hat 3 Ecken.
+        - label: Andere Formen sind zu klein
+          feedback: Die Größe spielt keine Rolle, nur der Winkel.
+    hints:
+      - Welche Winkel kommen in Frage?
+      - 60°, 90° und 120° teilen 360°. 108° nicht.
+    explanation: Ab 7 Ecken ist der Winkel über 120° – dann passen keine drei mehr an eine Ecke. Unter den Kandidaten teilen nur 60°, 90° und 120° die 360° glatt.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -89,6 +154,47 @@ steps:
     hints:
       - Wie viel fehlt bei 135° + 135° bis 360°?
     explanation: 360 − 270 = 90. Solche Mischungen heißen **halbregelmäßige Parkette** – es gibt genau acht.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: An einer Ecke treffen sich ein Sechseck, zwei Quadrate und ein weiteres regelmäßiges Vieleck. Welchen Innenwinkel hat es?
+    params:
+      unit: °
+    answer:
+      value: 60
+    hints:
+      - Zusammen müssen es 360° sein.
+      - 360° − 120° − 90° − 90° = ?
+    explanation: 60° – ein gleichseitiges Dreieck. Solche Parkette aus mehreren Formen heißen halbregelmäßig.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Manche Parkette wiederholen sich nie. Sie heißen **aperiodisch**. Bekannt sind die Penrose-Parkette aus zwei Rauten. 2023 fand man sogar eine einzige Kachel, »den Hut«, die nur so fliest.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man mit regelmäßigen Fünfecken nicht lückenlos fliesen kann.
+    params:
+      keywords:
+        - - "108"
+        - - "360"
+        - - lücke
+          - rest
+          - geht nicht
+          - teilbar
+          - gap
+          - left over
+          - divide
+          - does not
+      sample: Ein Fünfeck hat Innenwinkel von 108 Grad. An einer Ecke müssen 360 Grad zusammenkommen. Drei Fünfecke ergeben 324 Grad, vier schon 432. 360 ist durch 108 nicht teilbar, also bleibt eine Lücke.
+    explanation: "Kernidee: Der Innenwinkel muss 360° glatt teilen."
     difficulty: 3
 
 srs:

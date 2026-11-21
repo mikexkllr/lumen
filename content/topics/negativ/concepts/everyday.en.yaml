@@ -5,8 +5,21 @@ summary: Differences across zero.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Take a guess: how deep is the deepest point of the ocean – in metres below sea level?"
+    params:
+      min: -15000
+      max: 0
+      unit: m
+    answer:
+      value: -11000
+      tolerance: 1500
+    explanation: The Mariana Trench goes down to about −11,000 m. Mount Everest would vanish in it completely.
+
   - kind: problem
     id: temperatur
     widget: numeric
@@ -86,6 +99,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: A peak is {{h}} m above sea level, a trench {{t}} m below. What is the difference in height?
+    params:
+      unit: m
+    answer:
+      value: "{{h + t}}"
+    feedback:
+      - when: numval(state.input) == h - t
+        misconception: subtract-across-zero
+        text: The trench is below zero. The distance crosses zero.
+    hints:
+      - Write the trench as −{{t}} m.
+      - "{{h}} − (−{{t}}) = ?"
+    explanation: "{{h}} − (−{{t}}) = {{h}} + {{t}} = {{h + t}} m."
+    difficulty: 2
+    variants:
+      params:
+        h: step[500,4000,500]
+        t: step[200,3000,200]
+      defaults:
+        h: 2000
+        t: 600
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: It is 2 pm in Berlin (UTC+1). New York is in time zone UTC−5. What time is it there (24-hour clock)?
+    params:
+      unit: h
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: zone-gap
+        text: From +1 to −5 is 6 hours, not 4.
+    hints:
+      - How far apart are +1 and −5?
+      - The gap is 6 hours. New York is behind.
+    explanation: From UTC+1 to UTC−5 is 6 hours. 14 − 6 = 8 in the morning.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Your account is at −€120. You pay in €40 each month. After how many months are you at +€40?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: stop-at-zero
+        text: After 3 months you are only at €0.
+    hints:
+      - How far is it from −120 to +40?
+      - €160 in steps of €40.
+    explanation: "From −120 to 40 is €160. 160 : 40 = 4 months."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -97,6 +172,72 @@ steps:
     hints:
       - First add the negative and the positive values separately.
     explanation: −18 + 4 = −14, and −14 ÷ 7 = −2.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Someone is born on 1 January 20 BC. How many years later is 1 January AD 20? There is no year 0.
+    params:
+      unit: years
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: year-zero
+        text: 1 BC is followed directly by AD 1 – one year is missing.
+    hints:
+      - On a number line it would be −20 to 20.
+      - Without a year 0 it is one year less.
+    explanation: 20 − (−20) = 40, but year 0 is missing. So 39 years. Historians count carefully because of this.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "The **Kelvin scale** starts at absolute zero: 0 K = −273.15 °C. Nothing can be colder. So this scale has no negative values."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: How many kelvin is −73.15 °C?
+    params:
+      unit: K
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == -346.3
+        misconception: wrong-direction
+        text: Kelvin = Celsius plus 273.15 – not minus.
+    hints:
+      - K = °C + 273.15.
+      - −73.15 + 273.15 = ?
+    explanation: −73.15 + 273.15 = 200 K.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to find the difference between −5 °C and 3 °C.
+    params:
+      keywords:
+        - - abstand
+          - unterschied
+          - difference
+          - distance
+        - - "null"
+          - zero
+        - - minus
+          - abzieh
+          - subtrah
+          - subtract
+          - acht
+          - eight
+      sample: From −5 to zero is 5 degrees, from zero to 3 another 3. The difference is 8 degrees. You compute 3 minus −5.
+    explanation: "Key idea: a difference is a distance – across zero you add both parts."
     difficulty: 3
 
 srs:

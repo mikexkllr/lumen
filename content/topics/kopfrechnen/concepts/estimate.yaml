@@ -5,7 +5,7 @@ summary: Größenordnungen sicher einschätzen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 22000
       within: 45
     explanation: Etwa 15 Atemzüge pro Minute mal 1440 Minuten sind rund 22 000.
-
 
   - kind: problem
     id: groessenordnung
@@ -115,6 +114,57 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Haare hat ein Mensch auf dem Kopf?"
+    params:
+      min: 1000
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 50
+    explanation: Etwa 100 000. Rund 2 Haare pro mm² mal etwa 600 cm² Kopfhaut ergibt gut 100 000.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Minuten hat eine Woche?
+    answer:
+      value: 10080
+    feedback:
+      - when: numval(state.input) == 168
+        misconception: unit-step
+        text: Das sind die Stunden. Jede Stunde hat 60 Minuten.
+    hints:
+      - "Erst die Stunden: 7 · 24."
+      - 168 Stunden mal 60.
+    explanation: 7 · 24 = 168 Stunden, 168 · 60 = 10 080 Minuten.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: Wie viele Sekunden lebt ein Mensch in 80 Jahren – grob?
+    params:
+      options:
+        - label: 2,5 Millionen
+          feedback: Das sind nur gut 29 Tage.
+        - label: 2,5 Milliarden
+          correct: true
+        - label: 2,5 Billionen
+          feedback: Tausendmal zu viel – das wären 80 000 Jahre.
+    hints:
+      - Ein Jahr hat rund 30 Millionen Sekunden.
+      - Rechne 30 Millionen · 80.
+    explanation: 3 · 10⁷ · 80 = 2,4 · 10⁹ – also rund 2,5 Milliarden Sekunden.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -130,6 +180,66 @@ steps:
     hints:
       - Was passiert mit einem Produkt, wenn beide Faktoren wachsen?
     explanation: "2000 statt 1786. Wer genauer schätzen will, rundet gegenläufig: 40 · 45 = 1800."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Bei Fermi-Fragen landet man oft erstaunlich nah am wahren Wert. Manche Annahmen sind zu groß, andere zu klein. Diese **Fehler** heben sich oft teilweise auf.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Liegt eine Größe zwischen 10 und 1000, schätzt man das **geometrische Mittel**: $\\sqrt{10 \\cdot 1000}$. Wie viel ist das?"
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 505
+        misconception: arithmetic-mean
+        text: Das ist der Durchschnitt. Er liegt viel näher an 1000 – das geometrische Mittel liegt in der Mitte der Zehnerpotenzen.
+    hints:
+      - 10 · 1000 = 10 000.
+      - Welche Zahl mal sich selbst ergibt 10 000?
+    explanation: √10 000 = 100. Von 10 bis 100 ist es Faktor 10, von 100 bis 1000 auch. 100 liegt genau dazwischen.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Buch hat 300 Seiten, jede mit 40 Zeilen zu etwa 10 Wörtern. Wie viele Wörter hat es?
+    answer:
+      value: 120000
+    hints:
+      - Erst die Wörter pro Seite.
+      - 400 Wörter · 300 Seiten.
+    explanation: 40 · 10 = 400 Wörter pro Seite, mal 300 ergibt 120 000 Wörter.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie du die Herzschläge in einem Leben grob schätzt.
+    params:
+      keywords:
+        - - minute
+          - pro
+          - per
+        - - mal
+          - multipli
+          - multiply
+          - times
+        - - rund
+          - ungefähr
+          - grob
+          - runde
+          - round
+          - rough
+          - about
+      sample: Ich nehme 70 Schläge pro Minute und rechne mal 60, mal 24, mal 365 und mal 80 Jahre. Dabei runde ich grob. Es kommen etwa 3 Milliarden heraus.
+    explanation: "Kernidee: eine bekannte Rate (pro Minute) Schritt für Schritt hochrechnen und dabei großzügig runden."
     difficulty: 3
 
 srs:

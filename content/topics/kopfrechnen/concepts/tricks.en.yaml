@@ -5,8 +5,20 @@ summary: Two tricks that feel like magic.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Gut feeling: what is 65 · 65?"
+    params:
+      min: 1000
+      max: 10000
+    answer:
+      value: 4225
+      tolerance: 400
+    explanation: 65² = 4225. You are about to learn a trick that does this in seconds.
+
   - kind: problem
     id: elf
     widget: numeric
@@ -96,6 +108,76 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Times-11 trick with a carry – {{n}} · 11.
+    answer:
+      value: "{{n * 11}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 10) * 1000 + (floor(n / 10) + n % 10) * 10 + n % 10
+        misconception: no-carry
+        text: The sum has two digits. Its 1 carries to the front.
+    hints:
+      - The digit sum is 10 or more.
+      - Write the ones digit of the sum in the middle and add 1 to the first digit.
+    explanation: "{{n}} · 11 = {{n * 10}} + {{n}} = {{n * 11}}."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[48,57,68,76,87,95,79]
+      defaults:
+        n: 87
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: Why does the times-11 trick work? 36 · 11 = 360 + 36. The digits 3 and 6 end up on top of each other in the **tens place**. There they add up.
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Neighbour square: 45² = 2025. What is {{d}}6²?"
+    answer:
+      value: "{{(10 * d + 6) ** 2}}"
+    hints:
+      - From $n^2$ to $(n+1)^2$ you add n and n + 1.
+      - "First {{d}}5² with the fives trick: {{(10 * d + 5) ** 2}}. Then add {{10 * d + 5}} and {{10 * d + 6}}."
+    explanation: "{{(10 * d + 5) ** 2}} + {{10 * d + 5}} + {{10 * d + 6}} = {{(10 * d + 6) ** 2}}."
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,9]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 25 · 11 = 275
+          right: true
+          why: 2 | 7 | 5 – the sum 7 goes in the middle.
+        - text: 75² = 4925
+          right: false
+          why: "7 · 8 = 56, then 25: 5625."
+        - text: 95² = 9025
+          right: true
+          why: 9 · 10 = 90, then 25.
+        - text: 64 · 11 = 6104
+          right: false
+          why: "Carry: 6 + 4 = 10, so 704."
+    hints:
+      - Check each trick step by step.
+      - Watch out for the carry.
+    explanation: Both tricks are reliable – as long as you do not forget the carry.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -105,6 +187,68 @@ steps:
     hints:
       - The number before the 5 is 10. Compute 10 · 11 and append 25.
     explanation: "10 · 11 = 110, then 25: 11,025. The formula $(10a+5)^2 = 100a(a+1) + 25$ holds for every a."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: The times-11 trick also works with three digits. Work out {{100 * a + 10 * b + c}} · 11.
+    answer:
+      value: "{{(100 * a + 10 * b + c) * 11}}"
+    hints:
+      - The first and last digits stay on the outside.
+      - "Inside go the sums of neighbouring digits: {{a}} | {{a + b}} | {{b + c}} | {{c}}."
+    explanation: "{{100 * a + 10 * b + c}} · 11 = {{1000 * a + 100 * b + 10 * c}} + {{100 * a + 10 * b + c}} = {{(100 * a + 10 * b + c) * 11}}."
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,4]
+        b: int[1,4]
+        c: int[1,5]
+      defaults:
+        a: 1
+        b: 2
+        c: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Eleven has one more trick: the **alternating sum**. Work it out for 9163: 9 − 1 + 6 − 3."
+    answer:
+      value: 11
+    hints:
+      - "Work from the left: 9 − 1 = 8."
+      - 8 + 6 − 3 = ?
+    explanation: "The alternating sum is 11, which is divisible by 11. So 9163 is divisible by 11 too: 9163 = 11 · 833."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: "Explain the times-11 trick to Lux: why does the digit sum go in the middle?"
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+          - "360"
+        - - plus
+          - addier
+          - summe
+          - add
+          - sum
+        - - stelle
+          - zehner
+          - mitte
+          - übereinander
+          - place
+          - tens
+          - middle
+      sample: Times 11 is times 10 plus once more. Times 10 shifts the number one place left. Then both digits sit on the tens place and get added.
+    explanation: "Key idea: times 11 = times 10 + times 1. The shifted number and the number itself overlap in the middle."
     difficulty: 3
 
 srs:

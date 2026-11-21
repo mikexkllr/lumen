@@ -5,7 +5,7 @@ summary: Fehler sofort erkennen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: endziffer
@@ -82,6 +82,58 @@ steps:
     explanation: 16 = 9 + 7, also Rest 7. Das ist die Grundlage der **Neunerprobe**.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Warum verrät die Quersumme den Neunerrest? 10 ist 9 + 1, 100 ist 99 + 1. Jede Stelle lässt beim Teilen durch 9 nur ihre Ziffer als **Rest** übrig.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: buckets
+    prompt: Welche Probe entlarvt den Fehler?
+    params:
+      buckets:
+        - id: b1
+          label: Endziffer
+        - id: b2
+          label: Größenordnung
+      items:
+        - label: 32 · 41 = 1313
+          bucket: b1
+        - label: 32 · 41 = 13 120
+          bucket: b2
+        - label: 19 · 21 = 3999
+          bucket: b2
+        - label: 15 · 15 = 224
+          bucket: b1
+        - label: 26 · 34 = 8844
+          bucket: b2
+        - label: 17 · 13 = 223
+          bucket: b1
+    hints:
+      - Was muss die letzte Ziffer sein? 2 · 1, 5 · 5, 7 · 3 …
+      - "Runde beide Faktoren: Wie groß ist das Ergebnis ungefähr?"
+    explanation: Bei 1313, 224 und 223 passt die Endziffer nicht. 13 120, 3999 und 8844 sind etwa zehnmal zu groß.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Neunerprobe: 37 lässt den Rest 1, 48 den Rest 3. Welchen Rest muss 37 · 48 lassen?"
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: add-remainders
+        text: Bei einem Produkt nimmt man die Reste mal, nicht plus.
+    hints:
+      - Reste verhalten sich wie die Zahlen selbst.
+      - Rechne 1 · 3.
+    explanation: "1 · 3 = 3. Probe: 37 · 48 = 1776, Quersumme 21, und 21 lässt den Rest 3."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -98,6 +150,54 @@ steps:
     hints:
       - Was passiert bei einem Zahlendreher mit der Quersumme?
     explanation: Eine Probe kann Fehler finden, aber Richtigkeit nicht beweisen. Zahlendreher übersieht sie.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: Richtig ist 34 · 52 = 1768. Welches falsche Ergebnis besteht trotzdem die Neunerprobe?
+    params:
+      options:
+        - label: "1786"
+          correct: true
+        - label: "1767"
+          feedback: Quersumme 21, Rest 3 – richtig wäre Rest 4.
+        - label: "1778"
+          feedback: Quersumme 23, Rest 5 – richtig wäre Rest 4.
+    hints:
+      - Die Quersumme von 1768 ist 22.
+      - Welche Zahl hat dieselben Ziffern?
+    explanation: Vertauschte Ziffern ändern die Quersumme nicht. Diesen Zahlendreher übersieht die Neunerprobe.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Rechnen mit Resten heißt **Modulo-Rechnung**. Man schreibt $4732 \equiv 7 \pmod 9$. Prüfziffern in ISBN, IBAN und Strichcodes beruhen genau darauf.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Quersumme den Rest beim Teilen durch 9 verrät.
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+          - "100"
+          - hundert
+        - - rest
+          - remainder
+          - übrig
+          - left
+        - - neun
+          - nine
+          - "99"
+          - neuner
+      sample: 10 ist 9 + 1 und 100 ist 99 + 1. Die Neuner gehen glatt auf. Von jeder Stelle bleibt nur die Ziffer als Rest übrig. Also hat die Zahl denselben Rest wie ihre Quersumme.
+    explanation: "Kernidee: Jede Zehnerpotenz lässt beim Teilen durch 9 den Rest 1."
     difficulty: 3
 
 srs:

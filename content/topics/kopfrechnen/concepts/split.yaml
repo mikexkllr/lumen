@@ -5,7 +5,7 @@ summary: Runde Zahlen machen alles leichter.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 399
       tolerance: 45
     explanation: 20 · 20 = 400 – und 19 · 21 liegt nur 1 darunter. Gleich lernst du, warum.
-
 
   - kind: problem
     id: sieben-achtzehn
@@ -92,6 +91,26 @@ steps:
         - "50"
 
   - kind: problem
+    id: ma-c1
+    widget: numeric
+    prompt: Rechne im Kopf – {{n}} · 9.
+    answer:
+      value: "{{9 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: forgot-correction
+        text: Das ist {{n}} · 10. Zieh noch einmal {{n}} ab.
+    hints:
+      - Mal 9 ist fast mal 10.
+      - Rechne {{n}} · 10 = {{10 * n}} und zieh {{n}} ab.
+    explanation: "{{n}} · 10 − {{n}} = {{10 * n}} − {{n}} = {{9 * n}}."
+    variants:
+      params:
+        n: int[12,48]
+      defaults:
+        n: 27
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -108,6 +127,79 @@ steps:
       defaults:
         n: 23
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Warum klappt das Zerlegen? 7 · 12 sind 7 Reihen zu je 12 Kästchen. Schneide sie in 7 · 10 und 7 · 2. Das ist das **Distributivgesetz**.
+    visual:
+      widget: rect
+      params:
+        maxW: 12
+        maxH: 8
+        w: 12
+        h: 7
+        show:
+          - area
+        unit: cm
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Verdoppeln und halbieren – {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    hints:
+      - Halbiere {{a}} und verdopple {{b}}. Das Produkt bleibt gleich.
+      - Rechne {{a / 2}} · {{2 * b}}.
+    explanation: "{{a}} · {{b}} = {{a / 2}} · {{2 * b}} = {{a * b}}. Halbieren und Verdoppeln heben sich auf."
+    difficulty: 2
+    variants:
+      params:
+        a: step[12,28,2]
+        b: choice[15,35,45]
+      defaults:
+        a: 14
+        b: 15
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: order
+    prompt: Rechne 23 · 19 im Kopf. Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: 19 ist 20 − 1
+        - label: 23 · 20 = 460
+        - label: 23 · 1 = 23
+        - label: 460 − 23 = 437
+    hints:
+      - Welche runde Zahl liegt nah bei 19?
+      - Erst mal 20, dann den Rest abziehen.
+    explanation: 23 · 19 = 23 · (20 − 1) = 460 − 23 = 437.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: choice
+    prompt: Welche Zerlegung von 8 · 26 ist falsch?
+    params:
+      options:
+        - label: 8 · 20 + 6
+          correct: true
+        - label: 8 · 20 + 8 · 6
+          feedback: Richtig zerlegt – 160 + 48 = 208.
+        - label: 8 · 30 − 8 · 4
+          feedback: Auch richtig – 240 − 32 = 208.
+        - label: 4 · 52
+          feedback: Richtig – halbiert und verdoppelt.
+    hints:
+      - Jeder Teil muss mit 8 malgenommen werden.
+      - Wo fehlt bei einem Summanden die 8?
+    explanation: Bei 8 · 20 + 6 fehlt die 8 vor der 6. Richtig wäre 8 · 20 + 8 · 6 = 208.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -119,6 +211,65 @@ steps:
       - Beide Zahlen liegen gleich weit von 50 entfernt.
       - (50 − 2) · (50 + 2) = 50² − 2²
     explanation: 2500 − 4 = 2496. Dahinter steckt die Formel $(a-b)(a+b) = a^2 - b^2$.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Rechne geschickt – {{m - k}} · {{m + k}}.
+    answer:
+      value: "{{m * m - k * k}}"
+    feedback:
+      - when: numval(state.input) == m * m
+        misconception: forgot-square
+        text: Fast! Du musst noch {{k}}² = {{k * k}} abziehen.
+    hints:
+      - Beide Zahlen liegen {{k}} von {{m}} entfernt.
+      - Rechne {{m}}² − {{k}}².
+    explanation: $(m-k)(m+k) = m^2 - k^2$, also {{m * m}} − {{k * k}} = {{m * m - k * k}}.
+    difficulty: 3
+    variants:
+      params:
+        m: choice[30,40,60,70]
+        k: int[2,6]
+      defaults:
+        m: 40
+        k: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Warum gilt 19 · 21 = 20 · 20 − 1?
+    reveal:
+      body: Nimm vom Quadrat 20 × 20 eine Reihe weg und lege sie als Spalte an. Es fehlt nur ein Kästchen in der Ecke. In der Algebra heißt das $(a-b)(a+b) = a^2 - b^2$.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 7 · 18 dasselbe ist wie 7 · 20 − 7 · 2.
+    params:
+      keywords:
+        - - "20"
+          - zwanzig
+          - twenty
+        - - zwei
+          - two
+          - weniger
+          - minus
+          - less
+          - fewer
+        - - sieben
+          - seven
+          - reihe
+          - mal
+          - row
+          - times
+          - jede
+          - each
+      sample: 18 ist 20 weniger 2. Sieben Mal 20 ist zu viel, und zwar genau sieben Mal 2 zu viel. Also zieht man 7 · 2 wieder ab.
+    explanation: "Kernidee: 7 · 20 zählt 7 · 2 zu viel – die zieht man ab. Das ist das Distributivgesetz."
     difficulty: 3
 
 srs:

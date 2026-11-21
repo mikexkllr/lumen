@@ -7,7 +7,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [frac.part-whole]
-estimated_minutes: 10
+estimated_minutes: 15
 steps:
   - kind: problem
     id: hook
@@ -21,7 +21,6 @@ steps:
       value: 37.5
       tolerance: 6
     explanation: 3/8 = 37.5%. A fraction is just another way to write a share.
-
 
   - kind: problem
     id: drei-viertel
@@ -156,6 +155,76 @@ steps:
     explanation: 7 slices of 1/4 each make 7/4 – more than one whole. Such fractions are called improper.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "A fraction is also a **division**: $\\frac{3}{4}$ means 3 divided by 4. Share 3 pizzas fairly among 4 children – each gets $\\frac{3}{4}$ of a pizza."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{a}} pizzas are shared fairly among {{b}} children. How much pizza does each child get? Give a fraction."
+    answer:
+      value: "{{a}}/{{b}}"
+    feedback:
+      - when: numval(state.input) == b / a
+        misconception: flipped
+        text: "The other way round: the pizzas are being shared, so they go on top."
+    hints:
+      - Pizzas divided by children.
+      - "Write {{a}} : {{b}} as a fraction."
+    explanation: "{{a}} : {{b}} = {{a}}/{{b}}. Each child gets one {{b}}th of every pizza – {{a}} pieces of size 1/{{b}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[3,8]
+      constraints:
+        - a < b
+      defaults:
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numberline
+    prompt: "More than a whole: put the marker on $\\frac{5}{4}$."
+    params:
+      min: 0
+      max: 2
+      ticks: 4
+      labels: fractions
+    answer:
+      value: 5/4
+    hints:
+      - 4 quarters make a whole.
+      - One quarter past 1.
+    explanation: $\frac{5}{4} = 1 + \frac{1}{4}$. Fractions with a numerator bigger than the denominator lie past 1.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Write $2\frac{1}{3}$ as a single fraction.
+    answer:
+      value: 7/3
+      form: fraction
+    feedback:
+      - when: numval(state.input) == 2/3
+        misconception: mixed-as-product
+        text: $2\frac{1}{3}$ means 2 plus 1/3, not 2 times 1/3.
+      - when: numval(state.input) == 3/3
+        misconception: wholes-as-units
+        text: Two wholes are 6 thirds, not 2.
+    hints:
+      - How many thirds are 2 wholes?
+      - 6 thirds plus 1 third.
+    explanation: $2 = \frac{6}{3}$, so $2\frac{1}{3} = \frac{6}{3} + \frac{1}{3} = \frac{7}{3}$.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -191,6 +260,62 @@ steps:
           - piece
           - slice
       sample: The denominator says into how many equal parts the whole is cut. The numerator says how many of those parts are meant.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Every number that can be written as a fraction of integers is called **rational**. That includes $5 = \frac{5}{1}$, $-\frac{2}{3}$ and $0.75 = \frac{3}{4}$.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: swipe
+    prompt: Rational or not?
+    params:
+      cards:
+        - text: "0.75"
+          right: true
+          why: 0.75 = 3/4.
+        - text: −4
+          right: true
+          why: −4 = −4/1.
+        - text: 0,333…
+          right: true
+          why: That is exactly 1/3.
+        - text: √2
+          right: false
+          why: No fraction hits √2 exactly – that is proven.
+        - text: π
+          right: false
+          why: π is not rational.
+      left: not rational
+      right: rational
+    hints:
+      - Can you write the number as a/b?
+      - Whole numbers have denominator 1.
+    explanation: Terminating and repeating decimals are rational. √2 and π are not – they are irrational.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: $\frac{6}{0} = x$ would mean $x \cdot 0 = 6$. What follows?
+    params:
+      options:
+        - label: $0 \cdot 0 = 0$, not 6.
+          feedback: $0 \cdot 0 = 0$, nicht 6.
+        - label: $6 \cdot 0 = 0$, not 6.
+          feedback: $6 \cdot 0 = 0$, nicht 6.
+        - label: No x works – so 6/0 is undefined
+          correct: true
+        - label: ∞ is not a number you can calculate with like this.
+          feedback: ∞ ist keine Zahl, mit der man so rechnen kann.
+    hints:
+      - What does any number times 0 give?
+      - Can that ever be 6?
+    explanation: Any number times 0 is 0. No x satisfies $x \cdot 0 = 6$. So a denominator can never be 0.
     difficulty: 3
 
 srs:

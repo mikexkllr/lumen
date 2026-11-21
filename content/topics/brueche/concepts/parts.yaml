@@ -7,7 +7,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [frac.part-whole]
-estimated_minutes: 10
+estimated_minutes: 15
 steps:
   - kind: problem
     id: hook
@@ -21,7 +21,6 @@ steps:
       value: 37.5
       tolerance: 6
     explanation: 3/8 = 37,5 %. Ein Bruch ist nur eine andere Schreibweise für einen Anteil.
-
 
   - kind: problem
     id: drei-viertel
@@ -156,6 +155,76 @@ steps:
     explanation: 7 Stücke zu je 1/4 sind 7/4 – mehr als ein Ganzes. Solche Brüche heißen unecht.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Ein Bruch ist auch eine **Division**: $\\frac{3}{4}$ heißt 3 geteilt durch 4. Verteile 3 Pizzen gerecht auf 4 Kinder – jedes bekommt $\\frac{3}{4}$ Pizza."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{a}} Pizzen werden gerecht auf {{b}} Kinder verteilt. Wie viel Pizza bekommt jedes Kind? Gib einen Bruch an."
+    answer:
+      value: "{{a}}/{{b}}"
+    feedback:
+      - when: numval(state.input) == b / a
+        misconception: flipped
+        text: "Umgekehrt: Die Pizzen werden geteilt, also stehen sie oben."
+    hints:
+      - Pizzen geteilt durch Kinder.
+      - "Schreib {{a}} : {{b}} als Bruch."
+    explanation: "{{a}} : {{b}} = {{a}}/{{b}}. Jedes Kind bekommt von jeder Pizza ein {{b}}-tel – also {{a}} Stücke der Größe 1/{{b}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[3,8]
+      constraints:
+        - a < b
+      defaults:
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numberline
+    prompt: "Mehr als ein Ganzes: Setze die Markierung auf $\\frac{5}{4}$."
+    params:
+      min: 0
+      max: 2
+      ticks: 4
+      labels: fractions
+    answer:
+      value: 5/4
+    hints:
+      - 4 Viertel sind ein Ganzes.
+      - Ein Viertel hinter der 1.
+    explanation: $\frac{5}{4} = 1 + \frac{1}{4}$. Brüche mit Zähler größer als Nenner liegen hinter der 1.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Schreibe $2\frac{1}{3}$ als einen Bruch.
+    answer:
+      value: 7/3
+      form: fraction
+    feedback:
+      - when: numval(state.input) == 2/3
+        misconception: mixed-as-product
+        text: $2\frac{1}{3}$ heißt 2 plus 1/3, nicht 2 mal 1/3.
+      - when: numval(state.input) == 3/3
+        misconception: wholes-as-units
+        text: Zwei Ganze sind 6 Drittel, nicht 2.
+    hints:
+      - Wie viele Drittel sind 2 Ganze?
+      - 6 Drittel plus 1 Drittel.
+    explanation: $2 = \frac{6}{3}$, also $2\frac{1}{3} = \frac{6}{3} + \frac{1}{3} = \frac{7}{3}$.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -191,6 +260,62 @@ steps:
           - piece
           - slice
       sample: Der Nenner sagt, in wie viele gleiche Teile das Ganze geteilt ist. Der Zähler sagt, wie viele Teile davon gemeint sind.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: Jede Zahl, die sich als Bruch ganzer Zahlen schreiben lässt, heißt **rational**. Auch $5 = \frac{5}{1}$, $-\frac{2}{3}$ und $0{,}75 = \frac{3}{4}$ gehören dazu.
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: swipe
+    prompt: Rational oder nicht?
+    params:
+      cards:
+        - text: 0,75
+          right: true
+          why: 0,75 = 3/4.
+        - text: −4
+          right: true
+          why: −4 = −4/1.
+        - text: 0,333…
+          right: true
+          why: Das ist genau 1/3.
+        - text: √2
+          right: false
+          why: Kein Bruch trifft √2 genau – das ist bewiesen.
+        - text: π
+          right: false
+          why: π ist nicht rational.
+      left: nicht rational
+      right: rational
+    hints:
+      - Kannst du die Zahl als a/b schreiben?
+      - Ganze Zahlen haben den Nenner 1.
+    explanation: Endliche und periodische Kommazahlen sind rational. √2 und π sind es nicht – sie sind irrational.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: "$\\frac{6}{0} = x$ hieße: $x \\cdot 0 = 6$. Was folgt daraus?"
+    params:
+      options:
+        - label: $x = 0$
+          feedback: $0 \cdot 0 = 0$, nicht 6.
+        - label: $x = 6$
+          feedback: $6 \cdot 0 = 0$, nicht 6.
+        - label: Kein x passt – darum ist 6/0 nicht definiert
+          correct: true
+        - label: x ist unendlich
+          feedback: ∞ ist keine Zahl, mit der man so rechnen kann.
+    hints:
+      - Was ergibt jede Zahl mal 0?
+      - Kann dabei 6 herauskommen?
+    explanation: Jede Zahl mal 0 ergibt 0. Kein x erfüllt $x \cdot 0 = 6$. Ein Nenner darf deshalb nie 0 sein.
     difficulty: 3
 
 srs:

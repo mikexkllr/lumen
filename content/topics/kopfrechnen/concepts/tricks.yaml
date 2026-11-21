@@ -5,8 +5,20 @@ summary: Zwei Tricks, die wie Zauberei wirken.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Bauchgefühl: Wie viel ist 65 · 65?"
+    params:
+      min: 1000
+      max: 10000
+    answer:
+      value: 4225
+      tolerance: 400
+    explanation: 65² = 4225. Gleich lernst du einen Trick, mit dem das in Sekunden geht.
+
   - kind: problem
     id: elf
     widget: numeric
@@ -96,6 +108,76 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Elfer-Trick mit Übertrag – {{n}} · 11.
+    answer:
+      value: "{{n * 11}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 10) * 1000 + (floor(n / 10) + n % 10) * 10 + n % 10
+        misconception: no-carry
+        text: Die Summe hat zwei Ziffern. Ihre Eins wandert als Übertrag nach vorn.
+    hints:
+      - Die Ziffernsumme ist 10 oder mehr.
+      - Schreib die Einerstelle der Summe in die Mitte und zähl 1 zur ersten Ziffer.
+    explanation: "{{n}} · 11 = {{n * 10}} + {{n}} = {{n * 11}}."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[48,57,68,76,87,95,79]
+      defaults:
+        n: 87
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: Warum klappt der Elfer-Trick? 36 · 11 = 360 + 36. Die beiden Ziffern 3 und 6 landen übereinander auf der **Zehnerstelle**. Dort addieren sie sich.
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Nachbar-Quadrat: 45² = 2025. Wie viel ist {{d}}6²?"
+    answer:
+      value: "{{(10 * d + 6) ** 2}}"
+    hints:
+      - Von $n^2$ zu $(n+1)^2$ kommen n und n + 1 dazu.
+      - "Rechne erst {{d}}5² mit dem Fünfer-Trick: {{(10 * d + 5) ** 2}}. Dann plus {{10 * d + 5}} plus {{10 * d + 6}}."
+    explanation: "{{(10 * d + 5) ** 2}} + {{10 * d + 5}} + {{10 * d + 6}} = {{(10 * d + 6) ** 2}}."
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,9]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 25 · 11 = 275
+          right: true
+          why: 2 | 7 | 5 – die Summe 7 kommt in die Mitte.
+        - text: 75² = 4925
+          right: false
+          why: "7 · 8 = 56, dann 25: 5625."
+        - text: 95² = 9025
+          right: true
+          why: 9 · 10 = 90, dann 25.
+        - text: 64 · 11 = 6104
+          right: false
+          why: "Übertrag: 6 + 4 = 10, also 704."
+    hints:
+      - Prüfe jeden Trick Schritt für Schritt.
+      - Achte auf den Übertrag.
+    explanation: Beide Tricks sind sicher – wenn man den Übertrag nicht vergisst.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -105,6 +187,68 @@ steps:
     hints:
       - Die Zahl vor der 5 ist 10. Rechne 10 · 11 und häng 25 an.
     explanation: "10 · 11 = 110, dahinter 25: 11 025. Die Formel $(10a+5)^2 = 100a(a+1) + 25$ gilt für jedes a."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Der Elfer-Trick geht auch dreistellig. Rechne {{100 * a + 10 * b + c}} · 11.
+    answer:
+      value: "{{(100 * a + 10 * b + c) * 11}}"
+    hints:
+      - Außen bleiben die erste und die letzte Ziffer.
+      - "Innen stehen die Summen benachbarter Ziffern: {{a}} | {{a + b}} | {{b + c}} | {{c}}."
+    explanation: "{{100 * a + 10 * b + c}} · 11 = {{1000 * a + 100 * b + 10 * c}} + {{100 * a + 10 * b + c}} = {{(100 * a + 10 * b + c) * 11}}."
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,4]
+        b: int[1,4]
+        c: int[1,5]
+      defaults:
+        a: 1
+        b: 2
+        c: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: "Elf hat noch einen Trick: die **Wechselsumme**. Berechne sie für 9163: 9 − 1 + 6 − 3."
+    answer:
+      value: 11
+    hints:
+      - "Rechne von links: 9 − 1 = 8."
+      - 8 + 6 − 3 = ?
+    explanation: "Die Wechselsumme ist 11, also durch 11 teilbar. Dann ist auch 9163 durch 11 teilbar: 9163 = 11 · 833."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux den Elfer-Trick: Warum steht die Ziffernsumme in der Mitte?"
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+          - "360"
+        - - plus
+          - addier
+          - summe
+          - add
+          - sum
+        - - stelle
+          - zehner
+          - mitte
+          - übereinander
+          - place
+          - tens
+          - middle
+      sample: Mal 11 ist mal 10 plus einmal. Mal 10 schiebt die Zahl eine Stelle nach links. Dann liegen die beiden Ziffern auf der Zehnerstelle übereinander und werden addiert.
+    explanation: "Kernidee: mal 11 = mal 10 + mal 1. Die verschobene Zahl und die Zahl selbst überlappen in der Mitte."
     difficulty: 3
 
 srs:

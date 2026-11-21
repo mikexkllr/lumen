@@ -5,7 +5,7 @@ summary: Spot mistakes right away.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: endziffer
@@ -82,6 +82,58 @@ steps:
     explanation: 16 = 9 + 7, so the remainder is 7. This is the basis of **casting out nines**.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Why does the digit sum reveal the remainder mod 9? 10 is 9 + 1, 100 is 99 + 1. Each place leaves only its digit as the **remainder** when you divide by 9.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: buckets
+    prompt: Which check exposes the mistake?
+    params:
+      buckets:
+        - id: b1
+          label: Last digit
+        - id: b2
+          label: Size
+      items:
+        - label: 32 · 41 = 1313
+          bucket: b1
+        - label: 32 · 41 = 13,120
+          bucket: b2
+        - label: 19 · 21 = 3,999
+          bucket: b2
+        - label: 15 · 15 = 224
+          bucket: b1
+        - label: 26 · 34 = 8,844
+          bucket: b2
+        - label: 17 · 13 = 223
+          bucket: b1
+    hints:
+      - What must the last digit be? 2 · 1, 5 · 5, 7 · 3 …
+      - "Round both factors: roughly how big is the result?"
+    explanation: 1313, 224 and 223 have the wrong last digit. 13,120, 3,999 and 8,844 are about ten times too big.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Casting out nines: 37 leaves remainder 1, 48 leaves 3. Which remainder must 37 · 48 leave?"
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: add-remainders
+        text: For a product you multiply the remainders, not add them.
+    hints:
+      - Remainders behave like the numbers themselves.
+      - Work out 1 · 3.
+    explanation: "1 · 3 = 3. Check: 37 · 48 = 1776, digit sum 21, and 21 leaves remainder 3."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -98,6 +150,54 @@ steps:
     hints:
       - What does swapping two digits do to the digit sum?
     explanation: A check can find errors but not prove correctness. It misses swapped digits.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: Correct is 34 · 52 = 1768. Which wrong result still passes casting out nines?
+    params:
+      options:
+        - label: "1786"
+          correct: true
+        - label: Digit sum 21, remainder 3 – it should be 4.
+          feedback: Quersumme 21, Rest 3 – richtig wäre Rest 4.
+        - label: Digit sum 23, remainder 5 – it should be 4.
+          feedback: Quersumme 23, Rest 5 – richtig wäre Rest 4.
+    hints:
+      - The digit sum of 1768 is 22.
+      - Which number has the same digits?
+    explanation: Swapped digits do not change the digit sum. Casting out nines misses this kind of typo.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Calculating with remainders is called **modular arithmetic**. You write $4732 \equiv 7 \pmod 9$. Check digits in ISBNs, IBANs and barcodes are built on it.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the digit sum gives the remainder when dividing by 9.
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+          - "100"
+          - hundert
+        - - rest
+          - remainder
+          - übrig
+          - left
+        - - neun
+          - nine
+          - "99"
+          - neuner
+      sample: 10 is 9 + 1 and 100 is 99 + 1. The nines divide evenly. From each place only the digit is left over. So the number has the same remainder as its digit sum.
+    explanation: "Key idea: every power of ten leaves remainder 1 when divided by 9."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Wann sieht es wieder gleich aus?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: windrad
@@ -77,6 +77,20 @@ steps:
         - Achsen
 
   - kind: problem
+    id: ma-c1
+    widget: angle
+    prompt: Stelle den kleinsten Drehwinkel ein, nach dem ein Quadrat wieder genauso aussieht.
+    params:
+      initial: 0
+      snap: 5
+    answer:
+      value: 90
+    hints:
+      - Ein Quadrat hat 4 gleiche Ecken.
+      - 360° geteilt durch 4.
+    explanation: Nach 90° liegt jede Ecke dort, wo vorher die nächste war.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: buckets
@@ -107,6 +121,63 @@ steps:
     explanation: S und das Windrad lassen sich drehen, aber nicht spiegeln. A und das Herz nur spiegeln.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: Die **Ordnung** einer Drehsymmetrie zählt, wie oft eine Figur bei einer vollen Umdrehung gleich aussieht. Ein Windrad mit drei Flügeln hat die Ordnung 3.
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Stern hat {{n}} gleiche Zacken. Er sieht nach Drehungen um {{360 / n}}°, {{720 / n}}° … wieder gleich aus. Welche Ordnung hat seine Drehsymmetrie?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 360 / n
+        misconception: angle-vs-order
+        text: Das ist der kleinste Drehwinkel. Gefragt ist, wie oft es passt.
+    hints:
+      - Wie oft passt {{360 / n}}° in 360°?
+      - "360 : {{360 / n}} = ?"
+    explanation: "360° : {{360 / n}}° = {{n}}. Die Ordnung ist {{n}} – so viele Zacken."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[4,5,6,8,9,10,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Sieht der Großbuchstabe nach einer halben Drehung (180°) gleich aus?
+    params:
+      buckets:
+        - id: b1
+          label: ja
+        - id: b2
+          label: nein
+      items:
+        - label: N
+          bucket: b1
+        - label: Z
+          bucket: b1
+        - label: H
+          bucket: b1
+        - label: A
+          bucket: b2
+        - label: E
+          bucket: b2
+        - label: T
+          bucket: b2
+    hints:
+      - Stell dir vor, du stellst das Blatt auf den Kopf.
+      - Ein auf dem Kopf stehendes A zeigt mit der Spitze nach unten.
+    explanation: N, Z und H sind punktsymmetrisch. A, E und T stehen nach der Drehung falsch herum.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -117,6 +188,70 @@ steps:
     hints:
       - Zähle die Drehungen (auch die um 0°) und die Achsen.
     explanation: 5 Drehungen und 5 Spiegelungen. Diese 2n Symmetrien bilden die **Diedergruppe** – der Einstieg in die Gruppentheorie.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: choice
+    prompt: Du drehst ein Quadrat erst um 90° und dann um 270°. Welche einzelne Drehung macht dasselbe?
+    params:
+      options:
+        - label: 0° – es liegt wieder wie am Anfang
+          correct: true
+        - label: 180°
+          feedback: 90° + 270° = 360°, nicht 180°.
+        - label: 360° gibt es nicht
+          feedback: 360° ist dasselbe wie 0°.
+    hints:
+      - Addiere die beiden Winkel.
+      - 360° ist eine volle Umdrehung.
+    explanation: 90° + 270° = 360° – eine volle Umdrehung, also wie 0°. Symmetrien hintereinander ergeben wieder eine Symmetrie.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Alle Symmetrien einer Figur bilden eine **Gruppe**: Zwei hintereinander ergeben wieder eine Symmetrie. Nichtstun gehört dazu. Und jede lässt sich rückgängig machen. Gruppen sind ein Grundbegriff der Algebra."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Drehungen bilden einen Würfel auf sich ab? Die Drehung um 0° zählt mit.
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: faces-only
+        text: Das sind nur die Flächen, die oben liegen können. Jede lässt sich noch viermal drehen.
+      - when: numval(state.input) == 48
+        misconception: with-reflections
+        text: Das wären auch die Spiegelungen. Gefragt sind nur Drehungen.
+    hints:
+      - Wähle erst, welche Fläche oben liegt.
+      - 6 Flächen oben, jeweils 4 Stellungen.
+    explanation: 6 · 4 = 24. Diese Drehgruppe des Würfels taucht in der Chemie und bei Kristallen wieder auf.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, nach welchem Winkel ein regelmäßiges Sechseck wieder gleich aussieht – und warum.
+    params:
+      keywords:
+        - - "360"
+        - - sechs
+          - six
+          - ecken
+          - corners
+        - - "60"
+          - geteilt
+          - divid
+          - teilen
+      sample: Eine volle Drehung hat 360 Grad. Das Sechseck hat sechs gleiche Ecken. Nach 360 geteilt durch 6, also 60 Grad, liegt jede Ecke auf dem Platz der nächsten.
+    explanation: "Kernidee: kleinster Drehwinkel = 360° geteilt durch die Ordnung."
     difficulty: 3
 
 srs:
