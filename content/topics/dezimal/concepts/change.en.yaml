@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [pct.change]
-estimated_minutes: 8
+estimated_minutes: 12
 steps:
   - kind: problem
     id: jacke
@@ -127,6 +127,56 @@ steps:
     explanation: 238 ÷ 1.19 = 200. Subtracting 19% of 238 wrongly gives €192.78.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Use the **growth factor**: plus 20 % means times 1.2. Minus 20 % means times 0.8. To get back to the old price, divide by the factor."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: After a {{p}} % increase something costs €{{o * (100 + p) / 100}}. What was the old price?
+    params:
+      unit: €
+    answer:
+      value: "{{o}}"
+    feedback:
+      - when: numval(state.input) == o * (100 + p) / 100 * (100 - p) / 100
+        misconception: wrong-base
+        text: The {{p}} % refers to the old price, not the new one. Divide by {{1 + p / 100}}.
+    hints:
+      - New price = old price · {{1 + p / 100}}.
+      - "{{o * (100 + p) / 100}} : {{1 + p / 100}} = ?"
+    explanation: "{{o * (100 + p) / 100}} : {{1 + p / 100}} = €{{o}}."
+    difficulty: 2
+    variants:
+      params:
+        o: choice[40,60,80,120,200]
+        p: choice[10,20,25]
+      defaults:
+        o: 80
+        p: 25
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: First 20 % off, then another 10 % off the reduced price. What is the total discount in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 28
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: add-percents
+        text: The 10 % only applies to 80 % of the price.
+    hints:
+      - "Factors: 0.8 and 0.9."
+      - 0.8 · 0.9 = 0.72.
+    explanation: You pay 72 %, so 28 % off – not 30 %.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -167,6 +217,46 @@ steps:
           - less
           - lower
       sample: The 10% off refers to the new, higher price as its base. So more is taken off than was added – 99% remains.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: A price falls by 10 % each year for three years. What percentage of the starting price is left? To one decimal place.
+    params:
+      unit: "%"
+    answer:
+      value: 72.9
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: linear-thinking
+        text: Each year it is 10 % of a smaller price.
+    hints:
+      - Three times times 0.9.
+      - $0.9^3 = 0.729$.
+    explanation: $0.9^3 = 0.729$, so 72.9 %. Percentage changes multiply – that is exponential shrinking.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: A stock rises 50 % and then falls 50 %. What equal rate in both years would give the same result? In %, to one decimal. Minus means loss.
+    params:
+      unit: "%"
+    answer:
+      value: -13.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: arithmetic-mean
+        text: The average of +50 and −50 is 0 – but the money shrank.
+    hints:
+      - "Total factor: 1.5 · 0.5 = 0.75."
+      - You need f with $f \cdot f = 0.75$, so $f = \sqrt{0.75}$.
+    explanation: $\sqrt{0.75} \approx 0.866$ – that is −13.4 % per year. For rates you use the geometric mean.
     difficulty: 3
 
 srs:

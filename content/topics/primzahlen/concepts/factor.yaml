@@ -5,7 +5,7 @@ summary: Jede Zahl hat einen Bauplan.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: zerlegung
@@ -115,6 +115,87 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: tiles
+    prompt: Lege die Primfaktorzerlegung von 90 – die Faktoren der Größe nach.
+    params:
+      tiles:
+        - "2"
+        - "3"
+        - "3"
+        - "5"
+        - ·
+        - ·
+        - ·
+        - "9"
+        - "10"
+        - "6"
+      slots: 7
+    answer:
+      sequence:
+        - "2"
+        - ·
+        - "3"
+        - ·
+        - "3"
+        - ·
+        - "5"
+    hints:
+      - 90 = 9 · 10. Zerlege beide weiter.
+      - 9 = 3 · 3 und 10 = 2 · 5.
+    explanation: 90 = 2 · 3 · 3 · 5. 9, 10 und 6 sind keine Primzahlen.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: Das **kgV** nimmt jeden Primfaktor so oft, wie er höchstens vorkommt. 12 = 2 · 2 · 3 und 18 = 2 · 3 · 3. Also kgV = 2 · 2 · 3 · 3 = 36.
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Was ist das kleinste gemeinsame Vielfache von {{a}} und {{b}}?
+    answer:
+      value: "{{lcm(a, b)}}"
+    feedback:
+      - when: numval(state.input) == a * b && gcd(a, b) > 1
+        misconception: product-not-lcm
+        text: Das ist ein gemeinsames Vielfaches – aber nicht das kleinste.
+    hints:
+      - Zerlege beide in Primfaktoren.
+      - "Oder: {{a}} · {{b}} : ggT = {{a * b}} : {{gcd(a, b)}}."
+    explanation: kgV({{a}}, {{b}}) = {{lcm(a, b)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: choice[4,6,8,9,10,12]
+        b: choice[6,9,14,15,16,21]
+      constraints:
+        - a != b
+      defaults:
+        a: 12
+        b: 15
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Zwei Zahnräder mit 12 und 18 Zähnen greifen ineinander. Nach wie vielen Umdrehungen des kleinen Rades stehen beide wieder wie am Anfang?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: teeth-not-turns
+        text: 36 Zähne müssen vorbeiwandern. Wie viele Umdrehungen sind das beim kleinen Rad?
+    hints:
+      - Wie viele Zähne müssen vorbeilaufen? kgV(12, 18).
+      - "36 Zähne : 12 Zähne pro Umdrehung."
+    explanation: kgV(12, 18) = 36. Das kleine Rad dreht sich 3-mal, das große 2-mal.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -125,6 +206,52 @@ steps:
       - 1071 = 2 · 462 + 147. Weiter mit 462 und 147.
       - 462 = 3 · 147 + 21 und 147 = 7 · 21.
     explanation: "Der letzte Rest ungleich null ist der ggT: 21. Das Verfahren braucht keine Primfaktoren und ist blitzschnell."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "Dass jede Zahl genau eine Zerlegung hat, heißt **Hauptsatz der Arithmetik**. Selbstverständlich ist er nicht. In manchen Zahlbereichen gibt es zwei: 6 = 2 · 3 = (1 + √−5)(1 − √−5)."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Nullen stehen am Ende von $20! = 1 \cdot 2 \cdot 3 \cdots 20$?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-few-fives
+        text: "Zähle alle Fünfen: 5, 10, 15 und 20 liefern je eine."
+    hints:
+      - Jede Null am Ende braucht ein Paar 2 · 5.
+      - Zweien gibt es genug. Zähle die Fünfen.
+    explanation: 5, 10, 15, 20 – vier Fünfen, also vier Nullen. 20! = 2 432 902 008 176 640 000.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit Primfaktoren den ggT von 12 und 18 findet.
+    params:
+      keywords:
+        - - primfaktor
+          - zerleg
+          - prime
+          - factor
+        - - gemeinsam
+          - beide
+          - common
+          - both
+          - shared
+        - - sechs
+          - six
+          - 2 · 3
+          - 2·3
+      sample: "Ich zerlege beide Zahlen: 12 = 2 · 2 · 3 und 18 = 2 · 3 · 3. Gemeinsam haben beide eine 2 und eine 3. Der ggT ist also 2 · 3 = 6."
+    explanation: "Kernidee: Der ggT besteht genau aus den gemeinsamen Primfaktoren."
     difficulty: 3
 
 srs:

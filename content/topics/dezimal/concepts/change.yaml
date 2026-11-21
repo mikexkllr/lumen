@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [pct.change]
-estimated_minutes: 8
+estimated_minutes: 12
 steps:
   - kind: problem
     id: jacke
@@ -127,6 +127,56 @@ steps:
     explanation: "238 : 1,19 = 200. Wer 19 % von 238 abzieht, landet falsch bei 192,78 €."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Rechne mit dem **Wachstumsfaktor**: Plus 20 % heißt mal 1,2. Minus 20 % heißt mal 0,8. Zurück zum alten Preis teilst du durch den Faktor."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Nach einer Erhöhung um {{p}} % kostet etwas {{o * (100 + p) / 100}} €. Was war der alte Preis?
+    params:
+      unit: €
+    answer:
+      value: "{{o}}"
+    feedback:
+      - when: numval(state.input) == o * (100 + p) / 100 * (100 - p) / 100
+        misconception: wrong-base
+        text: Die {{p}} % beziehen sich auf den alten Preis, nicht auf den neuen. Teile durch {{1 + p / 100}}.
+    hints:
+      - Neuer Preis = alter Preis · {{1 + p / 100}}.
+      - "{{o * (100 + p) / 100}} : {{1 + p / 100}} = ?"
+    explanation: "{{o * (100 + p) / 100}} : {{1 + p / 100}} = {{o}} €."
+    difficulty: 2
+    variants:
+      params:
+        o: choice[40,60,80,120,200]
+        p: choice[10,20,25]
+      defaults:
+        o: 80
+        p: 25
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: Erst 20 % Rabatt, dann noch einmal 10 % auf den reduzierten Preis. Wie viel Prozent Rabatt sind das insgesamt?
+    params:
+      unit: "%"
+    answer:
+      value: 28
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: add-percents
+        text: Die 10 % gelten nur noch für 80 % des Preises.
+    hints:
+      - "Faktoren: 0,8 und 0,9."
+      - 0,8 · 0,9 = 0,72.
+    explanation: Du zahlst 72 %, also 28 % Rabatt – nicht 30 %.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -167,6 +217,46 @@ steps:
           - less
           - lower
       sample: Die 10 % Abzug beziehen sich auf den neuen, höheren Preis als Grundwert. Darum wird mehr abgezogen als vorher dazukam – es bleiben 99 %.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Preis sinkt drei Jahre lang um je 10 %. Wie viel Prozent des Startpreises bleiben? Auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 72.9
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: linear-thinking
+        text: Jedes Jahr sind es 10 % von einem kleineren Preis.
+    hints:
+      - Dreimal mal 0,9.
+      - $0{,}9^3 = 0{,}729$.
+    explanation: $0{,}9^3 = 0{,}729$, also 72,9 %. Prozentuale Änderungen multiplizieren sich – das ist exponentielles Schrumpfen.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Aktie steigt um 50 % und fällt danach um 50 %. Welche gleich hohe Rate in beiden Jahren hätte dasselbe Ergebnis? In %, auf eine Stelle. Minus heißt Verlust.
+    params:
+      unit: "%"
+    answer:
+      value: -13.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: arithmetic-mean
+        text: Der Durchschnitt von +50 und −50 ist 0 – aber das Geld ist weniger geworden.
+    hints:
+      - "Gesamtfaktor: 1,5 · 0,5 = 0,75."
+      - Gesucht ist f mit $f \cdot f = 0{,}75$, also $f = \sqrt{0{,}75}$.
+    explanation: $\sqrt{0{,}75} \approx 0{,}866$ – das sind −13,4 % pro Jahr. Für Raten nimmt man das geometrische Mittel.
     difficulty: 3
 
 srs:

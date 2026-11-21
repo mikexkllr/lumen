@@ -5,7 +5,7 @@ summary: Every number has a blueprint.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: zerlegung
@@ -115,6 +115,87 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: tiles
+    prompt: Build the prime factorisation of 90 – factors in increasing order.
+    params:
+      tiles:
+        - "2"
+        - "3"
+        - "3"
+        - "5"
+        - ·
+        - ·
+        - ·
+        - "9"
+        - "10"
+        - "6"
+      slots: 7
+    answer:
+      sequence:
+        - "2"
+        - ·
+        - "3"
+        - ·
+        - "3"
+        - ·
+        - "5"
+    hints:
+      - 90 = 9 · 10. Split both further.
+      - 9 = 3 · 3 and 10 = 2 · 5.
+    explanation: 90 = 2 · 3 · 3 · 5. 9, 10 and 6 are not primes.
+    difficulty: 2
+
+  - kind: explain
+    id: ma-d2
+    depth: 2
+    body: The **lcm** takes each prime factor as often as it appears at most. 12 = 2 · 2 · 3 and 18 = 2 · 3 · 3. So lcm = 2 · 2 · 3 · 3 = 36.
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: What is the least common multiple of {{a}} and {{b}}?
+    answer:
+      value: "{{lcm(a, b)}}"
+    feedback:
+      - when: numval(state.input) == a * b && gcd(a, b) > 1
+        misconception: product-not-lcm
+        text: That is a common multiple – but not the least one.
+    hints:
+      - Factor both into primes.
+      - "Or: {{a}} · {{b}} : gcd = {{a * b}} : {{gcd(a, b)}}."
+    explanation: lcm({{a}}, {{b}}) = {{lcm(a, b)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: choice[4,6,8,9,10,12]
+        b: choice[6,9,14,15,16,21]
+      constraints:
+        - a != b
+      defaults:
+        a: 12
+        b: 15
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Two gears with 12 and 18 teeth mesh together. After how many turns of the small gear are both back in their starting position?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: teeth-not-turns
+        text: 36 teeth must pass. How many turns is that for the small gear?
+    hints:
+      - How many teeth must pass? lcm(12, 18).
+      - "36 teeth : 12 teeth per turn."
+    explanation: lcm(12, 18) = 36. The small gear turns 3 times, the large one 2 times.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -125,6 +206,52 @@ steps:
       - 1071 = 2 · 462 + 147. Continue with 462 and 147.
       - 462 = 3 · 147 + 21 and 147 = 7 · 21.
     explanation: "The last non-zero remainder is the gcd: 21. The method needs no prime factors and is lightning fast."
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "That every number has exactly one factorisation is the **fundamental theorem of arithmetic**. It is not obvious. In some number systems there are two: 6 = 2 · 3 = (1 + √−5)(1 − √−5)."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: How many zeros are at the end of $20! = 1 \cdot 2 \cdot 3 \cdots 20$?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-few-fives
+        text: "Count all fives: 5, 10, 15 and 20 each give one."
+    hints:
+      - Each trailing zero needs a pair 2 · 5.
+      - There are plenty of twos. Count the fives.
+    explanation: 5, 10, 15, 20 – four fives, so four zeros. 20! = 2,432,902,008,176,640,000.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to find the gcd of 12 and 18 using prime factors.
+    params:
+      keywords:
+        - - primfaktor
+          - zerleg
+          - prime
+          - factor
+        - - gemeinsam
+          - beide
+          - common
+          - both
+          - shared
+        - - sechs
+          - six
+          - 2 · 3
+          - 2·3
+      sample: "I factor both numbers: 12 = 2 · 2 · 3 and 18 = 2 · 3 · 3. Both share one 2 and one 3. So the gcd is 2 · 3 = 6."
+    explanation: "Key idea: the gcd is made of exactly the shared prime factors."
     difficulty: 3
 
 srs:
