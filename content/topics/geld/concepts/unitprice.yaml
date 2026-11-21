@@ -5,8 +5,21 @@ summary: Groß ist nicht immer günstiger.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Schätz mal: Leitungswasser kostet etwa 0,2 Cent pro Liter. Wievielmal so teuer ist Flaschenwasser für 50 Cent pro Liter?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 250
+      within: 40
+    explanation: "50 : 0,2 = 250. Flaschenwasser ist rund 250-mal so teuer."
+
   - kind: problem
     id: kilo
     widget: numeric
@@ -79,6 +92,87 @@ steps:
       - Früher gab es 5 Teile fürs Geld, jetzt 4. Vergleich 1/4 mit 1/5.
     explanation: "500 : 400 = 1,25. Die Menge sinkt um 20 %, der Preis pro Gramm steigt um 25 %."
     difficulty: 2
+
+  - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{g}} g kosten {{p}} €. Wie hoch ist der Grundpreis pro Kilogramm?"
+    params:
+      unit: €
+    answer:
+      value: "{{p * 1000 / g}}"
+      tolerance: 0.01
+    hints:
+      - Wie oft passen {{g}} g in 1000 g?
+      - "{{p}} € · {{1000 / g}}."
+    explanation: "{{p}} € · {{1000 / g}} = {{p * 1000 / g}} € pro kg."
+    difficulty: 2
+    variants:
+      params:
+        g: choice[125,200,250,400,500]
+        p: choice[1.5,2,3,4.5,6]
+      defaults:
+        g: 250
+        p: 3
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: choice
+    prompt: "Was ist pro Liter günstiger: 3 Dosen zu je 0,33 L für 2 € oder eine 1,5-L-Flasche für 2,50 €?"
+    params:
+      options:
+        - label: Die Flasche – etwa 1,67 € statt 2,02 € pro Liter
+          correct: true
+        - label: Die Dosen
+          feedback: Drei Dosen sind nicht mal ein Liter für 2 €.
+        - label: Beide gleich
+          feedback: Rechne beide pro Liter aus.
+    hints:
+      - 3 · 0,33 L = 0,99 L.
+      - "2 € : 0,99 und 2,50 € : 1,5."
+    explanation: "Dosen: etwa 2,02 € pro L. Flasche: etwa 1,67 € pro L. Der höhere Gesamtpreis täuscht."
+    difficulty: 2
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Packung schrumpft von 1000 g auf 900 g, der Preis steigt von 2,49 € auf 2,59 €. Um wie viel Prozent steigt der Grundpreis? Auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 15.6
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: price-only
+        text: Das ist nur der Preis. Die kleinere Menge macht es zusätzlich teurer.
+    hints:
+      - "Neuer Grundpreis: 2,59 € : 0,9 kg."
+      - "2,878 : 2,49 ≈ ?"
+    explanation: "2,59 : 0,9 ≈ 2,878 €/kg. Das ist 15,6 % mehr als 2,49 €/kg – viel mehr als die 4 % auf dem Schild."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: 3 kg kosten 6 €, 1 kg kostet 2,50 €. Du nimmst die große Packung, brauchst aber nur 2 kg. Der Rest verdirbt. Was kostet dich ein genutztes Kilo?
+    params:
+      unit: €
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: bought-not-used
+        text: Das ist der Preis pro gekauftem Kilo. Gezählt wird, was du wirklich nutzt.
+    hints:
+      - Du zahlst 6 € für 2 genutzte Kilo.
+      - "6 € : 2 = ?"
+    explanation: 3 € pro genutztem Kilo – teurer als die kleine Packung. Mengenrabatt lohnt nur, wenn du alles verbrauchst.
+    difficulty: 3
 
 srs:
   cards_from: [kilo, grundpreis]
