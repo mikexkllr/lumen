@@ -1,0 +1,204 @@
+id: bio.ecology.population
+type: concept
+title: "Growth with limits"
+summary: "Exponential, logistic and carrying capacity."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: 10 rabbits land on an island. Each generation adds 30 %. How many would there be after 40 generations without any limit?
+    params:
+      min: 100
+      max: 100000000
+      scale: log
+    answer:
+      value: 360000
+      within: 50
+    explanation: More than 360,000 – impossible on a small island. Food and space set a limit.
+
+  - kind: explain
+    id: c1
+    body: Every habitat can feed only a certain number of animals. This limit is called the **carrying capacity**, K for short. The closer a population gets to K, the slower it grows.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: The island can feed 500 rabbits. From which generation on do more than half of that live there? Find the earliest.
+    params:
+      scene: population
+      controls:
+        rate:
+          fixed: true
+        capacity:
+          fixed: true
+    answer:
+      gens: 15
+    explanation: After 14 generations there are 242, after 15 already 279. Around half of K the population grows fastest.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: A bigger island feeds 800 animals. Set the capacity and run enough generations for the population to reach the limit.
+    params:
+      scene: population
+      controls:
+        rate:
+          fixed: true
+    answer:
+      capacity: 800
+      share:
+        - 99
+        - 100
+    explanation: "The curve becomes an S: slow at first, then steep, then flat at the capacity."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: What slows a population’s growth as it gets large?
+    params:
+      options:
+        - label: Food, space and shelter run short, diseases spread.
+          correct: true
+        - label: The animals decide to have fewer young.
+          feedback: Animals do not plan this. Scarcity acts by itself.
+        - label: Nothing – it always grows at the same rate.
+          feedback: That would be exponential and never lasts long.
+    hints:
+      - What do all the animals share?
+      - The denser, the more competition.
+    explanation: "These brakes depend on density: the more animals, the stronger they act."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Without limits, 10 mice double every generation. How many are there after {{g}} generations?
+    answer:
+      value: "{{10 * 2 ** g}}"
+    feedback:
+      - when: numval(state.input) == 10 + 10 * g
+        misconception: linear
+        text: "That would be linear: 10 more each generation. Doubling means times 2."
+    hints:
+      - Times 2 each generation.
+      - 10 × 2 to the power {{g}}
+    explanation: 10 × 2^{{g}} = {{10 * 2 ** g}}. Exponential growth explodes – until capacity puts on the brakes.
+    variants:
+      params:
+        g: int[3,10]
+      defaults:
+        g: 5
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Set the lab so that the population without limits would be at least ten times as large as with limits.
+    params:
+      scene: population
+    check:
+      predicate: unlimited >= 10 * size
+    explanation: "Many generations with high growth: exponential races away, logistic stays at K."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: The island feeds 500 animals. Set the growth rate so that more than 90 % of capacity is reached after 10 generations – but as slowly as possible.
+    params:
+      scene: population
+      controls:
+        capacity:
+          fixed: true
+        gens:
+          value: 10
+          fixed: true
+    answer:
+      rate: 70
+    explanation: At 65 % it reaches 89 %, at 70 % already 94 %. High growth brings the population to the limit quickly.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Logistic growth: increase = r · N · (1 − N/K). With r = 0.5 and K = {{k}}: what is the increase at N = {{k / 2}}?"
+    answer:
+      value: "{{k / 8}}"
+    feedback:
+      - when: numval(state.input) == k / 4
+        misconception: forgot-brake
+        text: Don’t forget the factor (1 − N/K) = 0.5.
+    hints:
+      - "Substitute: 0.5 × {{k / 2}} × (1 − 0.5)."
+      - 0.5 × {{k / 2}} × 0.5
+    explanation: 0.5 × {{k / 2}} × 0.5 = {{k / 8}}. At N = K/2 the increase is largest.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[400,800,1000,2000]
+      defaults:
+        k: 1000
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A fish stock has a carrying capacity of K = {{k}}. At what stock size does it regrow fastest – and allow the largest sustainable catch?
+    answer:
+      value: "{{k / 2}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: at-capacity
+        text: At K nothing regrows – the factor (1 − N/K) is zero.
+    hints:
+      - r · N · (1 − N/K) is a downward parabola in N.
+      - It is zero at 0 and at K. The peak is in the middle.
+    explanation: At K/2 = {{k / 2}}. This is the idea of maximum sustainable yield. Fishing the stock lower yields less in the long run.
+    difficulty: 3
+    variants:
+      params:
+        k: choice[1000,5000,20000,100000]
+      defaults:
+        k: 20000
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: why can’t a population keep growing forever?"
+    params:
+      keywords:
+        - - kapazität
+          - kapazitaet
+          - grenze
+          - capacity
+          - limit
+        - - futter
+          - nahrung
+          - platz
+          - food
+          - space
+        - - langsam
+          - bremst
+          - flach
+          - slow
+          - level off
+          - flatten
+        - - s-kurve
+          - s-förmig
+          - s-foermig
+          - logist
+          - s-curve
+          - s-shaped
+      sample: At first a population grows exponentially. Then food and space run short and growth slows. The curve becomes logistic, S-shaped, and levels off at the carrying capacity.
+    explanation: Scarcity brakes harder the closer the population gets to capacity.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

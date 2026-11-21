@@ -1,0 +1,164 @@
+id: bio.systems.bioinfo
+type: concept
+title: "Sequenzen und Strukturen"
+summary: "Sequenzvergleich, Proteinfaltung und AlphaFold."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein kleines Protein hat 100 Aminosäuren. Jede kann grob 3 Lagen einnehmen. Wie viele Faltungen gibt es dann? Schätz die Zehnerpotenz.
+    params:
+      min: 1
+      max: 100
+      unit: 10^
+    answer:
+      value: 48
+      tolerance: 4
+    explanation: 3¹⁰⁰ ≈ 5 · 10⁴⁷. Alle durchzuprobieren dauerte länger als das Universum alt ist – trotzdem faltet sich das Protein in Sekunden.
+
+  - kind: explain
+    id: c1
+    body: Die **Bioinformatik** nutzt Computer, um biologische Daten zu verstehen. Ein Grundwerkzeug ist der Sequenzvergleich. Man legt zwei DNA- oder Eiweiß-Folgen nebeneinander und zählt, wo sie übereinstimmen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Vergleiche ACGTTGCA mit ACGATGCC. An wie vielen Stellen stimmen sie überein?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: swapped
+        text: Das sind die Unterschiede. Gefragt sind die Treffer.
+    hints:
+      - Gehe Stelle für Stelle durch.
+      - Verschieden sind nur Stelle 4 und 8.
+    explanation: "6 von 8 Stellen gleich: 75 % Übereinstimmung. Je ähnlicher, desto enger verwandt."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Vergleiche GATTACA mit GATACA. Wie lässt sich das am besten erklären?
+    params:
+      options:
+        - label: In der zweiten Folge fehlt ein T. Mit einer Lücke passen beide perfekt.
+          correct: true
+        - label: Ab Stelle 4 ist alles verschieden.
+          feedback: Stelle für Stelle ja – mit einer Lücke aber nicht.
+        - label: Die Folgen sind nicht verwandt.
+          feedback: Sie unterscheiden sich nur durch eine Base.
+    hints:
+      - Darf man eine Lücke einfügen?
+      - GAT-ACA
+    explanation: Gute Vergleiche erlauben Lücken, denn Mutationen löschen oder fügen ein. Programme wie BLAST suchen so in Milliarden Basen.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Die [[Folge]] der Aminosäuren bestimmt die [[Form]] des Proteins. Die Form bestimmt seine [[Funktion]].
+      distractors:
+        - Farbe
+        - Masse
+    explanation: Folge, Form, Funktion – das Grundgesetz der Strukturbiologie.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Ein Eiweiß faltet sich von selbst in eine feste Form. Die Form bestimmt seine Aufgabe. Lange konnte man die Form nur mühsam im Labor messen. 2020 sagte das KI-Programm **AlphaFold** sie erstmals sehr genau voraus.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Protein probiert 10¹³ Faltungen pro Sekunde. Wie viele Sekunden bräuchte es für 10⁴⁷ Faltungen? Gib die Zehnerpotenz an.
+    answer:
+      value: 34
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: exponent-add
+        text: Beim Teilen werden Exponenten abgezogen, nicht addiert.
+    hints:
+      - "10⁴⁷ : 10¹³"
+      - Ziehe die Exponenten ab.
+    explanation: "10³⁴ Sekunden – das Universum ist erst etwa 4 · 10¹⁷ s alt. Das ist das Levinthal-Paradox: Proteine suchen nicht blind."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: AlphaFold und Co. – stimmt das?
+    params:
+      cards:
+        - text: Für über 200 Millionen Proteine gibt es vorhergesagte Strukturen.
+          right: true
+          why: Fast alle bekannten Proteinfolgen.
+        - text: Dafür gab es 2024 den Chemie-Nobelpreis.
+          right: true
+          why: An Hassabis und Jumper, zusammen mit David Baker für Protein-Design.
+        - text: Laborversuche sind dadurch überflüssig geworden.
+          right: false
+          why: Vorhersagen müssen geprüft werden, und Bewegungen der Proteine sind schwer vorherzusagen.
+        - text: Strukturen helfen, Medikamente zu entwerfen.
+          right: true
+          why: Man sieht, wo ein Hemmstoff andocken kann.
+    explanation: KI hat die Strukturbiologie beschleunigt, aber nicht ersetzt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie lernte AlphaFold, Strukturen vorherzusagen?
+    params:
+      options:
+        - label: Aus Zehntausenden gemessenen Strukturen und aus Mustern gemeinsamer Mutationen in verwandten Folgen
+          correct: true
+        - label: Es simuliert jedes Atom bis zur Faltung.
+          feedback: Das wäre viel zu langsam. Es lernt Muster aus Daten.
+        - label: Es rät zufällig.
+          feedback: Die Vorhersagen sind oft fast so genau wie Messungen.
+    hints:
+      - Zwei Aminosäuren, die sich berühren, mutieren oft gemeinsam.
+      - Evolution hinterlässt Spuren der Form im Sequenzvergleich.
+    explanation: Koevolution verrät, welche Teile nah beieinander liegen. AlphaFold verbindet das mit gelernten Regeln der Geometrie.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man aus einer DNA-Folge die Form eines Proteins vorhersagen möchte.
+    params:
+      keywords:
+        - - form
+          - struktur
+          - faltung
+          - shape
+          - structure
+          - fold
+        - - aufgabe
+          - funktion
+          - job
+          - function
+        - - alphafold
+          - ki
+          - computer
+          - ai
+        - - medikament
+          - drug
+          - krankheit
+          - disease
+      sample: Die Form eines Proteins bestimmt seine Funktion. Messen ist mühsam, darum sagen Programme wie AlphaFold die Struktur aus der Folge voraus. So findet man schneller Medikamente und versteht Krankheiten.
+    explanation: "Folge → Form → Funktion: Wer die Form kennt, versteht das Protein."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

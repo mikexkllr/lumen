@@ -1,0 +1,198 @@
+id: bio.body.blood
+type: concept
+title: "Blut und Adern"
+summary: "Was im Blut schwimmt und wie es überall hinkommt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie viele Liter Blut hat ein erwachsener Mensch?
+    params:
+      min: 0.5
+      max: 20
+      unit: L
+    answer:
+      value: 5
+      tolerance: 1
+    explanation: Etwa 5 Liter, rund 7 bis 8 % des Körpergewichts.
+
+  - kind: explain
+    id: c1
+    body: Blut ist eine Flüssigkeit voller Zellen. Gut die Hälfte ist **Blutplasma**, eine gelbliche Lösung aus Wasser, Salzen und Nährstoffen. Darin schwimmen rote und weiße Blutkörperchen und Blutplättchen.
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Wer macht welchen Job?
+    params:
+      pairs:
+        - left: Rote Blutkörperchen
+          right: Sauerstoff tragen
+        - left: Weiße Blutkörperchen
+          right: Keime abwehren
+        - left: Blutplättchen
+          right: Wunden verschließen
+        - left: Blutplasma
+          right: Nährstoffe lösen
+    hints:
+      - Die roten färben das Blut – durch den Stoff, der Sauerstoff bindet.
+      - Blutplättchen sind Zellbruchstücke, die verkleben.
+    explanation: "Transport, Abwehr, Gerinnung und Lösung: Blut ist Lieferdienst, Wache und Pflaster zugleich."
+
+  - kind: explain
+    id: c3
+    body: "**Arterien** führen Blut vom Herzen weg. Venen führen es zum Herzen zurück. Dazwischen liegen die Kapillaren, haarfeine Gefäße. Dort tauscht das Blut Stoffe mit den Zellen aus."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Arterie, Vene oder Kapillare?
+    params:
+      buckets:
+        - id: b1
+          label: Arterie
+        - id: b2
+          label: Vene
+        - id: b3
+          label: Kapillare
+      items:
+        - label: Führt vom Herzen weg
+          bucket: b1
+        - label: Dicke, elastische Wand
+          bucket: b1
+        - label: Führt zum Herzen hin
+          bucket: b2
+        - label: Hat Taschenklappen
+          bucket: b2
+        - label: Wand nur eine Zelle dick
+          bucket: b3
+        - label: Hier wechseln O₂ und CO₂
+          bucket: b3
+    hints:
+      - Wo ist der Druck hoch, wo niedrig?
+      - Venen haben Klappen, damit das Blut nicht absackt.
+    explanation: Arterien halten hohen Druck aus. Venen brauchen Klappen. Kapillaren sind dünn für den Austausch.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Mensch hat {{v}} L Blut. {{z}} % davon sind Zellen, der Rest Plasma. Wie viele Liter Plasma sind das?
+    params:
+      unit: L
+    answer:
+      value: "{{v * (100 - z) / 100}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == v * z / 100
+        misconception: share-swap
+        text: Das ist der Zellanteil. Gefragt ist das Plasma, also der Rest.
+    hints:
+      - Wie viel Prozent sind Plasma?
+      - 100 − {{z}} = {{100 - z}} %. Nimm davon {{v}} L.
+    explanation: "{{100 - z}} % von {{v}} L sind {{v * (100 - z) / 100}} L Plasma."
+    difficulty: 2
+    variants:
+      params:
+        v: choice[4,5,6]
+        z: choice[40,45]
+      defaults:
+        v: 5
+        z: 45
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: Rote Blutkörperchen sind voll mit **Hämoglobin**. Dieses Eiweiß enthält Eisen und bindet Sauerstoff in der Lunge. In den Geweben gibt es ihn wieder ab. Darum macht Eisenmangel müde.
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Blutdruck 120 zu 80 – was bedeuten die zwei Zahlen?
+    params:
+      options:
+        - label: Den Druck beim Herzschlag und in der Pause dazwischen
+          correct: true
+        - label: Den Druck in Arm und Bein
+          feedback: Gemessen wird an einer Stelle, zu zwei Zeitpunkten.
+        - label: Puls und Atemzüge pro Minute
+          feedback: Beide Zahlen sind Drücke in mmHg.
+    hints:
+      - Der Druck schwankt mit jedem Schlag.
+      - Der obere Wert ist der höchste, der untere der niedrigste.
+    explanation: Systolisch 120 mmHg beim Auswerfen, diastolisch 80 mmHg beim Entspannen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Lungenarterie trägt sauerstoffarmes Blut. Warum heißt sie trotzdem Arterie?
+    params:
+      options:
+        - label: Weil sie vom Herzen wegführt. Nur die Richtung zählt.
+          correct: true
+        - label: Weil sie rot gezeichnet wird.
+          feedback: Farben in Bildern sind nur eine Hilfe, keine Definition.
+        - label: Das ist ein Fehler in den Büchern.
+          feedback: "Nein: Arterie heißt »vom Herzen weg«, nicht »sauerstoffreich«."
+    hints:
+      - Wie haben wir Arterien definiert?
+      - Von der rechten Kammer geht das Blut zur Lunge.
+    explanation: "Arterie heißt: vom Herzen weg. Lungenarterie: arm an O₂. Lungenvene: reich an O₂."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In den Kapillaren fließt das Blut am langsamsten. Warum, obwohl sie so dünn sind?
+    params:
+      options:
+        - label: Es gibt Milliarden davon. Ihr Querschnitt zusammen ist viel größer als der der Hauptschlagader.
+          correct: true
+        - label: Das Blut wird dort dicker.
+          feedback: Die Zähigkeit bleibt fast gleich. Es geht um die Fläche.
+        - label: Das Herz pumpt dort schwächer.
+          feedback: Das Herz pumpt nur an einer Stelle. Entscheidend ist die Verteilung.
+    hints:
+      - Die gleiche Menge Blut muss pro Sekunde durch alle Kapillaren zusammen.
+      - Großer Querschnitt bedeutet langsames Fließen, wie ein breiter Fluss.
+    explanation: Fluss = Querschnitt · Tempo. Der Gesamtquerschnitt ist riesig, also ist das Tempo klein. Das gibt Zeit für den Stoffaustausch.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was das Blut alles transportiert und wie es durch die Adern fließt.
+    params:
+      keywords:
+        - - sauerstoff
+          - oxygen
+          - o2
+          - o₂
+        - - arterie
+          - artery
+          - arteries
+        - - vene
+          - vein
+        - - kapillar
+          - capillar
+        - - abwehr
+          - keim
+          - immun
+          - germ
+          - defen
+      sample: Rote Blutkörperchen tragen Sauerstoff, weiße wehren Keime ab. Arterien führen das Blut vom Herzen weg, Venen zurück. In den Kapillaren tauscht es Stoffe mit den Zellen.
+    explanation: "Blut ist das Transportsystem: Hinweg, Rückweg und dazwischen der Austausch."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

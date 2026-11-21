@@ -1,0 +1,204 @@
+id: bio.ecology.population
+type: concept
+title: "Wachstum mit Grenzen"
+summary: "Exponentiell, logistisch und die Kapazität."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: 10 Kaninchen landen auf einer Insel. Jede Generation kommen 30 % dazu. Wie viele wären es nach 40 Generationen ohne jede Grenze?
+    params:
+      min: 100
+      max: 100000000
+      scale: log
+    answer:
+      value: 360000
+      within: 50
+    explanation: Über 360 000 – auf einer kleinen Insel unmöglich. Futter und Platz setzen eine Grenze.
+
+  - kind: explain
+    id: c1
+    body: Jeder Lebensraum ernährt nur eine bestimmte Zahl von Tieren. Diese Grenze heißt **Kapazität**, kurz K. Je näher eine Population an K kommt, desto langsamer wächst sie.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Die Insel ernährt 500 Kaninchen. Ab welcher Generation leben erstmals mehr als die Hälfte davon dort? Finde die früheste.
+    params:
+      scene: population
+      controls:
+        rate:
+          fixed: true
+        capacity:
+          fixed: true
+    answer:
+      gens: 15
+    explanation: Nach 14 Generationen sind es 242, nach 15 schon 279. Um die Hälfte von K wächst der Bestand am schnellsten.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Eine größere Insel ernährt 800 Tiere. Stell die Kapazität ein und lass so viele Generationen laufen, bis der Bestand die Grenze erreicht.
+    params:
+      scene: population
+      controls:
+        rate:
+          fixed: true
+    answer:
+      capacity: 800
+      share:
+        - 99
+        - 100
+    explanation: "Die Kurve wird zu einem S: erst langsam, dann steil, dann flach an der Kapazität."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Was bremst das Wachstum einer Population, wenn sie groß wird?
+    params:
+      options:
+        - label: Futter, Platz und Verstecke werden knapp, Krankheiten breiten sich aus.
+          correct: true
+        - label: Die Tiere beschließen, weniger Junge zu bekommen.
+          feedback: Tiere planen das nicht. Knappheit wirkt von selbst.
+        - label: Nichts – sie wächst immer gleich schnell.
+          feedback: Das wäre exponentiell und ginge nie lange gut.
+    hints:
+      - Was teilen sich alle Tiere?
+      - Je dichter, desto mehr Konkurrenz.
+    explanation: "Diese Bremsen hängen von der Dichte ab: Je mehr Tiere, desto stärker wirken sie."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ohne Grenze verdoppeln sich 10 Mäuse jede Generation. Wie viele sind es nach {{g}} Generationen?
+    answer:
+      value: "{{10 * 2 ** g}}"
+    feedback:
+      - when: numval(state.input) == 10 + 10 * g
+        misconception: linear
+        text: "Das wäre linear: jede Generation 10 dazu. Verdoppeln heißt mal 2."
+    hints:
+      - Jede Generation mal 2.
+      - 10 · 2 hoch {{g}}
+    explanation: 10 · 2^{{g}} = {{10 * 2 ** g}}. Exponentielles Wachstum explodiert – bis die Kapazität bremst.
+    variants:
+      params:
+        g: int[3,10]
+      defaults:
+        g: 5
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Stell das Labor so ein, dass die Population ohne Grenze mindestens zehnmal so groß wäre wie mit Grenze.
+    params:
+      scene: population
+    check:
+      predicate: unlimited >= 10 * size
+    explanation: "Viele Generationen mit hoher Vermehrung: Exponentiell rast davon, logistisch bleibt bei K."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Die Insel ernährt 500 Tiere. Stell die Vermehrung so ein, dass nach 10 Generationen schon über 90 % der Kapazität erreicht sind – aber so langsam wie möglich.
+    params:
+      scene: population
+      controls:
+        capacity:
+          fixed: true
+        gens:
+          value: 10
+          fixed: true
+    answer:
+      rate: 70
+    explanation: Bei 65 % sind es 89 %, bei 70 % schon 94 %. Hohe Vermehrung bringt die Population schnell an die Grenze.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Logistisch gilt: Zuwachs = r · N · (1 − N/K). Mit r = 0,5 und K = {{k}}: Wie groß ist der Zuwachs bei N = {{k / 2}}?"
+    answer:
+      value: "{{k / 8}}"
+    feedback:
+      - when: numval(state.input) == k / 4
+        misconception: forgot-brake
+        text: Den Faktor (1 − N/K) = 0,5 nicht vergessen.
+    hints:
+      - "Setz ein: 0,5 · {{k / 2}} · (1 − 0,5)."
+      - 0,5 · {{k / 2}} · 0,5
+    explanation: 0,5 · {{k / 2}} · 0,5 = {{k / 8}}. Bei N = K/2 ist der Zuwachs am größten.
+    difficulty: 2
+    variants:
+      params:
+        k: choice[400,800,1000,2000]
+      defaults:
+        k: 1000
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Fischbestand hat die Kapazität K = {{k}}. Bei welcher Bestandsgröße wächst er am schnellsten nach – und lässt sich am meisten dauerhaft fischen?
+    answer:
+      value: "{{k / 2}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: at-capacity
+        text: Bei K wächst nichts mehr nach – der Faktor (1 − N/K) ist null.
+    hints:
+      - r · N · (1 − N/K) ist eine nach unten offene Parabel in N.
+      - Sie ist null bei 0 und bei K. Der Gipfel liegt in der Mitte.
+    explanation: Bei K/2 = {{k / 2}}. Das ist die Idee des maximalen nachhaltigen Ertrags. Wer den Bestand tiefer drückt, erntet auf Dauer weniger.
+    difficulty: 3
+    variants:
+      params:
+        k: choice[1000,5000,20000,100000]
+      defaults:
+        k: 20000
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum wächst eine Population nicht ewig weiter?"
+    params:
+      keywords:
+        - - kapazität
+          - kapazitaet
+          - grenze
+          - capacity
+          - limit
+        - - futter
+          - nahrung
+          - platz
+          - food
+          - space
+        - - langsam
+          - bremst
+          - flach
+          - slow
+          - level off
+          - flatten
+        - - s-kurve
+          - s-förmig
+          - s-foermig
+          - logist
+          - s-curve
+          - s-shaped
+      sample: Am Anfang wächst eine Population exponentiell. Dann werden Futter und Platz knapp, und das Wachstum wird langsamer. Die Kurve wird logistisch, also S-förmig, und flacht an der Kapazität ab.
+    explanation: Knappheit bremst umso stärker, je näher die Kapazität rückt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

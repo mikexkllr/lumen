@@ -1,0 +1,176 @@
+id: bio.metabolism.enzyme
+type: concept
+title: "Enzymes at work"
+summary: "Lock, key and the Michaelis–Menten curve."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Hydrogen peroxide barely breaks down on the shelf. On a fresh potato slice it foams at once. Why?
+    params:
+      options:
+        - label: An enzyme in the potato speeds up the breakdown enormously.
+          correct: true
+        - label: The potato is acidic.
+          feedback: Acid does not cause the foam. A protein does.
+        - label: The potato contains gas.
+          feedback: The gas is oxygen from the peroxide.
+    hints:
+      - Cooked potatoes do not foam.
+      - Heat destroys proteins.
+    explanation: The enzyme catalase splits hydrogen peroxide into water and oxygen millions of times faster.
+
+  - kind: explain
+    id: c1
+    body: An **enzyme** is a protein that speeds up a reaction without being used up. Its starting material, the substrate, fits into a pocket called the active site – like a key in a lock.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: For this enzyme Kₘ = 10 mM. Set the amount of substrate so that it works at exactly half its maximum speed.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 10
+          fixed: true
+    answer:
+      substrate: 10
+    explanation: At [S] = Kₘ, v = vₘₐₓ/2. So Kₘ is the substrate level for half the top speed.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Kₘ = 5 mM. Get the enzyme to at least 90 % of its top speed.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          fixed: true
+    answer:
+      rate:
+        - 90
+        - 100
+    explanation: "Only at 45 mM, nine times Kₘ. The curve flattens: the enzyme is saturated."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why does an enzyme eventually stop speeding up with even more substrate?
+    params:
+      options:
+        - label: All active sites are occupied. It works flat out.
+          correct: true
+        - label: The substrate destroys the enzyme.
+          feedback: The enzyme stays intact. It just has no free pocket left.
+        - label: The enzyme gets tired.
+          feedback: Enzymes do not tire. It is a question of places.
+    hints:
+      - Think of a supermarket checkout.
+      - More customers do not help if the checkout is fully busy.
+    explanation: That is saturation. The top speed vₘₐₓ depends only on the number of enzymes.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The **Michaelis–Menten equation** describes the speed: v = vₘₐₓ · [S] / (Kₘ + [S]). A small Kₘ means the enzyme binds its substrate tightly and is fast even with little substrate."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Kₘ = {{k}} mM, [S] = {{s}} mM. What percentage of vₘₐₓ does the enzyme reach?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * s / (k + s)}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 * s / k
+        misconception: denominator
+        text: The denominator is Kₘ + [S], not just Kₘ.
+    hints:
+      - "Substitute: {{s}} / ({{k}} + {{s}})."
+      - "{{s}} / {{k + s}} × 100"
+    explanation: "{{s}} / {{k + s}} ≈ {{round(1000 * s / (k + s)) / 10}} %."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,5,10]
+        s: choice[2,5,10,20,40]
+      constraints:
+        - s != k
+      defaults:
+        k: 5
+        s: 20
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: At 20 mM substrate the enzyme should reach exactly two thirds of vₘₐₓ. What Kₘ does it have? Set it.
+    params:
+      scene: enzyme
+      controls:
+        substrate:
+          value: 20
+          fixed: true
+    answer:
+      km: 10
+    explanation: 20 / (10 + 20) = 2/3. A smaller Kₘ would be faster, a larger one slower.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: At a fever of 42 °C some enzymes quickly become useless, but not at 37 °C. Why, when heat speeds up reactions?
+    params:
+      options:
+        - label: Too much heat destroys the folding, and the active site loses its shape.
+          correct: true
+        - label: With heat substrate runs out.
+          feedback: The substrate is there, but the lock no longer fits.
+        - label: Enzymes melt like ice.
+          feedback: Proteins do not melt, they unfold.
+    hints:
+      - Enzymes are folded chains.
+      - An egg sets when cooked and never turns runny again.
+    explanation: "Denaturation: up to the optimum speed rises, beyond it collapses. Enzymes from hot springs are more stable – one of them is used for PCR."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an enzyme works and why it becomes saturated.
+    params:
+      keywords:
+        - - substrat
+          - substrate
+        - - aktive zentrum
+          - aktiven zentrum
+          - schloss
+          - active site
+          - lock
+        - - beschleunig
+          - schneller
+          - speed
+          - faster
+        - - sättig
+          - saettig
+          - besetzt
+          - saturat
+          - occupied
+          - full
+      sample: The substrate fits the active site like a key in a lock, and the enzyme speeds up the reaction. With more substrate it gets faster – until all sites are occupied. Then it is saturated.
+    explanation: Fit plus limited places give the Michaelis–Menten curve.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

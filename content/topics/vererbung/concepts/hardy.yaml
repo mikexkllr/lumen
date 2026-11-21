@@ -1,0 +1,202 @@
+id: bio.genetics.hardy
+type: concept
+title: "Das Hardy-Weinberg-Gleichgewicht"
+summary: "Allelhäufigkeiten in einer ganzen Bevölkerung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Blaue Augen sind rezessiv. Verschwinden sie deshalb mit der Zeit aus der Bevölkerung?
+    params:
+      options:
+        - label: Nein. Rezessive Allele bleiben gleich häufig, solange nichts sie verdrängt.
+          correct: true
+        - label: Ja, dominante Allele setzen sich durch.
+          feedback: Dominant heißt nicht häufiger. Es beschreibt nur das Aussehen von Aa.
+        - label: Ja, aber erst in tausend Jahren.
+          feedback: Ohne Selektion bleibt die Häufigkeit stabil.
+    hints:
+      - Gibt ein Aa-Mensch sein a seltener weiter?
+      - Vererbung kopiert Allele, sie bevorzugt keine.
+    explanation: "Das zeigten Hardy und Weinberg 1908: Ohne äußere Kräfte bleiben die Allelhäufigkeiten konstant."
+
+  - kind: explain
+    id: c1
+    body: Sei p der Anteil von Allel A, q der von a. Dann gilt p + q = 1. Bei zufälliger Partnerwahl sind p² Menschen AA, 2pq Aa und q² aa. Das ist das **Hardy-Weinberg-Gleichgewicht**.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Stell den Anteil p so ein, dass 16 % der Menschen das rezessive Merkmal (aa) zeigen.
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 15.9
+        - 16.1
+    explanation: q² = 0,16, also q = 0,4 und p = 0,6. Dann sind 48 % Träger Aa – dreimal so viele wie aa!
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: In einer Bevölkerung ist q = {{q}}. Wie viel Prozent sind reinerbig aa?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * q * q}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 100 * q
+        misconception: allele-vs-genotype
+        text: "Das ist der Anteil des Allels. Für aa braucht es zwei: q · q."
+    hints:
+      - "aa heißt: zwei a-Allele zufällig zusammen."
+      - "{{q}} · {{q}}"
+    explanation: q² = {{q * q}}, also {{100 * q * q}} %.
+    variants:
+      params:
+        q: choice[0.1,0.2,0.3,0.5]
+      defaults:
+        q: 0.2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: sim
+    prompt: Stell das Labor so ein, dass 9 % der Menschen aa sind. Lies ab, wie viele Träger es dann gibt.
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 8.9
+        - 9.1
+    explanation: "q = 0,3, p = 0,7. Träger: 2 · 0,7 · 0,3 = 42 %."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Mukoviszidose ist rezessiv. In Mitteleuropa ist etwa 1 von 2500 Babys betroffen (q² = 1/2500). Wie viel Prozent der Menschen sind Träger (2pq)? Runde auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 3.9
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 0.04
+        misconception: affected
+        text: Das ist der Anteil der Betroffenen in Prozent. Gefragt sind die Träger.
+      - when: numval(state.input) == 2
+        misconception: q-only
+        text: q = 0,02 ist der Allelanteil. Träger sind 2 · p · q.
+    hints:
+      - "Zieh erst die Wurzel: q = 1/50 = 0,02."
+      - 2 · 0,98 · 0,02
+    explanation: 2 · 0,98 · 0,02 ≈ 0,039, also rund 3,9 % – etwa jeder 25. Mensch trägt das Allel, meist ohne es zu wissen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Bei welchem Allelanteil p gibt es die meisten Träger Aa?
+    params:
+      options:
+        - label: p = 0,5
+          correct: true
+        - label: p = 1
+          feedback: Dann gibt es gar kein a, also keine Träger.
+        - label: p = 0,9
+          feedback: "Probier es im Labor: 2 · 0,9 · 0,1 = 18 %."
+    hints:
+      - 2pq = 2p(1 − p) ist eine Parabel.
+      - Sie ist bei 0 und 1 null.
+    explanation: Bei p = q = 0,5 sind genau 50 % Träger – das Maximum von 2p(1 − p).
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: buckets
+    prompt: Bleibt das Gleichgewicht – oder wird es gestört?
+    params:
+      buckets:
+        - id: b1
+          label: bleibt
+        - id: b2
+          label: wird gestört
+      items:
+        - label: Riesig, Partner zufällig
+          bucket: b1
+        - label: Allel macht unfruchtbar
+          bucket: b2
+        - label: Nur zehn Tiere auf einer Insel
+          bucket: b2
+        - label: Viele Tiere wandern zu
+          bucket: b2
+        - label: Partner mit gleichem Merkmal bevorzugt
+          bucket: b2
+    hints:
+      - "Das Gleichgewicht braucht: groß, zufällig, keine Selektion, keine Wanderung, keine Mutation."
+      - In kleinen Gruppen schwanken Allele durch Zufall.
+    explanation: "Jede Störung ist eine Kraft der Evolution: Selektion, Drift, Genfluss, Mutation und nicht-zufällige Partnerwahl."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein seltenes rezessives Allel hat q = 0,01. Wie viele gesunde Träger (2pq) kommen auf einen Betroffenen (q²)?
+    answer:
+      value: 198
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: missing-two
+        text: "Fast: 2pq : q² = 2p : q. Der Faktor 2 fehlt."
+    hints:
+      - Teile 2pq durch q².
+      - "2 · 0,99 : 0,01"
+    explanation: 2p/q = 198. Seltene rezessive Allele verstecken sich fast ganz in Trägern. Darum kann Selektion sie kaum ausmerzen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was das Hardy-Weinberg-Gleichgewicht sagt.
+    params:
+      keywords:
+        - - p²
+          - p2
+          - p hoch 2
+          - p squared
+          - pq
+          - q²
+        - - konstant
+          - gleich
+          - stabil
+          - constant
+          - stable
+          - same
+        - - zufällig
+          - zufaellig
+          - random
+        - - selektion
+          - evolution
+          - groß
+          - gross
+          - selection
+          - large
+      sample: In einer großen Population mit zufälliger Partnerwahl und ohne Selektion bleiben die Allelanteile p und q konstant. Die Genotypen verteilen sich dann als p², 2pq und q².
+    explanation: "Das Gleichgewicht ist die Nulllinie: Jede Abweichung zeigt, dass Evolution wirkt."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

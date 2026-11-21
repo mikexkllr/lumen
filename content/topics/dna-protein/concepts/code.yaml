@@ -1,0 +1,174 @@
+id: bio.molecular.code
+type: concept
+title: "Der genetische Code"
+summary: "Drei Buchstaben, eine Aminosäure."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: Proteine bestehen aus 20 Sorten Aminosäuren. Die RNA hat 4 Buchstaben. Wie viele verschiedene Wörter gibt es, wenn jedes Wort 3 Buchstaben lang ist?
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: multiply-wrong
+        text: "4 · 3 zählt nicht alle Kombinationen. Jede Stelle hat 4 Möglichkeiten: 4 · 4 · 4."
+    hints:
+      - "Erste Stelle: 4 Möglichkeiten. Zweite? Dritte?"
+      - 4 · 4 · 4
+    explanation: 4³ = 64 Wörter – genug für 20 Aminosäuren. Zwei Buchstaben gäben nur 16, zu wenig.
+
+  - kind: explain
+    id: c1
+    body: Je drei Basen der mRNA bilden ein **Codon**. Jedes Codon steht für eine Aminosäure oder für Stopp. AUG heißt Start und bringt die Aminosäure Methionin. UAA, UAG und UGA heißen Stopp.
+
+  - kind: problem
+    id: c2
+    widget: tiles
+    prompt: Baue eine mRNA für Start (Met) – Phe – Gly – Stopp. UUU heißt Phe, GGG heißt Gly.
+    params:
+      tiles:
+        - GGG
+        - UAA
+        - AUG
+        - CCC
+        - UUU
+        - UGG
+      slots: 4
+    answer:
+      sequence:
+        - AUG
+        - UUU
+        - GGG
+        - UAA
+    hints:
+      - Jedes Protein beginnt mit AUG.
+      - Am Ende steht ein Stopp-Codon.
+    explanation: "AUG UUU GGG UAA: Methionin, Phenylalanin, Glycin, Stopp."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Protein hat {{n}} Aminosäuren. Wie viele Basen hat seine mRNA mindestens, mit Stopp-Codon?
+    answer:
+      value: "{{3 * n + 3}}"
+    feedback:
+      - when: numval(state.input) == 3 * n
+        misconception: no-stop
+        text: "Fast: Das Stopp-Codon hat auch drei Basen."
+      - when: numval(state.input) == n
+        misconception: one-base
+        text: Eine Aminosäure braucht drei Basen.
+    hints:
+      - Drei Basen pro Aminosäure.
+      - Plus drei für Stopp.
+    explanation: 3 · {{n}} + 3 = {{3 * n + 3}} Basen. Das Start-AUG ist schon die erste Aminosäure.
+    variants:
+      params:
+        n: choice[100,150,300,500]
+      defaults:
+        n: 300
+
+  - kind: explain
+    id: c4
+    body: Bei der **Translation** liest ein Ribosom die mRNA Codon für Codon. Transfer-RNAs bringen die passenden Aminosäuren. Das Ribosom verknüpft sie zu einer Kette. Die Kette faltet sich zum Protein.
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: "Vom Gen zum Protein: Ordne die Schritte."
+    params:
+      items:
+        - label: Gen auf der DNA
+        - label: Transkription zu mRNA
+        - label: mRNA verlässt den Kern
+        - label: Ribosom liest die Codons
+        - label: Kette faltet sich zum Protein
+    hints:
+      - Erst abschreiben, dann übersetzen.
+      - Gefaltet wird ganz am Schluss.
+    explanation: "DNA → RNA → Protein: das zentrale Dogma der Molekularbiologie."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Der Code hat [[64]] Codons für [[20]] Aminosäuren. Viele Aminosäuren haben also mehrere Codons. Der Code ist [[redundant]].
+      distractors:
+        - "46"
+        - "4"
+        - eindeutig
+    explanation: Leucin etwa hat sechs Codons, Tryptophan nur eines (UGG).
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: GCU, GCC, GCA und GCG stehen alle für Alanin. Was bringt das?
+    params:
+      options:
+        - label: Viele Fehler an der dritten Stelle ändern das Protein gar nicht.
+          correct: true
+        - label: Nichts, es ist Verschwendung.
+          feedback: Die Redundanz puffert Mutationen ab.
+        - label: Alanin wird dadurch häufiger.
+          feedback: Häufigkeit hängt vom Gen ab, nicht von der Zahl der Codons.
+    hints:
+      - Welche Stelle unterscheidet die vier Codons?
+      - Eine Mutation dort bleibt oft stumm.
+    explanation: Die dritte Stelle wackelt oft folgenlos. Das macht den Code fehlertolerant.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Fast alle Lebewesen – Bakterien, Pilze, Pflanzen, Menschen – nutzen denselben Code. Was folgt daraus?
+    params:
+      options:
+        - label: Alles Leben hat einen gemeinsamen Ursprung, und Bakterien können menschliche Gene ablesen.
+          correct: true
+        - label: Der Code ist zufällig überall gleich entstanden.
+          feedback: Bei 64 Codons wäre das extrem unwahrscheinlich.
+        - label: Der Code ist chemisch die einzige Möglichkeit.
+          feedback: Es gibt seltene Varianten, etwa in Mitochondrien. Andere Codes sind möglich.
+    hints:
+      - Ein gemeinsamer Code ist wie eine gemeinsame Sprache.
+      - Darum produzieren Bakterien heute menschliches Insulin.
+    explanation: Der universelle Code ist ein starker Beleg für gemeinsame Abstammung – und die Grundlage der Gentechnik.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die Zelle eine mRNA in ein Protein übersetzt.
+    params:
+      keywords:
+        - - codon
+          - drei basen
+          - triplett
+          - three bases
+          - triplet
+        - - ribosom
+        - - aminosäure
+          - aminosaeure
+          - amino acid
+        - - start
+          - stopp
+          - stop
+          - aug
+      sample: Das Ribosom liest die mRNA in Dreiergruppen, den Codons. Jedes Codon steht für eine Aminosäure. Ab dem Start-Codon AUG wird eine Kette gebaut, bis ein Stopp-Codon kommt.
+    explanation: Codons sind Wörter, Aminosäuren ihre Bedeutung, das Ribosom der Übersetzer.
+    difficulty: 3
+
+srs:
+  cards_from: ["hook", "c3", "d2"]

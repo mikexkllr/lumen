@@ -1,0 +1,203 @@
+id: bio.ecology.pyramid
+type: concept
+title: "The energy pyramid"
+summary: "Only about 10 % reaches the next level."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Roughly how many kilograms of grass does it take for a lion to grow by 1 kg? (grass → zebra → lion)
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: kg
+    answer:
+      value: 100
+      within: 50
+    explanation: "About 100 kg: 100 kg of grass become about 10 kg of zebra, and that becomes 1 kg of lion."
+
+  - kind: explain
+    id: c1
+    body: From one level to the next only about 10 % of the energy gets through. The rest is lost as heat, movement and droppings. This is the **ten percent rule**.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Plants in a meadow store {{e}} kJ. How much of it reaches the meat-eaters that eat the plant-eaters?
+    params:
+      unit: kJ
+    answer:
+      value: "{{e / 100}}"
+    feedback:
+      - when: numval(state.input) == e / 10
+        misconception: one-step
+        text: That is at the plant-eaters. It goes up one more level.
+      - when: numval(state.input) == e * 0.8
+        misconception: loss-confusion
+        text: Not 80 % remains, only 10 % per level.
+    hints:
+      - "Two steps: plant → plant-eater → meat-eater."
+      - "10 % twice: that is 1 %."
+    explanation: "{{e}} kJ → {{e / 10}} kJ → {{e / 100}} kJ. Only 1 % ends up two levels higher."
+    variants:
+      params:
+        e: choice[10000,20000,50000,100000]
+      defaults:
+        e: 10000
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Why are there far more mice than owls?
+    params:
+      options:
+        - label: Energy is lost at every level. At the top it feeds fewer animals.
+          correct: true
+        - label: Owls breed too slowly.
+          feedback: That is a consequence, not the cause. Energy is the limit.
+        - label: Mice are smaller.
+          feedback: Small animals also appear high in chains, like shrews. What counts is the level.
+    hints:
+      - Where are owls in the pyramid?
+      - Less energy feeds fewer animals.
+    explanation: The pyramid narrows towards the top. That is why top predators are rare.
+
+  - kind: problem
+    id: c4
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: At the bottom of the pyramid are the [[producers]]. Above them come the [[herbivores]], then the [[carnivores]]. About [[10 %]] of the energy reaches each level.
+      distractors:
+        - decomposers
+        - 50 %
+    explanation: Broad base, narrow top – and each level is only a tenth of the one below.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Where does the other 90 % go?
+    reveal:
+      body: "Most of it the animals use themselves: for respiration, movement and warmth. Some stays undigested in droppings or ends up in bones and fur. The decomposers then live on that."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A field yields grain for {{n}} people if they eat it directly. How many people would be fed if the grain went to cattle first? (10 % rule)
+    answer:
+      value: "{{n / 10}}"
+    feedback:
+      - when: numval(state.input) == n * 10
+        misconception: inverse
+        text: "The other way round: energy is lost through the cow, so fewer people."
+    hints:
+      - The cow adds a level in between.
+      - Divide by 10.
+    explanation: Only about {{n / 10}} people. Eating plants saves land – roughly by a factor of 10.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[100,500,1000,5000]
+      defaults:
+        n: 1000
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A chain has {{k}} levels above the plants. What percentage of the plant energy reaches the very top?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / 10 ** k}}"
+      tolerance: 0.0001
+    hints:
+      - Each level multiplies by 0.1.
+      - 100 % × 0.1 to the power {{k}}
+    explanation: 100 % × 0.1^{{k}} = {{100 / 10 ** k}} %. That is why food chains rarely have more than 4 to 5 levels.
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In the open ocean the plankton weighs less in total than the animals eating it. How can that be?
+    params:
+      options:
+        - label: The plankton divides so fast that it keeps regrowing.
+          correct: true
+        - label: The 10 % rule does not apply at sea.
+          feedback: It holds for energy. Only the standing mass is inverted.
+        - label: The animals do not eat plankton.
+          feedback: They do – krill and fish larvae live on it.
+    hints:
+      - Mass is a stock, energy is a flow.
+      - A small amount that renews itself daily can feed many.
+    explanation: The biomass pyramid can be inverted, the energy pyramid never. What counts is production per unit time.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A meadow receives 1,000,000 kJ of sunlight. The plants store 1 % of it. How many kJ reach the fox? (grass → rabbit → fox, 10 % each)
+    params:
+      unit: kJ
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: one-step
+        text: That is at the rabbit. One more level to go.
+      - when: numval(state.input) == 10000
+        misconception: plants-only
+        text: That is what the plants store. Now take 10 % twice more.
+    hints:
+      - First 1 %, then 10 % twice.
+      - 1,000,000 × 0.01 × 0.1 × 0.1
+    explanation: "10,000 kJ in the plants, 1000 in the rabbit, 100 in the fox: only 0.01 % of the sunlight."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain the energy pyramid to Lux.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+        - - stufe
+          - ebene
+          - level
+        - - wärme
+          - waerme
+          - verlust
+          - verlor
+          - heat
+          - lost
+          - loss
+        - - weniger
+          - selten
+          - fewer
+          - less
+          - rare
+      sample: From level to level only about 10 % of the energy gets through. The rest is lost as heat. That is why there are far fewer animals at the top of the pyramid.
+    explanation: Energy flows upward and shrinks at every level.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

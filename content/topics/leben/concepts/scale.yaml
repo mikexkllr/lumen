@@ -1,0 +1,185 @@
+id: bio.life.scale
+type: concept
+title: "Wie klein ist klein?"
+summary: "Mikrometer, Nanometer und Mikroskope."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Bakterium ist winzig. Wie viele passen der Länge nach auf 1 Millimeter?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 500
+      within: 60
+    explanation: Ein Darmbakterium ist etwa 2 µm lang. Also passen rund 500 auf einen Millimeter.
+
+  - kind: explain
+    id: c1
+    body: Für Zellen ist der Millimeter zu grob. Man misst in **Mikrometer**, kurz µm. Ein Mikrometer ist ein Tausendstel Millimeter. Eine Körperzelle misst etwa 10 bis 30 µm.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Ordne nach Größe.
+    params:
+      items:
+        - label: Wassermolekül
+        - label: Grippevirus
+        - label: Bakterium
+        - label: Rote Blutzelle
+        - label: Menschliche Eizelle
+        - label: Ameise
+      startLabel: klein
+      endLabel: groß
+    hints:
+      - Viren sind kleiner als Bakterien.
+      - Die Eizelle ist die größte Zelle des Menschen – gerade noch mit bloßem Auge sichtbar.
+    explanation: Etwa 0,3 nm, 100 nm, 2 µm, 8 µm, 0,1 mm und 5 mm. Jeder Schritt ist ein großer Sprung.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Zelle ist {{d}} µm breit. Wie viele solche Zellen liegen nebeneinander auf 1 cm?
+    answer:
+      value: "{{10000 / d}}"
+    feedback:
+      - when: numval(state.input) == 1000 / d
+        misconception: mm-cm
+        text: Das passt auf 1 mm. Ein Zentimeter hat 10 000 µm.
+    hints:
+      - Rechne 1 cm zuerst in µm um.
+      - 1 cm = 10 mm = 10 000 µm. Teile durch {{d}}.
+    explanation: "10 000 µm : {{d}} µm = {{10000 / d}} Zellen."
+    variants:
+      params:
+        d: choice[10,20,25,50]
+      defaults:
+        d: 20
+
+  - kind: explain
+    id: c4
+    body: Viren sind noch viel kleiner. Man misst sie in **Nanometer**, kurz nm. 1 µm sind 1000 nm. Ein Grippevirus misst etwa 100 nm. Im Lichtmikroskop sieht man es nicht mehr.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Mikroskop vergrößert {{m}}-fach. Eine Zelle ist {{d}} µm groß. Wie viele Millimeter misst sie im Bild?
+    params:
+      unit: mm
+    answer:
+      value: "{{d * m / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == d * m
+        misconception: unit-um
+        text: Das ist das Bild in µm. Teile noch durch 1000.
+    hints:
+      - Bildgröße = echte Größe · Vergrößerung.
+      - "{{d}} µm · {{m}} = {{d * m}} µm. Rechne in mm um."
+    explanation: "{{d}} µm · {{m}} = {{d * m}} µm = {{d * m / 1000}} mm."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[100,400,1000]
+        d: choice[8,10,20]
+      defaults:
+        m: 400
+        d: 8
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Warum zeigt ein Lichtmikroskop keine einzelnen Viren – egal wie stark es vergrößert?
+    params:
+      options:
+        - label: Licht trennt keine Details unter etwa 0,2 µm. Viren sind kleiner.
+          correct: true
+        - label: Viren sind durchsichtig.
+          feedback: Man kann sie färben. Die Grenze liegt im Licht selbst.
+        - label: Es gibt keine so starken Linsen.
+          feedback: Mehr Vergrößerung macht das Bild nur größer, nicht schärfer.
+    hints:
+      - Vergrößern ist nicht dasselbe wie Auflösen.
+      - Die Wellenlänge von Licht liegt bei 400 bis 700 nm.
+    explanation: Die Auflösung ist durch die Wellenlänge begrenzt – etwa die Hälfte davon, rund 200 nm.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: Wie sieht man dann Viren?
+    reveal:
+      body: Mit dem Elektronenmikroskop. Elektronen haben eine viel kürzere Welle als Licht. So sieht man Dinge, die nur wenige Nanometer groß sind. Sogar einzelne Eiweiße.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Bakterium misst 2 µm, ein Mensch 2 m. Um wie viele Zehnerpotenzen ist der Mensch größer?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 1000000
+        misconception: exponent
+        text: Richtig gerechnet – gefragt ist aber die Zahl der Zehnerpotenzen, also der Exponent.
+      - when: numval(state.input) == 3
+        misconception: um-m
+        text: Ein Mikrometer ist ein Millionstel Meter, nicht ein Tausendstel.
+    hints:
+      - Rechne beides in Meter um.
+      - 2 µm = 0,000002 m. Wie oft passt das in 2 m?
+    explanation: "2 m : 0,000002 m = 1 000 000 = 10⁶. Also sechs Zehnerpotenzen."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine Kugelzelle verdoppelt ihren Durchmesser. Wie ändert sich ihr Volumen?
+    params:
+      options:
+        - label: Es wird 8-mal so groß.
+          correct: true
+        - label: Es verdoppelt sich.
+          feedback: "Das Volumen wächst in drei Richtungen: 2 · 2 · 2."
+        - label: Es wird 4-mal so groß.
+          feedback: So wächst die Oberfläche. Das Volumen wächst stärker.
+    hints:
+      - Volumen hat drei Dimensionen.
+      - Rechne 2 hoch 3.
+    explanation: "Volumen wächst mit der dritten Potenz: 2³ = 8. Darum bleiben Zellen klein – mehr dazu im Kurs zur Zelle."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie klein Zellen und Viren sind und wie man sie sieht.
+    params:
+      keywords:
+        - - mikromet
+          - µm
+          - micromet
+        - - nanomet
+          - nm
+        - - lichtmikroskop
+          - light microscope
+          - lichtmikr
+        - - elektron
+          - electron
+      sample: Zellen messen einige Mikrometer, also Tausendstel Millimeter. Viren sind etwa 100 Nanometer klein. Zellen sieht man im Lichtmikroskop, Viren erst im Elektronenmikroskop.
+    explanation: Mikrometer für Zellen, Nanometer für Viren – und Licht hat eine Auflösungsgrenze.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

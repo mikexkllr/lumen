@@ -1,0 +1,200 @@
+id: bio.body.heart
+type: concept
+title: "Das Herz"
+summary: "Eine Pumpe aus Muskel, die nie Pause macht."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie oft schlägt dein Herz an einem einzigen Tag? Schätz mal.
+    params:
+      min: 1000
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 40
+    explanation: Bei 70 Schlägen pro Minute sind es rund 100 000 am Tag – ohne eine einzige Pause.
+
+  - kind: explain
+    id: c1
+    body: Das **Herz** ist ein Muskel, etwa so groß wie deine Faust. Es zieht sich zusammen und drückt Blut in die Adern. Dann entspannt es sich und füllt sich neu.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Dein Puls ist {{p}} Schläge pro Minute. Wie oft schlägt dein Herz an einem Tag?
+    answer:
+      value: "{{p * 1440}}"
+    feedback:
+      - when: numval(state.input) == p * 60
+        misconception: one-hour
+        text: Das ist eine Stunde. Ein Tag hat 24 Stunden.
+    hints:
+      - Wie viele Minuten hat ein Tag?
+      - 24 · 60 = 1440 Minuten. Nimm das mal {{p}}.
+    explanation: "{{p}} · 1440 = {{p * 1440}} Schläge am Tag."
+    variants:
+      params:
+        p: choice[60,70,80]
+      defaults:
+        p: 70
+
+  - kind: explain
+    id: c3
+    body: "Das Herz hat vier Räume: zwei Vorhöfe und zwei **Kammern**. Die rechte Hälfte pumpt Blut zur Lunge. Die linke Hälfte pumpt es in den ganzen Körper."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Folge einem Blutstropfen. Wohin fließt er als Nächstes?
+    params:
+      items:
+        - label: Körper
+        - label: rechter Vorhof
+        - label: rechte Kammer
+        - label: Lunge
+        - label: linker Vorhof
+        - label: linke Kammer
+    hints:
+      - Blut aus dem Körper kommt zuerst in die rechte Herzhälfte.
+      - In der Lunge nimmt es Sauerstoff auf. Danach geht es links weiter.
+    explanation: "Körper, rechts, Lunge, links, Körper: Das Blut läuft durch zwei Kreisläufe."
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Wozu hat das Herz Klappen?
+    params:
+      options:
+        - label: Sie verhindern, dass Blut zurückfließt.
+          correct: true
+        - label: Sie filtern Keime aus dem Blut.
+          feedback: Keime bekämpft das Immunsystem. Klappen sind Ventile.
+        - label: Sie erzeugen den Herzschlag.
+          feedback: Den Takt gibt ein eigener Schrittmacher im Herzmuskel.
+    hints:
+      - Denk an ein Ventil am Fahrradreifen.
+      - Blut soll nur in eine Richtung strömen.
+    explanation: "Die Klappen sind Ventile. Wenn sie zuschlagen, hörst du den Herzton: »bumm-bumm«."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Bei jedem Schlag wirft eine Kammer etwa 70 ml Blut aus. Das ist das **Schlagvolumen**. Schlagvolumen mal Puls ergibt, wie viel Blut pro Minute fließt.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Schlagvolumen {{s}} ml, Puls {{p}} pro Minute. Wie viele Liter pumpt das Herz pro Minute?
+    params:
+      unit: L/min
+    answer:
+      value: "{{s * p / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == s * p
+        misconception: ml-l
+        text: Das sind Milliliter. Teile durch 1000.
+    hints:
+      - Multipliziere Schlagvolumen und Puls.
+      - "{{s}} · {{p}} = {{s * p}} ml. Wie viele Liter sind das?"
+    explanation: "{{s}} ml · {{p}} = {{s * p}} ml = {{s * p / 1000}} L pro Minute. Etwa dein ganzes Blut, jede Minute!"
+    difficulty: 2
+    variants:
+      params:
+        s: choice[60,70,80]
+        p: choice[60,70,80]
+      defaults:
+        s: 70
+        p: 70
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Die Wand der linken Kammer ist viel dicker als die der rechten. Warum?
+    params:
+      options:
+        - label: Sie pumpt Blut durch den ganzen Körper und braucht mehr Druck.
+          correct: true
+        - label: Sie pumpt mehr Blut pro Schlag.
+          feedback: Beide Kammern pumpen gleich viel – sonst staut sich Blut.
+        - label: Sie arbeitet nur beim Sport.
+          feedback: Beide Kammern arbeiten bei jedem Schlag.
+    hints:
+      - "Vergleiche die Wege: Lunge oder ganzer Körper?"
+      - Ein langer Weg mit vielen Gefäßen braucht mehr Druck.
+    explanation: Der Körperkreislauf hat einen viel höheren Widerstand. Darum ist der linke Muskel stärker.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Beim Sport schlägt ein Herz 180-mal pro Minute mit 120 ml pro Schlag. Wie viele Liter pumpt es pro Minute?
+    params:
+      unit: L/min
+    answer:
+      value: 21.6
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 21600
+        misconception: ml-l
+        text: Das sind Milliliter. Teile durch 1000.
+    hints:
+      - Wieder Schlagvolumen mal Puls.
+      - 180 · 120 ml = 21 600 ml.
+    explanation: Über 20 L pro Minute – mehr als viermal so viel wie in Ruhe. Bei Profis sind sogar 35 L möglich.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Herz schlägt 70-mal pro Minute, 80 Jahre lang. Wie viele Milliarden Schläge sind das? Runde auf eine Stelle nach dem Komma.
+    params:
+      unit: Milliarden
+    answer:
+      value: 2.9
+      tolerance: 0.05
+    hints:
+      - Ein Jahr hat 365 · 1440 Minuten.
+      - 70 · 1440 · 365 · 80 – und dann durch eine Milliarde teilen.
+    explanation: 70 · 525 600 · 80 ≈ 2 943 000 000. Fast drei Milliarden Schläge in einem Leben.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das Herz Blut durch den Körper pumpt.
+    params:
+      keywords:
+        - - muskel
+          - muscle
+        - - lunge
+          - lung
+        - - körper
+          - koerper
+          - body
+        - - klappe
+          - ventil
+          - valve
+        - - kammer
+          - vorhof
+          - ventric
+          - atri
+          - chamber
+      sample: Das Herz ist ein Muskel mit vier Räumen. Die rechte Kammer pumpt Blut zur Lunge, die linke in den Körper. Klappen sorgen dafür, dass es nicht zurückfließt.
+    explanation: Zwei Pumpen in einem Muskel, zwei Kreisläufe, und Ventile für eine Richtung.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

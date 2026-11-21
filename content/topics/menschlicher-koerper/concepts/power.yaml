@@ -1,0 +1,196 @@
+id: bio.body.power
+type: concept
+title: "Der Körper als Kraftwerk"
+summary: "Kalorien, Watt und warum das Gehirn so hungrig ist."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Eine Glühbirne braucht 60 Watt. Wie viel Leistung braucht dein Körper im Durchschnitt?
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: W
+    answer:
+      value: 100
+      within: 40
+    explanation: Rund 100 Watt – ein Mensch ist wie eine helle Glühbirne, Tag und Nacht.
+
+  - kind: explain
+    id: c1
+    body: Nahrung liefert **Energie**. Man misst sie in Kilokalorien, kurz kcal, oder in Kilojoule. 1 kcal sind etwa 4,2 kJ. Ein Erwachsener braucht etwa 2000 kcal am Tag.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Jemand isst {{k}} kcal am Tag. Wie viel Leistung ist das in Watt? (1 kcal = 4184 J, ein Tag hat 86 400 s.) Runde auf ganze Watt.
+    params:
+      unit: W
+    answer:
+      value: "{{round(k * 4184 / 86400)}}"
+      tolerance: 1
+    hints:
+      - Watt heißt Joule pro Sekunde.
+      - Rechne {{k}} · 4184 J und teile durch 86 400.
+    explanation: "{{k}} · 4184 J : 86 400 s ≈ {{round(k * 4184 / 86400)}} W."
+    variants:
+      params:
+        k: choice[1800,2000,2400,3000]
+      defaults:
+        k: 2000
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Riegel hat 10 g Fett, 30 g Kohlenhydrate und 5 g Eiweiß. Fett liefert 9 kcal pro Gramm, die anderen 4 kcal. Wie viele kcal hat der Riegel?
+    params:
+      unit: kcal
+    answer:
+      value: 230
+    feedback:
+      - when: numval(state.input) == 180
+        misconception: fat-four
+        text: Fett hat mehr als doppelt so viel Energie pro Gramm. Nimm 9, nicht 4.
+    hints:
+      - Rechne jede Sorte einzeln.
+      - 10 · 9 + 30 · 4 + 5 · 4
+    explanation: 90 + 120 + 20 = 230 kcal. Das Fett liefert fast 40 % davon.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Wofür braucht dein Körper Energie, wenn du schläfst?
+    params:
+      options:
+        - label: Für Herz, Atmung, Gehirn und die Körperwärme
+          correct: true
+        - label: Für nichts – im Schlaf ruht alles.
+          feedback: Dein Herz schlägt und dein Gehirn arbeitet weiter.
+        - label: Nur für Träume
+          feedback: Das Gehirn braucht viel, aber nicht nur fürs Träumen.
+    hints:
+      - Welche Organe arbeiten immer?
+      - Dein Körper hält 37 °C – auch nachts.
+    explanation: "Der Grundumsatz hält dich am Leben: etwa 1600 bis 1800 kcal am Tag, auch ohne Bewegung."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Dein Gehirn wiegt nur etwa 2 % deines Körpers. Es verbraucht aber rund ein Fünftel der Energie in Ruhe. Nervenzellen pumpen ständig Ionen. Das kostet viel **Grundumsatz**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Dein Körper braucht in Ruhe {{w}} W. Das Gehirn nimmt 20 % davon. Wie viele Watt sind das?
+    params:
+      unit: W
+    answer:
+      value: "{{w / 5}}"
+    hints:
+      - 20 % ist ein Fünftel.
+      - Teile {{w}} durch 5.
+    explanation: "{{w}} W : 5 = {{w / 5}} W – so viel wie ein kleines Lämpchen, für all dein Denken."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[80,90,100]
+      defaults:
+        w: 100
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: buckets
+    prompt: Was verbraucht mehr Energie pro Stunde?
+    params:
+      buckets:
+        - id: b1
+          label: wenig
+        - id: b2
+          label: viel
+      items:
+        - label: Schlafen
+          bucket: b1
+        - label: Lesen im Sitzen
+          bucket: b1
+        - label: Fernsehen
+          bucket: b1
+        - label: Joggen
+          bucket: b2
+        - label: Schwimmen
+          bucket: b2
+        - label: Treppen steigen
+          bucket: b2
+    hints:
+      - Wo arbeiten große Muskeln?
+      - Muskeln in Bewegung brauchen viel mehr als ruhende.
+    explanation: Beim Joggen steigt der Bedarf auf das Acht- bis Zehnfache des Ruhewerts.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Große Tiere brauchen mehr Energie, aber pro Kilo weniger. Grob gilt: Der Umsatz wächst mit der Masse hoch 3/4. Das ist das **Kleiber-Gesetz**."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Tier ist 16-mal so schwer wie ein anderes. Wievielmal so viel Energie braucht es nach dem Kleiber-Gesetz?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: linear-scaling
+        text: Das wäre ein Umsatz proportional zur Masse. Rechne 16 hoch 3/4.
+      - when: numval(state.input) == 12
+        misconception: times-exponent
+        text: 3/4 von 16 ist nicht 16 hoch 3/4. Ziehe erst die vierte Wurzel.
+    hints:
+      - 16 hoch 3/4 = (vierte Wurzel aus 16) hoch 3.
+      - Die vierte Wurzel aus 16 ist 2.
+    explanation: 16^(3/4) = 2³ = 8. Pro Kilo braucht das große Tier nur halb so viel. Darum lebt eine Maus so viel schneller als ein Elefant.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Atmung, Verdauung und Kreislauf zusammen deine Zellen mit Energie versorgen.
+    params:
+      keywords:
+        - - lunge
+          - sauerstoff
+          - lung
+          - oxygen
+        - - darm
+          - verdau
+          - zucker
+          - nahrung
+          - gut
+          - digest
+          - sugar
+          - food
+        - - herz
+          - blut
+          - heart
+          - blood
+        - - zelle
+          - cell
+        - - energie
+          - energy
+          - watt
+          - kcal
+      sample: Die Lunge holt Sauerstoff, der Darm liefert Zucker aus der Nahrung. Herz und Blut bringen beides zu jeder Zelle. Dort wird der Zucker mit Sauerstoff verbrannt, und das gibt Energie, rund 100 Watt.
+    explanation: "Organe arbeiten als Team: Aufnahme, Transport und Verbrauch in den Zellen."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

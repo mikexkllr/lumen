@@ -1,0 +1,176 @@
+id: bio.body.lungs
+type: concept
+title: "Die Lunge"
+summary: "Wie Sauerstoff ins Blut kommt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Wie viele Atemzüge machst du an einem Tag?
+    params:
+      min: 100
+      max: 1000000
+      scale: log
+    answer:
+      value: 20000
+      within: 50
+    explanation: In Ruhe etwa 12 bis 20 pro Minute. Das sind rund 20 000 am Tag.
+
+  - kind: explain
+    id: c1
+    body: Beim Einatmen spannt sich das **Zwerchfell** an, ein Muskel unter der Lunge. Es zieht nach unten. Der Brustraum wird größer, und Luft strömt hinein.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Einatmen oder Ausatmen?
+    params:
+      buckets:
+        - id: b1
+          label: Einatmen
+        - id: b2
+          label: Ausatmen
+      items:
+        - label: Zwerchfell spannt sich an
+          bucket: b1
+        - label: Brustkorb wird weiter
+          bucket: b1
+        - label: Druck in der Lunge sinkt
+          bucket: b1
+        - label: Zwerchfell entspannt sich
+          bucket: b2
+        - label: Brustkorb wird enger
+          bucket: b2
+        - label: Luft strömt hinaus
+          bucket: b2
+    hints:
+      - Mehr Platz bedeutet weniger Druck.
+      - Luft strömt immer vom hohen zum niedrigen Druck.
+    explanation: Die Lunge saugt nicht selbst. Muskeln ändern den Raum, und der Druck schiebt die Luft.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Atemzug bewegt 0,5 L Luft. Du atmest {{f}}-mal pro Minute. Wie viele Liter pro Minute sind das?
+    params:
+      unit: L/min
+    answer:
+      value: "{{0.5 * f}}"
+      tolerance: 0.01
+    hints:
+      - Luft pro Atemzug mal Anzahl.
+      - 0,5 · {{f}}
+    explanation: 0,5 L · {{f}} = {{0.5 * f}} L pro Minute.
+    variants:
+      params:
+        f: int[12,20]
+      defaults:
+        f: 14
+
+  - kind: explain
+    id: c4
+    body: In der Lunge enden die Luftwege in Hunderten Millionen winziger **Lungenbläschen**. Ihre Wand ist hauchdünn. Sauerstoff wandert hindurch ins Blut, Kohlendioxid in die Gegenrichtung.
+
+  - kind: problem
+    id: c5
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Beim Einatmen kommt Luft mit 21 % [[Sauerstoff]] in die Lunge. Ausgeatmete Luft enthält rund 100-mal mehr [[Kohlendioxid]]. Der Austausch geschieht in den [[Lungenbläschen]].
+      distractors:
+        - Stickstoff
+        - Luftröhre
+        - Wasserstoff
+    explanation: "Einatmen: etwa 21 % O₂, 0,04 % CO₂. Ausatmen: etwa 16 % O₂, 4 % CO₂."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Atemzug hat 500 ml Luft. Eingeatmet enthält sie 21 % Sauerstoff, ausgeatmet 16 %. Wie viele ml Sauerstoff behält der Körper pro Atemzug? (vereinfacht)
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 105
+        misconception: all-oxygen
+        text: Das ist der ganze Sauerstoff im Atemzug. Ein Teil kommt wieder heraus.
+    hints:
+      - Wie viele Prozentpunkte bleiben im Körper?
+      - 5 % von 500 ml.
+    explanation: 21 % − 16 % = 5 %. 5 % von 500 ml = 25 ml Sauerstoff pro Atemzug.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Warum hat die Lunge Hunderte Millionen kleine Bläschen statt eines großen Sacks?
+    params:
+      options:
+        - label: Viele kleine Bläschen haben zusammen eine riesige Oberfläche.
+          correct: true
+        - label: Damit die Lunge leichter wird.
+          feedback: Das Gewicht ist nicht der Grund. Es geht um die Fläche für den Austausch.
+        - label: Damit mehr Luft hineinpasst.
+          feedback: Das Volumen ändert sich kaum. Die Oberfläche wächst enorm.
+    hints:
+      - Gase wandern durch Flächen.
+      - "Teil einen Ball in viele kleine Bälle: Was passiert mit der Oberfläche?"
+    explanation: Die Bläschen bilden zusammen rund 100 m² Fläche – so viel wie eine große Wohnung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Was treibt dich vor allem zum Atmen an, wenn du die Luft anhältst?
+    params:
+      options:
+        - label: Steigendes Kohlendioxid im Blut
+          correct: true
+        - label: Fehlender Sauerstoff
+          feedback: Sauerstoffmangel spürt der Körper erst spät. Das ist gefährlich.
+        - label: Müde Muskeln im Brustkorb
+          feedback: Die Muskeln sind nicht erschöpft. Ein Sensor misst das Blut.
+    hints:
+      - Welcher Stoff sammelt sich an, wenn du nicht ausatmest?
+      - CO₂ macht das Blut saurer. Das merkt das Gehirn.
+    explanation: Sensoren messen CO₂ und pH. Wer vor dem Tauchen hechelt, senkt das CO₂ – und kann ohne Warnung bewusstlos werden.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Sauerstoff aus der Luft in dein Blut kommt.
+    params:
+      keywords:
+        - - zwerchfell
+          - diaphragm
+          - muskel
+          - muscle
+        - - bläschen
+          - blaeschen
+          - alveol
+        - - dünn
+          - duenn
+          - thin
+          - wand
+          - wall
+        - - blut
+          - blood
+        - - kohlendioxid
+          - co2
+          - co₂
+          - carbon dioxide
+      sample: Das Zwerchfell zieht nach unten, und Luft strömt in die Lunge. In den Lungenbläschen ist die Wand ganz dünn. Sauerstoff geht ins Blut, Kohlendioxid hinaus.
+    explanation: Muskeln bewegen die Luft, dünne Wände machen den Austausch leicht.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

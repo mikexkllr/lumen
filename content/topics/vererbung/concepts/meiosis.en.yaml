@@ -1,0 +1,155 @@
+id: bio.genetics.meiosis
+type: concept
+title: "Meiosis and variety"
+summary: "Why siblings are so different."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Your parents have a second child. How many different chromosome mixes can one mother alone pack into her egg cells?
+    params:
+      min: 10
+      max: 10000000000
+      scale: log
+    answer:
+      value: 8400000
+      within: 50
+    explanation: Over 8 million – and that is without crossing over. That is why no sibling matches another, except identical twins.
+
+  - kind: explain
+    id: c1
+    body: Egg and sperm cells have only 23 chromosomes, half the usual number. They arise by **meiosis**, a special kind of division. At fertilisation two halves fuse back into 46.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A dog’s body cell has 78 chromosomes. How many does a dog sperm cell have?
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 78
+        misconception: no-halving
+        text: Then the puppy would have 156. Sex cells carry half.
+    hints:
+      - Sex cells carry a single set.
+      - 78 ÷ 2
+    explanation: "39 + 39 = 78: egg and sperm make a complete double set again."
+
+  - kind: explain
+    id: c3
+    body: In meiosis one chromosome of each pair is passed on at random. Sometimes the grandfather’s, sometimes the grandmother’s. With 23 pairs that gives 2 to the power 23 **combinations**.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: An animal has {{n}} chromosome pairs. How many different sex cells can it make just by random sorting?
+    answer:
+      value: "{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: additive
+        text: "The pairs combine: multiply, don’t add."
+    hints:
+      - Each pair has 2 options.
+      - 2 × 2 × … ({{n}} times)
+    explanation: 2^{{n}} = {{2 ** n}}. In humans, with 23 pairs, it is 8,388,608.
+    variants:
+      params:
+        n: int[3,8]
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In meiosis the partner chromosomes pair up closely. They swap pieces with each other. This **crossing over** reshuffles even the genes within a single chromosome.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Two genes lie right next to each other on the same chromosome. What follows from that?
+    params:
+      options:
+        - label: They are usually inherited together – only rarely does crossing over separate them.
+          correct: true
+        - label: They are always inherited separately.
+          feedback: Close together means almost always together.
+        - label: They merge into one gene.
+          feedback: Genes stay separate sections.
+    hints:
+      - Crossing over cuts at random places.
+      - The closer, the rarer a cut falls between them.
+    explanation: This is called linkage. Researchers built the first gene maps from how often genes are separated.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Without crossing over: what is the chance that two siblings get exactly the same chromosome mix from their mother? Give 1 in how many?"
+    answer:
+      value: 8388608
+    feedback:
+      - when: numval(state.input) == 46
+        misconception: count-chromosomes
+        text: "The question is about combinations: 2 to the power 23."
+    hints:
+      - The first child gets some mix. How likely is the second to get exactly that one?
+      - There are 2²³ equally likely mixes.
+    explanation: 1 in 8,388,608 – and the same again from the father. With crossing over it is practically impossible.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: In Down syndrome every cell has three copies of chromosome 21. How can that come about?
+    params:
+      options:
+        - label: In meiosis a chromosome pair failed to separate. One sex cell got two copies.
+          correct: true
+        - label: Through an infection in pregnancy
+          feedback: The cause lies in the division of the sex cell.
+        - label: Through too much crossing over
+          feedback: Crossing over swaps pieces, it does not change the number.
+    hints:
+      - How many copies does each sex cell normally bring?
+      - 2 + 1 = 3
+    explanation: This is called non-disjunction. The risk rises with the mother’s age because egg cells pause in meiosis for decades.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why siblings are never exactly alike.
+    params:
+      keywords:
+        - - meiose
+          - meiosis
+        - - zufall
+          - zufällig
+          - zufaellig
+          - random
+          - chance
+        - - crossing
+          - austausch
+          - tausch
+          - swap
+          - exchang
+        - - "23"
+          - hälfte
+          - haelfte
+          - half
+      sample: In meiosis each sex cell gets half, 23 chromosomes. Which chromosome of a pair is passed on is random. On top of that, crossing over swaps pieces. So every egg and sperm cell is unique.
+    explanation: Random sorting plus crossing over makes every sex cell new.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

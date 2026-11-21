@@ -1,0 +1,176 @@
+id: bio.metabolism.enzyme
+type: concept
+title: "Enzyme bei der Arbeit"
+summary: "Schlüssel, Schloss und die Michaelis-Menten-Kurve."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Wasserstoffperoxid zerfällt im Regal kaum. Auf einer frischen Kartoffelscheibe schäumt es sofort. Warum?
+    params:
+      options:
+        - label: Ein Enzym in der Kartoffel beschleunigt den Zerfall enorm.
+          correct: true
+        - label: Die Kartoffel ist sauer.
+          feedback: Säure schäumt hier nicht. Es ist ein Eiweiß, das wirkt.
+        - label: Die Kartoffel enthält Gas.
+          feedback: Das Gas ist Sauerstoff aus dem Peroxid.
+    hints:
+      - Gekochte Kartoffeln schäumen nicht.
+      - Hitze zerstört Eiweiße.
+    explanation: Das Enzym Katalase spaltet Wasserstoffperoxid millionenfach schneller in Wasser und Sauerstoff.
+
+  - kind: explain
+    id: c1
+    body: Ein **Enzym** ist ein Eiweiß, das eine Reaktion beschleunigt, ohne verbraucht zu werden. Sein Ausgangsstoff, das Substrat, passt in eine Tasche, das aktive Zentrum – wie ein Schlüssel ins Schloss.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Bei diesem Enzym ist Kₘ = 10 mM. Stell die Substratmenge so ein, dass es genau halb so schnell arbeitet wie maximal.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          value: 10
+          fixed: true
+    answer:
+      substrate: 10
+    explanation: Bei [S] = Kₘ ist v = vₘₐₓ/2. Kₘ ist also die Substratmenge für halbe Höchstgeschwindigkeit.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Kₘ = 5 mM. Bring das Enzym auf mindestens 90 % seiner Höchstgeschwindigkeit.
+    params:
+      scene: enzyme
+      controls:
+        km:
+          fixed: true
+    answer:
+      rate:
+        - 90
+        - 100
+    explanation: "Erst bei 45 mM, dem Neunfachen von Kₘ. Die Kurve flacht ab: Das Enzym ist gesättigt."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum wird ein Enzym mit noch mehr Substrat irgendwann nicht schneller?
+    params:
+      options:
+        - label: Alle aktiven Zentren sind besetzt. Es arbeitet am Anschlag.
+          correct: true
+        - label: Das Substrat zerstört das Enzym.
+          feedback: Das Enzym bleibt heil. Es hat nur keine freie Tasche mehr.
+        - label: Das Enzym wird müde.
+          feedback: Enzyme ermüden nicht. Es ist eine Frage der Plätze.
+    hints:
+      - Denk an eine Kasse im Supermarkt.
+      - Mehr Kunden helfen nicht, wenn die Kasse voll ausgelastet ist.
+    explanation: Das ist die Sättigung. Die Höchstgeschwindigkeit vₘₐₓ hängt nur von der Zahl der Enzyme ab.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die **Michaelis-Menten-Gleichung** beschreibt das Tempo: v = vₘₐₓ · [S] / (Kₘ + [S]). Ein kleines Kₘ heißt: Das Enzym bindet sein Substrat fest und ist schon bei wenig Substrat schnell."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Kₘ = {{k}} mM, [S] = {{s}} mM. Wie viel Prozent von vₘₐₓ erreicht das Enzym?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * s / (k + s)}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 * s / k
+        misconception: denominator
+        text: Im Nenner steht Kₘ + [S], nicht nur Kₘ.
+    hints:
+      - "Setz ein: {{s}} / ({{k}} + {{s}})."
+      - "{{s}} / {{k + s}} · 100"
+    explanation: "{{s}} / {{k + s}} ≈ {{round(1000 * s / (k + s)) / 10}} %."
+    difficulty: 2
+    variants:
+      params:
+        k: choice[2,5,10]
+        s: choice[2,5,10,20,40]
+      constraints:
+        - s != k
+      defaults:
+        k: 5
+        s: 20
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: Bei 20 mM Substrat soll das Enzym genau zwei Drittel von vₘₐₓ schaffen. Welches Kₘ hat es? Stell es ein.
+    params:
+      scene: enzyme
+      controls:
+        substrate:
+          value: 20
+          fixed: true
+    answer:
+      km: 10
+    explanation: 20 / (10 + 20) = 2/3. Kleineres Kₘ wäre schneller, größeres langsamer.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Bei 42 °C Fieber werden manche Enzyme schnell unbrauchbar, bei 37 °C nicht. Warum, wenn Wärme Reaktionen doch beschleunigt?
+    params:
+      options:
+        - label: Zu viel Wärme zerstört die Faltung, und das aktive Zentrum verliert seine Form.
+          correct: true
+        - label: Bei Wärme fehlt Substrat.
+          feedback: Das Substrat ist da, aber das Schloss passt nicht mehr.
+        - label: Enzyme schmelzen wie Eis.
+          feedback: Eiweiße schmelzen nicht, sie entfalten sich.
+    hints:
+      - Enzyme sind gefaltete Ketten.
+      - Ein Ei wird beim Kochen fest und nie wieder flüssig.
+    explanation: "Denaturierung: Bis zum Optimum steigt das Tempo, danach bricht es ein. Enzyme aus heißen Quellen sind stabiler – eines davon nutzt man für die PCR."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Enzym arbeitet und warum es gesättigt wird.
+    params:
+      keywords:
+        - - substrat
+          - substrate
+        - - aktive zentrum
+          - aktiven zentrum
+          - schloss
+          - active site
+          - lock
+        - - beschleunig
+          - schneller
+          - speed
+          - faster
+        - - sättig
+          - saettig
+          - besetzt
+          - saturat
+          - occupied
+          - full
+      sample: Das Substrat passt ins aktive Zentrum wie ein Schlüssel ins Schloss, und das Enzym beschleunigt die Reaktion. Mit mehr Substrat wird es schneller – bis alle Zentren besetzt sind. Dann ist es gesättigt.
+    explanation: Passform plus begrenzte Plätze ergeben die Michaelis-Menten-Kurve.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

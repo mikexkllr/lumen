@@ -1,0 +1,188 @@
+id: bio.immune.vaccine
+type: concept
+title: "Impfung"
+summary: "Das Immunsystem trainieren, ohne krank zu werden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Edward Jenner ritzte 1796 einem Jungen Kuhpocken in die Haut. Danach bekam der Junge keine echten Pocken. Warum?
+    params:
+      options:
+        - label: Die harmlosen Kuhpocken ähnelten den Pocken. Das Immunsystem lernte, beide abzuwehren.
+          correct: true
+        - label: Kuhpocken töten Pockenviren.
+          feedback: Die Viren kämpfen nicht gegeneinander. Das Immunsystem tut es.
+        - label: Reiner Zufall
+          feedback: Das Experiment klappte immer wieder – kein Zufall.
+    hints:
+      - Antikörper erkennen Formen.
+      - Ähnliche Viren haben ähnliche Merkmale.
+    explanation: Das war die erste Impfung. Das Wort »Vakzin« kommt von lateinisch vacca, die Kuh.
+
+  - kind: explain
+    id: c1
+    body: Eine **Impfung** zeigt dem Immunsystem ein harmloses Stück oder eine schwache Form des Erregers. Es bildet Antikörper und Gedächtniszellen. Kommt der echte Erreger, ist der Schutz schon da.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Was steckt in diesem Impfstoff?
+    params:
+      buckets:
+        - id: b1
+          label: abgeschwächter Erreger
+        - id: b2
+          label: abgetöteter Erreger oder Stück
+        - id: b3
+          label: Bauplan als mRNA
+      items:
+        - label: Masern-Mumps-Röteln
+          bucket: b1
+        - label: Gelbfieber
+          bucket: b1
+        - label: Tetanus (entgiftetes Gift)
+          bucket: b2
+        - label: Hepatitis B (ein Eiweiß)
+          bucket: b2
+        - label: Comirnaty gegen Covid-19
+          bucket: b3
+    hints:
+      - Lebendimpfstoffe vermehren sich schwach im Körper.
+      - mRNA-Impfstoffe liefern nur die Anleitung für ein Eiweiß.
+    explanation: "Alle Wege haben dasselbe Ziel: ein Gedächtnis, ohne die Krankheit durchzumachen."
+
+  - kind: problem
+    id: c3
+    widget: estimate
+    prompt: Eine Studie von 2024 schätzt, wie viele Leben Impfprogramme seit 1974 weltweit gerettet haben. Schätz mal – in Millionen.
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: Millionen
+    answer:
+      value: 154
+      within: 40
+    explanation: Rund 154 Millionen, die meisten davon Babys und Kleinkinder. Allein die Masernimpfung rettete etwa 94 Millionen.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Impf-Fakten: Stimmt das?"
+    params:
+      cards:
+        - text: Die Pocken gelten seit 1980 als ausgerottet.
+          right: true
+          why: Dank einer weltweiten Impfkampagne.
+        - text: Impfungen machen die Krankheit, gegen die sie schützen.
+          right: false
+          why: Tot- und mRNA-Impfstoffe können das gar nicht. Leichte Beschwerden sind die Reaktion des Immunsystems.
+        - text: Manche Impfungen brauchen eine Auffrischung.
+          right: true
+          why: Bei Tetanus etwa alle zehn Jahre.
+        - text: Ein Antibiotikum ist eine Impfung gegen Bakterien.
+          right: false
+          why: Antibiotika töten Bakterien direkt, Impfungen trainieren den Körper.
+    explanation: Impfen heißt vorbeugen durch Training – nicht behandeln.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Eine Impfung schützt nicht jeden gleich gut. Die **Wirksamkeit** sagt, um wie viel Prozent das Risiko sinkt. 90 % heißt: Von 100 Ungeimpften, die erkranken würden, erkranken mit Impfung nur 10."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ohne Impfung erkranken {{u}} von 1000 Menschen. Die Impfung wirkt zu {{e}} %. Wie viele von 1000 Geimpften erkranken?
+    answer:
+      value: "{{u * (100 - e) / 100}}"
+    feedback:
+      - when: numval(state.input) == u * e / 100
+        misconception: swapped
+        text: Das sind die, die geschützt werden. Gefragt sind die, die trotzdem erkranken.
+    hints:
+      - Das Risiko sinkt um {{e}} %. Es bleiben {{100 - e}} %.
+      - "{{u}} · {{(100 - e) / 100}}"
+    explanation: "{{u}} · {{(100 - e) / 100}} = {{u * (100 - e) / 100}}. Aus {{u}} Fällen werden {{u * (100 - e) / 100}}."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[50,100,200]
+        e: choice[60,80,90,95]
+      defaults:
+        u: 100
+        e: 90
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: In einer Klinik sind 9 von 10 Patienten mit einer Krankheit geimpft. Heißt das, die Impfung wirkt nicht?
+    params:
+      options:
+        - label: Nicht unbedingt. Wenn fast alle geimpft sind, sind auch unter den Kranken viele Geimpfte.
+          correct: true
+        - label: Ja, eindeutig.
+          feedback: Man muss mit der Zahl aller Geimpften und Ungeimpften vergleichen.
+        - label: Ja, sie macht sogar krank.
+          feedback: Das folgt aus diesen Zahlen nicht.
+    hints:
+      - Wie viele Menschen sind insgesamt geimpft?
+      - Vergleiche Raten, nicht Köpfe.
+    explanation: Sind 99 % geimpft, kann eine gute Impfung trotzdem 9 von 10 Kranken stellen. Das ist der Basisraten-Fehler.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Von 1 000 000 Geimpften sind 990 000 geschützt und 10 000 nicht. Von 10 000 Ungeimpften ist keiner geschützt. Bei einem Ausbruch erkranken 10 % der Ungeschützten. Wie viel Prozent der Kranken sind geimpft?
+    params:
+      unit: "%"
+    answer:
+      value: 50
+    hints:
+      - Ungeschützt sind 10 000 Geimpfte und 10 000 Ungeimpfte.
+      - "Je 10 % davon erkranken: 1000 und 1000."
+    explanation: "1000 geimpfte und 1000 ungeimpfte Kranke: 50 %. Dabei senkt die Impfung das Risiko um 99 %!"
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Impfung schützt.
+    params:
+      keywords:
+        - - harmlos
+          - abgeschwächt
+          - abgeschwaecht
+          - stück
+          - stueck
+          - harmless
+          - weaken
+          - piece
+        - - antikörper
+          - antikoerper
+          - antibod
+        - - gedächtnis
+          - gedaechtnis
+          - memory
+        - - ohne krank
+          - nicht krank
+          - without getting ill
+          - not ill
+          - without illness
+      sample: Die Impfung zeigt dem Körper ein harmloses Stück des Erregers. Das Immunsystem bildet Antikörper und Gedächtniszellen, ohne krank zu werden. Kommt später der echte Erreger, wird er schnell erkannt.
+    explanation: Training ohne Krankheit – das Gedächtnis ist der Schutz.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

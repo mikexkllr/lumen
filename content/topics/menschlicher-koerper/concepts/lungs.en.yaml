@@ -1,0 +1,176 @@
+id: bio.body.lungs
+type: concept
+title: "The lungs"
+summary: "How oxygen gets into the blood."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: How many breaths do you take in a day?
+    params:
+      min: 100
+      max: 1000000
+      scale: log
+    answer:
+      value: 20000
+      within: 50
+    explanation: At rest about 12 to 20 a minute. That is about 20,000 a day.
+
+  - kind: explain
+    id: c1
+    body: When you breathe in, the **diaphragm**, a muscle below the lungs, tightens. It pulls downward. The chest gets bigger and air flows in.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Breathing in or breathing out?
+    params:
+      buckets:
+        - id: b1
+          label: Breathing in
+        - id: b2
+          label: Breathing out
+      items:
+        - label: Diaphragm tightens
+          bucket: b1
+        - label: Chest expands
+          bucket: b1
+        - label: Pressure in lungs drops
+          bucket: b1
+        - label: Diaphragm relaxes
+          bucket: b2
+        - label: Chest gets smaller
+          bucket: b2
+        - label: Air flows out
+          bucket: b2
+    hints:
+      - More space means lower pressure.
+      - Air always flows from high to low pressure.
+    explanation: The lungs do not suck by themselves. Muscles change the space, and pressure pushes the air.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: One breath moves 0.5 L of air. You breathe {{f}} times a minute. How many litres per minute is that?
+    params:
+      unit: L/min
+    answer:
+      value: "{{0.5 * f}}"
+      tolerance: 0.01
+    hints:
+      - Air per breath times number of breaths.
+      - 0.5 × {{f}}
+    explanation: 0.5 L × {{f}} = {{0.5 * f}} L per minute.
+    variants:
+      params:
+        f: int[12,20]
+      defaults:
+        f: 14
+
+  - kind: explain
+    id: c4
+    body: In the lungs the airways end in hundreds of millions of tiny **alveoli**. Their walls are wafer-thin. Oxygen passes through into the blood, carbon dioxide the other way.
+
+  - kind: problem
+    id: c5
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Inhaled air brings 21 % [[oxygen]] into the lungs. Exhaled air contains about 100 times more [[carbon dioxide]]. The exchange happens in the [[alveoli]].
+      distractors:
+        - nitrogen
+        - windpipe
+        - hydrogen
+    explanation: "Inhaled: about 21 % O₂, 0.04 % CO₂. Exhaled: about 16 % O₂, 4 % CO₂."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: One breath has 500 ml of air. Inhaled it holds 21 % oxygen, exhaled 16 %. How many ml of oxygen does the body keep per breath? (simplified)
+    answer:
+      value: 25
+    feedback:
+      - when: numval(state.input) == 105
+        misconception: all-oxygen
+        text: That is all the oxygen in the breath. Some of it comes back out.
+    hints:
+      - How many percentage points stay in the body?
+      - 5 % of 500 ml.
+    explanation: 21 % − 16 % = 5 %. 5 % of 500 ml = 25 ml of oxygen per breath.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Why do the lungs have hundreds of millions of small sacs instead of one big bag?
+    params:
+      options:
+        - label: Many small sacs together have a huge surface.
+          correct: true
+        - label: To make the lungs lighter.
+          feedback: Weight is not the reason. It is about the surface for exchange.
+        - label: So that more air fits inside.
+          feedback: The volume hardly changes. The surface grows enormously.
+    hints:
+      - Gases pass through surfaces.
+      - "Split a ball into many small balls: what happens to the surface?"
+    explanation: Together the alveoli make up about 100 m² – as much as a large flat.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: What mainly forces you to breathe when you hold your breath?
+    params:
+      options:
+        - label: Rising carbon dioxide in the blood
+          correct: true
+        - label: Lack of oxygen
+          feedback: The body senses a lack of oxygen only late. That is dangerous.
+        - label: Tired chest muscles
+          feedback: The muscles are not exhausted. A sensor measures the blood.
+    hints:
+      - Which substance builds up when you don’t breathe out?
+      - CO₂ makes the blood more acidic. The brain notices.
+    explanation: Sensors measure CO₂ and pH. Hyperventilating before diving lowers CO₂ – and can cause blackout without warning.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how oxygen gets from the air into your blood.
+    params:
+      keywords:
+        - - zwerchfell
+          - diaphragm
+          - muskel
+          - muscle
+        - - bläschen
+          - blaeschen
+          - alveol
+        - - dünn
+          - duenn
+          - thin
+          - wand
+          - wall
+        - - blut
+          - blood
+        - - kohlendioxid
+          - co2
+          - co₂
+          - carbon dioxide
+      sample: The diaphragm pulls down and air flows into the lungs. In the alveoli the wall is very thin. Oxygen moves into the blood, carbon dioxide moves out.
+    explanation: Muscles move the air, thin walls make the exchange easy.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

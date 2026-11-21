@@ -1,0 +1,200 @@
+id: bio.body.heart
+type: concept
+title: "The heart"
+summary: "A muscle pump that never takes a break."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: How many times does your heart beat in a single day? Take a guess.
+    params:
+      min: 1000
+      max: 10000000
+      scale: log
+    answer:
+      value: 100000
+      within: 40
+    explanation: At 70 beats per minute that is about 100,000 a day – without a single break.
+
+  - kind: explain
+    id: c1
+    body: The **heart** is a muscle about the size of your fist. It contracts and squeezes blood into the vessels. Then it relaxes and fills up again.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Your pulse is {{p}} beats per minute. How many times does your heart beat in a day?
+    answer:
+      value: "{{p * 1440}}"
+    feedback:
+      - when: numval(state.input) == p * 60
+        misconception: one-hour
+        text: That is one hour. A day has 24 hours.
+    hints:
+      - How many minutes are in a day?
+      - 24 × 60 = 1440 minutes. Multiply by {{p}}.
+    explanation: "{{p}} × 1440 = {{p * 1440}} beats a day."
+    variants:
+      params:
+        p: choice[60,70,80]
+      defaults:
+        p: 70
+
+  - kind: explain
+    id: c3
+    body: "The heart has four chambers: two atria and two **ventricles**. The right half pumps blood to the lungs. The left half pumps it around the whole body."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Follow a drop of blood. Where does it flow next?
+    params:
+      items:
+        - label: Body
+        - label: Right atrium
+        - label: Right ventricle
+        - label: Lungs
+        - label: Left atrium
+        - label: Left ventricle
+    hints:
+      - Blood from the body enters the right half of the heart first.
+      - In the lungs it picks up oxygen. Then it continues on the left.
+    explanation: "Body, right side, lungs, left side, body: blood runs through two circuits."
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Why does the heart have valves?
+    params:
+      options:
+        - label: They stop blood from flowing backwards.
+          correct: true
+        - label: They filter germs out of the blood.
+          feedback: The immune system fights germs. Valves are one-way gates.
+        - label: They create the heartbeat.
+          feedback: The rhythm comes from the heart’s own pacemaker cells.
+    hints:
+      - Think of the valve on a bike tyre.
+      - Blood should flow in one direction only.
+    explanation: 'The valves are one-way gates. When they snap shut you hear the heart sounds: "lub-dub".'
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: With each beat a ventricle ejects about 70 ml of blood. This is the **stroke volume**. Stroke volume times pulse gives how much blood flows per minute.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Stroke volume {{s}} ml, pulse {{p}} per minute. How many litres does the heart pump per minute?
+    params:
+      unit: L/min
+    answer:
+      value: "{{s * p / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == s * p
+        misconception: ml-l
+        text: That is millilitres. Divide by 1000.
+    hints:
+      - Multiply stroke volume by pulse.
+      - "{{s}} × {{p}} = {{s * p}} ml. How many litres is that?"
+    explanation: "{{s}} ml × {{p}} = {{s * p}} ml = {{s * p / 1000}} L per minute. Roughly all your blood, every minute!"
+    difficulty: 2
+    variants:
+      params:
+        s: choice[60,70,80]
+        p: choice[60,70,80]
+      defaults:
+        s: 70
+        p: 70
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: The wall of the left ventricle is much thicker than that of the right. Why?
+    params:
+      options:
+        - label: It pumps blood through the whole body and needs more pressure.
+          correct: true
+        - label: It pumps more blood per beat.
+          feedback: Both ventricles pump the same amount – otherwise blood would back up.
+        - label: It only works during exercise.
+          feedback: Both ventricles work with every beat.
+    hints:
+      - "Compare the routes: lungs or the whole body?"
+      - A long route with many vessels needs more pressure.
+    explanation: The body circuit has much higher resistance. That is why the left muscle is stronger.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: During exercise a heart beats 180 times a minute with 120 ml per beat. How many litres per minute does it pump?
+    params:
+      unit: L/min
+    answer:
+      value: 21.6
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 21600
+        misconception: ml-l
+        text: That is millilitres. Divide by 1000.
+    hints:
+      - Again stroke volume times pulse.
+      - 180 × 120 ml = 21,600 ml.
+    explanation: Over 20 L per minute – more than four times the resting value. Top athletes can reach 35 L.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A heart beats 70 times a minute for 80 years. How many billion beats is that? Round to one decimal place.
+    params:
+      unit: billion
+    answer:
+      value: 2.9
+      tolerance: 0.05
+    hints:
+      - A year has 365 × 1440 minutes.
+      - 70 × 1440 × 365 × 80 – then divide by one billion.
+    explanation: 70 × 525,600 × 80 ≈ 2,943,000,000. Almost three billion beats in a lifetime.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the heart pumps blood around the body.
+    params:
+      keywords:
+        - - muskel
+          - muscle
+        - - lunge
+          - lung
+        - - körper
+          - koerper
+          - body
+        - - klappe
+          - ventil
+          - valve
+        - - kammer
+          - vorhof
+          - ventric
+          - atri
+          - chamber
+      sample: The heart is a muscle with four chambers. The right ventricle pumps blood to the lungs, the left one to the body. Valves keep it from flowing back.
+    explanation: Two pumps in one muscle, two circuits, and valves for one direction.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

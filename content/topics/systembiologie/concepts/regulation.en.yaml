@@ -1,0 +1,199 @@
+id: bio.systems.regulation
+type: concept
+title: "Switching genes on and off"
+summary: "Gene regulation and the lac operon as a logic circuit."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: One of your nerve cells and one of your liver cells have the same DNA. Why are they so different?
+    params:
+      options:
+        - label: Different genes are switched on in each cell.
+          correct: true
+        - label: They have different genes.
+          feedback: Almost all body cells carry the same genome.
+        - label: The liver cell has more DNA.
+          feedback: The amount is the same. What matters is what gets read.
+    hints:
+      - A cookbook contains every recipe, but you don’t cook them all.
+      - Which genes does the cell read?
+    explanation: "Cells differ by gene regulation: which genes are read, when and how strongly."
+
+  - kind: explain
+    id: c1
+    body: "**Gene regulation** controls whether a gene is read. In front of many genes lies a switch that proteins bind to. An activator turns the gene on, a repressor blocks it."
+
+  - kind: explain
+    id: c2
+    body: The bacterium E. coli prefers glucose. Only when lactose is present and glucose is missing does it switch on the genes for digesting lactose. This gene package is called the **lac operon**.
+
+  - kind: problem
+    id: c3
+    widget: gates
+    prompt: The lac operon as a circuit. Set the sugar situation so that the lactose genes are active.
+    params:
+      inputs:
+        - id: L
+          label: Lactose
+        - id: G
+          label: Glucose
+      gates:
+        - id: n
+          type: NOT
+          in:
+            - G
+        - id: a
+          type: AND
+          in:
+            - L
+            - n
+      outputs:
+        - id: lac
+          from: a
+          label: lac genes
+      goal:
+        lac: 1
+    hints:
+      - The genes are only worth it if there is lactose.
+      - Glucose brakes through the NOT gate.
+    explanation: "Lactose on, glucose off: only then is the lamp lit. The cell wastes no energy."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Are the lac genes on or off?
+    params:
+      buckets:
+        - id: b1
+          label: on
+        - id: b2
+          label: off
+      items:
+        - label: Only lactose present
+          bucket: b1
+        - label: Only glucose present
+          bucket: b2
+        - label: Both sugars present
+          bucket: b2
+        - label: No sugar present
+          bucket: b2
+    hints:
+      - Lactose AND NOT glucose.
+      - Glucose is always preferred.
+    explanation: Only one of four cases switches on. That is a logical AND-NOT combination.
+
+  - kind: problem
+    id: c5
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: A [[repressor]] blocks the switch in front of a gene. An [[activator]] turns it on. That is how [[gene regulation]] decides what a cell does.
+      distractors:
+        - ribosome
+        - mutation
+    explanation: On and off switches for genes turn one genome into many cell types.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: order
+    prompt: Lactose appears. Order what happens at the operon.
+    params:
+      items:
+        - label: Repressor sits on the switch
+        - label: Lactose binds to the repressor
+        - label: Repressor falls off
+        - label: Genes are read
+        - label: Enzyme splits lactose
+    hints:
+      - At first the switch is blocked.
+      - Lactose changes the repressor’s shape.
+    explanation: The substance to be broken down switches on its own breakdown. Once it is gone, the repressor binds again.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A mutation destroys the repressor. What happens to the lac genes?
+    params:
+      options:
+        - label: They are always on, even without lactose.
+          correct: true
+        - label: They are always off.
+          feedback: The repressor blocks. Without it nothing blocks.
+        - label: Nothing changes.
+          feedback: The repressor is the off switch. Without it there is no off.
+    hints:
+      - What does a repressor do?
+      - Broken brake, the car rolls.
+    explanation: Mutants like this helped Jacob and Monod understand the operon. Nobel Prize 1965.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: gates
+    prompt: Choose the last gate so that the circuit works like the real lac operon in all four sugar situations.
+    params:
+      inputs:
+        - id: L
+          label: Lactose
+        - id: G
+          label: Glucose
+      gates:
+        - id: n
+          type: NOT
+          in:
+            - G
+        - id: g
+          type: "?"
+          in:
+            - L
+            - n
+          options:
+            - OR
+            - AND
+            - XOR
+      outputs:
+        - id: lac
+          from: g
+          label: lac genes
+    check:
+      predicate: table('lac') == [0, 0, 1, 0]
+    hints:
+      - On only when lactose = 1 and glucose = 0.
+      - Both conditions must hold at once.
+    explanation: "An AND gate: lactose AND NOT glucose. Cells compute with molecules – the core of systems biology."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the lac operon decides whether lactose is digested.
+    params:
+      keywords:
+        - - repressor
+        - - laktose
+          - lactose
+        - - glukose
+          - glucose
+        - - schalter
+          - an
+          - aus
+          - switch
+          - on
+          - off
+      sample: Without lactose the repressor sits on the switch and the genes are off. When lactose comes, it binds the repressor, which falls off, and the genes switch on – but only if there is no glucose.
+    explanation: "A molecular switch with logic: lactose AND NOT glucose."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

@@ -1,0 +1,192 @@
+id: bio.immune.herd
+type: concept
+title: "Herdenschutz"
+summary: "R₀, Impfquoten und das Epidemie-Labor."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Masernkranker steckt ohne Schutz im Schnitt viele Menschen an. Schätz mal, wie viele.
+    params:
+      min: 1
+      max: 100
+      scale: log
+    answer:
+      value: 15
+      within: 40
+    explanation: Etwa 12 bis 18 – Masern sind eine der ansteckendsten Krankheiten überhaupt. Grippe liegt eher bei 1 bis 2.
+
+  - kind: explain
+    id: c1
+    body: Die **Basisreproduktionszahl** R₀ sagt, wie viele Menschen ein Kranker im Schnitt ansteckt, wenn noch niemand geschützt ist. Ist R größer als 1, breitet sich die Krankheit aus. Unter 1 verebbt sie.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Niemand ist geimpft. Stell R₀ so ein, dass höchstens 10 % der Menschen gleichzeitig krank sind.
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          fixed: true
+    answer:
+      peak:
+        - 0
+        - 10
+    explanation: Schon bei R₀ um 2 sind auf dem Gipfel rund 15 % krank. Je kleiner R₀, desto flacher die Welle.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Eine Krankheit hat R₀ = 3. Impfe so wenige Menschen wie möglich, aber so, dass R zu Beginn unter 1 liegt.
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 3
+          fixed: true
+    answer:
+      vaccinated: 70
+    explanation: Bei 65 % ist R noch 1,05, bei 70 % nur noch 0,9. Ab dann kann die Krankheit sich nicht mehr ausbreiten.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: R₀ = {{r}}. Ab welchem Anteil Geschützter (in %) liegt R unter 1? Nutze 1 − 1/R₀.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 - 1 / r)}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 / r
+        misconception: complement
+        text: Das ist 1/R₀. Gesucht ist 1 − 1/R₀.
+    hints:
+      - Jeder Kranke darf im Schnitt nur noch einen Ungeschützten treffen.
+      - 1 − 1/{{r}}
+    explanation: 1 − 1/{{r}} = {{100 * (1 - 1 / r)}} %. Je ansteckender, desto höher muss die Impfquote sein.
+    variants:
+      params:
+        r: choice[4,5,10,20]
+      defaults:
+        r: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Sind genug Menschen geschützt, findet der Erreger kaum neue Opfer. Dann sind auch Ungeimpfte sicher, etwa Babys oder Kranke. Das ist **Herdenschutz**. Für Masern braucht es etwa 95 %.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: R₀ = 4. Finde die kleinste Impfquote, bei der R zu Beginn höchstens 1 ist.
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 4
+          fixed: true
+    answer:
+      vaccinated: 75
+    explanation: 75 % = 1 − 1/4. Genau an dieser Schwelle wird aus einer Welle ein Funke, der erlischt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Eine Impfquote fällt von 95 % auf 85 %. Bei Masern (R₀ ≈ 15) heißt das …
+    params:
+      options:
+        - label: … R liegt wieder über 1. Ausbrüche werden möglich.
+          correct: true
+        - label: … nur 10 % weniger Schutz, kaum ein Unterschied.
+          feedback: "Unter der Schwelle kippt das Verhalten: Aus Einzelfällen werden Wellen."
+        - label: … gar nichts, Masern sind ausgerottet.
+          feedback: Masern gibt es weltweit noch.
+    hints:
+      - Rechne R = 15 · (1 − 0,85).
+      - Liegt das über oder unter 1?
+    explanation: R = 15 · 0,15 = 2,25. Kleine Lücken in der Quote haben große Folgen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: "Finde eine Kombination: R₀ mindestens 5, und trotzdem werden höchstens 1 % der Menschen angesteckt."
+    params:
+      scene: epidemic
+    answer:
+      r0:
+        - 5
+        - 6
+      total:
+        - 0
+        - 1
+    explanation: Mit R₀ = 5 braucht es über 80 % Geschützte. Dann bleibt der Ausbruch ein Strohfeuer.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Impfung schützt nur {{e}} % der Geimpften. R₀ = 5. Wie viel Prozent der Bevölkerung muss man mindestens impfen? Runde auf ganze Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: "{{round(8000 / e)}}"
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: perfect-vaccine
+        text: Das gilt für eine perfekte Impfung. Teile noch durch die Wirksamkeit.
+    hints:
+      - Geschützt müssen 1 − 1/5 = 80 % sein.
+      - "80 % : {{e / 100}}"
+    explanation: "80 % : {{e / 100}} ≈ {{round(8000 / e)}} %. Unvollständiger Schutz treibt die nötige Quote nach oben."
+    difficulty: 3
+    variants:
+      params:
+        e: choice[85,90,95]
+      defaults:
+        e: 90
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Herdenschutz ist und wie man die nötige Impfquote findet.
+    params:
+      keywords:
+        - - r0
+          - r₀
+          - reproduktion
+          - reproduction
+        - - unter 1
+          - kleiner als 1
+          - below 1
+          - less than 1
+          - under 1
+        - - 1 − 1/
+          - 1 - 1/
+          - 1-1/
+        - - ungeimpft
+          - babys
+          - schützt auch
+          - unvaccinated
+          - babies
+          - protects others
+      sample: R₀ sagt, wie viele ein Kranker ansteckt. Sind mehr als 1 − 1/R₀ geschützt, liegt R unter 1, und die Krankheit verebbt. Dann sind auch Ungeimpfte wie Babys geschützt.
+    explanation: Die Schwelle 1 − 1/R₀ verbindet Biologie und Mathematik.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

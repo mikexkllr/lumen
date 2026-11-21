@@ -1,0 +1,181 @@
+id: bio.microbes.bacteria
+type: concept
+title: "Bakterien"
+summary: "Bau, Formen und rasantes Wachstum."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Bakterium teilt sich alle 20 Minuten. Wie viele Zellen wären es nach 10 Stunden ohne jede Grenze?
+    params:
+      min: 100
+      max: 100000000000000
+      scale: log
+    answer:
+      value: 1073741824
+      within: 50
+    explanation: "30 Teilungen: 2³⁰ ≈ 1 Milliarde! In echt bremsen Futter und Abfall das Wachstum viel früher."
+
+  - kind: explain
+    id: c1
+    body: "**Bakterien** sind Einzeller ohne Zellkern. Sie haben eine Zellwand, ein ringförmiges Chromosom und oft Plasmide. Manche schwimmen mit einer Geißel. Die meisten sind harmlos oder sogar nützlich."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: "Nach der Form: Wie heißt das Bakterium?"
+    params:
+      buckets:
+        - id: b1
+          label: Kokke (Kugel)
+        - id: b2
+          label: Stäbchen
+        - id: b3
+          label: Spirille (Schraube)
+      items:
+        - label: Streptokokken im Hals
+          bucket: b1
+        - label: Staphylokokken auf der Haut
+          bucket: b1
+        - label: E. coli im Darm
+          bucket: b2
+        - label: Milchsäurebakterien
+          bucket: b2
+        - label: Erreger der Syphilis
+          bucket: b3
+    hints:
+      - »Kokkos« heißt griechisch Kern oder Beere.
+      - Bazillen sind stäbchenförmig.
+    explanation: Kugeln, Stäbchen und Schrauben – an der Form erkennt man viele Bakterien schon im Mikroskop.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Eine Kolonie verdoppelt sich alle {{t}} Minuten. Aus 1 Zelle – wie viele sind es nach {{h}} Stunden?
+    answer:
+      value: "{{2 ** (60 * h / t)}}"
+    feedback:
+      - when: numval(state.input) == 2 * 60 * h / t
+        misconception: linear
+        text: Verdoppeln heißt mal 2 – immer wieder. Nicht 2 mal die Zahl der Teilungen.
+    hints:
+      - Wie viele Verdopplungen passen in {{h}} Stunden?
+      - "{{60 * h / t}} Verdopplungen: 2 hoch {{60 * h / t}}."
+    explanation: 2^{{60 * h / t}} = {{2 ** (60 * h / t)}} Zellen.
+    variants:
+      params:
+        t: choice[20,30,60]
+        h: int[2,4]
+      defaults:
+        t: 30
+        h: 3
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Bakterien im Alltag – stimmt das?
+    params:
+      cards:
+        - text: Ohne Bakterien gäbe es keinen Joghurt und keinen Käse.
+          right: true
+          why: Milchsäurebakterien säuern die Milch.
+        - text: Alle Bakterien machen krank.
+          right: false
+          why: Nur ein winziger Teil ist krankheitserregend.
+        - text: Bakterien gibt es in heißen Quellen und im ewigen Eis.
+          right: true
+          why: Sie besiedeln fast jeden Ort der Erde.
+        - text: Bakterien sind Viren.
+          right: false
+          why: Bakterien sind Zellen, Viren nicht.
+    explanation: Bakterien sind die erfolgreichsten Lebewesen – und meist unsere Helfer.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In einer Nährlösung wachsen Bakterien in **Wachstumsphasen**. Erst passen sie sich an. Dann verdoppeln sie sich ständig. Wenn Futter knapp wird, bleibt die Zahl stehen. Am Ende sterben sie.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Ordne die Phasen einer Bakterienkultur.
+    params:
+      items:
+        - label: "Anlaufphase: kaum Teilung"
+        - label: "Exponentielle Phase: ständige Verdopplung"
+        - label: "Stationäre Phase: Zahl bleibt gleich"
+        - label: "Absterbephase: Zahl sinkt"
+    hints:
+      - Erst Gewöhnung, dann Explosion.
+      - Am Ende vergiften die Abfälle die Kultur.
+    explanation: Diese vier Phasen sieht man in jedem Labor. Die mittlere Kurve kennst du aus dem Populationslabor.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: "Simuliere eine Bakterienkultur: Sie verdoppelt sich je Generation (100 %), die Schale fasst 1000 Zellen. Finde die erste Generation, in der die Schale zu mindestens 99 % voll ist."
+    params:
+      scene: population
+      controls:
+        rate:
+          value: 100
+          fixed: true
+        capacity:
+          value: 1000
+          fixed: true
+    answer:
+      gens: 9
+    explanation: "Nach wenigen Generationen ist die Schale voll. Exponentiell heißt: Lange passiert wenig, dann alles auf einmal."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Eine Seerose verdoppelt jeden Tag ihre Fläche. Nach 30 Tagen ist der Teich voll. Wann war er halb voll?
+    params:
+      options:
+        - label: Am Tag 29
+          correct: true
+        - label: Am Tag 15
+          feedback: Das wäre lineares Wachstum. Bei Verdopplung fehlt am Ende nur ein Schritt.
+        - label: Am Tag 25
+          feedback: Dann wäre der Teich erst zu 1/32 voll gewesen.
+    hints:
+      - Geh vom Ende rückwärts.
+      - Ein Tag vorher war es die Hälfte.
+    explanation: Am Tag 29. Bei exponentiellem Wachstum kommt die Hälfte des Wachstums im letzten Schritt – darum unterschätzen wir es.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Bakterien gebaut sind und warum sie so schnell mehr werden.
+    params:
+      keywords:
+        - - kern
+          - nucleus
+        - - zellwand
+          - cell wall
+        - - teil
+          - verdoppel
+          - divid
+          - doubl
+        - - exponent
+          - minuten
+          - minutes
+      sample: Bakterien sind Einzeller ohne Zellkern, mit Zellwand und ringförmiger DNA. Sie teilen sich alle 20 bis 30 Minuten und verdoppeln sich so ständig. Das ist exponentielles Wachstum.
+    explanation: Einfacher Bau und schnelle Teilung – darum sind Bakterien überall.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

@@ -1,0 +1,181 @@
+id: bio.microbes.bacteria
+type: concept
+title: "Bacteria"
+summary: "Structure, shapes and explosive growth."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A bacterium divides every 20 minutes. How many cells would there be after 10 hours without any limit?
+    params:
+      min: 100
+      max: 100000000000000
+      scale: log
+    answer:
+      value: 1073741824
+      within: 50
+    explanation: "30 divisions: 2³⁰ ≈ 1 billion! In reality food and waste slow the growth much earlier."
+
+  - kind: explain
+    id: c1
+    body: "**Bacteria** are single cells without a nucleus. They have a cell wall, a ring-shaped chromosome and often plasmids. Some swim using a flagellum. Most are harmless or even useful."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: "By shape: what is the bacterium called?"
+    params:
+      buckets:
+        - id: b1
+          label: Coccus (sphere)
+        - id: b2
+          label: Rod
+        - id: b3
+          label: Spirillum (spiral)
+      items:
+        - label: Streptococci in the throat
+          bucket: b1
+        - label: Staphylococci on the skin
+          bucket: b1
+        - label: E. coli in the gut
+          bucket: b2
+        - label: Lactobacilli
+          bucket: b2
+        - label: Syphilis bacterium
+          bucket: b3
+    hints:
+      - Greek "kokkos" means grain or berry.
+      - Bacilli are rod-shaped.
+    explanation: Spheres, rods and spirals – many bacteria can be identified by shape under the microscope.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A colony doubles every {{t}} minutes. Starting from 1 cell – how many are there after {{h}} hours?
+    answer:
+      value: "{{2 ** (60 * h / t)}}"
+    feedback:
+      - when: numval(state.input) == 2 * 60 * h / t
+        misconception: linear
+        text: Doubling means times 2 – again and again. Not 2 times the number of divisions.
+    hints:
+      - How many doublings fit into {{h}} hours?
+      - "{{60 * h / t}} doublings: 2 to the power {{60 * h / t}}."
+    explanation: 2^{{60 * h / t}} = {{2 ** (60 * h / t)}} cells.
+    variants:
+      params:
+        t: choice[20,30,60]
+        h: int[2,4]
+      defaults:
+        t: 30
+        h: 3
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: Bacteria in everyday life – true or false?
+    params:
+      cards:
+        - text: Without bacteria there would be no yogurt and no cheese.
+          right: true
+          why: Lactic acid bacteria sour the milk.
+        - text: All bacteria make you ill.
+          right: false
+          why: Only a tiny fraction causes disease.
+        - text: Bacteria live in hot springs and in permanent ice.
+          right: true
+          why: They colonise almost every place on Earth.
+        - text: Bacteria are viruses.
+          right: false
+          why: Bacteria are cells, viruses are not.
+    explanation: Bacteria are the most successful living things – and mostly our helpers.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In a nutrient broth bacteria grow in **growth phases**. First they adapt. Then they keep doubling. When food runs short, numbers level off. In the end they die.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Order the phases of a bacterial culture.
+    params:
+      items:
+        - label: "Lag phase: little division"
+        - label: "Exponential phase: constant doubling"
+        - label: "Stationary phase: number stays the same"
+        - label: "Death phase: number falls"
+    hints:
+      - First adjustment, then explosion.
+      - In the end waste poisons the culture.
+    explanation: These four phases appear in every lab. The middle part you know from the population lab.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: "Simulate a bacterial culture: it doubles per generation (100 %), the dish holds 1000 cells. Find the first generation at which the dish is at least 99 % full."
+    params:
+      scene: population
+      controls:
+        rate:
+          value: 100
+          fixed: true
+        capacity:
+          value: 1000
+          fixed: true
+    answer:
+      gens: 9
+    explanation: "After a few generations the dish is full. Exponential means: for a long time little happens, then everything at once."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A water lily doubles its area every day. After 30 days the pond is full. When was it half full?
+    params:
+      options:
+        - label: On day 29
+          correct: true
+        - label: On day 15
+          feedback: That would be linear growth. With doubling only one step is missing at the end.
+        - label: On day 25
+          feedback: Then the pond would only have been 1/32 full.
+    hints:
+      - Work backwards from the end.
+      - One day earlier it was half.
+    explanation: On day 29. With exponential growth half the growth comes in the final step – that is why we underestimate it.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how bacteria are built and why they multiply so fast.
+    params:
+      keywords:
+        - - kern
+          - nucleus
+        - - zellwand
+          - cell wall
+        - - teil
+          - verdoppel
+          - divid
+          - doubl
+        - - exponent
+          - minuten
+          - minutes
+      sample: Bacteria are single cells without a nucleus, with a cell wall and ring-shaped DNA. They divide every 20 to 30 minutes and keep doubling. That is exponential growth.
+    explanation: Simple build and fast division – that is why bacteria are everywhere.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

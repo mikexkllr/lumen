@@ -1,0 +1,199 @@
+id: bio.systems.regulation
+type: concept
+title: "Gene an- und ausschalten"
+summary: "Genregulation und das lac-Operon als Logikschaltung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Nervenzelle und eine Leberzelle von dir haben dieselbe DNA. Warum sind sie so verschieden?
+    params:
+      options:
+        - label: In jeder Zelle sind andere Gene eingeschaltet.
+          correct: true
+        - label: Sie haben verschiedene Gene.
+          feedback: Fast alle Körperzellen tragen dasselbe Erbgut.
+        - label: Die Leberzelle hat mehr DNA.
+          feedback: Die Menge ist gleich. Entscheidend ist, was abgelesen wird.
+    hints:
+      - Ein Kochbuch enthält alle Rezepte, aber man kocht nicht alle.
+      - Welche Gene liest die Zelle ab?
+    explanation: "Zellen unterscheiden sich durch Genregulation: welche Gene wann wie stark abgelesen werden."
+
+  - kind: explain
+    id: c1
+    body: "**Genregulation** steuert, ob ein Gen abgelesen wird. Vor vielen Genen liegt ein Schalter, an den Eiweiße binden. Ein Aktivator schaltet das Gen ein, ein Repressor blockiert es."
+
+  - kind: explain
+    id: c2
+    body: Das Bakterium E. coli frisst am liebsten Glukose. Nur wenn Laktose da ist und Glukose fehlt, schaltet es die Gene zum Laktose-Abbau ein. Dieses Genpaket heißt **lac-Operon**.
+
+  - kind: problem
+    id: c3
+    widget: gates
+    prompt: Das lac-Operon als Schaltung. Stell die Zuckerlage so ein, dass die Laktose-Gene aktiv sind.
+    params:
+      inputs:
+        - id: L
+          label: Laktose
+        - id: G
+          label: Glukose
+      gates:
+        - id: n
+          type: NOT
+          in:
+            - G
+        - id: a
+          type: AND
+          in:
+            - L
+            - n
+      outputs:
+        - id: lac
+          from: a
+          label: lac-Gene
+      goal:
+        lac: 1
+    hints:
+      - Die Gene lohnen sich nur, wenn es Laktose gibt.
+      - Glukose bremst über das NICHT-Gatter.
+    explanation: "Laktose an, Glukose aus: Nur dann leuchtet die Lampe. Die Zelle verschwendet keine Energie."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Sind die lac-Gene an oder aus?
+    params:
+      buckets:
+        - id: b1
+          label: an
+        - id: b2
+          label: aus
+      items:
+        - label: Nur Laktose da
+          bucket: b1
+        - label: Nur Glukose da
+          bucket: b2
+        - label: Beide Zucker da
+          bucket: b2
+        - label: Kein Zucker da
+          bucket: b2
+    hints:
+      - Laktose UND NICHT Glukose.
+      - Glukose ist immer bevorzugt.
+    explanation: Nur ein Fall von vier schaltet ein. Das ist eine logische UND-NICHT-Verknüpfung.
+
+  - kind: problem
+    id: c5
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Ein [[Repressor]] blockiert den Schalter vor einem Gen. Ein [[Aktivator]] schaltet es ein. So bestimmt die [[Genregulation]], was eine Zelle tut.
+      distractors:
+        - Ribosom
+        - Mutation
+    explanation: An- und Ausschalter für Gene machen aus einem Erbgut viele Zelltypen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: order
+    prompt: Laktose taucht auf. Ordne, was am Operon passiert.
+    params:
+      items:
+        - label: Repressor sitzt auf dem Schalter
+        - label: Laktose bindet an den Repressor
+        - label: Repressor fällt ab
+        - label: Gene werden abgelesen
+        - label: Enzym spaltet Laktose
+    hints:
+      - Zuerst ist der Schalter blockiert.
+      - Laktose verändert die Form des Repressors.
+    explanation: Der Stoff, der abgebaut werden soll, schaltet seinen eigenen Abbau ein. Ist er weg, bindet der Repressor wieder.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Eine Mutation zerstört den Repressor. Was passiert mit den lac-Genen?
+    params:
+      options:
+        - label: Sie sind immer an, auch ohne Laktose.
+          correct: true
+        - label: Sie sind immer aus.
+          feedback: Der Repressor blockiert. Ohne ihn blockiert nichts.
+        - label: Nichts ändert sich.
+          feedback: Der Repressor ist der Ausschalter. Fehlt er, fehlt das Aus.
+    hints:
+      - Was tut ein Repressor?
+      - Kaputte Bremse, Auto rollt.
+    explanation: Solche Mutanten halfen Jacob und Monod, das Operon zu verstehen. Nobelpreis 1965.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: gates
+    prompt: Wähle das letzte Gatter so, dass die Schaltung für alle vier Zuckerlagen wie das echte lac-Operon arbeitet.
+    params:
+      inputs:
+        - id: L
+          label: Laktose
+        - id: G
+          label: Glukose
+      gates:
+        - id: n
+          type: NOT
+          in:
+            - G
+        - id: g
+          type: "?"
+          in:
+            - L
+            - n
+          options:
+            - OR
+            - AND
+            - XOR
+      outputs:
+        - id: lac
+          from: g
+          label: lac-Gene
+    check:
+      predicate: table('lac') == [0, 0, 1, 0]
+    hints:
+      - An nur bei Laktose = 1 und Glukose = 0.
+      - Beide Bedingungen müssen zugleich gelten.
+    explanation: "Ein UND-Gatter: Laktose UND NICHT Glukose. Zellen rechnen mit Molekülen – das ist der Kern der Systembiologie."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das lac-Operon entscheidet, ob Laktose verdaut wird.
+    params:
+      keywords:
+        - - repressor
+        - - laktose
+          - lactose
+        - - glukose
+          - glucose
+        - - schalter
+          - an
+          - aus
+          - switch
+          - on
+          - off
+      sample: Ohne Laktose sitzt der Repressor auf dem Schalter, und die Gene sind aus. Kommt Laktose, bindet sie den Repressor, er fällt ab, und die Gene gehen an – aber nur, wenn keine Glukose da ist.
+    explanation: "Ein molekularer Schalter mit Logik: Laktose UND NICHT Glukose."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]

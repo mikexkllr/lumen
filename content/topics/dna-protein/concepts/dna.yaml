@@ -1,0 +1,193 @@
+id: bio.molecular.dna
+type: concept
+title: "Die Doppelhelix"
+summary: "Vier Buchstaben, zwei Stränge, feste Paare."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Zieht man die DNA aus einer einzigen Körperzelle ganz lang, wie lang wird der Faden?
+    params:
+      min: 0.001
+      max: 1000
+      scale: log
+      unit: m
+    answer:
+      value: 2
+      within: 50
+    explanation: Rund 2 Meter – verpackt in einen Zellkern von etwa 6 µm. Das ist, als stopfte man über 20 km Garn in einen Tennisball.
+
+  - kind: explain
+    id: c1
+    body: "DNA ist eine Kette aus vier Bausteinen, den **Basen**: Adenin (A), Thymin (T), Guanin (G) und Cytosin (C). Ihre Reihenfolge ist die Erbinformation – wie Buchstaben in einem Text."
+
+  - kind: explain
+    id: c2
+    body: "Zwei DNA-Stränge winden sich zu einer **Doppelhelix**. Die Basen bilden feste Paare: A mit T, G mit C. Kennst du einen Strang, kennst du den anderen."
+
+  - kind: problem
+    id: c3
+    widget: tiles
+    prompt: Ein Strang lautet A T G C C A. Lege den passenden Gegenstrang.
+    params:
+      tiles:
+        - T
+        - A
+        - C
+        - G
+        - G
+        - T
+        - A
+        - C
+      slots: 6
+    answer:
+      sequence:
+        - T
+        - A
+        - C
+        - G
+        - G
+        - T
+    hints:
+      - A paart mit T, G mit C.
+      - "Gehe Buchstabe für Buchstabe vor: A → T, T → A …"
+    explanation: ATGCCA wird zu TACGGT. Jede Base hat genau einen Partner.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: In einer DNA sind {{a}} % der Basen Adenin. Wie viel Prozent sind Guanin?
+    params:
+      unit: "%"
+    answer:
+      value: "{{(100 - 2 * a) / 2}}"
+    feedback:
+      - when: numval(state.input) == 100 - a
+        misconception: forgot-pair
+        text: "Adenin hat einen Partner: Thymin ist auch {{a}} %. Den Rest teilen sich G und C."
+      - when: numval(state.input) == 100 - 2 * a
+        misconception: gc-sum
+        text: Das ist G und C zusammen. Teile durch 2.
+    hints:
+      - A = T, also auch {{a}} % Thymin.
+      - "Rest: 100 − {{2 * a}} = {{100 - 2 * a}} %, halb G, halb C."
+    explanation: "{{a}} % A, {{a}} % T, je {{(100 - 2 * a) / 2}} % G und C. Diese Regel fand Erwin Chargaff schon vor der Doppelhelix."
+    variants:
+      params:
+        a: choice[20,24,30,32,36]
+      defaults:
+        a: 30
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Das menschliche Erbgut hat rund 3,2 Milliarden Basenpaare. Ein Buch hat 1 Million Buchstaben. Wie viele Bücher bräuchte man, um es abzudrucken?
+    answer:
+      value: 3200
+    feedback:
+      - when: numval(state.input) == 3.2
+        misconception: billion
+        text: Eine Milliarde sind tausend Millionen.
+    hints:
+      - "3,2 Milliarden : 1 Million"
+      - "3 200 000 000 : 1 000 000"
+    explanation: 3200 dicke Bücher – nur für einen Chromosomensatz. Jede Zelle trägt zwei davon.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Zwischen A und T halten zwei Wasserstoffbrücken, zwischen G und C drei. Welche DNA trennt sich beim Erhitzen schwerer?
+    params:
+      options:
+        - label: DNA mit viel G und C
+          correct: true
+        - label: DNA mit viel A und T
+          feedback: Zwei Brücken halten schwächer als drei.
+        - label: Alle gleich
+          feedback: Die Zahl der Brücken macht einen Unterschied.
+    hints:
+      - Mehr Brücken, mehr Halt.
+      - G–C hat drei.
+    explanation: Bakterien aus heißen Quellen haben oft GC-reiche DNA. Im Labor nutzt man den Schmelzpunkt, um DNA zu untersuchen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wer entdeckte 1953 die Doppelhelix – und wessen Röntgenbild war dabei entscheidend?
+    params:
+      options:
+        - label: Watson und Crick – mit dem Bild von Rosalind Franklin und Raymond Gosling
+          correct: true
+        - label: Gregor Mendel
+          feedback: Mendel starb 1884 und kannte keine DNA.
+        - label: Charles Darwin
+          feedback: Darwin kannte weder Gene noch DNA.
+    hints:
+      - Das berühmte Bild heißt »Photo 51«.
+      - Zwei Forscher in Cambridge bauten das Modell.
+    explanation: Franklins Röntgenaufnahme zeigte die Helix. Ihr Beitrag wurde lange zu wenig gewürdigt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Die beiden Stränge laufen gegenläufig: einer von 5’ nach 3’, der andere von 3’ nach 5’. Der eine Strang heißt 5’-ATG-3’. Wie liest man den Gegenstrang richtig von 5’ nach 3’?"
+    params:
+      options:
+        - label: 5’-CAT-3’
+          correct: true
+        - label: 5’-TAC-3’
+          feedback: Das ist der Gegenstrang von 3’ nach 5’ gelesen. Dreh ihn um.
+        - label: 5’-ATG-3’
+          feedback: Das ist der Ausgangsstrang selbst.
+    hints:
+      - "Gegenstrang Base für Base: TAC – aber in welche Richtung?"
+      - Lies ihn rückwärts, damit er bei 5’ beginnt.
+    explanation: Der Gegenstrang ist 3’-TAC-5’, also 5’-CAT-3’. Man nennt das reverses Komplement.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die DNA aufgebaut ist.
+    params:
+      keywords:
+        - - base
+          - adenin
+          - thymin
+          - guanin
+          - cytosin
+          - adenine
+        - - a mit t
+          - a-t
+          - a und t
+          - a with t
+          - a and t
+        - - g mit c
+          - g-c
+          - g und c
+          - g with c
+          - g and c
+        - - doppel
+          - zwei stränge
+          - zwei straenge
+          - double
+          - two strands
+      sample: "DNA besteht aus zwei Strängen, die eine Doppelhelix bilden. Die Basen A, T, G und C tragen die Information. Sie paaren sich fest: A mit T und G mit C."
+    explanation: Vier Buchstaben, feste Paare – darum lässt sich DNA so genau kopieren.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

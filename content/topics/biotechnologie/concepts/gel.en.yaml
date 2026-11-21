@@ -1,0 +1,160 @@
+id: bio.biotech.gel
+type: concept
+title: "Cutting, sorting, reading"
+summary: "Restriction enzymes, gel electrophoresis and sequencing."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: DNA pieces are placed in a gel and an electric current is applied. Towards which pole do they move?
+    params:
+      options:
+        - label: To the positive pole, because DNA is negatively charged
+          correct: true
+        - label: To the negative pole
+          feedback: DNA’s phosphate groups are negative. Opposites attract.
+        - label: They stay put.
+          feedback: Charged particles move in an electric field.
+    hints:
+      - DNA’s backbone is made of sugar and phosphate.
+      - Phosphate carries a negative charge.
+    explanation: DNA moves to the positive pole. That is the basis of gel electrophoresis.
+
+  - kind: explain
+    id: c1
+    body: In **gel electrophoresis** an electric current pulls DNA pieces through a gel. The gel is like a dense net. Small pieces slip through quickly, large ones get stuck. That separates DNA by length.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Which piece travels furthest? Order from furthest to shortest distance.
+    params:
+      items:
+        - label: 200 base pairs
+        - label: 500 base pairs
+        - label: 1500 base pairs
+        - label: 5000 base pairs
+      startLabel: furthest
+      endLabel: shortest
+    hints:
+      - Small pieces are faster.
+      - The smallest gets furthest.
+    explanation: The distance roughly depends on the logarithm of the length. With a ladder of known pieces you read off the size.
+
+  - kind: explain
+    id: c3
+    body: "**Restriction enzymes** are molecular scissors from bacteria. Each one cuts DNA only at a particular sequence. EcoRI, for example, cuts at GAATTC."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A linear piece of DNA has {{k}} EcoRI cut sites. How many pieces result?
+    answer:
+      value: "{{k + 1}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: fencepost
+        text: With a linear piece one cut makes two pieces.
+    hints:
+      - One cut in a thread gives two parts.
+      - "{{k}} cuts give {{k}} + 1 pieces."
+    explanation: "{{k}} cuts, {{k + 1}} pieces. A ring would give only {{k}}."
+    variants:
+      params:
+        k: int[1,6]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: EcoRI recognises a sequence of 6 bases. On average, how often does such a sequence occur in random DNA? Once every how many bases?
+    answer:
+      value: 4096
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: additive
+        text: "Each position has 4 options – multiply: 4 to the 6th."
+    hints:
+      - How likely is a particular base at one position?
+      - (1/4) to the 6th
+    explanation: 4⁶ = 4096. That is why EcoRI cuts the human genome roughly 800,000 times.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: "A child and two possible fathers: band patterns of highly variable DNA sections are compared. What must hold for the father?"
+    params:
+      options:
+        - label: Every band of the child comes either from the mother or from him.
+          correct: true
+        - label: His pattern is identical to the child’s.
+          feedback: The child has only half from him.
+        - label: He shares not a single band.
+          feedback: Then he would not be the father.
+    hints:
+      - Every child inherits one allele from each parent.
+      - Bands not from the mother must come from the father.
+    explanation: That is the principle of genetic fingerprinting – used in paternity and criminal cases.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: In **sequencing** the base order is read directly. The Human Genome Project took 13 years and about 3 billion dollars. Today a machine reads a whole genome in a day, for a few hundred dollars.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A random 6-base sequence occurs every 4096 bases. From what length n is a sequence expected only about once in the human genome (3.2 billion bases)? Give the smallest whole number. (4¹⁵ ≈ 1.07 billion, 4¹⁶ ≈ 4.3 billion)
+    answer:
+      value: 16
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: one-short
+        text: 4¹⁵ is less than 3.2 billion. The sequence would still occur about three times.
+    hints:
+      - "Wanted: 4ⁿ greater than 3.2 billion."
+      - Compare 4¹⁵ and 4¹⁶ with 3.2 billion.
+    explanation: From 16 bases a sequence is usually unique. That is why primers and CRISPR guides are usually 18 to 20 bases long.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how DNA pieces are separated by length.
+    params:
+      keywords:
+        - - gel
+        - - strom
+          - plus
+          - elektr
+          - current
+          - positive
+          - electric
+        - - negativ
+          - ladung
+          - negative
+          - charge
+        - - klein
+          - schnell
+          - kurz
+          - small
+          - fast
+          - short
+      sample: DNA is negatively charged. In the gel the current pulls it towards the positive pole. Small pieces get through the gel’s net faster, large ones get stuck. So the pieces separate by length.
+    explanation: Charge pulls, the gel slows – differently by size.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

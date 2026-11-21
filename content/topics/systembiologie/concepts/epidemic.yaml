@@ -1,0 +1,183 @@
+id: bio.systems.epidemic
+type: concept
+title: "Epidemien modellieren"
+summary: "Das SIR-Modell, sein Gipfel und seine Grenzen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Eine Krankheit mit R₀ = 2 läuft ganz ohne Gegenmaßnahmen durch. Wie viel Prozent der Bevölkerung stecken sich am Ende an?
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 80
+      tolerance: 8
+    explanation: Rund 80 % – nicht 100 %. Die Welle endet, bevor alle krank waren, weil die Kranken zu wenige Ungeschützte finden.
+
+  - kind: explain
+    id: c1
+    body: "Das **SIR-Modell** teilt Menschen in drei Gruppen: Empfängliche (S), Infizierte (I) und Genesene (R). Infizierte stecken Empfängliche an und werden dann genesen. Drei Zahlen beschreiben eine ganze Epidemie."
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Stell R₀ so ein, dass sich am Ende höchstens die Hälfte der Menschen ansteckt. Niemand ist geimpft.
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          fixed: true
+    answer:
+      total:
+        - 0
+        - 50
+      r0:
+        - 1.1
+        - 6
+    explanation: Schon ab R₀ ≈ 1,4 steckt sich am Ende über die Hälfte an. Kleine Änderungen von R₀ haben große Folgen.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum flacht jede Welle im SIR-Modell irgendwann ab, auch ohne Impfung?
+    params:
+      options:
+        - label: Die Zahl der Empfänglichen sinkt, bis jeder Kranke im Schnitt weniger als einen ansteckt.
+          correct: true
+        - label: Das Virus wird schwächer.
+          feedback: Im Modell bleibt das Virus gleich. Es fehlen die Empfänglichen.
+        - label: Alle sind dann krank.
+          feedback: Die Welle endet, bevor alle krank waren.
+    hints:
+      - R wirksam = R₀ · Anteil der Empfänglichen.
+      - Sinkt S, sinkt R.
+    explanation: Der Gipfel liegt genau dort, wo S = 1/R₀ ist. Danach ist R unter 1.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Bei R₀ = {{r}}: Bei welchem Anteil Empfänglicher (in %) erreicht die Welle ihren Gipfel?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / r}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 - 100 / r
+        misconception: complement
+        text: Das ist die Herdenschutzschwelle. Gefragt ist der Rest, der noch empfänglich ist.
+    hints:
+      - Am Gipfel ist R wirksam = 1.
+      - R₀ · S = 1, also S = 1/{{r}}.
+    explanation: S = 1/{{r}} = {{100 / r}} %. Dann steckt jeder Kranke genau einen an, und die Kurve kippt.
+    difficulty: 2
+    variants:
+      params:
+        r: choice[4,5,8,10]
+      defaults:
+        r: 4
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: Die Krankheitsdauer ist jetzt frei. Stell R₀ = 3 ein und vergleiche 3 und 14 Tage. Wie hoch ist der Gipfel? Lass zum Schluss 14 Tage stehen.
+    params:
+      scene: epidemic
+      controls:
+        recovery:
+          fixed: false
+        vaccinated:
+          fixed: true
+    answer:
+      r0: 3
+      recovery: 14
+    explanation: Beide Male rund 30 %! Bei festem R₀ verschiebt die Dauer nur das Tempo der Welle. Zum Absenken muss R₀ selbst sinken.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Masken, Abstand und Lüften senken die Ansteckung. Was ändert das im Modell?
+    params:
+      options:
+        - label: R sinkt. Die Welle wird flacher und erfasst insgesamt weniger Menschen.
+          correct: true
+        - label: Nur der Zeitpunkt verschiebt sich.
+          feedback: Ein kleineres R senkt auch Gipfel und Gesamtzahl.
+        - label: Nichts.
+          feedback: R ist ein Produkt aus Kontakten, Ansteckungsrisiko und Dauer – alles beeinflussbar.
+    hints:
+      - R₀ = Kontakte · Risiko pro Kontakt · Dauer.
+      - Was senkt das Risiko pro Kontakt?
+    explanation: Jeder Faktor, der R senkt, flacht die Kurve ab und entlastet die Kliniken.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Das SIR-Modell sagt eine glatte Welle voraus. Echte Epidemien verlaufen oft anders. Was fehlt dem Modell?
+    params:
+      options:
+        - label: "Menschen sind nicht gut gemischt: Netzwerke, Altersgruppen, Verhalten und Zufall zählen."
+          correct: true
+        - label: Nichts, es ist perfekt.
+          feedback: Jedes Modell vereinfacht. Die Kunst ist, zu wissen wo.
+        - label: Es kennt keine Genesenen.
+          feedback: Doch, das R im Namen steht genau dafür.
+    hints:
+      - Wer trifft wen wie oft?
+      - Superspreader-Ereignisse passen nicht zu einem Durchschnitt.
+    explanation: Forscher erweitern SIR um Netzwerke, Altersgruppen und Zufall. Alle Modelle sind falsch – manche sind nützlich.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Für die Endgröße z gilt z = 1 − e^(−R₀ · z). Prüfe für R₀ = 2: Wie groß ist 1 − e^(−2 · 0,8)? Runde auf zwei Stellen. (e^(−1,6) ≈ 0,202)"
+    answer:
+      value: 0.8
+      tolerance: 0.01
+    hints:
+      - "Setz z = 0,8 ein: 1 − e^(−1,6)."
+      - 1 − 0,202
+    explanation: 1 − 0,202 ≈ 0,80 – also ist z = 0,8 die Lösung. 80 % wie im Labor, ganz ohne Simulation.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das SIR-Modell eine Epidemie beschreibt und warum sie von selbst endet.
+    params:
+      keywords:
+        - - empfänglich
+          - empfaenglich
+          - susceptib
+        - - infiziert
+          - infected
+        - - genesen
+          - recovered
+        - - r0
+          - r₀
+          - unter 1
+          - below 1
+          - weniger als einen
+          - fewer than one
+      sample: Das Modell teilt Menschen in empfänglich, infiziert und genesen. Infizierte stecken Empfängliche an. Je weniger Empfängliche übrig sind, desto kleiner wird R. Fällt R unter 1, endet die Welle.
+    explanation: Drei Gruppen, eine Zahl R – und die Welle bremst sich selbst.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

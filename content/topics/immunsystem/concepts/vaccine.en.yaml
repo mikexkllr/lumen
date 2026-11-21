@@ -1,0 +1,188 @@
+id: bio.immune.vaccine
+type: concept
+title: "Vaccination"
+summary: "Training the immune system without getting ill."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: In 1796 Edward Jenner scratched cowpox into a boy’s skin. Afterwards the boy did not catch real smallpox. Why?
+    params:
+      options:
+        - label: The harmless cowpox resembled smallpox. The immune system learned to fight both.
+          correct: true
+        - label: Cowpox kills smallpox viruses.
+          feedback: The viruses do not fight each other. The immune system does.
+        - label: Pure chance
+          feedback: The experiment worked again and again – not chance.
+    hints:
+      - Antibodies recognise shapes.
+      - Similar viruses have similar features.
+    explanation: That was the first vaccination. The word "vaccine" comes from Latin vacca, cow.
+
+  - kind: explain
+    id: c1
+    body: A **vaccination** shows the immune system a harmless piece or a weakened form of the pathogen. It makes antibodies and memory cells. When the real pathogen comes, the protection is already there.
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: What is in this vaccine?
+    params:
+      buckets:
+        - id: b1
+          label: weakened pathogen
+        - id: b2
+          label: killed pathogen or piece
+        - id: b3
+          label: blueprint as mRNA
+      items:
+        - label: Measles–mumps–rubella
+          bucket: b1
+        - label: Yellow fever
+          bucket: b1
+        - label: Tetanus (detoxified toxin)
+          bucket: b2
+        - label: Hepatitis B (one protein)
+          bucket: b2
+        - label: Comirnaty against Covid-19
+          bucket: b3
+    hints:
+      - Live vaccines multiply weakly in the body.
+      - mRNA vaccines only deliver instructions for one protein.
+    explanation: "All routes have the same goal: a memory without going through the disease."
+
+  - kind: problem
+    id: c3
+    widget: estimate
+    prompt: A 2024 study estimates how many lives vaccination programmes have saved worldwide since 1974. Take a guess – in millions.
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: million
+    answer:
+      value: 154
+      within: 40
+    explanation: About 154 million, most of them babies and toddlers. The measles vaccine alone saved about 94 million.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Vaccine facts: true or false?"
+    params:
+      cards:
+        - text: Smallpox has been declared eradicated since 1980.
+          right: true
+          why: Thanks to a worldwide vaccination campaign.
+        - text: Vaccines cause the disease they protect against.
+          right: false
+          why: Inactivated and mRNA vaccines cannot do that at all. Mild symptoms are the immune system responding.
+        - text: Some vaccines need a booster.
+          right: true
+          why: For tetanus about every ten years.
+        - text: An antibiotic is a vaccine against bacteria.
+          right: false
+          why: Antibiotics kill bacteria directly, vaccines train the body.
+    explanation: Vaccination means preventing through training – not treating.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "A vaccine does not protect everyone equally. Its **efficacy** says by what percentage the risk falls. 90 % means: of 100 unvaccinated people who would fall ill, only 10 fall ill if vaccinated."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Without vaccination {{u}} in 1000 people fall ill. The vaccine is {{e}} % effective. How many in 1000 vaccinated people fall ill?
+    answer:
+      value: "{{u * (100 - e) / 100}}"
+    feedback:
+      - when: numval(state.input) == u * e / 100
+        misconception: swapped
+        text: Those are the ones protected. The question asks for those who still fall ill.
+    hints:
+      - The risk falls by {{e}} %. {{100 - e}} % remains.
+      - "{{u}} × {{(100 - e) / 100}}"
+    explanation: "{{u}} × {{(100 - e) / 100}} = {{u * (100 - e) / 100}}. {{u}} cases become {{u * (100 - e) / 100}}."
+    difficulty: 2
+    variants:
+      params:
+        u: choice[50,100,200]
+        e: choice[60,80,90,95]
+      defaults:
+        u: 100
+        e: 90
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: In a hospital 9 out of 10 patients with a disease are vaccinated. Does that mean the vaccine doesn’t work?
+    params:
+      options:
+        - label: Not necessarily. If almost everyone is vaccinated, many of the sick are vaccinated too.
+          correct: true
+        - label: Yes, clearly.
+          feedback: You have to compare against the total numbers of vaccinated and unvaccinated.
+        - label: Yes, it even makes people ill.
+          feedback: That does not follow from these figures.
+    hints:
+      - How many people are vaccinated overall?
+      - Compare rates, not headcounts.
+    explanation: If 99 % are vaccinated, a good vaccine can still account for 9 of 10 patients. That is the base rate fallacy.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Of 1,000,000 vaccinated people, 990,000 are protected and 10,000 are not. Of 10,000 unvaccinated, none is protected. In an outbreak 10 % of those not protected fall ill. What share of the sick (in %) had the jab?
+    params:
+      unit: "%"
+    answer:
+      value: 50
+    hints:
+      - 10,000 vaccinated and 10,000 unvaccinated are unprotected.
+      - "10 % of each fall ill: 1000 and 1000."
+    explanation: "1000 vaccinated and 1000 unvaccinated patients: 50 %. Yet the vaccine cuts the risk by 99 %!"
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a vaccine protects you.
+    params:
+      keywords:
+        - - harmlos
+          - abgeschwächt
+          - abgeschwaecht
+          - stück
+          - stueck
+          - harmless
+          - weaken
+          - piece
+        - - antikörper
+          - antikoerper
+          - antibod
+        - - gedächtnis
+          - gedaechtnis
+          - memory
+        - - ohne krank
+          - nicht krank
+          - without getting ill
+          - not ill
+          - without illness
+      sample: The vaccine shows the body a harmless piece of the pathogen. The immune system makes antibodies and memory cells without getting ill. When the real pathogen comes later, it is recognised quickly.
+    explanation: Training without illness – the memory is the protection.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

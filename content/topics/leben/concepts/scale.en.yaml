@@ -1,0 +1,185 @@
+id: bio.life.scale
+type: concept
+title: "How small is small?"
+summary: "Micrometres, nanometres and microscopes."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A bacterium is tiny. How many fit end to end along 1 millimetre?
+    params:
+      min: 1
+      max: 100000
+      scale: log
+    answer:
+      value: 500
+      within: 60
+    explanation: A gut bacterium is about 2 µm long. So about 500 fit into one millimetre.
+
+  - kind: explain
+    id: c1
+    body: For cells the millimetre is too coarse. We measure in **micrometres**, µm for short. One micrometre is a thousandth of a millimetre. A body cell is about 10 to 30 µm across.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Order by size.
+    params:
+      items:
+        - label: Water molecule
+        - label: Flu virus
+        - label: Bacterium
+        - label: Red blood cell
+        - label: Human egg cell
+        - label: Ant
+      startLabel: small
+      endLabel: large
+    hints:
+      - Viruses are smaller than bacteria.
+      - The egg is the largest human cell – just visible to the naked eye.
+    explanation: About 0.3 nm, 100 nm, 2 µm, 8 µm, 0.1 mm and 5 mm. Each step is a big jump.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A cell is {{d}} µm wide. How many such cells fit side by side in 1 cm?
+    answer:
+      value: "{{10000 / d}}"
+    feedback:
+      - when: numval(state.input) == 1000 / d
+        misconception: mm-cm
+        text: That fits into 1 mm. A centimetre is 10,000 µm.
+    hints:
+      - First convert 1 cm into µm.
+      - 1 cm = 10 mm = 10,000 µm. Divide by {{d}}.
+    explanation: 10,000 µm ÷ {{d}} µm = {{10000 / d}} cells.
+    variants:
+      params:
+        d: choice[10,20,25,50]
+      defaults:
+        d: 20
+
+  - kind: explain
+    id: c4
+    body: Viruses are much smaller still. We measure them in **nanometres**, nm for short. 1 µm is 1000 nm. A flu virus is about 100 nm across. A light microscope can no longer show it.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A microscope magnifies {{m}} times. A cell is {{d}} µm across. How many millimetres does it measure in the image?
+    params:
+      unit: mm
+    answer:
+      value: "{{d * m / 1000}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == d * m
+        misconception: unit-um
+        text: That is the image size in µm. Divide by 1000.
+    hints:
+      - Image size = real size × magnification.
+      - "{{d}} µm × {{m}} = {{d * m}} µm. Convert to mm."
+    explanation: "{{d}} µm × {{m}} = {{d * m}} µm = {{d * m / 1000}} mm."
+    difficulty: 2
+    variants:
+      params:
+        m: choice[100,400,1000]
+        d: choice[8,10,20]
+      defaults:
+        m: 400
+        d: 8
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Why can’t a light microscope show single viruses, however much it magnifies?
+    params:
+      options:
+        - label: Light cannot resolve details below about 0.2 µm. Viruses are smaller.
+          correct: true
+        - label: Viruses are transparent.
+          feedback: They can be stained. The limit lies in light itself.
+        - label: There are no lenses that strong.
+          feedback: More magnification only makes the image bigger, not sharper.
+    hints:
+      - Magnifying is not the same as resolving.
+      - The wavelength of light is 400 to 700 nm.
+    explanation: Resolution is limited by the wavelength – about half of it, roughly 200 nm.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: So how do we see viruses?
+    reveal:
+      body: With an electron microscope. Electrons have a much shorter wavelength than light. That reveals structures of a few nanometres, even single proteins.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A bacterium is 2 µm long, a human 2 m tall. By how many powers of ten is the human larger?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 1000000
+        misconception: exponent
+        text: Correct calculation – but the question asks for the number of powers of ten, the exponent.
+      - when: numval(state.input) == 3
+        misconception: um-m
+        text: A micrometre is a millionth of a metre, not a thousandth.
+    hints:
+      - Convert both to metres.
+      - 2 µm = 0.000002 m. How many times does that fit into 2 m?
+    explanation: 2 m ÷ 0.000002 m = 1,000,000 = 10⁶. So six powers of ten.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A spherical cell doubles its diameter. How does its volume change?
+    params:
+      options:
+        - label: It becomes 8 times as large.
+          correct: true
+        - label: It doubles.
+          feedback: "Volume grows in three directions: 2 × 2 × 2."
+        - label: It becomes 4 times as large.
+          feedback: That is how the surface grows. Volume grows faster.
+    hints:
+      - Volume has three dimensions.
+      - Work out 2 to the power of 3.
+    explanation: "Volume grows with the cube: 2³ = 8. That is why cells stay small – more on this in the cell course."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how small cells and viruses are and how we see them.
+    params:
+      keywords:
+        - - mikromet
+          - µm
+          - micromet
+        - - nanomet
+          - nm
+        - - lichtmikroskop
+          - light microscope
+          - lichtmikr
+        - - elektron
+          - electron
+      sample: Cells measure a few micrometres, thousandths of a millimetre. Viruses are about 100 nanometres. You see cells in a light microscope, viruses only in an electron microscope.
+    explanation: Micrometres for cells, nanometres for viruses – and light has a resolution limit.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1"]

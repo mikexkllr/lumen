@@ -1,0 +1,193 @@
+id: bio.molecular.dna
+type: concept
+title: "The double helix"
+summary: "Four letters, two strands, fixed pairs."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: If you stretched out the DNA from a single body cell, how long would the thread be?
+    params:
+      min: 0.001
+      max: 1000
+      scale: log
+      unit: m
+    answer:
+      value: 2
+      within: 50
+    explanation: About 2 metres – packed into a nucleus about 6 µm wide. Like stuffing over 20 km of thread into a tennis ball.
+
+  - kind: explain
+    id: c1
+    body: "DNA is a chain of four building blocks, the **bases**: adenine (A), thymine (T), guanine (G) and cytosine (C). Their order is the genetic information – like letters in a text."
+
+  - kind: explain
+    id: c2
+    body: "Two DNA strands twist into a **double helix**. The bases form fixed pairs: A with T, G with C. Know one strand and you know the other."
+
+  - kind: problem
+    id: c3
+    widget: tiles
+    prompt: One strand reads A T G C C A. Build the matching partner strand.
+    params:
+      tiles:
+        - T
+        - A
+        - C
+        - G
+        - G
+        - T
+        - A
+        - C
+      slots: 6
+    answer:
+      sequence:
+        - T
+        - A
+        - C
+        - G
+        - G
+        - T
+    hints:
+      - A pairs with T, G with C.
+      - "Go letter by letter: A → T, T → A …"
+    explanation: ATGCCA becomes TACGGT. Every base has exactly one partner.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: In a DNA sample {{a}} % of the bases are adenine. What percentage are guanine?
+    params:
+      unit: "%"
+    answer:
+      value: "{{(100 - 2 * a) / 2}}"
+    feedback:
+      - when: numval(state.input) == 100 - a
+        misconception: forgot-pair
+        text: "Adenine has a partner: thymine is also {{a}} %. G and C share the rest."
+      - when: numval(state.input) == 100 - 2 * a
+        misconception: gc-sum
+        text: That is G and C together. Divide by 2.
+    hints:
+      - A = T, so also {{a}} % thymine.
+      - "Rest: 100 − {{2 * a}} = {{100 - 2 * a}} %, half G, half C."
+    explanation: "{{a}} % A, {{a}} % T, {{(100 - 2 * a) / 2}} % each of G and C. Erwin Chargaff found this rule before the double helix was known."
+    variants:
+      params:
+        a: choice[20,24,30,32,36]
+      defaults:
+        a: 30
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The human genome has about 3.2 billion base pairs. A book has 1 million letters. How many books would it take to print it?
+    answer:
+      value: 3200
+    feedback:
+      - when: numval(state.input) == 3.2
+        misconception: billion
+        text: A billion is a thousand million.
+    hints:
+      - 3.2 billion ÷ 1 million
+      - 3,200,000,000 ÷ 1,000,000
+    explanation: 3200 thick books – for just one set of chromosomes. Every cell carries two.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A and T are held by two hydrogen bonds, G and C by three. Which DNA is harder to separate when heated?
+    params:
+      options:
+        - label: DNA with lots of G and C
+          correct: true
+        - label: DNA with lots of A and T
+          feedback: Two bonds hold less strongly than three.
+        - label: All the same
+          feedback: The number of bonds makes a difference.
+    hints:
+      - More bonds, more grip.
+      - G–C has three.
+    explanation: Bacteria from hot springs often have GC-rich DNA. In the lab the melting point is used to study DNA.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Who discovered the double helix in 1953 – and whose X-ray image was crucial?
+    params:
+      options:
+        - label: Watson and Crick – using the image by Rosalind Franklin and Raymond Gosling
+          correct: true
+        - label: Gregor Mendel
+          feedback: Mendel died in 1884 and knew nothing of DNA.
+        - label: Charles Darwin
+          feedback: Darwin knew neither genes nor DNA.
+    hints:
+      - The famous image is called "Photo 51".
+      - Two researchers in Cambridge built the model.
+    explanation: Franklin’s X-ray image revealed the helix. Her contribution was long underrated.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "The two strands run in opposite directions: one 5’ to 3’, the other 3’ to 5’. One strand is 5’-ATG-3’. How do you write the partner strand correctly from 5’ to 3’?"
+    params:
+      options:
+        - label: 5’-CAT-3’
+          correct: true
+        - label: 5’-TAC-3’
+          feedback: That is the partner read 3’ to 5’. Reverse it.
+        - label: 5’-ATG-3’
+          feedback: That is the original strand itself.
+    hints:
+      - "Partner base by base: TAC – but in which direction?"
+      - Read it backwards so that it starts at 5’.
+    explanation: The partner strand is 3’-TAC-5’, i.e. 5’-CAT-3’. This is called the reverse complement.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how DNA is built.
+    params:
+      keywords:
+        - - base
+          - adenin
+          - thymin
+          - guanin
+          - cytosin
+          - adenine
+        - - a mit t
+          - a-t
+          - a und t
+          - a with t
+          - a and t
+        - - g mit c
+          - g-c
+          - g und c
+          - g with c
+          - g and c
+        - - doppel
+          - zwei stränge
+          - zwei straenge
+          - double
+          - two strands
+      sample: "DNA consists of two strands forming a double helix. The bases A, T, G and C carry the information. They pair up in a fixed way: A with T and G with C."
+    explanation: Four letters, fixed pairs – that is why DNA can be copied so precisely.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

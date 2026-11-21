@@ -1,0 +1,160 @@
+id: bio.biotech.gel
+type: concept
+title: "Schneiden, sortieren, lesen"
+summary: "Restriktionsenzyme, Gelelektrophorese und Sequenzierung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: DNA-Stücke werden in ein Gel gelegt und unter Strom gesetzt. Zu welchem Pol wandern sie?
+    params:
+      options:
+        - label: Zum Pluspol, weil DNA negativ geladen ist
+          correct: true
+        - label: Zum Minuspol
+          feedback: Die Phosphatgruppen der DNA sind negativ. Gegensätze ziehen sich an.
+        - label: Sie bleiben liegen.
+          feedback: Geladene Teilchen bewegen sich im elektrischen Feld.
+    hints:
+      - Das Rückgrat der DNA besteht aus Zucker und Phosphat.
+      - Phosphat trägt negative Ladung.
+    explanation: DNA wandert zum Pluspol. Das ist die Grundlage der Gelelektrophorese.
+
+  - kind: explain
+    id: c1
+    body: Bei der **Gelelektrophorese** zieht Strom DNA-Stücke durch ein Gel. Das Gel ist wie ein dichtes Netz. Kleine Stücke schlüpfen schnell hindurch, große bleiben hängen. So trennt man DNA nach Länge.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Welches Stück wandert am weitesten? Ordne von weit nach kurz.
+    params:
+      items:
+        - label: 200 Basenpaare
+        - label: 500 Basenpaare
+        - label: 1500 Basenpaare
+        - label: 5000 Basenpaare
+      startLabel: am weitesten
+      endLabel: am kürzesten
+    hints:
+      - Kleine Stücke sind schneller.
+      - Das kleinste kommt am weitesten.
+    explanation: Die Wegstrecke hängt grob vom Logarithmus der Länge ab. Mit einer Leiter bekannter Stücke liest man die Größe ab.
+
+  - kind: explain
+    id: c3
+    body: "**Restriktionsenzyme** sind molekulare Scheren aus Bakterien. Jedes schneidet DNA nur an einer bestimmten Folge. EcoRI zum Beispiel schneidet bei GAATTC."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein gerades DNA-Stück hat {{k}} Schnittstellen für EcoRI. Wie viele Stücke entstehen?
+    answer:
+      value: "{{k + 1}}"
+    feedback:
+      - when: numval(state.input) == k
+        misconception: fencepost
+        text: "Bei einem geraden Stück gibt es einen Schnitt mehr als nötig: Ein Schnitt macht zwei Stücke."
+    hints:
+      - Ein Schnitt in einen Faden ergibt zwei Teile.
+      - "{{k}} Schnitte ergeben {{k}} + 1 Stücke."
+    explanation: "{{k}} Schnitte, {{k + 1}} Stücke. Bei einem Ring wären es nur {{k}}."
+    variants:
+      params:
+        k: int[1,6]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: EcoRI erkennt eine Folge aus 6 Basen. Wie oft kommt so eine Folge im Schnitt in zufälliger DNA vor? Einmal alle wie viele Basen?
+    answer:
+      value: 4096
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: additive
+        text: "Jede Stelle hat 4 Möglichkeiten – multipliziere: 4 hoch 6."
+    hints:
+      - Wie wahrscheinlich ist eine bestimmte Base an einer Stelle?
+      - (1/4) hoch 6
+    explanation: 4⁶ = 4096. Im menschlichen Erbgut schneidet EcoRI darum grob 800 000-mal.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: "Ein Kind und zwei mögliche Väter: Man vergleicht Bandenmuster stark wechselnder DNA-Abschnitte. Was muss für den Vater gelten?"
+    params:
+      options:
+        - label: Jede Bande des Kindes stammt von der Mutter oder von ihm.
+          correct: true
+        - label: Sein Muster ist identisch mit dem des Kindes.
+          feedback: Das Kind hat nur die Hälfte von ihm.
+        - label: Er hat keine einzige gemeinsame Bande.
+          feedback: Dann wäre er gerade nicht der Vater.
+    hints:
+      - Jedes Kind erbt ein Allel von jedem Elternteil.
+      - Banden, die nicht von der Mutter kommen, müssen vom Vater stammen.
+    explanation: Das ist das Prinzip des genetischen Fingerabdrucks – genutzt bei Vaterschaft und Kriminalfällen.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: Beim **Sequenzieren** liest man die Basenfolge direkt. Das Humangenomprojekt brauchte 13 Jahre und rund 3 Milliarden Dollar. Heute liest eine Maschine ein ganzes Erbgut an einem Tag, für einige Hundert Dollar.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ab welcher Länge n kommt eine zufällige Basenfolge im menschlichen Erbgut (3,2 Milliarden Basen) im Schnitt nur noch einmal vor? Gib die kleinste ganze Zahl an. (4¹⁵ ≈ 1,07 Milliarden, 4¹⁶ ≈ 4,3 Milliarden)
+    answer:
+      value: 16
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: one-short
+        text: 4¹⁵ ist kleiner als 3,2 Milliarden. Die Folge käme noch etwa dreimal vor.
+    hints:
+      - "Gesucht: 4ⁿ größer als 3,2 Milliarden."
+      - Vergleiche 4¹⁵ und 4¹⁶ mit 3,2 Milliarden.
+    explanation: Ab 16 Basen ist eine Folge meist einmalig. Darum sind Primer und CRISPR-Führungen meist 18 bis 20 Basen lang.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man DNA-Stücke nach ihrer Länge trennt.
+    params:
+      keywords:
+        - - gel
+        - - strom
+          - plus
+          - elektr
+          - current
+          - positive
+          - electric
+        - - negativ
+          - ladung
+          - negative
+          - charge
+        - - klein
+          - schnell
+          - kurz
+          - small
+          - fast
+          - short
+      sample: DNA ist negativ geladen. Im Gel zieht der Strom sie zum Pluspol. Kleine Stücke kommen schneller durch das Netz des Gels, große bleiben hängen. So trennen sich die Stücke nach Länge.
+    explanation: Ladung zieht, das Gel bremst – je nach Größe verschieden.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

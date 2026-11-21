@@ -1,0 +1,192 @@
+id: bio.immune.herd
+type: concept
+title: "Herd immunity"
+summary: "R₀, vaccination rates and the epidemic lab."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Without protection, a person with measles infects many people on average. Guess how many.
+    params:
+      min: 1
+      max: 100
+      scale: log
+    answer:
+      value: 15
+      within: 40
+    explanation: About 12 to 18 – measles is one of the most contagious diseases of all. Flu is more like 1 to 2.
+
+  - kind: explain
+    id: c1
+    body: The **basic reproduction number** R₀ says how many people one sick person infects on average when nobody is protected yet. If R is above 1, the disease spreads. Below 1 it dies out.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Nobody is vaccinated. Set R₀ so that at most 10 % of people are ill at the same time.
+    params:
+      scene: epidemic
+      controls:
+        vaccinated:
+          fixed: true
+    answer:
+      peak:
+        - 0
+        - 10
+    explanation: Even at R₀ around 2, about 15 % are ill at the peak. The smaller R₀, the flatter the wave.
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: A disease has R₀ = 3. Vaccinate as few people as possible, but enough that R at the start is below 1.
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 3
+          fixed: true
+    answer:
+      vaccinated: 70
+    explanation: At 65 % R is still 1.05, at 70 % only 0.9. From then on the disease can no longer spread.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: R₀ = {{r}}. Above what share of protected people (in %) does R drop below 1? Use 1 − 1/R₀.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 - 1 / r)}}"
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 100 / r
+        misconception: complement
+        text: That is 1/R₀. You need 1 − 1/R₀.
+    hints:
+      - Each sick person may meet only one unprotected person on average.
+      - 1 − 1/{{r}}
+    explanation: 1 − 1/{{r}} = {{100 * (1 - 1 / r)}} %. The more contagious, the higher the vaccination rate must be.
+    variants:
+      params:
+        r: choice[4,5,10,20]
+      defaults:
+        r: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: When enough people are protected, the pathogen finds hardly any new victims. Then the unvaccinated are safe too, such as babies or the sick. That is **herd immunity**. Measles needs about 95 %.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: R₀ = 4. Find the smallest vaccination share at which R at the start is at most 1.
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 4
+          fixed: true
+    answer:
+      vaccinated: 75
+    explanation: 75 % = 1 − 1/4. Right at this threshold a wave turns into a spark that dies out.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A vaccination rate drops from 95 % to 85 %. For measles (R₀ ≈ 15) that means …
+    params:
+      options:
+        - label: … R is above 1 again. Outbreaks become possible.
+          correct: true
+        - label: … just 10 % less protection, hardly a difference.
+          feedback: "Below the threshold behaviour flips: single cases turn into waves."
+        - label: … nothing at all, measles is eradicated.
+          feedback: Measles still exists worldwide.
+    hints:
+      - Compute R = 15 × (1 − 0.85).
+      - Is that above or below 1?
+    explanation: R = 15 × 0.15 = 2.25. Small gaps in coverage have big consequences.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: sim
+    prompt: "Find a combination: R₀ at least 5, and yet at most 1 % of people get infected."
+    params:
+      scene: epidemic
+    answer:
+      r0:
+        - 5
+        - 6
+      total:
+        - 0
+        - 1
+    explanation: With R₀ = 5 you need over 80 % protected. Then the outbreak stays a flash in the pan.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A vaccine protects only {{e}} % of those vaccinated. R₀ = 5. What percentage of the population must be vaccinated at least? Round to whole percent.
+    params:
+      unit: "%"
+    answer:
+      value: "{{round(8000 / e)}}"
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: perfect-vaccine
+        text: That holds for a perfect vaccine. Divide by the efficacy as well.
+    hints:
+      - "80 % must be protected: 1 − 1/5."
+      - 80 % ÷ {{e / 100}}
+    explanation: 80 % ÷ {{e / 100}} ≈ {{round(8000 / e)}} %. Imperfect protection pushes the required coverage up.
+    difficulty: 3
+    variants:
+      params:
+        e: choice[85,90,95]
+      defaults:
+        e: 90
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what herd immunity is and how to find the required vaccination rate.
+    params:
+      keywords:
+        - - r0
+          - r₀
+          - reproduktion
+          - reproduction
+        - - unter 1
+          - kleiner als 1
+          - below 1
+          - less than 1
+          - under 1
+        - - 1 − 1/
+          - 1 - 1/
+          - 1-1/
+        - - ungeimpft
+          - babys
+          - schützt auch
+          - unvaccinated
+          - babies
+          - protects others
+      sample: R₀ says how many people one sick person infects. If more than 1 − 1/R₀ are protected, R falls below 1 and the disease dies out. Then the unvaccinated, such as babies, are protected too.
+    explanation: The threshold 1 − 1/R₀ connects biology and mathematics.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2"]
