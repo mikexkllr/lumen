@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [geo.area]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: rechteck
@@ -119,6 +119,74 @@ steps:
     explanation: (8 + 4) ÷ 2 · 5 = 30.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "A **parallelogram** can be rebuilt into a rectangle: cut a triangle off one side and attach it to the other. So A = b · h."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A parallelogram has base {{g}} cm and height {{h}} cm. What is its area?
+    params:
+      unit: cm²
+    answer:
+      value: "{{g * h}}"
+    feedback:
+      - when: numval(state.input) == g * h / 2
+        misconception: triangle-formula
+        text: That would be a triangle. The parallelogram is a rebuilt rectangle.
+    hints:
+      - Rebuild it into a rectangle.
+      - Base times height.
+    explanation: "{{g}} · {{h}} = {{g * h}} cm². The slanted side does not matter – only the height."
+    difficulty: 2
+    variants:
+      params:
+        g: int[4,12]
+        h: int[2,9]
+      defaults:
+        g: 7
+        h: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: rect
+    prompt: Drag a rectangle with an area of 24 m² and the smallest possible perimeter.
+    params:
+      maxW: 12
+      maxH: 8
+      w: 2
+      h: 2
+    check:
+      predicate: area == 24 && perimeter == 20
+    hints:
+      - Try 2 × 12, 3 × 8, 4 × 6.
+      - The closer to a square, the smaller the perimeter.
+    explanation: 4 × 6 has a 20 m perimeter, 3 × 8 has 22 m, 2 × 12 already 28 m. Square-like shapes are the most economical.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: A rectangle is 8 m long and 6 m wide. A 3 m × 3 m square is missing from one corner. What is the area of the L shape?
+    params:
+      unit: m²
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 45
+        misconception: side-not-area
+        text: The square is 9 m², not 3 m².
+    hints:
+      - Whole rectangle minus the missing piece.
+      - 48 − 9 = ?
+    explanation: 8 · 6 − 3 · 3 = 48 − 9 = 39 m².
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -135,6 +203,47 @@ steps:
     hints:
       - Try 6 · 4 and 5 · 5.
     explanation: (5 + d)(5 − d) = 25 − d². Every departure from the square costs area.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: How many square centimetres are in a square metre?
+    params:
+      unit: cm²
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: linear-conversion
+        text: 100 cm is one side. The area is 100 · 100.
+    hints:
+      - 1 m = 100 cm – in both directions.
+      - 100 cm · 100 cm = ?
+    explanation: 100 · 100 = 10,000 cm². Area units jump by a factor of 100, not 10.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "**Pick’s theorem**: a polygon with all corners on grid points has area I + B/2 − 1. Here I counts the points inside and B the points on the boundary."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: A grid polygon has 4 grid points inside and 10 on its boundary. What is its area by Pick’s theorem?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: forgot-minus-one
+        text: Subtract 1 at the end.
+    hints:
+      - I = 4, B = 10.
+      - "4 + 10 : 2 − 1 = ?"
+    explanation: 4 + 5 − 1 = 8 square units – without any formula for the shape.
     difficulty: 3
 
 srs:

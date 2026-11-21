@@ -5,7 +5,7 @@ summary: Spitz, recht, stumpf – und immer 180°.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: dritter
@@ -54,6 +54,22 @@ steps:
     explanation: Zwei rechte Winkel verbrauchen schon alle 180°.
 
   - kind: problem
+    id: ma-c1
+    widget: angle
+    prompt: Stelle einen stumpfen Winkel ein – größer als 90°, aber kleiner als 180°.
+    params:
+      initial: 30
+      snap: 5
+      max: 180
+    answer:
+      value: 135
+      tolerance: 40
+    hints:
+      - Ein rechter Winkel ist eine Ecke wie beim Blatt Papier.
+      - Dreh weiter als die Ecke, aber nicht bis zur geraden Linie.
+    explanation: Stumpfe Winkel liegen zwischen 90° und 180°. Ein Dreieck kann höchstens einen davon haben.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -71,6 +87,69 @@ steps:
     explanation: "Die **Dreiecksungleichung**: Zwei Seiten zusammen sind immer länger als die dritte."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Die **Dreiecksungleichung**: Zwei Seiten sind zusammen immer länger als die dritte. Sonst kommen ihre Enden nicht zusammen."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Zwei Seiten eines Dreiecks sind {{a}} cm und {{b}} cm lang. Wie lang darf die dritte höchstens sein? Ganze Zentimeter.
+    params:
+      unit: cm
+    answer:
+      value: "{{a + b - 1}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: flat-triangle
+        text: Dann läge das Dreieck flach auf einer Linie. Es muss echt kürzer sein.
+    hints:
+      - Die dritte Seite muss kürzer als {{a}} + {{b}} sein.
+      - Die größte ganze Zahl unter {{a + b}}.
+    explanation: "{{a + b - 1}} cm ist die längste ganze Länge unter {{a + b}} cm."
+    difficulty: 2
+    variants:
+      params:
+        a: int[3,9]
+        b: int[3,9]
+      defaults:
+        a: 4
+        b: 7
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: buckets
+    prompt: Ordne die Dreiecke nach ihren Seiten.
+    params:
+      buckets:
+        - id: b1
+          label: gleichseitig
+        - id: b2
+          label: gleichschenklig
+        - id: b3
+          label: unregelmäßig
+      items:
+        - label: 5, 5, 5
+          bucket: b1
+        - label: 9, 9, 9
+          bucket: b1
+        - label: 4, 4, 6
+          bucket: b2
+        - label: 7, 7, 3
+          bucket: b2
+        - label: 3, 4, 5
+          bucket: b3
+        - label: 6, 7, 8
+          bucket: b3
+    hints:
+      - Wie viele Seiten sind gleich lang?
+      - "Drei gleiche: gleichseitig. Zwei gleiche: gleichschenklig."
+    explanation: Gleichseitig hat drei gleiche Seiten, gleichschenklig zwei, unregelmäßig keine.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -84,6 +163,43 @@ steps:
       - Der Außenwinkel ist so groß wie die beiden nicht anliegenden Innenwinkel zusammen.
     explanation: 130° − 55° = 75°.
     difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele verschiedene Dreiecke mit ganzzahligen Seiten haben den Umfang 12? Dreiecke mit denselben Seiten in anderer Reihenfolge zählen nicht extra.
+    answer:
+      value: 3
+    hints:
+      - Die längste Seite muss unter 6 liegen.
+      - Prüfe längste Seite 4 und 5.
+    explanation: (4, 4, 4), (3, 4, 5) und (2, 5, 5). Mit einer Seite 6 wäre das Dreieck flach.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: choice
+    prompt: "Die Winkel eines Dreiecks stehen im Verhältnis 1 : 2 : 3. Was für ein Dreieck ist es?"
+    params:
+      options:
+        - label: spitzwinklig
+          feedback: Der größte Winkel ist genau 90°.
+        - label: rechtwinklig
+          correct: true
+        - label: stumpfwinklig
+          feedback: "Rechne die Winkel aus: 6 Teile sind 180°."
+    hints:
+      - 1 + 2 + 3 = 6 Teile.
+      - Ein Teil sind 30°.
+    explanation: 30°, 60° und 90° – rechtwinklig. Es ist ein halbes gleichseitiges Dreieck.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x3
+    depth: 3
+    body: Ein **Außenwinkel** ist so groß wie die zwei fernen Innenwinkel zusammen. Warum? Er und sein Nachbar ergeben 180°. Die drei Innenwinkel auch.
 
 srs:
   cards_from: [dritter, arten]

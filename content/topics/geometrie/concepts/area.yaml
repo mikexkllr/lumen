@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [geo.area]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: rechteck
@@ -119,6 +119,74 @@ steps:
     explanation: "(8 + 4) : 2 · 5 = 30."
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "Ein **Parallelogramm** lässt sich zum Rechteck umbauen: Schneide an einer Seite ein Dreieck ab und setze es auf der anderen Seite an. Darum gilt A = g · h."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Parallelogramm hat die Grundseite {{g}} cm und die Höhe {{h}} cm. Wie groß ist seine Fläche?
+    params:
+      unit: cm²
+    answer:
+      value: "{{g * h}}"
+    feedback:
+      - when: numval(state.input) == g * h / 2
+        misconception: triangle-formula
+        text: Das wäre ein Dreieck. Das Parallelogramm ist ein umgebautes Rechteck.
+    hints:
+      - Bau es zum Rechteck um.
+      - Grundseite mal Höhe.
+    explanation: "{{g}} · {{h}} = {{g * h}} cm². Die schräge Seite spielt keine Rolle – nur die Höhe."
+    difficulty: 2
+    variants:
+      params:
+        g: int[4,12]
+        h: int[2,9]
+      defaults:
+        g: 7
+        h: 4
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: rect
+    prompt: Zieh ein Rechteck mit 24 m² Fläche und möglichst kleinem Umfang.
+    params:
+      maxW: 12
+      maxH: 8
+      w: 2
+      h: 2
+    check:
+      predicate: area == 24 && perimeter == 20
+    hints:
+      - Probiere 2 × 12, 3 × 8, 4 × 6.
+      - Je näher an einem Quadrat, desto kleiner der Umfang.
+    explanation: 4 × 6 hat 20 m Umfang, 3 × 8 hat 22 m, 2 × 12 schon 28 m. Quadratähnliche Formen sind am sparsamsten.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d4
+    depth: 2
+    widget: numeric
+    prompt: Ein Rechteck ist 8 m lang und 6 m breit. In einer Ecke fehlt ein Quadrat von 3 m × 3 m. Wie groß ist die L-förmige Fläche?
+    params:
+      unit: m²
+    answer:
+      value: 39
+    feedback:
+      - when: numval(state.input) == 45
+        misconception: side-not-area
+        text: Das Quadrat hat 9 m², nicht 3 m².
+    hints:
+      - Ganzes Rechteck minus das fehlende Stück.
+      - 48 − 9 = ?
+    explanation: 8 · 6 − 3 · 3 = 48 − 9 = 39 m².
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -135,6 +203,47 @@ steps:
     hints:
       - Probier 6 · 4 und 5 · 5.
     explanation: (5 + d)(5 − d) = 25 − d². Jede Abweichung vom Quadrat kostet Fläche.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Quadratzentimeter hat ein Quadratmeter?
+    params:
+      unit: cm²
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: linear-conversion
+        text: 100 cm ist eine Seite. Die Fläche ist 100 · 100.
+    hints:
+      - 1 m = 100 cm – in beide Richtungen.
+      - 100 cm · 100 cm = ?
+    explanation: 100 · 100 = 10 000 cm². Flächeneinheiten springen um den Faktor 100, nicht 10.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: "Der **Satz von Pick**: Ein Vieleck mit allen Ecken auf Gitterpunkten hat die Fläche I + R/2 − 1. Dabei zählt I die Punkte innen und R die Punkte auf dem Rand."
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Gitter-Vieleck hat 4 Gitterpunkte im Inneren und 10 auf dem Rand. Wie groß ist seine Fläche nach Pick?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: forgot-minus-one
+        text: Am Ende noch minus 1.
+    hints:
+      - I = 4, R = 10.
+      - "4 + 10 : 2 − 1 = ?"
+    explanation: 4 + 5 − 1 = 8 Flächeneinheiten – ganz ohne Formel für die Form.
     difficulty: 3
 
 srs:
