@@ -1,0 +1,227 @@
+id: chem.kinetics.ratelaw
+type: concept
+title: "Geschwindigkeitsgesetze und Halbwertszeit"
+summary: "Wie Tempo von Konzentration abhängt – und warum manches immer gleich schnell halbiert."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Nach wie vielen Stunden ist die Hälfte des Koffeins aus einem Kaffee in deinem Körper abgebaut?"
+    params:
+      min: 0.1
+      max: 48
+      scale: log
+      unit: h
+    answer:
+      value: 5
+      tolerance: 2
+    explanation: Bei Erwachsenen im Mittel etwa 5 Stunden. Vom Nachmittagskaffee ist um Mitternacht noch ein Viertel da.
+
+  - kind: explain
+    id: c1
+    body: Ein **Geschwindigkeitsgesetz** sagt, wie das Tempo von den Konzentrationen abhängt, etwa v = k · [A]ⁿ. Die Hochzahl n heißt Ordnung. Man muss sie messen – aus der Gleichung lesen kann man sie nicht.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Eine Reaktion ist {{n}}. Ordnung in A. Du machst [A] {{f}}-mal so groß. Wievielmal so schnell wird sie?
+    answer:
+      value: "{{f ** n}}"
+    feedback:
+      - when: n == 2 && f == 3 && numval(state.input) == 2 * f
+        misconception: order-times
+        text: "Quadrieren, nicht verdoppeln: {{f}} hoch 2."
+    hints:
+      - v wächst mit [A] hoch {{n}}.
+      - Rechne {{f}} hoch {{n}}.
+    explanation: "{{f}} hoch {{n}} = {{f ** n}}. Bei Ordnung 0 ist das Tempo ganz unabhängig von [A]."
+    variants:
+      params:
+        n: int[0,2]
+        f: choice[2,3]
+      defaults:
+        n: 2
+        f: 3
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: Ein Stoff zerfällt mit der Halbwertszeit 2 h. Stell die Zeit so ein, dass nur noch 25 % übrig sind.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 2
+          fixed: true
+    answer:
+      left:
+        - 24
+        - 26
+    explanation: "Nach 4 h: zwei Halbwertszeiten, also die Hälfte von der Hälfte."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie viel Prozent sind nach {{n}} Halbwertszeiten noch übrig?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / 2 ** n}}"
+      tolerance: 0.01
+    feedback:
+      - when: n > 2 && abs(numval(state.input) - 100 / (2 * n)) < 0.01
+        misconception: linear-halving
+        text: Nicht durch 2 · {{n}} teilen, sondern {{n}}-mal halbieren.
+    hints:
+      - Jede Halbwertszeit halbiert den Rest.
+      - "Rechne 100 : 2 hoch {{n}}."
+    explanation: "100 % : {{2 ** n}} = {{100 / 2 ** n}} %. Der Rest wird nie ganz null."
+    variants:
+      params:
+        n: int[1,6]
+      defaults:
+        n: 3
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Bei Reaktionen 1. Ordnung ist die **Halbwertszeit** immer gleich, egal wie viel Stoff da ist: $t_{1/2} = \\ln 2 : k$. Das gilt für radioaktiven Zerfall und für den Abbau vieler Medikamente."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Reaktion 1. Ordnung hat die Halbwertszeit {{t}} min. Wie groß ist k in 1/min? (ln 2 ≈ 0,693) Auf vier Nachkommastellen.
+    answer:
+      value: "{{0.693 / t}}"
+      tolerance: 0.0002
+    hints:
+      - "k = ln 2 : t½."
+      - "Rechne 0,693 : {{t}}."
+    explanation: "k = 0,693 : {{t}} ≈ {{0.693 / t}} pro Minute. Großes k, kurze Halbwertszeit."
+    difficulty: 2
+    variants:
+      params:
+        t: choice[5,10,20,50]
+      defaults:
+        t: 10
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Messung: Verdoppelt man [A], steigt das Tempo auf das {{2 ** n}}-Fache. Welche Ordnung hat die Reaktion in A?"
+    answer:
+      value: "{{n}}"
+    hints:
+      - 2 hoch n = {{2 ** n}}.
+      - Wie oft musst du 2 mit sich selbst malnehmen?
+    explanation: 2 hoch {{n}} = {{2 ** n}}, also Ordnung {{n}}. So findet man Ordnungen im Labor.
+    difficulty: 2
+    variants:
+      params:
+        n: int[0,3]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: sim
+    prompt: Ein Medikament hat die Halbwertszeit 6 h. Finde die kürzeste Zeit, nach der weniger als 10 % im Körper übrig sind.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 6
+          fixed: true
+    answer:
+      left:
+        - 9.5
+        - 9.99
+    explanation: "Nach 20 h sind es 9,9 %. Grob gilt: Nach gut drei Halbwertszeiten ist ein Mittel weitgehend abgebaut."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Für 1. Ordnung gilt [A] = [A]₀ · e hoch (−k·t). Wie viel Prozent sind bei k = 0,1 pro Sekunde nach 10 s übrig? Auf eine Nachkommastelle.
+    answer:
+      value: 36.8
+      tolerance: 0.06
+    hints:
+      - k · t = 0,1 · 10 = 1.
+      - e hoch −1 ≈ 0,368.
+    explanation: Etwa 36,8 %. Nach der Zeit 1/k ist immer noch gut ein Drittel übrig.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Bei einer Reaktion 2. Ordnung wird die Halbwertszeit immer länger, je weiter sie fortschreitet. Warum?
+    params:
+      options:
+        - label: Das Tempo fällt mit dem Quadrat der Konzentration – bei wenig Stoff kriecht sie
+          correct: true
+        - label: Der Katalysator wird verbraucht
+          feedback: Hier ist kein Katalysator im Spiel.
+        - label: Sie wird wärmer
+          feedback: Die Temperatur bleibt gleich.
+    hints:
+      - Bei 2. Ordnung müssen sich zwei Teilchen A treffen.
+      - Halb so viele Teilchen treffen sich viermal seltener.
+    explanation: "Für 2. Ordnung gilt t½ = 1 : (k · [A]₀). Nur bei 1. Ordnung ist sie konstant."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Die Radiokarbon-Methode datiert Knochen über C-14 mit 5730 Jahren Halbwertszeit. Warum funktioniert sie so verlässlich?
+    params:
+      options:
+        - label: Der Zerfall ist 1. Ordnung – die Halbwertszeit hängt nicht von Menge, Druck oder Temperatur ab
+          correct: true
+        - label: Knochen enthalten immer gleich viel C-14
+          feedback: Gerade der Rest wird gemessen und nimmt ab.
+        - label: C-14 zerfällt nicht
+          feedback: Sonst gäbe es keine Uhr.
+    hints:
+      - Kernzerfall wird nicht von Chemie beeinflusst.
+      - Jedes Atom hat pro Zeit dieselbe Chance zu zerfallen.
+    explanation: "Eine Uhr, die nie nachgeht: Nach 5730 Jahren ist die Hälfte weg, nach 11 460 Jahren drei Viertel."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Halbwertszeit ist – und wann sie konstant bleibt.
+    params:
+      keywords:
+        - - hälfte
+          - halb
+          - half
+        - - zeit
+          - time
+          - dauer
+        - - erste ordnung
+          - 1. ordnung
+          - first order
+          - first-order
+          - konstant
+          - constant
+          - gleich
+      sample: Die Halbwertszeit ist die Zeit, nach der die Hälfte eines Stoffs umgesetzt ist. Bei Reaktionen erster Ordnung ist sie konstant – egal, wie viel Stoff noch da ist.
+    explanation: "Erste Ordnung: jedes Teilchen zerfällt unabhängig von den anderen – darum ist die Halbwertszeit fest."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

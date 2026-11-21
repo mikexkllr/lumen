@@ -5,7 +5,7 @@ summary: Säuremenge messen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -82,6 +82,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: order
+    prompt: Ordne die Schritte einer Titration.
+    params:
+      items:
+        - label: Säure genau abmessen und Indikator zugeben
+        - label: Bürette mit Lauge füllen und Stand ablesen
+        - label: Lauge zutropfen und schwenken
+        - label: Beim Farbumschlag sofort stoppen
+        - label: Verbrauch ablesen und rechnen
+    hints:
+      - Erst vorbereiten, dann tropfen.
+      - Rechnen kannst du erst mit dem Verbrauch.
+    explanation: "Der Farbumschlag markiert den Äquivalenzpunkt: Dann ist genau so viel Lauge zugegeben, wie Säure da war."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: 10 ml Schwefelsäure H₂SO₄ brauchen {{w}} ml Natronlauge mit 0,1 mol/L. Welche Konzentration hat die Schwefelsäure?
+    params:
+      unit: mol/L
+    answer:
+      value: "{{0.005 * w}}"
+      tolerance: 0.0001
+    feedback:
+      - when: abs(numval(state.input) - 0.01 * w) < 0.0001
+        misconception: diprotic-ignored
+        text: H₂SO₄ gibt zwei H⁺ ab – halbiere das Ergebnis.
+    hints:
+      - "Verbrauchte Lauge: {{w}} ml · 0,1 mol/L = {{0.1 * w}} mmol OH⁻."
+      - Jedes H₂SO₄ fängt zwei OH⁻ ab. Teile dann durch 10 ml.
+    explanation: "{{0.1 * w}} mmol OH⁻ : 2 = {{0.05 * w}} mmol H₂SO₄ in 10 ml, also {{0.005 * w}} mol/L."
+    difficulty: 2
+    variants:
+      params:
+        w: step[10,40,10]
+      defaults:
+        w: 20
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Phenolphthalein ist in Säure farblos und wird ab pH 8,2 pink. Du titrierst Salzsäure mit Natronlauge. Was siehst du am Ende?
+    params:
+      options:
+        - label: Ein einziger Tropfen mehr färbt die Lösung pink
+          correct: true
+        - label: Die Lösung wird langsam immer rosa
+          feedback: Am Äquivalenzpunkt springt der pH sehr steil.
+        - label: Sie wird pink, schon bevor alles neutralisiert ist
+          feedback: Bis pH 8,2 bleibt sie farblos.
+    hints:
+      - Nahe dem Äquivalenzpunkt springt der pH um mehrere Stufen.
+      - pH 7 und pH 8,2 trennt nur ein Tropfen.
+    explanation: Der Sprung ist so steil, dass der Indikator nicht genau bei 7 umschlagen muss. Der Fehler bleibt kleiner als ein Tropfen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +159,78 @@ steps:
     hints:
       - Von pH 3 auf pH 4 braucht man 90 % der restlichen Säure. Und von 6 auf 7?
     explanation: Jede pH-Stufe braucht nur ein Zehntel der Lauge der vorigen. Daher die steile **Titrationskurve**.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: Du titrierst Essigsäure mit Natronlauge. Bei welchem pH liegt der Äquivalenzpunkt?
+    params:
+      options:
+        - label: Über 7, etwa bei 8,7
+          correct: true
+        - label: Genau bei 7
+          feedback: Dann läge nur Natriumacetat vor – und das ist basisch.
+        - label: Unter 7
+          feedback: Es ist keine Säure mehr übrig.
+    hints:
+      - Am Äquivalenzpunkt ist alle Essigsäure zu Acetat geworden.
+      - Acetat ist eine schwache Base.
+    explanation: Bei schwachen Säuren liegt der Äquivalenzpunkt im Basischen. Darum passt hier Phenolphthalein besser als ein Indikator, der bei 5 umschlägt.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: Am **Halbäquivalenzpunkt** ist die Hälfte der schwachen Säure zu ihrer Base umgesetzt. Dann liegen beide gleich häufig vor – und es gilt pH = pKs. So misst man pKs-Werte.
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: Für eine unbekannte schwache Säure misst du die Hälfte der Lauge bis zum Äquivalenzpunkt. Dort zeigt das Messgerät pH {{p}}. Welchen pKs-Wert hat die Säure?
+    answer:
+      value: "{{p}}"
+      tolerance: 0.01
+    hints:
+      - "Halb umgesetzt heißt: gleich viel Säure und Base."
+      - Dann ist pH gleich pKs.
+    explanation: pKs = {{p}}. Der Halbäquivalenzpunkt liegt in der Mitte der flachen Pufferzone der Kurve.
+    difficulty: 3
+    variants:
+      params:
+        p: choice[3.8,4.2,4.8,6.4]
+      defaults:
+        p: 4.8
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit einer Titration herausfindet, wie viel Säure in einer Probe steckt.
+    params:
+      keywords:
+        - - lauge
+          - base
+          - natronlauge
+          - naoh
+        - - indikator
+          - indicator
+          - farb
+          - colo
+        - - volumen
+          - verbrauch
+          - menge
+          - volume
+          - amount
+          - ml
+        - - konzentration
+          - concentration
+          - rechn
+          - calculat
+      sample: Man tropft Lauge mit bekannter Konzentration in die Säure, bis der Indikator die Farbe wechselt. Aus dem verbrauchten Volumen und der Konzentration rechnet man die Stoffmenge der Säure aus.
+    explanation: "Am Farbumschlag gilt: Stoffmenge H⁺ gleich Stoffmenge OH⁻."
     difficulty: 3
 
 srs:

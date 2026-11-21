@@ -5,7 +5,7 @@ summary: Sprudeln, rosten, nicht mischen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: natron
@@ -79,6 +79,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Sauer oder basisch – welcher Reiniger ist was?
+    params:
+      buckets:
+        - id: b1
+          label: sauer
+        - id: b2
+          label: basisch
+      items:
+        - label: Entkalker
+          bucket: b1
+        - label: Essigreiniger
+          bucket: b1
+        - label: WC-Reiniger
+          bucket: b1
+        - label: Rohrreiniger
+          bucket: b2
+        - label: Backofenreiniger
+          bucket: b2
+        - label: Schmierseife
+          bucket: b2
+    hints:
+      - Kalk löst man mit Säure, Fett mit Lauge.
+      - Rohr und Backofen sind voller Fett.
+    explanation: Säuren lösen Kalk und Urinstein. Laugen zerlegen Fett und Haare.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: choice
+    prompt: Warum verschwinden Kalkflecken, wenn man Essig darauf gibt?
+    params:
+      options:
+        - label: Die Säure reagiert mit dem Kalk zu einem löslichen Salz und CO₂
+          correct: true
+        - label: Essig verdünnt den Kalk nur
+          feedback: Kalk löst sich in Wasser kaum – erst die Säure zersetzt ihn.
+        - label: Essig schmilzt den Kalk
+          feedback: Kalk schmilzt erst bei über 800 °C.
+    hints:
+      - "Schau genau hin: Es bilden sich kleine Bläschen."
+      - Kalk ist Calciumcarbonat. Mit Säure entsteht ein Gas.
+    explanation: CaCO₃ + 2 H⁺ → Ca²⁺ + H₂O + CO₂. Die Bläschen sind CO₂.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: order
+    prompt: Was passiert mit Backpulver im Kuchen? Ordne.
+    params:
+      items:
+        - label: Teig wird angerührt
+        - label: Feuchtigkeit löst Säure und Natron
+        - label: Beide reagieren zu CO₂-Bläschen
+        - label: Hitze dehnt die Bläschen aus
+        - label: Der Teig wird fest, die Löcher bleiben
+    hints:
+      - Ohne Wasser reagiert das Pulver nicht.
+      - Ganz am Ende hält das feste Gerüst die Form.
+    explanation: Trocken in der Tüte bleibt Backpulver ruhig. Erst Wasser und Hitze machen den Kuchen locker.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -123,6 +190,72 @@ steps:
           - same
       sample: Die Atome ordnen sich neu zu anderen Stoffen. Dabei geht kein Atom verloren und es kommt keins dazu – ihre Zahl bleibt gleich.
     difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Chlorreiniger enthält Hypochlorit. Trifft es auf Säure, entsteht **Chlorgas**: $\\mathrm{OCl^- + Cl^- + 2\\,H^+ \\to Cl_2 + H_2O}$. Schon wenig davon verätzt die Lunge."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "In der Gleichung OCl⁻ + Cl⁻ + 2 H⁺ → Cl₂ + H₂O: Welche Gesamtladung steht links?"
+    answer:
+      value: 0
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: charge-partial
+        text: Die zwei Minusladungen zählen auch.
+      - when: numval(state.input) == -2
+        misconception: charge-partial
+        text: Die zwei H⁺ bringen zwei Plusladungen.
+    hints:
+      - "Zähle: −1, −1 und zweimal +1."
+      - Rechts sind Cl₂ und H₂O ungeladen.
+    explanation: −1 − 1 + 2 = 0. Auch die Ladung muss links und rechts gleich sein.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Rohrreiniger-Granulat enthält Lauge und Körnchen aus Aluminium. Warum sprudelt es im Abfluss?
+    params:
+      options:
+        - label: Aluminium reagiert mit der Lauge – dabei entstehen Wasserstoff und Wärme
+          correct: true
+        - label: Es entsteht Chlorgas
+          feedback: Im Granulat ist kein Chlor.
+        - label: Es entsteht CO₂
+          feedback: Dafür bräuchte es Carbonat und Säure.
+    hints:
+      - Aluminium ist ein unedles Metall.
+      - Das Gas brennt mit einem Knall.
+    explanation: Die Bläschen wirbeln den Schmutz auf, die Wärme hilft der Lauge, Fett zu zersetzen. Wasserstoff ist brennbar – also kein offenes Feuer!
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: numeric
+    prompt: "Natron zerfällt beim Backen: 2 NaHCO₃ → Na₂CO₃ + H₂O + CO₂. Wie viele CO₂-Moleküle entstehen aus {{2 * k}} NaHCO₃?"
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 * k
+        misconception: ratio-ignored
+        text: Die Gleichung braucht zwei NaHCO₃ für ein CO₂.
+    hints:
+      - "Lies das Verhältnis: 2 NaHCO₃ zu 1 CO₂."
+      - Teile {{2 * k}} durch 2.
+    explanation: "Je zwei NaHCO₃ geben ein CO₂: {{2 * k}} : 2 = {{k}}."
+    difficulty: 3
+    variants:
+      params:
+        k: int[2,12]
+      defaults:
+        k: 5
 
 srs:
   cards_from: [mischen, rost]

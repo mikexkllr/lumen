@@ -5,7 +5,7 @@ summary: Plus und Minus halten zusammen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: ladung
@@ -85,6 +85,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: match
+    prompt: Welche Formel gehört zu welchem Salz?
+    params:
+      pairs:
+        - left: Natriumchlorid (Na⁺, Cl⁻)
+          right: NaCl
+        - left: Magnesiumoxid (Mg²⁺, O²⁻)
+          right: MgO
+        - left: Calciumchlorid (Ca²⁺, Cl⁻)
+          right: CaCl₂
+        - left: Aluminiumoxid (Al³⁺, O²⁻)
+          right: Al₂O₃
+    hints:
+      - Plus- und Minusladungen müssen sich aufheben.
+      - Ca²⁺ braucht zwei Cl⁻.
+    explanation: "Al₂O₃: 2 · (+3) = +6 und 3 · (−2) = −6. Die Formel zeigt das kleinste neutrale Verhältnis."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Ionen mit der Ladung {{a}}+ und {{b}}− bilden ein neutrales Salz. Wie viele Ionen hat die kleinste neutrale Formeleinheit?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == a + b && a + b != n
+        misconception: not-reduced
+        text: Das Verhältnis lässt sich noch kürzen.
+    hints:
+      - "Suche das kleinste gemeinsame Vielfache der Ladungen: {{lcm(a, b)}}."
+      - "{{lcm(a, b) / a}} Kationen und {{lcm(a, b) / b}} Anionen."
+    explanation: "{{lcm(a, b) / a}} + {{lcm(a, b) / b}} = {{n}} Ionen. Dann gleichen sich {{lcm(a, b)}} Plus- und {{lcm(a, b)}} Minusladungen aus."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,3]
+        b: int[1,3]
+      derive:
+        n: lcm(a, b) / a + lcm(a, b) / b
+      defaults:
+        a: 3
+        b: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Kochsalz NaCl schmilzt bei 801 °C, Magnesiumoxid MgO erst bei 2852 °C. Warum der große Unterschied?
+    params:
+      options:
+        - label: Die Ionen in MgO tragen doppelte Ladungen und sind kleiner – sie ziehen sich viel stärker an
+          correct: true
+        - label: MgO ist schwerer
+          feedback: Die Masse spielt kaum eine Rolle.
+        - label: MgO ist kein Salz
+          feedback: MgO ist ein typisches Ionengitter.
+    hints:
+      - "Vergleiche die Ladungen: +1/−1 gegen +2/−2."
+      - Je stärker der Zusammenhalt, desto mehr Hitze braucht das Schmelzen.
+    explanation: "Darum kleidet man Hochöfen mit MgO aus: Es hält Temperaturen aus, bei denen Stahl längst flüssig ist."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +166,86 @@ steps:
     hints:
       - Im Gitter wechseln sich Plus und Minus ab. Was passiert bei einer Verschiebung um einen Platz?
     explanation: Im Metall gleiten die Schichten in einem »See« aus freien Elektronen – darum ist es formbar.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Die Anziehung zweier Ionen wächst mit dem Produkt ihrer Ladungen und sinkt mit dem Abstand: $F \\sim \\frac{q_1 \\cdot q_2}{r^2}$. Das ist das **Coulomb-Gesetz**."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Vergleiche Mg²⁺/O²⁻ mit Na⁺/Cl⁻ beim gleichen Abstand. Um welchen Faktor ist die Anziehung größer?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: product-not-sum
+        text: Beide Ladungen verdoppeln sich – das Produkt vervierfacht sich.
+    hints:
+      - "Multipliziere die Ladungen: 2 · 2 gegen 1 · 1."
+      - Das Verhältnis der Produkte ist der Faktor.
+    explanation: "4 : 1. Weil die Ionen in MgO zudem kleiner sind, ist der Zusammenhalt sogar noch stärker."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: buckets
+    prompt: "Faustregel für den Unterschied ΔEN: über 1,7 ionisch, 0,5 bis 1,7 polar, darunter unpolar. Sortiere."
+    params:
+      buckets:
+        - id: b1
+          label: ionisch
+        - id: b2
+          label: polar
+        - id: b3
+          label: unpolar
+      items:
+        - label: KF (ΔEN 3,2)
+          bucket: b1
+        - label: NaCl (ΔEN 2,2)
+          bucket: b1
+        - label: O–H (ΔEN 1,2)
+          bucket: b2
+        - label: H–Cl (ΔEN 1,0)
+          bucket: b2
+        - label: C–H (ΔEN 0,4)
+          bucket: b3
+        - label: Cl–Cl (ΔEN 0)
+          bucket: b3
+    hints:
+      - Zwei gleiche Atome ziehen gleich stark.
+      - "Ein großer Unterschied heißt: Ein Atom reißt die Elektronen ganz an sich."
+    explanation: "Die Grenzen sind fließend: Ionen- und Elektronenpaarbindung sind zwei Enden einer Skala. C–H mit 0,35 gilt als praktisch unpolar."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Salzkristall hart ist, aber zerspringt, statt sich zu biegen.
+    params:
+      keywords:
+        - - ion
+          - ladung
+          - charge
+          - plus
+          - minus
+        - - anzieh
+          - attract
+          - zusammen
+          - hold
+        - - verschieb
+          - schicht
+          - shift
+          - layer
+          - abstoß
+          - repel
+      sample: Im Kristall halten Plus- und Minus-Ionen durch starke Anziehung zusammen, darum ist er hart. Verschiebt ein Schlag eine Schicht, stehen gleiche Ladungen nebeneinander und stoßen sich ab – der Kristall bricht.
+    explanation: Starke Anziehung macht hart, die starre Ordnung macht spröde.
     difficulty: 3
 
 srs:

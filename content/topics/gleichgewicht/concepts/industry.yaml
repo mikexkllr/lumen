@@ -5,7 +5,7 @@ summary: Das Haber-Bosch-Verfahren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viel Prozent des weltweiten Energieverbrauchs gehen in die Herstellung von Ammoniak?"
+    params:
+      min: 0
+      max: 20
+      unit: "%"
+    answer:
+      value: 1.5
+      tolerance: 0.8
+    explanation: Rund 1 bis 2 % – vor allem für den Wasserstoff aus Erdgas. Kaum eine Reaktion ist so wichtig und so energiehungrig.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: N₂ + 3 H₂ → 2 NH₃. Wie viele Tonnen Wasserstoff (2 g/mol) braucht man für {{34 * k}} t Ammoniak (17 g/mol)?
+    params:
+      unit: t
+    answer:
+      value: "{{6 * k}}"
+    feedback:
+      - when: numval(state.input) == 4 * k
+        misconception: ratio-ignored
+        text: Für 2 NH₃ braucht man 3 H₂, nicht 2.
+    hints:
+      - "{{34 * k}} t NH₃ sind {{2 * k}} Mega-Mol. Dafür braucht es {{3 * k}} Mega-Mol H₂."
+      - Rechne {{3 * k}} · 2 t.
+    explanation: "{{3 * k}} · 2 = {{6 * k}} t H₂. Der Rest der Masse kommt aus dem Stickstoff der Luft."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,10]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Pro Durchgang durch den Reaktor reagieren nur etwa 15 % des Gases zu Ammoniak. Wie wird das Verfahren trotzdem effizient?
+    params:
+      options:
+        - label: Das Ammoniak wird auskondensiert, das restliche Gas läuft im Kreis zurück
+          correct: true
+        - label: Man wirft das Restgas weg
+          feedback: Das wäre teure Verschwendung.
+        - label: Man wartet länger im Reaktor
+          feedback: Das Gleichgewicht begrenzt den Umsatz trotzdem.
+    hints:
+      - NH₃ wird beim Abkühlen flüssig, N₂ und H₂ nicht.
+      - Entfernt man das Produkt, bildet sich neues.
+    explanation: So werden am Ende fast 100 % von N₂ und H₂ genutzt. Kreislauf statt Einbahnstraße.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -109,6 +167,46 @@ steps:
           - temperature
       sample: Bei niedriger Temperatur liegt das Gleichgewicht günstig, aber die Reaktion ist viel zu langsam. Bei hoher Temperatur geht es schnell, doch die Ausbeute sinkt. Man wählt einen Mittelweg.
     difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: Für N₂ + 3 H₂ → 2 NH₃ gilt ΔH = −92 kJ und ΔS = −0,199 kJ/K. Ab welcher Temperatur wird ΔG positiv? Auf ganze Kelvin.
+    params:
+      unit: K
+    answer:
+      value: 462
+      tolerance: 3
+    hints:
+      - "ΔG = 0 bei T = ΔH : ΔS."
+      - "T = 92 : 0,199."
+    explanation: Etwa 462 K, also rund 190 °C. Bei 450 °C ist K kleiner als 1 – nur der hohe Druck rettet die Ausbeute.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: "Schwefelsäure: 2 SO₂ + O₂ ⇌ 2 SO₃ ist exotherm. Man leitet das Gas über mehrere Katalysator-Schichten und kühlt dazwischen. Warum?"
+    params:
+      options:
+        - label: Die Wärme der Reaktion würde das Gleichgewicht zurückschieben – Kühlen hält den Umsatz hoch
+          correct: true
+        - label: Der Katalysator schmilzt sonst
+          feedback: Es geht um das Gleichgewicht, nicht um den Katalysator.
+        - label: Kaltes Gas reagiert schneller
+          feedback: Kälte macht Reaktionen langsamer.
+    hints:
+      - "Exotherm: Wärme ist wie ein Produkt."
+      - Heiß genug für Tempo, kühl genug für Ausbeute.
+    explanation: So erreicht man über 99,5 % Umsatz. Zwischen den Schichten wird zusätzlich SO₃ ausgewaschen.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x3
+    depth: 3
+    body: Heute stammt der Wasserstoff für Ammoniak meist aus Erdgas – dabei entstehen pro Tonne NH₃ etwa zwei Tonnen CO₂. **Grünes Ammoniak** nutzt stattdessen Wasserstoff aus Elektrolyse mit Ökostrom.
 
 srs:
   cards_from: [druck, kompromiss]

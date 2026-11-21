@@ -1,0 +1,212 @@
+id: chem.kinetics.catalysis
+type: concept
+title: "Catalysis up close"
+summary: "Intermediates, turnover numbers and reactions that speed themselves up."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Hydrogen peroxide hardly breaks down in its bottle. With a pinch of manganese dioxide (MnO₂) it foams up at once. The MnO₂ is left over. What is it?
+    params:
+      options:
+        - label: A catalyst
+          correct: true
+        - label: A reactant
+          feedback: But it is not used up.
+        - label: A product
+          feedback: It was there beforehand.
+    hints:
+      - Whatever is left unchanged at the end was not used up.
+      - Yet it changed the rate.
+    explanation: 2 H₂O₂ → 2 H₂O + O₂. The foam is oxygen. The MnO₂ only speeds things up.
+
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: 2 H₂O₂ → 2 H₂O + O₂. How many O₂ molecules form from {{2 * k}} H₂O₂ molecules?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 * k
+        misconception: ratio-ignored
+        text: Two H₂O₂ give only one O₂.
+    hints:
+      - "Read the ratio: 2 to 1."
+      - Divide {{2 * k}} by 2.
+    explanation: "{{2 * k}} ÷ 2 = {{k}} O₂."
+    variants:
+      params:
+        k: int[3,25]
+      defaults:
+        k: 5
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: This is how a catalyst works at its surface. Order the steps.
+    params:
+      items:
+        - label: The particles bind to the surface
+        - label: Bonds inside them are weakened
+        - label: They react to form an intermediate
+        - label: The product comes off
+        - label: The surface is free again
+    hints:
+      - First the particles must dock.
+      - At the end the catalyst is as good as new.
+    explanation: A catalyst opens another route with smaller hills. It is freed again and again in a cycle.
+
+  - kind: problem
+    id: c3
+    widget: swipe
+    prompt: Is this true of catalysts?
+    params:
+      cards:
+        - text: They lower the activation energy.
+          right: true
+          why: That is exactly their trick.
+        - text: They change the ΔH of the reaction.
+          right: false
+          why: Start and finish stay the same.
+        - text: They get used up.
+          right: false
+          why: They come out of the reaction unchanged.
+        - text: They also speed up the reverse reaction.
+          right: true
+          why: The route is shorter in both directions.
+        - text: They shift the equilibrium.
+          right: false
+          why: K stays the same – it is just reached sooner.
+    explanation: Catalysts change the speed, never the destination.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many H₂O₂ molecules does a single molecule of the enzyme catalase break down per second?"
+    params:
+      min: 1
+      max: 10000000000
+      scale: log
+    answer:
+      value: 40000000
+      tolerance: 30000000
+    explanation: About 40 million per second! This **turnover number** is one of the highest known. Catalase protects cells from toxic peroxide.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In the Haber–Bosch process, splitting N₂ is the hardest step. What does the iron catalyst do?
+    params:
+      options:
+        - label: N₂ binds to the iron surface, and the triple bond is weakened and breaks
+          correct: true
+        - label: Iron supplies the hydrogen
+          feedback: The hydrogen comes from natural gas or electrolysis.
+        - label: Iron cools the reactor
+          feedback: The catalyst changes routes, not temperatures.
+    hints:
+      - N≡N is one of the strongest bonds there is.
+      - At the surface, the N atoms share electrons with the iron.
+    explanation: The single N atoms on the iron pick up H one at a time. Gerhard Ertl won the 2007 Nobel Prize for explaining this.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Why does a car's catalytic converter barely work right after a cold start?
+    params:
+      options:
+        - label: Even the catalysed route still needs some activation – it only works properly from about 250 °C
+          correct: true
+        - label: The platinum has to melt first
+          feedback: Platinum only melts at 1768 °C.
+        - label: Cold exhaust contains no pollutants
+          feedback: At a cold start there are especially many.
+    hints:
+      - The catalyst lowers the hill – it does not remove it.
+      - A smaller hill still needs some heat.
+    explanation: That is why a big share of exhaust pollution comes in the first minutes. Some cars preheat the converter electrically.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Some reactions speed themselves up: a product acts as the catalyst. This is called **autocatalysis**. At first hardly anything happens, then it suddenly goes faster and faster."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: What does the curve "amount of product against time" look like for an autocatalytic reaction?
+    params:
+      options:
+        - label: "S-shaped: slow start, steep rise, then flat"
+          correct: true
+        - label: A straight line
+          feedback: The rate changes a lot here.
+        - label: Steep at first, then flatter
+          feedback: That is what a normal reaction looks like.
+    hints:
+      - At the start, the catalyst is still missing.
+      - At the end, the starting material runs out.
+    explanation: More product, more catalyst, more speed – until supplies run out. Chain reactions and epidemics follow a similar pattern.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: A catalyst lowers Eₐ from 75 to 50 kJ/mol. By roughly what factor does the rate rise at 300 K? (e to the 10 ≈ 22,000)
+    params:
+      options:
+        - label: About 20,000-fold
+          correct: true
+        - label: About 1.5-fold
+          feedback: Eₐ acts in the exponent, not as a factor.
+        - label: About 25-fold
+          feedback: The 25 kJ/mol sit in the exponent.
+    hints:
+      - Factor = e to the (ΔEₐ/RT).
+      - 25,000 ÷ (8.314 · 300) ≈ 10.
+    explanation: e¹⁰ ≈ 22,000. What would take six hours happens in one second. Enzymes often manage far more.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a catalyst speeds up a reaction without being used up.
+    params:
+      keywords:
+        - - weg
+          - route
+          - path
+          - zwischen
+          - intermediate
+        - - aktivierung
+          - activation
+          - berg
+          - barrier
+          - hill
+        - - frei
+          - unverändert
+          - kreislauf
+          - unchanged
+          - cycle
+          - free
+          - zurück
+      sample: The catalyst offers another route with a smaller activation barrier, for instance via an intermediate on its surface. At the end it is freed again, unchanged – a cycle.
+    explanation: A detour over a smaller hill, catalyst back at the end.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c3", "x3"]

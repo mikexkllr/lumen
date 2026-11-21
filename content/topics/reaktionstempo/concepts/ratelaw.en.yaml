@@ -1,0 +1,227 @@
+id: chem.kinetics.ratelaw
+type: concept
+title: "Rate laws and half-life"
+summary: "How rate depends on concentration – and why some things always halve at the same pace."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: after how many hours has half the caffeine from a coffee been broken down in your body?"
+    params:
+      min: 0.1
+      max: 48
+      scale: log
+      unit: h
+    answer:
+      value: 5
+      tolerance: 2
+    explanation: In adults about 5 hours on average. A quarter of your afternoon coffee is still there at midnight.
+
+  - kind: explain
+    id: c1
+    body: A **rate law** says how the rate depends on concentrations, for example v = k · [A]ⁿ. The exponent n is called the order. It must be measured – you cannot read it from the equation.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A reaction is order {{n}} in A. You make [A] {{f}} times as large. How many times as fast does it get?
+    answer:
+      value: "{{f ** n}}"
+    feedback:
+      - when: n == 2 && f == 3 && numval(state.input) == 2 * f
+        misconception: order-times
+        text: "Square it, do not double it: {{f}} to the 2."
+    hints:
+      - v grows with [A] to the {{n}}.
+      - Work out {{f}} to the {{n}}.
+    explanation: "{{f}} to the {{n}} = {{f ** n}}. At order 0 the rate does not depend on [A] at all."
+    variants:
+      params:
+        n: int[0,2]
+        f: choice[2,3]
+      defaults:
+        n: 2
+        f: 3
+
+  - kind: problem
+    id: c3
+    widget: sim
+    prompt: A substance decays with a half-life of 2 h. Set the time so that only 25% is left.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 2
+          fixed: true
+    answer:
+      left:
+        - 24
+        - 26
+    explanation: "After 4 h: two half-lives, so half of a half."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: What percentage is left after {{n}} half-lives?
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 / 2 ** n}}"
+      tolerance: 0.01
+    feedback:
+      - when: n > 2 && abs(numval(state.input) - 100 / (2 * n)) < 0.01
+        misconception: linear-halving
+        text: Do not divide by 2 · {{n}} – halve {{n}} times.
+    hints:
+      - Each half-life halves what is left.
+      - Work out 100 ÷ 2 to the {{n}}.
+    explanation: 100% ÷ {{2 ** n}} = {{100 / 2 ** n}}%. What is left never quite reaches zero.
+    variants:
+      params:
+        n: int[1,6]
+      defaults:
+        n: 3
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "For first-order reactions the **half-life** is always the same, however much substance there is: $t_{1/2} = \\ln 2 \\div k$. This holds for radioactive decay and for the breakdown of many medicines."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A first-order reaction has a half-life of {{t}} min. What is k in 1/min? (ln 2 ≈ 0.693) Give four decimal places.
+    answer:
+      value: "{{0.693 / t}}"
+      tolerance: 0.0002
+    hints:
+      - k = ln 2 ÷ t½.
+      - Work out 0.693 ÷ {{t}}.
+    explanation: k = 0.693 ÷ {{t}} ≈ {{0.693 / t}} per minute. Large k, short half-life.
+    difficulty: 2
+    variants:
+      params:
+        t: choice[5,10,20,50]
+      defaults:
+        t: 10
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Measurement: doubling [A] raises the rate to {{2 ** n}} times. What is the order of the reaction in A?"
+    answer:
+      value: "{{n}}"
+    hints:
+      - 2 to the n = {{2 ** n}}.
+      - How many times do you multiply 2 by itself?
+    explanation: 2 to the {{n}} = {{2 ** n}}, so order {{n}}. This is how orders are found in the lab.
+    difficulty: 2
+    variants:
+      params:
+        n: int[0,3]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: sim
+    prompt: A medicine has a half-life of 6 h. Find the shortest time after which less than 10% is left in the body.
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 6
+          fixed: true
+    answer:
+      left:
+        - 9.5
+        - 9.99
+    explanation: "After 20 h it is 9.9%. Roughly: after just over three half-lives a drug is largely gone."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: For first order, [A] = [A]₀ · e to the (−k·t). What percentage is left with k = 0.1 per second after 10 s? Give one decimal place.
+    answer:
+      value: 36.8
+      tolerance: 0.06
+    hints:
+      - k · t = 0.1 · 10 = 1.
+      - e to the −1 ≈ 0.368.
+    explanation: About 36.8%. After a time of 1/k, just over a third is always still left.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: In a second-order reaction the half-life gets longer and longer as it goes on. Why?
+    params:
+      options:
+        - label: The rate falls with the square of the concentration – with little substance it crawls
+          correct: true
+        - label: The catalyst gets used up
+          feedback: No catalyst is involved here.
+        - label: It gets warmer
+          feedback: The temperature stays the same.
+    hints:
+      - At second order two A particles have to meet.
+      - Half as many particles meet four times less often.
+    explanation: For second order t½ = 1 ÷ (k · [A]₀). Only at first order is it constant.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Radiocarbon dating dates bones using C-14 with a half-life of 5730 years. Why is it so reliable?
+    params:
+      options:
+        - label: Decay is first order – the half-life does not depend on amount, pressure or temperature
+          correct: true
+        - label: Bones always contain the same amount of C-14
+          feedback: It is precisely the remaining amount that is measured and falls.
+        - label: C-14 does not decay
+          feedback: Then there would be no clock.
+    hints:
+      - Nuclear decay is not affected by chemistry.
+      - Each atom has the same chance of decaying per unit of time.
+    explanation: "A clock that never runs slow: after 5730 years half is gone, after 11,460 years three quarters."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a half-life is – and when it stays constant.
+    params:
+      keywords:
+        - - hälfte
+          - halb
+          - half
+        - - zeit
+          - time
+          - dauer
+        - - erste ordnung
+          - 1. ordnung
+          - first order
+          - first-order
+          - konstant
+          - constant
+          - gleich
+      sample: The half-life is the time after which half of a substance has reacted. For first-order reactions it is constant – no matter how much substance is left.
+    explanation: "First order: each particle reacts independently of the others – so the half-life is fixed."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

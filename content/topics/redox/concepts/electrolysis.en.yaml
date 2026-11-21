@@ -5,7 +5,7 @@ summary: Splitting substances with electricity.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -84,6 +84,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: A current of {{i}} A flows for {{s}} seconds. How many moles of electrons is that? (1 mol of electrons = 96,500 C)
+    params:
+      unit: mol
+    answer:
+      value: "{{k / 10}}"
+      tolerance: 0.001
+    hints:
+      - Charge Q = I · t = {{i}} · {{s}} C.
+      - Divide {{9650 * k}} C by 96,500 C/mol.
+    explanation: "{{9650 * k}} C ÷ 96,500 C/mol = {{k / 10}} mol of electrons. This is Faraday's law."
+    difficulty: 2
+    variants:
+      params:
+        i: choice[2,5,10]
+        k: int[1,9]
+      derive:
+        s: 9650 * k / i
+      defaults:
+        i: 5
+        k: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Cu²⁺ + 2 e⁻ → Cu. How many grams of copper (63.5 g/mol) does 1 mol of electrons deposit? Give one decimal place.
+    answer:
+      value: 31.8
+      tolerance: 0.06
+    feedback:
+      - when: abs(numval(state.input) - 63.5) < 0.1
+        misconception: charge-ignored
+        text: Each copper ion needs two electrons.
+    hints:
+      - 1 mol of electrons is enough for half a mole of Cu²⁺.
+      - Work out 63.5 ÷ 2.
+    explanation: 63.5 ÷ 2 ≈ 31.8 g. For silver (Ag⁺) it would be a full 107.9 g.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Splitting salt water with electricity gives three key raw materials. Which three?
+    params:
+      options:
+        - label: Chlorine, hydrogen and caustic soda
+          correct: true
+        - label: Sodium, chlorine and water
+          feedback: Sodium metal only forms from molten salt without water.
+        - label: Oxygen, salt and sugar
+          feedback: No sugar forms here.
+    hints:
+      - At the positive electrode, Cl⁻ is oxidised to Cl₂.
+      - At the negative electrode, water is reduced to H₂ and OH⁻.
+    explanation: 2 NaCl + 2 H₂O → Cl₂ + H₂ + 2 NaOH. This process is one of the biggest consumers of electricity in the chemical industry.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -130,6 +192,44 @@ steps:
           - outside
       min: 3
       sample: At one terminal a substance gives off electrons, at the other a substance takes them up. Because both are separated, the electrons must flow outside through the device – that is the current.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "In theory 1.23 V is enough to split water. In practice you need 1.8 to 2 V. The difference is called **overpotential**: the electrodes have to get the reaction going first."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: 1 kg of hydrogen is 500 mol of H₂ and needs 1000 mol of electrons. At least how many kilowatt-hours does that take at 1.23 V? (96,485 C/mol, 1 kWh = 3.6 · 10⁶ J) Round to a whole number.
+    answer:
+      value: 33
+      tolerance: 0.5
+    hints:
+      - Energy = charge · voltage = 1000 · 96,485 · 1.23 J.
+      - That is about 1.19 · 10⁸ J. Divide by 3.6 · 10⁶.
+    explanation: At least about 33 kWh. Real electrolysers need about 50 – because of overpotential and heat losses.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Recycling aluminium saves about 95% of the energy of making it new. Why so much?
+    params:
+      options:
+        - label: New aluminium has to be pulled out of its oxide by electrolysis – scrap only has to be melted
+          correct: true
+        - label: Old aluminium is lighter
+          feedback: The mass is the same.
+        - label: Recycling generates electricity
+          feedback: Melting costs energy, just much less.
+    hints:
+      - Aluminium is very reactive – in the oxide it is held tightly.
+      - With scrap, the redox work has already been done.
+    explanation: Each kilo of new aluminium takes about 13 to 15 kWh of electrolysis. So a drinks can is a small store of energy.
     difficulty: 3
 
 srs:

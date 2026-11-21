@@ -1,0 +1,194 @@
+id: chem.electrochem.nernst
+type: concept
+title: "The Nernst equation"
+summary: "Why voltage depends on concentration – all the way to the pH meter."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Two copper plates stand in copper sulfate solutions: one concentrated, one very dilute. Does this give a voltage?"
+    params:
+      options:
+        - label: Yes – a small voltage, until both solutions are equally concentrated
+          correct: true
+        - label: No, both electrodes are the same
+          feedback: Concentration counts too.
+        - label: Yes, 1.1 V like the Daniell cell
+          feedback: That would need zinc.
+    hints:
+      - Nature tends to even out differences.
+      - In the strong solution copper deposits; in the weak one it dissolves.
+    explanation: This is a **concentration cell**. It runs until the difference is gone.
+
+  - kind: explain
+    id: c1
+    body: "The voltage of a half-cell depends on concentration. At 25 °C the **Nernst equation** applies: $E = E^\\circ + \\frac{0.059\\,V}{z} \\cdot \\log c$. z is the charge of the metal ion, c its concentration in mol/L."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Copper (E° = +0.34 V, z = 2) stands in a solution with c(Cu²⁺) = 10 to the −{{k}} mol/L. What is the potential of the half-cell? Give three decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{0.34 - 0.0295 * k}}"
+      tolerance: 0.0011
+    feedback:
+      - when: abs(numval(state.input) - (0.34 - 0.059 * k)) < 0.0011
+        misconception: z-ignored
+        text: Divide 0.059 by z = 2.
+      - when: abs(numval(state.input) - (0.34 + 0.0295 * k)) < 0.0011
+        misconception: log-sign
+        text: The log of 10 to the −{{k}} is −{{k}} – the potential falls.
+    hints:
+      - log(10 to the −{{k}}) = −{{k}}.
+      - E = 0.34 + 0.0295 · (−{{k}}).
+    explanation: E = 0.34 − {{0.0295 * k}} = {{0.34 - 0.0295 * k}} V. Each tenfold dilution costs Cu²⁺ just under 30 mV.
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: The solution around a copper electrode is diluted. What happens to its potential?
+    params:
+      options:
+        - label: It falls – the electrode becomes "less noble"
+          correct: true
+        - label: It rises
+          feedback: Fewer Cu²⁺ means less drive to be reduced.
+        - label: It stays at 0.34 V
+          feedback: 0.34 V only holds at 1 mol/L.
+    hints:
+      - Fewer ions want to take fewer electrons.
+      - log c becomes negative.
+    explanation: Standard potentials only hold at 1 mol/L. Otherwise you have to recalculate with Nernst.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A concentration cell has Cu²⁺ at 1 mol/L on one side and 10 to the −{{k}} mol/L on the other. What voltage does it deliver? Give three decimal places.
+    params:
+      unit: V
+    answer:
+      value: "{{0.0295 * k}}"
+      tolerance: 0.0011
+    hints:
+      - The E° values cancel; only the log part remains.
+      - ΔE = 0.0295 V · {{k}}.
+    explanation: "{{k}} tenfold steps · 29.5 mV = {{0.0295 * k}} V. Small – but measurable and very useful."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,6]
+      defaults:
+        k: 3
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "For hydrogen ions: each pH step changes the potential by 59 mV. That is what a **pH electrode** relies on: it measures a voltage and converts it into a pH value."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A pH electrode is put first into a solution of pH {{a}}, then into one of pH {{b}}. By how many millivolts does the voltage change?
+    params:
+      unit: mV
+    answer:
+      value: "{{59 * d}}"
+    hints:
+      - How many pH steps lie in between?
+      - "{{d}} · 59 mV."
+    explanation: "{{d}} steps · 59 mV = {{59 * d}} mV. That is why pH meters are calibrated with two buffers: checking zero point and slope."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        d: int[1,6]
+      derive:
+        b: a + d
+      defaults:
+        a: 4
+        d: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: For the Daniell cell, log K = z · E° ÷ 0.059 V with z = 2 and E° = 1.10 V. What is log K? Round to a whole number.
+    answer:
+      value: 37
+      tolerance: 0.5
+    hints:
+      - 2 · 1.10 = 2.20.
+      - 2.20 ÷ 0.059.
+    explanation: log K ≈ 37, so K ≈ 10³⁷. The reaction runs practically to completion – until almost no Cu²⁺ is left.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A battery is completely flat. What is true of its cell reaction then?
+    params:
+      options:
+        - label: "It is at equilibrium: E = 0 and ΔG = 0"
+          correct: true
+        - label: All substances have vanished
+          feedback: They have only been converted.
+        - label: The voltage is negative
+          feedback: It only falls to zero.
+    hints:
+      - "Nernst: the voltage falls as the reaction proceeds."
+      - When nothing runs spontaneously any more, … is reached.
+    explanation: "A flat battery is an equilibrium: Q = K. Charging pushes the system far away from it again."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Inside a cell there are 140 mmol/L of K⁺, outside 5 mmol/L. What voltage does Nernst give at 59 mV per tenfold step (z = 1)? (log 28 ≈ 1.447) Round to whole mV.
+    params:
+      unit: mV
+    answer:
+      value: 85
+      tolerance: 1
+    hints:
+      - The ratio is 140 ÷ 5 = 28.
+      - 59 mV · 1.447.
+    explanation: About 85 mV. At body temperature it is just over 89 mV – close to the resting potential of nerve cells. Electrochemistry is in every thought.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a battery's voltage slowly falls as it discharges.
+    params:
+      keywords:
+        - - konzentration
+          - concentration
+        - - nernst
+          - log
+        - - gleichgewicht
+          - equilibrium
+          - "null"
+          - zero
+      sample: According to the Nernst equation, the voltage depends on the concentrations. As the battery discharges, there are fewer reactants and more products. So the voltage falls until it reaches zero at equilibrium.
+    explanation: The voltage measures how far the system is from equilibrium.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d3"]

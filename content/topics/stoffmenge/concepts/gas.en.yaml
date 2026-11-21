@@ -5,7 +5,7 @@ summary: One mole of gas, about 24 liters.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: sim
+    prompt: The volume stays at 5 L. Heat the gas until the pressure reaches 150 kPa.
+    params:
+      scene: gas
+      controls:
+        volume:
+          value: 5
+          fixed: true
+    answer:
+      pressure:
+        - 148
+        - 152
+    explanation: "At fixed volume the pressure grows in proportion to the temperature in kelvin: 450 K gives one and a half times the pressure at 300 K."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: A gas takes up {{v}} L at 100 kPa. What volume does it have at {{100 * f}} kPa and the same temperature?
+    params:
+      unit: L
+    answer:
+      value: "{{v / f}}"
+    feedback:
+      - when: numval(state.input) == v * f
+        misconception: boyle-direction
+        text: More pressure squeezes the gas – the volume gets smaller.
+    hints:
+      - p · V stays the same.
+      - "{{f}} times the pressure, 1/{{f}} of the volume."
+    explanation: 100 · {{v}} = {{100 * f}} · V, so V = {{v / f}} L. This is Boyle's law.
+    difficulty: 2
+    variants:
+      params:
+        v: step[6,24,6]
+        f: choice[2,3]
+      defaults:
+        v: 12
+        f: 3
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: A sealed bag of crisps puffs up on the drive into the mountains. Why?
+    params:
+      options:
+        - label: The air pressure outside falls, and the gas in the bag expands
+          correct: true
+        - label: It gets warmer up there
+          feedback: In the mountains it is usually colder.
+        - label: The crisps give off gas
+          feedback: The amount of gas in the bag stays the same.
+    hints:
+      - What changes most with altitude?
+      - Less pressure from outside – more room for the gas.
+    explanation: At 2000 m the air pressure is already about a fifth lower. The gas pushes the bag out until inside and outside are equal.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -104,6 +167,52 @@ steps:
     hints:
       - V = nRT ÷ p = 8.314 · 300 ÷ 100.
     explanation: 24.9 litres – hence the rule of thumb “about 24 litres per mole”.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: "Using pV = nRT (R = 8.314): what volume does 1 mol of gas take up at 0 °C (273.15 K) and 101.325 kPa? Give litres to one decimal place."
+    answer:
+      value: 22.4
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: celsius
+        text: Calculate in kelvin, not °C.
+    hints:
+      - V = nRT ÷ p.
+      - 8.314 · 273.15 ÷ 101.325.
+    explanation: V ≈ 22.4 L – the molar volume at standard conditions. At room temperature it is the familiar 24 L or so.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: sim
+    prompt: Heat the piston to 600 K. Then set the volume so that the pressure is still only about 100 kPa.
+    params:
+      scene: gas
+    check:
+      predicate: temperature == 600 && pressure >= 97 && pressure <= 103
+    explanation: "Double the temperature at the same pressure needs double the volume: about 10 L instead of 5 L. This is Charles's law."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: On Mount Everest the air pressure is 33 kPa. Oxygen makes up 21% of air. What is its partial pressure there? Give one decimal place.
+    params:
+      unit: kPa
+    answer:
+      value: 6.9
+      tolerance: 0.05
+    hints:
+      - Each gas contributes its share to the total pressure.
+      - Work out 33 · 0.21.
+    explanation: 33 · 0.21 ≈ 6.9 kPa – a third of the value at sea level. The lungs get much less oxygen with each breath.
     difficulty: 3
 
 srs:

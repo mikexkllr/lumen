@@ -5,7 +5,7 @@ summary: Stomach, sea and garden.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: loesungen
@@ -64,6 +64,47 @@ steps:
     explanation: 26% more H⁺. Small pH changes are large chemical changes.
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: A **buffer** is a mixture of a weak acid and its base. If H⁺ is added, the base catches it. If OH⁻ is added, the acid supplies H⁺. The pH stays almost steady.
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: choice
+    prompt: You add 1 ml of strong hydrochloric acid (1 mol/L) once to 1 L of water and once to 1 L of buffer at pH 7. What happens?
+    params:
+      options:
+        - label: The water drops to pH 3, the buffer stays close to 7
+          correct: true
+        - label: Both drop to pH 3
+          feedback: In the buffer, the base catches the H⁺.
+        - label: Both stay at pH 7
+          feedback: Pure water now has 0.001 mol/L of H⁺ – that is pH 3.
+    hints:
+      - 1 ml at 1 mol/L is 0.001 mol of H⁺.
+      - In water, nothing catches the H⁺.
+    explanation: A fall of four pH steps in water, hardly any change in the buffer. That is how the buffer in your blood protects your enzymes.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: order
+    prompt: Acid is added to a buffer made of acetic acid and acetate. Put the steps in order.
+    params:
+      items:
+        - label: H⁺ ions are added
+        - label: Acetate ions catch the H⁺
+        - label: More acetic acid forms
+        - label: The pH falls only a little
+    hints:
+      - Who catches H⁺ in the buffer?
+      - CH₃COO⁻ + H⁺ → CH₃COOH.
+    explanation: The strong acid is swapped for a weak one. Only when the acetate runs out is the buffer exhausted.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -86,6 +127,75 @@ steps:
           - salt
       min: 3
       sample: An acid and a base react with each other. The H⁺ ions of the acid and the OH⁻ ions of the base form water; a salt remains.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "The pH of a buffer comes from the **Henderson–Hasselbalch equation**: $pH = pK_a + \\log \\frac{[A^-]}{[HA]}$. With equal amounts of acid HA and base A⁻, pH = pKa."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "A buffer contains acetate and acetic acid (pKa 4.75) in the ratio {{b}} : {{s}}. What is its pH?"
+    answer:
+      value: "{{4.75 + k}}"
+      tolerance: 0.01
+    feedback:
+      - when: k != 0 && abs(numval(state.input) - (4.75 - k)) < 0.01
+        misconception: hh-inverted
+        text: More base than acid means a higher pH – the sign is swapped.
+    hints:
+      - The logarithm of {{b / s}} is {{k}}.
+      - Work out 4.75 + ({{k}}).
+    explanation: pH = 4.75 + log({{b / s}}) = {{4.75 + k}}. A buffer works best within about one step of its pKa.
+    difficulty: 3
+    variants:
+      params:
+        k: int[-2,2]
+      derive:
+        b: "k >= 0 ? 10 ** k : 1"
+        s: "k >= 0 ? 1 : 10 ** (-k)"
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Blood has pH 7.4. Its main buffer, HCO₃⁻/CO₂, has a pKa of 6.1. Roughly what is the ratio of HCO₃⁻ to CO₂?
+    params:
+      options:
+        - label: "About 20 : 1"
+          correct: true
+        - label: "About 1 : 20"
+          feedback: The pH is above the pKa – so the base dominates.
+        - label: "Exactly 1 : 1"
+          feedback: Then the pH would equal the pKa, 6.1.
+    hints:
+      - 7.4 − 6.1 = 1.3 = log of the ratio.
+      - 10 to the 1.3 is about 20.
+    explanation: That looks lopsided – but the lungs can breathe out CO₂ in moments. That is why the system buffers acid so effectively.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: Someone who breathes very fast from panic exhales a lot of CO₂. What happens to the pH of their blood?
+    params:
+      options:
+        - label: It rises – the blood becomes more basic
+          correct: true
+        - label: It falls
+          feedback: Less CO₂ means less carbonic acid.
+        - label: It stays exactly the same
+          feedback: The buffer compensates, but not completely.
+    hints:
+      - CO₂ forms carbonic acid with water.
+      - Less acid, higher pH.
+    explanation: "The HCO₃⁻ : CO₂ ratio grows and the pH rises. Tingling fingers are a typical sign."
     difficulty: 3
 
 srs:

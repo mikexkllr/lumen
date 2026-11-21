@@ -5,7 +5,7 @@ summary: How much comes out?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -72,6 +72,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: order
+    prompt: Order the steps for working out how much product forms.
+    params:
+      items:
+        - label: Write and balance the equation
+        - label: Convert the given mass to moles
+        - label: Convert using the ratio from the equation
+        - label: Convert moles of product to grams
+    hints:
+      - You can only calculate with a balanced equation.
+      - The equation speaks in moles, the scale in grams.
+    explanation: Grams → moles → moles → grams. This route works for any reaction.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: 2 H₂ + O₂ → 2 H₂O. You have {{a}} mol of H₂ and {{b}} mol of O₂. At most how many moles of water form?
+    params:
+      unit: mol
+    answer:
+      value: "{{min(a, 2 * b)}}"
+    feedback:
+      - when: numval(state.input) == max(a, 2 * b)
+        misconception: limiting-reagent
+        text: The substance that runs out first limits the reaction.
+    hints:
+      - "{{a}} mol of H₂ is enough for {{a}} mol of water, {{b}} mol of O₂ for {{2 * b}} mol."
+      - The smaller value counts.
+    explanation: At most {{min(a, 2 * b)}} mol of water. Some of the other substance is left over.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,10]
+        b: int[1,6]
+      constraints:
+        - a != 2 * b
+      defaults:
+        a: 6
+        b: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: 2 H₂ + O₂ → 2 H₂O. How many grams of water form from {{m}} g of hydrogen?
+    params:
+      unit: g
+    answer:
+      value: "{{9 * m}}"
+    feedback:
+      - when: numval(state.input) == m
+        misconception: mass-ignored
+        text: The oxygen adds its mass too.
+    hints:
+      - "{{m}} g of H₂ is {{m / 2}} mol, which gives {{m / 2}} mol of H₂O."
+      - One mole of water weighs 18 g.
+    explanation: "{{m / 2}} mol · 18 g/mol = {{9 * m}} g. Water weighs nine times as much as the hydrogen in it."
+    difficulty: 2
+    variants:
+      params:
+        m: int[1,10]
+      defaults:
+        m: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -83,6 +152,101 @@ steps:
     hints:
       - 3 mol of H₂ suffice for only 1 mol of N₂.
     explanation: Hydrogen is the **limiting reagent**. 1 mol of N₂ is left over.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: In theory {{t}} g of product could form; you get {{e}} g. What is the percentage yield?
+    params:
+      unit: "%"
+    answer:
+      value: "{{p}}"
+      tolerance: 0.01
+    hints:
+      - Yield = obtained ÷ possible · 100.
+      - Work out {{e}} ÷ {{t}} · 100.
+    explanation: "{{e}} ÷ {{t}} = {{p / 100}}, so {{p}}%. Losses come from side reactions, equilibria and purification."
+    difficulty: 3
+    variants:
+      params:
+        t: choice[40,80,200]
+        p: step[50,95,5]
+      derive:
+        e: t * p / 100
+      defaults:
+        t: 80
+        p: 75
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: N₂ + 3 H₂ → 2 NH₃. At most how many kilograms of ammonia (17 g/mol) can form from 28 kg of nitrogen (28 g/mol)?
+    params:
+      unit: kg
+    answer:
+      value: 34
+    feedback:
+      - when: numval(state.input) == 17
+        misconception: coefficient-ignored
+        text: One N₂ gives two NH₃.
+    hints:
+      - 28 kg of N₂ is 1 kmol.
+      - That gives 2 kmol of NH₃.
+    explanation: 2 kmol · 17 kg/kmol = 34 kg. The hydrogen supplies the other 6 kg.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: 2 Mg + O₂ → 2 MgO. You burn {{m}} g of magnesium (24 g/mol). How much does the magnesium oxide (40 g/mol) weigh?
+    params:
+      unit: g
+    answer:
+      value: "{{20 * k}}"
+    feedback:
+      - when: numval(state.input) == m
+        misconception: mass-ignored
+        text: The ash weighs more – the oxygen is now built in.
+    hints:
+      - "{{m}} g of Mg is {{m / 24}} mol."
+      - The same number of moles of MgO, 40 g each.
+    explanation: "{{m / 24}} mol · 40 g/mol = {{20 * k}} g. Burnt metal gets heavier – this is what led Lavoisier to oxygen."
+    difficulty: 3
+    variants:
+      params:
+        k: int[1,6]
+      derive:
+        m: 12 * k
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you use a chemical equation to work out how much product forms.
+    params:
+      keywords:
+        - - mol
+          - stoffmenge
+          - amount
+        - - verhältnis
+          - faktor
+          - koeffizient
+          - ratio
+          - coefficient
+        - - masse
+          - gramm
+          - mass
+          - gram
+          - molare
+          - molar
+      sample: You convert the mass of the starting material to moles using its molar mass. The numbers in the equation give the ratio of the amounts. With the product's molar mass you convert back to grams.
+    explanation: The equation counts particles in moles – you only need grams at the start and the end.
     difficulty: 3
 
 srs:

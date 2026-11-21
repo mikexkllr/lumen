@@ -5,7 +5,7 @@ summary: Chains, rings, millions of molecules.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: vielfalt
@@ -81,6 +81,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Alkane, alkene or alkyne? Look at the hydrogens.
+    params:
+      buckets:
+        - id: b1
+          label: Alkane (single bonds only)
+        - id: b2
+          label: Alkene (one C=C)
+        - id: b3
+          label: Alkyne (one C≡C)
+      items:
+        - label: Ethane C₂H₆
+          bucket: b1
+        - label: Propane C₃H₈
+          bucket: b1
+        - label: Ethene C₂H₄
+          bucket: b2
+        - label: Propene C₃H₆
+          bucket: b2
+        - label: Ethyne C₂H₂
+          bucket: b3
+    hints:
+      - "Alkanes: CₙH₂ₙ₊₂, alkenes: CₙH₂ₙ, alkynes: CₙH₂ₙ₋₂."
+      - Each extra bond between C atoms costs two H.
+    explanation: Ethyne is also called acetylene – it burns at over 3000 °C in welding.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: A chain-shaped alkyne has one triple bond and {{n}} C atoms. How many H atoms does it have?
+    answer:
+      value: "{{2 * n - 2}}"
+    feedback:
+      - when: numval(state.input) == 2 * n + 2
+        misconception: saturated
+        text: That would be the alkane. The triple bond costs four H.
+    hints:
+      - "Alkynes: CₙH₂ₙ₋₂."
+      - Work out 2 · {{n}} − 2.
+    explanation: 2 · {{n}} − 2 = {{2 * n - 2}} H atoms.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,10]
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: ch-d3
+    depth: 2
+    body: A C atom with four single bonds points to the four corners of a **tetrahedron**. So an alkane chain is not a straight line but a zigzag – and free to rotate.
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -90,6 +147,56 @@ steps:
     hints:
       - Straight chain, one branch, two branches on the same C.
     explanation: Three. For C₁₀ there are already 75, for C₂₀ over 366,000 – that is why there are so many organic substances.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Same formula, different connections: these are **isomers**. Their number shoots up with every C atom – decane C₁₀H₂₂ already has 75 isomers."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: How many different chain isomers does hexane C₆H₁₄ have?
+    answer:
+      value: 5
+    hints:
+      - Straight chain, then one methyl group at position 2 or 3.
+      - "Then two methyl groups: 2,2 and 2,3."
+    explanation: Hexane, 2-methylpentane, 3-methylpentane, 2,2-dimethylbutane and 2,3-dimethylbutane. All C₆H₁₄, each with its own boiling point.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: Every ring and every double bond costs two H. The number of "degrees of unsaturation" is (2C + 2 − H) ÷ 2. What is it for benzene C₆H₆?
+    answer:
+      value: 4
+    hints:
+      - Put in C = 6 and H = 6.
+      - (12 + 2 − 6) ÷ 2.
+    explanation: 4 = one ring and three double bonds. This is how you guess a molecule's structure from its formula.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: But-2-ene CH₃–CH=CH–CH₃ exists in a cis and a trans form. Butane does not. Why?
+    params:
+      options:
+        - label: Nothing can rotate around the double bond – the position of the groups is frozen
+          correct: true
+        - label: Butane has too few C atoms
+          feedback: Both have four C atoms.
+        - label: The double bond is longer
+          feedback: It is actually shorter – what matters is its rigidity.
+    hints:
+      - Single bonds can rotate freely.
+      - In cis, both CH₃ are on the same side.
+    explanation: Such cis/trans pairs have different properties. Trans fats in hardened oils are a well-known, unhealthy example.
     difficulty: 3
 
 srs:

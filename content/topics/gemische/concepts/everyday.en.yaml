@@ -5,8 +5,21 @@ summary: Dressing, spritzer, granite.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
+  - kind: problem
+    id: ch-hook
+    widget: estimate
+    prompt: "Take a guess: what percentage of cow's milk is water?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 87
+      tolerance: 4
+    explanation: About 87%. The rest is fat, protein, milk sugar and minerals – finely spread out.
+
   - kind: problem
     id: art
     widget: buckets
@@ -52,6 +65,23 @@ steps:
       defaults: { v: 1000 }
 
   - kind: problem
+    id: ch-c1
+    widget: choice
+    prompt: Orange juice with pulp says "Shake before use". Why?
+    params:
+      options:
+        - label: The pulp sinks to the bottom over time
+          correct: true
+        - label: Otherwise the juice turns sour
+          feedback: Shaking does not change the taste.
+        - label: So the sugar dissolves
+          feedback: The sugar has long been dissolved.
+    hints:
+      - Bits of fruit are solid and heavier than juice.
+      - Solid bits in a liquid settle.
+    explanation: "Juice with pulp is a **suspension**: solid bits only float until they settle."
+
+  - kind: problem
     id: d1
     depth: 2
     widget: choice
@@ -68,6 +98,62 @@ steps:
       - A molecule with a water-loving and a fat-loving end.
     explanation: Lecithin keeps the **emulsion** stable – by the same principle as soap.
     difficulty: 2
+
+  - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Solution, emulsion or suspension?
+    params:
+      buckets:
+        - id: b1
+          label: Solution
+        - id: b2
+          label: Emulsion
+        - id: b3
+          label: Suspension
+      items:
+        - label: Salt water
+          bucket: b1
+        - label: Tea with sugar
+          bucket: b1
+        - label: Milk
+          bucket: b2
+        - label: Mayonnaise
+          bucket: b2
+        - label: Mud
+          bucket: b3
+        - label: Cocoa with powder on the bottom
+          bucket: b3
+    hints:
+      - "Solution: fully clear. Emulsion: droplets. Suspension: solid bits."
+      - Mayonnaise has oil droplets spread through it.
+    explanation: Solutions never settle, suspensions do. Emulsions separate unless there is an emulsifier.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: A dressing is 3 parts oil and 1 part vinegar. How many millilitres of oil do you need for {{v}} ml of dressing?
+    params:
+      unit: ml
+    answer:
+      value: "{{3 * v / 4}}"
+    feedback:
+      - when: numval(state.input) == v / 3
+        misconception: ratio-parts
+        text: There are 4 parts in total, not 3.
+    hints:
+      - 3 + 1 = 4 parts in total.
+      - One part is {{v / 4}} ml.
+    explanation: "{{v}} ÷ 4 · 3 = {{3 * v / 4}} ml of oil."
+    difficulty: 2
+    variants:
+      params:
+        v: step[80,400,40]
+      defaults:
+        v: 200
 
   - kind: problem
     id: x1
@@ -94,6 +180,49 @@ steps:
           - neu
           - new
       sample: In a mixture the substances merely lie side by side and can be separated physically, for example by filtering. In a compound the atoms are chemically bound and have new properties.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: An **emulsifier** has a water-loving end and a fat-loving end. It sits between oil and water and keeps the droplets apart. In egg yolk, that is lecithin.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Homogenised milk no longer forms a layer of cream. What was done to it?
+    params:
+      options:
+        - label: The fat droplets were broken up into tiny ones under high pressure
+          correct: true
+        - label: The fat was removed
+          feedback: Then it would be skimmed milk.
+        - label: Sugar was added
+          feedback: Sugar does not keep fat suspended.
+    hints:
+      - Fat is lighter than water and rises.
+      - Very small droplets barely rise at all.
+    explanation: The smaller a droplet, the slower it rises. Homogenising breaks them down to below one micrometre.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Air is a mixture, water a compound. How can you tell?
+    params:
+      options:
+        - label: Air can be separated by liquefying and distilling, water only by a reaction
+          correct: true
+        - label: Air is a gas, water is a liquid
+          feedback: The state does not tell you mixture or compound.
+        - label: Water contains only one kind of atom
+          feedback: Water contains hydrogen and oxygen.
+    hints:
+      - For a mixture, a physical method is enough.
+      - "Water is split with electricity: electrolysis."
+    explanation: Liquid air separates into nitrogen and oxygen when distilled. Water stays water when it boils.
     difficulty: 3
 
 srs:

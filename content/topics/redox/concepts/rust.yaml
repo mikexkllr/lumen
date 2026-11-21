@@ -5,7 +5,7 @@ summary: Langsame Oxidation im Alltag.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: braun
@@ -105,6 +105,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: buckets
+    prompt: Fünf Eisennägel liegen eine Woche im Glas. Welche rosten?
+    params:
+      buckets:
+        - id: b1
+          label: rostet
+        - id: b2
+          label: rostet kaum
+      items:
+        - label: in Leitungswasser
+          bucket: b1
+        - label: in Salzwasser
+          bucket: b1
+        - label: mit Kupferdraht umwickelt, in Wasser
+          bucket: b1
+        - label: in trockener Luft mit Trockenmittel
+          bucket: b2
+        - label: in abgekochtem Wasser unter Öl
+          bucket: b2
+        - label: verzinkt, in Wasser
+          bucket: b2
+    hints:
+      - Rost braucht Wasser und Sauerstoff zugleich.
+      - Abgekochtes Wasser enthält kaum gelösten Sauerstoff, das Öl hält neuen fern.
+    explanation: Edleres Kupfer beschleunigt das Rosten, unedleres Zink verhindert es. Salz macht das Wasser leitfähiger – auch das beschleunigt.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: "Vereinfacht: 4 Fe + 3 O₂ → 2 Fe₂O₃. Wie viele O₂-Moleküle braucht man für {{4 * k}} Eisenatome?"
+    answer:
+      value: "{{3 * k}}"
+    feedback:
+      - when: numval(state.input) == 4 * k
+        misconception: ratio-ignored
+        text: Das Verhältnis ist 4 Fe zu 3 O₂, nicht 1 zu 1.
+    hints:
+      - Je 4 Fe brauchen 3 O₂.
+      - "Rechne {{4 * k}} : 4 · 3."
+    explanation: "{{4 * k}} : 4 · 3 = {{3 * k}} O₂."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,15]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viel Gramm Fe₂O₃ (160 g/mol) entstehen aus 112 g Eisen (56 g/mol)?
+    params:
+      unit: g
+    answer:
+      value: 160
+    feedback:
+      - when: numval(state.input) == 320
+        misconception: atom-count
+        text: Ein Fe₂O₃ enthält zwei Fe-Atome.
+      - when: numval(state.input) == 112
+        misconception: mass-ignored
+        text: Rost wiegt mehr als das Eisen – der Sauerstoff kommt dazu.
+    hints:
+      - 112 g Fe sind 2 mol.
+      - Für ein Fe₂O₃ braucht man 2 Fe.
+    explanation: 2 mol Fe ergeben 1 mol Fe₂O₃ = 160 g. Ein rostendes Auto wird also schwerer!
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +194,65 @@ steps:
     hints:
       - Rost blättert ab. Aluminiumoxid nicht.
     explanation: "**Passivierung**: Die Schicht ist nur Millionstel Millimeter dick, aber dicht. Edelstahl nutzt dasselbe Prinzip mit Chrom."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: choice
+    prompt: Rostender Bewehrungsstahl kann Beton von innen sprengen. Wie geht das?
+    params:
+      options:
+        - label: Rost braucht ein Mehrfaches des Volumens von Eisen und drückt den Beton auf
+          correct: true
+        - label: Rost ist sauer und löst Beton
+          feedback: Das Problem ist der Platzbedarf, nicht Säure.
+        - label: Der Stahl wird beim Rosten heiß
+          feedback: Rosten ist viel zu langsam, um spürbar zu wärmen.
+    hints:
+      - Rost ist locker und enthält viel Wasser.
+      - Mehr Volumen in festem Beton erzeugt Druck.
+    explanation: Je nach Rostsorte wächst das Volumen auf das Zwei- bis Sechsfache. Darum bröckeln alte Brücken und Balkone.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: Edelstahl enthält mindestens 10,5 % Chrom und rostet kaum. Warum?
+    params:
+      options:
+        - label: Chrom bildet an der Oberfläche eine hauchdünne, dichte Oxidschicht, die sich selbst heilt
+          correct: true
+        - label: Chrom ist edler als Gold
+          feedback: Chrom ist sogar unedler als Eisen.
+        - label: Chrom stößt Wasser ab
+          feedback: Es geht um eine Oxidschicht, nicht ums Abperlen.
+    hints:
+      - Denk an Aluminium, das trotz unedel nicht durchrostet.
+      - Die Schicht ist nur wenige Nanometer dick.
+    explanation: Diese **Passivierung** schützt, solange genug Sauerstoff nachkommt. Kratzer schließen sich von selbst wieder.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was beim Rosten mit dem Eisen passiert.
+    params:
+      keywords:
+        - - oxid
+          - elektron
+          - electron
+        - - sauerstoff
+          - oxygen
+          - o₂
+        - - wasser
+          - water
+          - feucht
+          - moist
+      sample: "Beim Rosten wird Eisen oxidiert: Es gibt Elektronen ab. Sauerstoff nimmt sie auf. Dafür braucht es Wasser – darum rostet Eisen in trockener Luft kaum."
+    explanation: Eisen, Sauerstoff und Wasser – fehlt eins, stoppt der Rost.
     difficulty: 3
 
 srs:

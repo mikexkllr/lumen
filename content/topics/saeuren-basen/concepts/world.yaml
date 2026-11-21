@@ -5,7 +5,7 @@ summary: Magen, Meer und Garten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: loesungen
@@ -64,6 +64,47 @@ steps:
     explanation: 26 % mehr H⁺. Kleine pH-Änderungen sind große chemische Änderungen.
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: Ein **Puffer** ist ein Gemisch aus einer schwachen Säure und ihrer Base. Kommt H⁺ dazu, fängt die Base es ab. Kommt OH⁻ dazu, liefert die Säure H⁺ nach. Der pH bleibt fast stabil.
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: choice
+    prompt: Du gibst 1 ml starke Salzsäure (1 mol/L) einmal zu 1 L Wasser und einmal zu 1 L Puffer mit pH 7. Was passiert?
+    params:
+      options:
+        - label: Das Wasser fällt auf pH 3, der Puffer bleibt fast bei 7
+          correct: true
+        - label: Beide fallen auf pH 3
+          feedback: Im Puffer fängt die Base die H⁺ ab.
+        - label: Beides bleibt bei pH 7
+          feedback: Ins reine Wasser gelangen 0,001 mol/L H⁺ – das ist pH 3.
+    hints:
+      - 1 ml mit 1 mol/L sind 0,001 mol H⁺.
+      - Im Wasser fängt niemand die H⁺ ab.
+    explanation: Vier pH-Stufen Sturz im Wasser, kaum eine Änderung im Puffer. So schützt der Puffer im Blut deine Enzyme.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: order
+    prompt: Ein Essigsäure-Acetat-Puffer bekommt Säure ab. Ordne, was passiert.
+    params:
+      items:
+        - label: H⁺-Ionen kommen dazu
+        - label: Acetat-Ionen fangen die H⁺ ab
+        - label: Es entsteht mehr Essigsäure
+        - label: Der pH-Wert sinkt nur ein wenig
+    hints:
+      - Wer fängt H⁺ im Puffer?
+      - CH₃COO⁻ + H⁺ → CH₃COOH.
+    explanation: Die starke Säure wird gegen eine schwache getauscht. Erst wenn das Acetat aufgebraucht ist, ist der Puffer erschöpft.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -86,6 +127,75 @@ steps:
           - salt
       min: 3
       sample: Eine Säure und eine Base reagieren miteinander. Die H⁺-Ionen der Säure und die OH⁻-Ionen der Base bilden Wasser, übrig bleibt ein Salz.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "Den pH eines Puffers liefert die **Henderson-Hasselbalch-Gleichung**: $pH = pK_s + \\log \\frac{[A^-]}{[HA]}$. Bei gleich viel Säure HA und Base A⁻ ist pH = pKs."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Puffer enthält Acetat und Essigsäure (pKs 4,75) im Verhältnis {{b}} : {{s}}. Welchen pH hat er?"
+    answer:
+      value: "{{4.75 + k}}"
+      tolerance: 0.01
+    feedback:
+      - when: k != 0 && abs(numval(state.input) - (4.75 - k)) < 0.01
+        misconception: hh-inverted
+        text: Mehr Base als Säure heißt höherer pH – das Vorzeichen ist vertauscht.
+    hints:
+      - Der Logarithmus von {{b / s}} ist {{k}}.
+      - Rechne 4,75 + ({{k}}).
+    explanation: pH = 4,75 + log({{b / s}}) = {{4.75 + k}}. Ein Puffer wirkt am besten bis etwa eine Stufe um den pKs.
+    difficulty: 3
+    variants:
+      params:
+        k: int[-2,2]
+      derive:
+        b: "k >= 0 ? 10 ** k : 1"
+        s: "k >= 0 ? 1 : 10 ** (-k)"
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Blut hat pH 7,4. Sein Hauptpuffer HCO₃⁻/CO₂ hat pKs 6,1. In welchem Verhältnis stehen HCO₃⁻ und CO₂ ungefähr?
+    params:
+      options:
+        - label: "Etwa 20 : 1"
+          correct: true
+        - label: "Etwa 1 : 20"
+          feedback: Der pH liegt über dem pKs – also überwiegt die Base.
+        - label: "Genau 1 : 1"
+          feedback: Dann wäre der pH gleich dem pKs, also 6,1.
+    hints:
+      - 7,4 − 6,1 = 1,3 = log des Verhältnisses.
+      - 10 hoch 1,3 ist etwa 20.
+    explanation: Das scheint schief – doch die Lunge kann CO₂ blitzschnell abatmen. Darum puffert das System gegen Säure so wirksam.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: Wer vor Aufregung sehr schnell atmet, atmet viel CO₂ ab. Was passiert mit dem pH-Wert des Blutes?
+    params:
+      options:
+        - label: Er steigt – das Blut wird basischer
+          correct: true
+        - label: Er sinkt
+          feedback: Weniger CO₂ heißt weniger Kohlensäure.
+        - label: Er bleibt genau gleich
+          feedback: Der Puffer gleicht aus, aber nicht vollständig.
+    hints:
+      - CO₂ bildet mit Wasser Kohlensäure.
+      - Weniger Säure, höherer pH.
+    explanation: "Das Verhältnis HCO₃⁻ : CO₂ wächst, der pH steigt. Kribbeln in den Fingern ist ein typisches Zeichen."
     difficulty: 3
 
 srs:

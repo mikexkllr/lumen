@@ -5,7 +5,7 @@ summary: The electrochemical series.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -84,6 +84,89 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: numeric
+    prompt: "Electrochemical series: Mg −2.37 · Al −1.66 · Zn −0.76 · Fe −0.44 · Cu +0.34 · Ag +0.80 V. What voltage does a cell made of {{a}} and {{b}} deliver?"
+    params:
+      unit: V
+    answer:
+      value: "{{eb - ea}}"
+      tolerance: 0.005
+    feedback:
+      - when: ea < 0 && eb > 0 && abs(numval(state.input) - (eb + ea)) < 0.005
+        misconception: potential-sign
+        text: "The sign matters: subtract the lower value from the higher one."
+    hints:
+      - The voltage is the distance along the series.
+      - Work out {{eb}} − ({{ea}}).
+    explanation: "{{eb}} − ({{ea}}) = {{eb - ea}} V. {{a}} is the negative terminal, because it gives up its electrons more easily."
+    difficulty: 2
+    variants:
+      params:
+        i: int[0,4]
+        j: int[1,5]
+      constraints:
+        - i < j
+      derive:
+        a: '["Mg", "Al", "Zn", "Fe", "Cu", "Ag"][i]'
+        b: '["Mg", "Al", "Zn", "Fe", "Cu", "Ag"][j]'
+        ea: "[-2.37, -1.66, -0.76, -0.44, 0.34, 0.80][i]"
+        eb: "[-2.37, -1.66, -0.76, -0.44, 0.34, 0.80][j]"
+      defaults:
+        i: 2
+        j: 5
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Hydrogen sits at 0 V in the series. Which metals dissolve in hydrochloric acid, giving off bubbles?
+    params:
+      buckets:
+        - id: b1
+          label: dissolves, H₂ bubbles
+        - id: b2
+          label: stays shiny
+      items:
+        - label: Magnesium
+          bucket: b1
+        - label: Zinc
+          bucket: b1
+        - label: Iron
+          bucket: b1
+        - label: Copper
+          bucket: b2
+        - label: Silver
+          bucket: b2
+        - label: Gold
+          bucket: b2
+    hints:
+      - Only metals below 0 V can give electrons to H⁺.
+      - Copper sits at +0.34 V.
+    explanation: Reactive metals reduce H⁺ to H₂ gas. Noble metals stay shiny in hydrochloric acid.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: A copper wire hangs in a colourless silver nitrate solution. What do you see after an hour?
+    params:
+      options:
+        - label: Silver crystals grow on the wire and the solution turns blue
+          correct: true
+        - label: Nothing – copper is a noble metal
+          feedback: Silver is more noble still.
+        - label: Copper comes out of the solution
+          feedback: At first there is no copper in the solution at all.
+    hints:
+      - Compare Cu (+0.34 V) and Ag (+0.80 V).
+      - Cu²⁺ ions colour water blue.
+    explanation: Cu + 2 Ag⁺ → Cu²⁺ + 2 Ag. The more noble metal comes out, the less noble one dissolves.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -95,6 +178,51 @@ steps:
     hints:
       - "Difference: noble minus base."
     explanation: 0.80 − (−2.37) = 3.17 V. The further apart the metals, the higher the voltage.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: The values in the series are called **standard potentials**. They are measured against a hydrogen electrode set to 0 V – at 25 °C, 1 mol/L and 1 bar.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: The free energy of a cell is ΔG = −n · F · E. For the zinc–copper cell, n = 2, F = 96,485 C/mol, E = 1.10 V. What is ΔG in kJ/mol? Round to a whole number.
+    answer:
+      value: -212
+      tolerance: 1
+    feedback:
+      - when: abs(numval(state.input) - 212) < 1
+        misconception: dg-sign
+        text: "The minus belongs there: the reaction runs by itself and releases energy."
+      - when: abs(numval(state.input) + 106) < 1
+        misconception: n-ignored
+        text: Two electrons move per reaction – n = 2.
+    hints:
+      - 2 · 96,485 · 1.10 gives joules per mole.
+      - Divide by 1000 and put the minus in front.
+    explanation: ΔG ≈ −212 kJ/mol. A negative ΔG means the reaction runs by itself. A positive cell voltage and a negative ΔG say the same thing in two languages.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Lithium has the most negative standard potential at −3.04 V. Yet caesium reacts far more violently with water. How does that fit?
+    params:
+      options:
+        - label: The potential tells you how much energy is released – not how fast it happens
+          correct: true
+        - label: The table is wrong
+          feedback: The values are well measured.
+        - label: Caesium is more noble than lithium
+          feedback: Both are extremely reactive.
+    hints:
+      - Thermodynamics and kinetics are two different questions.
+      - The tiny Li⁺ gets wrapped up by water especially tightly. That releases a lot of energy.
+    explanation: Lithium does not melt and reacts steadily. Caesium melts at 28 °C, its surface stays fresh – it almost explodes.
     difficulty: 3
 
 srs:

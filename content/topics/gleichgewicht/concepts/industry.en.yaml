@@ -5,7 +5,7 @@ summary: The Haber-Bosch process.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: what percentage of the world's energy use goes into making ammonia?"
+    params:
+      min: 0
+      max: 20
+      unit: "%"
+    answer:
+      value: 1.5
+      tolerance: 0.8
+    explanation: About 1 to 2% – mostly for the hydrogen made from natural gas. Few reactions are so important and so hungry for energy.
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: N₂ + 3 H₂ → 2 NH₃. How many tonnes of hydrogen (2 g/mol) are needed for {{34 * k}} t of ammonia (17 g/mol)?
+    params:
+      unit: t
+    answer:
+      value: "{{6 * k}}"
+    feedback:
+      - when: numval(state.input) == 4 * k
+        misconception: ratio-ignored
+        text: 2 NH₃ need 3 H₂, not 2.
+    hints:
+      - "{{34 * k}} t of NH₃ is {{2 * k}} mega-moles. That needs {{3 * k}} mega-moles of H₂."
+      - Work out {{3 * k}} · 2 t.
+    explanation: "{{3 * k}} · 2 = {{6 * k}} t of H₂. The rest of the mass comes from nitrogen in the air."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,10]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Only about 15% of the gas reacts to ammonia on each pass through the reactor. How is the process still efficient?
+    params:
+      options:
+        - label: The ammonia is condensed out and the leftover gas loops back
+          correct: true
+        - label: The leftover gas is thrown away
+          feedback: That would be costly waste.
+        - label: The gas waits longer in the reactor
+          feedback: Equilibrium still limits the conversion.
+    hints:
+      - NH₃ turns liquid when cooled, N₂ and H₂ do not.
+      - Remove the product and more forms.
+    explanation: In the end almost 100% of the N₂ and H₂ gets used. A loop, not a one-way street.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -109,6 +167,46 @@ steps:
           - temperature
       sample: At low temperature the equilibrium is favourable but the reaction is far too slow. At high temperature it is fast but the yield drops. One chooses a middle way.
     difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: For N₂ + 3 H₂ → 2 NH₃, ΔH = −92 kJ and ΔS = −0.199 kJ/K. Above what temperature does ΔG turn positive? Round to whole kelvin.
+    params:
+      unit: K
+    answer:
+      value: 462
+      tolerance: 3
+    hints:
+      - ΔG = 0 at T = ΔH ÷ ΔS.
+      - T = 92 ÷ 0.199.
+    explanation: About 462 K, or roughly 190 °C. At 450 °C, K is below 1 – only the high pressure saves the yield.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: choice
+    prompt: "Sulfuric acid: 2 SO₂ + O₂ ⇌ 2 SO₃ is exothermic. The gas is passed over several catalyst layers with cooling in between. Why?"
+    params:
+      options:
+        - label: The reaction's heat would push the equilibrium back – cooling keeps the conversion high
+          correct: true
+        - label: The catalyst would melt otherwise
+          feedback: It is about the equilibrium, not the catalyst.
+        - label: Cold gas reacts faster
+          feedback: Cold makes reactions slower.
+    hints:
+      - "Exothermic: heat acts like a product."
+      - Hot enough for speed, cool enough for yield.
+    explanation: This reaches over 99.5% conversion. Between the layers, SO₃ is also washed out.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x3
+    depth: 3
+    body: Ammonia is made from natural gas today, and each tonne gives off about two tonnes of CO₂. **Green ammonia** gets its hydrogen from water, split with wind or solar power.
 
 srs:
   cards_from: [druck, kompromiss]

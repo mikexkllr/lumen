@@ -1,0 +1,230 @@
+id: chem.electrochem.fuelcell
+type: concept
+title: "Die Brennstoffzelle"
+summary: "Knallgasreaktion ohne Knall – Strom aus Wasserstoff und Sauerstoff."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Bus fährt mit einer Wasserstoff-Brennstoffzelle. Was kommt hinten aus dem Auspuff?
+    params:
+      options:
+        - label: Wasserdampf
+          correct: true
+        - label: Kohlendioxid
+          feedback: Im Wasserstoff ist kein Kohlenstoff.
+        - label: Wasserstoff
+          feedback: Er wird in der Zelle verbraucht.
+    hints:
+      - Wasserstoff verbrennt zu …?
+      - Nur H und O sind im Spiel.
+    explanation: Wasser ist das einzige Produkt. Ob das klimafreundlich ist, hängt davon ab, wie der Wasserstoff hergestellt wurde.
+
+  - kind: explain
+    id: c1
+    body: "Eine **Brennstoffzelle** ist eine galvanische Zelle, die man ständig nachfüllt: Wasserstoff strömt zur Anode, Sauerstoff zur Kathode. Sie reagieren getrennt – ohne Flamme."
+
+  - kind: problem
+    id: c2
+    widget: tiles
+    prompt: Lege die Gesamtreaktion der Wasserstoff-Brennstoffzelle.
+    params:
+      tiles:
+        - "2"
+        - "2"
+        - H₂
+        - O₂
+        - H₂O
+        - +
+        - →
+        - H₂O₂
+    answer:
+      anyOf:
+        - - "2"
+          - H₂
+          - +
+          - O₂
+          - →
+          - "2"
+          - H₂O
+        - - O₂
+          - +
+          - "2"
+          - H₂
+          - →
+          - "2"
+          - H₂O
+    hints:
+      - Zwei H₂ reagieren mit einem O₂.
+      - Rechts zählt man 4 H und 2 O.
+    explanation: 2 H₂ + O₂ → 2 H₂O – dieselbe Reaktion wie beim Knallgas, nur gezähmt.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Was passiert wo in der Brennstoffzelle?
+    params:
+      pairs:
+        - left: Anode
+          right: H₂ → 2 H⁺ + 2 e⁻
+        - left: Kathode
+          right: O₂ + 4 H⁺ + 4 e⁻ → 2 H₂O
+        - left: Membran
+          right: lässt nur H⁺ durch
+        - left: äußerer Draht
+          right: trägt die Elektronen
+    hints:
+      - Wasserstoff wird oxidiert.
+      - Wasser entsteht dort, wo der Sauerstoff ist.
+    explanation: Die Membran trennt die Gase, lässt aber die Protonen durch. Die Elektronen müssen den Umweg über den Motor nehmen.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Akku oder Brennstoffzelle?
+    params:
+      buckets:
+        - id: b1
+          label: Akku
+        - id: b2
+          label: Brennstoffzelle
+      items:
+        - label: speichert die Stoffe in sich
+          bucket: b1
+        - label: wird an der Steckdose geladen
+          bucket: b1
+        - label: bekommt Stoffe von außen zugeführt
+          bucket: b2
+        - label: wird in Minuten betankt
+          bucket: b2
+    hints:
+      - Braucht das Gerät einen Tank?
+      - Ein Akku wird umgekehrt betrieben, um ihn zu laden.
+    explanation: Der Akku ist Speicher und Wandler zugleich. Die Brennstoffzelle wandelt nur – gespeichert wird im Tank.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Für 2 Elektronen pro H₂ liefert die Reaktion ΔG = −237 kJ/mol. Welche Spannung hat die Zelle höchstens? (E = −ΔG : (n · F), F = 96 485 C/mol)"
+    params:
+      unit: V
+    answer:
+      value: 1.23
+      tolerance: 0.005
+    feedback:
+      - when: abs(numval(state.input) - 2.46) < 0.01
+        misconception: n-ignored
+        text: Pro H₂ wandern zwei Elektronen – teile auch durch 2.
+    hints:
+      - "237 000 J : (2 · 96 485 C)."
+      - Joule pro Coulomb sind Volt.
+    explanation: Etwa 1,23 V – genau die Spannung, die man zum Zerlegen von Wasser mindestens braucht.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Reaktion setzt ΔH = −286 kJ/mol frei, davon sind höchstens ΔG = −237 kJ/mol als Strom nutzbar. Wie groß ist der theoretische Wirkungsgrad? Auf ganze Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: 83
+      tolerance: 0.5
+    hints:
+      - "Wirkungsgrad = ΔG : ΔH."
+      - "237 : 286."
+    explanation: Etwa 83 %. Den Rest verlangt die Entropie als Wärme. Ein Verbrennungsmotor liegt durch die Carnot-Grenze weit darunter.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Unter Last liefert eine echte Zelle nur etwa 0,7 V statt 1,23 V. Woran liegt das?
+    params:
+      options:
+        - label: Überspannung an den Elektroden und der Widerstand der Membran kosten Spannung
+          correct: true
+        - label: Der Wasserstoff ist verunreinigt
+          feedback: Auch mit reinem H₂ ist es so.
+        - label: Die Zelle ist falsch herum gebaut
+          feedback: Dann flösse gar kein Strom.
+    hints:
+      - Vor allem die Sauerstoff-Reduktion ist träge.
+      - Je mehr Strom fließt, desto größer die Verluste.
+    explanation: "Darum steckt teures Platin in den Elektroden: Es senkt die Überspannung. Verlorene Spannung wird zu Wärme."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Der Antrieb eines Autos braucht etwa 300 V. Jede Zelle liefert unter Last 0,7 V. Wie viele Zellen müssen mindestens in Reihe geschaltet werden?
+    answer:
+      value: 429
+    feedback:
+      - when: numval(state.input) == 428
+        misconception: round-down
+        text: Mit 428 Zellen fehlt noch ein Rest – runde auf.
+    hints:
+      - Teile 300 V durch 0,7 V.
+      - 428,6 – und dann?
+    explanation: 429 Zellen. Ein solcher Stapel heißt Stack – wie ein Stapel Pfannkuchen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Strom → Wasserstoff → Strom: Elektrolyse schafft etwa 70 %, die Brennstoffzelle etwa 50 %. Wie viel vom Strom kommt zurück – im Vergleich zum Akku mit 90 %?"
+    params:
+      options:
+        - label: Etwa 35 % – deutlich weniger als beim Akku
+          correct: true
+        - label: Etwa 120 %
+          feedback: Mehr als 100 % ist unmöglich.
+        - label: Etwa 60 %
+          feedback: "Wirkungsgrade multiplizieren sich: 0,7 · 0,5."
+    hints:
+      - Wirkungsgrade nacheinander werden multipliziert.
+      - 0,7 · 0,5 = ?
+    explanation: Rund 35 %. Wasserstoff lohnt sich dort, wo man große Mengen lange speichern oder schnell tanken muss.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Brennstoffzelle Strom erzeugt und was sie von einer Batterie unterscheidet.
+    params:
+      keywords:
+        - - wasserstoff
+          - hydrogen
+          - h₂
+        - - sauerstoff
+          - oxygen
+          - o₂
+        - - elektron
+          - electron
+          - strom
+          - current
+        - - nachfüll
+          - tank
+          - zugeführt
+          - refill
+          - refuel
+          - supplied
+          - fed
+      sample: An der Anode gibt Wasserstoff Elektronen ab, an der Kathode nimmt Sauerstoff sie auf und bildet Wasser. Die Elektronen fließen dazwischen als Strom. Anders als eine Batterie wird die Zelle ständig von außen nachgefüllt, aus einem Tank.
+    explanation: Gleiche Redox-Idee wie in der Batterie – nur mit Nachschub.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d2"]

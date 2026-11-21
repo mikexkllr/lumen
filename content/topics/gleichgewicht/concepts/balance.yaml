@@ -5,7 +5,7 @@ summary: Das chemische Gleichgewicht.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -90,6 +90,58 @@ steps:
     explanation: "8 mol B und 2 mol A: 8/2 = 4."
     difficulty: 2
 
+  - kind: explain
+    id: ch-d1
+    depth: 2
+    body: "Im Gleichgewicht gilt das **Massenwirkungsgesetz**: K = [Produkte] : [Ausgangsstoffe], jede Konzentration hoch ihrer Zahl in der Gleichung. K hängt nur von der Temperatur ab."
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: A ⇌ B hat K = {{K}}. Am Anfang liegen {{a}} mol A und kein B vor. Wie viel Mol B sind im Gleichgewicht da?
+    params:
+      unit: mol
+    answer:
+      value: "{{K * m}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: complete-reaction
+        text: Nicht alles wird umgesetzt – ein Teil A bleibt übrig.
+    hints:
+      - "B : A = {{K}} und A + B = {{a}}."
+      - "Teile {{a}} im Verhältnis {{K}} : 1."
+    explanation: "B = {{a}} · {{K}}/{{K + 1}} = {{K * m}} mol, A = {{m}} mol. Probe: {{K * m}} : {{m}} = {{K}}."
+    difficulty: 2
+    variants:
+      params:
+        K: choice[1,3,4,9]
+        m: int[1,5]
+      derive:
+        a: (1 + K) * m
+      defaults:
+        K: 3
+        m: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Eine Reaktion hat K = 10¹⁰. Was liegt im Gleichgewicht vor?
+    params:
+      options:
+        - label: Fast nur Produkte
+          correct: true
+        - label: Fast nur Ausgangsstoffe
+          feedback: Das wäre bei sehr kleinem K so.
+        - label: Halb und halb
+          feedback: Das gilt etwa für K = 1.
+    hints:
+      - K steht für Produkte durch Ausgangsstoffe.
+      - Zehn Milliarden zu eins.
+    explanation: "Großes K: Die Reaktion läuft praktisch vollständig. Kleines K: Sie kommt kaum in Gang."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +158,68 @@ steps:
     hints:
       - "Wie in einem vollen Kaufhaus: gleich viele gehen rein wie raus."
     explanation: Ein **dynamisches Gleichgewicht**. Mit markierten Atomen lässt sich der ständige Austausch nachweisen.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x1
+    depth: 3
+    widget: numeric
+    prompt: H₂ + I₂ ⇌ 2 HI. Im Gleichgewicht gilt [HI] = 0,8 mol/L und [H₂] = [I₂] = 0,1 mol/L. Wie groß ist K?
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: exponent-ignored
+        text: HI steht mit der Zahl 2 in der Gleichung – also quadrieren.
+      - when: numval(state.input) == 8
+        misconception: exponent-ignored
+        text: Quadriere [HI] und multipliziere die Konzentrationen unten.
+    hints:
+      - "K = [HI]² : ([H₂] · [I₂])."
+      - "0,64 : 0,01."
+    explanation: "K = 0,64 : 0,01 = 64. Die Koeffizienten werden zu Hochzahlen."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x2
+    depth: 3
+    body: "K und die **freie Standardenthalpie** hängen zusammen: $\\Delta G^\\circ = -R \\cdot T \\cdot \\ln K$. Jedes Minus von 5,7 kJ/mol bei 25 °C macht K zehnmal größer."
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: numeric
+    prompt: Eine Reaktion hat bei 298 K ΔG° = −11,4 kJ/mol. Wie groß ist K ungefähr? (Je −5,7 kJ/mol ein Faktor 10)
+    answer:
+      value: 100
+      tolerance: 3
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: add-not-multiply
+        text: "Die Faktoren werden multipliziert: 10 · 10."
+    hints:
+      - −11,4 sind zweimal −5,7.
+      - Zweimal Faktor 10.
+    explanation: K ≈ 10 · 10 = 100. Kleine Unterschiede in ΔG machen riesige Unterschiede im Gleichgewicht.
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: choice
+    prompt: Man vergleicht den aktuellen Quotienten Q mit K. Es gilt Q < K. In welche Richtung läuft die Reaktion?
+    params:
+      options:
+        - label: Zu den Produkten, bis Q = K
+          correct: true
+        - label: Zu den Ausgangsstoffen
+          feedback: Das passiert bei Q > K.
+        - label: Gar nicht
+          feedback: Still steht sie nur bei Q = K.
+    hints:
+      - Q hat dieselbe Formel wie K, aber mit den Werten von jetzt.
+      - "Zu wenig Produkt im Zähler heißt: Es muss mehr entstehen."
+    explanation: "Q zeigt den Weg zum Gleichgewicht: Q < K heißt vorwärts, Q > K rückwärts."
     difficulty: 3
 
 srs:

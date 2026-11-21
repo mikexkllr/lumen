@@ -1,0 +1,194 @@
+id: chem.electrochem.nernst
+type: concept
+title: "Die Nernst-Gleichung"
+summary: "Warum die Spannung von der Konzentration abhängt – bis zum pH-Meter."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Zwei Kupferbleche stehen in Kupfersulfat-Lösungen: eine konzentriert, eine stark verdünnt. Liefert das Spannung?"
+    params:
+      options:
+        - label: Ja – eine kleine Spannung, bis beide Lösungen gleich konzentriert sind
+          correct: true
+        - label: Nein, beide Elektroden sind gleich
+          feedback: Auch die Konzentration zählt.
+        - label: Ja, 1,1 V wie die Daniell-Zelle
+          feedback: Dafür bräuchte man Zink.
+    hints:
+      - Die Natur will Unterschiede ausgleichen.
+      - In der dichten Lösung scheidet sich Kupfer ab, in der dünnen löst es sich.
+    explanation: Das ist eine **Konzentrationszelle**. Sie läuft, bis der Unterschied verschwunden ist.
+
+  - kind: explain
+    id: c1
+    body: "Die Spannung einer Halbzelle hängt von der Konzentration ab. Bei 25 °C gilt die **Nernst-Gleichung**: $E = E^\\circ + \\frac{0{,}059\\,V}{z} \\cdot \\log c$. z ist die Ladung des Metall-Ions, c seine Konzentration in mol/L."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Kupfer (E° = +0,34 V, z = 2) steht in einer Lösung mit c(Cu²⁺) = 10 hoch −{{k}} mol/L. Welches Potenzial hat die Halbzelle? Auf drei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: "{{0.34 - 0.0295 * k}}"
+      tolerance: 0.0011
+    feedback:
+      - when: abs(numval(state.input) - (0.34 - 0.059 * k)) < 0.0011
+        misconception: z-ignored
+        text: Teile 0,059 durch z = 2.
+      - when: abs(numval(state.input) - (0.34 + 0.0295 * k)) < 0.0011
+        misconception: log-sign
+        text: log von 10 hoch −{{k}} ist −{{k}} – das Potenzial sinkt.
+    hints:
+      - log(10 hoch −{{k}}) = −{{k}}.
+      - E = 0,34 + 0,0295 · (−{{k}}).
+    explanation: E = 0,34 − {{0.0295 * k}} = {{0.34 - 0.0295 * k}} V. Jede Zehnerstufe Verdünnung kostet bei Cu²⁺ knapp 30 mV.
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Man verdünnt die Lösung um eine Kupferelektrode. Was passiert mit ihrem Potenzial?
+    params:
+      options:
+        - label: Es sinkt – die Elektrode wird »unedler«
+          correct: true
+        - label: Es steigt
+          feedback: Weniger Cu²⁺ heißt weniger Drang zur Reduktion.
+        - label: Es bleibt bei 0,34 V
+          feedback: 0,34 V gilt nur bei 1 mol/L.
+    hints:
+      - Weniger Ionen wollen weniger Elektronen aufnehmen.
+      - log c wird negativ.
+    explanation: Standardpotenziale gelten nur bei 1 mol/L. Sonst muss man mit Nernst nachrechnen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Konzentrationszelle hat Cu²⁺ mit 1 mol/L auf der einen und 10 hoch −{{k}} mol/L auf der anderen Seite. Welche Spannung liefert sie? Auf drei Nachkommastellen.
+    params:
+      unit: V
+    answer:
+      value: "{{0.0295 * k}}"
+      tolerance: 0.0011
+    hints:
+      - Die E°-Werte heben sich auf, nur der log-Teil bleibt.
+      - ΔE = 0,0295 V · {{k}}.
+    explanation: "{{k}} Zehnerstufen · 29,5 mV = {{0.0295 * k}} V. Klein – aber messbar und sehr nützlich."
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,6]
+      defaults:
+        k: 3
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Für Wasserstoff-Ionen gilt: Jede pH-Stufe ändert das Potenzial um 59 mV. Darauf beruht die **pH-Elektrode**: Sie misst eine Spannung und rechnet sie in einen pH-Wert um."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine pH-Elektrode steckt erst in einer Lösung mit pH {{a}}, dann in einer mit pH {{b}}. Um wie viele Millivolt ändert sich die Spannung?
+    params:
+      unit: mV
+    answer:
+      value: "{{59 * d}}"
+    hints:
+      - Wie viele pH-Stufen liegen dazwischen?
+      - "{{d}} · 59 mV."
+    explanation: "{{d}} Stufen · 59 mV = {{59 * d}} mV. Darum eicht man pH-Meter mit zwei Pufferlösungen: Man prüft Nullpunkt und Steigung."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        d: int[1,6]
+      derive:
+        b: a + d
+      defaults:
+        a: 4
+        d: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Für die Daniell-Zelle gilt log K = z · E° : 0,059 V mit z = 2 und E° = 1,10 V. Wie groß ist log K? Auf ganze Zahlen."
+    answer:
+      value: 37
+      tolerance: 0.5
+    hints:
+      - 2 · 1,10 = 2,20.
+      - "2,20 : 0,059."
+    explanation: log K ≈ 37, also K ≈ 10³⁷. Die Reaktion läuft praktisch vollständig – bis kaum noch Cu²⁺ übrig ist.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Eine Batterie ist völlig leer. Was gilt dann für ihre Zellreaktion?
+    params:
+      options:
+        - label: "Sie ist im Gleichgewicht: E = 0 und ΔG = 0"
+          correct: true
+        - label: Alle Stoffe sind verschwunden
+          feedback: Sie haben sich nur umgewandelt.
+        - label: Die Spannung ist negativ
+          feedback: Sie fällt nur bis auf null.
+    hints:
+      - "Nernst: Mit dem Umsatz sinkt die Spannung."
+      - Wenn nichts mehr freiwillig läuft, ist … erreicht.
+    explanation: "Eine leere Batterie ist ein Gleichgewicht: Q = K. Laden schiebt das System wieder weit davon weg."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: In einer Zelle sind innen 140 mmol/L K⁺, außen 5 mmol/L. Welche Spannung ergibt Nernst bei 59 mV pro Zehnerstufe (z = 1)? (log 28 ≈ 1,447) Auf ganze mV.
+    params:
+      unit: mV
+    answer:
+      value: 85
+      tolerance: 1
+    hints:
+      - "Das Verhältnis ist 140 : 5 = 28."
+      - 59 mV · 1,447.
+    explanation: Etwa 85 mV. Bei Körpertemperatur sind es gut 89 mV – nahe am Ruhepotenzial von Nervenzellen. Elektrochemie steckt in jedem Gedanken.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Spannung einer Batterie beim Entladen langsam sinkt.
+    params:
+      keywords:
+        - - konzentration
+          - concentration
+        - - nernst
+          - log
+        - - gleichgewicht
+          - equilibrium
+          - "null"
+          - zero
+      sample: Nach der Nernst-Gleichung hängt die Spannung von den Konzentrationen ab. Beim Entladen werden die Ausgangsstoffe weniger und die Produkte mehr. Dadurch sinkt die Spannung, bis im Gleichgewicht null erreicht ist.
+    explanation: Die Spannung misst, wie weit das System vom Gleichgewicht entfernt ist.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d1", "d3"]

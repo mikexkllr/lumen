@@ -5,7 +5,7 @@ summary: Filtern, eindampfen, sortieren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -104,6 +104,78 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: order
+    prompt: Sand, Salz und Eisenspäne sind vermischt. Ordne die Schritte, um alle drei zu trennen.
+    params:
+      items:
+        - label: Mit dem Magneten das Eisen herausziehen
+        - label: Wasser dazugeben und rühren – Salz löst sich
+        - label: Filtrieren – der Sand bleibt im Filter
+        - label: Die Lösung eindampfen – das Salz bleibt zurück
+    hints:
+      - Das Eisen holst du am besten trocken heraus.
+      - Erst lösen, dann filtern, dann eindampfen.
+    explanation: "Jeder Schritt nutzt einen anderen Unterschied: Magnetismus, Löslichkeit, Teilchengröße, Siedepunkt."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: buckets
+    prompt: Welchen Unterschied nutzt das Verfahren?
+    params:
+      buckets:
+        - id: b1
+          label: Teilchengröße
+        - id: b2
+          label: Siedepunkt
+        - id: b3
+          label: Dichte
+        - id: b4
+          label: Magnetismus
+      items:
+        - label: Filtrieren
+          bucket: b1
+        - label: Sieben
+          bucket: b1
+        - label: Destillieren
+          bucket: b2
+        - label: Eindampfen
+          bucket: b2
+        - label: Absetzen lassen
+          bucket: b3
+        - label: Zentrifugieren
+          bucket: b3
+        - label: Magnetscheider
+          bucket: b4
+    hints:
+      - Was Schweres sinkt, nutzt die Dichte.
+      - Alles mit Hitze nutzt den Siedepunkt.
+    explanation: "Eine Zentrifuge ist Absetzen im Zeitraffer: Sie verstärkt den Dichteunterschied tausendfach."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Blut wird in einer Zentrifuge geschleudert. Was sammelt sich ganz unten im Röhrchen?
+    params:
+      options:
+        - label: Die roten Blutkörperchen
+          correct: true
+        - label: Das Blutplasma
+          feedback: Das flüssige Plasma ist leichter und schwimmt oben.
+        - label: Nichts – Blut ist eine Lösung
+          feedback: Blut enthält Zellen, also feste Teilchen.
+    hints:
+      - Unten landet, was die größte Dichte hat.
+      - Zellen voller Hämoglobin sind dichter als Wasser.
+    explanation: Unten rote Blutkörperchen, darüber eine dünne Schicht weiße, oben gelbliches Plasma.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -119,6 +191,55 @@ steps:
     hints:
       - Das Verfahren heißt Umkehrosmose.
     explanation: "**Umkehrosmose** braucht etwa 60 bar – aber viel weniger Energie als Verdampfen."
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Bei der **Chromatografie** zieht ein Laufmittel ein Gemisch über Papier. Farbstoffe, die stark am Papier haften, wandern langsam. Andere eilen mit dem Laufmittel davon.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Farbstoff wandert {{a}} cm weit, das Laufmittel {{b}} cm. Berechne den Rf-Wert: Strecke des Farbstoffs geteilt durch Strecke des Laufmittels."
+    answer:
+      value: "{{a / b}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - b / a) < 0.01
+        misconception: rf-inverted
+        text: "Umgekehrt: Farbstoff durch Laufmittel. Rf liegt immer zwischen 0 und 1."
+    hints:
+      - Der Farbstoff kann nie weiter als das Laufmittel kommen.
+      - "Rechne {{a}} : {{b}}."
+    explanation: "Rf = {{a}} : {{b}} = {{a / b}}. Unter gleichen Bedingungen hat jeder Stoff seinen eigenen Rf-Wert – wie einen Fingerabdruck."
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,4]
+        b: choice[5,10]
+      defaults:
+        a: 3
+        b: 5
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Zwei Farbstoffe haben auf Papier mit Wasser denselben Rf-Wert. Was ist der beste nächste Schritt?
+    params:
+      options:
+        - label: Mit einem anderen Laufmittel wiederholen
+          correct: true
+        - label: Sie sind sicher derselbe Stoff
+          feedback: Gleicher Rf in einem Laufmittel kann Zufall sein.
+        - label: Länger warten
+          feedback: Der Rf-Wert ist ein Verhältnis – er ändert sich mit der Zeit nicht.
+    hints:
+      - Rf hängt vom Stoff und vom Laufmittel ab.
+      - Ein zweiter Test mit anderen Bedingungen trennt vielleicht doch.
+    explanation: Erst wenn zwei Stoffe in mehreren Laufmitteln gleich laufen, sind sie wahrscheinlich identisch. So arbeiten auch Labore in der Forensik.
     difficulty: 3
 
 srs:

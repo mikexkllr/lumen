@@ -5,7 +5,7 @@ summary: Der pH-Wert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -105,6 +105,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: match
+    prompt: Rotkohlsaft wechselt mit dem pH seine Farbe. Welche Farbe zeigt er ungefähr?
+    params:
+      pairs:
+        - left: Zitronensaft (pH 2)
+          right: rot
+        - left: Leitungswasser (pH 7)
+          right: violett
+        - left: Natron in Wasser (pH 8–9)
+          right: blau
+        - left: Rohrreiniger (pH 14)
+          right: gelb
+    hints:
+      - Je saurer, desto röter.
+      - Stark basisch wird der Saft grün bis gelb.
+    explanation: "Der Farbstoff im Rotkohl ist ein **Indikator**: Er verändert seine Form und damit seine Farbe, je nachdem wie viele H⁺ da sind."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Du verdünnst eine Säure mit pH {{p}} auf das {{10 ** k}}-Fache ihres Volumens. Welchen pH-Wert hat sie danach?
+    answer:
+      value: "{{p + k}}"
+    feedback:
+      - when: numval(state.input) == p - k
+        misconception: dilute-direction
+        text: Verdünnen macht weniger sauer – der pH-Wert steigt.
+    hints:
+      - Jeder Faktor 10 Verdünnung ist eine pH-Stufe.
+      - Zähle die Nullen von {{10 ** k}}.
+    explanation: "Auf das {{10 ** k}}-Fache verdünnt heißt {{k}} Stufen: pH {{p}} + {{k}} = {{p + k}}."
+    difficulty: 2
+    variants:
+      params:
+        p: int[1,3]
+        k: int[1,3]
+      constraints:
+        - p + k <= 6
+      defaults:
+        p: 2
+        k: 1
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Du verdünnst Essig immer weiter mit Wasser. Wird er irgendwann basisch?
+    params:
+      options:
+        - label: Nein – der pH-Wert nähert sich 7, steigt aber nicht darüber
+          correct: true
+        - label: Ja, mit genug Wasser
+          feedback: Wasser selbst ist neutral. Es kann nichts basisch machen.
+        - label: Nein, er bleibt gleich sauer
+          feedback: Verdünnen senkt die Menge H⁺ pro Liter sehr wohl.
+    hints:
+      - Welchen pH-Wert hat reines Wasser?
+      - Am Ende ist fast nur noch Wasser im Glas.
+    explanation: "Verdünnte Säure kommt dem Wasser immer näher: pH 7. Basisch wird sie nur mit einer Base."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +186,72 @@ steps:
     hints:
       - Ein Stoffpaar, das H⁺ aufnehmen **und** abgeben kann.
     explanation: Ein **Puffer** hält den pH stabil. Schon 0,4 Abweichung wären lebensgefährlich.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: Der pH-Wert misst, wie viele **Wasserstoff-Ionen** H⁺ in einem Liter schwimmen. pH 1 heißt 0,1 mol pro Liter, pH 2 nur noch 0,01 mol. Jede Stufe ist ein Zehntel.
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Bei pH 3 schwimmen 0,001 mol H⁺ in einem Liter. Wie viel mol H⁺ pro Liter sind es bei pH 5?
+    answer:
+      value: 0.00001
+      tolerance: 1e-7
+    feedback:
+      - when: numval(state.input) == 0.1
+        misconception: ph-direction
+        text: Höherer pH heißt weniger H⁺, nicht mehr.
+    hints:
+      - Zwei Stufen höher – zweimal durch 10.
+      - Bei pH 5 stehen fünf Stellen nach dem Komma bis zur 1.
+    explanation: "0,001 : 100 = 0,00001 mol pro Liter. Kurz: 10 hoch minus 5."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: choice
+    prompt: Säure oder Lauge im Auge – was ist gefährlicher?
+    params:
+      options:
+        - label: Beide sind gefährlich – starke Laugen dringen aber oft tiefer ins Gewebe ein
+          correct: true
+        - label: Nur Säuren sind ätzend
+          feedback: Auch starke Laugen zerstören Gewebe.
+        - label: Laugen sind harmlos, sie fühlen sich nur seifig an
+          feedback: Seifig fühlt es sich an, weil die Lauge die Haut angreift.
+    hints:
+      - Denk an Rohrreiniger mit pH 14.
+      - Laugen lösen Fette und Eiweiße auf.
+    explanation: "Laugen verseifen Fette in den Zellen und arbeiten sich weiter vor. Darum: Schutzbrille und sofort lange spülen."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »pH 3« bedeutet – und warum pH 3 zehnmal saurer ist als pH 4.
+    params:
+      keywords:
+        - - h+
+          - wasserstoff
+          - hydrogen
+          - ion
+        - - zehn
+          - "10"
+          - ten
+          - faktor
+          - factor
+        - - sauer
+          - acid
+          - unter 7
+          - below 7
+      sample: pH 3 ist sauer, weil der Wert unter 7 liegt. Der pH zählt die H⁺-Ionen. Jede Stufe nach unten bedeutet zehnmal mehr H⁺ – darum ist pH 3 zehnmal saurer als pH 4.
+    explanation: pH unter 7 heißt sauer. Eine Stufe weniger heißt zehnmal mehr H⁺.
     difficulty: 3
 
 srs:

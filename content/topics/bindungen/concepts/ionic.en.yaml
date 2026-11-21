@@ -5,7 +5,7 @@ summary: Plus and minus stick together.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: ladung
@@ -85,6 +85,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ch-d1
+    depth: 2
+    widget: match
+    prompt: Which formula belongs to which salt?
+    params:
+      pairs:
+        - left: Sodium chloride (Na⁺, Cl⁻)
+          right: NaCl
+        - left: Magnesium oxide (Mg²⁺, O²⁻)
+          right: MgO
+        - left: Calcium chloride (Ca²⁺, Cl⁻)
+          right: CaCl₂
+        - left: Aluminium oxide (Al³⁺, O²⁻)
+          right: Al₂O₃
+    hints:
+      - The positive and negative charges must cancel out.
+      - Ca²⁺ needs two Cl⁻.
+    explanation: "Al₂O₃: 2 · (+3) = +6 and 3 · (−2) = −6. The formula shows the smallest neutral ratio."
+    difficulty: 2
+
+  - kind: problem
+    id: ch-d2
+    depth: 2
+    widget: numeric
+    prompt: Ions with charges {{a}}+ and {{b}}− form a neutral salt. How many ions are in the smallest neutral formula unit?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == a + b && a + b != n
+        misconception: not-reduced
+        text: The ratio can still be reduced.
+    hints:
+      - "Find the lowest common multiple of the charges: {{lcm(a, b)}}."
+      - "{{lcm(a, b) / a}} cations and {{lcm(a, b) / b}} anions."
+    explanation: "{{lcm(a, b) / a}} + {{lcm(a, b) / b}} = {{n}} ions. Then {{lcm(a, b)}} positive and {{lcm(a, b)}} negative charges cancel."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,3]
+        b: int[1,3]
+      derive:
+        n: lcm(a, b) / a + lcm(a, b) / b
+      defaults:
+        a: 3
+        b: 2
+
+  - kind: problem
+    id: ch-d3
+    depth: 2
+    widget: choice
+    prompt: Table salt NaCl melts at 801 °C, magnesium oxide MgO only at 2852 °C. Why the huge difference?
+    params:
+      options:
+        - label: The ions in MgO carry double charges and are smaller – they attract each other far more strongly
+          correct: true
+        - label: MgO is heavier
+          feedback: Mass hardly matters here.
+        - label: MgO is not a salt
+          feedback: MgO is a typical ionic lattice.
+    hints:
+      - "Compare the charges: +1/−1 versus +2/−2."
+      - The stronger the attraction, the more heat melting needs.
+    explanation: "That is why furnaces are lined with MgO: it withstands temperatures at which steel is long since liquid."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +166,86 @@ steps:
     hints:
       - In the lattice plus and minus alternate. What happens if you shift by one place?
     explanation: In a metal the layers slide in a “sea” of free electrons – that is why it is malleable.
+    difficulty: 3
+
+  - kind: explain
+    id: ch-x1
+    depth: 3
+    body: "The attraction between two ions grows with the product of their charges and falls with distance: $F \\sim \\frac{q_1 \\cdot q_2}{r^2}$. This is **Coulomb's law**."
+
+  - kind: problem
+    id: ch-x2
+    depth: 3
+    widget: numeric
+    prompt: Compare Mg²⁺/O²⁻ with Na⁺/Cl⁻ at the same distance. By what factor is the attraction stronger?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: product-not-sum
+        text: Both charges double – so the product quadruples.
+    hints:
+      - "Multiply the charges: 2 · 2 versus 1 · 1."
+      - The ratio of the products is the factor.
+    explanation: "4 : 1. Since the ions in MgO are also smaller, the attraction is stronger still."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x3
+    depth: 3
+    widget: buckets
+    prompt: "Rule of thumb by electronegativity difference ΔEN: above 1.7 ionic, 0.5 to 1.7 polar, below that non-polar. Sort them."
+    params:
+      buckets:
+        - id: b1
+          label: ionic
+        - id: b2
+          label: polar
+        - id: b3
+          label: non-polar
+      items:
+        - label: KF (ΔEN 3.2)
+          bucket: b1
+        - label: NaCl (ΔEN 2.2)
+          bucket: b1
+        - label: O–H (ΔEN 1.2)
+          bucket: b2
+        - label: H–Cl (ΔEN 1.0)
+          bucket: b2
+        - label: C–H (ΔEN 0.4)
+          bucket: b3
+        - label: Cl–Cl (ΔEN 0)
+          bucket: b3
+    hints:
+      - Two identical atoms pull equally hard.
+      - A large gap means one atom snatches the electrons completely.
+    explanation: "The boundaries are fuzzy: ionic and covalent bonds are two ends of one scale. C–H at 0.35 counts as practically non-polar."
+    difficulty: 3
+
+  - kind: problem
+    id: ch-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a salt crystal is hard yet shatters instead of bending.
+    params:
+      keywords:
+        - - ion
+          - ladung
+          - charge
+          - plus
+          - minus
+        - - anzieh
+          - attract
+          - zusammen
+          - hold
+        - - verschieb
+          - schicht
+          - shift
+          - layer
+          - abstoß
+          - repel
+      sample: In the crystal, plus and minus ions attract strongly, so it is hard. If a blow shifts a layer, like charges end up side by side and repel – the crystal breaks.
+    explanation: Strong attraction makes it hard, the rigid order makes it brittle.
     difficulty: 3
 
 srs:
