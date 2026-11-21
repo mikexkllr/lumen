@@ -1,0 +1,210 @@
+id: cs.languages.turing
+type: concept
+title: "Die Turingmaschine"
+summary: "Ein Band, ein Kopf, eine Tabelle – und damit alles Berechenbare."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene Befehle braucht ein Rechner mindestens, um alles zu können, was ein Laptop kann – genug Zeit und Speicher vorausgesetzt?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 1
+      tolerance: 1
+    explanation: Einer genügt! Etwa »subtrahiere und springe, wenn ≤ 0«. Solche Ein-Befehl-Rechner sind unpraktisch, aber genauso mächtig.
+
+  - kind: explain
+    id: c1
+    body: "Die **Turingmaschine** ist ein Gedankenmodell von 1936: ein endloses Band mit Feldern, ein Kopf, der liest und schreibt, und eine kleine Regeltabelle. Jede Regel sagt: Schreib dies, geh nach links oder rechts, wechsle den Zustand."
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: "Eine Maschine addiert 1 zu einer Binärzahl: Von rechts kippt sie jede 1 auf 0, bis eine 0 kommt. Die wird 1, dann hält sie. Auf dem Band steht {{s}}. Stelle das Band nach dem Halt ein."
+    params:
+      bits: 5
+      initial: "{{s}}"
+      showValue: false
+    answer:
+      value: "{{n + 1}}"
+    hints:
+      - Fang ganz rechts an.
+      - Alle Einsen am Ende werden 0, die erste 0 davor wird 1.
+    explanation: "{{s}} + 1 = {{bin(n + 33).slice(1)}}. Mehr als Lesen, Schreiben und Bewegen braucht die Maschine nicht."
+    variants:
+      params:
+        n: int[3,30]
+      derive:
+        s: bin(n + 32).slice(1)
+      constraints:
+        - mod(n, 2) == 1
+      defaults:
+        n: 11
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie viele Felder beschreibt die Plus-1-Maschine bei 10111, bevor sie hält?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: forgot-last
+        text: Die 0, die zur 1 wird, zählt auch.
+    hints:
+      - Zähle die Einsen ganz rechts.
+      - Drei Einsen kippen, dann eine 0.
+    explanation: "3 Einsen werden 0, eine 0 wird 1: 4 Felder, Ergebnis 11000. Im schlimmsten Fall läuft sie über alle Stellen – wie der Übertrag im Addierer."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Was tut eine Turingmaschine in einem Schritt? Bring die Teile in die übliche Reihenfolge.
+    params:
+      items:
+        - label: Zeichen unter dem Kopf lesen
+        - label: Regel zu Zustand und Zeichen suchen
+        - label: Neues Zeichen schreiben
+        - label: Kopf ein Feld bewegen
+        - label: In den neuen Zustand wechseln
+    hints:
+      - Ohne Lesen keine passende Regel.
+      - "Die Regel sagt: schreiben, bewegen, Zustand wechseln."
+    explanation: "Mehr gibt es nicht. Erstaunlich: Diese Schritte reichen für jede Rechnung, die ein Computer kann."
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Was hat eine Turingmaschine, was ein endlicher Automat nicht hat?
+    params:
+      options:
+        - label: Ein unbegrenztes Band, auf das sie schreiben und das sie wieder lesen kann
+          correct: true
+        - label: Mehr Zustände
+          feedback: Auch sie hat nur endlich viele Zustände.
+        - label: Einen schnelleren Kopf
+          feedback: Tempo spielt in der Theorie keine Rolle.
+    hints:
+      - Der Automat liest nur und vergisst.
+      - Wo kann die Turingmaschine Zwischenergebnisse ablegen?
+    explanation: Mit dem Band kann sie beliebig weit zählen – etwa Klammern prüfen, was ein Automat nicht kann.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die **Church-Turing-These** sagt: Alles, was sich überhaupt mechanisch berechnen lässt, kann eine Turingmaschine berechnen. Bewiesen ist das nicht – aber jedes bekannte Modell ist gleich stark."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Python ist Turing-vollständig.
+          right: true
+          why: Mit Schleifen und unbegrenztem Speicher kann es alles Berechenbare.
+        - text: Conways »Spiel des Lebens« ist Turing-vollständig.
+          right: true
+          why: Mit passenden Mustern baut man darin einen Rechner.
+        - text: Reguläre Ausdrücke im strengen Sinn sind Turing-vollständig.
+          right: false
+          why: Sie entsprechen endlichen Automaten – viel schwächer.
+        - text: Eine Turingmaschine kann das Halteproblem lösen.
+          right: false
+          why: Genau das hat Turing widerlegt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Turingmaschine hat 5 Zustände und kennt 2 Zeichen. Wie viele Einträge hat ihre Regeltabelle höchstens?
+    answer:
+      value: 10
+    hints:
+      - Für jede Kombination aus Zustand und gelesenem Zeichen eine Regel.
+      - 5 · 2.
+    explanation: 10 Regeln. Schon so kleine Maschinen können erstaunlich lange laufen – der Rekord für 5 Zustände liegt bei 47 176 870 Schritten.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Eine **universelle Turingmaschine** liest die Regeltabelle einer anderen Maschine vom Band und spielt sie nach. Das ist die Idee des Computers: ein Gerät, beliebig viele Programme."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum kann keine Turingmaschine für jede andere vorhersagen, ob sie hält?
+    params:
+      options:
+        - label: Man könnte sie auf sich selbst ansetzen und das Gegenteil tun lassen – ein Widerspruch
+          correct: true
+        - label: Weil das Band zu kurz ist
+          feedback: Das Band ist unbegrenzt.
+        - label: Weil sie zu langsam ist
+          feedback: Es geht nicht um Zeit, sondern um Unmöglichkeit.
+    hints:
+      - Programme können andere Programme – und sich selbst – als Eingabe lesen.
+      - Denk an Turings Trick mit dem Gegenteil.
+    explanation: Universalität macht die Selbstanwendung möglich – und genau die führt zum Widerspruch. Mächtigkeit und Grenze haben dieselbe Wurzel.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Ein echter Computer hat nur endlich viel Speicher. Ist er dann nicht bloß ein riesiger endlicher Automat?
+    params:
+      options:
+        - label: Streng genommen ja – aber mit so unvorstellbar vielen Zuständen, dass die Turingmaschine das bessere Modell ist
+          correct: true
+        - label: Nein, er hat unendlich viel Speicher
+          feedback: Jeder echte Speicher ist endlich.
+        - label: Nein, Computer sind mächtiger als Turingmaschinen
+          feedback: Nach der Church-Turing-These nicht.
+    hints:
+      - Wie viele Zustände hat ein Speicher mit 16 GB?
+      - 2 hoch 128 Milliarden.
+    explanation: Mit 2 hoch 128 Milliarden Zuständen verhält sich ein Laptop praktisch wie eine Maschine mit unbegrenztem Band.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Turingmaschine funktioniert.
+    params:
+      keywords:
+        - - band
+          - tape
+        - - kopf
+          - head
+          - lies
+          - liest
+          - read
+          - schreib
+          - write
+        - - regel
+          - zustand
+          - rule
+          - state
+        - - links
+          - rechts
+          - left
+          - right
+      sample: "Eine Turingmaschine hat ein endloses Band mit Feldern und einen Kopf, der ein Feld liest und beschreibt. Eine Regeltabelle sagt für jeden Zustand und jedes gelesene Zeichen: was schreiben, ob der Kopf nach links oder rechts geht und welcher Zustand folgt."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3", "x2"]

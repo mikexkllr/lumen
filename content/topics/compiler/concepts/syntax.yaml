@@ -1,0 +1,207 @@
+id: cs.languages.syntax
+type: concept
+title: "Syntax und Grammatik"
+summary: "Regeln, die festlegen, welche Texte ein Programm sind."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Welcher Satz ist grammatisch richtig, aber ohne Sinn?
+    params:
+      options:
+        - label: Farblose grüne Ideen schlafen wütend.
+          correct: true
+        - label: Der Hund bellt laut.
+          feedback: Richtig gebaut und sinnvoll.
+        - label: Hund der laut bellt.
+          feedback: Hier stimmt schon die Grammatik nicht.
+    hints:
+      - Prüfe zuerst den Satzbau, dann die Bedeutung.
+      - Ideen können weder grün noch farblos sein.
+    explanation: "Der Satz stammt von Noam Chomsky. Er zeigt: Form und Bedeutung sind zwei verschiedene Dinge."
+
+  - kind: explain
+    id: c1
+    body: "**Syntax** ist die Form, Semantik die Bedeutung. Ein Compiler prüft zuerst die Syntax: `x = (3 + 4` ist kaputt, weil eine Klammer fehlt – egal, was gemeint war."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Syntaxfehler oder Bedeutungsfehler?
+    params:
+      buckets:
+        - id: b1
+          label: Syntax
+        - id: b2
+          label: Bedeutung
+      items:
+        - label: Eine Klammer fehlt
+          bucket: b1
+        - label: "Schlüsselwort vertippt: whlie"
+          bucket: b1
+        - label: Fläche mit + statt · berechnet
+          bucket: b2
+        - label: Schleife zählt eins zu weit
+          bucket: b2
+        - label: Strichpunkt vergessen
+          bucket: b1
+        - label: Durch die falsche Variable geteilt
+          bucket: b2
+    hints:
+      - Würde der Compiler das Programm überhaupt annehmen?
+      - Bedeutungsfehler laufen – nur falsch.
+    explanation: Syntaxfehler findet der Compiler sofort. Bedeutungsfehler muss man testen – sie sind die gefährlicheren.
+
+  - kind: explain
+    id: c3
+    body: "Eine **Grammatik** legt mit Regeln fest, welche Texte erlaubt sind. Die Regel S → a S b | ab heißt: Ersetze S durch »a S b« oder durch »ab«. Weil S in sich selbst vorkommt, entstehen beliebig lange Wörter."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Leite mit S → a S b | ab das Wort »aaabbb« ab. Bring die Zwischenschritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: S
+        - label: a S b
+        - label: a a S b b
+        - label: a a a b b b
+      direction: horizontal
+    hints:
+      - Am Anfang steht nur das Startsymbol.
+      - Zweimal »a S b«, dann einmal »ab«.
+    explanation: Jeder Schritt ersetzt das S. Am Ende steht nur noch das Wort aus a und b.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Welches Wort kann S → a S b | ab NICHT erzeugen?
+    params:
+      options:
+        - label: aab
+          correct: true
+        - label: ab
+          feedback: Das ist direkt die zweite Regel.
+        - label: aabb
+          feedback: Einmal a S b, dann ab.
+        - label: aaaabbbb
+          feedback: Dreimal a S b, dann ab.
+    hints:
+      - Jede Regel fügt gleich viele a und b hinzu.
+      - Zähle die a und die b.
+    explanation: "Die Grammatik erzeugt genau die Wörter aⁿbⁿ: erst n-mal a, dann n-mal b. Bei aab passt das nicht."
+
+  - kind: problem
+    id: c6
+    widget: numeric
+    prompt: Wie viele Wörter mit höchstens 10 Zeichen erzeugt S → a S b | ab?
+    answer:
+      value: 5
+    hints:
+      - Die Wörter sind ab, aabb, aaabbb …
+      - Jedes hat 2n Zeichen.
+    explanation: n = 1 bis 5 ergibt Längen 2, 4, 6, 8, 10 – also 5 Wörter.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Zu jeder Ableitung gehört ein **Ableitungsbaum**: Die Wurzel ist das Startsymbol, die Blätter sind die Zeichen des Wortes. Compiler bauen genau solche Bäume aus Programmen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Grammatik A → A − A | Zahl. Wie viele verschiedene Bäume hat »8 − 4 − 2«?
+    params:
+      options:
+        - label: "Zwei: (8 − 4) − 2 = 2 und 8 − (4 − 2) = 6"
+          correct: true
+        - label: Einen – das Ergebnis ist eindeutig
+          feedback: Probier beide Klammerungen aus.
+        - label: Drei
+          feedback: Bei zwei Minuszeichen gibt es zwei Arten zu klammern.
+    hints:
+      - Welches Minus wird zuerst gerechnet?
+      - Jede Wahl ergibt einen anderen Baum.
+    explanation: Die Grammatik ist mehrdeutig – und hier ändern die Bäume sogar das Ergebnis. Programmiersprachen müssen so etwas ausschließen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: In der Regel Ausdruck → Ausdruck + Term | Term ist Ausdruck ein [[Nichtterminal]] und + ein [[Terminal]]. Weil Ausdruck auf beiden Seiten vorkommt, ist die Regel [[rekursiv]].
+      distractors:
+        - Kommentar
+        - Zahl
+    hints:
+      - Terminale stehen am Ende wirklich im Text.
+      - Nichtterminale werden weiter ersetzt.
+    explanation: Terminale sind die echten Zeichen, Nichtterminale Platzhalter. Rekursive Regeln erlauben beliebig lange Ausdrücke.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele verschiedene Bäume hat »8 − 4 − 2 − 1« mit der mehrdeutigen Grammatik A → A − A | Zahl?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: orders-vs-trees
+        text: Manche Reihenfolgen ergeben denselben Baum – zähle Klammerungen, nicht Reihenfolgen.
+    hints:
+      - Welches Minus steht ganz oben im Baum? Es gibt drei Möglichkeiten.
+      - "Oben das erste: 2 Bäume rechts. Oben das mittlere: 1. Oben das letzte: 2."
+    explanation: 2 + 1 + 2 = 5 – die Catalan-Zahl C₃. Mehrdeutigkeit wächst explosiv mit der Länge.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Wie macht man die Minus-Grammatik eindeutig, sodass sie wie üblich von links gruppiert?
+    params:
+      options:
+        - label: Umbauen zu A → A − Zahl | Zahl
+          correct: true
+        - label: Zu A → Zahl − A | Zahl
+          feedback: "Das gruppiert von rechts: 8 − (4 − 2)."
+        - label: Gar nicht
+          feedback: Mit einer Umformung geht es.
+    hints:
+      - Rechts vom Minus darf nur noch eine einzelne Zahl stehen.
+      - Dann ist das letzte Minus immer oben im Baum.
+    explanation: "Jetzt gibt es zu jedem Ausdruck genau einen Baum: ((8 − 4) − 2) − 1. So legen echte Sprachgrammatiken Vorrang und Richtung fest."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Syntax und Semantik.
+    params:
+      keywords:
+        - - form
+          - regel
+          - rule
+          - grammat
+        - - bedeutung
+          - meaning
+          - sinn
+          - sense
+        - - fehler
+          - error
+      sample: "Syntax ist die Form: Die Regeln der Grammatik sagen, wie ein Programm aufgebaut sein muss. Semantik ist die Bedeutung: was das Programm tut. Ein Programm kann syntaktisch perfekt sein und trotzdem einen Fehler in der Bedeutung haben."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "c5", "x1"]

@@ -1,0 +1,210 @@
+id: cs.languages.turing
+type: concept
+title: "The Turing machine"
+summary: "A tape, a head, a table – and with them everything computable."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different instructions does a computer need at least to do everything a laptop can – given enough time and memory?"
+    params:
+      min: 1
+      max: 1000
+      scale: log
+    answer:
+      value: 1
+      tolerance: 1
+    explanation: One is enough! For example »subtract and jump if ≤ 0«. Such one-instruction computers are impractical but just as powerful.
+
+  - kind: explain
+    id: c1
+    body: "The **Turing machine** is a thought model from 1936: an endless tape of cells, a head that reads and writes, and a small rule table. Each rule says: write this, move left or right, change state."
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: "A machine adds 1 to a binary number: from the right it flips each 1 to 0 until it meets a 0. That becomes 1, then it halts. The tape holds {{s}}. Set the tape after it halts."
+    params:
+      bits: 5
+      initial: "{{s}}"
+      showValue: false
+    answer:
+      value: "{{n + 1}}"
+    hints:
+      - Start at the far right.
+      - All trailing ones become 0, the first 0 before them becomes 1.
+    explanation: "{{s}} + 1 = {{bin(n + 33).slice(1)}}. The machine needs nothing beyond reading, writing and moving."
+    variants:
+      params:
+        n: int[3,30]
+      derive:
+        s: bin(n + 32).slice(1)
+      constraints:
+        - mod(n, 2) == 1
+      defaults:
+        n: 11
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many cells does the plus-one machine write on 10111 before it halts?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: forgot-last
+        text: The 0 that becomes 1 counts as well.
+    hints:
+      - Count the ones on the far right.
+      - Three ones flip, then one 0.
+    explanation: "3 ones become 0, one 0 becomes 1: 4 cells, result 11000. In the worst case it runs over every digit – like the carry in an adder."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: What does a Turing machine do in one step? Put the parts in the usual order.
+    params:
+      items:
+        - label: Read the symbol under the head
+        - label: Find the rule for state and symbol
+        - label: Write a new symbol
+        - label: Move the head one cell
+        - label: Switch to the new state
+    hints:
+      - Without reading there is no matching rule.
+      - "The rule says: write, move, change state."
+    explanation: That is all there is. Amazingly, these steps suffice for any computation a computer can do.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: What does a Turing machine have that a finite automaton lacks?
+    params:
+      options:
+        - label: An unlimited tape it can write on and read back
+          correct: true
+        - label: More states
+          feedback: It too has only finitely many states.
+        - label: A faster head
+          feedback: Speed plays no role in theory.
+    hints:
+      - The automaton only reads and forgets.
+      - Where can the Turing machine store intermediate results?
+    explanation: With the tape it can count arbitrarily far – checking brackets, for example, which an automaton cannot do.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The **Church–Turing thesis** says: everything that can be computed mechanically at all can be computed by a Turing machine. It is not proven – but every known model is equally powerful."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: Python is Turing-complete.
+          right: true
+          why: With loops and unlimited memory it can compute everything computable.
+        - text: Conway's »Game of Life« is Turing-complete.
+          right: true
+          why: With the right patterns you can build a computer in it.
+        - text: Regular expressions in the strict sense are Turing-complete.
+          right: false
+          why: They correspond to finite automata – much weaker.
+        - text: A Turing machine can solve the halting problem.
+          right: false
+          why: That is exactly what Turing disproved.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A Turing machine has 5 states and knows 2 symbols. At most how many entries does its rule table have?
+    answer:
+      value: 10
+    hints:
+      - One rule for every combination of state and symbol read.
+      - 5 · 2.
+    explanation: 10 rules. Even such small machines can run astonishingly long – the record for 5 states is 47,176,870 steps.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "A **universal Turing machine** reads another machine's rule table from the tape and simulates it. That is the idea of the computer: one device, any number of programs."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why can no Turing machine predict for every other one whether it halts?
+    params:
+      options:
+        - label: You could apply it to itself and make it do the opposite – a contradiction
+          correct: true
+        - label: Because the tape is too short
+          feedback: The tape is unlimited.
+        - label: Because it is too slow
+          feedback: It is not about time but impossibility.
+    hints:
+      - Programs can read other programs – and themselves – as input.
+      - Think of Turing's trick with the opposite.
+    explanation: Universality makes self-application possible – and that is what leads to the contradiction. Power and limit share the same root.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: A real computer has only finite memory. Is it then not just a huge finite automaton?
+    params:
+      options:
+        - label: Strictly speaking yes – but with so unimaginably many states that the Turing machine is the better model
+          correct: true
+        - label: No, it has infinite memory
+          feedback: Every real memory is finite.
+        - label: No, computers are more powerful than Turing machines
+          feedback: Not according to the Church–Turing thesis.
+    hints:
+      - How many states does a 16 GB memory have?
+      - 2 to the power of 128 billion.
+    explanation: With 2 to the power of 128 billion states a laptop behaves practically like a machine with an unlimited tape.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a Turing machine works.
+    params:
+      keywords:
+        - - band
+          - tape
+        - - kopf
+          - head
+          - lies
+          - liest
+          - read
+          - schreib
+          - write
+        - - regel
+          - zustand
+          - rule
+          - state
+        - - links
+          - rechts
+          - left
+          - right
+      sample: "A Turing machine has an endless tape of cells and a head that reads and writes one cell. A rule table says, for each state and symbol read: what to write, whether the head moves left or right, and which state comes next."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3", "x2"]

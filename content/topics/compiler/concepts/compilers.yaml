@@ -1,0 +1,198 @@
+id: cs.languages.compilers
+type: concept
+title: "Compiler und Interpreter"
+summary: "Einmal übersetzen oder Zeile für Zeile ausführen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Ein Buch soll auf Japanisch erscheinen. Was ist für viele Leser schneller: einmal komplett übersetzen oder bei jeder Lesung live dolmetschen?"
+    params:
+      options:
+        - label: Einmal übersetzen – danach liest jeder sofort
+          correct: true
+        - label: Live dolmetschen
+          feedback: Dann wird bei jeder Lesung neu übersetzt.
+        - label: Beides gleich schnell
+          feedback: Die Arbeit fällt einmal oder jedes Mal an.
+    hints:
+      - Wie oft wird die Arbeit erledigt?
+      - Einmal gegen jedes Mal.
+    explanation: Das ist der Unterschied zwischen Compiler und Interpreter. Dafür ist der Dolmetscher flexibler – Änderungen gelten sofort.
+
+  - kind: explain
+    id: c1
+    body: Ein **Compiler** übersetzt ein Programm vorab vollständig in Maschinensprache. Ein Interpreter dagegen liest den Quelltext und führt ihn Zeile für Zeile direkt aus.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Bring die Phasen eines Compilers in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "Lexer: Text in Token zerlegen"
+        - label: "Parser: Syntaxbaum bauen"
+        - label: Typen und Namen prüfen
+        - label: Optimieren
+        - label: Maschinencode erzeugen
+    hints:
+      - Ohne Token kein Baum, ohne Baum keine Prüfung.
+      - Der Maschinencode entsteht ganz am Ende.
+    explanation: Jede Phase arbeitet auf dem Ergebnis der vorigen. Viele Compiler teilen sich die hinteren Phasen – etwa LLVM für C, Rust und Swift.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: In einer selten genutzten Funktion steckt ein Tippfehler im Namen einer Variable. Wann fällt er auf?
+    params:
+      options:
+        - label: Beim Compiler schon beim Übersetzen, beim Interpreter erst, wenn die Zeile läuft
+          correct: true
+        - label: Bei beiden sofort beim Start
+          feedback: Ein Interpreter schaut sich die Zeile erst an, wenn sie dran ist.
+        - label: Bei beiden nie
+          feedback: Der Compiler prüft alle Namen.
+    hints:
+      - Der Compiler liest das ganze Programm vorab.
+      - Der Interpreter nur, was gerade ausgeführt wird.
+    explanation: "Darum lieben viele Teams Compiler und Typprüfer: Sie finden Fehler, bevor Kunden darauf stoßen."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Interpreter braucht pro Befehl etwa 30-mal so lange wie Maschinencode. Kompiliert läuft ein Programm 2 Sekunden. Wie viele Sekunden etwa interpretiert?
+    params:
+      unit: s
+    answer:
+      value: 60
+    hints:
+      - 30-mal so lange.
+      - 2 · 30.
+    explanation: 60 Sekunden. Der Faktor schwankt stark – von 2 bis 100 –, je nach Sprache und Programm.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Viele Sprachen gehen einen Mittelweg: Sie übersetzen in **Bytecode** für eine virtuelle Maschine, etwa Java und Python. Ein JIT-Compiler übersetzt die heißen Stellen zur Laufzeit dann doch in Maschinencode."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Der Compiler sieht `x = 60 * 60 * 24`. Was macht ein guter Optimierer daraus?
+    params:
+      options:
+        - label: x = 86400 – er rechnet schon beim Übersetzen
+          correct: true
+        - label: Nichts, Rechnen ist Sache des Programms
+          feedback: Konstante Rechnungen erledigt der Compiler gleich selbst.
+        - label: Er meldet einen Fehler
+          feedback: Der Code ist völlig korrekt.
+    hints:
+      - Ändern sich 60 und 24 jemals?
+      - Was feststeht, kann man vorab ausrechnen.
+    explanation: Das heißt Konstantenfaltung. Der Programmierer schreibt lesbar, das Programm läuft trotzdem ohne die drei Multiplikationen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Hinter einem `return` steht noch Code. Was tut der Optimierer damit?
+    params:
+      options:
+        - label: Er entfernt ihn – er kann nie laufen
+          correct: true
+        - label: Er führt ihn trotzdem aus
+          feedback: Nach return verlässt das Programm die Funktion.
+        - label: Er verschiebt ihn nach vorn
+          feedback: Das würde die Bedeutung ändern.
+    hints:
+      - Was passiert bei return?
+      - Unerreichbarer Code ist toter Code.
+    explanation: Optimierer dürfen alles ändern, was man von außen nicht sehen kann. Das Verhalten des Programms muss gleich bleiben.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Der erste C-Compiler war nicht in C geschrieben. Heute ist der C-Compiler GCC selbst in C und C++ geschrieben. Wie geht das?
+    params:
+      options:
+        - label: "Bootstrapping: Eine erste Version wird anders übersetzt, danach übersetzt der Compiler sich selbst"
+          correct: true
+        - label: Er wurde nie übersetzt
+          feedback: Auch ein Compiler muss als Maschinencode vorliegen.
+        - label: Das ist unmöglich
+          feedback: Es ist üblich – viele Sprachen haben Compiler in sich selbst.
+    hints:
+      - Wie kam der erste Hammer zustande – ohne Hammer?
+      - Erst eine einfache Version, dann wird sie schrittweise besser.
+    explanation: Mit einem alten Compiler übersetzt man den neuen. Der neue übersetzt danach sich selbst – und jede künftige Version.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Ken Thompson zeigte 1984: Ein Compiler kann heimlich eine Hintertür in jedes Login-Programm einbauen – und in jeden neuen Compiler. Was folgt daraus?"
+    params:
+      options:
+        - label: Den Quelltext zu prüfen reicht nicht – man muss auch dem Compiler vertrauen
+          correct: true
+        - label: Man sollte nur Interpreter benutzen
+          feedback: Auch ein Interpreter wurde mit einem Compiler gebaut.
+        - label: Nichts, das geht nur in der Theorie
+          feedback: Thompson führte es tatsächlich vor.
+    hints:
+      - Wo steht die Hintertür, wenn der Quelltext sauber ist?
+      - Im übersetzten Compiler selbst.
+    explanation: Sein Vortrag hieß »Reflections on Trusting Trust«. Heute prüft man mit reproduzierbaren Builds und mehreren unabhängigen Compilern.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Programm hat eine Million Zeilen. Der Compiler schafft 10 000 Zeilen pro Sekunde. Wie viele Sekunden dauert ein kompletter Neubau?
+    params:
+      unit: s
+    answer:
+      value: 100
+    hints:
+      - $10^6$ / $10^4$.
+      - "100."
+    explanation: 100 Sekunden. Darum übersetzen Werkzeuge nach einer Änderung nur die betroffenen Dateien neu.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Compiler und Interpreter.
+    params:
+      keywords:
+        - - übersetz
+          - translat
+        - - vorher
+          - vorab
+          - einmal
+          - ahead
+          - once
+        - - zeile
+          - line
+          - laufzeit
+          - runtime
+          - direkt
+          - directly
+      sample: Ein Compiler übersetzt das ganze Programm einmal vorab in Maschinencode, danach läuft es schnell. Ein Interpreter führt den Quelltext direkt aus, Zeile für Zeile während der Laufzeit – flexibler, aber meist langsamer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d2"]

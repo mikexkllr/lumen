@@ -1,0 +1,198 @@
+id: cs.languages.compilers
+type: concept
+title: "Compilers and interpreters"
+summary: "Translate once or run line by line."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A book is to appear in Japanese. What is faster for many readers: translate it once completely, or interpret live at every reading?"
+    params:
+      options:
+        - label: Translate once – then everyone reads right away
+          correct: true
+        - label: Interpret live
+          feedback: Then it is translated anew at every reading.
+        - label: Both equally fast
+          feedback: The work happens once or every time.
+    hints:
+      - How often is the work done?
+      - Once versus every time.
+    explanation: That is the difference between compiler and interpreter. In return the interpreter is more flexible – changes take effect at once.
+
+  - kind: explain
+    id: c1
+    body: A **compiler** translates a whole program into machine code ahead of time. An interpreter instead reads the source code and runs it directly, line by line.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Put the phases of a compiler in the right order.
+    params:
+      items:
+        - label: "Lexer: split text into tokens"
+        - label: "Parser: build the syntax tree"
+        - label: Check types and names
+        - label: Optimise
+        - label: Generate machine code
+    hints:
+      - No tree without tokens, no checks without a tree.
+      - Machine code is produced at the very end.
+    explanation: Each phase works on the previous one's result. Many compilers share the back phases – LLVM, for example, serves C, Rust and Swift.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: A rarely used function contains a typo in a variable name. When is it noticed?
+    params:
+      options:
+        - label: With a compiler during translation, with an interpreter only when the line runs
+          correct: true
+        - label: With both right at the start
+          feedback: An interpreter only looks at the line when it is its turn.
+        - label: With neither
+          feedback: The compiler checks every name.
+    hints:
+      - The compiler reads the whole program in advance.
+      - The interpreter only what is being executed.
+    explanation: "That is why many teams love compilers and type checkers: they find errors before customers run into them."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: An interpreter takes about 30 times as long per instruction as machine code. Compiled, a program runs in 2 seconds. About how many seconds interpreted?
+    params:
+      unit: s
+    answer:
+      value: 60
+    hints:
+      - 30 times as long.
+      - 2 · 30.
+    explanation: 60 seconds. The factor varies a lot – from 2 to 100 – depending on language and program.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Many languages take a middle path: they translate into **bytecode** for a virtual machine, as Java and Python do. A JIT compiler then turns the hot spots into machine code at run time after all."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: The compiler sees `x = 60 * 60 * 24`. What does a good optimiser make of it?
+    params:
+      options:
+        - label: x = 86400 – it computes during translation
+          correct: true
+        - label: Nothing, computing is the program's job
+          feedback: The compiler does constant calculations itself.
+        - label: It reports an error
+          feedback: The code is perfectly correct.
+    hints:
+      - Do 60 and 24 ever change?
+      - What is fixed can be computed in advance.
+    explanation: This is called constant folding. The programmer writes readably, and the program still runs without the three multiplications.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: There is more code after a `return`. What does the optimiser do with it?
+    params:
+      options:
+        - label: It removes it – it can never run
+          correct: true
+        - label: It runs it anyway
+          feedback: After return the program leaves the function.
+        - label: It moves it to the front
+          feedback: That would change the meaning.
+    hints:
+      - What happens at return?
+      - Unreachable code is dead code.
+    explanation: Optimisers may change anything that cannot be seen from outside. The program's behaviour must stay the same.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The first C compiler was not written in C. Today the GCC compiler is itself written in C and C++. How is that possible?
+    params:
+      options:
+        - label: "Bootstrapping: a first version is translated some other way, after that the compiler translates itself"
+          correct: true
+        - label: It was never compiled
+          feedback: A compiler too must exist as machine code.
+        - label: That is impossible
+          feedback: It is common – many languages have compilers written in themselves.
+    hints:
+      - How was the first hammer made – without a hammer?
+      - First a simple version, then it improves step by step.
+    explanation: You compile the new compiler with an old one. The new one then compiles itself – and every future version.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Ken Thompson showed in 1984: a compiler can secretly insert a backdoor into every login program – and into every new compiler. What follows?"
+    params:
+      options:
+        - label: Checking the source code is not enough – you must also trust the compiler
+          correct: true
+        - label: One should only use interpreters
+          feedback: An interpreter too was built with a compiler.
+        - label: Nothing, it only works in theory
+          feedback: Thompson actually demonstrated it.
+    hints:
+      - Where is the backdoor if the source is clean?
+      - In the compiled compiler itself.
+    explanation: His talk was called »Reflections on Trusting Trust«. Today people check with reproducible builds and several independent compilers.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: A program has a million lines. The compiler manages 10,000 lines per second. How many seconds does a full rebuild take?
+    params:
+      unit: s
+    answer:
+      value: 100
+    hints:
+      - $10^6$ / $10^4$.
+      - "100."
+    explanation: 100 seconds. That is why build tools only recompile the affected files after a change.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between a compiler and an interpreter.
+    params:
+      keywords:
+        - - übersetz
+          - translat
+        - - vorher
+          - vorab
+          - einmal
+          - ahead
+          - once
+        - - zeile
+          - line
+          - laufzeit
+          - runtime
+          - direkt
+          - directly
+      sample: A compiler translates the whole program once ahead of time into machine code, after which it runs fast. An interpreter executes the source directly, line by line at run time – more flexible but usually slower.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d2"]
