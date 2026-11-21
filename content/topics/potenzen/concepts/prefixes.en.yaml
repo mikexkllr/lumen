@@ -5,7 +5,7 @@ summary: Prefixes are powers of ten.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 80000
       within: 60
     explanation: About 80,000 nm, that is 0.08 mm. A virus measures around 100 nm.
-
 
   - kind: problem
     id: zuordnen
@@ -69,6 +68,34 @@ steps:
     explanation: "$10^9 \\div 10^3 = 10^6$, which is one million."
 
   - kind: problem
+    id: ma-c1
+    widget: buckets
+    prompt: Longer or shorter than a metre?
+    params:
+      buckets:
+        - id: b1
+          label: longer
+        - id: b2
+          label: shorter
+      items:
+        - label: 1 kilometre
+          bucket: b1
+        - label: 1 megametre
+          bucket: b1
+        - label: 1 hectometre
+          bucket: b1
+        - label: 1 millimetre
+          bucket: b2
+        - label: 1 micrometre
+          bucket: b2
+        - label: 1 nanometre
+          bucket: b2
+    hints:
+      - Kilo means thousand.
+      - Milli means one thousandth.
+    explanation: Kilo, mega, hecto make bigger. Milli, micro, nano make smaller.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -83,6 +110,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: How many micrometres are {{k}} mm?
+    params:
+      unit: µm
+    answer:
+      value: "{{k * 1000}}"
+    feedback:
+      - when: numval(state.input) == k * 100
+        misconception: factor-100
+        text: From milli to micro is a step of a thousand.
+    hints:
+      - Milli = $10^{-3}$, micro = $10^{-6}$.
+      - 1 mm = 1000 µm.
+    explanation: "{{k}} · 1000 = {{k * 1000}} µm."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: A hard drive holds 2 TB (terabytes). How many GB is that?
+    params:
+      unit: GB
+    answer:
+      value: 2000
+    hints:
+      - Tera = $10^{12}$, giga = $10^9$.
+      - One TB is 1000 GB.
+    explanation: 2 · 1000 = 2000 GB. Manufacturers count in thousands – the computer often shows a bit less.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: A kibibyte (KiB) has 1024 bytes instead of 1000. Why 1024?
+    params:
+      options:
+        - label: 1024 = $2^{10}$ – computers count in powers of two
+          correct: true
+        - label: It is deliberate, not a mistake.
+          feedback: Es ist Absicht, keine Panne.
+        - label: "1024 : 10 = 102.4."
+          feedback: "1024 : 10 = 102,4."
+    hints:
+      - Computers work in binary.
+      - "Double ten times: 2, 4, 8, …"
+    explanation: $2^{10} = 1024$ is close to 1000. That is how the binary prefixes kibi, mebi, gibi came about.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -92,6 +177,47 @@ steps:
     hints:
       - 4 · 5 = 20 = 2 · 10. The ten joins the exponent.
     explanation: 20 · 10³ = 2 · 10⁴.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "The big prefixes go in **steps of a thousand**: kilo, mega, giga, tera, peta, exa. In 2022 even ronna ($10^{27}$) and quetta ($10^{30}$) were added."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: An atom is about 0.1 nm wide. How many atoms fit side by side along 1 micrometre?
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: wrong-unit
+        text: That is the atoms in 1 nanometre. A micrometre is 1000 times longer.
+    hints:
+      - 1 µm = 1000 nm.
+      - "1000 nm : 0.1 nm = ?"
+    explanation: "1000 : 0.1 = 10,000 atoms. Modern chips have structures of only a few nanometres."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: The Sun is about 150 Gm (gigametres) away. How many kilometres is that?
+    params:
+      unit: km
+    answer:
+      value: 150000000
+    feedback:
+      - when: numval(state.input) == 150000000000
+        misconception: metres-not-km
+        text: Those are metres. For kilometres, divide by 1000.
+    hints:
+      - Giga = $10^9$. 150 Gm = $1.5 \cdot 10^{11}$ m.
+      - Divide by 1000 for km.
+    explanation: $1.5 \cdot 10^8$ km = 150 million km.
     difficulty: 3
 
 srs:

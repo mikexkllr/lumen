@@ -5,7 +5,7 @@ summary: Vorsilben sind Zehnerpotenzen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 80000
       within: 60
     explanation: Etwa 80 000 nm, also 0,08 mm. Ein Virus misst rund 100 nm.
-
 
   - kind: problem
     id: zuordnen
@@ -69,6 +68,34 @@ steps:
     explanation: "$10^9 : 10^3 = 10^6$ – eine Million."
 
   - kind: problem
+    id: ma-c1
+    widget: buckets
+    prompt: Länger oder kürzer als ein Meter?
+    params:
+      buckets:
+        - id: b1
+          label: länger
+        - id: b2
+          label: kürzer
+      items:
+        - label: 1 Kilometer
+          bucket: b1
+        - label: 1 Megameter
+          bucket: b1
+        - label: 1 Hektometer
+          bucket: b1
+        - label: 1 Millimeter
+          bucket: b2
+        - label: 1 Mikrometer
+          bucket: b2
+        - label: 1 Nanometer
+          bucket: b2
+    hints:
+      - Kilo heißt tausend.
+      - Milli heißt ein Tausendstel.
+    explanation: Kilo, Mega, Hekto vergrößern. Milli, Mikro, Nano verkleinern.
+
+  - kind: problem
     id: d1
     depth: 2
     widget: numeric
@@ -83,6 +110,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: ma-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Mikrometer sind {{k}} mm?
+    params:
+      unit: µm
+    answer:
+      value: "{{k * 1000}}"
+    feedback:
+      - when: numval(state.input) == k * 100
+        misconception: factor-100
+        text: Von Milli zu Mikro ist es ein Tausender-Schritt.
+    hints:
+      - Milli = $10^{-3}$, Mikro = $10^{-6}$.
+      - 1 mm = 1000 µm.
+    explanation: "{{k}} · 1000 = {{k * 1000}} µm."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Festplatte hat 2 TB (Terabyte). Wie viele GB sind das?
+    params:
+      unit: GB
+    answer:
+      value: 2000
+    hints:
+      - Tera = $10^{12}$, Giga = $10^9$.
+      - Ein TB sind 1000 GB.
+    explanation: 2 · 1000 = 2000 GB. Hersteller rechnen in Tausendern – der Computer zeigt oft etwas weniger an.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: choice
+    prompt: Ein Kibibyte (KiB) hat 1024 Byte statt 1000. Warum gerade 1024?
+    params:
+      options:
+        - label: 1024 = $2^{10}$ – Computer zählen in Zweierpotenzen
+          correct: true
+        - label: Wegen eines alten Rechenfehlers
+          feedback: Es ist Absicht, keine Panne.
+        - label: Weil 1024 durch 10 teilbar ist
+          feedback: "1024 : 10 = 102,4."
+    hints:
+      - Computer rechnen binär.
+      - "Verdopple zehnmal: 2, 4, 8, …"
+    explanation: $2^{10} = 1024$ liegt nah an 1000. Darum entstanden die Binär-Vorsilben Kibi, Mebi, Gibi.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -92,6 +177,47 @@ steps:
     hints:
       - 4 · 5 = 20 = 2 · 10. Der Zehner kommt zum Exponenten dazu.
     explanation: 20 · 10³ = 2 · 10⁴.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x1
+    depth: 3
+    body: "Die großen Vorsilben gehen in **Tausenderschritten**: Kilo, Mega, Giga, Tera, Peta, Exa. 2022 kamen sogar Ronna ($10^{27}$) und Quetta ($10^{30}$) dazu."
+
+  - kind: problem
+    id: ma-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Atom ist etwa 0,1 nm breit. Wie viele Atome passen nebeneinander auf 1 Mikrometer?
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: wrong-unit
+        text: Das sind die Atome auf 1 Nanometer. Ein Mikrometer ist 1000-mal länger.
+    hints:
+      - 1 µm = 1000 nm.
+      - "1000 nm : 0,1 nm = ?"
+    explanation: "1000 : 0,1 = 10 000 Atome. Moderne Chips haben Strukturen von nur wenigen Nanometern."
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: numeric
+    prompt: Die Sonne ist etwa 150 Gm (Gigameter) entfernt. Wie viele Kilometer sind das?
+    params:
+      unit: km
+    answer:
+      value: 150000000
+    feedback:
+      - when: numval(state.input) == 150000000000
+        misconception: metres-not-km
+        text: Das sind Meter. Für Kilometer noch durch 1000.
+    hints:
+      - Giga = $10^9$. 150 Gm = $1{,}5 \cdot 10^{11}$ m.
+      - Durch 1000 für km.
+    explanation: $1{,}5 \cdot 10^8$ km = 150 Millionen km.
     difficulty: 3
 
 srs:

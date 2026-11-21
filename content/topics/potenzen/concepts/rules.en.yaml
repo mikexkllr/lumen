@@ -5,7 +5,7 @@ summary: Adding, multiplying, subtracting.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: mal
@@ -118,6 +118,50 @@ steps:
     explanation: 13 − 9 = 4.
     difficulty: 2
 
+  - kind: explain
+    id: ma-d1
+    depth: 2
+    body: "If the **exponent** is the same, you can multiply the bases. Three twos and three fives make three tens: $2^3 \\cdot 5^3 = 10^3$. So it is always true that $a^n \\cdot b^n = (a \\cdot b)^n$."
+
+  - kind: problem
+    id: ma-d2
+    depth: 2
+    widget: numeric
+    prompt: "Calculate cleverly: $2^5 \\cdot 5^5$"
+    answer:
+      value: 100000
+    feedback:
+      - when: numval(state.input) == 10000000000
+        misconception: add-exponents
+        text: "The bases are multiplied, the exponent stays: $10^5$, not $10^{10}$."
+    hints:
+      - Pair up the 2s and 5s.
+      - $(2 \cdot 5)^5 = 10^5$.
+    explanation: $10^5 = 100,000$.
+    difficulty: 2
+
+  - kind: problem
+    id: ma-d3
+    depth: 2
+    widget: numeric
+    prompt: "Write as a power of 2: $4^{ {{n}} } = 2^{?}$"
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n + 2 && n != 2
+        misconception: add-instead
+        text: "Power of a power: multiply exponents, do not add."
+    hints:
+      - $4 = 2^2$.
+      - $(2^2)^{ {{n}} }$ – multiply the exponents.
+    explanation: $(2^2)^{ {{n}} } = 2^{ {{2 * n}} }$.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -134,6 +178,47 @@ steps:
     hints:
       - "Work it out: 8 + 8."
     explanation: Twice the same is $2 \cdot 2^3 = 2^4$. There is no rule for sums of powers.
+    difficulty: 3
+
+  - kind: problem
+    id: ma-x1
+    depth: 3
+    widget: numeric
+    prompt: "Watch the brackets: work out $2^{(3^2)}$."
+    answer:
+      value: 512
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: wrong-grouping
+        text: That is $(2^3)^2$. Here the whole exponent $3^2 = 9$ is on top.
+    hints:
+      - "First the exponent: $3^2 = 9$."
+      - $2^9 = ?$
+    explanation: $2^9 = 512$, but $(2^3)^2 = 2^6 = 64$. Power towers are evaluated from the top down.
+    difficulty: 3
+
+  - kind: explain
+    id: ma-x2
+    depth: 3
+    body: Why is $a^0 = 1$? Divide $a^3$ by $a^3$. That gives 1. But by the **rule** it is $a^{3-3} = a^0$. For both to agree, $a^0$ must be 1.
+
+  - kind: problem
+    id: ma-x3
+    depth: 3
+    widget: choice
+    prompt: "Which is larger: $2^{30}$ or $3^{20}$?"
+    params:
+      options:
+        - label: "Write both with exponent 10: $8^{10}$ and $9^{10}$."
+          feedback: "Schreibe beide mit dem Exponenten 10: $8^{10}$ und $9^{10}$."
+        - label: $3^{20}$
+          correct: true
+        - label: $8^{10}$ and $9^{10}$ differ.
+          feedback: $8^{10}$ und $9^{10}$ sind verschieden.
+    hints:
+      - $2^{30} = (2^3)^{10}$ and $3^{20} = (3^2)^{10}$.
+      - Compare $8^{10}$ with $9^{10}$.
+    explanation: $9^{10} > 8^{10}$, so $3^{20}$ is larger – without a single big calculation.
     difficulty: 3
 
 srs:
