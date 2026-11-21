@@ -5,7 +5,7 @@ summary: Length beats special characters.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: A password is {{n}} random lowercase letters. About how many bits of entropy does it have? log₂ 26 ≈ 4.7. Round to one decimal.
+    params:
+      unit: Bit
+    answer:
+      value: "{{n * 4.7}}"
+      tolerance: 0.5
+    hints:
+      - Each character adds log₂ 26 bits.
+      - "{{n}} · 4.7."
+    explanation: "{{n}} · 4.7 ≈ {{n * 4.7}} bits. Every bit doubles the attacker's work."
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Four words drawn at random from a list of 2048 words. How many bits of entropy is that?
+    params:
+      unit: Bit
+    answer:
+      value: 44
+    hints:
+      - 2048 is $2^{11}$.
+      - Each word adds 11 bits.
+    explanation: 4 · 11 = 44 bits – as much as 9 to 10 random lowercase letters, but far easier to remember.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "**Symmetric** methods like AES use the same key to encrypt and decrypt. They are lightning fast. The problem: how does the key get safely to the other side?"
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: an AES key has 128 bits. An attacker tries $10^{18}$ keys per second. How many years does it take to try them all? Give the power of ten."
+    params:
+      min: 1
+      max: 40
+    answer:
+      value: 13
+      tolerance: 2
+    explanation: $2^{128}$ ≈ 3.4 · $10^{38}$ keys, divided by $10^{18}$ per second gives 3.4 · $10^{20}$ s ≈ $10^{13}$ years – a thousand times the age of the universe.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +168,83 @@ steps:
     hints:
       - Entropy is log₂ of the number of possibilities.
     explanation: "80 bits count as secure today: 2⁸⁰ tries are feasible for no one."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: How does HTTPS encrypt large amounts of data quickly without a key exchanged in advance?
+    params:
+      options:
+        - label: "Hybrid: public-key methods for the key exchange, then AES for the data"
+          correct: true
+        - label: Only with public-key methods
+          feedback: Those are roughly a thousand times slower than AES.
+        - label: Only with AES and a fixed key inside the browser
+          feedback: Anyone could extract it.
+    hints:
+      - What is fast, and what solves the key problem?
+      - You combine both.
+    explanation: The key exchange takes milliseconds, after that everything runs with AES. That way HTTPS combines speed and security.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "What is easier for attackers to guess: »Summer2024!« or four random words?"
+    params:
+      options:
+        - label: »Summer2024!« – attackers try patterns like word, year, symbol first
+          correct: true
+        - label: The words, because they are only lowercase
+          feedback: Length and randomness count more than character types.
+        - label: Both are equally strong
+          feedback: A known pattern shrinks the search enormously.
+    hints:
+      - How many people pick a word plus a year?
+      - Entropy measures randomness, not looks.
+    explanation: A pattern of word, year and exclamation mark may have about 30 bits. Four truly random words from 2048 have 44 bits.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: A key has 128 instead of 64 bits. How many times more possibilities is that? Give the exponent to base 2.
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: length-vs-count
+        text: Double the length does not mean double the keys.
+    hints:
+      - $2^{128}$ / $2^{64}$.
+      - Exponents are subtracted when dividing.
+    explanation: $2^{64}$ times as many – about 18 quintillion. 64-bit keys are breakable today, 128 bits are considered safe.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why length makes a password stronger than special characters.
+    params:
+      keywords:
+        - - multipl
+          - mal
+          - times
+        - - jedes zeichen
+          - each character
+          - stelle
+          - zeichen
+          - character
+        - - exponent
+          - hoch
+          - power
+          - potenz
+      sample: Each extra character multiplies the possibilities – the length sits in the exponent. Special characters only enlarge the base a little. 26 to the power 12 is far more than 94 to the power 8.
     difficulty: 3
 
 srs:

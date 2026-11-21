@@ -5,7 +5,7 @@ summary: XOR, Caesar and key exchange.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: explain
     id: s1
@@ -61,6 +61,58 @@ steps:
     explanation: Anyone who sees only the mixtures cannot work out the secret colors.
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: Message {{bin(a)}}, key {{kb}}. Encrypt with XOR and set the result.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{x}}"
+    hints:
+      - "Digit by digit: equal gives 0, different gives 1."
+      - Where the key has a 1, the message bit flips.
+    explanation: "{{bin(a)}} XOR {{kb}} = {{bin(x + 16).slice(1)}}. XOR with the key once more brings the message back."
+    variants:
+      params:
+        a: int[8,15]
+        b: int[1,15]
+      derive:
+        kb: bin(b + 16).slice(1)
+        x: mod(a + b, 2) + 2 * mod(floor(a / 2) + floor(b / 2), 2) + 4 * mod(floor(a / 4) + floor(b / 4), 2) + 8 * mod(floor(a / 8) + floor(b / 8), 2)
+      constraints:
+        - x != 0
+      defaults:
+        a: 12
+        b: 10
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: A **stream cipher** turns a short key into a long stream of bits that only look random. It combines this stream with the message by XOR. That saves the huge one-time key.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Two messages were encrypted with the same key stream. The attacker computes c1 XOR c2. What does he get?
+    params:
+      options:
+        - label: m1 XOR m2 – the key cancels out completely
+          correct: true
+        - label: Just noise
+          feedback: The key cancels, the messages remain.
+        - label: The key
+          feedback: He would only get that with a known message.
+    hints:
+      - (m1 XOR k) XOR (m2 XOR k) – what happens to k?
+      - k XOR k = 0.
+    explanation: Two texts mixed together can often be separated using knowledge of language. That is why a key stream must never be used twice.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +155,42 @@ steps:
           - unlock
       min: 3
       sample: Anyone may know the public key – it is used to encrypt a message. Only the holder of the private key can decrypt it, and that key stays secret.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: A one-time pad is to encrypt a 1 GB file. How many billion bits of key are needed?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: bits-bytes
+        text: One gigabyte is 8 billion bits, not one.
+    hints:
+      - The key is as long as the message.
+      - 1 GB = 8 Gbit.
+    explanation: 8 billion truly random bits – which must already be safely with the receiver. That is exactly the problem a stream cipher solves.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: An attacker flips a single bit in an XOR-encrypted ciphertext. What happens on decryption?
+    params:
+      options:
+        - label: Exactly that bit of the message flips – unnoticed
+          correct: true
+        - label: The whole message becomes unreadable
+          feedback: XOR acts bit by bit, with no avalanche.
+        - label: Decryption fails with an error
+          feedback: XOR notices nothing – there is no check.
+    hints:
+      - What does XOR do with a flipped bit?
+      - No bit depends on any other.
+    explanation: That way »pay €100« can be turned into »pay €900« on purpose. So encryption is always combined with a check value such as an HMAC.
     difficulty: 3
 
 srs:

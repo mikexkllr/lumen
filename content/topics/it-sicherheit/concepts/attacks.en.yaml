@@ -5,7 +5,7 @@ summary: Understanding typical attacks.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: arten
@@ -91,6 +91,72 @@ steps:
     explanation: What is attacked is **availability** – the third security goal besides confidentiality and integrity.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: In a **buffer overflow** a program writes more data into a memory area than fits. The extra bytes overwrite neighbouring data – in the worst case the return address. Then foreign code runs.
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: A forum shows comments unfiltered. Someone posts a `<script>` with their own code. What happens?
+    params:
+      options:
+        - label: The code runs in every reader's browser – cross-site scripting
+          correct: true
+        - label: Nothing, browsers ignore code in comments
+          feedback: The browser just sees HTML and cannot tell it is a comment.
+        - label: The server crashes
+          feedback: The server merely passes the text on.
+    hints:
+      - Who runs code that is part of a web page?
+      - The browser trusts everything coming from the site.
+    explanation: "The code runs with the site's rights and can, for example, steal sessions. Fix: escape output so that < shows up as text."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: 100,000 hijacked devices each send 2 Mbit/s to a website. How many Gbit/s hit the site?
+    params:
+      unit: Gbit/s
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == 200000
+        misconception: unit
+        text: Those are Mbit/s. 1000 Mbit are 1 Gbit.
+    hints:
+      - 100,000 · 2 Mbit/s = 200,000 Mbit/s.
+      - Divide by 1000.
+    explanation: 200 Gbit/s – more than most data centres can take in. Protection comes from networks that spread the flood over many locations.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: match
+    prompt: Which defence fits which attack?
+    params:
+      pairs:
+        - left: SQL injection
+          right: Queries with placeholders
+        - left: Cross-site scripting
+          right: Escape output
+        - left: Buffer overflow
+          right: Bounds checks, safe languages
+        - left: Phishing
+          right: Hardware keys
+        - left: DDoS
+          right: Spread load across many servers
+    hints:
+      - The first three arise when data turns into code.
+      - Only breadth helps against a flood.
+    explanation: "Many attacks follow one pattern: input is not treated as data. Good defence keeps data and code strictly apart."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +173,69 @@ steps:
     hints:
       - How many days did the vendor have to fix it?
     explanation: Updates do not help against the unknown – only several layers of protection backing each other up.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Malware locks all your files and demands money. What helps most here?
+    params:
+      options:
+        - label: Separate, regularly tested backups
+          correct: true
+        - label: Paying the ransom
+          feedback: Whether the criminals decrypt is uncertain – and paying invites new attacks.
+        - label: A backup on the same disk
+          feedback: The malware encrypts that as well.
+    hints:
+      - What do you need when all data is unreadable?
+      - The backup must be out of the malware's reach.
+    explanation: With a separate backup the attack is annoying but not fatal. Testing means actually practising the restore.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Attackers slip malicious code into a popular software package. Why is that so effective?
+    params:
+      options:
+        - label: Thousands of companies install the update themselves – with full trust
+          correct: true
+        - label: Because updates are forbidden
+          feedback: Updates matter – which is exactly why the trick works.
+        - label: Because the package gets slower
+          feedback: Slowness would be noticed, the malware is not.
+    hints:
+      - Who installs the malware?
+      - The victims themselves, through a trusted channel.
+    explanation: "Such supply-chain attacks hit SolarWinds in 2020, for example. Remedies: signed packages, vetted dependencies, little third-party code."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how attackers typically operate.
+    params:
+      keywords:
+        - - leicht
+          - schwach
+          - easiest
+          - weakest
+          - einfach
+          - easy
+        - - update
+          - lücke
+          - vulnerab
+          - patch
+        - - mensch
+          - täusch
+          - social
+          - trick
+          - human
+      sample: Attackers look for the easiest way in. That is often old software with known vulnerabilities that lacks an update, or people who can be tricked – with phishing, for example. Expensive tricks are rarely needed.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Fehler erkennen, Passwörter schützen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: quersumme
@@ -86,6 +86,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "ISBN-13: Die Ziffern werden abwechselnd mit 1 und 3 gewichtet, die Summe muss durch 10 teilbar sein. Bei 978-3-16-148410-? ergeben die ersten zwölf genau 100. Welche Prüfziffer fehlt?"
+    answer:
+      value: 0
+    hints:
+      - Welche Zahl fehlt bis zum nächsten Vielfachen von 10?
+      - 100 ist schon durch 10 teilbar.
+    explanation: 100 + 0 = 100. Die ISBN lautet 978-3-16-148410-0.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Warum gewichtet die ISBN die Ziffern abwechselnd mit 1 und 3, statt sie einfach zu addieren?
+    params:
+      options:
+        - label: So fallen auch vertauschte Nachbarziffern meist auf
+          correct: true
+        - label: Damit die Summe größer wird
+          feedback: Die Größe spielt keine Rolle, nur der Rest.
+        - label: Aus Tradition
+          feedback: Die Gewichte haben einen klaren Zweck.
+    hints:
+      - Was passiert bei 4738 statt 4378 mit der einfachen Summe?
+      - Mit Gewichten zählt jede Ziffer je nach Platz anders.
+    explanation: Vertauscht man a und b, ändert sich die Summe um 2 · (a − b). Das ist nur bei einem Abstand von 5 durch 10 teilbar – fast alle Dreher fallen auf.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Gute Hashfunktionen zeigen den **Lawineneffekt**: Ändert sich ein einziges Bit der Eingabe, kippt etwa die Hälfte aller Bits des Hashs. Ähnliche Texte haben völlig verschiedene Fingerabdrücke."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Ein SHA-256-Hash hat 256 Bit. Wie viele Hex-Ziffern zeigt eine Webseite dafür an?
+    answer:
+      value: 64
+    hints:
+      - Eine Hex-Ziffer sind 4 Bit.
+      - 256 / 4.
+    explanation: 256 / 4 = 64 Ziffern. Vergleiche ruhig nur Anfang und Ende – wer beides passend fälschen will, scheitert am Lawineneffekt.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -95,6 +145,61 @@ steps:
     hints:
       - "Die Wurzel aus der Zahl der Möglichkeiten: halber Exponent."
     explanation: 2¹²⁸ – immer noch unerreichbar. Darum braucht ein Hash doppelt so viele Bits wie die gewünschte Sicherheit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Du suchst einen Text, der einen ganz bestimmten 64-Bit-Hash trifft. Wie viele Versuche brauchst du etwa? Gib den Exponenten zur Basis 2 an.
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 32
+        misconception: birthday-vs-preimage
+        text: Das gilt für irgendeine Kollision zweier Texte. Ein fester Zielhash ist viel schwerer.
+    hints:
+      - Jeder Versuch trifft mit Wahrscheinlichkeit $1/2^{64}$.
+      - Das Geburtstagsparadox hilft hier nicht – das Ziel steht fest.
+    explanation: "Urbild: etwa $2^{64}$ Versuche. Kollision: nur $2^{32}$, weil dort jedes Paar zählt. Darum braucht man für Kollisionssicherheit doppelt so lange Hashes."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: MD5 gilt als gebrochen. Was heißt das?
+    params:
+      options:
+        - label: Man kann gezielt zwei verschiedene Dateien mit gleichem Hash bauen
+          correct: true
+        - label: Man kann aus dem Hash die Datei zurückrechnen
+          feedback: Das ist bis heute nicht praktikabel.
+        - label: Der Hash ändert sich bei jedem Aufruf
+          feedback: Ein Hash ist immer gleich für gleiche Daten.
+    hints:
+      - Welche Eigenschaft eines Hashs ist am leichtesten anzugreifen?
+      - Kollisionen findet man schneller als Urbilder.
+    explanation: MD5-Kollisionen dauern auf einem Laptop Sekunden. 2012 nutzte die Schadsoftware Flame das, um falsche Signaturen zu fälschen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Wie prüft man, dass eine Nachricht nicht nur heil ist, sondern auch vom richtigen Absender stammt?
+    params:
+      options:
+        - label: Mit einem geheimen Schlüssel im Hash (HMAC) oder einer digitalen Signatur
+          correct: true
+        - label: Mit einem längeren Hash
+          feedback: Jeder kann auch einen langen Hash neu berechnen.
+        - label: Mit zwei Hashes
+          feedback: Auch zwei Hashes kann ein Fälscher einfach neu berechnen.
+    hints:
+      - Ein normaler Hash lässt sich von jedem neu berechnen.
+      - Es braucht etwas, das nur der Absender kennt.
+    explanation: Ein HMAC mischt einen gemeinsamen Schlüssel ein. Eine Signatur nutzt den privaten Schlüssel des Absenders. Beides kann ein Fälscher nicht nachbauen.
     difficulty: 3
 
 srs:

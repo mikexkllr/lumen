@@ -5,7 +5,7 @@ summary: A lock for everyone, a key for you.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -108,6 +108,55 @@ steps:
     explanation: Both mix their secret number into a public one. That is how every HTTPS connection is created.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "This is **Diffie–Hellman**: p = 23 and g = 5 are public. Anna secretly picks a and sends $5^a$ mod 23. Ben secretly picks b and sends $5^b$ mod 23. From that both compute the same key."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Anna picks a = 6. What does she send, i.e. $5^6$ mod 23?
+    answer:
+      value: 8
+    hints:
+      - $5^2$ = 25 ≡ 2 (mod 23).
+      - $5^6$ = $(5^2)^3$ ≡ $2^3$.
+    explanation: "$5^6$ = 15,625 = 679 · 23 + 8. Reducing along the way makes it easy: $2^3$ = 8."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Ben picked b = 9 and sends 11. Anna computes $11^6$ mod 23. Which shared key comes out?
+    answer:
+      value: 9
+    hints:
+      - $11^2$ = 121 ≡ 6 (mod 23).
+      - $11^6$ ≡ $6^3$ = 216. And 216 mod 23?
+    explanation: 216 = 9 · 23 + 9, so 9. Ben computes $8^9$ mod 23 and also gets 9 – because both equal $5^{54}$ mod 23.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: "New round: g = 3 and p = 17 are public. Ben picks b = {{b}}. What does he send, i.e. $3^b$ mod 17?"
+    answer:
+      value: "{{mod(3 ** b, 17)}}"
+    hints:
+      - Compute power by power and reduce mod 17 each time.
+      - 3, 9, 10, 13, 5, 15, 11, 16 …
+    explanation: $3^{ {{b}} }$ mod 17 = {{mod(3 ** b, 17)}}. An eavesdropper sees this number – but recovering b from it is the hard »discrete logarithm« problem.
+    difficulty: 2
+    variants:
+      params:
+        b: int[2,12]
+      defaults:
+        b: 5
+
   - kind: problem
     id: x1
     depth: 3
@@ -118,6 +167,92 @@ steps:
     hints:
       - 4³ = 64. Subtract 33.
     explanation: "64 − 33 = 31. Decryption uses d = 7: 31⁷ mod 33 = 4. In real keys n has over 600 digits."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "**RSA** in miniature: pick the primes p = 5 and q = 11, so n = 55 and φ = 4 · 10 = 40. The public e is 3. The secret d is 27, because 3 · 27 = 81 ≡ 1 (mod 40)."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Encrypt the message m = 2 with the public key: c = $2^3$ mod 55."
+    answer:
+      value: 8
+    hints:
+      - $2^3$ = 8.
+      - 8 is already less than 55.
+    explanation: c = 8. To decrypt you compute $8^{27}$ mod 55 – and get 2 back. Euler's theorem guarantees it.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: For RSA you pick p = {{p}} and q = {{q}}. What is φ = (p − 1) · (q − 1)?
+    answer:
+      value: "{{(p - 1) * (q - 1)}}"
+    feedback:
+      - when: numval(state.input) == p * q
+        misconception: n-vs-phi
+        text: That is n. φ subtracts 1 from each prime.
+    hints:
+      - "{{p}} − 1 = {{p - 1}}, {{q}} − 1 = {{q - 1}}."
+      - Multiply the two.
+    explanation: φ = {{p - 1}} · {{q - 1}} = {{(p - 1) * (q - 1)}}. Whoever knows φ can compute d – and only someone who knows p and q knows φ.
+    difficulty: 3
+    variants:
+      params:
+        p: choice[3,5,7,11]
+        q: choice[13,17,19,23]
+      defaults:
+        p: 7
+        q: 13
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Why is RSA with n = 55 insecure but secure with a 2048-bit number?
+    params:
+      options:
+        - label: Anyone factors 55 = 5 · 11 at once, nobody can factor a 617-digit number
+          correct: true
+        - label: Because big numbers compute faster
+          feedback: Bigger numbers even compute more slowly.
+        - label: Because e is secret for big numbers
+          feedback: e stays public.
+    hints:
+      - What must an attacker do to find d?
+      - Factor n into its primes.
+    explanation: Security rests on factoring being hard. Quantum computers could change that – which is why new methods are being developed.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x5
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how two strangers get a shared key over a tapped line.
+    params:
+      keywords:
+        - - öffentlich
+          - public
+        - - geheim
+          - privat
+          - secret
+          - private
+        - - potenz
+          - hoch
+          - power
+          - exponent
+          - mod
+        - - gleich
+          - same
+          - gemeinsam
+          - shared
+      sample: Both publicly agree on g and p. Each picks a secret number and sends g to the power of it mod p. Using their own secret, each computes the same shared key from the number received. The eavesdropper cannot undo the power.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Wenn eine Nachricht dich ködert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: zeichen
@@ -95,6 +95,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: swipe
+    prompt: Echt oder Fälschung?
+    params:
+      cards:
+        - text: https://www.sparkasse.de.konto-check.info
+          right: false
+          why: Die Seite gehört konto-check.info.
+        - text: https://accounts.google.com
+          right: true
+          why: Eine Unterseite von google.com.
+        - text: https://amaz0n.de
+          right: false
+          why: Eine Null statt des o.
+        - text: https://paypal.com-sicherheit.de
+          right: false
+          why: Die Domain ist com-sicherheit.de.
+        - text: https://login.microsoftonline.com
+          right: true
+          why: Die echte Anmeldeseite von Microsoft.
+      left: Fälschung
+      right: echt
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Ein **Homograph-Angriff** nutzt Zeichen, die gleich aussehen – etwa das kyrillische »а« statt des lateinischen »a«. Für das Auge steht dort apple.com, für den Computer eine ganz andere Adresse.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Eine Mail zeigt den Link »www.bank.de«. Wie siehst du, wohin er wirklich führt?
+    params:
+      options:
+        - label: Mit der Maus darüberfahren oder lange drücken und das echte Ziel lesen
+          correct: true
+        - label: Der angezeigte Text ist das Ziel
+          feedback: Text und Ziel eines Links können völlig verschieden sein.
+        - label: Einmal draufklicken und schauen
+          feedback: Schon der Klick kann schaden.
+    hints:
+      - Ein Link hat einen sichtbaren Text und ein verstecktes Ziel.
+      - Das Ziel zeigt der Browser, ohne dass du klickst.
+    explanation: "Sicherer noch: Nie über Links in Mails anmelden, sondern die Adresse selbst eintippen oder ein Lesezeichen nutzen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +160,89 @@ steps:
     hints:
       - Woran erkennst du normalerweise eine Phishing-Mail?
     explanation: "Schutz bietet nur ein zweiter Kanal: bei ungewöhnlichen Bitten kurz anrufen und nachfragen."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Warum schützt ein Hardware-Sicherheitsschlüssel gegen Phishing, ein SMS-Code aber nicht?
+    params:
+      options:
+        - label: Der Schlüssel prüft die echte Adresse der Seite und antwortet einer Fälschung gar nicht
+          correct: true
+        - label: Der Schlüssel ist teurer
+          feedback: Der Preis schützt nicht – das Prinzip schon.
+        - label: SMS-Codes sind zu kurz
+          feedback: Auch ein langer Code ließe sich auf einer Fälschung eintippen.
+    hints:
+      - Wer tippt den SMS-Code ein – und wo?
+      - Den Schlüssel kann man nicht überreden.
+    explanation: Den SMS-Code gibt der Mensch auf der Fälschung ein, und die reicht ihn weiter. Der Schlüssel bindet seine Antwort an die echte Domain – auf bank-login.xyz bleibt er stumm.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "Ein Anruf, angeblich vom Chef: »Bitte sofort 40 000 € überweisen, ganz vertraulich.« Was hilft am besten?"
+    params:
+      options:
+        - label: Über einen bekannten Weg zurückrufen und nachfragen
+          correct: true
+        - label: Schnell überweisen, der Chef hat es eilig
+          feedback: Eile ist genau der Hebel der Betrüger.
+        - label: Auf die Stimme achten
+          feedback: Stimmen lassen sich heute täuschend echt fälschen.
+    hints:
+      - Druck, Eile, Geheimhaltung – drei Warnzeichen auf einmal.
+      - Prüfe über einen Weg, den der Anrufer nicht kontrolliert.
+    explanation: Diese »Chef-Masche« kostet Firmen jährlich Millionen. Feste Regeln wie das Vier-Augen-Prinzip helfen mehr als jedes Bauchgefühl.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Filter erkennt 99 % aller Phishing-Mails. Von 100 000 Mails sind 1000 Phishing. Wie viele Phishing-Mails kommen trotzdem durch?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: missed-rate
+        text: Gefragt ist, was der Filter verpasst – 1 % davon.
+    hints:
+      - 1 % der Phishing-Mails rutscht durch.
+      - 1 % von 1000.
+    explanation: 10 Mails pro 100 000 – bei einer großen Firma sind das täglich einige. Ein einziger Klick reicht. Darum ist Technik allein nie genug.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, woran man Phishing erkennt.
+    params:
+      keywords:
+        - - absender
+          - adresse
+          - sender
+          - address
+          - link
+          - url
+          - domain
+        - - dring
+          - druck
+          - eile
+          - urgent
+          - pressure
+          - hurry
+        - - passwort
+          - daten
+          - password
+          - data
+          - login
+      sample: Phishing will an dein Passwort oder deine Daten. Typisch sind Druck und Eile, etwa »Konto wird gesperrt«. Prüfe den Absender und die echte Adresse hinter jedem Link – stimmt die Domain nicht, ist es Betrug.
     difficulty: 3
 
 srs:

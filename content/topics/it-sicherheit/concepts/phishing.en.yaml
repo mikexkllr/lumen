@@ -5,7 +5,7 @@ summary: When a message baits you.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: zeichen
@@ -95,6 +95,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: swipe
+    prompt: Genuine or fake?
+    params:
+      cards:
+        - text: https://www.sparkasse.de.konto-check.info
+          right: false
+          why: The site belongs to konto-check.info.
+        - text: https://accounts.google.com
+          right: true
+          why: A subdomain of google.com.
+        - text: https://amaz0n.de
+          right: false
+          why: A zero instead of the o.
+        - text: https://paypal.com-sicherheit.de
+          right: false
+          why: The domain is com-sicherheit.de.
+        - text: https://login.microsoftonline.com
+          right: true
+          why: Microsoft's real sign-in domain.
+      left: fake
+      right: genuine
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: A **homograph attack** uses characters that look the same – like the Cyrillic »а« instead of the Latin »a«. To the eye it says apple.com, to the computer it is a completely different address.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: An email shows the link »www.bank.de«. How do you see where it really leads?
+    params:
+      options:
+        - label: Hover with the mouse or long-press and read the real target
+          correct: true
+        - label: The displayed text is the target
+          feedback: A link's text and target can be completely different.
+        - label: Click once and see
+          feedback: The click itself can do harm.
+    hints:
+      - A link has a visible text and a hidden target.
+      - The browser shows the target without a click.
+    explanation: "Safer still: never log in via links in emails – type the address yourself or use a bookmark."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -110,6 +160,89 @@ steps:
     hints:
       - How do you usually recognise a phishing mail?
     explanation: "Only a second channel protects: for unusual requests call briefly and check."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Why does a hardware security key protect against phishing while an SMS code does not?
+    params:
+      options:
+        - label: The key checks the real address of the site and simply does not answer a fake
+          correct: true
+        - label: The key is more expensive
+          feedback: The price does not protect – the principle does.
+        - label: SMS codes are too short
+          feedback: Even a long code could be typed into a fake site.
+    hints:
+      - Who types the SMS code – and where?
+      - The key cannot be talked into anything.
+    explanation: The person types the SMS code into the fake site, which relays it. The key binds its answer to the real domain – on bank-login.xyz it stays silent.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "A call, supposedly from the boss: »Please transfer €40,000 right away, strictly confidential.« What helps most?"
+    params:
+      options:
+        - label: Call back via a known channel and ask
+          correct: true
+        - label: Transfer quickly, the boss is in a hurry
+          feedback: Urgency is exactly the fraudsters' lever.
+        - label: Listen to the voice
+          feedback: Voices can be faked very convincingly today.
+    hints:
+      - Pressure, urgency, secrecy – three warning signs at once.
+      - Check via a channel the caller does not control.
+    explanation: This »CEO fraud« costs companies millions every year. Fixed rules like two-person approval help more than any gut feeling.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: A filter catches 99 % of all phishing emails. Of 100,000 emails, 1000 are phishing. How many phishing emails still get through?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: missed-rate
+        text: The question is what the filter misses – 1 % of them.
+    hints:
+      - 1 % of phishing emails slip through.
+      - 1 % of 1000.
+    explanation: 10 emails per 100,000 – at a big company that is several a day. A single click is enough. That is why technology alone is never enough.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to spot phishing.
+    params:
+      keywords:
+        - - absender
+          - adresse
+          - sender
+          - address
+          - link
+          - url
+          - domain
+        - - dring
+          - druck
+          - eile
+          - urgent
+          - pressure
+          - hurry
+        - - passwort
+          - daten
+          - password
+          - data
+          - login
+      sample: Phishing wants your password or your data. Pressure and urgency are typical, like »your account will be locked«. Check the sender and the real address behind every link – if the domain is wrong, it is a scam.
     difficulty: 3
 
 srs:

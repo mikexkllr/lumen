@@ -5,7 +5,7 @@ summary: Typische Angriffe verstehen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: arten
@@ -91,6 +91,72 @@ steps:
     explanation: Angegriffen wird die **Verfügbarkeit** – neben Vertraulichkeit und Integrität das dritte Schutzziel.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: Bei einem **Pufferüberlauf** schreibt ein Programm mehr Daten in einen Speicherbereich, als hineinpassen. Die überzähligen Bytes überschreiben Nachbardaten – im schlimmsten Fall die Rücksprungadresse. Dann läuft fremder Code.
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Forum zeigt Kommentare ungefiltert an. Jemand postet ein `<script>` mit eigenem Code. Was passiert?
+    params:
+      options:
+        - label: Der Code läuft im Browser jedes Lesers – Cross-Site-Scripting
+          correct: true
+        - label: Nichts, Browser ignorieren Code in Kommentaren
+          feedback: Der Browser sieht nur HTML und weiß nicht, was Kommentar ist.
+        - label: Der Server stürzt ab
+          feedback: Der Server reicht den Text nur weiter.
+    hints:
+      - Wer führt Code aus, der in einer Webseite steht?
+      - Der Browser vertraut allem, was von der Seite kommt.
+    explanation: "Der Code läuft mit den Rechten der Seite und kann etwa Sitzungen stehlen. Abhilfe: Ausgaben maskieren, damit < als Text erscheint."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: 100 000 gekaperte Geräte senden je 2 Mbit/s an eine Webseite. Wie viele Gbit/s treffen die Seite?
+    params:
+      unit: Gbit/s
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == 200000
+        misconception: unit
+        text: Das sind Mbit/s. 1000 Mbit sind 1 Gbit.
+    hints:
+      - 100 000 · 2 Mbit/s = 200 000 Mbit/s.
+      - Teile durch 1000.
+    explanation: 200 Gbit/s – mehr, als die meisten Rechenzentren annehmen können. Schutz bieten Netze, die den Ansturm auf viele Standorte verteilen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: match
+    prompt: Welche Abwehr passt zu welchem Angriff?
+    params:
+      pairs:
+        - left: SQL-Injection
+          right: Abfragen mit Platzhaltern
+        - left: Cross-Site-Scripting
+          right: Ausgaben maskieren
+        - left: Pufferüberlauf
+          right: Grenzen prüfen, sichere Sprachen
+        - left: Phishing
+          right: Hardware-Schlüssel
+        - left: DDoS
+          right: Last auf viele Server verteilen
+    hints:
+      - Die ersten drei entstehen, wenn Daten zu Code werden.
+      - Gegen Massenansturm hilft nur Breite.
+    explanation: "Viele Angriffe folgen einem Muster: Eingaben werden nicht als Daten behandelt. Gute Abwehr trennt Daten und Code strikt."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +173,69 @@ steps:
     hints:
       - Wie viele Tage hatte der Hersteller Zeit zum Reparieren?
     explanation: Gegen Unbekanntes helfen keine Updates – nur mehrere Schutzschichten, die einander absichern.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Trojaner sperrt alle Dateien und will Geld. Was hilft da am besten?
+    params:
+      options:
+        - label: Getrennte, regelmäßig geprüfte Backups
+          correct: true
+        - label: Lösegeld zahlen
+          feedback: Ob die Täter entschlüsseln, ist offen – und Zahlung lockt neue Angriffe an.
+        - label: Ein Backup auf derselben Platte
+          feedback: Das verschlüsselt der Trojaner gleich mit.
+    hints:
+      - Was braucht man, wenn alle Daten unlesbar sind?
+      - Das Backup muss für den Trojaner unerreichbar sein.
+    explanation: "Mit einem getrennten Backup ist der Angriff ärgerlich, aber nicht tödlich. Prüfen heißt: Wiederherstellen wirklich üben."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Angreifer schleusen Schadcode in ein beliebtes Software-Paket ein. Warum ist das so wirksam?
+    params:
+      options:
+        - label: Tausende Firmen installieren das Update selbst – mit vollem Vertrauen
+          correct: true
+        - label: Weil Updates verboten sind
+          feedback: Updates sind wichtig – gerade deshalb wirkt der Trick.
+        - label: Weil das Paket dann langsamer wird
+          feedback: Langsamkeit wäre auffällig, der Schadcode ist es nicht.
+    hints:
+      - Wer installiert die Schadsoftware?
+      - Die Opfer selbst, über einen vertrauten Weg.
+    explanation: "Solche Lieferketten-Angriffe trafen etwa 2020 SolarWinds. Abhilfe: signierte Pakete, geprüfte Abhängigkeiten, wenig Fremdcode."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Angreifer typischerweise vorgehen.
+    params:
+      keywords:
+        - - leicht
+          - schwach
+          - easiest
+          - weakest
+          - einfach
+          - easy
+        - - update
+          - lücke
+          - vulnerab
+          - patch
+        - - mensch
+          - täusch
+          - social
+          - trick
+          - human
+      sample: Angreifer suchen den leichtesten Weg. Das sind oft alte Software mit bekannten Lücken, für die ein Update fehlt, oder Menschen, die man täuschen kann – etwa mit Phishing. Teure Tricks braucht es selten.
     difficulty: 3
 
 srs:

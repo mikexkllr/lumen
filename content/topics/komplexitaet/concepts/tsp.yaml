@@ -5,7 +5,7 @@ summary: Ein Klassiker der schweren Probleme.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 181440
       within: 80
     explanation: Genau 181 440. Mit jeder weiteren Stadt explodiert die Zahl.
-
 
   - kind: explain
     id: s1
@@ -72,6 +71,95 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: Fünf Städte. Finde eine Rundreise ab A, die jede Stadt einmal besucht und nach A zurückkehrt – höchstens 25 km lang.
+    params:
+      start: A
+      end: A
+      unit: km
+      nodes:
+        - id: A
+          x: 6
+          y: 50
+        - id: B
+          x: 35
+          y: 8
+        - id: C
+          x: 92
+          y: 20
+        - id: D
+          x: 82
+          y: 90
+        - id: E
+          x: 30
+          y: 92
+      edges:
+        - a: A
+          b: B
+          w: 5
+        - a: A
+          b: C
+          w: 9
+        - a: A
+          b: D
+          w: 8
+        - a: A
+          b: E
+          w: 4
+        - a: B
+          b: C
+          w: 5
+        - a: B
+          b: D
+          w: 8
+        - a: B
+          b: E
+          w: 7
+        - a: C
+          b: D
+          w: 6
+        - a: C
+          b: E
+          w: 9
+        - a: D
+          b: E
+          w: 5
+    check:
+      predicate: complete && visitedAll && path.length == 6 && cost <= 25
+    solution:
+      state:
+        path:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - A
+        colors: {}
+        edges: []
+    hints:
+      - Die langen Diagonalen sind teuer.
+      - Fahr außen herum.
+    explanation: "A → B → C → D → E → A: 5 + 5 + 6 + 5 + 4 = 25 km. Von den 12 möglichen Rundreisen ist das die kürzeste."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Dynamische Programmierung löst die Rundreise in etwa n² · 2ⁿ Schritten. Wie viele Millionen Schritte sind das für n = 20? Runde auf ganze Millionen.
+    answer:
+      value: 419
+      tolerance: 1
+    hints:
+      - $2^{20}$ = 1 048 576, n² = 400.
+      - 400 · 1 048 576.
+    explanation: Rund 419 Millionen – eine Sekunde Rechenzeit. Alle 19!/2 ≈ 6 · $10^{16}$ Rundreisen durchzuprobieren dauerte dagegen Jahre. Exponentiell ist nicht gleich hoffnungslos.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +175,65 @@ steps:
     hints:
       - Nicht perfekt, aber mit Garantie.
     explanation: Der Christofides-Algorithmus von 1976 schafft genau das. Statt aufzugeben, verhandelt man mit der Schwierigkeit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Städte hatte die größte Rundreise, die bis 2006 beweisbar optimal gelöst wurde?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 85900
+      within: 40
+    explanation: Es waren 85 900 Punkte auf einem Mikrochip-Entwurf. Ausgefeilte Schnittebenen-Verfahren schaffen solche Größen – trotz NP-Schwere.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "Eine Verbesserungsregel: Kreuzen sich zwei Wegstücke, dreh das Stück dazwischen um. Warum hilft das?"
+    params:
+      options:
+        - label: Bei Luftlinien ist eine Kreuzung nie optimal – ohne sie wird der Weg kürzer
+          correct: true
+        - label: Es macht den Weg schöner, nicht kürzer
+          feedback: "Das Dreieck sagt: Die Diagonalen eines Vierecks sind zusammen länger als zwei Gegenseiten."
+        - label: Es findet immer die beste Rundreise
+          feedback: Es verbessert nur, bis keine Kreuzung mehr da ist.
+    hints:
+      - Zeichne zwei kreuzende Strecken in einem Viereck.
+      - Zwei gegenüberliegende Seiten sind kürzer als die Diagonalen.
+    explanation: Diese 2-opt-Regel liefert in der Praxis Touren, die nur wenige Prozent über dem Optimum liegen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Rundreise so schwer ist und wie man trotzdem gute Touren findet.
+    params:
+      keywords:
+        - - reihenfolge
+          - order
+          - möglichkeit
+          - possibilit
+          - permut
+        - - explod
+          - wächst
+          - fakultät
+          - factorial
+          - grow
+        - - näherung
+          - heurist
+          - approx
+          - gut genug
+          - good enough
+      sample: "Die Zahl der möglichen Reihenfolgen wächst wie die Fakultät und explodiert schon bei wenigen Dutzend Städten. Darum nutzt man Näherungen: schnelle Verfahren, die nicht die beste, aber eine gut genug kurze Tour finden."
     difficulty: 3
 
 srs:

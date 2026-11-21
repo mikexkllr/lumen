@@ -5,7 +5,7 @@ summary: A classic hard problem.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 181440
       within: 80
     explanation: Exactly 181,440. With each further city the number explodes.
-
 
   - kind: explain
     id: s1
@@ -72,6 +71,95 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: Five cities. Find a round trip from A that visits each city once and returns to A – at most 25 km long.
+    params:
+      start: A
+      end: A
+      unit: km
+      nodes:
+        - id: A
+          x: 6
+          y: 50
+        - id: B
+          x: 35
+          y: 8
+        - id: C
+          x: 92
+          y: 20
+        - id: D
+          x: 82
+          y: 90
+        - id: E
+          x: 30
+          y: 92
+      edges:
+        - a: A
+          b: B
+          w: 5
+        - a: A
+          b: C
+          w: 9
+        - a: A
+          b: D
+          w: 8
+        - a: A
+          b: E
+          w: 4
+        - a: B
+          b: C
+          w: 5
+        - a: B
+          b: D
+          w: 8
+        - a: B
+          b: E
+          w: 7
+        - a: C
+          b: D
+          w: 6
+        - a: C
+          b: E
+          w: 9
+        - a: D
+          b: E
+          w: 5
+    check:
+      predicate: complete && visitedAll && path.length == 6 && cost <= 25
+    solution:
+      state:
+        path:
+          - A
+          - B
+          - C
+          - D
+          - E
+          - A
+        colors: {}
+        edges: []
+    hints:
+      - The long diagonals are expensive.
+      - Go round the outside.
+    explanation: "A → B → C → D → E → A: 5 + 5 + 6 + 5 + 4 = 25 km. Of the 12 possible round trips it is the shortest."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Dynamic programming solves the round trip in about n² · 2ⁿ steps. How many million steps is that for n = 20? Round to whole millions.
+    answer:
+      value: 419
+      tolerance: 1
+    hints:
+      - $2^{20}$ = 1,048,576, n² = 400.
+      - 400 · 1,048,576.
+    explanation: About 419 million – a second of computing. Trying all 19!/2 ≈ 6 · $10^{16}$ round trips would take years. Exponential is not the same as hopeless.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +175,65 @@ steps:
     hints:
       - Not perfect, but with a guarantee.
     explanation: The Christofides algorithm of 1976 achieves exactly that. Instead of giving up you negotiate with the difficulty.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many cities did the largest round trip have that had been solved provably optimally by 2006?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 85900
+      within: 40
+    explanation: It was 85,900 points on a microchip layout. Sophisticated cutting-plane methods manage such sizes – despite NP-hardness.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "An improvement rule: if two legs of the tour cross, reverse the part in between. Why does that help?"
+    params:
+      options:
+        - label: With straight-line distances a crossing is never optimal – removing it shortens the route
+          correct: true
+        - label: It makes the route prettier, not shorter
+          feedback: "Triangles say: the diagonals of a quadrilateral are longer than two opposite sides together."
+        - label: It always finds the best round trip
+          feedback: It only improves until no crossing is left.
+    hints:
+      - Draw two crossing segments inside a quadrilateral.
+      - Two opposite sides are shorter than the diagonals.
+    explanation: This 2-opt rule gives tours in practice that are only a few percent above the optimum.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the round trip is so hard and how good tours are found anyway.
+    params:
+      keywords:
+        - - reihenfolge
+          - order
+          - möglichkeit
+          - possibilit
+          - permut
+        - - explod
+          - wächst
+          - fakultät
+          - factorial
+          - grow
+        - - näherung
+          - heurist
+          - approx
+          - gut genug
+          - good enough
+      sample: "The number of possible orders grows like the factorial and explodes at just a few dozen cities. So people use approximations: fast methods that find not the best but a good enough short tour."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: n, n² and 2ⁿ.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,65 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: A method needs n! steps and the computer does $10^9$ per second. How many seconds does it take for n = 15? 15! ≈ 1.3077 · $10^{12}$. Round to whole seconds.
+    params:
+      unit: s
+    answer:
+      value: 1308
+      tolerance: 2
+    hints:
+      - Divide 15! by $10^9$.
+      - 1.3077 · $10^{12}$ / $10^9$ = 1.3077 · $10^3$.
+    explanation: About 1308 seconds, just over 20 minutes. At n = 20 it would already be 77 years.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: Order by growth, slowest first.
+    params:
+      items:
+        - label: log n
+        - label: √n
+        - label: n
+        - label: n · log n
+        - label: n²
+        - label: n³
+        - label: 2ⁿ
+        - label: n!
+    hints:
+      - The square root grows slower than n but faster than log n.
+      - n! eventually overtakes even 2ⁿ.
+    explanation: For large n each level overtakes the one before for good, whatever the constants.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: From which n on is 2ⁿ larger than n³ for good?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: early-case
+        text: At n = 1 it holds, but not for n = 2 to 9.
+    hints:
+      - Compare at n = 9 and n = 10.
+      - $2^9$ = 512 < 729, $2^{10}$ = 1024 > 1000.
+    explanation: "From n = 10 on 2ⁿ wins and never falls behind again: it doubles each step, while n³ grows far more slowly by then."
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Big-O is an upper bound. Its counterpart is the **lower bound** Ω: what every method needs at least. Sorting by comparisons is Ω(n · log n) – it cannot be done faster."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -93,6 +152,57 @@ steps:
     hints:
       - 2ⁿ⁺¹ is twice as much as 2ⁿ.
     explanation: Hardware practically does not help against exponential growth. Only better algorithms do.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: T(n) = 2 · T(n/2) + n grows like n · log n. How does T(n) = 4 · T(n/2) + n grow? Give the exponent k in $n^k$.
+    answer:
+      value: 2
+    hints:
+      - Per level the number of subproblems quadruples while their size halves.
+      - log₂ 4 = 2.
+    explanation: "With a subproblems of size n/b it grows like $n^{log_b a}$ when the rest is small: $n^{log_2 4}$ = n². This is the master theorem."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Is O(log n) the same as O(log n²)?
+    params:
+      options:
+        - label: Yes – log n² = 2 · log n, the factor 2 drops out
+          correct: true
+        - label: No, n² grows much faster
+          feedback: The logarithm turns the square into a mere factor.
+        - label: Only for small n
+          feedback: O is about large n.
+    hints:
+      - What rule holds for log(a^k)?
+      - log(n²) = 2 · log n.
+    explanation: "The base of the logarithm does not matter either: log₂ n and log₁₀ n differ only by a fixed factor."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why faster computers cannot rescue 2ⁿ methods.
+    params:
+      keywords:
+        - - verdoppel
+          - doppelt
+          - double
+        - - eins mehr
+          - ein element
+          - one more
+          - one element
+        - - exponent
+          - explod
+      sample: With 2ⁿ every extra element doubles the work. A computer twice as fast therefore handles just one more element in the same time. The growth is exponential – it explodes faster than technology can catch up.
     difficulty: 3
 
 srs:

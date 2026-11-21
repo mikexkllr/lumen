@@ -5,7 +5,7 @@ summary: Jeder Buchstabe rückt weiter.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hallo
@@ -90,6 +90,47 @@ steps:
     explanation: 3. Diese **Häufigkeitsanalyse** knackt jede einfache Buchstabenersetzung.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Die **Vigenère**-Verschlüsselung nutzt ein Schlüsselwort. Jeder Buchstabe darin gibt eine eigene Verschiebung vor: Bei KEY wird um 10, 4 und 24 verschoben, dann wieder von vorn."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Vigenère mit dem Schlüssel »BC« – also Verschiebung 1, dann 2. Was wird aus »AAAA«?
+    params:
+      options:
+        - label: BCBC
+          correct: true
+        - label: BBBB
+          feedback: Das wäre Caesar mit Verschiebung 1.
+        - label: CCCC
+          feedback: Die Verschiebung wechselt mit jedem Buchstaben.
+    hints:
+      - A um 1 ist B, A um 2 ist C.
+      - "Der Schlüssel wiederholt sich: B, C, B, C."
+    explanation: Gleiche Klartext-Buchstaben werden verschieden verschlüsselt. Das macht einfaches Zählen von Häufigkeiten nutzlos.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viele verschiedene Schlüsselwörter mit 5 Buchstaben gibt es (A bis Z)?
+    answer:
+      value: 11881376
+    feedback:
+      - when: numval(state.input) == 130
+        misconception: add-vs-multiply
+        text: Die Möglichkeiten werden multipliziert, nicht addiert.
+    hints:
+      - Jede der 5 Stellen hat 26 Möglichkeiten.
+      - $26^5$.
+    explanation: $26^5$ = 11 881 376 – fast 12 Millionen. Für Menschen viel, für Computer wenig.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +147,52 @@ steps:
     hints:
       - Das häufigste Zeichen ist vermutlich das E.
     explanation: Viele Schlüssel allein machen nicht sicher. Gute Verfahren verwischen jedes statistische Muster.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Wie knackt man Vigenère trotzdem?
+    params:
+      options:
+        - label: Die Schlüssellänge finden, dann jede k-te Stelle wie Caesar per Häufigkeit knacken
+          correct: true
+        - label: Gar nicht – es ist unknackbar
+          feedback: So nannte man es früher, bis Kasiski 1863 eine Methode veröffentlichte.
+        - label: Alle Wörterbücher durchprobieren
+          feedback: Der Schlüssel muss kein Wort sein.
+    hints:
+      - Wenn die Schlüssellänge 3 ist – was gilt für jede dritte Stelle?
+      - Jede dritte Stelle wurde gleich verschoben.
+    explanation: Wiederholte Muster im Geheimtext verraten die Schlüssellänge. Danach zerfällt Vigenère in mehrere Caesar-Rätsel.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x2
+    depth: 3
+    body: "Das **Kerckhoffs-Prinzip**: Ein Verfahren muss sicher bleiben, auch wenn der Gegner alles kennt außer dem Schlüssel. Ein geheimer Algorithmus ist keine Sicherheit – er wird früher oder später bekannt."
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Caesar so leicht zu knacken ist.
+    params:
+      keywords:
+        - - "25"
+          - wenige
+          - few
+          - "26"
+        - - probier
+          - alle
+          - try
+          - brute
+        - - häufig
+          - frequen
+          - zählen
+          - count
+      sample: "Es gibt nur 25 Schlüssel – man kann einfach alle probieren. Außerdem bleiben die Häufigkeiten gleich: Der häufigste Buchstabe ist meist ein verschobenes E."
     difficulty: 3
 
 srs:

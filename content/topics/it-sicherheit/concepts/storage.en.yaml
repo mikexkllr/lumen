@@ -5,7 +5,7 @@ summary: Hash, salt and password managers.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -163,6 +163,36 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: bcrypt with cost factor 12 runs $2^{12}$ rounds. How many times slower is cost factor 14?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear-cost
+        text: Each step doubles – two steps quadruple.
+    hints:
+      - $2^{14}$ / $2^{12}$.
+      - $2^2$.
+    explanation: Four times slower – a few milliseconds for you, a multiple of years for an attacker with billions of attempts.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: A graphics card does 10 billion simple hashes per second but only 10,000 bcrypt hashes. How many times slower does the attack get?
+    answer:
+      value: 1000000
+    hints:
+      - $10^{10}$ / $10^4$.
+      - Subtract the exponents.
+    explanation: A million times slower. What took one second now takes 11 days.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -178,6 +208,88 @@ steps:
     hints:
       - Who suffers more from 0.1 seconds per try – you or the attacker?
     explanation: "Asymmetry: once for you, billions of times for the attacker."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: "Some services also use a »pepper«: a secret value kept outside the database. What does that achieve?"
+    params:
+      options:
+        - label: Someone who steals only the database cannot even start guessing
+          correct: true
+        - label: It replaces the salt
+          feedback: Salt is still needed – it makes every hash unique.
+        - label: It makes logins faster
+          feedback: It costs hardly any time but speeds nothing up.
+    hints:
+      - What does the thief lack if part of the calculation lives elsewhere?
+      - Without the pepper he cannot check a single guess.
+    explanation: The pepper lives, say, in a hardware module. Only someone who steals both database and pepper can guess offline.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Argon2 deliberately needs lots of memory. Why?
+    params:
+      options:
+        - label: Graphics cards and special chips have little memory per core – that slows down mass attacks
+          correct: true
+        - label: To store more passwords
+          feedback: The memory is only used during the computation.
+        - label: To make the hash longer
+          feedback: The hash length is independent of that.
+    hints:
+      - Attackers compute on thousands of cores at once.
+      - Computing is cheap, memory is expensive.
+    explanation: "Memory-hard means: every guess needs lots of RAM. Thousands of parallel guesses become unaffordable."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: With passkeys the service stores only a public key. What can a hacker do with the stolen database?
+    params:
+      options:
+        - label: Nothing for logging in – the private key stays on your device
+          correct: true
+        - label: Read all passwords
+          feedback: There are no passwords any more.
+        - label: Compute the private keys
+          feedback: That is exactly the hard problem of public-key cryptography.
+    hints:
+      - What is at the service, what is with you?
+      - "Public means: anyone may know it."
+    explanation: At login your device signs a random number. The service checks it with the public key. A leak reveals nothing that lets anyone log in.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why services salt and hash passwords.
+    params:
+      keywords:
+        - - hash
+          - fingerabdruck
+          - fingerprint
+        - - salz
+          - salt
+        - - zurück
+          - umkehr
+          - reverse
+          - back
+        - - tabelle
+          - liste
+          - table
+          - list
+          - gleich
+          - same
+      sample: "Only a hash is stored, a fingerprint that cannot be turned back into the password. The salt is a random value per person: equal passwords then look different, and ready-made tables of hashes are useless to the attacker."
     difficulty: 3
 
 srs:
