@@ -1,0 +1,204 @@
+id: math.units.time
+type: concept
+title: "Mit Zeit rechnen"
+summary: "Stunden, Minuten, Sekunden – warum Zeit nicht in Zehnern zählt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Stunden schläfst du in einem Jahr?"
+    params:
+      min: 500
+      max: 6000
+      unit: h
+    answer:
+      value: 3000
+      tolerance: 600
+    explanation: 8 bis 9 Stunden pro Nacht mal 365 – rund 3000 Stunden. Das ist ein Drittel des Jahres!
+
+  - kind: explain
+    id: c1
+    body: Zeit zählt nicht in Zehnern. 1 h = 60 min, 1 min = 60 s und 1 Tag = 24 h. Darum sind 1,5 h nicht 1 h 50 min, sondern 1 h 30 min. Das ist ein **Sechzigersystem**.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie viele Minuten sind 2,5 Stunden?
+    params:
+      unit: min
+    answer:
+      value: 150
+    feedback:
+      - when: numval(state.input) == 250
+        misconception: decimal-time
+        text: Eine Stunde hat 60 Minuten, nicht 100.
+    hints:
+      - 2 Stunden = 120 Minuten.
+      - Eine halbe Stunde = 30 Minuten.
+    explanation: 120 + 30 = 150 Minuten.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie viele Minuten dauert es von 19:45 Uhr bis 21:10 Uhr?
+    params:
+      unit: min
+    answer:
+      value: 85
+    feedback:
+      - when: numval(state.input) == 135
+        misconception: decimal-time
+        text: Bei Uhrzeiten kann man nicht einfach 2110 − 1945 rechnen – die Stunde hat 60 Minuten.
+    hints:
+      - Bis 20:00 Uhr sind es 15 Minuten.
+      - Dann noch 1 h 10 min.
+    explanation: 15 + 60 + 10 = 85 Minuten. Hochzählen über volle Stunden ist am sichersten.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "{{m}} Minuten sind wie viele volle Stunden?"
+    params:
+      unit: h
+    answer:
+      value: "{{floor(m / 60)}}"
+    hints:
+      - Wie oft passt 60 in {{m}}?
+      - "Der Rest sind Minuten: {{m % 60}} min."
+    explanation: "{{m}} min = {{floor(m / 60)}} h {{m % 60}} min."
+    variants:
+      params:
+        m: int[70,300]
+      constraints:
+        - m % 60 != 0
+      defaults:
+        m: 135
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Ordne von kurz nach lang.
+    params:
+      items:
+        - label: 90 s
+        - label: 2 min
+        - label: 0,5 h
+        - label: 45 min
+        - label: 1 h
+    hints:
+      - Rechne alles in Minuten um.
+      - 90 s = 1,5 min, 0,5 h = 30 min.
+    explanation: 1,5 < 2 < 30 < 45 < 60 Minuten.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Läuferin braucht 4 Minuten pro Kilometer. Wie lange braucht sie für 10,5 km?
+    params:
+      unit: min
+    answer:
+      value: 42
+    hints:
+      - 10 km dauern 40 Minuten.
+      - Dazu ein halber Kilometer.
+    explanation: 10,5 · 4 = 42 Minuten.
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Geschwindigkeiten rechnet man mit dem **Umrechnungsfaktor** 3,6 um: km/h geteilt durch 3,6 ergibt m/s. Denn 1 km hat 1000 m und 1 h hat 3600 s."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Radfahrer fährt {{v}} km/h. Wie viele Meter pro Sekunde sind das?
+    params:
+      unit: m/s
+    answer:
+      value: "{{v / 3.6}}"
+    feedback:
+      - when: numval(state.input) == v * 3.6
+        misconception: wrong-direction
+        text: "Von km/h zu m/s wird die Zahl kleiner: teilen, nicht malnehmen."
+    hints:
+      - Teile durch 3,6.
+      - "{{v}} : 3,6 = ?"
+    explanation: "{{v}} : 3,6 = {{v / 3.6}} m/s."
+    difficulty: 2
+    variants:
+      params:
+        v: choice[18,36,54,72]
+      defaults:
+        v: 36
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Warum gerade 60? Schon die **Babylonier** rechneten mit 60. Man kann 60 durch 2, 3, 4, 5, 6, 10, 12, 15, 20 und 30 teilen. So sind Drittel und Viertel einer Stunde glatte Minuten.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Sekunden hat ein Tag?
+    params:
+      unit: s
+    answer:
+      value: 86400
+    hints:
+      - Eine Stunde hat 60 · 60 = 3600 s.
+      - 3600 · 24 = ?
+    explanation: 24 · 60 · 60 = 86 400 Sekunden.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Jahr dauert etwa 365,25 Tage. Der Kalender hat aber 365. Nach wie vielen Jahren fehlt ein ganzer Tag?
+    params:
+      unit: Jahre
+    answer:
+      value: 4
+    hints:
+      - Jedes Jahr fehlt ein Viertel Tag.
+      - Wie viele Viertel ergeben einen Tag?
+    explanation: Nach 4 Jahren – darum gibt es alle 4 Jahre einen Schalttag, den 29. Februar.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 1,5 Stunden nicht 1 Stunde und 50 Minuten sind.
+    params:
+      keywords:
+        - - "60"
+          - sechzig
+          - sixty
+        - - hälfte
+          - halbe
+          - half
+          - "30"
+          - dreißig
+          - thirty
+        - - nicht 100
+          - keine zehner
+          - not 100
+          - not tens
+          - nicht hundert
+          - not a hundred
+      sample: Eine Stunde hat 60 Minuten, nicht 100. 0,5 Stunden sind also die Hälfte von 60, nämlich 30 Minuten. 1,5 Stunden sind 1 Stunde und 30 Minuten.
+    explanation: "Kernidee: Nachkommastellen bei Stunden sind Bruchteile von 60 Minuten."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

@@ -1,0 +1,204 @@
+id: math.units.time
+type: concept
+title: "Calculating with time"
+summary: "Hours, minutes, seconds – why time does not count in tens."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many hours do you sleep in a year?"
+    params:
+      min: 500
+      max: 6000
+      unit: h
+    answer:
+      value: 3000
+      tolerance: 600
+    explanation: 8 to 9 hours a night times 365 – about 3000 hours. That is a third of the year!
+
+  - kind: explain
+    id: c1
+    body: Time does not count in tens. 1 h = 60 min, 1 min = 60 s and 1 day = 24 h. So 1.5 h is not 1 h 50 min, but 1 h 30 min. This is a **base-sixty system**.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many minutes are 2.5 hours?
+    params:
+      unit: min
+    answer:
+      value: 150
+    feedback:
+      - when: numval(state.input) == 250
+        misconception: decimal-time
+        text: An hour has 60 minutes, not 100.
+    hints:
+      - 2 hours = 120 minutes.
+      - Half an hour = 30 minutes.
+    explanation: 120 + 30 = 150 minutes.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many minutes is it from 19:45 to 21:10?
+    params:
+      unit: min
+    answer:
+      value: 85
+    feedback:
+      - when: numval(state.input) == 135
+        misconception: decimal-time
+        text: With clock times you cannot just do 2110 − 1945 – an hour has 60 minutes.
+    hints:
+      - Up to 20:00 it is 15 minutes.
+      - Then another 1 h 10 min.
+    explanation: 15 + 60 + 10 = 85 minutes. Counting up via whole hours is safest.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: How many full hours are {{m}} minutes?
+    params:
+      unit: h
+    answer:
+      value: "{{floor(m / 60)}}"
+    hints:
+      - How often does 60 fit into {{m}}?
+      - "The rest are minutes: {{m % 60}} min."
+    explanation: "{{m}} min = {{floor(m / 60)}} h {{m % 60}} min."
+    variants:
+      params:
+        m: int[70,300]
+      constraints:
+        - m % 60 != 0
+      defaults:
+        m: 135
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Order from shortest to longest.
+    params:
+      items:
+        - label: 90 s
+        - label: 2 min
+        - label: 0.5 h
+        - label: 45 min
+        - label: 1 h
+    hints:
+      - Convert everything to minutes.
+      - 90 s = 1.5 min, 0.5 h = 30 min.
+    explanation: 1.5 < 2 < 30 < 45 < 60 minutes.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A runner needs 4 minutes per kilometre. How long does she take for 10.5 km?
+    params:
+      unit: min
+    answer:
+      value: 42
+    hints:
+      - 10 km take 40 minutes.
+      - Plus half a kilometre.
+    explanation: 10.5 · 4 = 42 minutes.
+    difficulty: 2
+
+  - kind: explain
+    id: d2
+    depth: 2
+    body: "Speeds are converted with the **conversion factor** 3.6: km/h divided by 3.6 gives m/s. Because 1 km is 1000 m and 1 h is 3600 s."
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A cyclist rides at {{v}} km/h. How many metres per second is that?
+    params:
+      unit: m/s
+    answer:
+      value: "{{v / 3.6}}"
+    feedback:
+      - when: numval(state.input) == v * 3.6
+        misconception: wrong-direction
+        text: "From km/h to m/s the number gets smaller: divide, do not multiply."
+    hints:
+      - Divide by 3.6.
+      - "{{v}} : 3.6 = ?"
+    explanation: "{{v}} : 3.6 = {{v / 3.6}} m/s."
+    difficulty: 2
+    variants:
+      params:
+        v: choice[18,36,54,72]
+      defaults:
+        v: 36
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Why 60? The **Babylonians** already counted in sixties. 60 can be divided by 2, 3, 4, 5, 6, 10, 12, 15, 20 and 30. So thirds and quarters of an hour are whole minutes.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: How many seconds are in a day?
+    params:
+      unit: s
+    answer:
+      value: 86400
+    hints:
+      - An hour has 60 · 60 = 3600 s.
+      - 3600 · 24 = ?
+    explanation: 24 · 60 · 60 = 86,400 seconds.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: A year lasts about 365.25 days. But the calendar has 365. After how many years is a whole day missing?
+    params:
+      unit: years
+    answer:
+      value: 4
+    hints:
+      - Each year a quarter of a day is missing.
+      - How many quarters make a day?
+    explanation: After 4 years – that is why there is a leap day, 29 February, every 4 years.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 1.5 hours is not 1 hour and 50 minutes.
+    params:
+      keywords:
+        - - "60"
+          - sechzig
+          - sixty
+        - - hälfte
+          - halbe
+          - half
+          - "30"
+          - dreißig
+          - thirty
+        - - nicht 100
+          - keine zehner
+          - not 100
+          - not tens
+          - nicht hundert
+          - not a hundred
+      sample: An hour has 60 minutes, not 100. So 0.5 hours is half of 60, which is 30 minutes. 1.5 hours is 1 hour and 30 minutes.
+    explanation: "Key idea: decimals of an hour are fractions of 60 minutes."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]
