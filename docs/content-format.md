@@ -234,6 +234,8 @@ math.fractions.compare:            # bestehende Lektion: Steps anhängen
   srs: [c3, c4, d1]
 ```
 
+Ein wörtliches `||` (etwa im Zellschema `Zn | Zn²⁺ || Cu²⁺ | Cu`) schreibt man als `\||`.
+
 Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` und `raw` (voller Step). Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Neue Steps landen hinter dem letzten vorhandenen Step, der nicht tiefer ist als sie selbst – ein Kern-Step also vor der Stufe »Tiefer«, auch wenn die Lektion schon eine Experten-Stufe hat.
 
 **Ein Patch ersetzt in einer Lektion nur die Abschnitte, die er selbst nennt.** Ein zweiter Patch mit `hook` lässt `deep` und `expert` eines früheren Patches stehen. Zwei Patches, die denselben Abschnitt derselben Lektion füllen, überschreiben sich dagegen. Wer später etwas nachträgt, gibt dem Patch deshalb einen eigenen Namensraum:

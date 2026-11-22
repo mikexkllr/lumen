@@ -4,7 +4,7 @@
  *
  *   node scripts/extend-lessons.ts patch.yaml [--dry]
  *
- * Every string may carry both languages as "Deutsch || English".
+ * Every string may carry both languages as "Deutsch || English"; write \|| for a literal "||".
  * A patch maps concept ids to a list of entries. Section markers set where the
  * following steps go and how deep they are:
  *   - hook    inserted before the existing steps (depth 1)
@@ -30,8 +30,9 @@ const CODE = new Set(['when', 'predicate', 'variants', 'misconception', 'id', 'w
 function loc<T>(v: T, lang: Lang, key = ''): T {
   if (CODE.has(key)) return v;
   if (typeof v === 'string') {
-    const parts = v.split(SEP);
-    return (parts.length > 1 ? parts[Math.min(lang, parts.length - 1)] : v) as T;
+    // "\||" is a literal "||" (e.g. a cell diagram Zn | Zn²⁺ || Cu²⁺ | Cu), not the language separator
+    const parts = v.replace(/\\\|\|/g, '\u0000').split(SEP).map((x) => x.replace(/\u0000/g, '||'));
+    return (parts.length > 1 ? parts[Math.min(lang, parts.length - 1)] : parts[0]) as T;
   }
   if (Array.isArray(v)) return v.map((x) => loc(x, lang, key)) as T;
   if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, loc(x, lang, k)])) as T;
