@@ -26,3 +26,25 @@ jobs:
         with:
           name: web-dist
           path: apps/web/dist
+
+  docker:
+    # Builds both images and checks the deployment configs; nothing is pushed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compose files and Caddyfile are valid
+        run: |
+          cp .env.example .env
+          docker compose -f docker-compose.yml config -q
+          docker compose -f docker-compose.prod.yml config -q
+          docker run --rm -e LUMEN_DOMAIN=lumen.example.org -e LUMEN_ACME_EMAIL=admin@example.org \
+            -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.11-alpine \
+            caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+      - name: Build server image
+        run: docker build -f deploy/Dockerfile.server -t lumen-server:ci .
+      - name: Build web image and test its nginx config
+        run: |
+          docker build -f deploy/Dockerfile.web -t lumen-web:ci .
+          docker run --rm lumen-web:ci nginx -t
+      - name: Backup script parses
+        run: sh -n deploy/backup.sh

@@ -1,0 +1,30 @@
+# Lumen behind Caddy: automatic HTTPS (Let's Encrypt) for {$LUMEN_DOMAIN}.
+# /api/* → Lumen server with the /api prefix stripped; everything else → web (PWA).
+# Content-Security-Policy and the other browser headers come from the web container
+# (deploy/nginx.conf.template); Caddy adds HSTS.
+{
+	email {$LUMEN_ACME_EMAIL}
+}
+
+{$LUMEN_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	handle_path /api/* {
+		reverse_proxy server:8787
+	}
+
+	handle {
+		reverse_proxy web:80
+	}
+
+	# Access logs contain IP addresses (personal data). Off by default; to enable for
+	# troubleshooting, uncomment and keep the retention short (see docs/deploy-vps.md).
+	# log {
+	# 	output stdout
+	# }
+}
