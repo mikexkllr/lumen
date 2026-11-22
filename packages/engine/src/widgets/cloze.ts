@@ -90,6 +90,7 @@ export const clozeWidget: WidgetDefinition<ClozeParams, ClozeState, ClozeAction>
   },
   countSolutions: () => 1,
   scope: (s, p) => ({ correct: correctCount(s, p) }),
+  explain: (p, locale) => `${t(locale, '**Vollständig:**', '**Complete:**')} ${p.text.replace(GAP, (_m, w: string) => `**${w.trim()}**`)}`,
   describe(s, p, locale) {
     const { segments } = clozeParts(p);
     const bank = clozeBank(p);

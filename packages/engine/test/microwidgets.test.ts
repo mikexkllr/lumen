@@ -270,3 +270,23 @@ describe('Lux on explain screens', () => {
     expect(ruleReply({ ...ctx, locale: 'en' }, 'quiz', 0)).toMatch(/key idea/);
   });
 });
+
+describe('explanations derived by the widget', () => {
+  const step = (s: Record<string, unknown>) => ProblemStepSchema.parse({ kind: 'problem', id: 'xy', prompt: 'Test', ...s }) as ProblemStep;
+  it('teach shows the sample answer', () => {
+    const rp = resolveProblem(step({ widget: 'teach', params: { keywords: [['Wurzel']], sample: 'Teiler kommen in Paaren bis zur Wurzel.' } }), 0, 'de');
+    expect(rp.explanation).toContain('Teiler kommen in Paaren bis zur Wurzel.');
+  });
+  it('cloze shows the completed text with the gap words in bold', () => {
+    const rp = resolveProblem(step({ widget: 'cloze', params: { text: 'Die [[Sonne]] ist ein [[Stern]].' } }), 0, 'en');
+    expect(rp.explanation).toBe('**Complete:** Die **Sonne** ist ein **Stern**.');
+  });
+  it('swipe lists every card with its side and reason', () => {
+    const rp = resolveProblem(step({ widget: 'swipe', params: { cards: [{ text: 'A', right: true, why: 'Weil.' }, { text: 'B', right: false }] } }), 0, 'de');
+    expect(rp.explanation).toBe('- A → **stimmt**. Weil.\n- B → **stimmt nicht**');
+  });
+  it('an authored explanation wins', () => {
+    const rp = resolveProblem(step({ widget: 'cloze', params: { text: 'Die [[Sonne]].' }, explanation: 'Eigene.' }), 0, 'de');
+    expect(rp.explanation).toBe('Eigene.');
+  });
+});

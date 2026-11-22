@@ -54,6 +54,10 @@ export const swipeWidget: WidgetDefinition<SwipeParams, SwipeState, SwipeAction>
   solve: (p) => ({ picks: p.cards.map((c) => c.right) }),
   countSolutions: () => 1,
   scope: (s, p) => ({ correct: hits(s, p), picks: s.picks }),
+  explain(p, locale) {
+    const side = (right: boolean) => (right ? p.right ?? t(locale, 'stimmt', 'true') : p.left ?? t(locale, 'stimmt nicht', 'false'));
+    return p.cards.map((c) => `- ${c.text} → **${side(c.right)}**${c.why ? `. ${c.why}` : ''}`).join('\n');
+  },
   describe(s, p, locale) {
     const L = p.left ?? t(locale, 'Stimmt nicht', 'False');
     const R = p.right ?? t(locale, 'Stimmt', 'True');

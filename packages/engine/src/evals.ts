@@ -92,7 +92,7 @@ export function evalProblem(step: ProblemStep, ctx: { concept?: string; file?: s
   if (issues.some((i) => i.level === 'error')) return issues;
 
   if (!ctx.assessment && !step.hints.length && !widget.autoHints) push('warning', 'hints.missing', 'Aufgabe ohne Hinweise – Lernende bekommen beim ersten Fehler nur generisches Feedback.');
-  if (!ctx.assessment && !step.explanation) push('info', 'explanation.missing', 'Keine Erklärung zur Lösung (wird nach dem zweiten Fehlversuch gezeigt).');
+  if (!ctx.assessment && !step.explanation && !widget.explain) push('info', 'explanation.missing', 'Keine Erklärung zur Lösung (wird nach dem zweiten Fehlversuch gezeigt).');
   if (step.hints.length > 2) push('info', 'hints.many', 'Mehr als 2 Hinweise: Der Player zeigt nur 2 Stufen vor der Lösung.');
 
   const seeds = [0];

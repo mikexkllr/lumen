@@ -56,6 +56,8 @@ export interface WidgetDefinition<P = any, S = any, A = any, Ans = any> {
   lint?(params: P, answer: Ans | undefined, locale: Locale): LintIssue[];
   /** Extra values merged into predicate scope, e.g. derived quantities. */
   scope?(state: S, params: P): Record<string, unknown>;
+  /** Solution explanation derived from the params, used when the step has no authored `explanation`. */
+  explain?(params: P, locale: Locale): string | null;
   /** The value that must not leak to the learner before solving (for a tutor output filter). */
   secret?(params: P, answer: Ans | undefined): string[];
 }

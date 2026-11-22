@@ -67,6 +67,7 @@ export const teachWidget: WidgetDefinition<TeachParams, TeachState, TeachAction>
   },
   solve: (p) => ({ input: p.sample }),
   scope: (s, p) => ({ hits: teachHits(s.input, p).filter(Boolean).length, words: words(s.input) }),
+  explain: (p, locale) => `${t(locale, '**So könnte eine Erklärung lauten:**', '**A good explanation could be:**')} ${p.sample}`,
   describe(s, p, locale) {
     const h = teachHits(s.input, p).filter(Boolean).length;
     return s.input.trim()

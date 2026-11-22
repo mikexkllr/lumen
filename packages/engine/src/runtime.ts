@@ -50,7 +50,7 @@ export function resolveProblem(step: ProblemStep, seed = 0, locale = 'de'): Reso
     body: step.body ? ip(step.body) : undefined,
     visual: step.visual ? { ...step.visual, params: ip(step.visual.params) } : undefined,
     hints: ip(step.hints ?? []),
-    explanation: step.explanation ? ip(step.explanation) : undefined,
+    explanation: step.explanation ? ip(step.explanation) : (widget.explain?.(params, locale) ?? undefined),
     feedback: ip(step.feedback ?? []),
   };
 }
