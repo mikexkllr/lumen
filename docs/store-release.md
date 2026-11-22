@@ -101,8 +101,9 @@ Kategorie **Bildung**.
   Blockieren und veröffentlichte Kontaktdaten. Lumen: Namensfilter beim Speichern; keine
   freien Texte oder Bilder, Reaktionen nur aus fester Emoji-Auswahl; Melden und Blockieren in
   der App; Moderation über `/api/v1/admin/*` (Sperren, Namen zurücksetzen); Kontakt im
-  Impressum. Zusätzlich: Nutzungsbedingungen mit Community-Regeln vor der ersten Social-Nutzung
-  bestätigen lassen und Meldungen mindestens täglich bearbeiten – Reviewer fragen danach
+  Impressum. Die Nutzungsbedingungen mit Community-Regeln werden beim Anlegen des Community-Profils
+  per Checkbox bestätigt (zusammen mit »mindestens 16«). Meldungen mindestens täglich
+  bearbeiten – Reviewer fragen danach
 - **4.2 Mindestfunktionalität** – keine reine Website-Verpackung: alle Lektionen und
   Content-Bundles sind in der App enthalten und funktionieren offline; 31 interaktive
   Aufgabentypen, Wiederholung mit FSRS, Lux. Native Ergänzung: lokale Streak-Erinnerungen
@@ -163,7 +164,7 @@ Modellanbieter vertraglich nichts speichert.
 - [ ] **Nutzergenerierte Inhalte (UGC-Richtlinie):** Nutzungsbedingungen mit Regeln für
       unzulässige Inhalte, die vor der Nutzung akzeptiert werden; Melden und Blockieren in der
       App; laufende Moderation (Admin-Endpunkte). Lumen erfüllt das mit Namensfilter, Melden,
-      Blockieren und Sperren
+      Blockieren, Sperren und der Bestätigung der Community-Regeln beim Anlegen des Profils
 - [ ] **KI-generierte Inhalte:** Apps mit generativer KI müssen das Melden anstößiger
       KI-Antworten in der App ermöglichen, ohne die App zu verlassen – für Lux eine
       „Antwort melden“-Funktion vorsehen (siehe Abschnitt 2)

@@ -23,16 +23,16 @@ export interface TutorConfig {
 
 export function tutorConfigFromEnv(env: NodeJS.ProcessEnv = process.env): TutorConfig | null {
   if (env.LUMEN_TUTOR === 'off') return null;
-  const url = env.LUMEN_TUTOR_URL ?? 'http://localhost:11434/v1';
+  const url = env.LUMEN_TUTOR_URL || 'http://localhost:11434/v1';
   const local = /localhost|127\.0\.0\.1/.test(url);
   return {
     url: url.replace(/\/$/, ''),
-    model: env.LUMEN_TUTOR_MODEL ?? (local ? 'qwen3:1.7b' : 'qwen/qwen3-30b-a3b'),
+    model: env.LUMEN_TUTOR_MODEL || (local ? 'qwen3:1.7b' : 'qwen/qwen3-30b-a3b'),
     apiKey: env.LUMEN_TUTOR_API_KEY || undefined,
-    reasoning: env.LUMEN_TUTOR_REASONING ?? (local ? 'none' : undefined),
-    maxTokens: Number(env.LUMEN_TUTOR_MAX_TOKENS ?? 220),
-    temperature: Number(env.LUMEN_TUTOR_TEMPERATURE ?? 0.3),
-    timeoutMs: Number(env.LUMEN_TUTOR_TIMEOUT_MS ?? 20_000),
+    reasoning: env.LUMEN_TUTOR_REASONING || (local ? 'none' : undefined),
+    maxTokens: Number(env.LUMEN_TUTOR_MAX_TOKENS || 220),
+    temperature: Number(env.LUMEN_TUTOR_TEMPERATURE || 0.3),
+    timeoutMs: Number(env.LUMEN_TUTOR_TIMEOUT_MS || 20_000),
   };
 }
 

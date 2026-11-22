@@ -19,7 +19,9 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 );
 
-// Offline support: register the service worker in production builds only.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+// Offline support: register the service worker in production builds only – not inside the
+// native apps, which ship their files with each update (a stale SW cache would shadow them).
+const native = (window as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() === true;
+if (import.meta.env.PROD && !native && 'serviceWorker' in navigator) {
   import('virtual:pwa-register').then(({ registerSW }) => registerSW({ immediate: true })).catch(() => {});
 }
