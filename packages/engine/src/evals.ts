@@ -110,7 +110,7 @@ export function evalProblem(step: ProblemStep, ctx: { concept?: string; file?: s
       continue;
     }
     const rp = r.value;
-    seenInstances.add(stableKey({ p: rp.params, a: rp.answer }));
+    seenInstances.add(stableKey({ p: rp.params, a: rp.answer, q: rp.prompt, b: rp.body }));
     if (stats) stats.checkedInstances++;
 
     // widget-specific lint once per instance
