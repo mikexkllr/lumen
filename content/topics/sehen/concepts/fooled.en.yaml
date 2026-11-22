@@ -5,7 +5,7 @@ summary: Small changes, big mistakes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zahlen
@@ -94,6 +94,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: An attack changes each pixel by at most 2 of 255 brightness levels. What percentage of the scale is that? To two decimals.
+    answer:
+      value: 0.78
+      tolerance: 0.01
+    hints:
+      - Compute 2 / 255.
+      - Times 100 for percent.
+    explanation: Under 1 % per pixel – invisible to us. But because tens of thousands of pixels all move in the "right" direction, the effect adds up inside the network.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: What helps best against such tricks?
+    params:
+      options:
+        - label: Train the network on attack images – that makes it more robust, but not invulnerable.
+          correct: true
+        - label: A bigger network – it cannot be fooled.
+          feedback: Even very large networks can be attacked.
+        - label: Nothing – the problem is solved.
+          feedback: It is an open research field.
+    hints:
+      - How do you learn to handle a danger? By practising it.
+      - Is there a guarantee?
+    explanation: Adversarial training adds attack images to training. That clearly raises robustness but often costs some accuracy – and new attacks find new gaps.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +142,50 @@ steps:
     hints:
       - What is a cat with elephant skin to you – and what to a network?
     explanation: The same accuracy does not mean the same strategy. That explains why tiny perturbations throw models off.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: How does an attacker find the tiny change that fools the network?
+    params:
+      options:
+        - label: He computes how the error responds to each pixel and nudges all pixels a little in the harmful direction.
+          correct: true
+        - label: He tries random noise images.
+          feedback: Random noise barely works – the trick is the targeted direction.
+        - label: He changes one single pixel a lot.
+          feedback: That sometimes works, but many tiny changes are typical.
+    hints:
+      - In training you push the weights against the gradient. What could you do with the pixels?
+      - The attacker wants to increase the error, not decrease it.
+    explanation: It is gradient descent in reverse – on the pixels instead of the weights. The same maths that trains the network also makes it vulnerable.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what an adversarial example is.
+    params:
+      keywords:
+        - - klein
+          - winzig
+          - unsichtbar
+          - small
+          - tiny
+          - invisible
+        - - änder
+          - stör
+          - change
+          - perturb
+        - - falsch
+          - täusch
+          - irr
+          - wrong
+          - fool
+      sample: An adversarial example is an image with a tiny, targeted change. To people it looks the same, but the AI suddenly classifies it wrongly.
     difficulty: 3
 
 srs:

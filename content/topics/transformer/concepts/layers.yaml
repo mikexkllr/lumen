@@ -5,7 +5,7 @@ summary: Der Aufbau eines Transformers.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: ablauf
@@ -93,6 +93,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: Eine Schicht hat mehrere Attention-Köpfe. Was bringt das?
+    params:
+      options:
+        - label: Jeder Kopf kann auf eine andere Art von Beziehung achten – etwa Grammatik oder Bezüge.
+          correct: true
+        - label: Sie rechnen alle dasselbe, zur Sicherheit.
+          feedback: Jeder Kopf hat eigene Gewichte und lernt etwas anderes.
+        - label: Nur einer wird benutzt, die anderen sind Ersatz.
+          feedback: Alle werden gleichzeitig genutzt und ihre Ergebnisse kombiniert.
+    hints:
+      - Ein Wort steht in vielen Beziehungen zugleich.
+      - Ein Kopf allein mischt nur auf eine Weise.
+    explanation: "**Mehrere Köpfe** schauen parallel auf verschiedene Muster. Forscher fanden etwa Köpfe, die Wiederholungen folgen oder Satzbezüge verbinden. Nicht jeder Kopf ist so leicht zu deuten."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Das kleine Netz in einer Schicht hat zwei Gewichtsmatrizen: d × 4d und 4d × d, mit d = 1024. Wie viele Millionen Gewichte sind das? Auf eine Stelle."
+    answer:
+      value: 8.4
+      tolerance: 0.05
+    hints:
+      - "Eine Matrix: 1024 · 4096 ≈ 4,19 Millionen."
+      - Zwei davon.
+    explanation: 2 · 4 · d² = 8d² ≈ 8,4 Millionen. Dazu kommen 4d² für Attention. Der Großteil der **Parameter** steckt also in diesen kleinen Netzen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -108,6 +141,41 @@ steps:
     hints:
       - Jede Schicht muss nur eine kleine Korrektur lernen.
     explanation: Ohne sie verschwindet das Lernsignal in tiefen Netzen. Erst diese Idee machte wirklich tiefe Modelle trainierbar.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Attention hat vier Matrizen der Größe d × d: für Query, Key, Value und Ausgabe. Wie viele Millionen Gewichte sind das bei d = 1024? Auf eine Stelle."
+    answer:
+      value: 4.2
+      tolerance: 0.05
+    hints:
+      - d² = 1 048 576.
+      - 4 · d² = ?
+    explanation: 4d² ≈ 4,2 Millionen. Mit dem kleinen Netz sind es etwa **12d²** pro Schicht. Ein Modell mit 96 Schichten und d = 12 288 kommt so auf rund 175 Milliarden Gewichte.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was in einer Schicht eines Transformers passiert.
+    params:
+      keywords:
+        - - attention
+          - aufmerksamkeit
+        - - netz
+          - mlp
+          - feedforward
+          - network
+        - - addier
+          - residual
+          - behält
+          - add
+          - keep
+      sample: Erst mischt Attention Informationen zwischen den Tokens. Dann verarbeitet ein kleines Netz jedes Token einzeln. Beide Ergebnisse werden zum Eingang addiert, sodass nichts verloren geht.
     difficulty: 3
 
 srs:

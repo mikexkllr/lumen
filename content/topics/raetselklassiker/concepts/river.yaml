@@ -5,7 +5,7 @@ summary: Planen, damit niemand gefressen wird.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zuerst
@@ -77,6 +77,96 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: network
+    prompt: "Jeder Punkt zeigt, wer noch links steht: B Bauer, W Wolf, Z Ziege, K Kohl. Linien sind erlaubte Fahrten. Finde den kürzesten Weg von »alle links« zu »alle rechts«."
+    params:
+      start: n1
+      end: n10
+      aspect: 0.5
+      nodes:
+        - id: n1
+          x: 4
+          y: 50
+          label: BWZK
+        - id: n2
+          x: 16
+          y: 50
+          label: WK
+        - id: n3
+          x: 29
+          y: 50
+          label: BWK
+        - id: n4
+          x: 43
+          y: 12
+          label: K
+        - id: n5
+          x: 43
+          y: 88
+          label: W
+        - id: n6
+          x: 58
+          y: 12
+          label: BZK
+        - id: n7
+          x: 58
+          y: 88
+          label: BWZ
+        - id: n8
+          x: 71
+          y: 50
+          label: Z
+        - id: n9
+          x: 84
+          y: 50
+          label: BZ
+        - id: n10
+          x: 96
+          y: 50
+          label: –
+      edges:
+        - a: n1
+          b: n2
+        - a: n2
+          b: n3
+        - a: n3
+          b: n4
+        - a: n3
+          b: n5
+        - a: n4
+          b: n6
+        - a: n5
+          b: n7
+        - a: n6
+          b: n8
+        - a: n7
+          b: n8
+        - a: n8
+          b: n9
+        - a: n9
+          b: n10
+    hints:
+      - "Vom Start aus gibt es nur eine erlaubte Fahrt: die Ziege rüber."
+      - In der Mitte teilt sich der Weg – beide Zweige sind gleich lang.
+    explanation: "Sieben Fahrten, und es gibt genau zwei kürzeste Lösungen: erst Wolf oder erst Kohl. Das Rätsel ist eine Suche im **Zustandsgraphen**."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Drei Mönche und drei Räuber wollen über den Fluss. Das Boot trägt zwei. Nie dürfen an einem Ufer mehr Räuber als Mönche sein, wenn dort Mönche stehen. Wie viele Fahrten braucht man mindestens?
+    answer:
+      value: 11
+    hints:
+      - Jede Richtung zählt als eine Fahrt. Das Boot muss immer wieder zurück.
+      - Eine Breitensuche über alle erlaubten Zustände findet die Antwort sicher.
+    explanation: Die kürzeste Lösung hat 11 Fahrten. Man findet sie, indem man alle erlaubten Zustände durchsucht – wie beim Wolf-Ziege-Kohl-Rätsel.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -92,6 +182,51 @@ steps:
     hints:
       - Was man zuerst erreicht, ist am nächsten.
     explanation: Die **Breitensuche** breitet sich wie eine Welle aus. Die App prüft genau so, ob ihre Rätsel lösbar sind.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Du hast einen 4-Liter- und einen 6-Liter-Eimer und einen Wasserhahn. Kannst du genau 3 Liter abmessen?
+    params:
+      options:
+        - label: Nein – jede erreichbare Menge ist gerade.
+          correct: true
+        - label: Ja, mit genug Umfüllen.
+          feedback: "Probier es: Es entstehen immer nur 0, 2, 4 oder 6 Liter."
+        - label: Ja, man halbiert den 6-Liter-Eimer.
+          feedback: Halbieren nach Augenmaß ist nicht genau – erlaubt ist nur Füllen, Leeren und Umgießen.
+    hints:
+      - Welche Mengen entstehen, wenn du füllst, leerst und umgießt?
+      - Alle Mengen sind Summen und Differenzen von 4 und 6. Was haben die gemeinsam?
+    explanation: "Das ist eine **Invariante**: Jede Menge ist ein Vielfaches von ggT(4, 6) = 2. Bei 3 und 5 Litern ist der ggT 1 – darum klappt dort jede ganze Literzahl."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Computer ein Flussrätsel sicher mit den wenigsten Fahrten löst.
+    params:
+      keywords:
+        - - zustand
+          - zustände
+          - state
+        - - fahrt
+          - zug
+          - übergang
+          - schritt
+          - crossing
+          - move
+          - step
+        - - kürzest
+          - wenigst
+          - breit
+          - shortest
+          - fewest
+          - breadth
+      sample: Er schreibt jeden Zustand auf, also wer an welchem Ufer steht. Dann probiert er erst alle Fahrten mit einem Schritt, dann mit zwei und so weiter. Die Breitensuche findet so zuerst den kürzesten Weg.
     difficulty: 3
 
 srs:

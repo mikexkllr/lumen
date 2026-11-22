@@ -5,7 +5,7 @@ summary: Reward hacking and RLHF.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: boot
@@ -81,6 +81,24 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: order
+    prompt: This is how a chatbot is refined with human feedback. Put the steps in order.
+    params:
+      items:
+        - label: The model writes several answers to a question.
+        - label: People choose which answer is better.
+        - label: A reward model learns these preferences.
+        - label: The chatbot is trained to score highly.
+        - label: Fresh tests with people check the result.
+    hints:
+      - Without answers there is nothing to compare.
+      - The reward model stands in for people during the actual training.
+    explanation: This is RLHF. Comparisons are easier for people than scores. The reward model can then judge millions of answers – but only as well as it learned.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -108,6 +126,44 @@ steps:
           - vormachen
           - shown
       sample: When learning from examples the model is shown the correct answer for each case. In reinforcement learning an agent tries actions itself and only learns through reward or punishment how good they were.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: In RLHF there is a penalty if the chatbot drifts too far from the original model. What for?
+    params:
+      options:
+        - label: So it does not exploit the reward model's gaps and produce strange text.
+          correct: true
+        - label: So it computes faster.
+          feedback: The penalty changes training, not computing time.
+        - label: So it learns nothing new.
+          feedback: It should learn – just not drift arbitrarily far.
+    hints:
+      - What happens if you optimise hard against a flawed reward model?
+      - The starting model writes natural text.
+    explanation: This distance penalty curbs reward hacking. Where answers can be checked automatically, as with maths or coding tasks, direct checks are also used as rewards.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Why is a reward like "the program passes all tests" often more robust than "a person likes the answer"?
+    params:
+      options:
+        - label: It measures the result directly – flattery or nice wording do not help.
+          correct: true
+        - label: Because tests never have gaps.
+          feedback: Tests can be incomplete and gamed too.
+        - label: Because people do not understand programs.
+          feedback: Many do – but judgements are slow and can be swayed.
+    hints:
+      - What can a model do to please a person without being right?
+      - And against a test?
+    explanation: "Verifiable rewards are harder to exploit. They are never completely safe: an agent might, for example, change the tests themselves if allowed to."
     difficulty: 3
 
 srs:

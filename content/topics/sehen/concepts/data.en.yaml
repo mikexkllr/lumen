@@ -5,7 +5,7 @@ summary: Gaps in the data become gaps in the model.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: kuh
@@ -65,6 +65,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A model makes {{a}} % errors on group A and {{b}} % on group B. Group A is {{s}} % of the data. What is the overall error rate in percent?
+    answer:
+      value: "{{(s * a + (100 - s) * b) / 100}}"
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == (a + b) / 2
+        misconception: unweighted
+        text: The plain mean forgets that group A is much bigger.
+    hints:
+      - Weight each error rate by its group's share.
+      - "{{s / 100}} · {{a}} + {{(100 - s) / 100}} · {{b}}."
+    explanation: Overall {{(s * a + (100 - s) * b) / 100}} % – that sounds fine and hides the {{b}} % for group B. An overall number hides small groups.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,4]
+        b: step[10,30,5]
+        s: step[70,95,5]
+      defaults:
+        a: 2
+        b: 20
+        s: 90
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -93,6 +120,25 @@ steps:
           - vielfalt
           - divers
       sample: It learns any pattern that happens to coincide with the answer in the training data, such as snow in the background of wolf photos. If the test contains the same shortcut, the error goes unnoticed.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: An X-ray model shines in hospital A. In hospital B, with different machines, it makes many more mistakes. What is this called?
+    params:
+      options:
+        - label: Distribution shift – the new images look different from the training images.
+          correct: true
+        - label: Overfitting to the patients.
+          feedback: The diseases are the same – the machines, and so the images, differ.
+        - label: A programming bug.
+          feedback: The code is the same. The data has changed.
+    hints:
+      - What differs between the two hospitals' images?
+      - A model also learns the machine's brightness, noise and labels.
+    explanation: Models are only valid for data similar to their training data. That is why they are re-tested on site – and monitored during use.
     difficulty: 3
 
 srs:

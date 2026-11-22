@@ -5,7 +5,7 @@ summary: Wer wohnt neben wem?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 8
 steps:
   - kind: problem
     id: strasse
@@ -90,6 +90,92 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Vier Häuser in einer Reihe. Wer wohnt wo, und wer hat welches Tier?
+    params:
+      categories:
+        - name: Person
+          items:
+            - Ali
+            - Bo
+            - Cara
+            - Dev
+        - name: Haus
+          items:
+            - Haus 1
+            - Haus 2
+            - Haus 3
+            - Haus 4
+        - name: Tier
+          items:
+            - Hund
+            - Katze
+            - Maus
+            - Vogel
+      ordered: 1
+      clues:
+        - text: Ali wohnt in Haus 1.
+          rule:
+            is:
+              - Ali
+              - Haus 1
+        - text: Bo wohnt zwei Häuser rechts von Ali.
+          rule:
+            offset:
+              - Ali
+              - Bo
+              - 2
+        - text: Bo hat den Vogel.
+          rule:
+            is:
+              - Bo
+              - Vogel
+        - text: Dev wohnt links von Cara.
+          rule:
+            less:
+              - Dev
+              - Cara
+        - text: Hund und Katze wohnen direkt nebeneinander.
+          rule:
+            adjacent:
+              - Hund
+              - Katze
+        - text: Ali hat keinen Hund.
+          rule:
+            not:
+              - Ali
+              - Hund
+    hints:
+      - "Erst die Häuser: Ali 1, Bo 3. Für Dev und Cara bleiben 2 und 4."
+      - Hund und Katze brauchen zwei Nachbarhäuser – aber Haus 3 hat schon den Vogel.
+    explanation: Ali 1 mit Katze, Dev 2 mit Hund, Bo 3 mit Vogel, Cara 4 mit Maus. Nur Haus 1 und 2 bleiben als Nachbarpaar für Hund und Katze.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Auf wie viele Arten können A und B nebeneinander auf {{n}} Plätzen in einer Reihe sitzen? A darf links oder rechts sein.
+    answer:
+      value: "{{2 * (n - 1)}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: one-direction
+        text: Das sind die Nachbarpaare. Jedes Paar lässt sich noch auf zwei Arten besetzen.
+    hints:
+      - Wie viele Paare direkt benachbarter Plätze hat eine Reihe mit {{n}} Plätzen?
+      - Es sind {{n - 1}} Paare – und A kann links oder rechts sitzen.
+    explanation: "{{n - 1}} Nachbarpaare mal 2 Richtungen = {{2 * (n - 1)}}. In einem Kreis gäbe es {{n}} Nachbarpaare, weil auch der letzte Platz neben dem ersten liegt."
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,6 +191,53 @@ steps:
     hints:
       - Folgern ist billig, Raten ist teuer.
     explanation: "**Constraint-Programmierung**: folgern, verzweigen, zurückgehen. So entstehen auch Stundenpläne und Schichtpläne."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "{{n}} Leute setzen sich an einen runden Tisch. Zwei Sitzordnungen gelten als gleich, wenn jeder dieselben Nachbarn links und rechts hat. Wie viele verschiedene gibt es?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * f
+        misconception: rotations
+        text: Das zählt jede Drehung extra. Beim runden Tisch ist eine Drehung dieselbe Ordnung.
+    hints:
+      - Setze eine Person fest auf einen Platz. Drehungen zählen dann nicht mehr doppelt.
+      - Die übrigen {{n - 1}} Personen kannst du beliebig anordnen.
+    explanation: ({{n - 1}})! = {{f}}. Von den {{n}}! Reihen-Ordnungen sind je {{n}} nur Drehungen voneinander. Wer Symmetrien herausrechnet, zählt richtig.
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      derive:
+        f: "n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum der Hinweis »direkt nebeneinander« bei Häusern am Rand besonders stark ist.
+    params:
+      keywords:
+        - - rand
+          - außen
+          - ende
+          - edge
+          - end
+        - - nachbar
+          - neben
+          - neighbour
+          - next
+        - - ein
+          - nur
+          - one
+          - only
+      sample: Ein Haus am Rand hat nur einen Nachbarn. Steht dort einer der beiden, muss der andere genau in diesem einen Nachbarhaus wohnen. So bleiben kaum Möglichkeiten übrig.
     difficulty: 3
 
 srs:

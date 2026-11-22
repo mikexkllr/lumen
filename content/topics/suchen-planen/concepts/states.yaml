@@ -1,0 +1,210 @@
+id: ai.search.states
+type: concept
+title: "Zustände und Züge"
+summary: "Jedes Rätsel wird zur Landkarte: Zustände sind Orte, Züge sind Wege."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene Stellungen kann man beim Schiebepuzzle mit 8 Plättchen (3 × 3) erreichen?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 181440
+      within: 40
+    explanation: "9! = 362 880 Anordnungen gibt es, genau die Hälfte ist erreichbar: 181 440. Ein Computer kann sie alle durchsuchen."
+
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Ein Roboter steht in einem Raum mit drei Lampen, jede an oder aus. Was beschreibt seine Lage vollständig?
+    params:
+      options:
+        - label: Welche Lampen gerade an sind
+          correct: true
+        - label: Wie oft er schon geschaltet hat
+          feedback: Das ist Geschichte. Für die Zukunft zählt nur, was jetzt an ist.
+        - label: Welche Farbe die Lampen haben
+          feedback: Die Farbe ändert sich nie – sie gehört nicht zum Zustand.
+    hints:
+      - Was muss man wissen, um die nächsten Züge zu planen?
+      - Alles Unveränderliche kann man weglassen.
+    explanation: "Ein **Zustand** fasst alles zusammen, was für die Zukunft zählt. Hier: drei Lampen, je an oder aus."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie viele verschiedene Zustände gibt es bei {{n}} Lampen, die jeweils an oder aus sein können?
+    answer:
+      value: "{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: added
+        text: "Die Möglichkeiten multiplizieren sich: 2 · 2 · 2 …"
+    hints:
+      - Jede Lampe verdoppelt die Möglichkeiten.
+      - Rechne 2^{{n}}.
+    explanation: 2^{{n}} = {{2 ** n}}. Zustandsräume wachsen **exponentiell** – das ist das Grundproblem jeder Suche.
+    variants:
+      params:
+        n: int[3,10]
+      defaults:
+        n: 3
+
+  - kind: explain
+    id: c3
+    body: "Zeichnet man jeden Zustand als Punkt und jeden erlaubten Zug als Linie, entsteht ein Graph – der **Zustandsraum**. Ein Rätsel lösen heißt dann: einen Weg vom Start zum Ziel finden."
+
+  - kind: problem
+    id: c4
+    widget: network
+    prompt: Jeder Punkt ist ein Zustand, jede Linie ein Zug. Finde den kürzesten Weg von S nach Z.
+    params:
+      start: S
+      end: Z
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: A
+          x: 30
+          y: 15
+        - id: B
+          x: 30
+          y: 85
+        - id: C
+          x: 60
+          y: 15
+        - id: D
+          x: 60
+          y: 85
+        - id: Z
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: A
+        - a: S
+          b: B
+        - a: A
+          b: C
+        - a: C
+          b: Z
+        - a: B
+          b: D
+        - a: D
+          b: C
+        - a: A
+          b: B
+    hints:
+      - Jeder Zug zählt gleich viel. Zähle die Linien.
+      - Über A und C sind es drei Züge.
+    explanation: "S → A → C → Z: drei Züge. Über B und D wären es vier. Bei gleichen Kosten heißt kürzester Weg: wenigste **Züge**."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Von jedem Zustand gibt es {{b}} Züge. Wie viele Zugfolgen der Länge {{d}} gibt es?
+    answer:
+      value: "{{b ** d}}"
+    feedback:
+      - when: numval(state.input) == b * d
+        misconception: added
+        text: Die Möglichkeiten multiplizieren sich mit jedem Zug.
+    hints:
+      - "Erster Zug: {{b}} Möglichkeiten. Zu jeder davon wieder {{b}}."
+      - Rechne {{b}}^{{d}}.
+    explanation: "{{b}}^{{d}} = {{b ** d}}. Man nennt b den **Verzweigungsgrad** und d die Tiefe. Schon kleine Zahlen ergeben riesige Suchbäume."
+    variants:
+      params:
+        b: int[2,4]
+        d: int[3,6]
+      defaults:
+        b: 3
+        d: 4
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Beim 15er-Schiebepuzzle (4 × 4) gibt es 16! Anordnungen, erreichbar ist genau die Hälfte. Wie viele Billionen Stellungen sind das? Gerundet. (16! ≈ 20,9 Billionen)
+    answer:
+      value: 10
+      tolerance: 0.5
+    hints:
+      - Teile 20,9 Billionen durch 2.
+      - Das sind etwa 10,5 Billionen.
+    explanation: Rund 10 Billionen – zu viele, um sie bequem alle anzuschauen. Hier braucht man **kluge Suche**, die nur einen kleinen Teil besucht.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Bei Wolf, Ziege und Kohl beschreibt man den Zustand durch »wer steht links«. Warum muss der Bauer dazugehören?
+    params:
+      options:
+        - label: Ohne ihn weiß man nicht, auf welcher Seite das Boot ist – also welche Züge möglich sind.
+          correct: true
+        - label: Weil er gefressen werden kann.
+          feedback: Den Bauern frisst niemand. Er bestimmt aber, was als Nächstes geht.
+        - label: Er muss nicht dazugehören.
+          feedback: Zwei Lagen mit gleichen Tieren, aber Bauer links oder rechts, erlauben ganz andere Züge.
+    hints:
+      - Ein guter Zustand legt fest, welche Züge als Nächstes möglich sind.
+      - Wer rudert das Boot?
+    explanation: Ein Zustand muss **genug** Information enthalten, damit die Züge feststehen – aber nicht mehr. Die Wahl der Darstellung entscheidet oft über die Größe der Suche.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Beim Schach gibt es mehr Stellungen als Atome im Universum. Wie kann ein Programm trotzdem darin suchen?
+    params:
+      options:
+        - label: Es erzeugt Nachbarzustände erst, wenn es sie braucht – der Graph existiert nie ganz im Speicher.
+          correct: true
+        - label: Es speichert alle Stellungen auf einer großen Festplatte.
+          feedback: Dafür reicht kein Speicher der Welt.
+        - label: Gar nicht.
+          feedback: Schachprogramme suchen sehr wohl – nur nie im ganzen Raum.
+    hints:
+      - Was braucht man, um von einer Stellung zu den nächsten zu kommen?
+      - Die Regeln reichen, um Nachbarn auszurechnen.
+    explanation: "Man beschreibt den Raum **implizit**: durch Start, Zugregeln und Zieltest. Die Suche entfaltet nur den Teil, den sie gerade besucht."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man ein Rätsel in ein Suchproblem verwandelt.
+    params:
+      keywords:
+        - - zustand
+          - state
+        - - zug
+          - züge
+          - aktion
+          - move
+          - action
+        - - start
+          - ziel
+          - goal
+        - - weg
+          - pfad
+          - path
+          - route
+      sample: Man legt fest, was ein Zustand ist und welche Züge erlaubt sind. Dazu kommen ein Start und ein Ziel. Dann sucht man einen Weg vom Start zum Ziel durch den Zustandsraum.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c5", "d1"]

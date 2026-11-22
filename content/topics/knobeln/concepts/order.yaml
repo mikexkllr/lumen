@@ -71,6 +71,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Fünf Kinder sitzen in einer Reihe. Wer sitzt wo?
+    params:
+      categories:
+        - name: Kind
+          items:
+            - Ana
+            - Ben
+            - Cem
+            - Dila
+            - Emil
+        - name: Platz
+          items:
+            - Platz 1
+            - Platz 2
+            - Platz 3
+            - Platz 4
+            - Platz 5
+      ordered: 1
+      clues:
+        - text: Ben sitzt direkt rechts neben Ana.
+          rule:
+            offset:
+              - Ana
+              - Ben
+              - 1
+        - text: Dila sitzt irgendwo links von Ana.
+          rule:
+            less:
+              - Dila
+              - Ana
+        - text: Emil sitzt irgendwo rechts von Ben.
+          rule:
+            less:
+              - Ben
+              - Emil
+        - text: Dila sitzt nicht auf Platz 1.
+          rule:
+            not:
+              - Dila
+              - Platz 1
+    hints:
+      - "Vier Kinder stehen in fester Reihenfolge: Dila, Ana, Ben, Emil."
+      - Dila ist nicht auf Platz 1 – wer bleibt für Platz 1 übrig?
+    explanation: Cem 1, Dila 2, Ana 3, Ben 4, Emil 5. Die Kette Dila – Ana – Ben – Emil braucht vier Plätze. Cem füllt die Lücke.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -80,6 +130,57 @@ steps:
     hints:
       - Jeder Hinweis halbiert die Möglichkeiten.
     explanation: "24 : 2 : 2 = 6. Unabhängige Hinweise multiplizieren ihre Wirkung."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "{{n}} Leute stellen sich in eine Reihe. A soll direkt vor B stehen. Wie viele Reihenfolgen gibt es?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == 2 * f
+        misconception: both-directions
+        text: Das zählt auch »B direkt vor A«. Hier ist die Richtung fest.
+    hints:
+      - Klebe A und B zu einem Block zusammen.
+      - "Dann ordnest du {{n - 1}} Dinge an: ({{n - 1}})! Möglichkeiten."
+    explanation: Der Block AB zählt als ein Ding. ({{n - 1}})! = {{f}}. Dieser **Block-Trick** macht aus »direkt nebeneinander« eine einfache Zählung.
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      derive:
+        f: "n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Hinweis wie »direkt vor« in einer Reihenfolge die Möglichkeiten einschränkt.
+    params:
+      keywords:
+        - - zwei
+          - paar
+          - block
+          - two
+          - pair
+        - - nebeneinander
+          - benachbart
+          - direkt
+          - next to
+          - adjacent
+          - directly
+        - - platz
+          - plätze
+          - stelle
+          - seat
+          - place
+          - position
+      sample: Direkt vor heißt, dass die zwei als Paar nebeneinander stehen. Sie brauchen also zwei benachbarte freie Plätze. Oft gibt es dafür nur eine Stelle.
     difficulty: 3
 
 srs:

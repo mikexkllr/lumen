@@ -5,7 +5,7 @@ summary: Rewards in the future.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,24 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Q-learning: Q ← Q + α · (r + γ · Q_max − Q). Here Q = 0, α = 0.5, reward r = 0, γ = 0.9. The best value in the next state is Q_max = 10. What is the new Q?"
+    answer:
+      value: 4.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: no-alpha
+        text: That is the target r + γ · Q_max. With α = 0.5 you only go halfway there.
+    hints:
+      - "Target: r + γ · Q_max = 0 + 0.9 · 10 = 9."
+      - Q + 0.5 · (9 − 0) = ?
+    explanation: 0 + 0.5 · 9 = 4.5. The goal's value "trickles" back to earlier states step by step. That is Q-learning by hand.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +125,64 @@ steps:
     hints:
       - Today’s value depends on tomorrow’s value.
     explanation: "A recursive definition: it breaks a huge planning problem into nothing but one-step problems."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "The same transition happens again: Q = 4.5, r = 0, γ = 0.9, Q_max = 10, α = 0.5. What is Q afterwards?"
+    answer:
+      value: 6.75
+      tolerance: 0.001
+    hints:
+      - The target is 9 again.
+      - 4.5 + 0.5 · (9 − 4.5) = ?
+    explanation: 6.75 – Q approaches 9 like 4.5, 6.75, 7.875 … Each update closes half the gap. With enough exploration Q-learning converges to the optimal values.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Q-learning uses Q_max – the value of the **best** next action – in its update, even when the agent is exploring at random. What follows?
+    params:
+      options:
+        - label: It learns the values of the best strategy while following a different one.
+          correct: true
+        - label: It cannot explore.
+          feedback: It may explore – the update simply still scores the best option.
+        - label: It learns the values of the random strategy.
+          feedback: For that it would have to use the value of the action actually taken.
+    hints:
+      - Which action is inside Q_max – the chosen one or the best?
+      - Behaviour and learning target can differ here.
+    explanation: "Q-learning is off-policy: it acts exploratively but learns greedily. That is why it can also learn from old or other agents' experience."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how Q-learning improves the value of an action step by step.
+    params:
+      keywords:
+        - - belohnung
+          - reward
+        - - nächst
+          - später
+          - zukunft
+          - next
+          - later
+          - future
+        - - schätz
+          - korrigier
+          - näher
+          - estimate
+          - correct
+          - closer
+          - update
+      sample: After each action the agent compares its estimate with the reward plus the discounted best value of the next state. Then it moves its estimate a bit closer to that value.
     difficulty: 3
 
 srs:

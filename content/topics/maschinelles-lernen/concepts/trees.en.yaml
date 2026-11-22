@@ -5,7 +5,7 @@ summary: One question after another.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Which answer helps you either way?
     explanation: That is exactly how a decision tree picks its questions.
-
 
   - kind: explain
     id: s1
@@ -100,6 +99,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: The Gini impurity of a group is 1 minus the sum of the squared shares. A group is 80 % apples and 20 % pears. How large is it?
+    answer:
+      value: 0.32
+      tolerance: 0.001
+    hints:
+      - "Squares: 0.8² = 0.64 and 0.2² = 0.04."
+      - 1 − 0.68 = ?
+    explanation: 0.32. A pure group has 0, half-and-half has 0.5. A tree picks the question after which the groups are purest on average.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: A tree may grow as deep as it likes. In the end every training example sits alone in its own leaf. What is the result?
+    params:
+      options:
+        - label: 100 % in training – but poor results on new data.
+          correct: true
+        - label: The perfect model.
+          feedback: It learned every bit of noise and generalises poorly.
+        - label: The tree can no longer decide anything.
+          feedback: It decides – but based on quirks of the training data.
+    hints:
+      - What has the tree learned if each leaf holds just one example?
+      - What about new examples?
+    explanation: This is overfitting. A maximum depth, a minimum number of examples per leaf – or many trees that vote – help against it.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -109,6 +141,42 @@ steps:
     hints:
       - Before 1 bit, after 0.
     explanation: 1 bit – the largest possible gain. The tree always picks the question with the highest **information gain**.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A group is 75 % class A and 25 % class B. What is its entropy in bits? To two decimals. (log₂ 0.75 ≈ −0.415)
+    answer:
+      value: 0.81
+      tolerance: 0.01
+    hints:
+      - Entropy = −(0.75 · log₂ 0.75 + 0.25 · log₂ 0.25).
+      - log₂ 0.25 = −2. So 0.75 · 0.415 + 0.25 · 2.
+    explanation: 0.311 + 0.5 ≈ 0.81 bits – less than the 1 bit of a 50–50 split. The information gain of a question is the entropy before minus the weighted entropy after.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a decision tree chooses its questions.
+    params:
+      keywords:
+        - - frage
+          - question
+        - - trenn
+          - teil
+          - split
+          - separat
+        - - rein
+          - sauber
+          - gemischt
+          - pure
+          - clean
+          - mixed
+      sample: The tree tries many possible questions. It takes the one that splits the examples most cleanly, so the groups afterwards are as pure as possible. Then it repeats this in each group.
     difficulty: 3
 
 srs:

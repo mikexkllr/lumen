@@ -5,7 +5,7 @@ summary: Invariants prove the impossible.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: schachbrett
@@ -97,6 +97,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: The numbers 1 to {{n}} are on the board. Each time you erase two and write their sum. In the end one number is left. Which one?
+    answer:
+      value: "{{n * (n + 1) / 2}}"
+    hints:
+      - What happens to the total of all numbers when you replace two by their sum?
+      - The total stays the same. Compute 1 + 2 + … + {{n}} = {{n}} · {{n + 1}} / 2.
+    explanation: The total is an invariant. So {{n * (n + 1) / 2}} is left at the end – whatever order you erase in.
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: A knight stands on a light square. Can it be back on exactly this square after exactly 7 moves?
+    params:
+      options:
+        - label: No – after an odd number of moves it stands on a dark square.
+          correct: true
+        - label: Yes, it just has to jump back and forth cleverly.
+          feedback: There and back is two moves – that always gives an even number.
+        - label: Only at the edge of the board.
+          feedback: The colour rule holds everywhere on the board.
+    hints:
+      - What colour is the square a knight lands on compared with where it started?
+      - Every move changes the colour. Where is it after 1, 2, 3 … moves?
+    explanation: A knight move always changes colour. After 7 moves the colour has changed – but the starting square has the old one. The parity of the number of moves decides.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +149,53 @@ steps:
     hints:
       - A single swap is “odd”.
     explanation: Sam Loyd offered 1000 dollars for the solution – knowing full well there is none. An invariant protected his money.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Children in a class swap seats, and every swap lowers the number of quarrelling pairs by at least 1. Why must the swapping end at some point?
+    params:
+      options:
+        - label: A whole number starting from 0 upwards cannot go down forever.
+          correct: true
+        - label: Because the children get tired.
+          feedback: We want a mathematical reason that works for every class.
+        - label: Because the number of quarrelling pairs stays the same.
+          feedback: It does not stay the same – it drops with every swap.
+    hints:
+      - How many quarrelling pairs can there be at the start at most?
+      - Can a natural number get smaller by 1 infinitely often?
+    explanation: A quantity that only ever moves in one direction is called a monovariant. Since there is no infinite descending sequence of natural numbers, the swapping stops after finitely many steps.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an invariant proves that something is impossible.
+    params:
+      keywords:
+        - - gleich
+          - ändert sich nicht
+          - unverändert
+          - stays
+          - unchanged
+          - same
+        - - jeder zug
+          - jedem zug
+          - jeder schritt
+          - every move
+          - each move
+          - every step
+        - - ziel
+          - unmöglich
+          - nie
+          - goal
+          - impossible
+          - never
+      sample: You look for a quantity that stays the same with every move, such as a sum or a colour. If the goal has a different value, it is impossible to reach.
     difficulty: 3
 
 srs:

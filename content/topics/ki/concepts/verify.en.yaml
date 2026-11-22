@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.verify]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: zugspitze
@@ -123,6 +123,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A model answers such questions correctly 80 % of the time. You ask 3 independent questions. How likely are **all** answers correct? In percent.
+    answer:
+      value: 51.2
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: single
+        text: That is for one question. All three must be right.
+    hints:
+      - Multiply the probabilities.
+      - 0.8 · 0.8 · 0.8 = ?
+    explanation: 0.8³ = 0.512. Even with three facts nearly every second answer is wrong somewhere. Long texts therefore need especially careful checking.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: buckets
+    prompt: How do you best check this?
+    params:
+      buckets:
+        - id: b1
+          label: recompute or test yourself
+        - id: b2
+          label: look it up in a source
+      items:
+        - label: the result of 17 · 23
+          bucket: b1
+        - label: the year of an event
+          bucket: b2
+        - label: whether a code function works
+          bucket: b1
+        - label: a quote from a person
+          bucket: b2
+    hints:
+      - Calculations and code you can run yourself.
+      - Facts about the world need a source.
+    explanation: What you can compute or try out, you check yourself. Facts, quotes and figures about the world you check in reliable sources.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -138,4 +182,51 @@ steps:
     hints:
       - A model has no built-in “I do not know that”.
     explanation: "There is no separate knowledge base – only patterns in weights. The remedy: give the model sources and demand evidence."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: A chatbot first retrieves matching documents and then answers with citations. What holds?
+    params:
+      options:
+        - label: That often reduces made-up answers a lot – but does not prevent them completely.
+          correct: true
+        - label: Then it can no longer hallucinate.
+          feedback: It can summarise sources wrongly or retrieve the wrong ones.
+        - label: Sources make it less reliable.
+          feedback: On the contrary – the answer is now much easier to check.
+    hints:
+      - What can go wrong in the search? And in the summary?
+      - "A big advantage: you can open the source yourself."
+    explanation: "With sources an answer becomes checkable. Errors remain possible: wrong hits, outdated pages or a distorted quote. A quick look at the source pays off."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you should check AI answers even when they sound very convincing.
+    params:
+      keywords:
+        - - wahrscheinlich
+          - klingt
+          - plausibel
+          - likely
+          - sounds
+          - plausible
+        - - erfind
+          - halluzin
+          - falsch
+          - invent
+          - hallucinat
+          - wrong
+        - - quelle
+          - prüf
+          - nachrechn
+          - source
+          - check
+          - verify
+      sample: A language model writes what sounds likely and does not check facts. So it can invent things that seem convincing. I check important things with a source or recompute them.
     difficulty: 3

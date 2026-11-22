@@ -5,7 +5,7 @@ summary: More pigeons than holes.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: socken
@@ -69,6 +69,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: At least how many people do you need so that {{k}} of them surely share a birth month?
+    answer:
+      value: "{{12 * (k - 1) + 1}}"
+    feedback:
+      - when: numval(state.input) == 12 * k
+        misconception: k-per-month
+        text: With {{12 * k}} it could be exactly {{k}} each – but fewer already suffice.
+      - when: numval(state.input) == 12 * (k - 1)
+        misconception: off-by-one
+        text: Then every month could still have exactly {{k - 1}}. One more!
+    hints:
+      - How many people fit without any month reaching {{k}}?
+      - That is 12 · {{k - 1}}. The next one makes the difference.
+    explanation: "12 · {{k - 1}} + 1 = {{12 * (k - 1) + 1}}. In general: with n boxes and more than n · (k − 1) items, some box has at least k."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,6]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: In every group of at least two people, two of them know the same number of others in the group. Why?
+    params:
+      options:
+        - label: With n people only n − 1 counts are possible – "0" and "everyone else" exclude each other.
+          correct: true
+        - label: Because acquaintance is always mutual.
+          feedback: True, but it does not explain why two have the same count.
+        - label: That only holds in large groups.
+          feedback: It already holds for two people.
+    hints:
+      - Which counts are possible with n people? From 0 to n − 1.
+      - Can someone know nobody while another knows everyone?
+    explanation: There are n people but at most n − 1 different counts. By the pigeonhole principle two share a count.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +161,23 @@ steps:
           - row
       min: 3
       sample: "First you show that the statement holds for the start. Then you show the step: if it holds for one number, it holds for the next. As with dominoes, all of them then fall."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: You place points in a square of side 1. At least how many do you need so that two of them are surely at most 0.71 apart?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: corners
+        text: Four points in the four corners are 1 apart.
+    hints:
+      - Split the square into four small squares of side ½.
+      - The diagonal of a small square is √2 / 2 ≈ 0.71.
+    explanation: "Five points, four small squares: two land in the same one and are at most √2/2 ≈ 0.71 apart. The boxes often have to be cleverly invented first."
     difficulty: 3
 
 srs:

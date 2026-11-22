@@ -1,0 +1,181 @@
+id: logic.modal.muddy
+type: concept
+title: "Die schmutzigen Kinder"
+summary: "Eine Ansage, die alle schon kannten – und trotzdem ändert sie alles."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: "Einige Kinder haben Schmutz auf der Stirn. Jedes sieht die anderen, nicht sich selbst. Der Vater sagt: »Mindestens einer ist schmutzig.« Nur ein Kind ist schmutzig. Was passiert?"
+    params:
+      options:
+        - label: Das schmutzige Kind weiß es sofort – es sieht keinen anderen Schmutz.
+          correct: true
+        - label: Niemand weiß etwas.
+          feedback: Das schmutzige Kind sieht nur saubere Stirnen. Also muss es selbst gemeint sein.
+        - label: Alle Kinder wissen, dass sie sauber sind.
+          feedback: Die sauberen sehen einen Schmutzigen und wissen über sich noch nichts.
+    hints:
+      - Was sieht das schmutzige Kind?
+      - Wer sonst könnte »mindestens einer« sein?
+    explanation: Mit k = 1 meldet sich das schmutzige Kind gleich in der ersten Runde. Das ist der **Anfang** einer Induktion.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: "Jetzt sind zwei Kinder schmutzig, A und B. Der Vater fragt: »Wer weiß, ob er schmutzig ist?« In Runde 1 meldet sich niemand. Was schließt A daraus?"
+    params:
+      options:
+        - label: Wäre ich sauber, hätte B sich in Runde 1 gemeldet. Also bin ich schmutzig.
+          correct: true
+        - label: Ich bin sauber.
+          feedback: Dann hätte B keinen Schmutz gesehen und sich sofort gemeldet.
+        - label: Nichts.
+          feedback: Das Schweigen ist selbst eine Information.
+    hints:
+      - "Versetze dich in B: Was würde B tun, wenn A sauber wäre?"
+      - B hat geschwiegen.
+    explanation: "In Runde 2 melden sich A und B zugleich. Auch **Schweigen** ist hier eine Information: Es streicht Welten."
+
+  - kind: explain
+    id: c3
+    body: "Allgemein gilt: Sind k Kinder schmutzig, melden sich alle schmutzigen in **Runde k**. Der Beweis ist eine Induktion über k: Jede stille Runde schließt eine weitere Möglichkeit aus."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Zehn Kinder, davon sind {{k}} schmutzig. In welcher Runde melden sich die schmutzigen Kinder zum ersten Mal?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: off-by-one
+        text: In Runde {{k - 1}} kann noch niemand sicher sein – erst ihr Schweigen bringt die Gewissheit.
+    hints:
+      - Ein schmutziges Kind sieht {{k - 1}} andere schmutzige.
+      - Es wartet, ob diese sich in Runde {{k - 1}} melden.
+    explanation: "Runde {{k}}. Jedes schmutzige Kind denkt: »Wären es nur die {{k - 1}}, die ich sehe, hätten sie sich in Runde {{k - 1}} gemeldet.«"
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Zehn Kinder, {{k}} sind schmutzig. Die schmutzigen melden sich in Runde {{k}}. In welcher Runde wissen die sauberen Kinder, dass sie sauber sind?
+    answer:
+      value: "{{k + 1}}"
+    hints:
+      - Ein sauberes Kind sieht {{k}} schmutzige. Es erwartet sie in Runde {{k}} – oder in Runde {{k + 1}}, falls es selbst schmutzig wäre.
+      - Melden sie sich in Runde {{k}}, kann es selbst nicht schmutzig sein.
+    explanation: Nach Runde {{k}} weiß jedes saubere Kind Bescheid und meldet sich in Runde {{k + 1}}. Auch hier trägt die **Zeit**, also das Abwarten, Information.
+    variants:
+      params:
+        k: int[2,8]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Bei zwei schmutzigen Kindern sieht **jedes** Kind schon Schmutz. Alle wussten also: »Mindestens einer ist schmutzig.« Warum ist die Ansage des Vaters trotzdem nötig?"
+    params:
+      options:
+        - label: A wusste nicht, dass B es weiß – erst die Ansage macht es zu gemeinsamem Wissen.
+          correct: true
+        - label: Sie ist nicht nötig.
+          feedback: Ohne Ansage meldet sich nie jemand. A's Schluss in Runde 2 braucht, dass B es auch wusste.
+        - label: Damit die Kinder zuhören.
+          feedback: Es geht um Wissen über Wissen, nicht um Aufmerksamkeit.
+    hints:
+      - "A denkt: »Wäre ich sauber, sähe B keinen Schmutz.« Wüsste B dann, dass einer schmutzig ist?"
+      - Ohne Ansage nicht.
+    explanation: "Die öffentliche Ansage schafft **gemeinsames Wissen**: Alle wissen es, alle wissen, dass alle es wissen, und so weiter. Genau diese Stufen braucht die Induktion."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Fünf Kinder, drei davon schmutzig. Wie viele Kinder melden sich in Runde 3?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: all
+        text: Die sauberen wissen es erst eine Runde später.
+    hints:
+      - In Runde 3 wissen es genau die Schmutzigen.
+      - Die zwei sauberen melden sich in Runde 4.
+    explanation: Drei melden sich in Runde 3, die anderen zwei in Runde 4. Die Kinder müssen dafür **perfekt** logisch denken und einander das auch zutrauen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Stimmt das beim Rätsel der schmutzigen Kinder?
+    params:
+      cards:
+        - text: Schweigen in einer Runde ist eine Information.
+          right: true
+        - text: Ohne Ansage des Vaters geht es genauso.
+          right: false
+          why: Ohne Ansage meldet sich bei zwei oder mehr Schmutzigen nie jemand.
+        - text: Die schmutzigen Kinder melden sich alle gleichzeitig.
+          right: true
+        - text: Ein sauberes Kind weiß es vor den schmutzigen.
+          right: false
+          why: Es weiß es eine Runde später.
+    explanation: Die Ansage macht die Tatsache zu **gemeinsamem Wissen**, das Schweigen jeder Runde streicht Welten. Zusammen tragen sie die Induktion.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Bei k schmutzigen Kindern: Wie viele Stufen von »A weiß, dass B weiß, dass …« braucht man, damit die Kinder ohne Ansage auskommen?"
+    params:
+      options:
+        - label: k Stufen – vorher gibt es sie ohne Ansage nicht. Erst die Ansage liefert alle Stufen auf einmal.
+          correct: true
+        - label: Eine Stufe genügt immer.
+          feedback: Bei k = 2 haben alle eine Stufe – und trotzdem passiert ohne Ansage nichts.
+        - label: Unendlich viele für jedes k.
+          feedback: Die Induktion braucht nur so viele Stufen, wie es schmutzige Kinder gibt.
+    hints:
+      - Bei k = 1 braucht das schmutzige Kind die Tatsache selbst. Bei k = 2 braucht es, dass der andere sie weiß.
+      - Jedes weitere Kind fügt eine Stufe hinzu.
+    explanation: Ohne Ansage haben die Kinder k − 1 Stufen, die Rechnung braucht k. Die Ansage liefert auf einen Schlag **alle** Stufen. Das ist die Kraft öffentlicher Information.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die schmutzigen Kinder herausfinden, dass sie schmutzig sind.
+    params:
+      keywords:
+        - - runde
+          - round
+        - - schweig
+          - niemand meldet
+          - silent
+          - nobody answers
+        - - schmutzig
+          - sehe
+          - muddy
+          - see
+      sample: Ein schmutziges Kind sieht k − 1 andere schmutzige. Wären es nur diese, hätten sie sich in Runde k − 1 gemeldet. Schweigen sie, muss es selbst schmutzig sein – also meldet es sich in Runde k.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

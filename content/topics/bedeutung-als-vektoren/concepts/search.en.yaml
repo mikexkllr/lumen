@@ -1,0 +1,176 @@
+id: ai.embeddings.search
+type: concept
+title: "Searching by meaning"
+summary: "Instead of matching words, you look for similar vectors."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: You search for "get my car repaired". A page is called "Garage near you". Which search is more likely to find it?
+    params:
+      options:
+        - label: A search by meaning – it recognises the topic even without the same words.
+          correct: true
+        - label: A search for exactly the same words.
+          feedback: Not a single word matches.
+        - label: Neither.
+          feedback: The meaning is very similar – that is exactly what vector search is for.
+    hints:
+      - Which words do the search and the page share?
+      - And which meaning?
+    explanation: "Keyword search needs the same words. Vector search compares meaning: query and page land close together even with different words."
+
+  - kind: explain
+    id: c2
+    body: In semantic search each document is turned into a vector once and stored. The query gets a vector too. The documents with the highest cosine similarity are shown.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: The query has vector (1, 0). Document A has (0.8, 0.6), B has (0.6, 0.8), C has (0, 1). All have length 1. Which comes first?
+    params:
+      options:
+        - label: A – cosine 0.8
+          correct: true
+        - label: B – cosine 0.8
+          feedback: "Check: (1, 0) · (0.6, 0.8) = 0.6."
+        - label: C – cosine 1
+          feedback: (1, 0) · (0, 1) = 0. C fits worst.
+    hints:
+      - With length 1 the cosine is the dot product.
+      - With (1, 0) only the first number counts.
+    explanation: "A: 0.8, B: 0.6, C: 0. The ranking by cosine is the search result."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A manual has {{w}},000 words. You cut it into chunks of 300 words each and store one vector per chunk. How many vectors is that?
+    answer:
+      value: "{{w * 1000 / 300}}"
+    hints:
+      - Divide the number of words by 300.
+      - "{{w * 1000}} / 300 = ?"
+    explanation: "{{w * 1000 / 300}} vectors. Short chunks match more precisely, long ones keep more context – so you choose a compromise."
+    variants:
+      params:
+        w: choice[3,6,9,12,30]
+      defaults:
+        w: 6
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: "Which finds what better: keyword or vector search?"
+    params:
+      buckets:
+        - id: b1
+          label: keyword search
+        - id: b2
+          label: vector search
+      items:
+        - label: an exact order number
+          bucket: b1
+        - label: texts with synonyms
+          bucket: b2
+        - label: the exact name of a law
+          bucket: b1
+        - label: a question in everyday words
+          bucket: b2
+    hints:
+      - Are you looking for an identical word – or a similar meaning?
+      - Codes and names need exact matches.
+    explanation: Keyword search shines with exact terms, vector search with paraphrases. Good systems use both.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A database has 1 million vectors with 768 numbers each. How many million multiplications does it take to compare the query with all of them?
+    answer:
+      value: 768
+    hints:
+      - One comparison needs 768 multiplications.
+      - 768 · 1 million = 768 million.
+    explanation: 768 million per query – doable, but costly with billions of documents and many users. That is why search indexes are used that compare only a small part.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A vector index finds the nearest neighbours in milliseconds – instead of comparing all. What is the price?
+    params:
+      options:
+        - label: It usually, but not guaranteed, finds the truly nearest ones.
+          correct: true
+        - label: It is always exact and costs nothing.
+          feedback: The speed comes from an approximation.
+        - label: It finds random documents.
+          feedback: It finds very good ones – just not guaranteed the best.
+    hints:
+      - If you do not compare everything, you can miss something.
+      - How often does that happen? Rarely, if the index is good.
+    explanation: "This is called approximate nearest-neighbour search: a little loss of accuracy for a huge saving of time."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Someone searches for the error code "E-4711". Why is pure vector search often weak here?
+    params:
+      options:
+        - label: Exact codes and names carry little "meaning" – keyword search hits them better. So both are often combined.
+          correct: true
+        - label: Vectors cannot represent numbers.
+          feedback: They can contain numbers but sort by similarity, not equality.
+        - label: Error codes are secret.
+          feedback: They are not secret – just low in meaning.
+    hints:
+      - Does "E-4711" lie close to "E-4712" in vector space?
+      - "What do you need here: similar or identical?"
+    explanation: Hybrid search combines keyword search and vector search. That finds both exact terms and paraphrases.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Each vector has 768 numbers of 4 bytes each. How many gigabytes do 1 million such vectors need? To one decimal.
+    answer:
+      value: 3.1
+      tolerance: 0.05
+    hints:
+      - "One vector: 768 · 4 = 3072 bytes."
+      - 3072 · 1 million ≈ 3.1 billion bytes.
+    explanation: About 3.1 GB. With billions of documents, storage gets expensive. So numbers are often stored more coarsely, say 1 byte instead of 4 – with a small loss of accuracy.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a search by meaning works.
+    params:
+      keywords:
+        - - vektor
+          - vector
+        - - anfrage
+          - frage
+          - query
+        - - ähnlich
+          - kosinus
+          - nächst
+          - similar
+          - cosine
+          - nearest
+      sample: Every document is turned into a vector in advance. The query gets a vector too. Then the search shows the documents whose vectors are most similar to the query – those with the highest cosine.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

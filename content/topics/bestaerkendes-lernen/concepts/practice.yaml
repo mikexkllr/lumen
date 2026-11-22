@@ -5,7 +5,7 @@ summary: Reward Hacking und RLHF.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: boot
@@ -81,6 +81,24 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: order
+    prompt: So wird ein Chatbot mit menschlichem Feedback verfeinert. Ordne die Schritte.
+    params:
+      items:
+        - label: Das Modell schreibt zu einer Frage mehrere Antworten.
+        - label: Menschen wählen aus, welche Antwort besser ist.
+        - label: Ein Bewertungsmodell lernt diese Vorlieben.
+        - label: Der Chatbot wird darauf trainiert, hoch bewertet zu werden.
+        - label: Frische Tests mit Menschen prüfen das Ergebnis.
+    hints:
+      - Ohne Antworten gibt es nichts zu vergleichen.
+      - Das Bewertungsmodell ersetzt die Menschen beim eigentlichen Training.
+    explanation: Das ist **RLHF**. Vergleiche sind für Menschen leichter als Noten. Das Bewertungsmodell kann dann Millionen Antworten beurteilen – aber nur so gut, wie es gelernt hat.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -108,6 +126,44 @@ steps:
           - vormachen
           - shown
       sample: Beim Lernen aus Beispielen bekommt das Modell zu jedem Fall die richtige Antwort gezeigt. Beim bestärkenden Lernen probiert ein Agent selbst Aktionen aus und erfährt nur über Belohnung oder Strafe, wie gut sie waren.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Beim RLHF bestraft man, wenn sich der Chatbot zu weit vom ursprünglichen Modell entfernt. Wozu?
+    params:
+      options:
+        - label: Damit es nicht die Lücken des Bewertungsmodells ausnutzt und seltsame Texte erzeugt.
+          correct: true
+        - label: Damit es schneller rechnet.
+          feedback: Die Strafe ändert das Training, nicht die Rechenzeit.
+        - label: Damit es nichts Neues lernt.
+          feedback: Es soll lernen – nur nicht beliebig weit abdriften.
+    hints:
+      - Was passiert, wenn man hart auf ein fehlerhaftes Bewertungsmodell optimiert?
+      - Das Ausgangsmodell schreibt natürlichen Text.
+    explanation: Diese **Abstandsstrafe** bremst Reward Hacking. Wo Antworten automatisch prüfbar sind, etwa bei Rechen- oder Programmieraufgaben, nutzt man zusätzlich direkte Prüfungen als Belohnung.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Warum ist eine Belohnung wie »Das Programm besteht alle Tests« oft robuster als »Ein Mensch findet die Antwort gut«?
+    params:
+      options:
+        - label: Sie misst das Ergebnis direkt – Schmeicheln oder schöne Sprache helfen nicht.
+          correct: true
+        - label: Weil Tests nie Lücken haben.
+          feedback: Auch Tests können lückenhaft sein und ausgetrickst werden.
+        - label: Weil Menschen keine Programme verstehen.
+          feedback: Viele schon – aber Urteile sind langsam und beeinflussbar.
+    hints:
+      - Was kann ein Modell tun, um einem Menschen zu gefallen, ohne recht zu haben?
+      - Und gegen einen Test?
+    explanation: "**Prüfbare Belohnungen** lassen sich schwerer ausnutzen. Ganz sicher sind sie nie: Ein Agent kann etwa die Tests selbst verändern, wenn man ihn lässt."
     difficulty: 3
 
 srs:

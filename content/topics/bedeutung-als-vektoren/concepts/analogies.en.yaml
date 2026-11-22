@@ -1,0 +1,185 @@
+id: ai.embeddings.analogies
+type: concept
+title: "Analogies and directions"
+summary: "Berlin is to Germany as Paris is to … – calculating with meaning."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: "Toy vectors: Berlin (2, 5), Germany (2, 1), France (6, 1). Compute Berlin − Germany + France. What is the **first** number?"
+    answer:
+      value: 6
+    hints:
+      - "First position: 2 − 2 + 6."
+      - The second position would be 5 − 1 + 1 = 5.
+    explanation: Result (6, 5). Berlin − Germany is the direction "capital of". Added to France, you land where Paris should be.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Which word lies closest to Berlin − Germany + France?
+    params:
+      options:
+        - label: Paris
+          correct: true
+        - label: France
+          feedback: The input word itself is excluded. We want the word at the shifted position.
+        - label: Munich
+          feedback: Munich is close to Berlin, but not in France.
+    hints:
+      - The calculation carries over the relation "capital of".
+      - What is the capital of France?
+    explanation: Paris. That such a calculation works was one of the most surprising discoveries about word vectors.
+
+  - kind: explain
+    id: c3
+    body: "An analogy becomes a shift in vector space: pairs with the same relation are offset by roughly the same arrow. King → queen and man → woman point in similar ways."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Which relation is in the pair?
+    params:
+      buckets:
+        - id: b1
+          label: capital of
+        - id: b2
+          label: plural of
+      items:
+        - label: Rome – Italy
+          bucket: b1
+        - label: dogs – dog
+          bucket: b2
+        - label: Madrid – Spain
+          bucket: b1
+        - label: trees – tree
+          bucket: b2
+    hints:
+      - Is it about countries or grammar?
+      - Each relation is its own arrow in the space.
+    explanation: "Grammar becomes a direction too: plural, past tense, comparison. Models learn these without anyone explaining them."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: "Toy vectors: king (5, 1), man (4, 0), woman ({{a}}, {{b}}). What is the **second** number of king − man + woman?"
+    answer:
+      value: "{{1 + b}}"
+    hints:
+      - "Second position: 1 − 0 + {{b}}."
+      - Compute each position separately.
+    explanation: 1 − 0 + {{b}} = {{1 + b}}. The calculation runs separately for each axis – just like arrows in physics.
+    variants:
+      params:
+        a: int[2,6]
+        b: int[1,5]
+      defaults:
+        a: 4
+        b: 2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: How well does such a calculation work in real models?
+    params:
+      options:
+        - label: Often good for frequent, clear relations, rather imprecise otherwise.
+          correct: true
+        - label: Always exact.
+          feedback: The result almost never lands exactly on a word – you take the nearest neighbour.
+        - label: They never work.
+          feedback: For many relations they work surprisingly well.
+    hints:
+      - Does the calculation land exactly on "Paris"?
+      - Rare words have less accurate vectors.
+    explanation: The arrows are only roughly parallel. Analogies are a nice illustration, not a precise tool.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Word vectors from old texts often gave "nurse" for "doctor − man + woman". What does that show?
+    params:
+      options:
+        - label: The vectors pick up role stereotypes from the texts they learned from.
+          correct: true
+        - label: That women cannot be doctors.
+          feedback: Of course they can – the model only mirrors old habits of language.
+        - label: That the calculation was wrong.
+          feedback: The calculation was correct – the data were biased.
+    hints:
+      - Where do the numbers in the vectors come from?
+      - What appeared together more often in the texts?
+    explanation: Vectors store the biases of the data too. These are measured with exactly such calculations and reduced where possible – removing them fully is hard.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How does a program like word2vec learn its vectors without any dictionary?
+    params:
+      options:
+        - label: It predicts the neighbouring words in text from a word – words with similar neighbours get similar vectors.
+          correct: true
+        - label: People enter each word's meaning by hand.
+          feedback: That would be far too much work. The vectors come from the text itself.
+        - label: It counts the letters of a word.
+          feedback: '"Hund" and "Bund" share letters but hardly any meaning.'
+    hints:
+      - '"You shall know a word by the company it keeps."'
+      - Which words often appear next to "dog"?
+    explanation: "This is the distributional hypothesis: similar words appear in similar contexts. The idea still holds today – the embeddings of large language models also arise from prediction."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: word2vec looks at a window of {{k}} words left and {{k}} words right of the centre word. How many neighbouring words should it predict for a word in the middle of a sentence?
+    answer:
+      value: "{{2 * k}}"
+    hints:
+      - "{{k}} on the left, {{k}} on the right."
+      - The centre word itself does not count.
+    explanation: "{{2 * k}} neighbours. A larger window captures topics, a small one grammar and close synonyms."
+    difficulty: 3
+    variants:
+      params:
+        k: int[2,5]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how vectors can express "Berlin is to Germany as Paris is to France".
+    params:
+      keywords:
+        - - pfeil
+          - richtung
+          - differenz
+          - minus
+          - arrow
+          - direction
+          - difference
+        - - hauptstadt
+          - capital
+        - - addier
+          - plus
+          - verschieb
+          - add
+          - shift
+      sample: Berlin minus Germany gives an arrow that roughly means "capital of". If I add this arrow to France, I land close to Paris. The same relations are similar directions.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

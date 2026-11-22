@@ -5,7 +5,7 @@ summary: Training, Kontextfenster und Wissenslücken.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Was kann die KI gerade lesen?
     explanation: Was im Gespräch steht, sieht sie. Den Rest kennt sie nur aus dem Training.
-
 
   - kind: explain
     id: s1
@@ -88,6 +87,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Kontextfenster fasst 200 000 Tokens. Ein Token ist etwa ¾ Wort, eine Buchseite hat etwa 300 Wörter. Wie viele Seiten passen ungefähr hinein?
+    answer:
+      value: 500
+      tolerance: 10
+    hints:
+      - "Erst in Wörter umrechnen: 200 000 · ¾."
+      - 150 000 Wörter geteilt durch 300.
+    explanation: "Etwa 500 Seiten – ein dickes Buch. Trotzdem gilt: Was **nicht** im Fenster steht, sieht das Modell nicht."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Chatbot »erinnert« sich in einem neuen Gespräch an deinen Namen. Wie funktioniert das meist?
+    params:
+      options:
+        - label: Die App hat sich Notizen gespeichert und fügt sie in den Kontext ein.
+          correct: true
+        - label: Das Modell hat aus deinem Gespräch neu gelernt.
+          feedback: Die Gewichte ändern sich beim Chatten nicht.
+        - label: Es hat deinen Namen geraten.
+          feedback: Raten wäre Glück – hier steckt eine gespeicherte Information dahinter.
+    hints:
+      - Ändert sich das Modell selbst, während du mit ihm sprichst?
+      - Was es sieht, steht im Kontext. Wer kann etwas dort hineinlegen?
+    explanation: »Gedächtnis« ist meist ein **Speicher** außerhalb des Modells. Die App legt passende Notizen beim nächsten Mal in den Kontext. Das Modell selbst bleibt gleich.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -112,6 +144,25 @@ steps:
           - append
       min: 3
       sample: Es berechnet für jedes mögliche nächste Wort eine Wahrscheinlichkeit und zieht eines davon. Das hängt es an den Text an und wiederholt den Schritt – Wort für Wort, bis die Antwort fertig ist.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Firmen-Chatbot sucht Textstellen und antwortet daraus. Die Suche findet eine veraltete Preisliste. Was passiert wahrscheinlich?
+    params:
+      options:
+        - label: Es nennt die alten Preise – überzeugt und mit Quelle.
+          correct: true
+        - label: Es merkt, dass die Liste veraltet ist.
+          feedback: Nur wenn im Kontext etwas darauf hinweist, etwa ein Datum.
+        - label: Es antwortet gar nicht.
+          feedback: Es hat ja Text gefunden, der passt.
+    hints:
+      - Woher nimmt das Modell seine Antwort?
+      - Kann es wissen, was nicht im Kontext steht?
+    explanation: "Bei **RAG** hängt die Antwort an der Suche: Falsche Treffer führen zu falschen, aber gut belegten Antworten. Darum pflegt man die Dokumente und zeigt Datum und Quelle an."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: What does not fit shows what does.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Who plays which instrument? Watch the **columns** too.
+    params:
+      categories:
+        - name: Child
+          items:
+            - Ana
+            - Ben
+            - Cem
+            - Dila
+        - name: Instrument
+          items:
+            - flute
+            - violin
+            - guitar
+            - drum
+      clues:
+        - text: Neither Ana nor Ben nor Cem plays the flute.
+          rules:
+            - not:
+                - Ana
+                - flute
+            - not:
+                - Ben
+                - flute
+            - not:
+                - Cem
+                - flute
+        - text: Ana plays neither the violin nor the drum.
+          rules:
+            - not:
+                - Ana
+                - violin
+            - not:
+                - Ana
+                - drum
+        - text: Ben does not play the drum.
+          rule:
+            not:
+              - Ben
+              - drum
+    hints:
+      - In the flute column only one cell is left.
+      - Then only the guitar is left for Ana.
+    explanation: Dila – flute, Ana – guitar, Ben – violin, Cem – drum. Elimination works in rows **and** columns.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: In the "violin" column only Ben's cell is still open. But Ben's row still has three open cells. What follows?
+    params:
+      options:
+        - label: Ben plays the violin – the violin has to belong to someone.
+          correct: true
+        - label: Nothing yet – Ben's row is not finished.
+          feedback: "The column is enough: each instrument belongs to exactly one child."
+        - label: Ben does not play the violin.
+          feedback: Then nobody would have the violin.
+    hints:
+      - How many children play the violin?
+      - One open cell in a column works just like one open cell in a row.
+    explanation: "The column trick: if only one cell is left in a column, it is a ✓ – however full the row is. Experts always check both directions."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +164,44 @@ steps:
     hints:
       - Each person has exactly one job – and each job exactly one person.
     explanation: One decision entails many others. Sudoku solvers use this **propagation** of consequences too.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A puzzle with 3 people and 3 pets should use **only** "not" clues. At least how many such clues do you need for a unique solution?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-few
+        text: Two crosses rule out at most 4 of the 5 wrong matchings.
+    hints:
+      - There are 6 matchings and 5 must go. How many does a single cross remove at most?
+      - Each cell appears in exactly 2 of the 6 matchings.
+    explanation: 'A cross removes at most 2 matchings, so 5 need at least 3. Three also suffice: "A not 2, A not 3, B not 3". Such bounds count the most each piece of information can do.'
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you should check rows **and** columns in a logic grid.
+    params:
+      keywords:
+        - - zeile
+          - row
+        - - spalte
+          - column
+        - - genau ein
+          - genau eins
+          - exactly one
+        - - frei
+          - übrig
+          - left
+          - open
+      sample: Each person has exactly one pet and each pet belongs to exactly one person. So if only one cell is open in a row or in a column, it must get a tick.
     difficulty: 3
 
 srs:

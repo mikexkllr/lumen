@@ -5,7 +5,7 @@ summary: Accuracy and its traps.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
   - kind: problem
     id: quote
@@ -67,6 +67,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Of 10,000 payments, 1 % are fraud. A model catches 90 % of them. On genuine payments it raises a false alarm 5 % of the time. What percentage of its alarms are real fraud? To one decimal.
+    answer:
+      value: 15.4
+      tolerance: 0.2
+    feedback:
+      - when: numval(state.input) == 90
+        misconception: recall-vs-precision
+        text: That is the recall. We want how many **alarms** are right.
+    hints:
+      - "True hits: 90 % of 100 = 90. False alarms: 5 % of 9900 = 495."
+      - 90 / (90 + 495) = ?
+    explanation: 90 / 585 ≈ 15.4 %. Because fraud is rare, false alarms outnumber real hits even for a good model. The base rate matters.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: The model now waits for a higher score before it sounds the alarm. What usually happens?
+    params:
+      options:
+        - label: Fewer false alarms, but also more missed fraud.
+          correct: true
+        - label: Everything improves.
+          feedback: A threshold only shifts the trade-off – it does not make the model smarter.
+        - label: More alarms.
+          feedback: A higher threshold means fewer alarms.
+    hints:
+      - Raising fewer alarms means fewer wrong alarms – but?
+      - What happens to cases just below the new threshold?
+    explanation: "Precision rises, recall falls. Where the threshold goes depends on the costs: is missing a case more expensive than a false alarm – or the other way round?"
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -94,6 +131,25 @@ steps:
           - detect
           - erkennen
       sample: If what you look for is rare, say 1% fraud, a model reaches 99% by simply always saying “no fraud”. But then it misses every real case and is useless.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: A model has an AUC of 0.9. What does that mean?
+    params:
+      options:
+        - label: A random fraud case gets a higher score than a random genuine payment with 90 % probability.
+          correct: true
+        - label: 90 % of all predictions are right.
+          feedback: That would be accuracy – which depends on the chosen threshold.
+        - label: 90 % of alarms are real.
+          feedback: That would be precision at one particular threshold.
+    hints:
+      - The AUC rates the ordering of scores, not one single threshold.
+      - Draw one fraud case and one genuine payment. Which ranks higher?
+    explanation: The AUC measures how well the model ranks – across all thresholds. 0.5 is guessing, 1 is perfect. With rare cases, though, even a high AUC can mean many false alarms.
     difficulty: 3
 
 srs:

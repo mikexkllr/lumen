@@ -5,7 +5,7 @@ summary: How close are two tastes?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 75
       tolerance: 12
     explanation: About 70 to 80%. Most choices are pre-made by the algorithm – not by search.
-
 
   - kind: problem
     id: abstand
@@ -80,6 +79,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Anna rates three films ({{a1}}, {{a2}}, {{a3}}), Ben ({{b1}}, {{b2}}, {{b3}}). How big is the distance if you add up the differences without signs?
+    answer:
+      value: "{{abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)}}"
+    hints:
+      - "Go film by film: how far apart are the stars?"
+      - Add the three gaps.
+    explanation: "{{abs(a1 - b1)}} + {{abs(a2 - b2)}} + {{abs(a3 - b3)}} = {{abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)}}. This measure is called the Manhattan distance – like walking through a street grid."
+    difficulty: 2
+    variants:
+      params:
+        a1: int[1,5]
+        a2: int[1,5]
+        a3: int[1,5]
+        b1: int[1,5]
+        b2: int[1,5]
+        b3: int[1,5]
+      constraints:
+        - a1 != b1
+        - a2 != b2
+      defaults:
+        a1: 5
+        a2: 2
+        a3: 4
+        b1: 3
+        b2: 3
+        b3: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Lea almost always gives 4 or 5 stars, Tom mostly 1 or 2. How does a system make their ratings comparable?
+    params:
+      options:
+        - label: Subtract each person's own average from their ratings.
+          correct: true
+        - label: Delete Tom's ratings.
+          feedback: Then valuable data is lost – Tom is just stricter.
+        - label: Set all ratings to 3.
+          feedback: Then all information is gone.
+    hints:
+      - For Lea a 4 is rather weak; for Tom it would be praise.
+      - What matters is how a film compares with one's own average.
+    explanation: After centring, +1 means "better than my average". That way strict and generous raters fit together.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +144,47 @@ steps:
     hints:
       - What matters is the direction, not the length.
     explanation: "**Cosine similarity** compares patterns rather than magnitudes. It is in almost every search and every language model."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Lea gives three films 5, 4 and 3 stars. What is her centred rating for the third film?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: raw
+        text: That is the raw rating. Subtract her average.
+    hints:
+      - Her average is (5 + 4 + 3) / 3.
+      - Compute 3 − 4.
+    explanation: 3 − 4 = −1. Taking the cosine of the angle between centred ratings gives the Pearson correlation – a standard measure of taste similarity.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a recommender measures whether two people have similar taste.
+    params:
+      keywords:
+        - - bewert
+          - sterne
+          - rating
+          - stars
+        - - abstand
+          - unterschied
+          - distance
+          - difference
+        - - klein
+          - nah
+          - ähnlich
+          - small
+          - close
+          - similar
+      sample: It compares their ratings film by film and computes a distance. The smaller the distance, the more similar their taste. Often each person's own average is subtracted first.
     difficulty: 3
 
 srs:

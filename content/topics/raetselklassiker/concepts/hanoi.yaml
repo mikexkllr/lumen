@@ -5,8 +5,21 @@ summary: Ein Turm, drei Stäbe, eine goldene Regel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
+  - kind: problem
+    id: la-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Züge braucht man mindestens für einen Turm aus 10 Scheiben?"
+    params:
+      min: 10
+      max: 100000
+      scale: log
+    answer:
+      value: 1023
+      within: 40
+    explanation: 2¹⁰ − 1 = 1023. Jede weitere Scheibe verdoppelt die Arbeit – plus ein Zug.
+
   - kind: problem
     id: zwei
     widget: hanoi
@@ -85,6 +98,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: Warum kann es für n Scheiben nicht schneller gehen als 2 · (Züge für n − 1) + 1?
+    params:
+      options:
+        - label: Bevor die größte Scheibe zieht, müssen alle anderen auf dem dritten Stab liegen – und danach wieder auf sie.
+          correct: true
+        - label: Weil die kleinste Scheibe jeden zweiten Zug macht.
+          feedback: Das stimmt zwar, erklärt aber nicht, warum es nicht kürzer geht.
+        - label: Weil es so in der Legende steht.
+          feedback: Eine Legende beweist nichts – gesucht ist ein Argument.
+    hints:
+      - Was muss passieren, damit die größte Scheibe überhaupt ziehen kann?
+      - Wo müssen die n − 1 kleineren Scheiben in diesem Moment liegen?
+    explanation: Die größte Scheibe zieht mindestens einmal. Dafür muss der Turm aus n − 1 Scheiben weg und danach wieder drauf. Also gilt Züge(n) ≥ 2 · Züge(n − 1) + 1 – und die rekursive Lösung erreicht genau das.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Für {{n - 1}} Scheiben braucht man {{2 ** (n - 1) - 1}} Züge. Wie viele sind es dann für {{n}} Scheiben?
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * (2 ** (n - 1) - 1)
+        misconception: forgot-plus-one
+        text: Fast – die größte Scheibe muss auch noch einmal ziehen.
+    hints:
+      - Kleiner Turm weg, große Scheibe rüber, kleiner Turm drauf.
+      - Rechne 2 · {{2 ** (n - 1) - 1}} + 1.
+    explanation: 2 · {{2 ** (n - 1) - 1}} + 1 = {{2 ** n - 1}}. Aus der **Rekursion** Z(n) = 2 · Z(n − 1) + 1 mit Z(1) = 1 folgt per Induktion Z(n) = 2ⁿ − 1.
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,9]
+      defaults:
+        n: 6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +154,49 @@ steps:
     hints:
       - Scheibe 1 bei jedem zweiten Zug, Scheibe 2 bei jedem vierten …
     explanation: Von 0001 bis 1111 zählen und immer die Scheibe des umspringenden Bits bewegen. Zwei völlig verschiedene Dinge mit derselben Struktur.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Nummeriere die Scheiben von klein (1) nach groß. Bei {{n}} Scheiben: Wie oft wird Scheibe 2 in der besten Lösung bewegt?"
+    answer:
+      value: "{{2 ** (n - 2)}}"
+    hints:
+      - Die größte Scheibe zieht 1-mal, die zweitgrößte 2-mal, die nächste 4-mal …
+      - Scheibe k zieht 2^(n − k)-mal.
+    explanation: "Scheibe 2 zieht 2^({{n}} − 2) = {{2 ** (n - 2)}}-mal. Alle zusammen: 1 + 2 + 4 + … + 2ⁿ⁻¹ = 2ⁿ − 1 – die bekannte Summe."
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man einen Turm aus n Scheiben bewegt – und warum dafür 2ⁿ − 1 Züge nötig sind.
+    params:
+      keywords:
+        - - kleiner
+          - n − 1
+          - n-1
+          - smaller
+        - - größte
+          - groesste
+          - unterste
+          - largest
+          - biggest
+          - bottom
+        - - verdoppel
+          - doppelt
+          - zweimal
+          - double
+          - twice
+      sample: "Erst den kleineren Turm aus n − 1 Scheiben zur Seite, dann die größte Scheibe ans Ziel, dann den kleinen Turm wieder drauf. So verdoppelt sich die Zahl der Züge bei jeder Scheibe, plus eins: 2ⁿ − 1."
     difficulty: 3
 
 srs:

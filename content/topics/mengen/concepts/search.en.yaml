@@ -5,7 +5,7 @@ summary: AND, OR, NOT in search engines.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: und
@@ -61,6 +61,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: venn
+    prompt: You search for "recipe AND (vegan OR quick)". Shade all hits.
+    params:
+      sets:
+        - Recipe
+        - vegan
+        - quick
+    answer:
+      regions:
+        - AB
+        - AC
+        - ABC
+    feedback:
+      - when: has('B') || has('C') || has('BC')
+        misconception: or-outside
+        text: Every hit must be a recipe – stay inside the recipe circle.
+    hints:
+      - All hits lie inside the recipe circle.
+      - Of those, only the regions that are also vegan or quick.
+    explanation: "Three regions: vegan recipes, quick recipes and both. The brackets decide what is combined first."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: A search for "cat" finds 800 pages, "dog" finds 600. 200 pages contain both. How many hits does "cat NOT dog" give?
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: kept-overlap
+        text: Those are the pages with both – exactly the ones that are removed.
+      - when: numval(state.input) == 1200
+        misconception: or-instead
+        text: That would be "cat OR dog".
+    hints:
+      - NOT cuts the dog circle out of the cat circle.
+      - Compute 800 − 200.
+    explanation: 800 − 200 = 600. "A NOT B" is the difference A ∖ B.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -76,6 +121,49 @@ steps:
     hints:
       - "If an element lies only in C: is it in the first expression? In the second?"
     explanation: "Brackets decide. Correct is: A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C) – the **distributive law**."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Which search gives exactly the same hits as "NOT (cat OR dog)"?
+    params:
+      options:
+        - label: NOT cat AND NOT dog
+          correct: true
+        - label: NOT cat OR NOT dog
+          feedback: That would also find pages with only cats.
+        - label: cat AND dog
+          feedback: That is nearly the opposite.
+    hints:
+      - '"Not (A or B)" means: neither A nor B.'
+      - When you negate, AND and OR swap places.
+    explanation: "This is one of De Morgan's laws: ¬(A ∨ B) = ¬A ∧ ¬B. In the Venn diagram it is the region outside both circles."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how AND, OR and NOT change the number of search hits.
+    params:
+      keywords:
+        - - und
+          - and
+        - - oder
+          - or
+        - - nicht
+          - not
+        - - weniger
+          - mehr
+          - kleiner
+          - größer
+          - fewer
+          - more
+          - smaller
+          - larger
+      sample: AND needs both, so there are fewer hits. OR needs only one, so there are more. NOT cuts a part out and also gives fewer hits.
     difficulty: 3
 
 srs:

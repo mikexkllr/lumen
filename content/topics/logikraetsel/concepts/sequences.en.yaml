@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.sequences]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: plus-drei
@@ -97,6 +97,49 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: What comes next? 1, 3, 7, 13, 21, …
+    answer:
+      value: 31
+    feedback:
+      - when: numval(state.input) == 29
+        misconception: constant-gap
+        text: The gaps grow – they do not stay at 8.
+    hints:
+      - Write down the gaps between the numbers.
+      - The gaps are 2, 4, 6, 8 – which comes next?
+    explanation: "The differences 2, 4, 6, 8, 10 form a simple sequence of their own. 21 + 10 = 31. When the second differences are constant, the rule is quadratic: here n² − n + 1."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "The sequence starts at {{a}} and always grows by {{d}}: {{a}}, {{a + d}}, {{a + 2 * d}}, … Which number is in position {{n}}?"
+    answer:
+      value: "{{a + (n - 1) * d}}"
+    feedback:
+      - when: numval(state.input) == a + n * d
+        misconception: off-by-one
+        text: "One step too many: position 1 is {{a}}, where nothing has been added yet."
+    hints:
+      - How often was {{d}} added up to position 3? And up to position {{n}}?
+      - Up to position {{n}} you add ({{n}} − 1) times.
+    explanation: "{{a}} + ({{n}} − 1) · {{d}} = {{a + (n - 1) * d}}. The formula a + (n − 1) · d saves counting."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,9]
+        n: int[10,30]
+      defaults:
+        a: 4
+        d: 3
+        n: 20
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +155,44 @@ steps:
     hints:
       - "Connect points on a circle and count the regions: 1, 2, 4, 8, 16, 31."
     explanation: Finitely many numbers never fix a rule. A pattern is a conjecture – only a proof makes it certain.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "The sequence describes itself: 1, 11, 21, 1211, 111221, … Which number comes next?"
+    answer:
+      value: 312211
+    hints:
+      - 'Read 1211 aloud: "one one, one two, two ones". That gives 111221.'
+      - "Now read 111221: three ones, two twos, one one."
+    explanation: "Three ones, two twos, one one: 312211. The rule is not arithmetic but a description – sequences can follow any kind of rule."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the first few terms of a sequence never pin down the rule for sure.
+    params:
+      keywords:
+        - - regel
+          - regeln
+          - rule
+          - rules
+        - - mehrere
+          - viele
+          - verschiedene
+          - several
+          - many
+          - different
+        - - passen
+          - passt
+          - fit
+          - fits
+          - match
+      sample: Several rules always fit finitely many numbers, and each rule can give a different next number. Only stating the rule fixes the sequence.
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.tokens]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zerlegen
@@ -79,6 +79,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: order
+    prompt: So lernt ein Tokenizer seine Wortstücke (Byte-Pair-Encoding). Ordne.
+    params:
+      items:
+        - label: Starte mit einzelnen Zeichen als Tokens.
+        - label: Zähle, welches Paar benachbarter Tokens am häufigsten ist.
+        - label: Verschmelze dieses Paar zu einem neuen Token.
+        - label: Wiederhole, bis der Wortschatz groß genug ist.
+    hints:
+      - Am Anfang kennt der Tokenizer nur Buchstaben.
+      - Häufige Paare wie »e« + »n« werden zuerst verschmolzen.
+    explanation: So entstehen Tokens für häufige Silben und Wörter. Seltene Wörter bleiben in **Stücke** zerlegt.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Derselbe Satz braucht auf Deutsch oft mehr Tokens als auf Englisch. Woran liegt das meist?
+    params:
+      options:
+        - label: Viele Tokenizer lernten vor allem an englischem Text – deutsche Wörter zerfallen in mehr Stücke.
+          correct: true
+        - label: Deutsch hat mehr Buchstaben im Alphabet.
+          feedback: Die paar Umlaute machen kaum einen Unterschied.
+        - label: Das Modell versteht Deutsch nicht.
+          feedback: Es versteht es oft gut – es braucht nur mehr Stücke dafür.
+    hints:
+      - Welche Wortstücke werden beim Tokenizer-Training häufig?
+      - Lange zusammengesetzte Wörter kommen dazu.
+    explanation: Was in den Trainingsdaten häufig ist, bekommt eigene Tokens. Mehr Tokens heißt mehr **Kosten** und weniger Platz im Kontext – ein echter Nachteil für viele Sprachen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,4 +130,41 @@ steps:
     hints:
       - Wie viele verschiedene Wörter gibt es – mit allen Namen und Tippfehlern?
     explanation: "Das Verfahren heißt **Byte-Pair-Encoding**: Häufige Zeichenfolgen werden schrittweise zu Tokens verschmolzen."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Modell kennt 50 000 Tokens. Jedes Token hat einen Vektor mit 4096 Zahlen. Wie viele Millionen Zahlen hat diese Tabelle?
+    answer:
+      value: 204.8
+      tolerance: 0.1
+    hints:
+      - Rechne 50 000 · 4096.
+      - Das sind 204 800 000. In Millionen?
+    explanation: Rund 205 Millionen Gewichte nur für die **Einbettungstabelle**. Ein größerer Wortschatz spart Tokens pro Text, kostet aber Speicher – ein Kompromiss.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Sprachmodell manchmal falsch zählt, wie viele »r« in einem Wort stecken.
+    params:
+      keywords:
+        - - token
+          - stück
+          - piece
+        - - buchstab
+          - letter
+          - zeichen
+          - character
+        - - nummer
+          - zahl
+          - sieht nicht
+          - number
+          - cannot see
+          - does not see
+      sample: Das Modell sieht keine Buchstaben, sondern Tokens – Wortstücke, die als Nummern ankommen. Die einzelnen Buchstaben stecken darin verborgen. Darum muss es raten, statt zu zählen.
     difficulty: 3

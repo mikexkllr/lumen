@@ -5,7 +5,7 @@ summary: Who lies, who tells the truth?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: einer
@@ -138,6 +138,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: 'A says: "All three of us are knaves." B says: "Exactly one of us is a knight." What is C?'
+    params:
+      options:
+        - label: A knave
+          correct: true
+        - label: A knight
+          feedback: Then C would be the only knight and B would be telling the truth – so B would be a knight too.
+        - label: It cannot be determined.
+          feedback: It can – after two assumptions only one case is left.
+    hints:
+      - Can A be a knight?
+      - A lies, so there is at least one knight. Try B as a knight and B as a knave.
+    explanation: A cannot be a knight. If B were a knave, C would have to be a knight – then there would be exactly one knight and B would be right. Contradiction. So B is the only knight, and C is a knave.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: 'A says: "B is a knight." B says: "A and I are of different types." How many knights are there among the two?'
+    answer:
+      value: 0
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: not-checked
+        text: If both are knights they are the same type – then B is lying.
+    hints:
+      - Assume A is a knight. What follows for B and his statement?
+      - So A lies. What is B then – and is B's statement false then?
+    explanation: If A were a knight, B would be one too – but then both would be alike and B would be lying. So A lies and B is a knave. B's statement is false, since both are alike. No knights.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -153,6 +189,52 @@ steps:
     hints:
       - Build the lie into every possible answer **exactly once**.
     explanation: In both cases exactly one lie is in the answer – it always points to the wrong door.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: 'A says: "B and I are of the same type." What do you know for sure?'
+    params:
+      options:
+        - label: B is a knight – nothing is known about A.
+          correct: true
+        - label: Both are knights.
+          feedback: "A knave A can say it too: then B is a knight and the sentence is a lie."
+        - label: Nothing at all.
+          feedback: Play through both cases for A – both give the same result for B.
+    hints:
+      - "Case 1: A is a knight. Then the sentence is true. What is B?"
+      - "Case 2: A is a knave. Then the two differ. What is B?"
+    explanation: 'Knight A: same type, so B is a knight. Knave A: different types, so B is a knight. Logically, "A ↔ (A ↔ B)" holds exactly when B is true. Puzzles use this trick to build questions that always work.'
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the question "Would you say that the left path leads to the village?" forces even a knave to tell the truth.
+    params:
+      keywords:
+        - - zweimal
+          - doppelt
+          - zwei lügen
+          - twice
+          - double
+        - - lüge
+          - lügt
+          - gelogen
+          - lie
+          - lies
+        - - wahr
+          - richtig
+          - stimmt
+          - "true"
+          - truth
+          - right
+          - correct
+      sample: A knave lies about his own answer. He would lie to "Does the left path lead to the village?", and he lies about that lie once more. Lying twice gives the truth.
     difficulty: 3
 
 srs:

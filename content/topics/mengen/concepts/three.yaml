@@ -5,7 +5,7 @@ summary: Acht Bereiche, klar sortiert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: alle-drei
@@ -83,6 +83,86 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: venn
+    prompt: "Färbe: Musik, aber weder Mathe noch Sport."
+    params:
+      sets:
+        - Mathe
+        - Musik
+        - Sport
+    answer:
+      regions:
+        - B
+    feedback:
+      - when: has('AB') || has('BC')
+        misconception: partial-exclusion
+        text: In diesem Bereich ist Mathe oder Sport dabei.
+    hints:
+      - Nur der Musik-Kreis – ohne jede Überlappung.
+      - Es ist genau ein Bereich.
+    explanation: Musik ∖ (Mathe ∪ Sport) ist der Teil des Musik-Kreises, der keinen anderen Kreis berührt.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: venn
+    prompt: Färbe (Mathe ∪ Musik) ∩ Sport.
+    params:
+      sets:
+        - Mathe
+        - Musik
+        - Sport
+    answer:
+      regions:
+        - AC
+        - BC
+        - ABC
+    feedback:
+      - when: has('C')
+        misconception: union-first
+        text: Der Bereich »nur Sport« liegt nicht in Mathe ∪ Musik.
+    hints:
+      - "Erst die Klammer: Mathe oder Musik. Dann nur, was davon auch im Sport-Kreis liegt."
+      - Drei Bereiche liegen im Sport-Kreis und zugleich in Mathe oder Musik.
+    explanation: Sport mit Mathe, Sport mit Musik und die Mitte. Das ist dasselbe wie (Mathe ∩ Sport) ∪ (Musik ∩ Sport).
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: Die Zahlen im Bild zeigen, wie viele Leute in jedem Bereich sind. Wie viele haben **genau zwei** Hobbys?
+    visual:
+      widget: venn
+      params:
+        sets:
+          - Mathe
+          - Musik
+          - Sport
+        counts:
+          A: 5
+          B: 4
+          C: 6
+          AB: 2
+          AC: 3
+          BC: 1
+          ABC: 1
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: includes-centre
+        text: Die Mitte zählt nicht mit – dort sind es drei Hobbys.
+    hints:
+      - "Genau zwei: die drei Überlappungen ohne die Mitte."
+      - Addiere 2 + 3 + 1.
+    explanation: 2 + 3 + 1 = 6. Die Person in der Mitte hat alle drei Hobbys.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -98,6 +178,49 @@ steps:
     hints:
       - Färbe im Venn-Diagramm alles außerhalb beider Kreise.
     explanation: "Die Regel von **De Morgan**: Beim Verneinen wird aus »oder« ein »und«."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Zwei Kreise schneiden sich in höchstens 2 Punkten. In wie viele Bereiche teilen **vier** Kreise die Ebene höchstens – den Außenbereich mitgezählt?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: assume-16
+        text: Ein Venn-Diagramm für vier Mengen bräuchte 16 Bereiche. Mit Kreisen schafft man aber nur 14.
+    hints:
+      - "Ein Kreis: 2 Bereiche. Jeder neue Kreis wird von den alten in Bögen zerschnitten – jeder Bogen teilt einen Bereich."
+      - "Der k-te Kreis trifft die alten in höchstens 2(k − 1) Punkten und gewinnt so viele Bereiche: 2, 4, 8, …"
+    explanation: 2 + 2 + 4 + 6 = 14, allgemein n² − n + 2. Für vier Mengen braucht man 16 Bereiche. Darum zeichnet man sie mit Ellipsen oder anderen Formen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Venn-Diagramm mit drei Mengen genau acht Bereiche hat.
+    params:
+      keywords:
+        - - drin
+          - innen
+          - nicht
+          - in
+          - out
+          - inside
+        - - jede
+          - drei
+          - each
+          - three
+        - - 2 · 2 · 2
+          - 2³
+          - zwei hoch drei
+          - 2^3
+          - acht
+          - eight
+      sample: "Für jede der drei Mengen gibt es zwei Möglichkeiten: drin oder nicht drin. Das ergibt 2 · 2 · 2 = 8 Kombinationen, also acht Bereiche."
     difficulty: 3
 
 srs:

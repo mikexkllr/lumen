@@ -5,7 +5,7 @@ summary: Three outcomes beat two.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: neun
@@ -93,6 +93,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: One of 10 coins is lighter. How many weighings do you need at least to find it **for sure**?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: ceil-missing
+        text: Two weighings have 3 · 3 = 9 outcomes – too few for 10 coins.
+    hints:
+      - With w weighings you can check at most 3^w coins.
+      - Which power of 3 is at least 10?
+    explanation: 3² = 9 is not enough, 3³ = 27 is. So 3 weighings. The number needed always rounds up.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Someone thinks of a number from 1 to {{2 ** k}}. You only ask "higher or lower?". How many questions are always enough?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k / 2
+        misconception: linear-not-log
+        text: Halving does not mean asking about half the numbers. Each question halves what is left.
+    hints:
+      - Each question halves the candidates.
+      - How often can you halve {{2 ** k}} until 1 is left?
+    explanation: "{{2 ** k}} = 2^{{k}}, so {{k}} questions. This is binary search. Even a million numbers need only 20 questions."
+    difficulty: 2
+    variants:
+      params:
+        k: int[4,12]
+      defaults:
+        k: 10
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -108,6 +147,48 @@ steps:
     hints:
       - 12 coins times 2 possibilities (heavier, lighter).
     explanation: 24 ≤ 27. The number of distinguishable outcomes sets a hard limit – an argument from **information theory**.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: In "20 questions" you may ask 20 yes–no questions. From how many things can you find the right one for sure at most?
+    answer:
+      value: 1048576
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: additive
+        text: Every question doubles the count instead of adding 2.
+    hints:
+      - One question tells 2 things apart, two questions 4 …
+      - Compute 2^20.
+    explanation: 2^20 = 1,048,576. Each answer gives at most one bit of information, so N things need at least log₂ N questions.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you split coins into three groups for weighing, not two.
+    params:
+      keywords:
+        - - drei
+          - three
+        - - ausgäng
+          - ausgang
+          - ergebnis
+          - möglich
+          - outcome
+          - result
+        - - links
+          - rechts
+          - gleich
+          - left
+          - right
+          - equal
+          - balance
+      sample: "A weighing has three outcomes: left heavier, right heavier or equal. With three groups each outcome tells you which group holds the odd coin, so every weighing is fully used."
     difficulty: 3
 
 srs:

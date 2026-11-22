@@ -5,7 +5,7 @@ summary: When a model only knows the practice data.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: klausur
@@ -72,6 +72,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Through {{n}} points with different x-values there always passes a polynomial of degree …?
+    answer:
+      value: "{{n - 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: off-by-one
+        text: For 2 points a line, degree 1, is enough. The degree is one less.
+    hints:
+      - "2 points: a line (degree 1). 3 points: a parabola (degree 2)."
+      - So with {{n}} points?
+    explanation: "Degree {{n - 1}} hits every point exactly – noise included. Between the points the curve often swings wildly. Perfect in training does not mean good: that is overfitting."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: In training you add a penalty for large weights ("weight decay"). What for?
+    params:
+      options:
+        - label: Small weights give smoother functions that copy noise less.
+          correct: true
+        - label: So the model computes faster.
+          feedback: The computing time stays the same – only the values get smaller.
+        - label: So the training error falls.
+          feedback: It usually rises slightly – in return the error on new data falls.
+    hints:
+      - Wild curves need large weights.
+      - "Which matters more: training or test error?"
+    explanation: This regularisation trades a little training accuracy for generalisation. More data, dropout and early stopping work in a similar way.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -98,6 +139,25 @@ steps:
           - step
       min: 3
       sample: The network makes a prediction for an example and measures the error. Then it changes each weight a little in the direction that reduces the error – millions of times with many examples.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Very large networks can memorise their training data – and still often generalise well. What is observed there?
+    params:
+      options:
+        - label: The test error can fall again after a rise, as parameters keep growing.
+          correct: true
+        - label: Bigger networks always overfit more.
+          feedback: Classically expected – but often not what happens in practice.
+        - label: Large networks never make mistakes.
+          feedback: They do make mistakes, just often fewer than expected.
+    hints:
+      - Classically the test error eventually rises with model size.
+      - What happens if you go much bigger still?
+    explanation: This double descent has been measured in many experiments. Why large networks generalise so well is not yet fully understood – an active research field.
     difficulty: 3
 
 srs:

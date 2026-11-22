@@ -5,7 +5,7 @@ summary: Trainings- und Testdaten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: gleiche
@@ -92,6 +92,37 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Du teilst {{n}} Beispiele in 70 % Training, 15 % Validierung und 15 % Test. Wie viele landen in der Validierung?
+    answer:
+      value: "{{n * 15 / 100}}"
+    hints:
+      - 15 % von {{n}}.
+      - Rechne {{n}} · 0,15.
+    explanation: "{{n * 15 / 100}} Beispiele. Mit der **Validierung** wählt man Einstellungen aus. Der Test bleibt bis ganz zum Schluss unberührt."
+    difficulty: 2
+    variants:
+      params:
+        n: step[1000,5000,1000]
+      defaults:
+        n: 2000
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Bei 5-facher Kreuzvalidierung teilt man die Daten in 5 Teile. Jeder Teil ist einmal Testteil. Wie oft wird das Modell trainiert?
+    answer:
+      value: 5
+    hints:
+      - Für jeden Testteil braucht es ein eigenes Training.
+      - Wie viele Teile gibt es?
+    explanation: Fünfmal, jedes Mal mit 4/5 der Daten. Der Mittelwert der fünf Ergebnisse schwankt weniger als ein einzelner Test. Das hilft besonders bei **kleinen** Datensätzen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +138,50 @@ steps:
     hints:
       - Welche Information hat die Bank, **bevor** sie den Kredit vergibt?
     explanation: "Ein **Datenleck**: Wissen aus der Zukunft gelangt ins Training. Im Einsatz ist das Modell dann wertlos."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Datensatz hat mehrere Röntgenbilder pro Patient. Man mischt alle Bilder und teilt zufällig. Das Modell wirkt hervorragend. Was ist faul?
+    params:
+      options:
+        - label: Bilder derselben Person stecken in Training und Test – das Modell erkennt die Person wieder.
+          correct: true
+        - label: Nichts, zufällig teilen ist immer richtig.
+          feedback: Nur wenn die Beispiele unabhängig sind. Hier sind sie es nicht.
+        - label: Der Test ist zu klein.
+          feedback: Die Größe ist nicht das Problem, sondern die Überschneidung.
+    hints:
+      - Was haben zwei Bilder derselben Person gemeinsam?
+      - Man sollte nach Patienten teilen, nicht nach Bildern.
+    explanation: Das ist ein **Datenleck**. Der Test misst dann Wiedererkennen statt Verallgemeinern. Man teilt nach Patient, Ort oder Zeit – so, wie das Modell später eingesetzt wird.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man Testdaten bis zum Schluss zurückhält.
+    params:
+      keywords:
+        - - neu
+          - ungesehen
+          - nie gesehen
+          - new
+          - unseen
+          - never seen
+        - - auswendig
+          - merken
+          - memoris
+          - memoriz
+        - - klausur
+          - ehrlich
+          - fair
+          - exam
+          - honest
+      sample: Testdaten sind wie eine Klausur mit neuen Aufgaben. Hat das Modell sie nie gesehen, zeigt der Test, ob es verallgemeinert oder nur auswendig gelernt hat. Wer vorher hineinschaut, macht den Test unfair.
     difficulty: 3
 
 srs:

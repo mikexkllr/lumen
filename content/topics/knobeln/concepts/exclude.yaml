@@ -5,7 +5,7 @@ summary: Was nicht geht, zeigt, was geht.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,75 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Wer spielt welches Instrument? Achte auch auf die **Spalten**.
+    params:
+      categories:
+        - name: Kind
+          items:
+            - Ana
+            - Ben
+            - Cem
+            - Dila
+        - name: Instrument
+          items:
+            - Flöte
+            - Geige
+            - Gitarre
+            - Trommel
+      clues:
+        - text: Die Flöte spielen weder Ana noch Ben noch Cem.
+          rules:
+            - not:
+                - Ana
+                - Flöte
+            - not:
+                - Ben
+                - Flöte
+            - not:
+                - Cem
+                - Flöte
+        - text: Ana spielt weder Geige noch Trommel.
+          rules:
+            - not:
+                - Ana
+                - Geige
+            - not:
+                - Ana
+                - Trommel
+        - text: Ben spielt nicht Trommel.
+          rule:
+            not:
+              - Ben
+              - Trommel
+    hints:
+      - In der Flöten-Spalte bleibt nur ein Feld frei.
+      - Dann bleibt Ana nur noch die Gitarre.
+    explanation: Dila – Flöte, Ana – Gitarre, Ben – Geige, Cem – Trommel. Ausschließen klappt in Zeilen **und** Spalten.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: In der Spalte »Geige« ist nur noch bei Ben ein Feld frei. In Bens Zeile sind aber noch drei Felder frei. Was folgt?
+    params:
+      options:
+        - label: Ben spielt Geige – die Geige muss ja irgendwem gehören.
+          correct: true
+        - label: Noch nichts, Bens Zeile ist nicht fertig.
+          feedback: "Die Spalte reicht: Jedes Instrument gehört genau einem Kind."
+        - label: Ben spielt keine Geige.
+          feedback: Dann hätte niemand die Geige.
+    hints:
+      - Wie viele Kinder spielen die Geige?
+      - Ein freies Feld in einer Spalte wirkt genauso wie ein freies Feld in einer Zeile.
+    explanation: "Der **Spalten-Trick**: Bleibt in einer Spalte nur ein Feld, ist es ein ✓ – egal, wie voll die Zeile ist. Profis prüfen darum immer beide Richtungen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +164,44 @@ steps:
     hints:
       - Jede Person hat genau einen Beruf – und jeder Beruf genau eine Person.
     explanation: Eine Entscheidung zieht viele nach sich. Diese **Fortpflanzung** von Folgerungen nutzen auch Sudoku-Löser.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Rätsel mit 3 Personen und 3 Tieren soll **nur** aus »nicht«-Hinweisen bestehen. Wie viele solche Hinweise braucht man mindestens für eine eindeutige Lösung?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-few
+        text: Zwei Kreuze schließen höchstens 4 der 5 falschen Zuordnungen aus.
+    hints:
+      - Es gibt 6 Zuordnungen, 5 davon müssen weg. Wie viele streicht ein einzelnes Kreuz höchstens?
+      - Jedes Feld kommt in genau 2 der 6 Zuordnungen vor.
+    explanation: "Ein Kreuz streicht höchstens 2 Zuordnungen. Für 5 braucht man also mindestens 3. Drei reichen auch: »A nicht 2, A nicht 3, B nicht 3«. Solche **Schranken** zählen, was jede Information höchstens leistet."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man in einem Logikgitter Zeilen **und** Spalten prüfen sollte.
+    params:
+      keywords:
+        - - zeile
+          - row
+        - - spalte
+          - column
+        - - genau ein
+          - genau eins
+          - exactly one
+        - - frei
+          - übrig
+          - left
+          - open
+      sample: "Jede Person hat genau ein Tier, und jedes Tier gehört genau einer Person. Darum gilt: Ist in einer Zeile oder in einer Spalte nur ein Feld frei, muss dort ein Haken hin."
     difficulty: 3
 
 srs:

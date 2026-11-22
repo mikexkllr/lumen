@@ -5,7 +5,7 @@ summary: Nim – the game with a secret formula.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: warmup
@@ -72,6 +72,22 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: nim
+    prompt: "Three rows: 2, 4 and 7 stones. Any number from one row. There is exactly one winning move – find it!"
+    params:
+      piles:
+        - 2
+        - 4
+        - 7
+    hints:
+      - "In binary: 010, 100, 111. The nim-sum is 001 = 1."
+      - Which row gets smaller when you XOR it with 1? Only 7 XOR 1 = 6.
+    explanation: Take 1 from the row of 7. 2, 4 and 6 have nim-sum 0 – after that you keep it at 0.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -81,6 +97,65 @@ steps:
     hints:
       - 011 must become 001 so that every column has an even number of ones.
     explanation: "1, 4 and 5: 001, 100, 101 – every column has two ones or none. Now the opponent loses."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: For a pile from which you may take 1 to 3 stones, the Grundy number is the remainder when dividing by 4. What is the Grundy number of such a pile with {{n}} stones?
+    answer:
+      value: "{{mod(n, 4)}}"
+    hints:
+      - Divide {{n}} by 4.
+      - The remainder is the Grundy number.
+    explanation: "Grundy number {{mod(n, 4)}}: the pile behaves like a nim heap of that size. When several games are played side by side, you XOR the Grundy numbers – just like Nim."
+    difficulty: 3
+    variants:
+      params:
+        n: int[5,30]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: What does the Sprague–Grundy theorem say?
+    params:
+      options:
+        - label: Every impartial game without chance behaves like a single nim heap.
+          correct: true
+        - label: The first player wins every game.
+          feedback: Nim with two equal rows is lost by the first player.
+        - label: Only Nim can be solved exactly.
+          feedback: "On the contrary: the theorem carries the Nim solution over to many other games."
+    hints:
+      - '"Impartial" here means both players have the same moves in every position.'
+      - Every position gets a number – the size of the matching nim heap.
+    explanation: Every position has a Grundy number. At 0 the player to move loses. Sums of games are handled with the nim-sum. So Nim becomes a toolkit for whole families of games.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what a losing position is and how you recognise it in Nim.
+    params:
+      keywords:
+        - - jeder zug
+          - jedem zug
+          - egal
+          - every move
+          - whatever
+        - - nim-summe
+          - nimsumme
+          - xor
+          - nim-sum
+          - nim sum
+        - - "null"
+          - zero
+      sample: In a losing position every move leads to a position from which the opponent wins. In Nim you recognise it because the nim-sum is zero.
     difficulty: 3
 
 srs:

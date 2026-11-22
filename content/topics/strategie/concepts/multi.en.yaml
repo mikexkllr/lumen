@@ -5,7 +5,7 @@ summary: Mirror and balance.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 8
 steps:
   - kind: problem
     id: zwei-gleich
@@ -57,6 +57,35 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: nim
+    prompt: Three rows of 3, 5 and 7 stones. Take any number from one row. Whoever takes the last stone wins.
+    params:
+      piles:
+        - 3
+        - 5
+        - 7
+    hints:
+      - "In binary: 011, 101, 111. The nim-sum is 001."
+      - "Take one stone from the row of 3: 2, 5, 7 has nim-sum 0."
+    explanation: After 2, 5, 7 the nim-sum is 0. Every computer move makes it non-zero – and you set it back to 0.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Rows of 1, 4 and 6 stones. You want to bring the nim-sum to 0. How many stones do you leave in the row you take from?
+    answer:
+      value: 5
+    hints:
+      - "In binary: 001, 100, 110. Column by column without carrying that gives 011 = 3."
+      - "Find the row that gets smaller when you XOR it with 3: 6 XOR 3 = 5."
+    explanation: "The nim-sum is 3. Only 6 XOR 3 = 5 is smaller than before. So take one stone from the row of 6: 1, 4, 5 has nim-sum 0."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -66,6 +95,47 @@ steps:
     hints:
       - Each column contains exactly two ones.
     explanation: The nim-sum is 0 – whoever moves here loses under perfect play. Every position with nim-sum 0 is a losing position.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Why does the player to move lose at nim-sum 0 – if the other plays perfectly?
+    params:
+      options:
+        - label: Every move makes the sum non-zero, and the opponent can always bring it back to 0.
+          correct: true
+        - label: Because then all rows have the same length.
+          feedback: For 1, 2, 3 the nim-sum is 0, but the rows differ.
+        - label: Because only one move is left.
+          feedback: With 1, 2, 3 there are many moves – just no good one.
+    hints:
+      - A move changes exactly one row. What happens to at least one binary digit?
+      - And the final position – all rows empty – has which nim-sum?
+    explanation: This is Bouton's theorem. From sum 0 every move leads to a non-zero sum, and from there a move back to 0 always exists. The empty position has sum 0 – so the other player takes the last stone.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to find the right move in Nim with several rows.
+    params:
+      keywords:
+        - - binär
+          - zweiersystem
+          - binary
+        - - übertrag
+          - xor
+          - nim-summe
+          - nimsumme
+          - carry
+          - nim-sum
+          - nim sum
+        - - "null"
+          - zero
+      sample: I write each row in binary and add the digits without carrying. That is the nim-sum. I take stones so that it becomes zero, and the opponent has no good move.
     difficulty: 3
 
 srs:

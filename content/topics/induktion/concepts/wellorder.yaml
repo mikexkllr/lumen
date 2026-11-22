@@ -1,0 +1,188 @@
+id: logic.induction.wellorder
+type: concept
+title: "Das kleinste Gegenbeispiel"
+summary: "Jede nichtleere Menge natürlicher Zahlen hat ein kleinstes Element – ein mächtiges Beweiswerkzeug."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Welche Menge hat **kein** kleinstes Element?
+    params:
+      options:
+        - label: Die positiven Brüche
+          correct: true
+        - label: Die geraden Zahlen ab 2
+          feedback: Ihr kleinstes Element ist 2.
+        - label: Die Primzahlen
+          feedback: Ihr kleinstes Element ist 2.
+    hints:
+      - Gibt es einen kleinsten positiven Bruch?
+      - Zu jedem Bruch gibt es die Hälfte.
+    explanation: Zu jedem positiven Bruch ist die Hälfte kleiner. Bei natürlichen Zahlen dagegen hat jede nichtleere Menge ein kleinstes Element.
+
+  - kind: explain
+    id: c2
+    body: "Dieses **Wohlordnungsprinzip** gilt für die natürlichen Zahlen. Es erlaubt einen Beweistrick: Angenommen, es gibt Gegenbeispiele. Dann gibt es ein kleinstes. Zeigt man, dass es ein noch kleineres gäbe, ist das ein Widerspruch."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Ordne die Schritte eines Beweises mit dem kleinsten Gegenbeispiel.
+    params:
+      items:
+        - label: Angenommen, die Aussage ist für manche n falsch.
+        - label: Dann gibt es ein kleinstes solches n.
+        - label: Daraus baut man ein noch kleineres Gegenbeispiel.
+        - label: Das widerspricht »kleinstes«.
+        - label: Also gibt es gar kein Gegenbeispiel.
+    hints:
+      - Wie jeder Widerspruchsbeweis beginnt er mit dem Gegenteil.
+      - Das »kleinste« ist der Hebel für den Widerspruch.
+    explanation: "Das ist im Kern dieselbe Kraft wie Induktion – nur von der anderen Seite: Statt aufzubauen, sucht man den **ersten Fehler**."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Der euklidische Algorithmus: ggT(a, b) = ggT(b, Rest von a durch b), bis der Rest 0 ist. Was ist ggT({{a}}, {{b}})?"
+    answer:
+      value: "{{gcd(a, b)}}"
+    hints:
+      - Teile {{a}} durch {{b}} und nimm den Rest.
+      - Wiederhole mit dem kleineren Paar, bis der Rest 0 ist.
+    explanation: "ggT = {{gcd(a, b)}}. Der Algorithmus **endet** immer: Die Reste werden kleiner, bleiben aber natürliche Zahlen – und die können nicht ewig sinken."
+    variants:
+      params:
+        g: choice[4,6,12]
+        x: int[3,9]
+        y: int[2,7]
+      derive:
+        a: g * x
+        b: g * y
+      constraints:
+        - gcd(x, y) == 1
+        - x > y
+      defaults:
+        g: 12
+        x: 7
+        y: 3
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Warum endet der euklidische Algorithmus immer?
+    params:
+      options:
+        - label: Die Reste werden immer kleiner und bleiben ≥ 0 – eine unendlich fallende Folge natürlicher Zahlen gibt es nicht.
+          correct: true
+        - label: Weil Computer schnell sind.
+          feedback: "Es geht um Mathematik: Er endet auch auf dem Papier."
+        - label: Weil die Zahlen am Anfang klein sind.
+          feedback: Er endet für beliebig große Zahlen.
+    hints:
+      - Vergleiche jeden Rest mit dem vorigen.
+      - Wie oft kann eine natürliche Zahl kleiner werden?
+    explanation: Jede Schleife, deren Zähler eine natürliche Zahl ist und sinkt, muss enden. Mit diesem **Abstiegsargument** beweist man, dass Programme fertig werden.
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Hat diese Menge ein kleinstes Element?
+    params:
+      cards:
+        - text: die Primzahlen
+          right: true
+        - text: alle negativen ganzen Zahlen
+          right: false
+          why: Zu jeder gibt es eine kleinere.
+        - text: die positiven Brüche
+          right: false
+          why: Die Hälfte ist immer kleiner.
+        - text: die Vielfachen von 7 ab 1000
+          right: true
+          why: Die kleinste ist 1001.
+      left: nein
+      right: ja
+    explanation: Jede nichtleere Menge **natürlicher** Zahlen hat ein kleinstes Element. Bei Brüchen oder negativen Zahlen kann es fehlen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Fermat bewies Sätze mit »unendlichem Abstieg«: Aus einer Lösung baute er eine kleinere. Was folgt daraus?"
+    params:
+      options:
+        - label: Es gibt gar keine Lösung in natürlichen Zahlen.
+          correct: true
+        - label: Es gibt unendlich viele Lösungen.
+          feedback: Eine unendlich fallende Kette natürlicher Zahlen ist unmöglich.
+        - label: Die kleinste Lösung ist 0.
+          feedback: Der Abstieg hört nie auf – auch nicht bei 0.
+    hints:
+      - "Wiederhole den Trick: Lösung, kleinere Lösung, noch kleinere …"
+      - Kann das bei natürlichen Zahlen ewig weitergehen?
+    explanation: Ein **unendlicher Abstieg** ist unmöglich. Also war schon die erste Lösung unmöglich. Auch der Beweis, dass √2 kein Bruch ist, lässt sich so führen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Gilt das Prinzip vom kleinsten Element auch für alle ganzen Zahlen, also mit den negativen?
+    params:
+      options:
+        - label: Nein – die Menge aller negativen Zahlen hat kein kleinstes Element.
+          correct: true
+        - label: Ja, die kleinste ganze Zahl ist −1.
+          feedback: −2, −3, −4 … sind noch kleiner.
+        - label: Ja, die kleinste ist 0.
+          feedback: Negative Zahlen sind kleiner als 0.
+    hints:
+      - Nenne eine Zahl, die kleiner als −100 ist.
+      - Gibt es eine Grenze nach unten?
+    explanation: Die Wohlordnung braucht einen **Boden**. Bei ganzen Zahlen mit Untergrenze, etwa »alle ab −5«, gilt sie wieder.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie beweist man, dass eine Programmschleife wirklich endet?
+    params:
+      options:
+        - label: Man findet eine natürliche Zahl, die bei jedem Durchlauf sinkt – etwa die Länge der restlichen Liste.
+          correct: true
+        - label: Man lässt das Programm einmal laufen.
+          feedback: Ein Lauf zeigt nur, dass es dieses Mal endet.
+        - label: Das ist unmöglich.
+          feedback: Allgemein für alle Programme ja – für eine bestimmte Schleife oft schon.
+    hints:
+      - Was macht der euklidische Algorithmus bei jedem Schritt mit dem Rest?
+      - Eine solche Zahl heißt Schleifenvariante.
+    explanation: Eine **Schleifenvariante** ist eine natürliche Zahl, die jedes Mal sinkt. Weil es keinen unendlichen Abstieg gibt, endet die Schleife. Programme zur Beweisprüfung verlangen genau so ein Argument.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Beweis mit dem »kleinsten Gegenbeispiel« funktioniert.
+    params:
+      keywords:
+        - - gegenbeispiel
+          - counterexample
+        - - kleinst
+          - smallest
+        - - kleiner
+          - widerspruch
+          - smaller
+          - contradiction
+      sample: Ich nehme an, es gibt Gegenbeispiele. Dann gibt es ein kleinstes. Zeige ich, dass daraus ein noch kleineres folgt, ist das ein Widerspruch. Also gibt es kein Gegenbeispiel.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

@@ -5,7 +5,7 @@ summary: Wenn KI Vorurteile lernt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: bewerbung
@@ -94,6 +94,46 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Kreditmodell genehmigt Anträge von Gruppe A zu {{a}} %, von Gruppe B zu {{b}} %. Wie groß ist das Verhältnis B zu A? Auf zwei Stellen.
+    answer:
+      value: "{{b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: difference
+        text: Das ist der Abstand in Prozentpunkten. Gefragt ist das Verhältnis.
+    hints:
+      - Teile die Quote von B durch die von A.
+      - "{{b}} / {{a}} = ?"
+    explanation: Verhältnis {{b / a}}. In den USA gilt bei Einstellungen als Warnzeichen, wenn es unter 0,8 liegt (»Vier-Fünftel-Regel«). Gleiche Quoten heißen **demografische Parität** – nur eine von mehreren Fairness-Ideen.
+    difficulty: 2
+    variants:
+      params:
+        a: step[50,80,10]
+        b: step[20,60,10]
+      constraints:
+        - b < a
+      defaults:
+        a: 60
+        b: 30
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Unter je 100 Unschuldigen stuft ein Modell in Gruppe A 20 fälschlich als gefährlich ein, in Gruppe B 40. Wievielmal so hoch ist die Falsch-Positiv-Rate von B?
+    answer:
+      value: 2
+    hints:
+      - "Falsch-Positiv-Rate A: 20 %. B: 40 %."
+      - 40 / 20 = ?
+    explanation: Doppelt so hoch. Selbst bei gleicher Gesamttrefferquote können **Fehlerarten** ungleich verteilt sein. Darum prüft man Fehler für jede Gruppe einzeln.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +149,28 @@ steps:
     hints:
       - Gleiche Treffsicherheit und gleiche Fehlalarmrate – geht beides, wenn die Gruppen verschieden häufig rückfällig werden?
     explanation: "Das **Unmöglichkeitstheorem der Fairness**: Welche Art von Fairness zählt, ist eine gesellschaftliche Entscheidung, keine technische."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Modell unfair sein kann, obwohl niemand es unfair programmiert hat.
+    params:
+      keywords:
+        - - daten
+          - beispiel
+          - data
+          - example
+        - - vergangenheit
+          - früher
+          - history
+          - past
+        - - stellvertret
+          - proxy
+          - verrät
+          - reveal
+      sample: Das Modell lernt aus Daten der Vergangenheit, und die können unfaire Entscheidungen enthalten. Selbst ohne das Merkmal Geschlecht verrät ein Stellvertreter wie der Wohnort viel. So übernimmt es die alte Ungerechtigkeit.
     difficulty: 3
 
 srs:

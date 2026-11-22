@@ -5,7 +5,7 @@ summary: Eight regions, neatly sorted.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: alle-drei
@@ -83,6 +83,86 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: venn
+    prompt: "Shade: music, but neither maths nor sport."
+    params:
+      sets:
+        - Maths
+        - Music
+        - Sport
+    answer:
+      regions:
+        - B
+    feedback:
+      - when: has('AB') || has('BC')
+        misconception: partial-exclusion
+        text: That region includes maths or sport.
+    hints:
+      - Only the music circle – without any overlap.
+      - It is exactly one region.
+    explanation: Music ∖ (maths ∪ sport) is the part of the music circle that touches no other circle.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: venn
+    prompt: Shade (maths ∪ music) ∩ sport.
+    params:
+      sets:
+        - Maths
+        - Music
+        - Sport
+    answer:
+      regions:
+        - AC
+        - BC
+        - ABC
+    feedback:
+      - when: has('C')
+        misconception: union-first
+        text: The "sport only" region is not in maths ∪ music.
+    hints:
+      - "Brackets first: maths or music. Then keep only what also lies in the sport circle."
+      - Three regions lie in the sport circle and also in maths or music.
+    explanation: Sport with maths, sport with music, and the centre. That equals (maths ∩ sport) ∪ (music ∩ sport).
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: The numbers show how many people are in each region. How many have **exactly two** hobbies?
+    visual:
+      widget: venn
+      params:
+        sets:
+          - Maths
+          - Music
+          - Sport
+        counts:
+          A: 5
+          B: 4
+          C: 6
+          AB: 2
+          AC: 3
+          BC: 1
+          ABC: 1
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: includes-centre
+        text: The centre does not count – there it is three hobbies.
+    hints:
+      - "Exactly two: the three overlaps without the centre."
+      - Add 2 + 3 + 1.
+    explanation: 2 + 3 + 1 = 6. The person in the centre has all three hobbies.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -98,6 +178,49 @@ steps:
     hints:
       - Shade everything outside both circles in the Venn diagram.
     explanation: "**De Morgan’s** rule: negation turns “or” into “and”."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Two circles meet in at most 2 points. Into how many regions can **four** circles divide the plane at most – counting the outside?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: assume-16
+        text: A Venn diagram for four sets needs 16 regions. Circles only manage 14.
+    hints:
+      - "One circle: 2 regions. Each new circle is cut into arcs by the old ones, and every arc splits a region."
+      - "The k-th circle meets the old ones in at most 2(k − 1) points and gains that many regions: 2, 4, 8, …"
+    explanation: 2 + 2 + 4 + 6 = 14, in general n² − n + 2. Four sets need 16 regions, so they are drawn with ellipses or other shapes.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a Venn diagram with three sets has exactly eight regions.
+    params:
+      keywords:
+        - - drin
+          - innen
+          - nicht
+          - in
+          - out
+          - inside
+        - - jede
+          - drei
+          - each
+          - three
+        - - 2 · 2 · 2
+          - 2³
+          - zwei hoch drei
+          - 2^3
+          - acht
+          - eight
+      sample: "For each of the three sets there are two options: in or not in. That gives 2 · 2 · 2 = 8 combinations, so eight regions."
     difficulty: 3
 
 srs:

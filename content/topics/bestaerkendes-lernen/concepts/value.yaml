@@ -5,7 +5,7 @@ summary: Belohnungen in der Zukunft.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,24 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Q-Lernen: Q ← Q + α · (r + γ · Q_max − Q). Es gilt Q = 0, α = 0,5, Belohnung r = 0, γ = 0,9. Der beste Wert im nächsten Zustand ist Q_max = 10. Wie lautet das neue Q?"
+    answer:
+      value: 4.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: no-alpha
+        text: Das ist das Ziel r + γ · Q_max. Mit α = 0,5 geht man nur die Hälfte des Wegs dorthin.
+    hints:
+      - "Ziel: r + γ · Q_max = 0 + 0,9 · 10 = 9."
+      - Q + 0,5 · (9 − 0) = ?
+    explanation: 0 + 0,5 · 9 = 4,5. Der Wert des Ziels »sickert« so Schritt für Schritt zurück zu früheren Zuständen. Das ist **Q-Lernen** von Hand.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +125,64 @@ steps:
     hints:
       - Der Wert von heute hängt vom Wert von morgen ab.
     explanation: "Eine rekursive Definition: So lässt sich ein riesiges Planungsproblem in lauter Ein-Schritt-Probleme zerlegen."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Derselbe Übergang passiert noch einmal: Q = 4,5, r = 0, γ = 0,9, Q_max = 10, α = 0,5. Wie lautet das Q danach?"
+    answer:
+      value: 6.75
+      tolerance: 0.001
+    hints:
+      - Das Ziel ist wieder 9.
+      - 4,5 + 0,5 · (9 − 4,5) = ?
+    explanation: 6,75 – Q nähert sich der 9 wie 4,5, 6,75, 7,875 … Jedes Update schließt die halbe Lücke. Mit genug Erkundung führt Q-Lernen zu den **optimalen** Werten.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Q-Lernen nutzt im Update Q_max – den Wert der **besten** nächsten Aktion –, auch wenn der Agent gerade zufällig erkundet. Was folgt daraus?
+    params:
+      options:
+        - label: Es lernt die Werte der besten Strategie, während es eine andere ausführt.
+          correct: true
+        - label: Es kann nicht erkunden.
+          feedback: Erkunden darf es – das Update bewertet nur trotzdem das Beste.
+        - label: Es lernt die Werte der Zufallsstrategie.
+          feedback: Dafür müsste es den Wert der tatsächlich gewählten Aktion nutzen.
+    hints:
+      - Welche Aktion steckt in Q_max – die gewählte oder die beste?
+      - Verhalten und Lernziel dürfen hier verschieden sein.
+    explanation: "Q-Lernen ist **off-policy**: Es handelt erkundend, lernt aber gierig. Darum kann es auch aus alten oder fremden Erfahrungen lernen."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Q-Lernen den Wert einer Aktion Schritt für Schritt verbessert.
+    params:
+      keywords:
+        - - belohnung
+          - reward
+        - - nächst
+          - später
+          - zukunft
+          - next
+          - later
+          - future
+        - - schätz
+          - korrigier
+          - näher
+          - estimate
+          - correct
+          - closer
+          - update
+      sample: Nach jeder Aktion vergleicht der Agent seine Schätzung mit der Belohnung plus dem abgezinsten besten Wert im nächsten Zustand. Dann rückt er seine Schätzung ein Stück näher an diesen Wert.
     difficulty: 3
 
 srs:

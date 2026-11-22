@@ -5,7 +5,7 @@ summary: Ein Neuron zieht eine Gerade.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: trennen
@@ -134,6 +134,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: sim
+    prompt: Diesmal liegen die blauen Punkte links oben, die orangen rechts unten. Trenne alle 10 – die Grenze muss schräg liegen.
+    params:
+      scene: neuron
+      points:
+        - x: 1
+          y: 3
+          label: 1
+        - x: 2
+          y: 4
+          label: 1
+        - x: 1
+          y: 2
+          label: 1
+        - x: 3
+          y: 5
+          label: 1
+        - x: 0.5
+          y: 4
+          label: 1
+        - x: 3
+          y: 1
+          label: 0
+        - x: 4
+          y: 2
+          label: 0
+        - x: 2
+          y: 1
+          label: 0
+        - x: 5
+          y: 3
+          label: 0
+        - x: 4
+          y: 0.5
+          label: 0
+    answer:
+      correct: 10
+    hints:
+      - Die Grenze ist etwa die Gerade y = x.
+      - Probiere w₁ = −1, w₂ = 1 und b = 0.
+    explanation: "−x + y > 0 heißt y > x: Alles über der Diagonale feuert. Die Gewichte geben die **Richtung** der Grenze an, der Bias ihre Lage."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Perzeptron-Regel: w ← w + η · (Soll − Ist) · x. Es gilt w₁ = 1, x₁ = 2, η = 0,5. Soll war 1, das Neuron gab 0. Wie lautet das neue w₁?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: sign
+        text: "Falsches Vorzeichen: Das Neuron soll stärker feuern, das Gewicht muss wachsen."
+    hints:
+      - Soll − Ist = 1 − 0 = 1.
+      - 1 + 0,5 · 1 · 2 = ?
+    explanation: w₁ = 1 + 0,5 · 1 · 2 = 2. Bei einem Fehler wird jedes Gewicht in Richtung seiner Eingabe verschoben. Stimmt die Antwort, ändert sich nichts. Das ist die **Perzeptron-Regel**.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -149,6 +212,47 @@ steps:
     hints:
       - Setz x = 0 und y = 0 in w₁x + w₂y = 0 ein.
     explanation: "Wie das b in y = mx + b: ohne Achsenabschnitt keine frei verschiebbare Gerade."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Was weiß man über die Perzeptron-Regel?
+    params:
+      options:
+        - label: Sind die Daten durch eine Gerade trennbar, findet sie nach endlich vielen Fehlern eine Trennung.
+          correct: true
+        - label: Sie findet für jede Datenmenge eine perfekte Trennung.
+          feedback: Bei XOR gibt es keine Gerade – dann pendelt sie ewig.
+        - label: Sie braucht immer genau so viele Schritte, wie es Punkte gibt.
+          feedback: Die Zahl der Schritte hängt vom Abstand der Klassen ab.
+    hints:
+      - "Denk an XOR: Gibt es dort überhaupt eine Lösung?"
+      - Wo es eine Lösung gibt, ist das Verfahren garantiert erfolgreich.
+    explanation: Das ist der **Konvergenzsatz** des Perzeptrons. Ohne Trennbarkeit hilft er nicht. Das zeigte die Grenzen einzelner Neuronen und führte zu Netzen mit versteckten Schichten.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie die Gewichte und der Bias die Entscheidungsgrenze eines Neurons verändern.
+    params:
+      keywords:
+        - - gewicht
+          - weight
+        - - dreh
+          - richtung
+          - neig
+          - rotat
+          - direction
+          - tilt
+        - - bias
+          - verschieb
+          - shift
+          - move
+      sample: Das Neuron zieht eine Gerade durch die Ebene. Die Gewichte drehen die Gerade und bestimmen ihre Richtung. Der Bias verschiebt sie, ohne sie zu drehen.
     difficulty: 3
 
 srs:

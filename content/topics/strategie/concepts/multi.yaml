@@ -5,7 +5,7 @@ summary: Spiegeln und ausgleichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 8
 steps:
   - kind: problem
     id: zwei-gleich
@@ -57,6 +57,35 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: nim
+    prompt: Drei Reihen mit 3, 5 und 7 Steinen. Nimm beliebig viele aus einer Reihe. Wer den letzten nimmt, gewinnt.
+    params:
+      piles:
+        - 3
+        - 5
+        - 7
+    hints:
+      - "Binär: 011, 101, 111. Die Nim-Summe ist 001."
+      - "Nimm einen Stein aus der Dreierreihe: 2, 5, 7 hat die Nim-Summe 0."
+    explanation: Nach 2, 5, 7 ist die Nim-Summe 0. Jeder Zug des Computers macht sie ungleich 0 – und du stellst sie wieder auf 0.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Reihen mit 1, 4 und 6 Steinen. Du willst die Nim-Summe auf 0 bringen. Wie viele Steine lässt du in der Reihe, aus der du nimmst?
+    answer:
+      value: 5
+    hints:
+      - "Binär: 001, 100, 110. Spaltenweise ohne Übertrag ergibt das 011 = 3."
+      - "Suche die Reihe, die kleiner wird, wenn du sie mit 3 »XOR-st«: 6 XOR 3 = 5."
+    explanation: "Die Nim-Summe ist 3. Nur 6 XOR 3 = 5 ist kleiner als vorher. Also nimm einen Stein aus der Sechserreihe: 1, 4, 5 hat Nim-Summe 0."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -66,6 +95,47 @@ steps:
     hints:
       - In jeder Spalte stehen genau zwei Einsen.
     explanation: Die Nim-Summe ist 0 – wer hier am Zug ist, verliert bei perfektem Spiel. Jede Stellung mit Nim-Summe 0 ist eine Verluststellung.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Warum verliert, wer bei Nim-Summe 0 am Zug ist – wenn der andere perfekt spielt?
+    params:
+      options:
+        - label: Jeder Zug macht die Summe ungleich 0, und der Gegner kann sie immer wieder auf 0 bringen.
+          correct: true
+        - label: Weil dann alle Reihen gleich lang sind.
+          feedback: Bei 1, 2, 3 ist die Nim-Summe 0, die Reihen sind aber verschieden.
+        - label: Weil dann nur noch ein Zug möglich ist.
+          feedback: Bei 1, 2, 3 gibt es viele Züge – nur keinen guten.
+    hints:
+      - Ein Zug ändert genau eine Reihe. Was passiert dabei mit mindestens einer Binärstelle?
+      - Und die Endstellung – alle Reihen leer – hat welche Nim-Summe?
+    explanation: Das ist der **Satz von Bouton**. Von Summe 0 führt jeder Zug zu einer Summe ungleich 0. Von dort gibt es immer einen Zug zurück auf 0. Die leere Stellung hat Summe 0 – also nimmt der andere den letzten Stein.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man bei Nim mit mehreren Reihen den richtigen Zug findet.
+    params:
+      keywords:
+        - - binär
+          - zweiersystem
+          - binary
+        - - übertrag
+          - xor
+          - nim-summe
+          - nimsumme
+          - carry
+          - nim-sum
+          - nim sum
+        - - "null"
+          - zero
+      sample: Ich schreibe jede Reihe binär und addiere die Stellen ohne Übertrag. Das ist die Nim-Summe. Ich nehme so viele Steine, dass sie null wird. Dann hat der Gegner keinen guten Zug.
     difficulty: 3
 
 srs:

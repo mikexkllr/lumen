@@ -1,0 +1,190 @@
+id: ai.embeddings.vectors
+type: concept
+title: "Words as points"
+summary: "Every word gets a list of numbers – and similar things land close together."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: On a map lie "dog", "cat" and "car". Two of them are close together. Which ones, probably?
+    params:
+      options:
+        - label: dog and cat
+          correct: true
+        - label: dog and car
+          feedback: These rarely appear in the same kinds of sentences – dog and cat do.
+        - label: All equally far
+          feedback: Then the map would know nothing about meaning.
+    hints:
+      - Which words appear in similar sentences?
+      - '"I feed my …" fits two of them.'
+    explanation: Dog and cat are both pets and appear in similar sentences. A map of meaning puts them close together.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: On a map of meaning "dog" is at ({{x}} | {{y}}) and "cat" at ({{x + 3 * k}} | {{y + 4 * k}}). How far apart are they?
+    answer:
+      value: "{{5 * k}}"
+    hints:
+      - The differences are {{3 * k}} and {{4 * k}}.
+      - "Pythagoras: √({{3 * k}}² + {{4 * k}}²)."
+    explanation: "{{5 * k}}. With distances a computer can measure meaning: a small distance means a similar meaning."
+    variants:
+      params:
+        x: int[0,5]
+        y: int[0,5]
+        k: int[1,3]
+      defaults:
+        x: 2
+        y: 1
+        k: 1
+
+  - kind: explain
+    id: c3
+    body: A word vector is a list of numbers for a word – hundreds or thousands in real models. Each number is an axis in a space. Words with similar meanings lie close together there.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Which word probably lies closest?
+    params:
+      pairs:
+        - left: Monday
+          right: Tuesday
+        - left: apple
+          right: pear
+        - left: violin
+          right: cello
+        - left: run
+          right: jog
+      leftTitle: word
+      rightTitle: nearest neighbour
+    hints:
+      - Find the word from the same group each time.
+      - Weekdays, fruit, instruments, movements.
+    explanation: Nearest neighbours in vector space are often words of the same category – or synonyms.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A word vector has {{d}} numbers. A vocabulary has {{w}},000 words. How many million numbers does the whole table need?
+    answer:
+      value: "{{d * w / 1000}}"
+      tolerance: 0.01
+    hints:
+      - Multiply words by numbers per word.
+      - "{{d}} · {{w}},000 = {{d * w * 1000}}."
+    explanation: "{{d * w / 1000}} million numbers – easy for a computer to store. This table is the first layer of many language models."
+    variants:
+      params:
+        d: choice[100,300,768]
+        w: choice[10,50,100]
+      defaults:
+        d: 300
+        w: 50
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Is this true of word vectors?
+    params:
+      cards:
+        - text: They are learned from large amounts of text.
+          right: true
+        - text: Similar words have similar letters.
+          right: false
+          why: '"Dog" and "fog" are close in letters but not in meaning.'
+        - text: A vector can have hundreds of numbers.
+          right: true
+        - text: Every axis has a fixed name.
+          right: false
+          why: The axes arise during learning and are usually unnamed.
+    explanation: Word vectors come from text, not from letters or dictionaries. Meaning lies in how the points sit relative to each other.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: What does the 17th number in a learned word vector mean?
+    params:
+      options:
+        - label: Usually nothing clear-cut – meaning lies in directions that involve many numbers at once.
+          correct: true
+        - label: It measures exactly one property, such as "is an animal".
+          feedback: Nobody defined the axes like that. They arise during training.
+        - label: It is the word's number in the dictionary.
+          feedback: The number is something else – the vector is looked up from it.
+    hints:
+      - Who named the axes?
+      - You could rotate the whole space without changing any distances.
+    explanation: Distances and angles stay the same under a rotation. That is why single axes have no fixed meaning – only how the words lie relative to each other counts.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: 'Words used to be represented as "one-hot" vectors: all zeros and a single 1. What is the drawback?'
+    params:
+      options:
+        - label: All words are equally far apart – similarity is invisible.
+          correct: true
+        - label: They are too short.
+          feedback: On the contrary, they are as long as the whole vocabulary.
+        - label: They cannot tell words apart.
+          feedback: Telling apart works – similarity does not.
+    hints:
+      - What is the dot product of two different one-hot vectors?
+      - Dog and cat would then be just as different as dog and tax.
+    explanation: "Different one-hot vectors are all perpendicular to each other. Dense vectors with learned numbers solve this: similar words share directions."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A one-hot vector for a vocabulary of 50,000 words has how many entries that are **not** 0?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 50000
+        misconception: length
+        text: That is its length. Only one entry is 1.
+    hints:
+      - '"One-hot" means exactly one position is "hot".'
+      - All others are 0.
+    explanation: A single 1 among 50,000 positions – extremely sparse. A learned vector with 300 numbers carries far more information in far less space.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer can use numbers to express that two words are similar.
+    params:
+      keywords:
+        - - vektor
+          - zahlen
+          - liste
+          - vector
+          - numbers
+          - list
+        - - nah
+          - abstand
+          - close
+          - distance
+        - - ähnlich
+          - bedeutung
+          - similar
+          - meaning
+      sample: Each word gets a vector, a list of numbers, and so a point in a space. Words with similar meanings lie close together. Their distance measures the similarity.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

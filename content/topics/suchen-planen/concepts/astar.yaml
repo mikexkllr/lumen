@@ -1,0 +1,271 @@
+id: ai.search.astar
+type: concept
+title: "A* – mit Schätzung zum Ziel"
+summary: "Eine gute Schätzung der Restdistanz macht Suche zielstrebig."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: c1
+    widget: network
+    prompt: Die Zahlen sind Kilometer. Finde den kürzesten Weg von S nach Z.
+    params:
+      start: S
+      end: Z
+      unit: km
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: A
+          x: 30
+          y: 12
+        - id: B
+          x: 30
+          y: 88
+        - id: C
+          x: 64
+          y: 12
+        - id: D
+          x: 64
+          y: 88
+        - id: Z
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: A
+          w: 2
+        - a: S
+          b: B
+          w: 4
+        - a: A
+          b: C
+          w: 7
+        - a: A
+          b: B
+          w: 1
+        - a: B
+          b: D
+          w: 3
+        - a: C
+          b: Z
+          w: 1
+        - a: D
+          b: Z
+          w: 5
+        - a: D
+          b: C
+          w: 2
+    hints:
+      - Der direkte Weg über A und C ist nicht der kürzeste.
+      - Von A lohnt der Abstecher nach B.
+    explanation: S → A → B → D → C → Z = 2 + 1 + 3 + 2 + 1 = 9 km. Viele kleine Schritte schlagen hier einen großen.
+
+  - kind: explain
+    id: c2
+    body: "Eine **Heuristik** schätzt, wie weit es noch bis zum Ziel ist – etwa die Luftlinie. A* bewertet jeden Ort mit f = g + h: bisheriger Weg g plus geschätzter Rest h. Er erweitert immer den Ort mit dem kleinsten f."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Bis zu einem Ort bist du {{g}} km gefahren. Die Luftlinie zum Ziel ist {{h}} km. Wie groß ist f?
+    answer:
+      value: "{{g + h}}"
+    hints:
+      - f = g + h.
+      - "{{g}} + {{h}} = ?"
+    explanation: f = {{g + h}} ist eine Schätzung der **Gesamtlänge** eines Wegs durch diesen Ort.
+    variants:
+      params:
+        g: int[2,30]
+        h: int[2,30]
+      defaults:
+        g: 4
+        h: 6
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: "Drei Orte warten: A mit g = 2 und h = 7, B mit g = 5 und h = 2, C mit g = 3 und h = 5. Welchen erweitert A* als Nächstes?"
+    params:
+      options:
+        - label: B – f = 7 ist am kleinsten.
+          correct: true
+        - label: A – dorthin war der Weg am kürzesten.
+          feedback: "A* zählt auch den Rest: A hat f = 9."
+        - label: C – es liegt in der Mitte.
+          feedback: C hat f = 8, B hat 7.
+    hints:
+      - Rechne für jeden Ort g + h.
+      - "A: 9, B: 7, C: 8."
+    explanation: B hat das kleinste f = 7. A* geht also dorthin, wo der **gesamte** Weg vermutlich am kürzesten ist – nicht nur der bisherige.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: In einem Raster kann ein Roboter nur waagrecht und senkrecht fahren. Er steht bei ({{x}} | {{y}}), das Ziel bei ({{x + a}} | {{y + b}}). Wie lautet die Manhattan-Schätzung?
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) * numval(state.input) == a * a + b * b
+        misconception: euclid
+        text: Das ist die Luftlinie. Im Raster fährt der Roboter aber nur gerade Stücke.
+    hints:
+      - Wie viele Schritte nach rechts, wie viele nach oben?
+      - "{{a}} + {{b}}."
+    explanation: "{{a + b}} Schritte – ohne Hindernisse genau richtig, mit Hindernissen zu **optimistisch**, aber nie zu hoch."
+    variants:
+      params:
+        x: int[0,5]
+        y: int[0,5]
+        a: int[2,8]
+        b: int[2,8]
+      defaults:
+        x: 1
+        y: 2
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: c6
+    widget: order
+    prompt: Ordne die Schleife von A*.
+    params:
+      items:
+        - label: Nimm den wartenden Ort mit dem kleinsten f = g + h.
+        - label: Ist er das Ziel, bist du fertig.
+        - label: Berechne g und h für alle seine Nachbarn.
+        - label: Setze die Nachbarn auf die Warteliste und beginne von vorn.
+    hints:
+      - Der Zieltest kommt, wenn ein Ort aus der Liste genommen wird.
+      - Danach werden die Nachbarn erzeugt.
+    explanation: "Wichtig: Man testet das Ziel beim **Herausnehmen**, nicht beim Entdecken. Nur so ist sicher, dass kein kürzerer Weg mehr wartet."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Wann findet A* garantiert den kürzesten Weg?
+    params:
+      options:
+        - label: Wenn die Schätzung h die Restdistanz nie überschätzt.
+          correct: true
+        - label: Wenn die Schätzung immer zu groß ist.
+          feedback: Zu große Schätzungen können einen guten Weg zu früh verwerfen.
+        - label: Immer, egal welche Schätzung.
+          feedback: Mit einer schlechten Schätzung kann A* einen Umweg zuerst als fertig melden.
+    hints:
+      - Die Luftlinie ist nie länger als die echte Straße.
+      - Was, wenn h einen guten Weg viel schlechter aussehen lässt, als er ist?
+    explanation: "Eine solche Schätzung heißt **zulässig**. Sie ist optimistisch: Ein guter Weg sieht nie schlechter aus, als er ist. Darum wird er nicht übersehen."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Ist diese Schätzung für Autofahrten zulässig (nie zu groß)?
+    params:
+      buckets:
+        - id: b1
+          label: zulässig
+        - id: b2
+          label: nicht zulässig
+      items:
+        - label: Luftlinie zum Ziel
+          bucket: b1
+        - label: immer 0
+          bucket: b1
+        - label: Luftlinie mal 2
+          bucket: b2
+        - label: Straßenlänge plus 10 km
+          bucket: b2
+    hints:
+      - Kann die Schätzung größer sein als die echte Strecke?
+      - Auch eine sehr schlechte Schätzung kann zulässig sein.
+    explanation: Luftlinie und 0 sind nie zu groß. 0 ist aber nutzlos – dann wird A* zu Dijkstra. Gute Heuristiken sind zulässig und trotzdem möglichst **genau**.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Beim 8er-Schiebepuzzle zählt eine Schätzung, wie viele Plättchen falsch liegen. In einer Stellung liegen alle 8 falsch. Wie viele Züge braucht man mindestens?
+    answer:
+      value: 8
+    hints:
+      - Jeder Zug bewegt genau ein Plättchen.
+      - Jedes falsche Plättchen muss mindestens einmal bewegt werden.
+    explanation: Mindestens 8 Züge. Darum ist die Zahl falscher Plättchen eine zulässige Heuristik. Die Summe der Manhattan-Abstände ist auch zulässig – und **genauer**.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Was passiert, wenn man A* mit h = 0 betreibt?
+    params:
+      options:
+        - label: "Er wird zum Dijkstra-Algorithmus: richtig, aber ohne Zielrichtung."
+          correct: true
+        - label: Er findet keinen Weg mehr.
+          feedback: Er findet den kürzesten Weg – nur besucht er dafür mehr Orte.
+        - label: Er wird zur Tiefensuche.
+          feedback: Er sortiert weiter nach g, also nach bisherigen Kosten.
+    hints:
+      - Mit h = 0 ist f = g.
+      - Welches Verfahren sortiert nach bisherigen Kosten?
+    explanation: Die Heuristik bestimmt, wie **zielstrebig** A* ist. Je genauer sie ist, ohne zu überschätzen, desto weniger Orte muss er ansehen. Mit der perfekten Schätzung ginge er direkt zum Ziel.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Navi nutzt eine Schätzung, die manchmal etwas zu groß ist. Was gewinnt und was verliert es?
+    params:
+      options:
+        - label: Es sucht schneller, findet aber nicht immer den allerkürzesten Weg.
+          correct: true
+        - label: Es wird langsamer und ungenauer.
+          feedback: Eine größere Schätzung macht die Suche zielstrebiger, also meist schneller.
+        - label: Nichts – das Ergebnis ist identisch.
+          feedback: Ohne Zulässigkeit fehlt die Garantie für den kürzesten Weg.
+    hints:
+      - Zu große Schätzungen drängen stärker Richtung Ziel.
+      - Was verliert man ohne Zulässigkeit?
+    explanation: "Das ist ein bewusster **Kompromiss**: Etwas schlechtere Wege gegen viel weniger Rechenzeit. In der Praxis ist ein Weg, der 1 % länger ist, oft völlig in Ordnung."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie A* den kürzesten Weg findet und wozu die Schätzung dient.
+    params:
+      keywords:
+        - - bisher
+          - gefahren
+          - so far
+          - travelled
+        - - schätz
+          - heuristik
+          - luftlinie
+          - estimate
+          - heuristic
+          - straight
+        - - kleinst
+          - smallest
+        - - überschätz
+          - nie zu groß
+          - overestimat
+          - never too
+      sample: A* rechnet für jeden Ort den bisherigen Weg plus eine Schätzung des Rests, etwa die Luftlinie. Er macht immer beim Ort mit dem kleinsten Wert weiter. Überschätzt die Schätzung nie, findet er den kürzesten Weg.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

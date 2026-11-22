@@ -5,7 +5,7 @@ summary: All cases at a glance.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: In how many of the 8 rows is (A → B) ∧ (B → C) true?
+    answer:
+      value: 4
+    hints:
+      - It becomes false when A is true and B false – or B true and C false.
+      - 'The true rows are "staircases": once one is true, all later ones are true.'
+    explanation: "True are FFF, FFT, FTT and TTT: 4 rows. A chain of implications allows only such staircases."
+    difficulty: 2
+
+  - kind: explain
+    id: la-d2
+    depth: 2
+    body: Every truth table gives you a formula. Each true row becomes an and-block, such as A ∧ ¬B. All blocks are joined with or. That is the disjunctive normal form.
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: choice
+    prompt: XOR is true only in the rows "A true, B false" and "A false, B true". What is its disjunctive normal form?
+    params:
+      options:
+        - label: (A ∧ ¬B) ∨ (¬A ∧ B)
+          correct: true
+        - label: (A ∨ B) ∧ (¬A ∨ ¬B)
+          feedback: "That is correct too – but it is the conjunctive form: or-blocks joined by and."
+        - label: (A ∧ B) ∨ (¬A ∧ ¬B)
+          feedback: Those are exactly the other two rows – "if and only if".
+    hints:
+      - Write one and-block for each true row.
+      - "Row 1: A ∧ ¬B. Row 2: ¬A ∧ B. Then join them with or."
+    explanation: Each true row gives one block, and the or collects them. That is why every truth table can be written as a formula with ∧, ∨ and ¬.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +132,69 @@ steps:
     hints:
       - It rains – or it does not rain.
     explanation: "The “law of the excluded middle”. Logical laws are tautologies: true by their form alone."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Which assignment satisfies (A ∨ B) ∧ (¬A ∨ B) ∧ (¬B ∨ C)?
+    params:
+      options:
+        - label: B and C true – A does not matter.
+          correct: true
+        - label: A true, B false, C true
+          feedback: Then ¬A ∨ B is false.
+        - label: None – the formula is unsatisfiable.
+          feedback: "Try B = true: the first two clauses are then satisfied."
+    hints:
+      - The first two clauses together force something about B.
+      - B must be true. What does the third clause then demand?
+    explanation: From (A ∨ B) and (¬A ∨ B) follows B. Then (¬B ∨ C) demands that C is true. SAT solvers check formulas in this conjunctive normal form – programs used to verify chips and schedules.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: A formula has 60 variables. Why not simply check it with a truth table?
+    params:
+      options:
+        - label: It would have 2⁶⁰ – over a quintillion – rows.
+          correct: true
+        - label: Truth tables only work up to three variables.
+          feedback: They always work – they just get huge fast.
+        - label: Because you would not know which row is true.
+          feedback: Each row is easy to compute. The problem is how many there are.
+    hints:
+      - Every new variable doubles the rows.
+      - 2¹⁰ ≈ 1000. So what is 2⁶⁰?
+    explanation: 2⁶⁰ ≈ 10¹⁸. Whether satisfiability (SAT) has fast methods in general is the open question P versus NP. Good solvers still often handle millions of variables.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a truth table shows whether two formulas are equivalent.
+    params:
+      keywords:
+        - - zeile
+          - fall
+          - fälle
+          - row
+          - case
+        - - jede
+          - alle
+          - every
+          - all
+        - - gleich
+          - dasselbe
+          - überein
+          - same
+          - agree
+          - equal
+      sample: I write out all rows, every assignment of the variables. For each row I compute both formulas. If they are the same in every row, the formulas are equivalent.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: How apps find out what works.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: rate
@@ -83,6 +83,54 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Version A: {{n}} visitors, {{a}} purchases. Version B: {{n}} visitors, {{b}} purchases. By what percentage do people buy more with B?"
+    answer:
+      value: "{{100 * (b - a) / a}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == b - a
+        misconception: absolute
+        text: That is extra purchases, not a percentage.
+    hints:
+      - The difference is {{b - a}} purchases.
+      - "Divide it by A: {{b - a}} / {{a}}."
+    explanation: "{{b - a}} / {{a}} = {{(b - a) / a}}, so {{100 * (b - a) / a}} % more. That is the relative difference – the absolute one would be {{100 * (b - a) / n}} percentage points."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1000,2000,5000]
+        a: step[40,80,20]
+        k: choice[10,20,25,50]
+      derive:
+        b: a + a * k / 100
+      defaults:
+        n: 2000
+        a: 80
+        k: 25
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: A team checks the test daily and stops it as soon as B is "significantly" ahead. What is the problem?
+    params:
+      options:
+        - label: With so many looks, a lucky lead is almost bound to show up at some point.
+          correct: true
+        - label: None – early success is success.
+          feedback: You stop exactly when chance happened to be favourable.
+        - label: The test becomes too long.
+          feedback: It tends to be stopped too early.
+    hints:
+      - Each look is like a separate test.
+      - Many tests mean many chances of a false alarm.
+    explanation: This peeking strongly raises the error rate. Done properly, you fix the duration and sample size in advance – or use methods built for repeated looks.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -111,6 +159,27 @@ steps:
           - bewusst
           - deliberate
       sample: The system shows me more of what I click. So I keep seeing similar things and my view is confirmed. It helps to deliberately seek out other sources and topics.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A team tests 20 variants, none really works. Each test gives a chance hit with 5 % probability. How likely is at least one false alarm? In percent, rounded.
+    answer:
+      value: 64
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: single-test
+        text: That is for one test. With 20 tests the risk adds up.
+      - when: numval(state.input) == 100
+        misconception: additive
+        text: Simply computing 20 · 5 % does not work – the cases overlap.
+    hints:
+      - 'First compute the chance of "no false alarm at all": 0.95²⁰.'
+      - 0.95²⁰ ≈ 0.36. The rest is "at least one".
+    explanation: "1 − 0.95²⁰ ≈ 0.64. That is why you correct for multiple comparisons, e.g. with the Bonferroni rule: each test then needs 5 % / 20 = 0.25 %."
     difficulty: 3
 
 srs:

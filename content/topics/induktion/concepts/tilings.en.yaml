@@ -1,0 +1,176 @@
+id: logic.induction.tilings
+type: concept
+title: "Tiling and splitting"
+summary: "Solving big problems from small copies of themselves."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: A strip is 2 cells high and {{n}} cells long. In how many ways can you tile it with 2 × 1 dominoes?
+    answer:
+      value: "{{f}}"
+    hints:
+      - At the left end, either one domino stands upright – or two lie flat on top of each other.
+      - "Length 1: 1 way, length 2: 2 ways. Then: count(n) = count(n − 1) + count(n − 2)."
+    explanation: "{{f}} ways. The counts 1, 2, 3, 5, 8, 13 … are the Fibonacci numbers. Each is the sum of the previous two."
+    variants:
+      params:
+        n: int[3,8]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : 34"
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: c2
+    body: "This is recursion: you reduce a problem to smaller cases of the same problem. Induction then proves that the reduction works for all sizes."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: You climb a staircase of {{n}} steps. Each move you take 1 or 2 steps. In how many ways can you reach the top?
+    answer:
+      value: "{{f}}"
+    hints:
+      - Your last move was 1 or 2 steps.
+      - "So: ways(n) = ways(n − 1) + ways(n − 2)."
+    explanation: "{{f}} ways – Fibonacci again. Two completely different puzzles share the same recursion and so the same numbers."
+    variants:
+      params:
+        n: int[3,8]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : 34"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: c4
+    widget: hanoi
+    prompt: "Recursion in action: move four disks to peg B in at most 15 moves."
+    params:
+      disks: 4
+      target: 1
+      maxMoves: 15
+    hints:
+      - The top three must go to peg C first.
+      - Three disks to C, the big one to B, the three back on top.
+    explanation: Three disks need 7 moves, so 7 + 1 + 7 = 15. Thinking recursively, you solve the big tower with two small towers.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: One cell is removed from a 2ⁿ × 2ⁿ board. The rest can always be tiled with L-pieces of 3 cells. How many L-pieces do you need for n = {{n}}?
+    answer:
+      value: "{{(4 ** n - 1) / 3}}"
+    hints:
+      - The board has 4^{{n}} cells, one is missing.
+      - Each piece covers 3 cells. Divide ({{4 ** n}} − 1) by 3.
+    explanation: ({{4 ** n}} − 1) / 3 = {{(4 ** n - 1) / 3}}. That 4ⁿ − 1 is always divisible by 3 can itself be shown by induction.
+    variants:
+      params:
+        n: int[1,4]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Is this true of recursion?
+    params:
+      cards:
+        - text: Every recursion needs a smallest case that is solved directly.
+          right: true
+        - text: Recursive solutions are always slow.
+          right: false
+          why: Hanoi is recursive and optimal. It only gets slow if sub-results are recomputed.
+        - text: The Fibonacci numbers grow by a factor of about 1.6 per step.
+          right: true
+        - text: A recursion that never gets smaller still ends.
+          right: false
+          why: Without shrinking cases it runs forever.
+    explanation: "Recursion and induction are two sides of one idea: a smallest case and a step that reduces the big to the smaller."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: How do you show by induction that the 2ⁿ⁺¹ × 2ⁿ⁺¹ board with one hole can always be tiled with L-pieces?
+    params:
+      options:
+        - label: Split into four quarters; one L-piece in the centre puts a hole into each quarter without one.
+          correct: true
+        - label: Count all cells one by one.
+          feedback: Counting only shows the number fits – not that it works geometrically.
+        - label: You try it for n = 1, 2, 3.
+          feedback: Examples are no proof for all n.
+    hints:
+      - One quarter already has the hole. The other three need one.
+      - One L-piece in the centre touches exactly three quarters.
+    explanation: Then each quarter is a 2ⁿ × 2ⁿ board with one hole – solvable by assumption. The proof is also a construction plan, that is, a recursive algorithm.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The Fibonacci numbers are 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 … Divide 55 by 34. What do you get? To three decimals.
+    answer:
+      value: 1.618
+      tolerance: 0.002
+    hints:
+      - 55 / 34 ≈ ?
+      - "For comparison: 34 / 21 ≈ 1.619."
+    explanation: ≈ 1.618 – the golden ratio φ = (1 + √5)/2. So the Fibonacci numbers grow exponentially, roughly like φⁿ.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "A program computes Fibonacci recursively: fib(n) = fib(n − 1) + fib(n − 2), without remembering results. What happens at n = 50?"
+    params:
+      options:
+        - label: It takes forever – the same values are recomputed billions of times.
+          correct: true
+        - label: It finishes instantly.
+          feedback: The number of calls itself grows like the Fibonacci numbers.
+        - label: It gives a wrong result.
+          feedback: The result would be right – just far too late.
+    hints:
+      - How often is fib(2) computed for fib(50)?
+      - If you remember results, you only need 50 steps.
+    explanation: Naive recursion repeats subproblems exponentially often. Storing results (dynamic programming) does it in linear time. The program is still correct – induction shows that.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the number of tilings of a 2 × n strip follows the Fibonacci numbers.
+    params:
+      keywords:
+        - - senkrecht
+          - stehend
+          - upright
+          - vertical
+        - - waagrecht
+          - liegend
+          - flat
+          - horizontal
+        - - summe
+          - addier
+          - plus
+          - vorig
+          - sum
+          - add
+          - previous
+      sample: At the left edge, either one domino stands upright, leaving a strip of length n − 1, or two lie flat, leaving n − 2. So the count is the sum of the previous two – just like Fibonacci.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

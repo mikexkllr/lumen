@@ -5,7 +5,7 @@ summary: Whoever acts needs rules.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: riskant
@@ -105,6 +105,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: Can an agent reliably detect hidden instructions in web pages?
+    params:
+      options:
+        - label: Not reliably – so you also limit permissions and ask before sensitive actions.
+          correct: true
+        - label: Yes, a good model spots every manipulation.
+          feedback: Attackers keep inventing new tricks. Detection alone is not enough.
+        - label: It need not detect anything – web pages are harmless.
+          feedback: Any page can contain text that looks like an instruction.
+    hints:
+      - To the model everything is text – including the attacker's commands.
+      - What limits the damage if detection fails?
+    explanation: "You build several layers of protection: detection, few permissions, confirmations and logs. If one fails, the others hold."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +139,24 @@ steps:
     hints:
       - What does an attacker need to smuggle secrets out?
     explanation: All three together allow data theft by an injected command. If one is missing, the attack collapses.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A booby-trapped page manages to manipulate the agent with 1 % probability. During research it reads 200 pages, each one booby-trapped. How likely does at least one attack succeed? In percent, rounded.
+    answer:
+      value: 87
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: single
+        text: That is for one page. Over 200 tries the risk adds up.
+    hints:
+      - "Probability that all 200 fail: 0.99²⁰⁰."
+      - 0.99²⁰⁰ ≈ 0.134.
+    explanation: 1 − 0.99²⁰⁰ ≈ 0.87. Small error rates become large over many attempts. So blocking attacks "most of the time" is not enough – there need to be limits that always hold.
     difficulty: 3
 
 srs:

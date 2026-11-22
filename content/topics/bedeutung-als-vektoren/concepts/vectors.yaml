@@ -1,0 +1,190 @@
+id: ai.embeddings.vectors
+type: concept
+title: "Wörter als Punkte"
+summary: "Jedes Wort bekommt eine Liste von Zahlen – und Ähnliches landet nah beieinander."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Auf einer Karte liegen »Hund«, »Katze« und »Auto«. Zwei davon liegen nah beieinander. Welche wohl?
+    params:
+      options:
+        - label: Hund und Katze
+          correct: true
+        - label: Hund und Auto
+          feedback: Beide fahren nicht oft zusammen in Sätzen vor – Hund und Katze schon.
+        - label: Alle gleich weit
+          feedback: Dann wüsste die Karte nichts über Bedeutung.
+    hints:
+      - Welche Wörter kommen in ähnlichen Sätzen vor?
+      - »Ich füttere meinen …« passt für zwei davon.
+    explanation: Hund und Katze sind beides Haustiere und stehen in ähnlichen Sätzen. Eine Bedeutungskarte legt sie darum nah zusammen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Auf einer Bedeutungskarte liegt »Hund« bei ({{x}} | {{y}}) und »Katze« bei ({{x + 3 * k}} | {{y + 4 * k}}). Wie weit liegen sie auseinander?
+    answer:
+      value: "{{5 * k}}"
+    hints:
+      - Die Unterschiede sind {{3 * k}} und {{4 * k}}.
+      - "Pythagoras: √({{3 * k}}² + {{4 * k}}²)."
+    explanation: "{{5 * k}}. Mit Abständen kann ein Computer Bedeutung **messen**: Kleiner Abstand heißt ähnliche Bedeutung."
+    variants:
+      params:
+        x: int[0,5]
+        y: int[0,5]
+        k: int[1,3]
+      defaults:
+        x: 2
+        y: 1
+        k: 1
+
+  - kind: explain
+    id: c3
+    body: Ein **Wortvektor** ist eine Liste von Zahlen für ein Wort – in echten Modellen Hunderte oder Tausende. Jede Zahl ist eine Achse in einem Raum. Wörter mit ähnlicher Bedeutung liegen dort nah beieinander.
+
+  - kind: problem
+    id: c4
+    widget: match
+    prompt: Welches Wort liegt wohl am nächsten?
+    params:
+      pairs:
+        - left: Montag
+          right: Dienstag
+        - left: Apfel
+          right: Birne
+        - left: Geige
+          right: Cello
+        - left: rennen
+          right: laufen
+      leftTitle: Wort
+      rightTitle: nächster Nachbar
+    hints:
+      - Suche jeweils das Wort aus derselben Gruppe.
+      - Wochentage, Obst, Instrumente, Bewegungen.
+    explanation: Nächste Nachbarn im Vektorraum sind oft Wörter derselben **Kategorie** – oder Synonyme.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ein Wortvektor hat {{d}} Zahlen. Ein Wortschatz hat {{w}} 000 Wörter. Wie viele Millionen Zahlen braucht die ganze Tabelle?
+    answer:
+      value: "{{d * w / 1000}}"
+      tolerance: 0.01
+    hints:
+      - Multipliziere Wörter mal Zahlen pro Wort.
+      - "{{d}} · {{w}} 000 = {{d * w * 1000}}."
+    explanation: "{{d * w / 1000}} Millionen Zahlen – für einen Computer leicht zu speichern. Die **Tabelle** ist die erste Schicht vieler Sprachmodelle."
+    variants:
+      params:
+        d: choice[100,300,768]
+        w: choice[10,50,100]
+      defaults:
+        d: 300
+        w: 50
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Stimmt das über Wortvektoren?
+    params:
+      cards:
+        - text: Man lernt sie aus großen Mengen Text.
+          right: true
+        - text: Ähnliche Wörter haben ähnliche Buchstaben.
+          right: false
+          why: »Hund« und »Bund« sind sich in Buchstaben ähnlich, in Bedeutung kaum.
+        - text: Ein Vektor kann Hunderte Zahlen haben.
+          right: true
+        - text: Jede Achse hat einen festen Namen.
+          right: false
+          why: Die Achsen entstehen beim Lernen und sind meist nicht benannt.
+    explanation: Wortvektoren entstehen aus **Text**, nicht aus Buchstaben oder Wörterbüchern. Bedeutung steckt in der Lage der Punkte zueinander.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Was bedeutet die 17. Zahl in einem gelernten Wortvektor?
+    params:
+      options:
+        - label: Meist nichts Eindeutiges – Bedeutung steckt in Richtungen, die viele Zahlen zugleich betreffen.
+          correct: true
+        - label: Sie misst genau eine Eigenschaft, etwa »ist ein Tier«.
+          feedback: Niemand hat die Achsen so festgelegt. Sie entstehen beim Training.
+        - label: Sie ist die Nummer des Wortes im Wörterbuch.
+          feedback: Die Nummer ist etwas anderes – der Vektor wird aus ihr erst nachgeschlagen.
+    hints:
+      - Wer hat die Achsen benannt?
+      - Man könnte den ganzen Raum drehen, ohne Abstände zu ändern.
+    explanation: Abstände und Winkel bleiben bei einer **Drehung** gleich. Darum haben einzelne Achsen keine feste Bedeutung – nur die Lage der Wörter zueinander zählt.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: "Früher stellte man Wörter als »One-Hot«-Vektoren dar: lauter Nullen und eine einzige 1. Was ist der Nachteil?"
+    params:
+      options:
+        - label: Alle Wörter sind gleich weit voneinander entfernt – Ähnlichkeit ist unsichtbar.
+          correct: true
+        - label: Sie sind zu kurz.
+          feedback: Im Gegenteil, sie sind so lang wie der ganze Wortschatz.
+        - label: Sie können keine Wörter unterscheiden.
+          feedback: Unterscheiden geht – nur Ähnlichkeit nicht.
+    hints:
+      - Wie groß ist das Skalarprodukt von zwei verschiedenen One-Hot-Vektoren?
+      - Hund und Katze wären dann genauso verschieden wie Hund und Steuer.
+    explanation: "Verschiedene One-Hot-Vektoren stehen alle senkrecht aufeinander. **Dichte** Vektoren mit gelernten Zahlen lösen das: Ähnliche Wörter teilen Richtungen."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Ein One-Hot-Vektor für einen Wortschatz von 50 000 Wörtern hat wie viele Einträge, die **nicht** 0 sind?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 50000
+        misconception: length
+        text: Das ist seine Länge. Nur ein Eintrag ist 1.
+    hints:
+      - "»One-Hot« heißt: genau eine Stelle ist »heiß«."
+      - Alle anderen sind 0.
+    explanation: Eine einzige 1 unter 50 000 Stellen – extrem **dünn besetzt**. Ein gelernter Vektor mit 300 Zahlen trägt viel mehr Information auf viel weniger Platz.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Computer mit Zahlen ausdrücken kann, dass zwei Wörter ähnlich sind.
+    params:
+      keywords:
+        - - vektor
+          - zahlen
+          - liste
+          - vector
+          - numbers
+          - list
+        - - nah
+          - abstand
+          - close
+          - distance
+        - - ähnlich
+          - bedeutung
+          - similar
+          - meaning
+      sample: Jedes Wort bekommt einen Vektor, also eine Liste von Zahlen, und damit einen Punkt in einem Raum. Wörter mit ähnlicher Bedeutung liegen nah beieinander. Ihr Abstand misst die Ähnlichkeit.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1"]

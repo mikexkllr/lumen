@@ -5,7 +5,7 @@ summary: Agent, environment, reward.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -141,6 +141,28 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A robot gets −1 for every step and +10 at the goal. Its route takes {{k}} steps. What is its total reward?
+    answer:
+      value: "{{10 - k}}"
+    feedback:
+      - when: numval(state.input) == 10 + k
+        misconception: sign
+        text: The steps cost – they are subtracted.
+    hints:
+      - "{{k}} steps of −1 each give −{{k}}."
+      - Then add +10 at the goal.
+    explanation: 10 − {{k}} = {{10 - k}}. The small step penalty makes short routes worth more – without anyone showing the robot the way.
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -156,6 +178,51 @@ steps:
     hints:
       - How likely is it to walk 100 metres by chance?
     explanation: "**Sparse rewards**. The remedy: reward intermediate goals – which again opens loopholes."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: To make the robot learn faster, it gets extra rewards for "closer to the goal". What is the risk?
+    params:
+      options:
+        - label: It may learn to collect the extra rewards instead of arriving.
+          correct: true
+        - label: None – more reward is always better.
+          feedback: Every reward is a target that can be exploited.
+        - label: It then learns nothing at all.
+          feedback: Usually it learns faster – just sometimes the wrong thing.
+    hints:
+      - What if walking back and forth keeps making it "closer" again?
+      - What is measured is what gets rewarded.
+    explanation: Such reward shaping often helps but has to be built carefully. If only progress that cannot be repeated is rewarded, the real goal stays the same.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how an agent learns in reinforcement learning.
+    params:
+      keywords:
+        - - aktion
+          - handl
+          - ausprobier
+          - action
+          - act
+          - try
+        - - belohnung
+          - strafe
+          - reward
+          - penalty
+        - - zukunft
+          - summe
+          - langfristig
+          - future
+          - sum
+          - long
+      sample: The agent tries actions and gets rewards or penalties. It learns what brings the biggest sum of rewards in the long run and acts that way more and more.
     difficulty: 3
 
 srs:

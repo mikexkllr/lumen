@@ -1,0 +1,183 @@
+id: logic.modal.worlds
+type: concept
+title: "Possible worlds"
+summary: "Necessary means true in all worlds. Possible means true in at least one."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: buckets
+    prompt: Necessary, possible or impossible?
+    params:
+      buckets:
+        - id: b1
+          label: necessary
+        - id: b2
+          label: possible, not necessary
+        - id: b3
+          label: impossible
+      items:
+        - label: 2 + 2 = 4
+          bucket: b1
+        - label: It will rain tomorrow.
+          bucket: b2
+        - label: A circle has four corners.
+          bucket: b3
+        - label: Every bachelor is unmarried.
+          bucket: b1
+        - label: I have a sister.
+          bucket: b2
+    hints:
+      - Can you imagine a world where it is different?
+      - Arithmetic and definitions do not depend on the weather.
+    explanation: What holds in every conceivable world is necessary. What holds in some is possible. What holds in none is impossible.
+
+  - kind: explain
+    id: c2
+    body: 'Modal logic writes □p for "necessarily p" and ◇p for "possibly p". In the language of possible worlds: □p means p holds in all accessible worlds. ◇p means p holds in at least one.'
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: There are four accessible worlds. p holds in three of them, not in one. What is true?
+    params:
+      options:
+        - label: ◇p is true, □p is false.
+          correct: true
+        - label: □p is true.
+          feedback: "Necessary would mean: in **all** four worlds."
+        - label: Both false.
+          feedback: p holds in three worlds – so it is possible.
+    hints:
+      - For □ you need all worlds, for ◇ one.
+      - One world without p is enough to topple □p.
+    explanation: □ is like "for all worlds", ◇ like "there is a world". Modal logic is quantifier logic over worlds.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Which statement means the same as "p is possible" (◇p)?
+    params:
+      options:
+        - label: '"Not p" is not necessary: ¬□¬p.'
+          correct: true
+        - label: '"p is necessary": □p.'
+          feedback: Necessary is much stronger than possible.
+        - label: '"p is not necessary": ¬□p.'
+          feedback: That means "¬p is possible" – something else.
+    hints:
+      - 'Think of the quantifiers: "there is" equals "not for all not".'
+      - 'Translate: ◇ = "in some world", □ = "in all worlds".'
+    explanation: ◇p ≡ ¬□¬p, just like ∃x P ≡ ¬∀x ¬P. Possible and necessary are dual to each other.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: In 6 accessible worlds p holds in {{k}} of them. At least how many worlds would you have to change for □p to become true?
+    answer:
+      value: "{{6 - k}}"
+    hints:
+      - □p needs p in all 6 worlds.
+      - In how many is p still missing?
+    explanation: '{{6 - k}} worlds. Even one world without p makes □p false – like a single counterexample for "for all".'
+    variants:
+      params:
+        k: int[1,5]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: □p means p holds in [[all]] accessible worlds. ◇p means p holds in [[at least one]] world.
+      distractors:
+        - none
+        - exactly two
+    hints:
+      - □ is like "for all", ◇ like "there is".
+    explanation: Necessary and possible are quantifiers over worlds.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: For knowledge we want □p → p ("what I know is true"). Which condition on the worlds ensures this?
+    params:
+      options:
+        - label: Every world considers itself possible – the actual world is always included.
+          correct: true
+        - label: There is only one world.
+          feedback: That would be far too strong – then nothing would be unknown.
+        - label: No world sees itself.
+          feedback: Then one could "know" false things.
+    hints:
+      - If p holds in all accessible worlds – does it hold here too?
+      - Only if "here" is itself accessible.
+    explanation: If every world is accessible from itself (reflexive), □p immediately gives p. That is how properties of accessibility correspond exactly to rules of the logic.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A child knows only the others' hats. With 4 children, each red or blue – how many worlds does each child consider possible before anyone speaks?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: total
+        text: There are 16 worlds in total. But the child sees three hats.
+    hints:
+      - The child sees three hats.
+      - Only its own remains open.
+    explanation: Two. A child's accessible worlds are all worlds that differ only in its own hat. That makes accessibility an equivalence relation.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: If each world can reach exactly the worlds that look the same from it, the logic is called S5. Which rule then holds too?
+    params:
+      options:
+        - label: If I do not know p, then I know that I do not know p.
+          correct: true
+        - label: I know everything.
+          feedback: S5 says nothing about how much you know – only how knowledge behaves.
+        - label: What is possible is true.
+          feedback: Possible does not mean actual – another world could be meant.
+    hints:
+      - In S5 you perfectly survey your own possibilities.
+      - That includes your own ignorance.
+    explanation: "This negative introspection fits hat puzzles with perfect logicians. For real human knowledge it is questionable: often you do not even know what you do not know."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what "necessary" and "possible" mean in the language of possible worlds.
+    params:
+      keywords:
+        - - alle
+          - jede
+          - all
+          - every
+        - - mindestens eine
+          - eine welt
+          - at least one
+          - some world
+        - - welt
+          - welten
+          - world
+      sample: Necessary means the statement holds in all worlds under consideration. Possible means it holds in at least one world. That is like "for all" and "there is", only over worlds instead of numbers.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

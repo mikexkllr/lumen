@@ -7,7 +7,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.elimination]
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
   - kind: problem
     id: ada
@@ -127,6 +127,93 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Vier Kinder, vier Snacks. Wer isst was?
+    params:
+      categories:
+        - name: Kind
+          items:
+            - Ada
+            - Ben
+            - Cleo
+            - Dani
+        - name: Snack
+          items:
+            - Apfel
+            - Brezel
+            - Keks
+            - Nüsse
+      clues:
+        - text: Ben isst die Brezel.
+          rule:
+            is:
+              - Ben
+              - Brezel
+        - text: Ada isst weder Apfel noch Keks.
+          rules:
+            - not:
+                - Ada
+                - Apfel
+            - not:
+                - Ada
+                - Keks
+        - text: Dani isst keinen Apfel.
+          rule:
+            not:
+              - Dani
+              - Apfel
+    hints:
+      - Setze zuerst den sicheren Haken bei Ben. Was bleibt dann für Ada?
+      - Ada hat die Nüsse. Für Dani bleiben nur noch zwei Snacks – einer ist verboten.
+    explanation: Ben – Brezel, Ada – Nüsse, Dani – Keks, Cleo – Apfel. Jeder Haken erzeugt neue Kreuze in Zeile und Spalte.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Bei Ole und Pia sind nur noch Katze und Hund frei – bei beiden dieselben zwei. Was folgt für Quinn?
+    params:
+      options:
+        - label: Quinn hat weder Katze noch Hund.
+          correct: true
+        - label: Quinn hat die Katze.
+          feedback: Die Katze geht an Ole oder Pia – für Quinn bleibt sie nicht übrig.
+        - label: Daraus folgt nichts.
+          feedback: "Doch: Zwei Personen teilen sich zwei Tiere. Beide Tiere sind damit vergeben."
+    hints:
+      - Ole und Pia brauchen zusammen genau zwei Tiere.
+      - Welche Tiere bekommen die beiden auf jeden Fall?
+    explanation: "Das ist der **Paar-Trick**: Zwei Personen mit denselben zwei Möglichkeiten nehmen beide Werte weg – auch wenn noch offen ist, wer welchen bekommt."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Zuordnungen gibt es ohne Hinweise bei {{n}} Kindern und {{n}} Tieren?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: cells-vs-matchings
+        text: Das ist die Zahl der Felder im Gitter, nicht der Zuordnungen.
+    hints:
+      - Das erste Kind hat {{n}} Möglichkeiten. Wie viele bleiben für das zweite?
+      - Multipliziere {{n}} · ({{n}} − 1) · … · 1.
+    explanation: Das ist {{n}}! (Fakultät) = {{f}}. Schon bei 10 Kindern wären es über 3,6 Millionen – darum lohnt systematisches Ausschließen.
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,6]
+      derive:
+        f: "n == 3 ? 6 : n == 4 ? 24 : n == 5 ? 120 : 720"
+      defaults:
+        n: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -142,4 +229,50 @@ steps:
     hints:
       - Jeder Ja/Nein-Hinweis kann die Möglichkeiten höchstens halbieren.
     explanation: log₂ 120 ≈ 6,9. Information misst man in Bits – jedes Bit halbiert die Unsicherheit.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Rätsel hat drei Kategorien mit je 4 Werten: Person, Tier und Farbe. Wie viele Lösungen sind ohne Hinweise denkbar?"
+    answer:
+      value: 576
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: one-category
+        text: Das zählt nur Person – Tier. Die Farben kommen noch dazu.
+      - when: numval(state.input) == 64
+        misconception: with-repetition
+        text: Jeder Wert darf nur einmal vorkommen. Es sind Reihenfolgen, keine freien Wahlen.
+    hints:
+      - "Person – Tier: 4! = 24 Möglichkeiten. Und unabhängig davon Person – Farbe?"
+      - Multipliziere die beiden Zahlen.
+    explanation: 24 · 24 = 576. Jede weitere Kategorie multipliziert mit 4! – darum wachsen solche Rätsel so schnell.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum folgen aus einem einzigen Haken im Gitter gleich mehrere Kreuze?"
+    params:
+      keywords:
+        - - genau
+          - eins
+          - einmal
+          - exactly
+          - one
+          - once
+        - - zeile
+          - spalte
+          - row
+          - column
+        - - kreuz
+          - streich
+          - ausschließ
+          - cross
+          - rule out
+          - eliminat
+      sample: Jede Person hat genau ein Tier, und jedes Tier gehört genau einer Person. Ein Haken streicht deshalb alle anderen Felder in seiner Zeile und Spalte.
     difficulty: 3

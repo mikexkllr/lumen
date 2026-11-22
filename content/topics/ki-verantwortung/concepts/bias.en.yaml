@@ -5,7 +5,7 @@ summary: When AI learns prejudice.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: bewerbung
@@ -94,6 +94,46 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A loan model approves {{a}} % of applications from group A and {{b}} % from group B. What is the ratio of B to A? To two decimals.
+    answer:
+      value: "{{b / a}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: difference
+        text: That is the gap in percentage points. We want the ratio.
+    hints:
+      - Divide B's rate by A's.
+      - "{{b}} / {{a}} = ?"
+    explanation: Ratio {{b / a}}. In US hiring, a value below 0.8 counts as a warning sign (the "four-fifths rule"). Equal rates are called demographic parity – only one of several ideas of fairness.
+    difficulty: 2
+    variants:
+      params:
+        a: step[50,80,10]
+        b: step[20,60,10]
+      constraints:
+        - b < a
+      defaults:
+        a: 60
+        b: 30
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Out of every 100 innocent people, a model wrongly flags 20 in group A and 40 in group B as dangerous. How many times higher is group B's false positive rate?
+    answer:
+      value: 2
+    hints:
+      - "False positive rate A: 20 %. B: 40 %."
+      - 40 / 20 = ?
+    explanation: Twice as high. Even with the same overall accuracy, kinds of error can be distributed unequally. That is why errors are checked per group.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +149,28 @@ steps:
     hints:
       - Equal accuracy and equal false-alarm rate – are both possible if the groups reoffend at different rates?
     explanation: "The **impossibility theorem of fairness**: which kind of fairness counts is a societal decision, not a technical one."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a model can be unfair even though nobody programmed it to be.
+    params:
+      keywords:
+        - - daten
+          - beispiel
+          - data
+          - example
+        - - vergangenheit
+          - früher
+          - history
+          - past
+        - - stellvertret
+          - proxy
+          - verrät
+          - reveal
+      sample: The model learns from data from the past, which can contain unfair decisions. Even without the gender feature, a proxy such as where someone lives reveals a lot. So it copies the old unfairness.
     difficulty: 3
 
 srs:

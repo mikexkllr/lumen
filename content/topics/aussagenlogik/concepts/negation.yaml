@@ -5,7 +5,7 @@ summary: Aus »alle« wird »mindestens einer nicht«.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 12
 steps:
   - kind: problem
     id: schwaene
@@ -139,6 +139,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: gates
+    prompt: Baue »nicht (A und B)« aus zwei NICHT-Gattern und einem Gatter deiner Wahl.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: na
+          type: NOT
+          in:
+            - A
+        - id: nb
+          type: NOT
+          in:
+            - B
+        - id: g
+          type: "?"
+          in:
+            - na
+            - nb
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: nicht (A und B)
+    check:
+      predicate: table('Q') == [1, 1, 1, 0]
+    feedback:
+      - when: table('Q') == [1, 0, 0, 0]
+        misconception: demorgan-keep-and
+        text: Das ist »weder A noch B«. Beim Verneinen wird aus UND ein ODER.
+    hints:
+      - »Nicht beide« ist schon wahr, wenn einer fehlt.
+      - Nicht A ODER nicht B.
+    explanation: ¬(A ∧ B) = ¬A ∨ ¬B – De Morgan als Schaltung.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Was ist das Gegenteil von »Alle Türen sind zu und das Licht ist aus«?
+    params:
+      options:
+        - label: Mindestens eine Tür ist offen oder das Licht ist an.
+          correct: true
+        - label: Alle Türen sind offen und das Licht ist an.
+          feedback: Das ist viel zu stark. Eine offene Tür reicht schon.
+        - label: Mindestens eine Tür ist offen und das Licht ist an.
+          feedback: Das UND muss beim Verneinen zum ODER werden.
+    hints:
+      - "Zwei Regeln auf einmal: »alle« wird zu »mindestens eine nicht«, »und« wird zu »oder«."
+      - Verneine beide Teile und tausche die Verknüpfung.
+    explanation: ¬(∀ zu ∧ aus) = (∃ offen) ∨ an. Quantoren und Verknüpfungen werden beim Verneinen **beide** umgedreht.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -154,6 +215,45 @@ steps:
     hints:
       - Wann ist das Versprechen gebrochen?
     explanation: "Die Verneinung einer Implikation ist ein **und**: A gilt, aber B nicht."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Für ganze Zahlen x von 0 bis 10 gilt die Aussage »x > 3 und x < 7«. Für wie viele dieser Zahlen gilt ihre **Verneinung**?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: not-negated
+        text: "Das sind die Zahlen, für die die Aussage selbst gilt: 4, 5, 6."
+    hints:
+      - "Verneinung: x ≤ 3 **oder** x ≥ 7."
+      - Zähle 0 bis 3 und 7 bis 10.
+    explanation: "Die Aussage gilt für 4, 5, 6 – also 3 der 11 Zahlen. Die Verneinung gilt für die übrigen 8. Verneinen heißt immer: genau der Rest."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die Regeln von De Morgan mit einem Beispiel aus dem Alltag.
+    params:
+      keywords:
+        - - und
+          - and
+        - - oder
+          - or
+        - - nicht
+          - not
+        - - tausch
+          - wird zu
+          - umgedreht
+          - swap
+          - becomes
+          - flip
+      sample: "Nicht (Regen und kalt) heißt: nicht Regen oder nicht kalt. Beim Verneinen wird aus und ein oder, und aus oder wird und. Man verneint jeden Teil und tauscht die Verknüpfung."
     difficulty: 3
 
 srs:

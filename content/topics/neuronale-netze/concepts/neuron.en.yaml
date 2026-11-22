@@ -5,7 +5,7 @@ summary: Weigh, add, decide.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: summe
@@ -90,6 +90,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "A ReLU neuron: inputs {{x}} and {{y}}, weights {{a}} and −1, bias {{b}}. Output = max(0, sum). What does it output?"
+    answer:
+      value: "{{max(0, x * a - y + b)}}"
+    feedback:
+      - when: x * a - y + b < 0 && numval(state.input) == x * a - y + b
+        misconception: relu-negative
+        text: The sum is negative – ReLU turns it into 0.
+    hints:
+      - "Sum: {{x}} · {{a}} + {{y}} · (−1) + {{b}}."
+      - The sum is {{x * a - y + b}}. If it is negative, the output is 0.
+    explanation: Sum {{x * a - y + b}}, output {{max(0, x * a - y + b)}}. ReLU lets positive values through and cuts off negative ones – simple and fast.
+    difficulty: 2
+    variants:
+      params:
+        x: int[1,5]
+        y: int[1,9]
+        a: int[1,3]
+        b: int[-3,3]
+      constraints:
+        - x * a - y + b != 0
+      defaults:
+        x: 3
+        y: 4
+        a: 2
+        b: 1
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Two inputs (0 or 1), both with weight 1. Which threshold makes the neuron act like an OR?
+    params:
+      options:
+        - label: It fires when the sum is above 0.5.
+          correct: true
+        - label: It fires when the sum is above 1.5.
+          feedback: Then it fires only when both are on – that is AND.
+        - label: It fires when the sum is above 2.5.
+          feedback: The sum is at most 2 – it never fires.
+    hints:
+      - OR should fire as soon as at least one input is 1.
+      - Then the sum is at least 1.
+    explanation: "Threshold 0.5: a sum of 0 stays silent, 1 or 2 fires. The same weights give OR or AND depending on the threshold."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,6 +154,48 @@ steps:
     hints:
       - A straight line plugged into a straight line gives a straight line again.
     explanation: Only the “kink” of the activation allows curved boundaries. Depth without non-linearity is useless.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: The sigmoid σ(z) = 1 / (1 + e⁻ᶻ) is almost flat for large |z|. What problem does that cause in learning?
+    params:
+      options:
+        - label: The slope is nearly 0 – the neuron barely gets any learning signal.
+          correct: true
+        - label: The output becomes infinitely large.
+          feedback: Sigmoid always stays between 0 and 1.
+        - label: None – flat is stable.
+          feedback: Stable, yes, but then the weight hardly changes.
+    hints:
+      - Weights change in proportion to the slope.
+      - How steep is an almost horizontal curve?
+    explanation: The sigmoid's slope is at most 0.25 and nearly 0 far out. Over many layers the signal vanishes. ReLU has slope 1 for positive values – one reason it took over.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what an artificial neuron computes.
+    params:
+      keywords:
+        - - gewicht
+          - weight
+        - - summe
+          - addier
+          - sum
+          - add
+        - - schwelle
+          - aktivier
+          - feuer
+          - bias
+          - threshold
+          - activat
+          - fire
+      sample: A neuron multiplies each input by a weight and adds them up, plus a bias. An activation then decides what comes out – such as whether it fires.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Predict the next word, trillions of times.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Rule of thumb: training costs about 6 · N · D operations (N weights, D tokens). With N = 10⁹ and D = 2 · 10¹⁰: how many times 10²⁰ is that?"
+    answer:
+      value: 1.2
+      tolerance: 0.01
+    hints:
+      - 6 · 2 = 12 and 10⁹ · 10¹⁰ = 10¹⁹.
+      - 12 · 10¹⁹ = 1.2 · 10²⁰.
+    explanation: About 1.2 · 10²⁰. Twice the size or twice the data doubles the compute cost. That is why choosing N and D for a fixed budget matters so much.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: What often helps pre-training more than simply more text?
+    params:
+      options:
+        - label: "Better data: removing duplicates, filtering junk, favouring good sources."
+          correct: true
+        - label: Making it read text backwards.
+          feedback: The reading direction is not the problem.
+        - label: Text from one single book only.
+          feedback: Then variety is missing.
+    hints:
+      - What does a model learn from a thousand copies of the same page?
+      - Bad data costs compute and does harm.
+    explanation: Data quality matters enormously. Duplicates encourage memorisation, junk wastes compute. Much of the work of building large models goes into preparing the data.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -93,6 +126,46 @@ steps:
     hints:
       - The internet does not consist only of helpful answers.
     explanation: "Pre-training supplies knowledge, **fine-tuning** the character: helpful, honest, careful."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: What do "scaling laws" say about language models?
+    params:
+      options:
+        - label: The prediction loss falls fairly smoothly with more compute, data and size.
+          correct: true
+        - label: Every doubling doubles intelligence.
+          feedback: The loss falls ever more slowly – and "intelligence" is not a measured quantity.
+        - label: Beyond a certain size every model becomes error-free.
+          feedback: The curves approach a floor but never reach zero.
+    hints:
+      - The laws describe the loss for predicting the next token.
+      - On log–log paper they are almost straight lines.
+    explanation: "The measurements follow power laws: every tenfold increase brings a similar improvement. They predict poorly, however, when a particular ability will appear."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a language model learns during pre-training.
+    params:
+      keywords:
+        - - nächst
+          - next
+        - - token
+          - wort
+          - word
+        - - fehler
+          - korrigier
+          - gewicht
+          - error
+          - correct
+          - weight
+      sample: The model reads huge amounts of text and keeps guessing the next token. When it is wrong, its weights are corrected a little. After trillions of such steps it has learned a lot about language and the world.
     difficulty: 3
 
 srs:

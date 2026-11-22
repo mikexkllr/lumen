@@ -5,7 +5,7 @@ summary: Agent, Umgebung, Belohnung.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -141,6 +141,28 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Roboter bekommt für jeden Schritt −1 und am Ziel +10. Sein Weg dauert {{k}} Schritte. Wie groß ist seine Gesamtbelohnung?
+    answer:
+      value: "{{10 - k}}"
+    feedback:
+      - when: numval(state.input) == 10 + k
+        misconception: sign
+        text: Die Schritte kosten – sie werden abgezogen.
+    hints:
+      - "{{k}} Schritte zu je −1 ergeben −{{k}}."
+      - Dazu kommt +10 am Ziel.
+    explanation: 10 − {{k}} = {{10 - k}}. Die kleine **Schrittstrafe** sorgt dafür, dass kurze Wege mehr wert sind – ohne dass man dem Roboter den Weg zeigt.
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -156,6 +178,51 @@ steps:
     hints:
       - Wie wahrscheinlich läuft man zufällig 100 Meter?
     explanation: "**Seltene Belohnungen**. Abhilfe: Zwischenziele belohnen – was aber wieder Schlupflöcher öffnet."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Damit der Roboter schneller lernt, gibt man ihm Zwischenbelohnungen für »näher am Ziel«. Was ist das Risiko?
+    params:
+      options:
+        - label: Er lernt vielleicht, die Zwischenbelohnungen zu sammeln, statt anzukommen.
+          correct: true
+        - label: Gar keins – mehr Belohnung ist immer besser.
+          feedback: Jede Belohnung ist ein Ziel, das ausgenutzt werden kann.
+        - label: Er lernt dann gar nichts mehr.
+          feedback: Meist lernt er schneller – nur eben manchmal das Falsche.
+    hints:
+      - Was, wenn man durch Hin- und Herlaufen immer wieder »näher« kommt?
+      - Belohnt wird, was gemessen wird.
+    explanation: Solches **Reward Shaping** hilft oft, muss aber sorgfältig gebaut sein. Belohnt man nur Fortschritt, der sich nicht wiederholen lässt, bleibt das eigentliche Ziel dasselbe.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Agent beim bestärkenden Lernen lernt.
+    params:
+      keywords:
+        - - aktion
+          - handl
+          - ausprobier
+          - action
+          - act
+          - try
+        - - belohnung
+          - strafe
+          - reward
+          - penalty
+        - - zukunft
+          - summe
+          - langfristig
+          - future
+          - sum
+          - long
+      sample: Der Agent probiert Aktionen aus und bekommt dafür Belohnungen oder Strafen. Er merkt sich, was auf Dauer die größte Summe an Belohnungen bringt, und handelt immer öfter so.
     difficulty: 3
 
 srs:

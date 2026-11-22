@@ -5,7 +5,7 @@ summary: Das Nächste-Nachbarn-Verfahren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -140,6 +140,32 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie weit liegen die Punkte ({{x}} | {{y}}) und ({{x + 3 * k}} | {{y + 4 * k}}) auseinander?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: manhattan
+        text: Das ist der Weg entlang der Achsen. Gefragt ist die Luftlinie.
+    hints:
+      - Die Unterschiede sind {{3 * k}} und {{4 * k}}.
+      - "Pythagoras: √({{3 * k}}² + {{4 * k}}²)."
+    explanation: √({{9 * k * k}} + {{16 * k * k}}) = {{5 * k}}. Dieser **euklidische Abstand** ist das Standardmaß beim Nächste-Nachbarn-Verfahren.
+    difficulty: 2
+    variants:
+      params:
+        x: int[0,5]
+        y: int[0,5]
+        k: int[1,4]
+      defaults:
+        x: 1
+        y: 2
+        k: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -155,6 +181,48 @@ steps:
     hints:
       - Mit jeder Dimension wächst der Raum exponentiell – die Daten werden dünn.
     explanation: Der Begriff »nächster Nachbar« verliert seinen Sinn. Darum komprimiert man Daten erst in wenige aussagekräftige Dimensionen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: In einem Würfel mit Seite 1 und {{d}} Dimensionen liegt ein innerer Würfel mit Seite 0,9. Wie viel Prozent des Volumens liegen innen? Gerundet.
+    answer:
+      value: "{{100 * 0.9 ** d}}"
+      tolerance: 1
+    hints:
+      - Das Volumen ist Seite hoch Dimension.
+      - Rechne 0,9^{{d}}.
+    explanation: 0,9^{{d}} ≈ {{round(100 * 0.9 ** d)}} %. In hohen Dimensionen liegt fast alles am **Rand**, und alle Punkte sind ähnlich weit voneinander entfernt. Darum werden »nächste Nachbarn« dort wenig aussagekräftig.
+    difficulty: 3
+    variants:
+      params:
+        d: choice[2,10,20,50]
+      defaults:
+        d: 10
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das Nächste-Nachbarn-Verfahren ein neues Beispiel einordnet.
+    params:
+      keywords:
+        - - nächst
+          - nah
+          - nearest
+          - close
+        - - abstand
+          - entfern
+          - distance
+        - - mehrheit
+          - meisten
+          - abstimm
+          - majority
+          - most
+          - vote
+      sample: Es misst den Abstand des neuen Beispiels zu allen bekannten. Dann schaut es die k nächsten an und nimmt das Label, das die meisten von ihnen haben – eine Mehrheitsabstimmung.
     difficulty: 3
 
 srs:

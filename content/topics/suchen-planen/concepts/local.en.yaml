@@ -1,0 +1,179 @@
+id: ai.search.local
+type: concept
+title: "Hill climbing in the fog"
+summary: "When the space is too big: improve step by step, recognise dead ends, jump boldly."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: You are on a mountain in thick fog and want to reach the summit. You can only see one metre. What do you do?
+    params:
+      options:
+        - label: Always take a step where it goes uphill most steeply.
+          correct: true
+        - label: Survey the whole mountain first.
+          feedback: That is impossible in fog – exactly the problem with huge search spaces.
+        - label: Stand still.
+          feedback: Then you never arrive.
+    hints:
+      - You only know your immediate surroundings.
+      - Which direction promises the most?
+    explanation: "That is hill climbing: you improve a solution step by step without knowing the whole space."
+
+  - kind: explain
+    id: c2
+    body: In local search you keep no tree, just one current solution. You try small changes and keep the better ones. That needs hardly any memory and works even for huge spaces.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Hill climbing brings you to a small hill. Every step leads downhill. The real summit is elsewhere. What is this called?
+    params:
+      options:
+        - label: A local maximum
+          correct: true
+        - label: The global maximum
+          feedback: The global one would be the highest summit – which is elsewhere.
+        - label: A bug in the program
+          feedback: The program does exactly what it should. The method has this weakness.
+    hints:
+      - "Local means: highest only nearby."
+      - From there every small step looks worse.
+    explanation: "Local maxima are the trap of local search. A simple remedy: restart often at random places and keep the best."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A hill-climbing method finds the summit from a random start with {{p}} % probability. How likely does it succeed at least once with 10 independent restarts? In percent, rounded.
+    answer:
+      value: "{{100 * (1 - (1 - p / 100) ** 10)}}"
+      tolerance: 1
+    hints:
+      - "Probability that all 10 fail: (1 − {{p / 100}})^10."
+      - The rest is "at least once".
+    explanation: About {{round(100 * (1 - (1 - p / 100) ** 10))}} %. Restarts turn an unreliable method into a reliable one – and cost only time, no memory.
+    variants:
+      params:
+        p: choice[10,20,30]
+      defaults:
+        p: 20
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Does tree search like A* or local search fit better?
+    params:
+      buckets:
+        - id: b1
+          label: tree search (path wanted)
+        - id: b2
+          label: local search (good solution wanted)
+      items:
+        - label: shortest route through town
+          bucket: b1
+        - label: timetable for a whole school
+          bucket: b2
+        - label: move sequence for a sliding puzzle
+          bucket: b1
+        - label: layout of parts on a chip
+          bucket: b2
+    hints:
+      - Does the path itself matter – or only the end result?
+      - For a timetable only the finished plan matters.
+    explanation: If the path is the solution, you search a tree. If only the end state matters, local search often suffices – even without a guarantee of the optimum.
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: Hill climbing only keeps [[improvements]]. That is why it gets stuck on a [[local maximum]] when every neighbour is worse.
+      distractors:
+        - detours
+        - chance
+    hints:
+      - Hill climbing never goes downhill.
+    explanation: If you only accept improvements, you cannot leave a small hill. Restarts or occasional worse steps help.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "In simulated annealing you also accept worse steps: with probability e^(−Δ/T). A step is worse by Δ = 2 and the temperature is T = 1. How likely is it accepted? In percent, to one decimal."
+    answer:
+      value: 13.5
+      tolerance: 0.2
+    hints:
+      - e^(−2) ≈ 0.135.
+      - Times 100 for percent.
+    explanation: About 13.5 %. Going downhill now and then helps to escape a local maximum. As the temperature falls, it happens ever more rarely.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: What happens in simulated annealing when T is very large?
+    params:
+      options:
+        - label: Almost every step is accepted – the search wanders almost at random.
+          correct: true
+        - label: No worse step is accepted.
+          feedback: That holds for very small T.
+        - label: The search stops.
+          feedback: It keeps running – just very restlessly.
+    hints:
+      - With large T, Δ/T is almost 0.
+      - e⁰ = 1.
+    explanation: Large T means lots of exploration, small T means pure hill climbing. You start hot and cool slowly – like when tempering metal.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Gradient descent in training neural networks is related to which kind of search?
+    params:
+      options:
+        - label: Local search – hill climbing downhill in the space of weights.
+          correct: true
+        - label: Breadth-first search.
+          feedback: No network tries all weights level by level.
+        - label: Minimax.
+          feedback: There is no opponent in training.
+    hints:
+      - There are billions of weights – you cannot build a tree there.
+      - Every step improves the current solution a little.
+    explanation: Gradient descent is local search with direction information. That it still finds good solutions in huge networks is a fortunate fact that is not yet fully understood.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why hill climbing can end up stuck and what helps.
+    params:
+      keywords:
+        - - lokal
+          - hügel
+          - local
+          - hill
+        - - bergab
+          - schlechter
+          - downhill
+          - worse
+        - - neustart
+          - neu zu starten
+          - zufall
+          - restart
+          - random
+      sample: Hill climbing only goes uphill. On a small hill, a local maximum, every step leads downhill, so it gets stuck. Restarting often or sometimes allowing a worse step helps.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

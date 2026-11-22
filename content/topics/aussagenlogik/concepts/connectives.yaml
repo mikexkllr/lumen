@@ -5,7 +5,7 @@ summary: Das logische Oder schließt »beides« ein.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: und
@@ -110,6 +110,79 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: gates
+    prompt: Die Lampe soll leuchten, wenn **mindestens zwei** der drei Schalter an sind. Wähle die Gatter.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: ab
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: ac
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: bc
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - ab
+            - ac
+            - bc
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: Mehrheit
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - "»Mindestens zwei an« heißt: A und B, oder A und C, oder B und C."
+      - Innen drei UND-Gatter, außen ein ODER.
+    explanation: (A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C) ist die **Mehrheitsfunktion**. Auch (A ∨ B) ∧ (A ∨ C) ∧ (B ∨ C) funktioniert – dieselbe Funktion, andere Form.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Für wie viele der 8 Belegungen von A, B, C ist (A ∨ B) ∧ ¬C wahr?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-not-c
+        text: Das gilt für A ∨ B allein. ¬C halbiert das noch einmal.
+    hints:
+      - A ∨ B ist nur falsch, wenn A und B beide falsch sind.
+      - Von den 4 Fällen für A, B sind 3 wahr. Dazu muss C falsch sein.
+    explanation: "3 von 4 Fällen für A ∨ B, jeweils nur mit C falsch: 3 Zeilen. Man kann Wahrheitstafeln also oft **zählen**, statt sie aufzuschreiben."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -125,6 +198,47 @@ steps:
     hints:
       - Was ergibt »A NAND A«?
     explanation: A NAND A ist ¬A. Daraus baut man alles andere – darum genügt Chips ein einziger Gattertyp.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Wie baut man »nicht A« nur aus NAND-Gattern?
+    params:
+      options:
+        - label: A NAND A
+          correct: true
+        - label: A NAND 0
+          feedback: NAND mit 0 ist immer 1 – egal, was A ist.
+        - label: Das geht nicht.
+          feedback: Mit NAND geht alles – auch »nicht«.
+    hints:
+      - NAND heißt »nicht beide«. Was ist »nicht (A und A)«?
+      - A und A ist einfach A.
+    explanation: A NAND A = ¬(A ∧ A) = ¬A. Mit »nicht« und »nicht beide« baut man dann UND und ODER. Darum besteht ein Prozessor im Kern aus vielen gleichen Gattern. NOR reicht übrigens genauso.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen dem logischen Oder und dem »entweder – oder«.
+    params:
+      keywords:
+        - - beide
+          - beides
+          - both
+        - - eins
+          - einer
+          - nur eins
+          - one
+          - only one
+        - - wahr
+          - "true"
+          - gilt
+          - holds
+      sample: Das logische Oder ist auch wahr, wenn beides gilt. Das »entweder – oder« ist nur wahr, wenn genau eins gilt, nicht beide.
     difficulty: 3
 
 srs:

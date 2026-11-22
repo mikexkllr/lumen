@@ -5,7 +5,7 @@ summary: How to measure whether an agent is any good.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: quote
@@ -64,6 +64,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: An agent solves a task in 60 % of attempts. How likely does it succeed **three times in a row**? In percent, to one decimal.
+    answer:
+      value: 21.6
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 93.6
+        misconception: at-least-one
+        text: That is "at least once in three tries". Here all three must work.
+    hints:
+      - "All three must succeed: multiply."
+      - 0.6³ = ?
+    explanation: 0.6³ = 0.216. "Works at some point" and "works reliably" are very different measures. In daily use the second usually counts.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: An agent shines on a well-known benchmark. On new, similar tasks it does much worse. What is a likely reason?
+    params:
+      options:
+        - label: The test tasks or their solutions were in the training data.
+          correct: true
+        - label: New tasks are always unfair.
+          feedback: New tasks show exactly what it can really do.
+        - label: The agent gets tired.
+          feedback: Programs do not get tired.
+    hints:
+      - How might the model know the test tasks?
+      - Well-known tests are often on the internet.
+    explanation: This is called contamination. Good evaluations therefore use new or withheld tasks and check whether parts are circulating online.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -100,6 +137,39 @@ steps:
           - approv
       min: 3
       sample: An agent acts by itself and can make mistakes or be deceived by untrusted texts. Some actions such as deleting or paying cannot be undone – so it should ask for permission first.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: An agent solves 30 of 50 test tasks. The standard error is √(p · (1 − p) / n). How large is it in percentage points? To one decimal.
+    answer:
+      value: 6.9
+      tolerance: 0.2
+    hints:
+      - p = 0.6. So √(0.6 · 0.4 / 50).
+      - √0.0048 ≈ 0.069.
+    explanation: About ±7 points. Another agent at 64 % is therefore not clearly better. Small tests need error bars before anyone is declared the winner.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: A language model grades the answers of two agents. What should you watch out for?
+    params:
+      options:
+        - label: It can have biases – for example for longer answers or the one shown first.
+          correct: true
+        - label: Nothing – models are neutral.
+          feedback: Grader models have measurable biases too.
+        - label: That it is too strict.
+          feedback: More often it is too generous with long, confident texts.
+    hints:
+      - Swap the order of the answers. Does the verdict change?
+      - Long texts look thorough – are they?
+    explanation: Grader models are checked against humans, the order is swapped and clear criteria are used. Where possible, judgements are replaced by checkable results.
     difficulty: 3
 
 srs:

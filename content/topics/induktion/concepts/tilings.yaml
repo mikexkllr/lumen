@@ -1,0 +1,176 @@
+id: logic.induction.tilings
+type: concept
+title: "Pflastern und Zerlegen"
+summary: "Große Probleme aus kleinen Kopien ihrer selbst lösen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: Ein Streifen ist 2 Felder hoch und {{n}} Felder lang. Auf wie viele Arten kann man ihn mit 2 × 1-Dominosteinen lückenlos belegen?
+    answer:
+      value: "{{f}}"
+    hints:
+      - Am linken Ende liegt entweder ein Stein senkrecht – oder zwei liegen waagrecht übereinander.
+      - "Länge 1: 1 Art, Länge 2: 2 Arten. Dann gilt: Anzahl(n) = Anzahl(n − 1) + Anzahl(n − 2)."
+    explanation: "{{f}} Arten. Die Anzahlen 1, 2, 3, 5, 8, 13 … sind die **Fibonacci-Zahlen**. Jede ist die Summe der beiden vorigen."
+    variants:
+      params:
+        n: int[3,8]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : 34"
+      defaults:
+        n: 4
+
+  - kind: explain
+    id: c2
+    body: "Das ist **Rekursion**: Man führt ein Problem auf kleinere Fälle desselben Problems zurück. Induktion beweist dann, dass die Rückführung für alle Größen stimmt."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Du steigst eine Treppe mit {{n}} Stufen. Pro Schritt nimmst du 1 oder 2 Stufen. Auf wie viele Arten kommst du oben an?
+    answer:
+      value: "{{f}}"
+    hints:
+      - Dein letzter Schritt war 1 oder 2 Stufen groß.
+      - "Also: Wege(n) = Wege(n − 1) + Wege(n − 2)."
+    explanation: "{{f}} Wege – wieder Fibonacci. Zwei ganz verschiedene Rätsel haben dieselbe **Rekursion** und damit dieselben Zahlen."
+    variants:
+      params:
+        n: int[3,8]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : 34"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: c4
+    widget: hanoi
+    prompt: "Rekursion im Spiel: Bring vier Scheiben in höchstens 15 Zügen auf Stab B."
+    params:
+      disks: 4
+      target: 1
+      maxMoves: 15
+    hints:
+      - Die oberen drei müssen zuerst auf Stab C.
+      - Drei Scheiben nach C, die große nach B, die drei wieder drauf.
+    explanation: Drei Scheiben brauchen 7 Züge, also 7 + 1 + 7 = 15. Wer rekursiv denkt, löst den großen Turm mit **zwei** kleinen Türmen.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Aus einem 2ⁿ × 2ⁿ-Brett wird ein Feld entfernt. Der Rest lässt sich immer mit L-Steinen aus 3 Feldern pflastern. Wie viele L-Steine braucht man bei n = {{n}}?
+    answer:
+      value: "{{(4 ** n - 1) / 3}}"
+    hints:
+      - Das Brett hat 4^{{n}} Felder, eins fehlt.
+      - Jeder Stein deckt 3 Felder. Teile ({{4 ** n}} − 1) durch 3.
+    explanation: ({{4 ** n}} − 1) / 3 = {{(4 ** n - 1) / 3}}. Dass 4ⁿ − 1 immer durch 3 teilbar ist, lässt sich übrigens selbst per Induktion zeigen.
+    variants:
+      params:
+        n: int[1,4]
+      defaults:
+        n: 2
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Stimmt das über Rekursion?
+    params:
+      cards:
+        - text: Jede Rekursion braucht einen kleinsten Fall, der direkt gelöst wird.
+          right: true
+        - text: Rekursive Lösungen sind immer langsam.
+          right: false
+          why: Hanoi ist rekursiv und optimal. Langsam wird es nur, wenn man Teilergebnisse wiederholt berechnet.
+        - text: Die Fibonacci-Zahlen wachsen pro Schritt etwa um den Faktor 1,6.
+          right: true
+        - text: Eine Rekursion, die nie kleiner wird, endet trotzdem.
+          right: false
+          why: Ohne kleiner werdende Fälle läuft sie endlos.
+    explanation: "Rekursion und Induktion sind zwei Seiten einer Idee: ein **kleinster Fall** und ein Schritt, der Großes auf Kleineres zurückführt."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Wie zeigt man per Induktion, dass das 2ⁿ⁺¹ × 2ⁿ⁺¹-Brett mit einem Loch immer mit L-Steinen geht?
+    params:
+      options:
+        - label: In vier Viertel teilen; ein L-Stein in der Mitte macht in jedes lochfreie Viertel ein Loch.
+          correct: true
+        - label: Alle Felder einzeln abzählen.
+          feedback: Abzählen zeigt nur, dass die Zahl passt – nicht, dass es geometrisch geht.
+        - label: Man probiert es für n = 1, 2, 3.
+          feedback: Beispiele sind kein Beweis für alle n.
+    hints:
+      - Ein Viertel hat das Loch schon. Die anderen drei brauchen eins.
+      - Ein L-Stein in der Mitte trifft genau drei Viertel.
+    explanation: Danach ist jedes Viertel ein 2ⁿ × 2ⁿ-Brett mit einem Loch – nach **Annahme** lösbar. Der Beweis ist zugleich ein Bauplan, also ein rekursives Verfahren.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Fibonacci-Zahlen sind 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 … Teile 55 durch 34. Was kommt heraus? Auf drei Stellen.
+    answer:
+      value: 1.618
+      tolerance: 0.002
+    hints:
+      - 55 / 34 ≈ ?
+      - "Zum Vergleich: 34 / 21 ≈ 1,619."
+    explanation: ≈ 1,618 – der **goldene Schnitt** φ = (1 + √5)/2. Die Fibonacci-Zahlen wachsen also exponentiell, etwa wie φⁿ.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: "Ein Programm berechnet Fibonacci rekursiv: fib(n) = fib(n − 1) + fib(n − 2), ohne sich Ergebnisse zu merken. Was passiert bei n = 50?"
+    params:
+      options:
+        - label: Es rechnet ewig – dieselben Werte werden milliardenfach neu berechnet.
+          correct: true
+        - label: Es ist sofort fertig.
+          feedback: Die Zahl der Aufrufe wächst selbst wie die Fibonacci-Zahlen.
+        - label: Es liefert ein falsches Ergebnis.
+          feedback: Das Ergebnis wäre richtig – nur viel zu spät.
+    hints:
+      - Wie oft wird fib(2) für fib(50) berechnet?
+      - Merkt man sich Ergebnisse, braucht man nur 50 Schritte.
+    explanation: Naive Rekursion wiederholt Teilprobleme exponentiell oft. Wer Ergebnisse **speichert** (dynamische Programmierung), schafft es in linearer Zeit. Richtig ist das Programm trotzdem – das zeigt Induktion.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum es genau so viele Pflasterungen eines 2 × n-Streifens gibt wie Fibonacci-Zahlen.
+    params:
+      keywords:
+        - - senkrecht
+          - stehend
+          - upright
+          - vertical
+        - - waagrecht
+          - liegend
+          - flat
+          - horizontal
+        - - summe
+          - addier
+          - plus
+          - vorig
+          - sum
+          - add
+          - previous
+      sample: Am linken Rand steht entweder ein Stein senkrecht, dann bleibt ein Streifen der Länge n − 1. Oder zwei Steine liegen waagrecht, dann bleibt n − 2. Die Anzahl ist also die Summe der beiden vorigen – wie bei Fibonacci.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

@@ -71,6 +71,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Five children sit in a row. Who sits where?
+    params:
+      categories:
+        - name: Child
+          items:
+            - Ana
+            - Ben
+            - Cem
+            - Dila
+            - Emil
+        - name: Seat
+          items:
+            - seat 1
+            - seat 2
+            - seat 3
+            - seat 4
+            - seat 5
+      ordered: 1
+      clues:
+        - text: Ben sits directly to the right of Ana.
+          rule:
+            offset:
+              - Ana
+              - Ben
+              - 1
+        - text: Dila sits somewhere to the left of Ana.
+          rule:
+            less:
+              - Dila
+              - Ana
+        - text: Emil sits somewhere to the right of Ben.
+          rule:
+            less:
+              - Ben
+              - Emil
+        - text: Dila does not sit in seat 1.
+          rule:
+            not:
+              - Dila
+              - seat 1
+    hints:
+      - "Four children are in a fixed order: Dila, Ana, Ben, Emil."
+      - Dila is not in seat 1 – who is left for seat 1?
+    explanation: Cem 1, Dila 2, Ana 3, Ben 4, Emil 5. The chain Dila – Ana – Ben – Emil needs four seats, and Cem fills the gap.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -80,6 +130,57 @@ steps:
     hints:
       - Each clue halves the possibilities.
     explanation: 24 ÷ 2 ÷ 2 = 6. Independent clues multiply their effect.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "{{n}} people line up. A must stand directly in front of B. How many orders are there?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == 2 * f
+        misconception: both-directions
+        text: That also counts "B directly in front of A". Here the direction is fixed.
+    hints:
+      - Glue A and B together into one block.
+      - "Then you arrange {{n - 1}} things: ({{n - 1}})! ways."
+    explanation: The block AB counts as one item. ({{n - 1}})! = {{f}}. This block trick turns "right next to each other" into a simple count.
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      derive:
+        f: "n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a clue like "directly in front of" narrows the options in an order.
+    params:
+      keywords:
+        - - zwei
+          - paar
+          - block
+          - two
+          - pair
+        - - nebeneinander
+          - benachbart
+          - direkt
+          - next to
+          - adjacent
+          - directly
+        - - platz
+          - plätze
+          - stelle
+          - seat
+          - place
+          - position
+      sample: Directly in front means the two stand as a pair next to each other. They need two adjacent free places, and often there is only one spot for that.
     difficulty: 3
 
 srs:

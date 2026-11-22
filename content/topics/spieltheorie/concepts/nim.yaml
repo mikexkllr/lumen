@@ -5,7 +5,7 @@ summary: Nim – das Spiel mit der geheimen Formel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: warmup
@@ -72,6 +72,22 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: nim
+    prompt: "Drei Reihen: 2, 4 und 7 Steine. Beliebig viele aus einer Reihe. Es gibt genau einen Gewinnzug – finde ihn!"
+    params:
+      piles:
+        - 2
+        - 4
+        - 7
+    hints:
+      - "Binär: 010, 100, 111. Die Nim-Summe ist 001 = 1."
+      - Welche Reihe wird kleiner, wenn du sie mit 1 XOR-st? Nur 7 XOR 1 = 6.
+    explanation: Nimm 1 aus der Siebenerreihe. 2, 4 und 6 haben die Nim-Summe 0 – danach hältst du sie bei 0.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -81,6 +97,65 @@ steps:
     hints:
       - Aus 011 muss 001 werden, damit jede Spalte gerade viele Einsen hat.
     explanation: "1, 4 und 5: 001, 100, 101 – jede Spalte hat zwei Einsen oder keine. Jetzt verliert der Gegner."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Bei einem Haufen, von dem man 1 bis 3 Steine nehmen darf, ist die **Grundy-Zahl** der Rest beim Teilen durch 4. Welche Grundy-Zahl hat ein solcher Haufen mit {{n}} Steinen?
+    answer:
+      value: "{{mod(n, 4)}}"
+    hints:
+      - Teile {{n}} durch 4.
+      - Der Rest ist die Grundy-Zahl.
+    explanation: "Grundy-Zahl {{mod(n, 4)}}: Der Haufen verhält sich wie ein Nim-Haufen dieser Größe. Spielt man mehrere Spiele zugleich, XOR-t man die Grundy-Zahlen – wie bei Nim."
+    difficulty: 3
+    variants:
+      params:
+        n: int[5,30]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Was besagt der Satz von Sprague und Grundy?
+    params:
+      options:
+        - label: Jedes faire Zugspiel ohne Zufall verhält sich wie ein einzelner Nim-Haufen.
+          correct: true
+        - label: Wer anfängt, gewinnt jedes Spiel.
+          feedback: Nim mit zwei gleichen Reihen verliert der Erste.
+        - label: Nur Nim lässt sich exakt lösen.
+          feedback: "Im Gegenteil: Der Satz überträgt die Nim-Lösung auf viele andere Spiele."
+    hints:
+      - "»Fair« heißt hier: Beide Spieler haben in jeder Stellung dieselben Züge."
+      - Jede Stellung bekommt eine Zahl – die Größe des passenden Nim-Haufens.
+    explanation: Jede Stellung hat eine Grundy-Zahl. Bei 0 verliert, wer am Zug ist. Summen von Spielen behandelt man mit der Nim-Summe. So wird Nim zum **Baukasten** für ganze Spielfamilien.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Verliererstellung ist und wie man sie bei Nim erkennt.
+    params:
+      keywords:
+        - - jeder zug
+          - jedem zug
+          - egal
+          - every move
+          - whatever
+        - - nim-summe
+          - nimsumme
+          - xor
+          - nim-sum
+          - nim sum
+        - - "null"
+          - zero
+      sample: In einer Verliererstellung führt jeder Zug in eine Stellung, aus der der Gegner gewinnt. Bei Nim erkennt man sie daran, dass die Nim-Summe null ist.
     difficulty: 3
 
 srs:

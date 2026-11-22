@@ -5,7 +5,7 @@ summary: Features and labels.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: spam
@@ -100,6 +100,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: buckets
+    prompt: Should the model pick a class or estimate a number?
+    params:
+      buckets:
+        - id: b1
+          label: class (classification)
+        - id: b2
+          label: number (regression)
+      items:
+        - label: Is this email spam?
+          bucket: b1
+        - label: What does this house cost?
+          bucket: b2
+        - label: How warm will it be tomorrow?
+          bucket: b2
+        - label: Which digit from 0 to 9 is this?
+          bucket: b1
+    hints:
+      - Are there fixed answers to choose from or any value?
+      - Digits are classes here too – you do not calculate with them.
+    explanation: Classification picks from fixed answers, regression estimates a number. Both are supervised learning with labels.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: A model predicts 3 and 5; the right answers are 4 and 7. What is the mean squared error?
+    answer:
+      value: 2.5
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: no-square
+        text: That is the mean error without squaring.
+    hints:
+      - "Errors: 1 and 2. Square them."
+      - (1 + 4) / 2 = ?
+    explanation: (1² + 2²) / 2 = 2.5. This loss function tells training how bad the model currently is. Learning means making it smaller.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -115,6 +159,43 @@ steps:
     hints:
       - Every method tacitly makes assumptions about the world.
     explanation: Learning means generalising, and that only works with prior assumptions – the **inductive bias**.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Why are errors often squared instead of just taking their absolute value?
+    params:
+      options:
+        - label: Big errors then count much more – and the formula is smooth and easy to differentiate.
+          correct: true
+        - label: Because squares are always smaller.
+          feedback: 3² = 9 is bigger than 3. Only errors below 1 shrink.
+        - label: There is no reason.
+          feedback: The choice changes what the model learns – for example with outliers.
+    hints:
+      - Compare an error of 1 with one of 10 – before and after squaring.
+      - What happens to outliers then?
+    explanation: Squared error punishes large deviations hard and so reacts strongly to outliers. The absolute value is more robust. Which loss fits depends on the task.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what features and labels are – using a spam filter.
+    params:
+      keywords:
+        - - merkmal
+          - feature
+        - - label
+          - antwort
+          - answer
+        - - spam
+          - mail
+          - email
+      sample: "Features are what you can measure in an email, such as words or the sender. The label is the right answer: spam or not spam. The model learns to go from features to label."
     difficulty: 3
 
 srs:

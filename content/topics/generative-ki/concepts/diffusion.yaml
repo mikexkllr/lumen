@@ -5,7 +5,7 @@ summary: Wie Text das Rauschen lenkt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,23 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Bei der Guidance mischt man zwei Schätzungen: ohne Text u, mit Text t. Ergebnis = u + w · (t − u). Mit u = 1, t = 2 und w = 3 – was kommt heraus?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: w-one
+        text: Das wäre w = 1 – nur die Schätzung mit Text. Guidance übertreibt den Unterschied.
+    hints:
+      - t − u = 1.
+      - 1 + 3 · 1 = ?
+    explanation: Bei w > 1 geht man über die Text-Schätzung **hinaus** – in Richtung »noch mehr wie der Text«. Zu große w machen Bilder überzeichnet und eintönig.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -107,6 +124,43 @@ steps:
     hints:
       - 786 432 geteilt durch 16 384.
     explanation: 48-mal weniger Zahlen – bei fast gleicher Bildqualität.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Neuere Verfahren erzeugen Bilder in 1 bis 4 statt 50 Schritten. Wie geht das meist?
+    params:
+      options:
+        - label: Ein Schülermodell lernt, mehrere Schritte des Lehrermodells auf einmal zu machen.
+          correct: true
+        - label: Man lässt einfach Schritte weg.
+          feedback: Ohne Anpassung werden die Bilder dann deutlich schlechter.
+        - label: Mit mehr Rauschen am Anfang.
+          feedback: Mehr Rauschen macht die Aufgabe schwerer, nicht kürzer.
+    hints:
+      - Das langsame Modell kennt den Weg vom Rauschen zum Bild.
+      - Kann ein zweites Modell lernen, Abkürzungen zu nehmen?
+    explanation: Diese **Destillation** spart viel Rechenzeit, kostet aber oft etwas Vielfalt oder Detail. Dazu kommen bessere Rechenverfahren für die Schritte selbst.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie der Text-Prompt die Bilderzeugung Schritt für Schritt lenkt.
+    params:
+      keywords:
+        - - schritt
+          - step
+        - - rausch
+          - noise
+        - - text
+          - prompt
+          - richtung
+          - direction
+      sample: Das Modell startet mit Rauschen und entfernt in jedem Schritt ein wenig davon. Der Text gibt dabei die Richtung vor, sodass aus dem Grau nach und nach ein passendes Bild wird.
     difficulty: 3
 
 srs:

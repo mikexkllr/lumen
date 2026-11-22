@@ -5,7 +5,7 @@ summary: How a transformer is built.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: ablauf
@@ -93,6 +93,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: A layer has several attention heads. What does that bring?
+    params:
+      options:
+        - label: Each head can attend to a different kind of relation – such as grammar or references.
+          correct: true
+        - label: They all compute the same thing, for safety.
+          feedback: Each head has its own weights and learns something different.
+        - label: Only one is used; the others are spares.
+          feedback: All are used at once and their results combined.
+    hints:
+      - A word stands in many relations at once.
+      - A single head mixes in only one way.
+    explanation: Multiple heads look at different patterns in parallel. Researchers found heads that follow repetitions or link references. Not every head is that easy to interpret.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "The small network in a layer has two weight matrices: d × 4d and 4d × d, with d = 1024. How many million weights is that? To one decimal."
+    answer:
+      value: 8.4
+      tolerance: 0.05
+    hints:
+      - "One matrix: 1024 · 4096 ≈ 4.19 million."
+      - Two of them.
+    explanation: 2 · 4 · d² = 8d² ≈ 8.4 million. Attention adds another 4d². So most of the parameters sit in these small networks.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -108,6 +141,41 @@ steps:
     hints:
       - Each layer only has to learn a small correction.
     explanation: Without them the learning signal vanishes in deep networks. Only this idea made truly deep models trainable.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Attention has four matrices of size d × d: for query, key, value and output. How many million weights is that for d = 1024? To one decimal."
+    answer:
+      value: 4.2
+      tolerance: 0.05
+    hints:
+      - d² = 1,048,576.
+      - 4 · d² = ?
+    explanation: 4d² ≈ 4.2 million. With the small network it is about 12d² per layer. A model with 96 layers and d = 12,288 thus reaches roughly 175 billion weights.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what happens in one layer of a transformer.
+    params:
+      keywords:
+        - - attention
+          - aufmerksamkeit
+        - - netz
+          - mlp
+          - feedforward
+          - network
+        - - addier
+          - residual
+          - behält
+          - add
+          - keep
+      sample: First attention mixes information between the tokens. Then a small network processes each token on its own. Both results are added to the input, so nothing gets lost.
     difficulty: 3
 
 srs:

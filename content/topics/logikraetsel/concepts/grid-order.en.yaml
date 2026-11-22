@@ -7,7 +7,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.ordering]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: schnecken
@@ -128,6 +128,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Who finishes in which place in the race?
+    params:
+      categories:
+        - name: Runner
+          items:
+            - Ali
+            - Bea
+            - Cem
+            - Dora
+        - name: Place
+          items:
+            - 1st
+            - 2nd
+            - 3rd
+            - 4th
+      ordered: 1
+      clues:
+        - text: Bea finished directly ahead of Cem.
+          rule:
+            offset:
+              - Bea
+              - Cem
+              - 1
+        - text: Ali finished somewhere ahead of Dora.
+          rule:
+            less:
+              - Ali
+              - Dora
+        - text: Dora did not finish last.
+          rule:
+            not:
+              - Dora
+              - 4th
+    hints:
+      - Dora is not first (Ali is ahead of her) and not last. Which places remain?
+      - Bea and Cem need two places in a row. Try Dora in 2nd and in 3rd place.
+    explanation: Ali 1st, Dora 2nd, Bea 3rd, Cem 4th. With Dora in 3rd, the pair Bea–Cem would find no two neighbouring places.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: order
+    prompt: Ute is taller than Tom. Tom is taller than Lia. Max is shorter than Lia but taller than Ben. Order from tallest to shortest.
+    params:
+      items:
+        - label: Ute
+        - label: Tom
+        - label: Lia
+        - label: Max
+        - label: Ben
+      startLabel: tallest
+      endLabel: shortest
+    hints:
+      - Who is never named as the shorter one?
+      - "Chain the pairs: Ute > Tom > Lia > …"
+    explanation: 'Because "taller than" is transitive, four pairs make a single chain: Ute > Tom > Lia > Max > Ben.'
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -143,4 +206,70 @@ steps:
     hints:
       - Try to put the three in an order.
     explanation: An ordering needs **transitivity**. Majority votes can run in circles too – the Condorcet paradox.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: "Three clues: A is faster than B. B is faster than C. C is faster than A. What follows?"
+    params:
+      options:
+        - label: At least one clue is false.
+          correct: true
+        - label: All three are equally fast.
+          feedback: '"Faster than" rules out a tie – otherwise the first clue would already be false.'
+        - label: A wins the race.
+          feedback: The first two clues give A > C – but the third says C > A.
+    hints:
+      - What do the first two clues say about A and C?
+      - Can A be both faster and slower than C?
+    explanation: "A real order never has a cycle. A > B > C gives A > C, which contradicts C > A. Rock–paper–scissors is different: it is not an order at all."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: numeric
+    prompt: Four runners are to be ranked using only two-person races. In the worst case, how many races do you need at least?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: all-pairs
+        text: Six are enough, but one fewer will do.
+      - when: numval(state.input) == 3
+        misconception: too-few
+        text: Three races have only 2³ = 8 outcomes – but there are 24 rankings.
+    hints:
+      - How many rankings of 4 runners are there? Each race has 2 outcomes.
+      - 2⁴ = 16 is less than 24, so 4 races are not enough.
+    explanation: There are 4! = 24 rankings. k races tell apart at most 2ᵏ cases, so k ≥ 5. And 5 really are enough. This bound holds for every comparison-based sorting method.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what "transitive" means – and why it lets you build a whole order from a few clues.
+    params:
+      keywords:
+        - - transitiv
+          - weiter
+          - überträgt
+          - transitive
+          - carries
+          - also holds
+        - - vor
+          - schneller
+          - größer
+          - ahead
+          - faster
+          - taller
+          - before
+        - - kette
+          - reihenfolge
+          - chain
+          - order
+      sample: If A is ahead of B and B ahead of C, then A is ahead of C. That property is called transitive. It lets you chain pairs into one order.
     difficulty: 3

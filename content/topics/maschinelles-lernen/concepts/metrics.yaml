@@ -5,7 +5,7 @@ summary: Trefferquote und ihre Fallen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 7
 steps:
   - kind: problem
     id: quote
@@ -67,6 +67,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Von 10 000 Zahlungen sind 1 % Betrug. Ein Modell findet 90 % davon. Bei den echten Zahlungen schlägt es in 5 % der Fälle falsch Alarm. Wie viel Prozent seiner Alarme sind echter Betrug? Auf eine Stelle.
+    answer:
+      value: 15.4
+      tolerance: 0.2
+    feedback:
+      - when: numval(state.input) == 90
+        misconception: recall-vs-precision
+        text: Das ist die Trefferrate. Gefragt ist, wie viele **Alarme** stimmen.
+    hints:
+      - "Echte Treffer: 90 % von 100 = 90. Fehlalarme: 5 % von 9900 = 495."
+      - 90 / (90 + 495) = ?
+    explanation: 90 / 585 ≈ 15,4 %. Weil Betrug **selten** ist, überwiegen selbst bei einem guten Modell die Fehlalarme. Die Grundrate entscheidet mit.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Das Modell schlägt erst ab einer höheren Wahrscheinlichkeit Alarm. Was passiert typischerweise?
+    params:
+      options:
+        - label: Weniger Fehlalarme, aber auch mehr übersehene Betrugsfälle.
+          correct: true
+        - label: Alles wird besser.
+          feedback: Eine Schwelle verschiebt nur den Kompromiss – sie macht das Modell nicht klüger.
+        - label: Mehr Alarme.
+          feedback: Eine höhere Schwelle bedeutet weniger Alarme.
+    hints:
+      - Wer seltener Alarm schlägt, irrt sich seltener beim Alarm – aber?
+      - Was passiert mit Fällen knapp unter der neuen Schwelle?
+    explanation: "Genauigkeit steigt, Trefferrate sinkt. Wo die **Schwelle** liegt, hängt von den Kosten ab: Ist Übersehen teurer als ein Fehlalarm – oder umgekehrt?"
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -94,6 +131,25 @@ steps:
           - detect
           - erkennen
       sample: Wenn das Gesuchte selten ist, etwa 1 % Betrug, erreicht ein Modell 99 %, indem es einfach immer »kein Betrug« sagt. Es übersieht dann aber jeden echten Fall und ist nutzlos.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Modell hat eine AUC von 0,9. Was bedeutet das?
+    params:
+      options:
+        - label: Ein zufälliger Betrugsfall bekommt mit 90 % Wahrscheinlichkeit eine höhere Punktzahl als eine zufällige echte Zahlung.
+          correct: true
+        - label: 90 % aller Vorhersagen stimmen.
+          feedback: Das wäre die Trefferquote – die hängt von der gewählten Schwelle ab.
+        - label: 90 % der Alarme sind echt.
+          feedback: Das wäre die Genauigkeit bei einer bestimmten Schwelle.
+    hints:
+      - Die AUC bewertet die Rangfolge der Punktzahlen, nicht eine einzelne Schwelle.
+      - Ziehe einen Betrugsfall und eine echte Zahlung. Wer liegt vorn?
+    explanation: Die **AUC** misst, wie gut das Modell sortiert – über alle Schwellen hinweg. 0,5 ist Raten, 1 ist perfekt. Bei seltenen Fällen kann aber auch eine hohe AUC viele Fehlalarme bedeuten.
     difficulty: 3
 
 srs:

@@ -1,0 +1,176 @@
+id: ai.embeddings.search
+type: concept
+title: "Suchen nach Bedeutung"
+summary: "Statt nach gleichen Wörtern sucht man nach ähnlichen Vektoren."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Du suchst »Auto reparieren lassen«. Eine Seite heißt »Kfz-Werkstatt in deiner Nähe«. Welche Suche findet sie eher?
+    params:
+      options:
+        - label: Eine Suche nach Bedeutung – sie erkennt das Thema, auch ohne gleiche Wörter.
+          correct: true
+        - label: Eine Suche nach genau denselben Wörtern.
+          feedback: Kein einziges Wort stimmt überein.
+        - label: Keine von beiden.
+          feedback: Die Bedeutung ist sehr ähnlich – genau dafür gibt es Vektorsuche.
+    hints:
+      - Welche Wörter haben Suche und Seite gemeinsam?
+      - Und welche Bedeutung?
+    explanation: "Wort-Suche braucht gleiche Wörter. Vektor-Suche vergleicht **Bedeutung**: Anfrage und Seite landen nah beieinander, auch wenn sie andere Wörter benutzen."
+
+  - kind: explain
+    id: c2
+    body: Bei der **semantischen Suche** wird jedes Dokument einmal in einen Vektor übersetzt und gespeichert. Die Anfrage bekommt auch einen Vektor. Gezeigt werden die Dokumente mit der größten Kosinus-Ähnlichkeit.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Die Anfrage hat den Vektor (1, 0). Dokument A hat (0,8; 0,6), B hat (0,6; 0,8), C hat (0; 1). Alle haben die Länge 1. Welches kommt zuerst?
+    params:
+      options:
+        - label: A – Kosinus 0,8
+          correct: true
+        - label: B – Kosinus 0,8
+          feedback: "Rechne nach: (1, 0) · (0,6; 0,8) = 0,6."
+        - label: C – Kosinus 1
+          feedback: (1, 0) · (0; 1) = 0. C passt am schlechtesten.
+    hints:
+      - Bei Länge 1 ist der Kosinus das Skalarprodukt.
+      - Mit (1, 0) zählt nur die erste Zahl.
+    explanation: "A: 0,8, B: 0,6, C: 0. Die **Rangfolge** nach Kosinus ist das Suchergebnis."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Handbuch hat {{w}} 000 Wörter. Man zerlegt es in Abschnitte zu je 300 Wörtern und speichert für jeden einen Vektor. Wie viele Vektoren sind das?
+    answer:
+      value: "{{w * 1000 / 300}}"
+    hints:
+      - Teile die Wortzahl durch 300.
+      - "{{w * 1000}} / 300 = ?"
+    explanation: "{{w * 1000 / 300}} Vektoren. Kurze **Abschnitte** treffen genauer, lange behalten mehr Zusammenhang – man wählt einen Kompromiss."
+    variants:
+      params:
+        w: choice[3,6,9,12,30]
+      defaults:
+        w: 6
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: "Was findet eher was: Wortsuche oder Vektorsuche?"
+    params:
+      buckets:
+        - id: b1
+          label: Wortsuche
+        - id: b2
+          label: Vektorsuche
+      items:
+        - label: eine genaue Bestellnummer
+          bucket: b1
+        - label: Texte mit Synonymen
+          bucket: b2
+        - label: den genauen Namen eines Gesetzes
+          bucket: b1
+        - label: eine Frage in Alltagssprache
+          bucket: b2
+    hints:
+      - Wird ein genau gleiches Wort gesucht – oder eine ähnliche Bedeutung?
+      - Codes und Namen brauchen genaue Treffer.
+    explanation: Wortsuche glänzt bei **genauen** Begriffen, Vektorsuche bei Umschreibungen. Gute Systeme nutzen beides.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Datenbank hat 1 Million Vektoren mit je 768 Zahlen. Wie viele Millionen Multiplikationen braucht es, die Anfrage mit allen zu vergleichen?
+    answer:
+      value: 768
+    hints:
+      - Ein Vergleich braucht 768 Multiplikationen.
+      - 768 · 1 Million = 768 Millionen.
+    explanation: 768 Millionen pro Anfrage – machbar, aber bei Milliarden Dokumenten und vielen Nutzern teuer. Darum nutzt man **Suchindizes**, die nur einen kleinen Teil vergleichen.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Vektor-Index findet die nächsten Nachbarn in Millisekunden – statt alle zu vergleichen. Was ist der Preis?
+    params:
+      options:
+        - label: Er findet meist, aber nicht garantiert die wirklich nächsten.
+          correct: true
+        - label: Er ist immer exakt und kostet nichts.
+          feedback: Die Geschwindigkeit kommt von einer Näherung.
+        - label: Er findet zufällige Dokumente.
+          feedback: Er findet sehr gute – nur nicht garantiert die besten.
+    hints:
+      - Wer nicht alles vergleicht, kann etwas übersehen.
+      - Wie oft passiert das? Selten, wenn der Index gut ist.
+    explanation: "Das heißt **näherungsweise** Nachbarsuche: ein kleiner Verlust an Genauigkeit für eine riesige Ersparnis an Zeit."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Jemand sucht nach der Fehlernummer »E-4711«. Warum ist reine Vektorsuche hier oft schwach?
+    params:
+      options:
+        - label: Genaue Codes und Namen tragen wenig »Bedeutung« – Wortsuche trifft sie besser. Man kombiniert darum oft beides.
+          correct: true
+        - label: Vektoren können keine Zahlen darstellen.
+          feedback: Sie können Zahlen enthalten, ordnen sie aber nach Ähnlichkeit, nicht nach Gleichheit.
+        - label: Fehlernummern sind geheim.
+          feedback: Geheim sind sie nicht – nur bedeutungsarm.
+    hints:
+      - Liegt »E-4711« im Vektorraum nah bei »E-4712«?
+      - "Was braucht man hier: ähnlich oder gleich?"
+    explanation: "**Hybride Suche** verbindet Wortsuche und Vektorsuche. So findet man sowohl genaue Begriffe als auch Umschreibungen."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Jeder Vektor hat 768 Zahlen zu je 4 Byte. Wie viele Gigabyte brauchen 1 Million solcher Vektoren? Auf eine Stelle.
+    answer:
+      value: 3.1
+      tolerance: 0.05
+    hints:
+      - "Ein Vektor: 768 · 4 = 3072 Byte."
+      - 3072 · 1 Million ≈ 3,1 Milliarden Byte.
+    explanation: Rund 3,1 GB. Bei Milliarden Dokumenten wird **Speicher** teuer. Darum speichert man Zahlen oft gröber, etwa mit 1 Byte statt 4 – mit kleinem Genauigkeitsverlust.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Suche nach Bedeutung funktioniert.
+    params:
+      keywords:
+        - - vektor
+          - vector
+        - - anfrage
+          - frage
+          - query
+        - - ähnlich
+          - kosinus
+          - nächst
+          - similar
+          - cosine
+          - nearest
+      sample: Jedes Dokument wird vorher in einen Vektor übersetzt. Die Anfrage bekommt auch einen Vektor. Dann zeigt die Suche die Dokumente, deren Vektoren der Anfrage am ähnlichsten sind, also den größten Kosinus haben.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

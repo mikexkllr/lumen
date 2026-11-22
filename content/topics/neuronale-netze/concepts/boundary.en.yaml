@@ -5,7 +5,7 @@ summary: A neuron draws a line.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: trennen
@@ -134,6 +134,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: sim
+    prompt: This time the blue points are top left and the orange ones bottom right. Separate all 10 – the boundary has to be diagonal.
+    params:
+      scene: neuron
+      points:
+        - x: 1
+          y: 3
+          label: 1
+        - x: 2
+          y: 4
+          label: 1
+        - x: 1
+          y: 2
+          label: 1
+        - x: 3
+          y: 5
+          label: 1
+        - x: 0.5
+          y: 4
+          label: 1
+        - x: 3
+          y: 1
+          label: 0
+        - x: 4
+          y: 2
+          label: 0
+        - x: 2
+          y: 1
+          label: 0
+        - x: 5
+          y: 3
+          label: 0
+        - x: 4
+          y: 0.5
+          label: 0
+    answer:
+      correct: 10
+    hints:
+      - The boundary is roughly the line y = x.
+      - Try w₁ = −1, w₂ = 1 and b = 0.
+    explanation: "−x + y > 0 means y > x: everything above the diagonal fires. The weights set the direction of the boundary, the bias its position."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Perceptron rule: w ← w + η · (target − output) · x. Here w₁ = 1, x₁ = 2, η = 0.5. The target was 1, the neuron gave 0. What is the new w₁?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: sign
+        text: "Wrong sign: the neuron should fire more, so the weight must grow."
+    hints:
+      - Target − output = 1 − 0 = 1.
+      - 1 + 0.5 · 1 · 2 = ?
+    explanation: w₁ = 1 + 0.5 · 1 · 2 = 2. On a mistake each weight moves in the direction of its input; on a correct answer nothing changes. That is the perceptron rule.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -149,6 +212,47 @@ steps:
     hints:
       - Put x = 0 and y = 0 into w₁x + w₂y = 0.
     explanation: "Like the b in y = mx + b: without an intercept no freely movable line."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: What is known about the perceptron rule?
+    params:
+      options:
+        - label: If the data can be split by a line, it finds a separation after finitely many mistakes.
+          correct: true
+        - label: It finds a perfect separation for any data.
+          feedback: For XOR there is no line – then it oscillates forever.
+        - label: It always needs exactly as many steps as there are points.
+          feedback: The number of steps depends on how far apart the classes are.
+    hints:
+      - "Think of XOR: is there a solution at all?"
+      - Where a solution exists, the method is guaranteed to succeed.
+    explanation: This is the perceptron convergence theorem. Without separability it does not help. That revealed the limits of single neurons and led to networks with hidden layers.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the weights and the bias change a neuron's decision boundary.
+    params:
+      keywords:
+        - - gewicht
+          - weight
+        - - dreh
+          - richtung
+          - neig
+          - rotat
+          - direction
+          - tilt
+        - - bias
+          - verschieb
+          - shift
+          - move
+      sample: The neuron draws a line through the plane. The weights rotate it and set its direction. The bias shifts it without rotating it.
     difficulty: 3
 
 srs:

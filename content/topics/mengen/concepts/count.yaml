@@ -5,7 +5,7 @@ summary: Wer doppelt zählt, liegt daneben.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: mindestens-eins
@@ -92,6 +92,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: In einer Klasse mögen {{a}} Kinder Mathe und {{b}} Kunst. {{u}} Kinder mögen mindestens eins davon. Wie viele mögen beides?
+    answer:
+      value: "{{a + b - u}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: no-subtract
+        text: Das ist die Summe beider Gruppen. Davon ziehst du die {{u}} ab.
+    hints:
+      - Stelle die Formel |A ∪ B| = |A| + |B| − |A ∩ B| um.
+      - "|A ∩ B| = |A| + |B| − |A ∪ B|."
+    explanation: "{{a}} + {{b}} = {{a + b}} zählt alle, die beides mögen, doppelt. Der Überschuss über {{u}} ist genau die Schnittmenge: {{a + b - u}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[10,20]
+        b: int[8,18]
+        s: int[2,7]
+      derive:
+        u: a + b - s
+      constraints:
+        - u > a
+        - u > b
+      defaults:
+        a: 12
+        b: 9
+        s: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: In einer Gruppe von {{n}} Leuten haben {{k}} eine Katze und {{h}} einen Hund. Wie viele haben **mindestens** beides?
+    answer:
+      value: "{{k + h - n}}"
+    feedback:
+      - when: numval(state.input) == min(k, h)
+        misconception: max-vs-min
+        text: So viele haben höchstens beides. Gefragt ist das Minimum.
+    hints:
+      - Wie viele Plätze gibt es überhaupt in der Gruppe?
+      - "{{k}} + {{h}} = {{k + h}} – das sind mehr als {{n}} Leute. Der Überschuss muss doppelt sein."
+    explanation: Mindestens {{k + h - n}} haben beides, denn {{k + h}} Haustier-Halter passen nicht in {{n}} Personen. Höchstens sind es {{min(k, h)}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[20,40]
+        k: int[12,30]
+        h: int[12,30]
+      constraints:
+        - k < n
+        - h < n
+        - k + h > n
+      defaults:
+        n: 30
+        k: 20
+        h: 16
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,6 +162,50 @@ steps:
     hints:
       - Einzeln addieren, Paare abziehen, Dreifaches wieder dazu.
     explanation: "30 − 12 + 2 = 20. Das **Prinzip von Einschluss und Ausschluss**: abwechselnd plus und minus."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Zahlen von 1 bis 100 sind durch 2, 3 **oder** 5 teilbar?
+    answer:
+      value: 74
+    feedback:
+      - when: numval(state.input) == 103
+        misconception: no-overlap
+        text: Du hast nur addiert. Zahlen wie 6 oder 10 hast du doppelt gezählt.
+      - when: numval(state.input) == 71
+        misconception: forgot-triple
+        text: Fast! Die Vielfachen von 30 musst du am Ende wieder dazunehmen.
+    hints:
+      - "Einzeln: 50 + 33 + 20. Paare: durch 6, 10 und 15 teilbar – 16 + 10 + 6 abziehen."
+      - Durch alle drei (also 30) teilbar sind 3 Zahlen – die kommen wieder dazu.
+    explanation: "50 + 33 + 20 − 16 − 10 − 6 + 3 = 74. Das ist das **Ein- und Ausschlussprinzip**: abwechselnd addieren und abziehen."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man bei |A ∪ B| die Schnittmenge abziehen muss.
+    params:
+      keywords:
+        - - doppelt
+          - zweimal
+          - twice
+          - double
+        - - schnitt
+          - beides
+          - beide
+          - intersection
+          - both
+        - - abzieh
+          - zieht
+          - minus
+          - subtrah
+          - subtract
+      sample: Wer in beiden Mengen ist, wird beim Addieren von |A| und |B| doppelt gezählt. Darum zieht man die Schnittmenge einmal ab.
     difficulty: 3
 
 srs:

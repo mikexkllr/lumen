@@ -5,7 +5,7 @@ summary: And, or, neither – as a picture.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: beides
@@ -103,6 +103,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: How many numbers from 1 to {{n}} are divisible by 2 **and** by 3?
+    answer:
+      value: "{{floor(n / 6)}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 2) + floor(n / 3)
+        misconception: union-vs-intersection
+        text: That counts the union – and counts the overlap twice. We want the intersection.
+    hints:
+      - Which numbers are divisible by both 2 and 3?
+      - Exactly the multiples of 6. How many are there up to {{n}}?
+    explanation: The intersection of the multiples of 2 and of 3 is the multiples of 6. Up to {{n}} there are {{floor(n / 6)}} of them.
+    difficulty: 2
+    variants:
+      params:
+        n: int[30,99]
+      defaults:
+        n: 50
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: "Every dog is an animal: dogs ⊆ animals. What is dogs ∪ animals?"
+    params:
+      options:
+        - label: The set of animals
+          correct: true
+        - label: The set of dogs
+          feedback: That is the intersection. The union is the bigger set.
+        - label: The empty set
+          feedback: Dogs are animals – nothing disappears.
+    hints:
+      - Draw the circle of dogs entirely inside the circle of animals.
+      - What lies in at least one of the two circles?
+    explanation: If A is a subset of B, then A ∪ B = B and A ∩ B = A. The small circle adds nothing new.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -112,6 +153,69 @@ steps:
     hints:
       - Each element is in or out.
     explanation: 2⁵ = 32. The set of all subsets is called the **power set** – hence the name.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: How many subsets of {1, 2, …, {{n}}} contain the number 1?
+    answer:
+      value: "{{2 ** (n - 1)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: all-subsets
+        text: That is all subsets. Only half of them contain the 1.
+    hints:
+      - "For each element you decide: in or out. The 1 is fixed as in."
+      - The remaining {{n - 1}} elements give 2 · 2 · … options.
+    explanation: "The 1 is in, the other {{n - 1}} are free: 2^{{n - 1}} = {{2 ** (n - 1)}}. Exactly half of all 2^{{n}} subsets."
+    difficulty: 3
+    variants:
+      params:
+        n: int[3,8]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Is the empty set ∅ a subset of **every** set?
+    params:
+      options:
+        - label: Yes – it has no element that could lie outside.
+          correct: true
+        - label: No, it contains nothing.
+          feedback: Subset means every element also lies in the other set. With no elements there is no counterexample.
+        - label: Only of itself.
+          feedback: It is a subset of itself – and of every other set too.
+    hints:
+      - When is A **not** a subset of B?
+      - For that you need an element of A that is not in B.
+    explanation: A ⊆ B means "for all x in A, x is in B". For ∅ there is no x and so no counterexample. The statement is vacuously true.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between intersection and union – with an example.
+    params:
+      keywords:
+        - - schnitt
+          - intersection
+        - - vereinigung
+          - union
+        - - beide
+          - und
+          - both
+          - and
+        - - mindestens
+          - oder
+          - at least
+          - or
+      sample: The intersection holds what is in both sets, like coffee and tea. The union holds everything that is in at least one set, coffee or tea.
     difficulty: 3
 
 srs:

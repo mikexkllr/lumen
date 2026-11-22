@@ -5,7 +5,7 @@ summary: Merkmale und Labels.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: spam
@@ -100,6 +100,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: buckets
+    prompt: Soll das Modell eine Klasse wählen oder eine Zahl schätzen?
+    params:
+      buckets:
+        - id: b1
+          label: Klasse (Klassifikation)
+        - id: b2
+          label: Zahl (Regression)
+      items:
+        - label: Ist diese Mail Spam?
+          bucket: b1
+        - label: Was kostet dieses Haus?
+          bucket: b2
+        - label: Wie warm wird es morgen?
+          bucket: b2
+        - label: Welche Ziffer von 0 bis 9 ist das?
+          bucket: b1
+    hints:
+      - Gibt es feste Antworten zur Auswahl oder beliebige Werte?
+      - Auch Ziffern sind hier Klassen – man rechnet nicht mit ihnen.
+    explanation: "**Klassifikation** wählt aus festen Antworten, Regression schätzt eine Zahl. Beides ist überwachtes Lernen mit Labels."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Modell sagt 3 und 5 voraus, richtig wären 4 und 7. Wie groß ist der mittlere quadratische Fehler?
+    answer:
+      value: 2.5
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: no-square
+        text: Das ist der mittlere Fehler ohne Quadrieren.
+    hints:
+      - "Fehler: 1 und 2. Quadriere sie."
+      - (1 + 4) / 2 = ?
+    explanation: (1² + 2²) / 2 = 2,5. Diese **Verlustfunktion** sagt dem Training, wie schlecht das Modell gerade ist. Lernen heißt, sie kleiner zu machen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -115,6 +159,43 @@ steps:
     hints:
       - Jedes Verfahren macht stillschweigend Annahmen über die Welt.
     explanation: Lernen heißt verallgemeinern, und das geht nur mit Vorannahmen – dem **induktiven Bias**.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Warum quadriert man Fehler oft, statt nur ihren Betrag zu nehmen?
+    params:
+      options:
+        - label: Große Fehler zählen dann viel stärker – und die Rechnung ist glatt und leicht abzuleiten.
+          correct: true
+        - label: Weil Quadrate immer kleiner sind.
+          feedback: 3² = 9 ist größer als 3. Nur Fehler unter 1 schrumpfen.
+        - label: Das hat keinen Grund.
+          feedback: Die Wahl ändert, was das Modell lernt – etwa bei Ausreißern.
+    hints:
+      - Vergleiche einen Fehler von 1 mit einem von 10 – vor und nach dem Quadrieren.
+      - Was passiert dann mit Ausreißern?
+    explanation: Der quadratische Fehler bestraft große Abweichungen hart und reagiert darum stark auf **Ausreißer**. Der Betrag ist robuster. Welche Verlustfunktion passt, hängt von der Aufgabe ab.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was Merkmale und Labels sind – am Beispiel eines Spamfilters.
+    params:
+      keywords:
+        - - merkmal
+          - feature
+        - - label
+          - antwort
+          - answer
+        - - spam
+          - mail
+          - email
+      sample: "Merkmale sind, was man an einer Mail messen kann, etwa Wörter oder Absender. Das Label ist die richtige Antwort: Spam oder kein Spam. Das Modell lernt, von den Merkmalen auf das Label zu schließen."
     difficulty: 3
 
 srs:

@@ -1,0 +1,173 @@
+id: logic.induction.strong
+type: concept
+title: "Strong induction"
+summary: "Sometimes the step needs not just n but all smaller cases."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: You only have 3-cent and 5-cent stamps. What is the **largest** amount you cannot make exactly?
+    answer:
+      value: 7
+    hints:
+      - "Try: 1, 2, 4, 7 do not work. What about 8, 9, 10?"
+      - 8 = 3 + 5, 9 = 3 + 3 + 3, 10 = 5 + 5. And after that?
+    explanation: "7 does not work, but from 8 on everything does: with 8, 9, 10 you get 11, 12, 13 by adding another 3-cent stamp – and so on."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Why does the stamp proof need **three** base cases (8, 9, 10)?
+    params:
+      options:
+        - label: The step reaches back to n − 3, not to n − 1.
+          correct: true
+        - label: Because three is a lucky number.
+          feedback: It is because of the 3-cent stamp, not luck.
+        - label: One would be enough.
+          feedback: From 8 alone only 11, 14, 17 … follow – 9 and 10 are missing.
+    hints:
+      - From which smaller amount do you build n?
+      - n = (n − 3) + 3.
+    explanation: The step jumps back by 3. So you need three neighbouring starting dominoes – otherwise gaps remain in the chain.
+
+  - kind: explain
+    id: c3
+    body: "In strong induction the step may use all smaller cases, not just n. It is just as safe: once all dominoes up to n have fallen, you may rely on any of them."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Every number from 2 on is a product of primes. How does strong induction help with the proof?
+    params:
+      options:
+        - label: If n is not prime, n = a · b with smaller a, b – and those are already products of primes.
+          correct: true
+        - label: You check n − 1.
+          feedback: n − 1 has nothing to do with factorising n.
+        - label: You do not need primes for that.
+          feedback: Primes are exactly what it is about.
+    hints:
+      - If n is prime, you are done at once. And otherwise?
+      - The factors a and b are smaller than n, but not necessarily n − 1.
+    explanation: The factors can lie anywhere below n. Ordinary induction only knows n − 1 – strong induction knows them all.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A chocolate bar has {{n}} pieces. You always break one chunk into two. How many breaks until all pieces are separate?
+    answer:
+      value: "{{n - 1}}"
+    hints:
+      - Each break turns one chunk into two.
+      - The number of chunks goes up by exactly 1 per break.
+    explanation: "{{n - 1}}. By strong induction: one break splits into a and b pieces, which need a − 1 and b − 1 breaks. Together 1 + (a − 1) + (b − 1) = n − 1 – however you break."
+    variants:
+      params:
+        n: int[6,40]
+      defaults:
+        n: 12
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: In strong induction the step may use [[all smaller]] cases. That is why the stamp proof needs [[three]] base cases.
+      distractors:
+        - only the next
+        - two
+    hints:
+      - The step builds n from n − 3.
+    explanation: Because the step reaches three back, three starting dominoes must stand side by side.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "There are only stamps worth {{a}} and {{b}} cents. What is the largest amount that cannot be made exactly? (Formula: a · b − a − b)"
+    answer:
+      value: "{{a * b - a - b}}"
+    hints:
+      - "Plug in: {{a}} · {{b}} − {{a}} − {{b}}."
+      - To be safe, check that the next {{a}} amounts all work.
+    explanation: "{{a * b - a - b}}. The formula holds when a and b are coprime. From there, {{a}} consecutive amounts are enough as a base – the rest follows by strong induction."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[3,4,5]
+        b: choice[7,8,9,11]
+      constraints:
+        - gcd(a, b) == 1
+      defaults:
+        a: 4
+        b: 7
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: With 4- and 6-cent stamps, is there a largest impossible amount?
+    params:
+      options:
+        - label: No – all odd amounts stay impossible forever.
+          correct: true
+        - label: Yes, 4 · 6 − 4 − 6 = 14.
+          feedback: The formula only applies to coprime values – 4 and 6 share the factor 2.
+        - label: Yes, 2.
+          feedback: 15 or 101 are impossible too – every odd number.
+    hints:
+      - What do all sums of 4 and 6 have in common?
+      - Can a sum of even numbers be odd?
+    explanation: Every sum is even – an invariant. Only when gcd(a, b) = 1 do all amounts work from some point on.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Can strong induction prove more than plain induction?
+    params:
+      options:
+        - label: 'No – it can be translated into ordinary induction: you prove "it holds for everything up to n".'
+          correct: true
+        - label: Yes, it proves more theorems.
+          feedback: Both prove exactly the same theorems about natural numbers.
+        - label: It is weaker because it assumes more.
+          feedback: More assumptions in the step make proving easier, not weaker.
+    hints:
+      - 'Consider the statement Q(n): "P holds for 1, 2, …, n".'
+      - Ordinary induction on Q gives the same.
+    explanation: Both forms are equivalent – "strong" just describes the more convenient assumption. Logicians likewise show that both follow from the least-element principle.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux when you need strong induction – using the stamps example.
+    params:
+      keywords:
+        - - alle kleineren
+          - frühere
+          - kleiner
+          - all smaller
+          - earlier
+          - smaller
+        - - n − 3
+          - n-3
+          - drei zurück
+          - three back
+        - - anf
+          - start
+          - base
+      sample: "With 3- and 5-cent stamps I build n from n − 3 plus a 3-cent stamp. So I need an earlier case, not just the one right before. That is why I start with three base cases: 8, 9 and 10."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

@@ -5,7 +5,7 @@ summary: Die Grundidee der Bildgeneratoren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: start
@@ -85,6 +85,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein verrauschtes Trainingsbild ist a · Bild + b · Rauschen mit a² + b² = 1. Bei einem Schritt ist a = 0,8. Wie groß ist b?
+    answer:
+      value: 0.6
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: linear
+        text: a und b ergeben nicht zusammen 1 – ihre **Quadrate** tun das.
+    hints:
+      - b² = 1 − a² = 1 − 0,64.
+      - √0,36 = ?
+    explanation: b = 0,6. Über viele Schritte sinkt a gegen 0 und b steigt gegen 1 – am Ende bleibt **reines Rauschen**. Die Quadrat-Regel hält die Gesamtstärke des Signals konstant.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Vor Diffusionsmodellen waren GANs verbreitet. Wie lernt ein GAN?
+    params:
+      options:
+        - label: Ein Netz fälscht Bilder, ein zweites versucht, Fälschungen zu erkennen – beide werden besser.
+          correct: true
+        - label: Es entfernt Rauschen in vielen kleinen Schritten.
+          feedback: Das ist die Idee der Diffusion.
+        - label: Es kopiert Bilder aus einer Datenbank.
+          feedback: Es erzeugt neue Bilder – es speichert keine Bibliothek.
+    hints:
+      - GAN heißt »Generative Adversarial Network« – adversarial bedeutet gegnerisch.
+      - Wer sind die zwei Gegner?
+    explanation: "Fälscher gegen **Prüfer**: Ein GAN erzeugt in einem einzigen Schritt, ist also schnell. Das Training ist aber oft instabil. Diffusion ist langsamer, aber gutmütiger und vielseitiger."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +137,49 @@ steps:
     hints:
       - Eine Million Pixel oder ein paar tausend Zahlen – was ist schneller?
     explanation: "**Latente Diffusion**: Ein Autoencoder komprimiert das Bild etwa 50-fach. Erst das machte Generatoren auf normalen Rechnern möglich."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Das Modell sagt nur das Rauschen in einem Bild voraus. Warum reicht das, um ein sauberes Bild zu schätzen?
+    params:
+      options:
+        - label: Kennt man Mischung und Rauschen, kann man das Rauschen abziehen und zurückrechnen.
+          correct: true
+        - label: Es reicht nicht – man braucht ein zweites Modell.
+          feedback: "Ein Modell genügt: Bild = (Mischung − b · Rauschen) / a."
+        - label: Weil Rauschen und Bild dasselbe sind.
+          feedback: Sie sind verschieden – genau darum kann man sie trennen.
+    hints:
+      - Mischung = a · Bild + b · Rauschen, a und b sind bekannt.
+      - Stelle nach dem Bild um.
+    explanation: Bild ≈ (Mischung − b · geschätztes Rauschen) / a. Die Schätzung ist anfangs grob. Darum geht man nur einen **kleinen Schritt** in ihre Richtung und schätzt dann neu.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Diffusionsmodell trainiert wird.
+    params:
+      keywords:
+        - - rausch
+          - noise
+        - - echt
+          - foto
+          - bild
+          - real
+          - photo
+          - image
+        - - vorhersag
+          - rat
+          - schätz
+          - predict
+          - guess
+          - estimate
+      sample: Man nimmt echte Bilder und fügt Rauschen hinzu. Das Modell soll vorhersagen, welches Rauschen hinzugefügt wurde. Liegt es daneben, werden die Gewichte korrigiert – millionenfach.
     difficulty: 3
 
 srs:

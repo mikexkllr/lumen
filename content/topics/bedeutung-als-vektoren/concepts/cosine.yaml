@@ -1,0 +1,187 @@
+id: ai.embeddings.cosine
+type: concept
+title: "Ähnlichkeit als Winkel"
+summary: "Nicht die Länge zählt, sondern die Richtung: Kosinus-Ähnlichkeit."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: "Skalarprodukt: Paare multiplizieren, dann addieren. Was ergibt ({{a}}, {{b}}) · ({{c}}, {{d}})?"
+    answer:
+      value: "{{a * c + b * d}}"
+    feedback:
+      - when: numval(state.input) == (a + b) * (c + d)
+        misconception: order
+        text: Erst die Paare multiplizieren, dann addieren – nicht umgekehrt.
+    hints:
+      - "{{a}} · {{c}} und {{b}} · {{d}}."
+      - Addiere die beiden Produkte.
+    explanation: "{{a * c}} + {{b * d}} = {{a * c + b * d}}. Das **Skalarprodukt** ist groß, wenn zwei Vektoren in eine ähnliche Richtung zeigen."
+    variants:
+      params:
+        a: int[1,6]
+        b: int[1,6]
+        c: int[1,6]
+        d: int[1,6]
+      defaults:
+        a: 1
+        b: 2
+        c: 3
+        d: 4
+
+  - kind: explain
+    id: c2
+    body: "Lange Texte haben oft längere Vektoren. Darum teilt man das Skalarprodukt durch beide Längen. Heraus kommt die **Kosinus-Ähnlichkeit**: 1 heißt gleiche Richtung, 0 heißt senkrecht, −1 heißt entgegengesetzt."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie lang ist der Vektor ({{3 * k}}, {{4 * k}})?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: sum
+        text: Die Länge ist nicht die Summe, sondern die Wurzel aus der Summe der Quadrate.
+    hints:
+      - Länge = √(x² + y²).
+      - √({{9 * k * k}} + {{16 * k * k}}) = ?
+    explanation: √{{25 * k * k}} = {{5 * k}}. Die **Länge** eines Vektors folgt aus dem Satz des Pythagoras – auch in 1000 Dimensionen.
+    variants:
+      params:
+        k: int[1,5]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Die Vektoren (3, 4) und (6, 8) – wie groß ist ihre Kosinus-Ähnlichkeit?
+    params:
+      options:
+        - label: 1 – sie zeigen in genau dieselbe Richtung.
+          correct: true
+        - label: 2 – der zweite ist doppelt so lang.
+          feedback: Die Länge wird herausgeteilt. Der Kosinus ist höchstens 1.
+        - label: 0,5 – sie sind verschieden lang.
+          feedback: "Verschiedene Länge, gleiche Richtung: Der Kosinus ist 1."
+    hints:
+      - (6, 8) ist 2 · (3, 4).
+      - Skalarprodukt 50, Längen 5 und 10.
+    explanation: 50 / (5 · 10) = 1. Der Kosinus misst nur die **Richtung**. Ein kurzer und ein langer Text zum selben Thema sind so gleich ähnlich.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Zwei Vektoren stehen senkrecht aufeinander, etwa (1, 0) und (0, 1). Wie groß ist ihre Kosinus-Ähnlichkeit?
+    params:
+      options:
+        - label: "0"
+          correct: true
+        - label: "1"
+          feedback: 1 hieße gleiche Richtung.
+        - label: −1
+          feedback: −1 hieße genau entgegengesetzt, etwa (1, 0) und (−1, 0).
+    hints:
+      - "Rechne das Skalarprodukt: 1 · 0 + 0 · 1."
+      - Ist das Skalarprodukt 0, ist auch der Kosinus 0.
+    explanation: "Kosinus 0 heißt: **nichts gemeinsam**. In hohen Dimensionen sind zufällige Vektoren fast immer nahezu senkrecht zueinander."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist die Kosinus-Ähnlichkeit von (1, 0) und (1, 1)? Auf zwei Stellen.
+    answer:
+      value: 0.71
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-normalise
+        text: Das Skalarprodukt ist 1 – aber du musst noch durch die Längen 1 und √2 teilen.
+    hints:
+      - "Skalarprodukt: 1. Längen: 1 und √2."
+      - 1 / √2 ≈ ?
+    explanation: 1 / √2 ≈ 0,71 – das ist cos 45°. Der Kosinus übersetzt den **Winkel** zwischen zwei Vektoren in eine Zahl.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist die Kosinus-Ähnlichkeit von (1, 2, 2) und (2, 1, 2)? Auf zwei Stellen.
+    answer:
+      value: 0.89
+      tolerance: 0.01
+    hints:
+      - "Skalarprodukt: 2 + 2 + 4 = 8."
+      - Beide Längen sind √9 = 3. Rechne 8 / 9.
+    explanation: 8 / 9 ≈ 0,89 – sehr ähnlich. In drei Dimensionen rechnet man genauso wie in zwei, und in **tausend** genauso.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Viele Systeme speichern nur Vektoren der Länge 1. Was wird dadurch einfacher?
+    params:
+      options:
+        - label: Der Kosinus ist dann einfach das Skalarprodukt.
+          correct: true
+        - label: Man braucht keine Zahlen mehr.
+          feedback: Die Vektoren haben weiter alle Zahlen – nur ihre Länge ist 1.
+        - label: Alle Vektoren werden gleich.
+          feedback: Gleich lang heißt nicht gleich gerichtet.
+    hints:
+      - Kosinus = Skalarprodukt / (Länge · Länge).
+      - Was passiert, wenn beide Längen 1 sind?
+    explanation: Das **Normieren** spart bei Milliarden Vergleichen viel Rechenzeit. Ein Skalarprodukt ist eine der schnellsten Rechnungen auf Grafikchips.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Zwei Vektoren der Länge 1 haben die Kosinus-Ähnlichkeit 0,5. Wie groß ist ihr Abstand? Tipp: |a − b|² = 2 − 2 · cos."
+    answer:
+      value: 1
+      tolerance: 0.001
+    hints:
+      - "|a − b|² = 2 − 2 · 0,5 = 1."
+      - Die Wurzel aus 1 ist 1.
+    explanation: "Abstand 1. Bei Länge 1 hängen Abstand und Kosinus **fest zusammen**: Großer Kosinus heißt kleiner Abstand. Darum liefern beide Maße dann dieselbe Rangfolge."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man Ähnlichkeit oft mit dem Winkel statt mit dem Abstand misst.
+    params:
+      keywords:
+        - - winkel
+          - richtung
+          - kosinus
+          - angle
+          - direction
+          - cosine
+        - - länge
+          - lang
+          - kurz
+          - length
+          - long
+          - short
+        - - gleich
+          - ähnlich
+          - same
+          - similar
+      sample: Ein langer und ein kurzer Text zum selben Thema zeigen in dieselbe Richtung, haben aber verschiedene Längen. Der Kosinus misst nur den Winkel, die Länge fällt heraus. So zählen sie als ähnlich.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c3", "d1"]

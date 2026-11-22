@@ -5,7 +5,7 @@ summary: UND, ODER, NICHT in Suchmaschinen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: und
@@ -61,6 +61,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: venn
+    prompt: Du suchst »Rezept UND (vegan ODER schnell)«. Färbe alle Treffer.
+    params:
+      sets:
+        - Rezept
+        - vegan
+        - schnell
+    answer:
+      regions:
+        - AB
+        - AC
+        - ABC
+    feedback:
+      - when: has('B') || has('C') || has('BC')
+        misconception: or-outside
+        text: Ein Treffer muss immer ein Rezept sein – bleib im Rezept-Kreis.
+    hints:
+      - Alle Treffer liegen im Rezept-Kreis.
+      - Davon nur die Bereiche, die auch vegan oder schnell sind.
+    explanation: "Drei Bereiche: vegane Rezepte, schnelle Rezepte und beides. Die Klammer entscheidet, was zuerst verknüpft wird."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Suche nach »Katze« liefert 800 Seiten, nach »Hund« 600. 200 Seiten enthalten beides. Wie viele Treffer liefert »Katze NICHT Hund«?
+    answer:
+      value: 600
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: kept-overlap
+        text: Das sind die Seiten mit beidem – genau die fliegen raus.
+      - when: numval(state.input) == 1200
+        misconception: or-instead
+        text: Das wäre »Katze ODER Hund«.
+    hints:
+      - NICHT schneidet den Hund-Kreis aus dem Katze-Kreis heraus.
+      - Rechne 800 − 200.
+    explanation: 800 − 200 = 600. »A NICHT B« ist die **Differenz** A ∖ B.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -76,6 +121,49 @@ steps:
     hints:
       - "Liegt ein Element nur in C: Ist es im ersten Ausdruck? Im zweiten?"
     explanation: "Klammern entscheiden. Richtig ist: A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C) – das **Distributivgesetz**."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Welche Suche liefert genau dieselben Treffer wie »NICHT (Katze ODER Hund)«?
+    params:
+      options:
+        - label: NICHT Katze UND NICHT Hund
+          correct: true
+        - label: NICHT Katze ODER NICHT Hund
+          feedback: Das würde auch Seiten nur mit Katze finden.
+        - label: Katze UND Hund
+          feedback: Das ist fast das Gegenteil.
+    hints:
+      - "»Nicht (A oder B)« heißt: weder A noch B."
+      - Beim Verneinen tauschen UND und ODER die Plätze.
+    explanation: "Das ist eine der **De-Morgan-Regeln**: ¬(A ∨ B) = ¬A ∧ ¬B. Im Venn-Diagramm ist es der Bereich außerhalb beider Kreise."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie UND, ODER und NICHT die Zahl der Treffer einer Suche verändern.
+    params:
+      keywords:
+        - - und
+          - and
+        - - oder
+          - or
+        - - nicht
+          - not
+        - - weniger
+          - mehr
+          - kleiner
+          - größer
+          - fewer
+          - more
+          - smaller
+          - larger
+      sample: UND verlangt beides, darum gibt es weniger Treffer. ODER reicht eins, darum gibt es mehr. NICHT schneidet einen Teil heraus und macht die Treffer auch weniger.
     difficulty: 3
 
 srs:

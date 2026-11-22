@@ -5,8 +5,21 @@ summary: One tower, three pegs, one golden rule.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
+  - kind: problem
+    id: la-hook
+    widget: estimate
+    prompt: "Take a guess: how many moves do you need at least for a tower of 10 disks?"
+    params:
+      min: 10
+      max: 100000
+      scale: log
+    answer:
+      value: 1023
+      within: 40
+    explanation: 2¹⁰ − 1 = 1023. Every extra disk doubles the work – plus one move.
+
   - kind: problem
     id: zwei
     widget: hanoi
@@ -85,6 +98,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: Why can n disks not be done faster than 2 · (moves for n − 1) + 1?
+    params:
+      options:
+        - label: Before the largest disk moves, all others must sit on the third peg – and afterwards they must go back on top of it.
+          correct: true
+        - label: Because the smallest disk makes every second move.
+          feedback: True, but it does not explain why it cannot be shorter.
+        - label: Because the legend says so.
+          feedback: A legend proves nothing – we need an argument.
+    hints:
+      - What has to happen before the largest disk can move at all?
+      - Where must the n − 1 smaller disks be at that moment?
+    explanation: The largest disk moves at least once. For that, the tower of n − 1 disks must move away and later back on top. So moves(n) ≥ 2 · moves(n − 1) + 1 – and the recursive solution achieves exactly that.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "{{n - 1}} disks need {{2 ** (n - 1) - 1}} moves. How many does that make for {{n}} disks?"
+    answer:
+      value: "{{2 ** n - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * (2 ** (n - 1) - 1)
+        misconception: forgot-plus-one
+        text: Almost – the largest disk has to move once as well.
+    hints:
+      - Small tower away, big disk across, small tower back on top.
+      - Compute 2 · {{2 ** (n - 1) - 1}} + 1.
+    explanation: 2 · {{2 ** (n - 1) - 1}} + 1 = {{2 ** n - 1}}. The recursion T(n) = 2 · T(n − 1) + 1 with T(1) = 1 gives T(n) = 2ⁿ − 1 by induction.
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,9]
+      defaults:
+        n: 6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +154,49 @@ steps:
     hints:
       - Disc 1 on every second move, disc 2 on every fourth …
     explanation: Count from 0001 to 1111 and always move the disc of the flipping bit. Two entirely different things with the same structure.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Number the disks from small (1) to large. With {{n}} disks: how often does disk 2 move in the best solution?"
+    answer:
+      value: "{{2 ** (n - 2)}}"
+    hints:
+      - The largest disk moves once, the second largest twice, the next 4 times …
+      - Disk k moves 2^(n − k) times.
+    explanation: "Disk 2 moves 2^({{n}} − 2) = {{2 ** (n - 2)}} times. All together: 1 + 2 + 4 + … + 2ⁿ⁻¹ = 2ⁿ − 1 – the familiar total."
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to move a tower of n disks – and why it takes 2ⁿ − 1 moves.
+    params:
+      keywords:
+        - - kleiner
+          - n − 1
+          - n-1
+          - smaller
+        - - größte
+          - groesste
+          - unterste
+          - largest
+          - biggest
+          - bottom
+        - - verdoppel
+          - doppelt
+          - zweimal
+          - double
+          - twice
+      sample: "First move the smaller tower of n − 1 disks aside, then the largest disk to the goal, then the small tower back on top. So the moves double with every disk, plus one: 2ⁿ − 1."
     difficulty: 3
 
 srs:

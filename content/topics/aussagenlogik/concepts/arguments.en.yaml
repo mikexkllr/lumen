@@ -5,7 +5,7 @@ summary: Valid does not mean true.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: gueltig
@@ -95,6 +95,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: You know "A or B" and "not A or C". What follows for sure?
+    params:
+      options:
+        - label: B or C
+          correct: true
+        - label: B and C
+          feedback: If A is true, only C follows. If A is false, only B. Both together are not certain.
+        - label: A
+          feedback: We know nothing about A – it can be true or false.
+    hints:
+      - "Case 1: A is true. What does the second statement demand?"
+      - "Case 2: A is false. What does the first demand?"
+    explanation: "This is resolution: A and ¬A cancel, leaving B ∨ C. With this one rule computers prove logical consequences."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: order
+    prompt: Use resolution to show that C follows from ¬A ∨ B, ¬B ∨ C and A. Put the steps in order.
+    params:
+      items:
+        - label: "Add the negation of the goal: ¬C"
+        - label: A and ¬A ∨ B give B
+        - label: B and ¬B ∨ C give C
+        - label: C and ¬C give a contradiction
+        - label: So C follows from the premises
+    hints:
+      - "Resolution proves by contradiction: you assume the opposite."
+      - Then you resolve pairs like A and ¬A step by step.
+    explanation: Deriving a contradiction from the premises plus ¬C proves C. Many automatic provers work exactly like this.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -119,6 +156,38 @@ steps:
           - falsch
           - "false"
       sample: Valid only means that the conclusion follows from the premises – that is a matter of form. Whether the argument also shows something true depends on whether the premises are correct.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Check the argument "A → B, B, therefore A" with a truth table. In how many rows are both premises true but the conclusion false?
+    answer:
+      value: 1
+    hints:
+      - The conclusion A is false – so A is false. When are A → B and B then true?
+      - "A false, B true: both premises hold."
+    explanation: A single counterexample row (A false, B true) makes the argument invalid. An argument is valid exactly when no such row exists.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: When is an argument from premises P to conclusion S valid?
+    params:
+      options:
+        - label: When "P and not S" cannot be true in any row.
+          correct: true
+        - label: When S is true.
+          feedback: A true conclusion can be right by luck – the form is what counts.
+        - label: When P is true.
+          feedback: Validity does not ask whether P holds, but whether S follows from P.
+    hints:
+      - What would a counterexample to the argument look like?
+      - Premises true, conclusion false – is there such a row?
+    explanation: Valid means "P → S" is a tautology – equivalently, "P ∧ ¬S" is unsatisfiable. That is exactly what resolution shows when it finds a contradiction.
     difficulty: 3
 
 srs:
