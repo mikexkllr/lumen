@@ -1,0 +1,204 @@
+id: math.placevalue.powers
+type: concept
+title: "Zehnerpotenzen"
+summary: "Mal 10 schiebt die Ziffern – so schreibt man auch riesige Zahlen kurz."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Sekunden hat ein Jahr?"
+    params:
+      min: 1000
+      max: 1000000000
+      scale: log
+    answer:
+      value: 31536000
+      within: 40
+    explanation: 365 · 24 · 60 · 60 = 31 536 000 – gut 30 Millionen.
+
+  - kind: explain
+    id: c1
+    body: "Mal 10 schiebt jede Ziffer eine Stelle nach links: 34 · 10 = 340. Eine **Zehnerpotenz** schreibt das kurz: 10³ = 10 · 10 · 10 = 1 000, eine Eins mit drei Nullen."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Rechne {{a}} · 1 000.
+    answer:
+      value: "{{a * 1000}}"
+    feedback:
+      - when: numval(state.input) == a * 100
+        misconception: zeros
+        text: "Eine Null fehlt: 1 000 hat drei Nullen."
+    hints:
+      - Jede Null in 1 000 schiebt die Ziffern eine Stelle weiter.
+      - Häng drei Nullen an.
+    explanation: "{{a}} · 1 000 = {{a * 1000}}."
+    variants:
+      params:
+        a: int[2,99]
+      defaults:
+        a: 34
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Verbinde die Zehnerpotenz mit ihrem Wert.
+    params:
+      pairs:
+        - left: 10²
+          right: "100"
+        - left: 10³
+          right: 1 000
+        - left: 10⁶
+          right: eine Million
+        - left: 10⁹
+          right: eine Milliarde
+    hints:
+      - Die kleine Zahl oben zählt die Nullen.
+      - 10⁶ hat sechs Nullen.
+    explanation: Der Exponent sagt, wie viele Nullen hinter der Eins stehen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Rechne {{a * 100}} : 100."
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: zeros
+        text: Durch 100 heißt zwei Stellen nach rechts – streich zwei Nullen.
+    hints:
+      - Durch 10 streicht eine Null.
+      - Durch 100 streicht zwei.
+    explanation: "{{a * 100}} : 100 = {{a}}."
+    variants:
+      params:
+        a: int[2,99]
+      defaults:
+        a: 48
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Riesige Zahlen schreibt man als Zahl zwischen 1 und 10 mal einer Zehnerpotenz. Die 150 000 000 km zur Sonne sind 1,5 · 10⁸ km. Das ist die **wissenschaftliche Schreibweise**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Schreib 3 · 10⁵ als normale Zahl.
+    answer:
+      value: 300000
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: exponent-as-factor
+        text: Hier wird nicht 3 · 5 gerechnet. 10⁵ ist eine Eins mit fünf Nullen.
+    hints:
+      - 10⁵ = 100 000.
+      - 3 · 100 000.
+    explanation: 3 · 10⁵ = 3 · 100 000 = 300 000.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wie schreibt man 45 000 wissenschaftlich?
+    params:
+      options:
+        - label: 4,5 · 10⁴
+          correct: true
+        - label: 45 · 10³
+          feedback: Der Wert stimmt, aber vorn muss eine Zahl zwischen 1 und 10 stehen.
+        - label: 4,5 · 10³
+          feedback: Das wären 4 500.
+        - label: 4,5 · 10⁵
+          feedback: Das wären 450 000.
+    hints:
+      - Schieb das Komma, bis vorn eine Zahl zwischen 1 und 10 steht.
+      - Von 45 000 zu 4,5 sind es vier Stellen.
+    explanation: 45 000 = 4,5 · 10 000 = 4,5 · 10⁴.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: order
+    prompt: Ordne nach Größe, vom Kleinsten zum Größten.
+    params:
+      items:
+        - label: Ameise (einige Millimeter)
+        - label: Mensch (etwa 10⁰ m = 1 m)
+        - label: Fußballfeld (etwa 10² m)
+        - label: Mount Everest (etwa 10⁴ m)
+        - label: Erde, Durchmesser (etwa 10⁷ m)
+    hints:
+      - Vergleiche die Exponenten.
+      - Je größer der Exponent, desto größer das Ding.
+    explanation: Jede Stufe im Exponenten ist zehnmal größer. Von der Ameise bis zur Erde sind es etwa zehn Zehnerstufen.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Zwei Zahlen haben dieselbe **Größenordnung**, wenn sie in derselben Zehnerpotenz liegen. Forscher überschlagen damit: Ist die Antwort eher 10, 1 000 oder eine Million?"
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: (2 · 10³) · (3 · 10⁴) = 6 · 10 hoch … ? Gib den Exponenten an.
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: multiply-exponents
+        text: "Die Exponenten werden addiert, nicht multipliziert: 10³ · 10⁴ hat 3 + 4 Nullen."
+    hints:
+      - Rechne 2 · 3 und 10³ · 10⁴ getrennt.
+      - 1 000 · 10 000 hat wie viele Nullen?
+    explanation: 2 · 3 = 6 und 10³ · 10⁴ = 10⁷, zusammen 6 · 10⁷ = 60 000 000.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: estimate
+    prompt: "Fermi-Frage: Dein Herz schlägt etwa 70-mal pro Minute. Wie oft schlägt es an einem Tag?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100800
+      within: 30
+    explanation: 70 · 60 · 24 = 100 800 – rund 10⁵ Schläge am Tag.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 10⁶ eine Million ist.
+    params:
+      keywords:
+        - - "null"
+          - zero
+        - - sechs
+          - six
+          - sechsmal
+        - - mal
+          - times
+          - multipl
+      sample: "10⁶ heißt: sechsmal mal 10 rechnen. Jedes Mal kommt eine Null dazu, also steht eine Eins mit sechs Nullen da: 1 000 000, eine Million."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "d3"]

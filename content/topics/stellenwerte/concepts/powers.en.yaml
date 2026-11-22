@@ -1,0 +1,204 @@
+id: math.placevalue.powers
+type: concept
+title: "Powers of ten"
+summary: "Times 10 shifts the digits – that is how even huge numbers are written briefly."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many seconds does a year have?"
+    params:
+      min: 1000
+      max: 1000000000
+      scale: log
+    answer:
+      value: 31536000
+      within: 40
+    explanation: 365 · 24 · 60 · 60 = 31,536,000 – just over 30 million.
+
+  - kind: explain
+    id: c1
+    body: "Times 10 shifts every digit one place to the left: 34 · 10 = 340. A **power of ten** writes this briefly: 10³ = 10 · 10 · 10 = 1,000, a one with three zeros."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Work out {{a}} · 1,000.
+    answer:
+      value: "{{a * 1000}}"
+    feedback:
+      - when: numval(state.input) == a * 100
+        misconception: zeros
+        text: "One zero is missing: 1,000 has three zeros."
+    hints:
+      - Each zero in 1,000 shifts the digits one place further.
+      - Append three zeros.
+    explanation: "{{a}} · 1 000 = {{a * 1000}}."
+    variants:
+      params:
+        a: int[2,99]
+      defaults:
+        a: 34
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Match the power of ten with its value.
+    params:
+      pairs:
+        - left: 10²
+          right: "100"
+        - left: 10³
+          right: 1,000
+        - left: 10⁶
+          right: a million
+        - left: 10⁹
+          right: a billion
+    hints:
+      - The small number at the top counts the zeros.
+      - 10⁶ has six zeros.
+    explanation: The exponent tells you how many zeros follow the one.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Work out {{a * 100}} ÷ 100.
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: zeros
+        text: Dividing by 100 means two places to the right – drop two zeros.
+    hints:
+      - Dividing by 10 drops one zero.
+      - Dividing by 100 drops two.
+    explanation: "{{a * 100}} : 100 = {{a}}."
+    variants:
+      params:
+        a: int[2,99]
+      defaults:
+        a: 48
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Huge numbers are written as a number between 1 and 10 times a power of ten. The 150,000,000 km to the Sun are 1.5 · 10⁸ km. That is **scientific notation**.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Write 3 · 10⁵ as an ordinary number.
+    answer:
+      value: 300000
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: exponent-as-factor
+        text: This is not 3 · 5. 10⁵ is a one with five zeros.
+    hints:
+      - 10⁵ = 100,000.
+      - 3 · 100,000.
+    explanation: 3 · 10⁵ = 3 · 100,000 = 300,000.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: How do you write 45,000 in scientific notation?
+    params:
+      options:
+        - label: 4.5 · 10⁴
+          correct: true
+        - label: 45 · 10³
+          feedback: The value is right, but the front number must be between 1 and 10.
+        - label: 4.5 · 10³
+          feedback: That would be 4,500.
+        - label: 4.5 · 10⁵
+          feedback: That would be 450,000.
+    hints:
+      - Move the decimal point until the front number is between 1 and 10.
+      - From 45,000 to 4.5 is four places.
+    explanation: 45,000 = 4.5 · 10,000 = 4.5 · 10⁴.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: order
+    prompt: Order by size, from smallest to largest.
+    params:
+      items:
+        - label: Ant (a few millimetres)
+        - label: Human (about 10⁰ m = 1 m)
+        - label: Football pitch (about 10² m)
+        - label: Mount Everest (about 10⁴ m)
+        - label: Earth, diameter (about 10⁷ m)
+    hints:
+      - Compare the exponents.
+      - The larger the exponent, the larger the thing.
+    explanation: Each step in the exponent is ten times larger. From the ant to the Earth there are about ten powers of ten.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Two numbers have the same **order of magnitude** if they lie in the same power of ten. Scientists estimate with it: is the answer more like 10, 1,000 or a million?"
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: (2 · 10³) · (3 · 10⁴) = 6 · 10 to the power of … ? Give the exponent.
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: multiply-exponents
+        text: "The exponents are added, not multiplied: 10³ · 10⁴ has 3 + 4 zeros."
+    hints:
+      - Work out 2 · 3 and 10³ · 10⁴ separately.
+      - How many zeros does 1,000 · 10,000 have?
+    explanation: 2 · 3 = 6 and 10³ · 10⁴ = 10⁷, together 6 · 10⁷ = 60,000,000.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: estimate
+    prompt: "Fermi question: your heart beats about 70 times a minute. How often does it beat in a day?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 100800
+      within: 30
+    explanation: 70 · 60 · 24 = 100,800 – about 10⁵ beats a day.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why 10⁶ is a million.
+    params:
+      keywords:
+        - - "null"
+          - zero
+        - - sechs
+          - six
+          - sechsmal
+        - - mal
+          - times
+          - multipl
+      sample: "10⁶ means multiplying by 10 six times. Each time a zero is added, so you get a one with six zeros: 1,000,000, a million."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "d3"]

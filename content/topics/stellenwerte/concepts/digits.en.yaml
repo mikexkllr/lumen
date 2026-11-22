@@ -1,0 +1,244 @@
+id: math.placevalue.digits
+type: concept
+title: "Digits and places"
+summary: "The same digit is worth 5, 50 or 500 depending on its place."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many numbers have exactly three digits (from 100 to 999)?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 900
+      tolerance: 100
+    explanation: "Exactly 900: all numbers up to 999 minus the 99 numbers below 100."
+
+  - kind: explain
+    id: c1
+    body: In 352 the 3 stands for 3 hundreds, the 5 for 5 tens and the 2 for 2 ones. The **place value** tells you what a digit is worth.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: What is the 7 in 4,728 worth?
+    params:
+      options:
+        - label: "700"
+          correct: true
+        - label: "7"
+          feedback: That would be a 7 on the far right, in the ones place.
+        - label: "70"
+          feedback: The tens are the second place from the right.
+        - label: "7000"
+          feedback: The thousands are on the far left, where the 4 is.
+    hints:
+      - "Count the places from the right: ones, tens, hundreds."
+      - The 7 is in the third place from the right.
+    explanation: The 7 is in the hundreds place, so it is worth 700.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Write the number with {{h}} hundreds, {{z}} tens and {{e}} ones.
+    answer:
+      value: "{{h * 100 + z * 10 + e}}"
+    feedback:
+      - when: numval(state.input) == h + z + e
+        misconception: digit-sum
+        text: "You added the digits. Write them side by side: hundreds, tens, ones."
+    hints:
+      - Each count becomes one digit.
+      - Hundreds first, then tens, then ones.
+    explanation: "{{h}} · 100 + {{z}} · 10 + {{e}} = {{h * 100 + z * 10 + e}}."
+    variants:
+      params:
+        h: int[1,9]
+        z: int[1,9]
+        e: int[1,9]
+      defaults:
+        h: 4
+        z: 6
+        e: 3
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: What is the 5 worth in each number?
+    params:
+      buckets:
+        - id: b1
+          label: "5"
+        - id: b2
+          label: "50"
+        - id: b3
+          label: "500"
+      items:
+        - label: "35"
+          bucket: b1
+        - label: "58"
+          bucket: b2
+        - label: "512"
+          bucket: b3
+        - label: "905"
+          bucket: b1
+        - label: 2,450
+          bucket: b2
+        - label: 1,503
+          bucket: b3
+    hints:
+      - Look at which place from the right the 5 is in.
+      - "Far right: 5. Second place: 50. Third place: 500."
+    explanation: The place decides, not the digit itself.
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: In 606 the two sixes have different values.
+          right: true
+          why: The left one is worth 600, the right one 6.
+        - text: The zero in 405 is unnecessary.
+          right: false
+          why: Without it you would read 45. The zero keeps the tens place free.
+        - text: The largest three-digit number is 999.
+          right: true
+        - text: A number with more digits can be smaller than one with fewer.
+          right: false
+          why: Without leading zeros the number with more digits is always larger.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "**Zero** is a placeholder. In 4,005 it says: no hundreds and no tens. Without zero you could not tell 405 from 45."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Put them in order from smallest to largest.
+    params:
+      items:
+        - label: 1,009
+        - label: 1,090
+        - label: 1,900
+        - label: 9,001
+        - label: 9,010
+    hints:
+      - Compare the thousands first, then the hundreds.
+      - All start with 1 or 9. With the same thousands digit, the next place decides.
+    explanation: You compare place by place from the left. The first digit that differs decides.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Which number is 3 · 1000 + 4 · 10 + 6?
+    answer:
+      value: 3046
+    feedback:
+      - when: numval(state.input) == 346
+        misconception: missing-zero
+        text: There are no hundreds – a 0 must go there.
+    hints:
+      - Which places appear? Thousands, tens, ones.
+      - The hundreds are missing. Write a 0 there.
+    explanation: "3 thousands, 0 hundreds, 4 tens, 6 ones: 3,046."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: How many tens does 3,480 have **in total**?
+    params:
+      options:
+        - label: "348"
+          correct: true
+        - label: "8"
+          feedback: "That is only the tens digit. All the tens are wanted: 3,480 ÷ 10."
+        - label: "48"
+          feedback: Those are just the last digits without the zero. Divide the whole number by 10.
+        - label: "34"
+          feedback: Those are the hundreds.
+    hints:
+      - How often does 10 fit into 3,480?
+      - "Divide by 10: drop the last zero."
+    explanation: 3,480 ÷ 10 = 348. Every hundred contains 10 tens.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Roman numerals have no place values: X is always 10, wherever it stands. That makes calculating with them tedious. Our **place-value system** came from India via the Arab world to Europe."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: The Babylonians counted in base 60. Where do you still meet that today?
+    params:
+      options:
+        - label: In minutes and seconds
+          correct: true
+        - label: In money
+          feedback: Euros and cents use 100.
+        - label: In litres
+          feedback: Litres and millilitres use 1000.
+        - label: In weekdays
+          feedback: A week has 7 days.
+    hints:
+      - Where does the next unit fill up at 60?
+      - Think of the clock.
+    explanation: 60 seconds make a minute, 60 minutes an hour. Angles are also split into 60 minutes of arc.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: In base two there are only 0 and 1. From the right, the places are 1, 2, 4, 8. What is 1011 worth?
+    answer:
+      value: 11
+    feedback:
+      - when: numval(state.input) == 1011
+        misconception: base-ten
+        text: That is reading it in base ten. Use the places 8, 4, 2, 1.
+    hints:
+      - "Under each digit write its place value: 8, 4, 2, 1."
+      - "Add the places that have a 1: 8 + 2 + 1."
+    explanation: 1 · 8 + 0 · 4 + 1 · 2 + 1 · 1 = 11. Computers calculate exactly like this.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the zero in 205 matters.
+    params:
+      keywords:
+        - - "null"
+          - zero
+          - nullen
+        - - platz
+          - stelle
+          - zehner
+          - place
+          - tens
+          - position
+        - - "25"
+      sample: The zero keeps the tens place free. Without it the 2 and the 5 would move together, and you would read 25 instead of 205.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d3"]

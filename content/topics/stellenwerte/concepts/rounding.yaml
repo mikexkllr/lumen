@@ -1,0 +1,228 @@
+id: math.placevalue.rounding
+type: concept
+title: "Runden und Überschlagen"
+summary: "Grob genug, um schnell zu rechnen – genau genug, um Fehler zu finden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal, ohne genau zu rechnen: Wie viel ist 49 · 21?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 1029
+      within: 10
+    explanation: 49 · 21 ist ungefähr 50 · 20 = 1 000. Genau sind es 1 029.
+
+  - kind: explain
+    id: c1
+    body: Beim **Runden** schaust du auf die Ziffer rechts von der Rundungsstelle. Bei 0 bis 4 rundest du ab, bei 5 bis 9 auf. 347 auf Zehner gerundet ist 350.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Runde {{n}} auf Zehner.
+    answer:
+      value: "{{round(n / 10) * 10}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 10) * 10 && n % 10 >= 5
+        misconception: round-down
+        text: Die Einerziffer ist 5 oder größer – dann wird aufgerundet.
+      - when: numval(state.input) == ceil(n / 10) * 10 && n % 10 < 5
+        misconception: round-up
+        text: Die Einerziffer ist kleiner als 5 – dann wird abgerundet.
+    hints:
+      - Schau auf die Einerziffer.
+      - "0 bis 4: ab. 5 bis 9: auf."
+    explanation: "Die Einerziffer von {{n}} entscheidet: gerundet {{round(n / 10) * 10}}."
+    variants:
+      params:
+        n: int[101,999]
+      constraints:
+        - n % 10 != 0
+      defaults:
+        n: 347
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Runde {{n}} auf Hunderter.
+    answer:
+      value: "{{round(n / 100) * 100}}"
+    feedback:
+      - when: numval(state.input) == round(n / 10) * 10
+        misconception: wrong-place
+        text: Das ist auf Zehner gerundet. Gefragt sind Hunderter.
+    hints:
+      - Die Zehnerziffer entscheidet.
+      - Alles rechts von den Hundertern wird zu 0.
+    explanation: "Die Zehnerziffer von {{n}} entscheidet: {{round(n / 100) * 100}}."
+    variants:
+      params:
+        n: int[1001,9999]
+      constraints:
+        - n % 100 != 0
+      defaults:
+        n: 4672
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Welche Zahl ergibt auf Hunderter gerundet 500?
+    params:
+      options:
+        - label: "462"
+          correct: true
+        - label: "449"
+          feedback: Die Zehnerziffer ist 4 – abrunden auf 400.
+        - label: "551"
+          feedback: Die Zehnerziffer ist 5 – aufrunden auf 600.
+        - label: "405"
+          feedback: Das wird 400.
+    hints:
+      - Runde jede Zahl auf Hunderter.
+      - Nur die Zehnerziffer zählt.
+    explanation: Auf 500 runden alle Zahlen von 450 bis 549.
+
+  - kind: problem
+    id: c5
+    widget: estimate
+    prompt: Überschlage 198 + 403 + 297 und stell das Ergebnis ungefähr ein.
+    params:
+      min: 0
+      max: 1500
+      step: 10
+    answer:
+      value: 898
+      within: 5
+    explanation: 200 + 400 + 300 = 900. Genau sind es 898.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Ein **Überschlag** prüft, ob ein Ergebnis stimmen kann. 49 · 21 ist ungefähr 50 · 20 = 1 000. Steht im Taschenrechner 10 290, hast du dich vertippt.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Lisa rechnet 312 · 9 und bekommt 28 080. Was sagt der Überschlag?
+    params:
+      options:
+        - label: Falsch – 300 · 10 sind etwa 3 000.
+          correct: true
+        - label: Stimmt ungefähr.
+          feedback: 300 · 10 = 3 000, nicht 30 000.
+        - label: Kann man nicht sagen.
+          feedback: Runde beide Zahlen und rechne.
+    hints:
+      - Runde 312 auf 300 und 9 auf 10.
+      - 300 · 10 = ?
+    explanation: Richtig sind 2 808. Lisa hat eine Null zu viel – der Überschlag zeigt es sofort.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Runde 2 499 auf Tausender.
+    answer:
+      value: 2000
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: double-rounding
+        text: Nur die Hunderterziffer entscheidet, und die ist 4. Du hast wohl erst auf Hunderter gerundet.
+    hints:
+      - Welche Ziffer steht rechts von den Tausendern?
+      - Es ist die 4 – also abrunden.
+    explanation: 2 499 liegt näher an 2 000 als an 3 000. Schrittweises Runden (2 500, dann 3 000) verfälscht das.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 3,46 auf Zehntel gerundet ist 3,5.
+          right: true
+        - text: Erst auf Zehner, dann auf Hunderter zu runden ergibt immer dasselbe wie direkt auf Hunderter.
+          right: false
+          why: "Bei 449: erst 450, dann 500. Direkt aber 400."
+        - text: Ein Überschlag findet Kommafehler schnell.
+          right: true
+        - text: Gerundete Zahlen sind immer größer als die echten.
+          right: false
+          why: Abrunden macht sie kleiner.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Bei 2,5 liegt die Zahl genau in der Mitte. Immer aufrunden schiebt Summen nach oben. Statistik und Computer runden deshalb oft zur **geraden Zahl**: 2,5 wird 2, aber 3,5 wird 4."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Runde zur geraden Zahl: Was wird aus 6,5?"
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: half-up
+        text: "Das ist das übliche Aufrunden. Zur geraden Zahl heißt hier: 6."
+    hints:
+      - 6,5 liegt genau zwischen 6 und 7.
+      - Welche der beiden ist gerade?
+    explanation: "Genau in der Mitte nimmt man die gerade Nachbarzahl: 6. So gleichen sich Auf- und Abrunden im Mittel aus."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: "Drei Preise: 1,45 €, 2,45 € und 3,45 €. Du rundest jeden auf Zehntel auf (1,5 € usw.) und addierst. Um wie viele Cent ist die Summe zu hoch?"
+    answer:
+      value: 15
+    hints:
+      - Rechne die echte Summe und die gerundete Summe.
+      - Jeder Preis wird um 5 Cent zu hoch.
+    explanation: "7,35 € echt, 7,50 € gerundet: 15 Cent zu viel. Bei tausend Buchungen wären es 50 €."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wozu ein Überschlag gut ist.
+    params:
+      keywords:
+        - - prüf
+          - kontroll
+          - check
+          - control
+        - - ungefähr
+          - grob
+          - rund
+          - about
+          - rough
+          - round
+        - - fehler
+          - vertipp
+          - mistake
+          - error
+          - typo
+      sample: Mit gerundeten Zahlen rechnest du schnell ungefähr aus, was herauskommen muss. So prüfst du ein Ergebnis und findest Fehler wie eine Null zu viel.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d3"]

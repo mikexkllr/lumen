@@ -1,0 +1,244 @@
+id: math.placevalue.digits
+type: concept
+title: "Ziffern und Stellen"
+summary: "Dieselbe Ziffer ist je nach Stelle 5, 50 oder 500 wert."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Zahlen haben genau drei Ziffern (von 100 bis 999)?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 900
+      tolerance: 100
+    explanation: "Genau 900: alle Zahlen bis 999 ohne die 99 Zahlen unter 100."
+
+  - kind: explain
+    id: c1
+    body: In 352 steht die 3 für 3 Hunderter, die 5 für 5 Zehner und die 2 für 2 Einer. Der **Stellenwert** sagt, wie viel eine Ziffer wert ist.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Welchen Wert hat die 7 in 4 728?
+    params:
+      options:
+        - label: "700"
+          correct: true
+        - label: "7"
+          feedback: Das wäre eine 7 ganz rechts, bei den Einern.
+        - label: "70"
+          feedback: Die Zehner sind die zweite Stelle von rechts.
+        - label: "7000"
+          feedback: Die Tausender stehen ganz links, dort steht die 4.
+    hints:
+      - "Zähl die Stellen von rechts: Einer, Zehner, Hunderter."
+      - Die 7 steht an dritter Stelle von rechts.
+    explanation: Die 7 steht bei den Hundertern, also ist sie 700 wert.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Schreib die Zahl mit {{h}} Hundertern, {{z}} Zehnern und {{e}} Einern.
+    answer:
+      value: "{{h * 100 + z * 10 + e}}"
+    feedback:
+      - when: numval(state.input) == h + z + e
+        misconception: digit-sum
+        text: "Du hast die Ziffern addiert. Schreib sie nebeneinander: Hunderter, Zehner, Einer."
+    hints:
+      - Jede Anzahl wird eine Ziffer.
+      - Hunderter zuerst, dann Zehner, dann Einer.
+    explanation: "{{h}} · 100 + {{z}} · 10 + {{e}} = {{h * 100 + z * 10 + e}}."
+    variants:
+      params:
+        h: int[1,9]
+        z: int[1,9]
+        e: int[1,9]
+      defaults:
+        h: 4
+        z: 6
+        e: 3
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Wie viel ist die 5 in jeder Zahl wert?
+    params:
+      buckets:
+        - id: b1
+          label: "5"
+        - id: b2
+          label: "50"
+        - id: b3
+          label: "500"
+      items:
+        - label: "35"
+          bucket: b1
+        - label: "58"
+          bucket: b2
+        - label: "512"
+          bucket: b3
+        - label: "905"
+          bucket: b1
+        - label: 2 450
+          bucket: b2
+        - label: 1 503
+          bucket: b3
+    hints:
+      - Schau, an welcher Stelle von rechts die 5 steht.
+      - "Ganz rechts: 5. Zweite Stelle: 50. Dritte Stelle: 500."
+    explanation: Die Stelle entscheidet, nicht die Ziffer selbst.
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: In 606 haben die beiden Sechsen verschiedene Werte.
+          right: true
+          why: Die linke ist 600 wert, die rechte 6.
+        - text: Die Null in 405 ist überflüssig.
+          right: false
+          why: Ohne sie stünde da 45. Die Null hält den Zehnerplatz frei.
+        - text: Die größte dreistellige Zahl ist 999.
+          right: true
+        - text: Eine Zahl mit mehr Ziffern kann kleiner sein als eine mit weniger.
+          right: false
+          why: Ohne Nullen vorn ist die Zahl mit mehr Ziffern immer größer.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die **Null** ist ein Platzhalter. In 4 005 sagt sie: keine Hunderter und keine Zehner. Ohne Null könnte man 405 und 45 nicht unterscheiden."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: Ordne von klein nach groß.
+    params:
+      items:
+        - label: 1 009
+        - label: 1 090
+        - label: 1 900
+        - label: 9 001
+        - label: 9 010
+    hints:
+      - Vergleiche zuerst die Tausender, dann die Hunderter.
+      - Alle beginnen mit 1 oder 9. Bei gleicher Tausenderziffer entscheidet die nächste Stelle.
+    explanation: Man vergleicht Stelle für Stelle von links. Die erste unterschiedliche Ziffer entscheidet.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Welche Zahl ist 3 · 1000 + 4 · 10 + 6?
+    answer:
+      value: 3046
+    feedback:
+      - when: numval(state.input) == 346
+        misconception: missing-zero
+        text: Es gibt keine Hunderter – dort muss eine 0 stehen.
+    hints:
+      - Welche Stellen kommen vor? Tausender, Zehner, Einer.
+      - Die Hunderter fehlen. Schreib dort eine 0.
+    explanation: "3 Tausender, 0 Hunderter, 4 Zehner, 6 Einer: 3 046."
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: choice
+    prompt: Wie viele Zehner hat 3 480 **insgesamt**?
+    params:
+      options:
+        - label: "348"
+          correct: true
+        - label: "8"
+          feedback: "Das ist nur die Zehnerziffer. Gefragt sind alle Zehner: 3 480 : 10."
+        - label: "48"
+          feedback: Das sind die letzten beiden Ziffern ohne die Null. Teile die ganze Zahl durch 10.
+        - label: "34"
+          feedback: Das sind die Hunderter.
+    hints:
+      - Wie oft passt 10 in 3 480?
+      - "Teile durch 10: Streich die letzte Null."
+    explanation: "3 480 : 10 = 348. In jedem Hunderter stecken 10 Zehner."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Römische Zahlen haben keine Stellenwerte: X ist immer 10, egal wo es steht. Darum ist Rechnen damit mühsam. Unser **Stellenwertsystem** kam aus Indien über die arabische Welt nach Europa."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Die Babylonier zählten mit der Basis 60. Wo begegnet dir das heute noch?
+    params:
+      options:
+        - label: Bei Minuten und Sekunden
+          correct: true
+        - label: Beim Geld
+          feedback: Euro und Cent teilen durch 100.
+        - label: Bei Litern
+          feedback: Liter und Milliliter teilen durch 1000.
+        - label: Bei Wochentagen
+          feedback: Eine Woche hat 7 Tage.
+    hints:
+      - Wo wird bei 60 die nächste Einheit voll?
+      - Denk an die Uhr.
+    explanation: 60 Sekunden sind eine Minute, 60 Minuten eine Stunde. Auch Winkel teilt man in 60 Bogenminuten.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Im Zweiersystem gibt es nur 0 und 1. Die Stellen sind von rechts 1, 2, 4, 8. Welchen Wert hat 1011?
+    answer:
+      value: 11
+    feedback:
+      - when: numval(state.input) == 1011
+        misconception: base-ten
+        text: Das ist die Zahl im Zehnersystem gelesen. Rechne mit den Stellen 8, 4, 2, 1.
+    hints:
+      - "Unter jede Ziffer schreibst du ihren Stellenwert: 8, 4, 2, 1."
+      - "Addiere die Stellen, an denen eine 1 steht: 8 + 2 + 1."
+    explanation: 1 · 8 + 0 · 4 + 1 · 2 + 1 · 1 = 11. Computer rechnen genau so.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Null in 205 wichtig ist.
+    params:
+      keywords:
+        - - "null"
+          - zero
+          - nullen
+        - - platz
+          - stelle
+          - zehner
+          - place
+          - tens
+          - position
+        - - "25"
+      sample: Die Null hält den Zehnerplatz frei. Ohne sie würden die 2 und die 5 zusammenrücken, und man läse 25 statt 205.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d3"]

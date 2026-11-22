@@ -132,7 +132,7 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `match` | `pairs: [{left, right}]`, `leftTitle`, `rightTitle` | alle Paare richtig verbunden | `links`, `correct` |
 | `pixels` | `rows`/`cols` oder `cells` (`.` `#` Ziffern), `locked`, `numbers: {start}`, `labels`, `mirror`, `shades`, `counter` | `pattern` oder Prädikat | `on`, `onLabels`, `cell(r,c)`, `row(r)`, `col(c)`, `symmetric('v'\|'h')`, `pattern` |
 | `bits` | `bits`, `initial`, `placeValues`, `showValue`, `locked`, `labels` | `value` | `value`, `ones`, `bitstr` |
-| `gates` | `inputs: [{id, value, fixed}]`, `gates: [{id, type, in, options}]` (`type: '?'` = wählbar), `outputs: [{id, from}]`, `goal` | `goal` oder Prädikat | Ausgänge per id, `table('Q')` (Wahrheitstabelle), `inputs`, `types` |
+| `gates` | `inputs: [{id, value, fixed}]`, `gates: [{id, type, in, options}]` (`type: '?'` = wählbar; Rückkopplung erlaubt – zwei gekreuzte NOR sind ein Flipflop, das sich seinen Zustand merkt), `outputs: [{id, from}]`, `goal` | `goal` oder Prädikat | Ausgänge per id, `table('Q')` (Wahrheitstabelle), `inputs`, `types` |
 | `venn` | `sets` (2–3), `outside`, `counts: {A: 3, AB: 1}`, `universe` | `regions: [A, AB, O]` | `shaded`, `has('AB')` |
 | `network` | `nodes: [{id, x, y}]` (0–100), `edges: [{a, b, w}]`, `mode: path\|color\|select`, `start`, `end`, `colors`, `unit` | kürzester Weg · konfliktfreie Färbung · minimaler Spannbaum – oder Prädikat | `cost`, `complete`, `conflicts`, `selectedWeight`, `isTree`, `shortest`, `mst`, `color(id)` |
 | `estimate` | `min`, `max`, `step`, `scale: linear\|log`, `unit` | `value` mit `tolerance` (absolut) oder `within` (Prozent, Standard 20) | `value` |

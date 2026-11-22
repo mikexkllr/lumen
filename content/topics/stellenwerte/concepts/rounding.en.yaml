@@ -1,0 +1,228 @@
+id: math.placevalue.rounding
+type: concept
+title: "Rounding and estimating"
+summary: "Rough enough to calculate fast – precise enough to catch mistakes."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 11
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess without calculating exactly: what is 49 · 21?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 1029
+      within: 10
+    explanation: 49 · 21 is about 50 · 20 = 1,000. Exactly, it is 1,029.
+
+  - kind: explain
+    id: c1
+    body: When **rounding** you look at the digit to the right of the rounding place. With 0 to 4 you round down, with 5 to 9 up. 347 rounded to tens is 350.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Round {{n}} to the nearest ten.
+    answer:
+      value: "{{round(n / 10) * 10}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 10) * 10 && n % 10 >= 5
+        misconception: round-down
+        text: The ones digit is 5 or more – so round up.
+      - when: numval(state.input) == ceil(n / 10) * 10 && n % 10 < 5
+        misconception: round-up
+        text: The ones digit is less than 5 – so round down.
+    hints:
+      - Look at the ones digit.
+      - "0 to 4: down. 5 to 9: up."
+    explanation: "The ones digit of {{n}} decides: rounded {{round(n / 10) * 10}}."
+    variants:
+      params:
+        n: int[101,999]
+      constraints:
+        - n % 10 != 0
+      defaults:
+        n: 347
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Round {{n}} to the nearest hundred.
+    answer:
+      value: "{{round(n / 100) * 100}}"
+    feedback:
+      - when: numval(state.input) == round(n / 10) * 10
+        misconception: wrong-place
+        text: That is rounded to tens. Hundreds are wanted.
+    hints:
+      - The tens digit decides.
+      - Everything right of the hundreds becomes 0.
+    explanation: "The tens digit of {{n}} decides: {{round(n / 100) * 100}}."
+    variants:
+      params:
+        n: int[1001,9999]
+      constraints:
+        - n % 100 != 0
+      defaults:
+        n: 4672
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Which number gives 500 when rounded to hundreds?
+    params:
+      options:
+        - label: "462"
+          correct: true
+        - label: "449"
+          feedback: The tens digit is 4 – round down to 400.
+        - label: "551"
+          feedback: The tens digit is 5 – round up to 600.
+        - label: "405"
+          feedback: That becomes 400.
+    hints:
+      - Round each number to hundreds.
+      - Only the tens digit counts.
+    explanation: All numbers from 450 to 549 round to 500.
+
+  - kind: problem
+    id: c5
+    widget: estimate
+    prompt: Estimate 198 + 403 + 297 and set the result roughly.
+    params:
+      min: 0
+      max: 1500
+      step: 10
+    answer:
+      value: 898
+      within: 5
+    explanation: 200 + 400 + 300 = 900. Exactly, it is 898.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: An **estimate** checks whether a result can be right. 49 · 21 is about 50 · 20 = 1,000. If the calculator shows 10,290, you mistyped.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Lisa works out 312 · 9 and gets 28,080. What does an estimate say?
+    params:
+      options:
+        - label: Wrong – 300 · 10 is about 3,000.
+          correct: true
+        - label: Roughly right.
+          feedback: 300 · 10 = 3,000, not 30,000.
+        - label: You cannot tell.
+          feedback: Round both numbers and calculate.
+    hints:
+      - Round 312 to 300 and 9 to 10.
+      - 300 · 10 = ?
+    explanation: The right answer is 2,808. Lisa has one zero too many – the estimate shows it at once.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Round 2,499 to the nearest thousand.
+    answer:
+      value: 2000
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: double-rounding
+        text: Only the hundreds digit decides, and it is 4. You probably rounded to hundreds first.
+    hints:
+      - Which digit is to the right of the thousands?
+      - It is the 4 – so round down.
+    explanation: 2,499 is closer to 2,000 than to 3,000. Rounding step by step (2,500, then 3,000) distorts it.
+    difficulty: 2
+
+  - kind: problem
+    id: d4
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 3.46 rounded to tenths is 3.5.
+          right: true
+        - text: Rounding to tens first and then to hundreds always gives the same as rounding straight to hundreds.
+          right: false
+          why: "With 449: first 450, then 500. Directly, though, 400."
+        - text: An estimate catches decimal-point mistakes quickly.
+          right: true
+        - text: Rounded numbers are always larger than the real ones.
+          right: false
+          why: Rounding down makes them smaller.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "2.5 lies exactly in the middle. Always rounding up pushes sums upwards. Statistics and computers therefore often round to the **even number**: 2.5 becomes 2, but 3.5 becomes 4."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Round to the even number: what does 6.5 become?"
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: half-up
+        text: That is ordinary rounding up. To the even number means 6 here.
+    hints:
+      - 6.5 lies exactly between 6 and 7.
+      - Which of the two is even?
+    explanation: "Exactly in the middle you take the even neighbour: 6. That way rounding up and down balance out on average."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: "Three prices: €1.45, €2.45 and €3.45. You round each up to tenths (€1.50 etc.) and add them. By how many cents is the total too high?"
+    answer:
+      value: 15
+    hints:
+      - Work out the real total and the rounded total.
+      - Each price ends up 5 cents too high.
+    explanation: "€7.35 real, €7.50 rounded: 15 cents too much. With a thousand entries it would be €50."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what an estimate is good for.
+    params:
+      keywords:
+        - - prüf
+          - kontroll
+          - check
+          - control
+        - - ungefähr
+          - grob
+          - rund
+          - about
+          - rough
+          - round
+        - - fehler
+          - vertipp
+          - mistake
+          - error
+          - typo
+      sample: With rounded numbers you quickly work out roughly what the result must be. That lets you check a result and catch mistakes such as one zero too many.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "c4", "d3"]
