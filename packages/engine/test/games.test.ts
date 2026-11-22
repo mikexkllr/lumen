@@ -18,6 +18,13 @@ describe('nim', () => {
     expect(errors(step({ widget: 'nim', params: { piles: [3, 4, 5] } }))).toEqual([]);
     expect(errors(step({ widget: 'nim', params: { piles: [4], maxTake: 3 } })).map((e) => e.code)).toContain('nim.unwinnable');
   });
+  it('large games are solved by the strategy, not by search', () => {
+    expect(errors(step({ widget: 'nim', params: { piles: [15, 13, 11, 7] } }))).toEqual([]);
+    expect(errors(step({ widget: 'nim', params: { piles: [15, 14, 12], maxTake: 5 } }))).toEqual([]);
+    const p = nimWidget.params.parse({ piles: [15, 13, 11, 7] });
+    expect(nimWidget.solve!(p, undefined, { locale: 'de', seed: 1 })?.winner).toBe('player');
+    expect(nimWidget.solve!(nimWidget.params.parse({ piles: [6, 6] }), undefined, { locale: 'de', seed: 1 })).toBeNull();
+  });
   it('player loses after a bad move', () => {
     const rp = resolveProblem(step({ widget: 'nim', params: { piles: [5], maxTake: 3 } }));
     const s = nimWidget.applyAction(initialState(rp) as never, { type: 'take', pile: 0, n: 2 }, rp.params as never);

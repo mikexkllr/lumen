@@ -94,6 +94,15 @@ export const nimWidget: WidgetDefinition<NimParams, NimState, NimAction> = {
     return out;
   },
   isAnswered: (s) => s.over,
+  /** Plays the winning strategy (move to nim-sum 0) for the learner; null if the start cannot be won. */
+  solve(p) {
+    let s = start(p);
+    for (let guard = 0; !s.over && guard < 200; guard++) {
+      const m = computerMove(p, s.piles);
+      s = nimWidget.applyAction(s, { type: 'take', pile: m.pile, n: m.take }, p);
+    }
+    return s.over && s.winner === 'player' ? s : null;
+  },
   isSolved: (s) => s.over && s.winner === 'player',
   diagnose: (s, _a, _p, locale) => (s.over && s.winner === 'computer' ? t(locale, 'Der Computer hat den letzten Stein genommen. Spiel noch einmal – mit Strategie.', 'The computer took the last stone. Play again – with a strategy.') : null),
   scope: (s, p) => ({ piles: s.piles, moves: s.history.filter((m) => m.who === 'player').length, won: s.winner === 'player', nimSum: nimSum(p, s.piles) }),
