@@ -10,6 +10,9 @@ import { createHash } from 'node:crypto';
 import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
 import type { EventStore } from './store.ts';
 import { parseTutorRequest, tutorReply, type TutorConfig } from './tutor.ts';
+import { clientToday } from './social/logic.ts';
+import { registerSocialRoutes, socialService } from './social/routes.ts';
+import type { SocialStore } from './social/store.ts';
 
 const EVENT_TYPES = new Set(['attempt', 'concept_completed', 'review', 'review_session_completed', 'placement_completed']);
 const MAX_EVENTS_PER_REQUEST = 1000;
@@ -28,6 +31,11 @@ export interface ServerOptions {
   /** Tutor requests per minute per client IP. */
   tutorRateLimit?: number;
   fetchImpl?: typeof fetch;
+  /** Social features (profiles, friends, leagues, feed); null or absent disables them. */
+  social?: SocialStore | null;
+  /** Secret for the moderation endpoints under /v1/admin. */
+  adminToken?: string | null;
+  now?: () => number;
 }
 
 export function accountKey(token: string): string {
@@ -67,7 +75,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
       reply.header('Access-Control-Allow-Origin', origins === '*' ? '*' : origin);
       reply.header('Vary', 'Origin');
       reply.header('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-      reply.header('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
+      reply.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       reply.header('Access-Control-Max-Age', '600');
     }
     reply.header('Cache-Control', 'no-store');
@@ -82,6 +90,13 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   });
 
   app.get('/healthz', async () => ({ ok: true }));
+
+  const social = opts.social ?? null;
+  const now = opts.now ?? Date.now;
+  const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t ? accountKey(t) : null; }, adminToken: opts.adminToken, now } : null;
+  const service = deps ? socialService(deps) : null;
+  app.get('/v1/features', async () => ({ sync: true, tutor: true, social: !!social }));
+  if (deps && service) registerSocialRoutes(app, deps, service);
 
   const tutor = opts.tutor ?? null;
   const tutorLimit = opts.tutorRateLimit ?? 30;
@@ -103,7 +118,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.post('/v1/sync', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
-    const body = req.body as { events?: unknown; since?: unknown } | undefined;
+    const body = req.body as { events?: unknown; since?: unknown; today?: unknown } | undefined;
     const events = Array.isArray(body?.events) ? body!.events : [];
     const since = typeof body?.since === 'number' && body.since >= 0 ? Math.floor(body.since) : 0;
     if (events.length > MAX_EVENTS_PER_REQUEST) return reply.code(413).send({ error: 'too_many_events', max: MAX_EVENTS_PER_REQUEST });
@@ -112,7 +127,12 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
       if (err) return reply.code(400).send({ error: 'invalid_event', detail: err });
     }
     const account = accountKey(token);
-    opts.store.insert(account, events as { id: string }[]);
+    const inserted = opts.store.insert(account, events as { id: string }[]);
+    if (service && social) {
+      const today = clientToday(body?.today, now());
+      const p = social.profile(account);
+      if (p && (inserted > 0 || !p.lastToday || p.lastToday < today)) service.refresh(account, today);
+    }
     const { events: out, cursor } = opts.store.since(account, since, PAGE);
     return { events: out, cursor, more: out.length === PAGE };
   });
@@ -127,7 +147,9 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.delete('/v1/account', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
-    const removed = opts.store.deleteAccount(accountKey(token));
+    const account = accountKey(token);
+    const removed = opts.store.deleteAccount(account);
+    social?.deleteAccount(account);
     return { deleted: removed };
   });
 

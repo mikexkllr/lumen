@@ -23,7 +23,8 @@ export interface SyncResult {
   cursor: number;
 }
 
-export async function syncNow(serverUrl: string, token: string, cursor: number): Promise<SyncResult> {
+/** `today` is the learner's local day; the server uses it for streaks and leagues. */
+export async function syncNow(serverUrl: string, token: string, cursor: number, today?: string): Promise<SyncResult> {
   const all = await loadEvents();
   const pending = all.filter((e) => !e.synced);
   const base = serverUrl.replace(/\/$/, '');
@@ -36,7 +37,7 @@ export async function syncNow(serverUrl: string, token: string, cursor: number):
     const res = await fetch(`${base}/v1/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${normalizeCode(token)}` },
-      body: JSON.stringify({ events: chunk, since: next }),
+      body: JSON.stringify({ events: chunk, since: next, today }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const body = (await res.json()) as { events: LumenEvent[]; cursor: number };
@@ -53,7 +54,7 @@ export async function syncNow(serverUrl: string, token: string, cursor: number):
     const res = await fetch(`${base}/v1/sync`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${normalizeCode(token)}` },
-      body: JSON.stringify({ events: [], since: next }),
+      body: JSON.stringify({ events: [], since: next, today }),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const body = (await res.json()) as { events: LumenEvent[]; cursor: number; more?: boolean };

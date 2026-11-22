@@ -19,11 +19,12 @@ Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem F
 | Web-App (`@lumen/web`, AGPL) | PWA, offline, ohne Account: ruhiges Designsystem (hell/dunkel, Desktop-Seitenleiste, mobile Tab-Leiste), generierte Kurs-Cover, Kurskatalog mit Bereichen und Lernpfaden, Lektions-Player mit drei Tiefenstufen pro Lektion (Kern, Tiefer, Experte), Kurz-Check nach jedem Erklär-Screen, Fortschrittssegmenten, Combo-Zähler, XP-Effekt und Feedback-Panel (gezieltes Feedback, zweiter Versuch, »Lösung zeigen«), Abschluss-Screen mit Level-Balken, neuen Abzeichen und Wochen-Streak, Tagesrätsel und drei Tagesaufgaben auf der Startseite, Sounds, die mit der Combo ansteigen, Wiederholen (FSRS), Profil mit Aktivitäts-Heatmap; Autor:innen-Vorschau mit Live-Evals |
 | Mehrsprachigkeit | Deutsch und Englisch vollständig: UI, Engine-Feedback, Screenreader-Texte, Lux und alle Inhalte; Sprache folgt dem Gerät und ist in den Einstellungen umschaltbar; Übersetzungen liegen als `*.en.yaml` neben dem Original, und die Eval `i18n.parity` stellt sicher, dass sie sich nur im Wortlaut unterscheiden (gleiche Steps, IDs, Zahlen, Bedingungen, Vorlagen); weitere Sprachen = weitere `*.<locale>.yaml` |
 | Barrierefreiheit | Bedienung per Tastatur und Screenreader (`describe()` jedes Widgets als Live-Region), jedes Manipulative auch ohne Ziehen bedienbar, Richtig/Falsch mit Symbol und Text statt nur Farbe, Dunkelmodus, hoher Kontrast, reduzierte Bewegung, Schriftgröße, Atkinson Hyperlegible |
-| Sync-Server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); Sync-Code statt E-Mail/Passwort; idempotentes Mergen; Export und Löschen; Tutor-Endpunkt für Lux |
+| Sync-Server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); Sync-Code statt E-Mail/Passwort; idempotentes Mergen; Export und Löschen; Tutor-Endpunkt für Lux; automatischer Sync nach neuen Ereignissen |
+| Serien und Community | Serien-Seite mit Monatskalender, automatischem Serien-Schutz (2 pro Woche), Meilensteinen und »Serie verlängert« auf dem Abschluss-Screen. Optionale Community (ab 16, freiwillig, braucht den Server): Profil mit Anzeigename, Benutzername und vorgefertigtem Avatar (keine Uploads); Freund:innen per Benutzername oder Einladungslink; **Freundes-Serien** (Tage, an denen beide ihre Serie gehalten haben) mit Anstupsen; **wöchentliche Ligen** mit bis zu 30 Lernenden in zehn Stufen (Funke → Zenit) mit Auf- und Abstiegszonen, dazu eine Freundes-Rangliste; **Neuigkeiten** mit Meilensteinen (Serien, Level, Liga-Aufstiege, Freundes-Serien, abgeschlossene Kurse, Abzeichen) und Reaktionen aus einer festen Auswahl; Melden, Blockieren, Namensfilter und Moderations-Endpunkte. Alle Werte berechnet der Server aus den ohnehin synchronisierten Lernereignissen |
 | Lux – Tutor und Maskottchen | in jeder Lektion: vor der Antwort (»Worum geht es?«, Tipp), nach Fehlern (»Mit Lux durchgehen«: Lux fragt zuerst, wie du auf deine Antwort gekommen bist, und setzt an deiner Begründung an; bis zu vier Versuche), am Ende jeder Lektion und jedes Kurses als Fehler-Rückblick (»Fehler durchgehen«, jede falsche Aufgabe mit deiner damaligen Antwort), nach der Lösung (»Warum richtig?«) und auf Erklär-Screens; spricht über ein beliebiges OpenAI-kompatibles Modell (lokal Ollama, in Produktion z. B. OpenRouter); deterministischer Leak-Schutz verwirft Antworten, die die Lösung verraten; ohne Modell oder offline antwortet ein Regel-Tutor aus den Hinweisen der Lektion; für Unter-16-Jährige nur Regel-Tutor |
 | Inhalte (CC BY-SA 4.0) | 9 Fächer mit je einem Lernpfad von null bis Profi in fünf Stufen (Einstieg, Grundlagen, Aufbau, Fortgeschritten, Experte): 151 Kurse, 776 Lektionen in drei Tiefenstufen (Kern, Tiefer, Experte), 9615 Steps, 8116 Aufgaben (mit Varianten-Generatoren), 29 Labor-Szenen zum Ausprobieren, Deutsch und Englisch – **Mathematik** (34 Kurse: Stellenwerte und große Zahlen, Kopfrechnen, Brüche und Einheiten bis Analysis, Reihen, Differentialgleichungen, Gruppen, Eigenwerte und komplexe Zahlen), **Physik** (17: Universum bis Impuls, Schwingungen, Optik, Sterne und Kosmos, Relativität, Quantenwelt und Festkörper), **Chemie** (14: Gemische bis Küchenchemie, Reaktionstempo, Redox, Batterien und Moleküle des Lebens), **Biologie** (14: Was ist Leben und der menschliche Körper bis Vererbung, Evolution, Immunsystem, DNA, Biotechnologie und Systembiologie), **Elektrotechnik** (13: Strom im Alltag bis Kondensatoren, Wechselstrom, Dioden, Transistoren, Operationsverstärker, Signale und Filter, Energie- und Regelungstechnik), **Informatik** (17: Code und Bits bis Prozessor, Betriebssysteme, verteilte Systeme, Compiler und Komplexität), **Data Science** (17: Daten und Diagramme bis Experimente und Kausalität, Verteilungen, Bayes, Hypothesentests, Informationstheorie und Clustering), **KI** (12: Maschinelles Lernen, Suchen und Planen, Embeddings, generative KI bis Transformer und Agenten), **Logik & Denken** (13: Rätsel und Denkfehler bis Beweise, Induktion, Modallogik und Gödel) |
 
-Noch nicht umgesetzt (laut Roadmap später): Ligen (M5), Capacitor-Apps und Push (M2), Python-Editor (M4).
+Vorbereitet, noch nicht veröffentlicht: native Apps mit Capacitor (`apps/mobile`, siehe [docs/store-release.md](docs/store-release.md)). Noch nicht umgesetzt: Push (M2), Python-Editor (M4).
 
 ## Schnellstart
 
@@ -38,11 +39,21 @@ npm run build        # Content-Bundles + PWA nach apps/web/dist
 npm run server       # optionaler Sync-Server auf :8787
 ```
 
-Self-Hosting mit Docker (App auf `:8080`, Sync auf `:8787`):
+Self-Hosting mit Docker (App und API auf `:8080`, die API unter `/api`):
 
 ```bash
 docker compose up --build
 ```
+
+Produktivbetrieb auf dem eigenen Server mit automatischem HTTPS (Caddy): [docs/deploy-vps.md](docs/deploy-vps.md). Alle Self-Hosting-Varianten und die Konfiguration: [docs/self-hosting.md](docs/self-hosting.md). App Store und Google Play: [docs/store-release.md](docs/store-release.md).
+
+Server-Einstellungen für die Community:
+
+| Variable | Bedeutung | Standard |
+|---|---|---|
+| `LUMEN_SOCIAL=off` | Freunde, Ligen und Neuigkeiten abschalten | an |
+| `LUMEN_ADMIN_TOKEN` | Geheimnis (≥ 16 Zeichen) für die Moderations-Endpunkte `/v1/admin/reports`, `/v1/admin/users/:id/ban`, `/v1/admin/users/:id/reset-name` | – (aus) |
+| `LUMEN_BLOCKED_WORDS` | zusätzliche Wörter für den Namensfilter, durch Kommas getrennt | – |
 
 ## Lux, der Tutor
 
@@ -75,9 +86,11 @@ Datenschutz: Lux schickt Aufgabe, Antwort und Nachrichten an den Lumen-Server un
 packages/engine   Headless-Engine: Schema, Widgets, Prüfung, Löser, Evals, FSRS, Fortschritt   (MIT)
 packages/cli      lumen check | build | keygen | schema | dev                                  (MIT)
 apps/web          PWA (React + Vite + vite-plugin-pwa), IndexedDB als Ereignislog             (AGPL-3.0)
-apps/server       Sync-API (Fastify, node:sqlite)                                             (AGPL-3.0)
+apps/server       Sync-, Tutor- und Community-API (Fastify, node:sqlite)                      (AGPL-3.0)
+apps/mobile       Capacitor-Hülle für App Store und Google Play                               (AGPL-3.0)
+deploy/           Dockerfiles, nginx, Caddy, Backups
 content/          Pfade, Topics, Concepts, Skills, Einstufung als YAML                        (CC BY-SA 4.0)
-docs/             Referenz des Content-Formats
+docs/             Content-Format, Self-Hosting, VPS-Deployment, Store-Veröffentlichung
 ```
 
 ### Widget-Vertrag
@@ -125,11 +138,12 @@ Die App prüft jede Datei gegen den SHA-256 im Manifest. Ist ein öffentlicher S
 
 - Ohne Account nutzbar; alles liegt lokal in IndexedDB.
 - Sync ist optional und braucht nur einen zufälligen Sync-Code. Der Server speichert SHA-256(Code) und pseudonyme Lernereignisse, keine E-Mail-Adresse und kein Profil.
-- Unter 16 Jahren (DSGVO Art. 8): Kindermodus, Sync nur mit Zustimmung eines Elternteils.
+- Die Community ist freiwillig und ab 16: Andere sehen Anzeigename, Benutzername, Avatar, Serie, XP, Level und Liga – nie Antworten. Löschen des Community-Profils (oder der Serverdaten) entfernt alles Soziale.
+- Unter 16 Jahren (DSGVO Art. 8): Kindermodus ohne Community, Sync nur mit Zustimmung eines Elternteils.
 - Export und Löschung lokal wie auf dem Server per Knopfdruck. Keine Third-Party-SDKs, kein Tracking.
 - Einstufung und Bewertung sind regelbasiert und deterministisch (kein ML/LLM), mit Blick auf den EU AI Act.
 
-Vor einem öffentlichen Betrieb sind eine anwaltliche Prüfung (Marke, AGB, Datenschutzerklärung) und eine DSFA nötig.
+Datenschutzhinweise, Nutzungsbedingungen mit Community-Regeln und Impressum liegen als Vorlagen in der App (`#/legal/…`, Betreiberangaben über `VITE_LUMEN_OPERATOR*`). Vor einem öffentlichen Betrieb sind eine anwaltliche Prüfung (Marke, AGB, Datenschutzerklärung) und eine DSFA nötig.
 
 ## Lizenzen
 

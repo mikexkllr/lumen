@@ -29,11 +29,12 @@ Lumen is a free, open-source learning app with short interactive problems and in
 | Web app (`@lumen/web`, AGPL) | PWA, offline, no account: calm design system (light/dark, desktop sidebar, mobile tab bar), generated course covers, course catalogue with subjects and learning paths, lesson player with three depth stages per lesson (core, deeper, expert), a one-tap quick check after every explain screen, progress segments, combo counter, XP effect and feedback panel (targeted feedback, second try, "Show solution"), completion screen with level bar, new badges and weekly streak, daily puzzle and three daily quests on the home screen, sounds that rise with the combo, review (FSRS), profile with activity heatmap; author preview with live evals |
 | Internationalisation | English and German complete: UI, engine feedback, screen-reader texts, Lux and all content; the language follows the device and can be switched in settings; translations live as `*.en.yaml` next to the original, and the `i18n.parity` eval guarantees they differ only in wording (same steps, ids, numbers, conditions, templates); adding a language means adding `*.<locale>.yaml` files |
 | Accessibility | keyboard and screen-reader support (`describe()` of every widget as a live region), every manipulative usable without dragging, right/wrong shown with icon and text, not colour alone, dark mode, high contrast, reduced motion, font size, Atkinson Hyperlegible |
-| Sync server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); sync code instead of email/password; idempotent merge; export and delete; tutor endpoint for Lux |
+| Sync server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); sync code instead of email/password; idempotent merge; export and delete; tutor endpoint for Lux; automatic sync after new events |
+| Streaks and community | streak screen with month calendar, automatic streak freezes (2 per week), milestones and "streak extended" on the lesson summary. Optional community (16+, opt-in, needs the server): profile with display name, username and a preset avatar (no uploads); friends via username or invite link; **friend streaks** (days on which both kept their streak) with nudges; **weekly leagues** of up to 30 learners in ten tiers (Spark → Zenith) with promotion and demotion zones, plus a friends leaderboard; a **feed** of milestones (streaks, levels, league promotions, friend streaks, finished courses, badges) with reactions from a fixed set; report, block, a name filter and admin moderation endpoints. All stats are derived on the server from the learning events the account already syncs |
 | Lux – tutor and mascot | in every lesson: before answering ("What is this about?", hint), after mistakes ("Go through it with Lux": Lux first asks how you got your answer and builds on your reasoning; up to four tries), at the end of every lesson and course as a mistakes review (every wrong problem with the answer you gave), after the solution ("Why is this right?") and on explain screens; talks to any OpenAI-compatible model (Ollama locally, e.g. OpenRouter in production); a deterministic leak guard discards replies that give the solution away; without a model or offline, a rule tutor answers from the lesson's hints; under-16s get the rule tutor only |
 | Content (CC BY-SA 4.0) | 9 subjects, each with one learning path from zero to hero in five stages (Starter, Foundations, Intermediate, Advanced, Expert): 151 courses, 776 lessons in three depth stages (core, deeper, expert), 9615 steps, 8116 problems (with variant generators), 29 hands-on lab scenes, in English and German – **Mathematics** (34 courses: place value and big numbers, mental arithmetic, fractions and units up to calculus, series, differential equations, groups, eigenvalues and complex numbers), **Physics** (17: the universe up to momentum, oscillations, optics, stars and cosmos, relativity, the quantum world and solid-state physics), **Chemistry** (14: mixtures up to kitchen chemistry, reaction rates, redox, batteries and the molecules of life), **Biology** (14: what life is and the human body up to genetics, evolution, the immune system, DNA, biotechnology and systems biology), **Electrical engineering** (13: electricity at home up to capacitors, AC, diodes, transistors, op-amps, signals and filters, power systems and control), **Computer science** (17: code and bits up to how a CPU works, operating systems, distributed systems, compilers and complexity), **Data science** (17: data and charts up to experiments and causality, distributions, Bayes, hypothesis tests, information theory and clustering), **AI** (12: machine learning, search and planning, embeddings, generative AI up to transformers and agents), **Logic & reasoning** (13: puzzles and fallacies up to proofs, induction, modal logic and Gödel) |
 
-Not done yet (later on the roadmap): leagues (M5), Capacitor apps and push notifications (M2), Python editor (M4).
+Prepared, not yet published: native apps via Capacitor (`apps/mobile`, see [docs/store-release.md](docs/store-release.md)). Not done yet: push notifications (M2), Python editor (M4).
 
 ## Quick start
 
@@ -48,11 +49,21 @@ npm run build        # content bundles + PWA into apps/web/dist
 npm run server       # optional sync server on :8787
 ```
 
-Self-hosting with Docker (app on `:8080`, sync on `:8787`):
+Self-hosting with Docker (app and API on `:8080`, the API under `/api`):
 
 ```bash
 docker compose up --build
 ```
+
+Production on your own server with automatic HTTPS (Caddy): [docs/deploy-vps.md](docs/deploy-vps.md) (German). All self-hosting options and the configuration reference: [docs/self-hosting.md](docs/self-hosting.md). App Store and Google Play: [docs/store-release.md](docs/store-release.md).
+
+Server settings for the community:
+
+| Variable | Meaning | Default |
+|---|---|---|
+| `LUMEN_SOCIAL=off` | turn friends, leagues and feed off | on |
+| `LUMEN_ADMIN_TOKEN` | secret (≥ 16 characters) for the moderation endpoints `/v1/admin/reports`, `/v1/admin/users/:id/ban`, `/v1/admin/users/:id/reset-name` | – (off) |
+| `LUMEN_BLOCKED_WORDS` | extra words for the name filter, comma-separated | – |
 
 ## Lux, the tutor
 
@@ -85,9 +96,11 @@ Privacy: Lux sends the problem, the answer and the messages to the Lumen server 
 packages/engine   headless engine: schema, widgets, checking, solver, evals, FSRS, progress   (MIT)
 packages/cli      lumen check | build | keygen | schema | dev                                  (MIT)
 apps/web          PWA (React + Vite + vite-plugin-pwa), IndexedDB as event log              (AGPL-3.0)
-apps/server       sync API (Fastify, node:sqlite)                                           (AGPL-3.0)
+apps/server       sync, tutor and community API (Fastify, node:sqlite)                     (AGPL-3.0)
+apps/mobile       Capacitor shell for the App Store and Google Play                        (AGPL-3.0)
+deploy/           Dockerfiles, nginx, Caddy, backups
 content/          paths, topics, concepts, skills, placement as YAML (de + en)              (CC BY-SA 4.0)
-docs/             content format reference
+docs/             content format, self-hosting, VPS deployment, store release
 ```
 
 ### Widget contract
@@ -137,11 +150,12 @@ The app checks every file against the SHA-256 in the manifest. If a public key i
 
 - Works without an account; everything is stored locally in IndexedDB.
 - Sync is optional and only needs a random sync code. The server stores SHA-256(code) and pseudonymous learning events – no email address and no profile.
-- Under 16 (GDPR Art. 8): kids mode, sync only with a parent's consent.
+- Community is opt-in and 16+: others see display name, username, preset avatar, streak, XP, level and league – never answers. Deleting the community profile (or the server data) removes everything social.
+- Under 16 (GDPR Art. 8): kids mode, no community, sync only with a parent's consent.
 - Export and deletion, locally and on the server, at the press of a button. No third-party SDKs, no tracking.
 - Placement and grading are rule-based and deterministic (no ML/LLM), with the EU AI Act in mind.
 
-Before running Lumen publicly, a legal review (trademark, terms, privacy policy) and a DPIA are required.
+The app ships privacy notice, terms with community rules and legal notice as templates (`#/legal/…`, operator details via `VITE_LUMEN_OPERATOR*`). Before running Lumen publicly, a legal review (trademark, terms, privacy policy) and a DPIA are required.
 
 ## Licences
 

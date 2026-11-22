@@ -1,13 +1,16 @@
-# Self-hosting: `docker compose up --build`
-#   App:  http://localhost:8080
-#   Sync: http://localhost:8787 (optional – the app works fully offline without it)
+# Simple self-hosting: `docker compose up -d --build`, then open http://localhost:8080
+# The web container serves the PWA and proxies /api/ to the Lumen server (sync, Lux
+# tutor, social), so everything is same-origin. For a public HTTPS deployment use
+# docker-compose.prod.yml (see docs/deploy-vps.md and docs/self-hosting.md).
 services:
   web:
     build:
       context: .
       dockerfile: deploy/Dockerfile.web
       args:
-        VITE_LUMEN_SYNC_URL: http://localhost:8787
+        VITE_LUMEN_API_URL: /api
+    environment:
+      LUMEN_API_UPSTREAM: http://sync:8787
     ports: ["8080:80"]
     restart: unless-stopped
   sync:
@@ -15,8 +18,10 @@ services:
       context: .
       dockerfile: deploy/Dockerfile.server
     environment:
+      # same-origin requests need no CORS entry; add other web/app origins here
       LUMEN_CORS_ORIGINS: http://localhost:8080
-    ports: ["8787:8787"]
+      # no model configured: Lux answers with the rule tutor (see docs/self-hosting.md)
+      LUMEN_TUTOR: "off"
     volumes: ["lumen-data:/data"]
     restart: unless-stopped
 volumes:

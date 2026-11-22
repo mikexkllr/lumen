@@ -1,4 +1,4 @@
-# Static PWA: build content bundles + app, serve with nginx.
+# Static PWA: build content bundles + app, serve with nginx (which also proxies /api/).
 FROM node:26-alpine AS build
 WORKDIR /src
 COPY package.json package-lock.json ./
@@ -7,12 +7,29 @@ COPY apps ./apps
 RUN npm ci
 COPY content ./content
 COPY tsconfig.base.json tsconfig.json ./
-ARG VITE_LUMEN_SYNC_URL=""
+# Build-time configuration, baked into the public JavaScript bundle (never put secrets here).
+ARG VITE_LUMEN_API_URL=/api
 ARG VITE_LUMEN_PUBLIC_KEY=""
-ENV VITE_LUMEN_SYNC_URL=$VITE_LUMEN_SYNC_URL VITE_LUMEN_PUBLIC_KEY=$VITE_LUMEN_PUBLIC_KEY
-RUN npm run build
+ARG VITE_LUMEN_OPERATOR=""
+ARG VITE_LUMEN_OPERATOR_ADDRESS=""
+ARG VITE_LUMEN_CONTACT=""
+ARG VITE_LUMEN_ISSUES_URL=""
+# legacy, superseded by VITE_LUMEN_API_URL
+ARG VITE_LUMEN_SYNC_URL=""
+ARG VITE_LUMEN_TUTOR_URL=""
+# Empty build args are unset so the app sees "not configured" rather than "".
+RUN for v in VITE_LUMEN_API_URL VITE_LUMEN_PUBLIC_KEY VITE_LUMEN_OPERATOR VITE_LUMEN_OPERATOR_ADDRESS \
+      VITE_LUMEN_CONTACT VITE_LUMEN_ISSUES_URL VITE_LUMEN_SYNC_URL VITE_LUMEN_TUTOR_URL; do \
+      eval "[ -n \"\${$v}\" ] || unset $v"; done; \
+    npm run build
 
-FROM nginx:1.27-alpine
-COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+FROM nginx:1.30-alpine
+# Runtime configuration (see deploy/nginx.conf.template).
+ENV LUMEN_API_UPSTREAM=http://sync:8787 \
+    LUMEN_DNS_RESOLVER=127.0.0.11 \
+    LUMEN_CSP_CONNECT_SRC="'self'" \
+    NGINX_ENVSUBST_FILTER=^LUMEN_
+COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=build /src/apps/web/dist /usr/share/nginx/html
 EXPOSE 80
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -q --spider http://127.0.0.1/ || exit 1

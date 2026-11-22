@@ -1,3 +1,5 @@
+import { socialDe, socialEn } from './i18n-social.ts';
+
 export type UiLocale = 'de' | 'en';
 
 const de = {
@@ -366,6 +368,7 @@ const de = {
   'complete.chipPerfect': 'Keine Fehler',
   'complete.chipGoal': 'Tagesziel erreicht',
   'complete.chipQuest': 'Tagesaufgabe erledigt',
+  ...socialDe,
 } as const;
 
 type Key = keyof typeof de;
@@ -736,6 +739,7 @@ const en: Record<Key, string | readonly string[]> = {
   'complete.chipPerfect': 'No mistakes',
   'complete.chipGoal': 'Daily goal reached',
   'complete.chipQuest': 'Quest done',
+  ...socialEn,
 };
 
 export type TKey = Key;

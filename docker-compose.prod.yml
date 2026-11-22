@@ -1,0 +1,80 @@
+# Production on a single server: Caddy (automatic HTTPS) → web (PWA) + server (API).
+#   cp .env.example .env    # then edit .env
+#   docker compose -f docker-compose.prod.yml up -d --build
+# Step-by-step guide: docs/deploy-vps.md
+# own project name, so it never shares containers or volumes with docker-compose.yml
+name: lumen-prod
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+services:
+  caddy:
+    image: caddy:2.11-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp" # HTTP/3
+    environment:
+      LUMEN_DOMAIN: ${LUMEN_DOMAIN:?set LUMEN_DOMAIN in .env}
+      LUMEN_ACME_EMAIL: ${LUMEN_ACME_EMAIL:?set LUMEN_ACME_EMAIL in .env}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data # certificates – keep this volume
+      - caddy-config:/config
+    depends_on:
+      web: { condition: service_healthy }
+      server: { condition: service_started }
+    logging: *logging
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+      args:
+        VITE_LUMEN_API_URL: ${VITE_LUMEN_API_URL:-/api}
+        VITE_LUMEN_PUBLIC_KEY: ${VITE_LUMEN_PUBLIC_KEY:-}
+        VITE_LUMEN_OPERATOR: ${VITE_LUMEN_OPERATOR:-}
+        VITE_LUMEN_OPERATOR_ADDRESS: ${VITE_LUMEN_OPERATOR_ADDRESS:-}
+        VITE_LUMEN_CONTACT: ${VITE_LUMEN_CONTACT:-}
+        VITE_LUMEN_ISSUES_URL: ${VITE_LUMEN_ISSUES_URL:-}
+    image: lumen-web:local
+    restart: unless-stopped
+    environment:
+      LUMEN_API_UPSTREAM: http://server:8787
+      LUMEN_CSP_CONNECT_SRC: ${LUMEN_CSP_CONNECT_SRC:-'self'}
+    logging: *logging
+
+  server:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.server
+    image: lumen-server:local
+    restart: unless-stopped
+    # all server settings (LUMEN_TUTOR_*, LUMEN_ADMIN_TOKEN, LUMEN_SOCIAL, …) come from .env
+    env_file: .env
+    environment:
+      PORT: "8787"
+      HOST: 0.0.0.0
+      LUMEN_DB: /data/lumen.sqlite
+      LUMEN_CORS_ORIGINS: ${LUMEN_CORS_ORIGINS:-https://${LUMEN_DOMAIN},capacitor://localhost,https://localhost}
+    volumes:
+      - lumen-data:/data
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging: *logging
+
+volumes:
+  lumen-data: # the SQLite database – back it up with deploy/backup.sh
+  caddy-data:
+  caddy-config:

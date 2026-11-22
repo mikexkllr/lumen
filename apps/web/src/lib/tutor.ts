@@ -5,8 +5,7 @@
  * engine, so every lesson always has help.
  */
 import { intentText, isFreeText, ruleReply, type ChatMessage, type TutorContext, type TutorIntent } from '@lumen/engine';
-
-const BASE = ((import.meta.env.VITE_LUMEN_TUTOR_URL as string | undefined) ?? '/api').replace(/\/$/, '');
+import { API_BASE as BASE } from './api.ts';
 
 export interface LuxMessage {
   role: 'user' | 'assistant';

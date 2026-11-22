@@ -9,6 +9,9 @@ import { useGamification } from '../lib/gamify.ts';
 import { useState } from 'react';
 import { Lux } from '../components/Lux.tsx';
 import { prefersReducedMotion } from '../lib/settings.ts';
+import { useSocial } from '../lib/socialContext.tsx';
+import { social, useQuery, type FriendsResponse, type LeagueResponse } from '../lib/social.ts';
+import { Avatar, TierBadge, tierName } from '../components/social.tsx';
 
 export type NodeState = 'done' | 'next' | 'later' | 'locked';
 
@@ -236,15 +239,17 @@ export function Home() {
             <div className="mc-s">{minutes} / {settings.dailyGoal} {t('home.minShort')}</div>
           </div>
         </section>
-        <section className="mini-card" aria-label={t('home.streak')}>
+        <a className="mini-card" href={href('streak')} aria-label={t('home.streakN', { n: progress.streak.current })}>
           <div style={{ minWidth: 0 }}>
             <div className="mc-t">{t('home.streakN', { n: progress.streak.current })}</div>
             <div className="week-dots" aria-hidden="true">
               {week.map((d) => <span key={d} className={`${active(d) ? 'on' : frozen.has(d) ? 'frozen' : ''} ${d === today ? 'today' : ''}`} />)}
             </div>
           </div>
-        </section>
+        </a>
       </div>
+
+      <SocialStrip />
 
       {due > 0 && (
         <button className="review-strip" onClick={startReview}>
@@ -385,6 +390,39 @@ export function DailyAndQuests() {
           ))}
         </ul>
       </section>
+    </div>
+  );
+}
+
+/** League rank and friend streaks at a glance (only with a community profile). */
+function SocialStrip() {
+  const { t, syncNonce } = useApp();
+  const { active, conn } = useSocial();
+  const league = useQuery<LeagueResponse>(active && conn ? `league:${conn.token}:${syncNonce}` : null, () => social.league(conn!));
+  const friends = useQuery<FriendsResponse>(active && conn ? `friends:${conn.token}:${syncNonce}` : null, () => social.friends(conn!));
+  if (!active || (!league.data && !friends.data)) return null;
+  const lg = league.data;
+  const me = lg?.standings?.find((s) => s.me);
+  const fs = (friends.data?.friends ?? []).filter((f) => f.friendStreak.current > 0).sort((a, b) => b.friendStreak.current - a.friendStreak.current).slice(0, 5);
+  return (
+    <div className="home-grid" style={{ marginTop: 12 }}>
+      {lg && !lg.optedOut && (
+        <a className="mini-card" href={href('community/league')}>
+          <TierBadge tier={lg.tier} size={42} />
+          <div style={{ minWidth: 0 }}>
+            <div className="mc-t">{t('home.league', { tier: tierName(t, lg.tier) })}</div>
+            <div className="mc-s">{me ? t('home.leagueRank', { rank: me.rank, xp: me.xp }) : t('home.leagueJoin')}</div>
+          </div>
+        </a>
+      )}
+      <a className="mini-card" href={href('community/friends')}>
+        <div style={{ minWidth: 0 }}>
+          <div className="mc-t">{t('home.friendStreaks')}</div>
+          {fs.length ? (
+            <div className="fs-mini" aria-hidden="true">{fs.map((f) => <span key={f.id} className={f.friendStreak.todayDone ? 'on' : ''}><Avatar avatar={f.avatar} size={26} /><b>{f.friendStreak.current}</b></span>)}</div>
+          ) : <div className="mc-s">{t('streak.friendsCta')}</div>}
+        </div>
+      </a>
     </div>
   );
 }

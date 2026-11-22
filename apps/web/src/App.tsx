@@ -6,6 +6,11 @@ import { Discover, ReviewScreen, TopicScreen } from './screens/Browse.tsx';
 import { Home } from './screens/Home.tsx';
 import { Onboarding, Welcome } from './screens/Onboarding.tsx';
 import { Profile } from './screens/Profile.tsx';
+import { Community, SocialSetup, UserScreen } from './screens/Community.tsx';
+import { Streak } from './screens/Streak.tsx';
+import { Legal } from './screens/Legal.tsx';
+import { useSocial } from './lib/socialContext.tsx';
+import { isKid } from './lib/settings.ts';
 import { lazy, Suspense, useEffect } from 'react';
 
 const Player = lazy(() => import('./screens/Player.tsx').then((m) => ({ default: m.Player })));
@@ -15,12 +20,15 @@ const PreviewConcept = lazy(() => import('./screens/Preview.tsx').then((m) => ({
 const Loading = () => <main className="loading-screen"><Logo size={36} /></main>;
 
 function useTabs() {
-  const { t, reviewItems } = useApp();
+  const { t, reviewItems, settings } = useApp();
+  const { me } = useSocial();
   const due = dueItems(reviewItems, new Date()).length;
+  const socialBadge = me.data ? me.data.unseen + me.data.requests : 0;
   return [
     { id: '', icon: 'learn', label: t('tab.learn') },
     { id: 'discover', icon: 'discover', label: t('tab.discover') },
     { id: 'review', icon: 'review', label: t('tab.review'), badge: due },
+    ...(isKid(settings) ? [] : [{ id: 'community', icon: 'trophy', label: t('tab.community'), badge: socialBadge }]),
     { id: 'profile', icon: 'profile', label: t('tab.profile') },
   ];
 }
@@ -63,10 +71,10 @@ function Sidebar({ active }: { active: string }) {
           <Ring value={minutes / settings.dailyGoal} size={38} stroke={4}>{minutes}</Ring>
           <div><strong>{t('home.goal')}</strong><span>{minutes} / {settings.dailyGoal} min</span></div>
         </div>
-        <div className="side-stat">
+        <a className="side-stat" href={href('streak')}>
           <span style={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: 12, background: 'color-mix(in srgb, #f97316 12%, transparent)', color: '#f97316' }}><Icon name="flame" size={20} /></span>
           <div><strong>{t('home.streakN', { n: progress.streak.current })}</strong><span>{progress.streak.todayDone ? t('home.streakSafe') : t('home.streakOpen')}</span></div>
-        </div>
+        </a>
       </div>
     </aside>
   );
@@ -79,7 +87,7 @@ export function App() {
   const [head, a, b] = route;
 
   useEffect(() => {
-    if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview'].includes(head ?? '')) navigate('welcome', true);
+    if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal'].includes(head ?? '')) navigate('welcome', true);
   }, [loaded, settings.onboarded, head]);
 
   useEffect(() => {
@@ -140,6 +148,22 @@ export function App() {
       break;
     case 'profile':
       screen = <Profile />;
+      tab = 'profile';
+      break;
+    case 'community':
+      screen = a === 'setup' ? <SocialSetup /> : a === 'edit' ? <SocialSetup edit /> : <Community section={a} />;
+      tab = 'community';
+      break;
+    case 'u':
+      screen = <UserScreen key={a} refId={a ?? ''} />;
+      tab = 'community';
+      break;
+    case 'streak':
+      screen = <Streak />;
+      tab = '';
+      break;
+    case 'legal':
+      screen = <Legal page={a} />;
       tab = 'profile';
       break;
     case 'preview':
