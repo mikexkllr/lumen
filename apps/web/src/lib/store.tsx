@@ -1,10 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { AppContext as Ctx } from './context.ts';
 import { dayKey, deriveProgress, deriveReviewItems, type LumenEvent, type ProgressSummary, type ReviewItemState } from '@lumen/engine';
 import { ContentLibrary } from './content.ts';
 import { clearEvents, loadEvents, newEventId, putEvents, type StoredEvent } from './db.ts';
 import { translate, type TKey } from './i18n.ts';
 import { applyDocumentSettings, loadSettings, saveSettings, type Settings } from './settings.ts';
+import { syncNow } from './sync.ts';
 
 type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
 export type NewEvent = DistributiveOmit<LumenEvent, 'id' | 'ts' | 'day'>;
@@ -25,6 +26,10 @@ interface AppState {
   progress: ProgressSummary;
   reviewItems: Map<string, ReviewItemState>;
   online: boolean;
+  /** Syncs now if a sync code is set (also runs automatically after new events). */
+  runSync(): Promise<void>;
+  /** Increments after every successful sync, so server-backed screens can refresh. */
+  syncNonce: number;
   t(key: TKey, vars?: Record<string, string | number>): string;
 }
 
@@ -42,6 +47,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [today, setToday] = useState(() => dayKey(new Date()));
   const [online, setOnline] = useState(() => navigator.onLine);
   const [contentNonce, setContentNonce] = useState(0);
+  const [syncNonce, setSyncNonce] = useState(0);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
+  const syncing = useRef(false);
 
   useEffect(() => {
     applyDocumentSettings(settings);
@@ -103,6 +112,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const reloadEvents = useCallback(async () => setEvents(await loadEvents()), []);
 
+  const runSync = useCallback(async () => {
+    const s = settingsRef.current.sync;
+    if (!s || syncing.current || !navigator.onLine) return;
+    syncing.current = true;
+    try {
+      const r = await syncNow(s.serverUrl, s.token, s.cursor, dayKey(new Date()));
+      setSettings((prev) => (prev.sync && prev.sync.token === s.token ? { ...prev, sync: { ...prev.sync, lastSync: Date.now(), cursor: r.cursor } } : prev));
+      if (r.sent || r.received) setEvents(await loadEvents());
+      setSyncNonce((n) => n + 1);
+    } catch {
+      /* offline or server unreachable: the next change retries */
+    } finally {
+      syncing.current = false;
+    }
+  }, []);
+
+  // Automatic sync: on start, when the app comes back to the foreground, and a few seconds after new events.
+  const syncToken = settings.sync?.token ?? null;
+  useEffect(() => {
+    if (!loaded || !syncToken) return;
+    void runSync();
+    const vis = () => document.visibilityState === 'visible' && void runSync();
+    document.addEventListener('visibilitychange', vis);
+    addEventListener('online', vis);
+    return () => {
+      document.removeEventListener('visibilitychange', vis);
+      removeEventListener('online', vis);
+    };
+  }, [loaded, syncToken, runSync]);
+  useEffect(() => {
+    if (!loaded || !syncToken || !events.some((e) => !e.synced)) return;
+    const timer = setTimeout(() => void runSync(), 2500);
+    return () => clearTimeout(timer);
+  }, [events, loaded, syncToken, runSync]);
+
   const resetAll = useCallback(async () => {
     await clearEvents();
     setEvents([]);
@@ -128,6 +172,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     progress,
     reviewItems,
     online,
+    runSync,
+    syncNonce,
     t,
   };
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

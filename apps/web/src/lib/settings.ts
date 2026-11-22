@@ -24,6 +24,8 @@ export interface Settings {
   sync: { serverUrl: string; token: string; lastSync: number | null; cursor: number; consent: boolean } | null;
   /** Lux may use the language model on the Lumen server (off: rule tutor only). */
   tutor: boolean;
+  /** Cached social profile (the server is the source of truth); needs sync. */
+  social: { userId: string; handle: string } | null;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -45,6 +47,7 @@ export const DEFAULT_SETTINGS: Settings = {
   startAt: null,
   sync: null,
   tutor: true,
+  social: null,
 };
 
 const KEY = 'lumen.settings.v1';
@@ -86,7 +89,7 @@ export function saveSettings(s: Settings): void {
   }
 }
 
-/** Kids mode: below 16 (GDPR Art. 8 in Germany) – no leagues/tutor, sync needs parental consent. */
+/** Kids mode: below 16 (GDPR Art. 8 in Germany) – no social features (friends, leagues, feed), no LLM tutor, sync needs parental consent. */
 export const isKid = (s: Settings) => s.age === 'u13' || s.age === '13-15';
 
 export function applyDocumentSettings(s: Settings): void {

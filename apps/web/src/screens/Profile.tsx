@@ -1,11 +1,15 @@
 import { useRef, useState } from 'react';
-import { addDays, type LumenEvent } from '@lumen/engine';
+import { addDays, dayKey, type LumenEvent } from '@lumen/engine';
 import { Icon, Segmented, Switch } from '../components/ui.tsx';
 import { href } from '../lib/router.ts';
 import { isKid } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
 import { deleteServerData, generateSyncCode, normalizeCode, syncNow } from '../lib/sync.ts';
 import { TIER_COLORS, useGamification } from '../lib/gamify.ts';
+import { DEFAULT_SYNC_URL } from '../lib/api.ts';
+import { social, type PublicUser } from '../lib/social.ts';
+import { useSocial } from '../lib/socialContext.tsx';
+import { Avatar, errorText } from '../components/social.tsx';
 
 const WEEKS = 18;
 
@@ -98,6 +102,7 @@ export function Profile() {
         </div>
       </section>
 
+      {!isKid(settings) && <CommunitySection />}
       <SyncSection />
       <DataSection />
 
@@ -106,16 +111,76 @@ export function Profile() {
         <div className="list">
           <div className="list-pad small muted">{t('settings.aboutText')}</div>
           <a className="list-row" href={href('preview')}><span className="lbl">{t('settings.author')}</span><Icon name="chevron" size={17} className="faint" /></a>
+          <a className="list-row" href={href('legal/privacy')}><span className="lbl">{t('legal.privacy')}</span><Icon name="chevron" size={17} className="faint" /></a>
+          <a className="list-row" href={href('legal/terms')}><span className="lbl">{t('legal.terms')}</span><Icon name="chevron" size={17} className="faint" /></a>
+          <a className="list-row" href={href('legal/imprint')}><span className="lbl">{t('legal.imprint')}</span><Icon name="chevron" size={17} className="faint" /></a>
         </div>
       </section>
     </main>
   );
 }
 
+function CommunitySection() {
+  const { t, updateSettings } = useApp();
+  const { active, conn, me } = useSocial();
+  const [blocked, setBlocked] = useState<PublicUser[] | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const p = me.data?.profile;
+  const setLeagues = async (leagues: boolean) => {
+    if (!conn || !p) return;
+    try {
+      await social.saveProfile(conn, { handle: p.handle, name: p.name, avatar: p.avatar, leagues });
+      me.reload();
+    } catch (e) {
+      setMsg(errorText(t, e));
+    }
+  };
+  return (
+    <section className="settings-group" aria-labelledby="com-h">
+      <h2 id="com-h">{t('settings.community')}</h2>
+      <div className="list">
+        {!active ? (
+          <div className="list-pad stack">
+            <span className="small muted">{t('settings.communityOff')}</span>
+            <a className="btn primary" href={href('community/setup')}>{t('social.start')}</a>
+          </div>
+        ) : (
+          <>
+            {p && (
+              <a className="list-row" href={href(`u/${p.id}`)}>
+                <span className="row" style={{ gap: 12 }}><Avatar avatar={p.avatar} size={36} /><span><strong>{p.name}</strong><span className="small faint" style={{ display: 'block' }}>@{p.handle}</span></span></span>
+                <Icon name="chevron" size={17} className="faint" />
+              </a>
+            )}
+            <a className="list-row" href={href('community/edit')}><span className="lbl">{t('settings.editProfile')}</span><Icon name="chevron" size={17} className="faint" /></a>
+            {p && <Switch label={t('social.setup.leagues')} hint={t('social.setup.leaguesHint')} checked={p.leagues} onChange={setLeagues} />}
+            <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={async () => { try { setBlocked((await social.blocks(conn!)).blocked); } catch (e) { setMsg(errorText(t, e)); } }}>
+              <span className="lbl">{t('settings.blocked')}</span><Icon name="ban" size={17} />
+            </button>
+            {blocked && blocked.map((u) => (
+              <div key={u.id} className="list-row">
+                <span className="row" style={{ gap: 10 }}><Avatar avatar={u.avatar} size={30} /> {u.name} <span className="small faint">@{u.handle}</span></span>
+                <button className="btn ghost small" onClick={async () => { await social.unblock(conn!, u.id); setBlocked(blocked.filter((x) => x.id !== u.id)); }}>{t('settings.unblock')}</button>
+              </div>
+            ))}
+            <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} onClick={async () => {
+              if (!conn || !confirm(t('settings.deleteSocialConfirm'))) return;
+              try { await social.deleteProfile(conn); updateSettings({ social: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(errorText(t, e)); }
+            }}>
+              <span className="lbl">{t('settings.deleteSocial')}</span><Icon name="trash" size={17} />
+            </button>
+          </>
+        )}
+        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+      </div>
+    </section>
+  );
+}
+
 function SyncSection() {
   const { t, settings, updateSettings, reloadEvents } = useApp();
   const [code, setCode] = useState('');
-  const [server, setServer] = useState(settings.sync?.serverUrl ?? import.meta.env.VITE_LUMEN_SYNC_URL ?? 'http://localhost:8787');
+  const [server, setServer] = useState(settings.sync?.serverUrl ?? DEFAULT_SYNC_URL);
   const [msg, setMsg] = useState<string | null>(null);
   const [consent, setConsent] = useState(settings.sync?.consent ?? false);
   const kid = isKid(settings) || settings.age === null;
@@ -129,7 +194,7 @@ function SyncSection() {
     if (!s) return;
     setMsg(t('loading'));
     try {
-      const r = await syncNow(s.serverUrl, s.token, s.cursor);
+      const r = await syncNow(s.serverUrl, s.token, s.cursor, dayKey(new Date()));
       updateSettings({ sync: { ...s, lastSync: Date.now(), cursor: r.cursor } });
       await reloadEvents();
       setMsg(t('sync.ok', { up: r.sent, down: r.received }));
@@ -168,8 +233,8 @@ function SyncSection() {
             <p className="small" style={{ margin: 0 }}>{s.lastSync ? t('sync.last', { when: new Date(s.lastSync).toLocaleString(settings.locale) }) : t('sync.never')} · {s.serverUrl}</p>
             <button className="btn primary" onClick={run}><Icon name="sync" size={16} /> {t('sync.now')}</button>
             <div className="row wrap">
-              <button className="btn ghost small" onClick={() => updateSettings({ sync: null })}>{t('sync.disconnect')}</button>
-              <button className="btn ghost small" onClick={async () => { if (confirm(t('sync.deleteServerConfirm'))) { try { await deleteServerData(s.serverUrl, s.token); setMsg(t('settings.deleted')); } catch (e) { setMsg(t('sync.error', { msg: (e as Error).message })); } } }}>{t('sync.deleteServer')}</button>
+              <button className="btn ghost small" onClick={() => updateSettings({ sync: null, social: null })}>{t('sync.disconnect')}</button>
+              <button className="btn ghost small" onClick={async () => { if (confirm(t('sync.deleteServerConfirm'))) { try { await deleteServerData(s.serverUrl, s.token); updateSettings({ social: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(t('sync.error', { msg: (e as Error).message })); } } }}>{t('sync.deleteServer')}</button>
             </div>
           </div>
         )}

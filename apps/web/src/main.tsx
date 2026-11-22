@@ -7,11 +7,14 @@ import '@fontsource/atkinson-hyperlegible/700.css';
 import './styles.css';
 import { App } from './App.tsx';
 import { AppProvider } from './lib/store.tsx';
+import { SocialProvider } from './lib/socialContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AppProvider>
-      <App />
+      <SocialProvider>
+        <App />
+      </SocialProvider>
     </AppProvider>
   </StrictMode>,
 );

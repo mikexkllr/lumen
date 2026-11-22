@@ -37,6 +37,8 @@ import {
 import { Confetti, CountUp, Cover, topicVars } from '../components/art.tsx';
 import { Icon } from '../components/ui.tsx';
 import { Lux } from '../components/Lux.tsx';
+import { useSocial } from '../lib/socialContext.tsx';
+import { social } from '../lib/social.ts';
 import { LuxButton, LuxChat, useLux, type LuxOpener } from '../components/LuxChat.tsx';
 import { inline, Markdown } from '../lib/markdown.tsx';
 import { reportProblem } from '../lib/report.ts';
@@ -878,6 +880,8 @@ interface Snapshot {
   unlocked: Set<string>;
   questsDone: Set<string>;
   minutes: number;
+  streakDone: boolean;
+  completed: Set<string>;
 }
 
 function snapshot(app: ReturnType<typeof useApp>): Snapshot {
@@ -888,6 +892,8 @@ function snapshot(app: ReturnType<typeof useApp>): Snapshot {
     unlocked: new Set(deriveAchievements(app.events, catalog, app.progress).filter((a) => a.unlocked).map((a) => a.def.id)),
     questsDone: new Set(dailyQuests(app.events, app.today, { dailyGoal: app.settings.dailyGoal, catalog }).filter((q) => q.done).map((q) => q.kind)),
     minutes: app.progress.minutesToday,
+    streakDone: app.progress.streak.todayDone,
+    completed: new Set(app.progress.completedConcepts),
   };
 }
 
@@ -913,6 +919,16 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
   const topicConcepts = topic ? topic.units.flatMap((u) => u.concepts) : [];
   const courseDone = topicConcepts.length > 0 && topicConcepts.every((c) => progress.completedConcepts.has(c));
   const courseOpen = topicId && courseDone ? openMistakes(app.events, { topicId }).length : 0;
+  const courseJustDone = courseDone && !topicConcepts.every((c) => before.completed.has(c));
+  const streakExtended = !before.streakDone && progress.streak.todayDone;
+  const { active: socialActive, conn } = useSocial();
+
+  // Milestones only the app can see (it has the course catalogue) go to the friends' feed.
+  useEffect(() => {
+    if (!socialActive || !conn) return;
+    if (courseJustDone && topicId) void social.post(conn, 'course', topicId).catch(() => {});
+    for (const b of newBadges) void social.post(conn, 'badge', b.def.id).catch(() => {});
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const timers: number[] = [];
@@ -1017,7 +1033,8 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
           </motion.div>
         ))}
         {progress.streak.current > 0 && (
-          <motion.div className="streak-card" {...rise(0.52)}>
+          <motion.div className={`streak-card ${streakExtended ? 'extended' : ''}`} {...rise(0.52)}>
+            {streakExtended && <span className="eyebrow">{t('streak.extended')}</span>}
             <strong><Icon name="flame" size={18} /> {t('complete.streak', { n: progress.streak.current })}</strong>
             <div className="week-strip" aria-hidden="true">
               {week.map((d, i) => (
