@@ -5,7 +5,7 @@ summary: How barcodes catch typos.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,28 @@ steps:
     explanation: 100 is already a multiple of 10 – the check digit is 0.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Credit cards use the **Luhn algorithm**: from the right, every second digit is doubled. If the result is above 9, subtract 9. The sum of all digits must be divisible by 10."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A Luhn check digit is appended to 1234. The 4 and the 2 are doubled. Which check digit makes the sum a multiple of 10?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-doubling
+        text: Without doubling the sum would be 10. Double the 4 and the 2.
+    hints:
+      - "Doubled: 4 → 8 and 2 → 4. Add 3 and 1."
+      - 8 + 3 + 4 + 1 = 16. What is missing up to 20?
+    explanation: 16 + 4 = 20. The full number is 12344. Luhn catches every single-digit typo and almost every swap.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -96,6 +118,55 @@ steps:
     hints:
       - Swapping a and b changes the sum by 2 · (a − b).
     explanation: 2 · 5 = 10 – the sum changes by a multiple of 10 and goes unnoticed.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The old ISBN-10 works **modulo 11**, a prime. A wrong digit changes the sum by weight times error. Both are less than 11, and 11 is prime. So every such error is caught.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: The ISBN-10 3-16-148410-? has weights 10, 9, …, 2 for the first nine digits. Their weighted sum is 177. Which check value c makes 177 + c divisible by 11?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: remainder-not-complement
+        text: That is the remainder of 177. You need what is missing up to the next multiple.
+    hints:
+      - 177 = 16 · 11 + 1.
+      - How many are missing up to 187 = 17 · 11?
+    explanation: "c = 10. Since that is not a digit, it is written as X: ISBN 3-16-148410-X."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: how does a check digit notice that you made a typo?"
+    params:
+      keywords:
+        - - summe
+          - rechnet
+          - sum
+          - computes
+        - - passt nicht
+          - stimmt nicht
+          - falsch
+          - no longer fits
+          - mismatch
+          - wrong
+        - - rest
+          - vielfach
+          - teilbar
+          - remainder
+          - multiple
+          - divisible
+      sample: The check digit is chosen so that a weighted sum of all digits is divisible by 10. If a typo changes a digit, the sum changes and the remainder no longer fits.
+    explanation: A check digit is a calculation modulo n that works out for the correct number. Errors break that.
     difficulty: 3
 
 srs:

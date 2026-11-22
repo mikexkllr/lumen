@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 9
+estimated_minutes: 12
 steps:
   - kind: problem
     id: c1
@@ -108,6 +108,41 @@ steps:
     explanation: 3 · (−2) = −6. Erst spiegeln und verdoppeln, dann verdreifachen.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Warum ist ad − bc eine Fläche? Die Spalten (a, c) und (b, d) spannen ein **Parallelogramm** auf. Legt man es in das Rechteck (a + b) × (c + d), bleiben Ecken übrig. Zieht man sie ab, bleibt genau ad − bc.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist die Fläche des Parallelogramms, das die Pfeile ({{a}}, {{c}}) und ({{b}}, {{d}}) aufspannen?
+    answer:
+      value: "{{a * d - b * c}}"
+    feedback:
+      - when: numval(state.input) == a * d + b * c
+        misconception: plus
+        text: "Minus, nicht plus: ad − bc."
+    hints:
+      - Determinante der Matrix mit diesen Spalten.
+      - "{{a}} · {{d}} − {{b}} · {{c}}."
+    explanation: "{{a}} · {{d}} − {{b}} · {{c}} = {{a * d - b * c}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: int[1,3]
+        c: int[1,3]
+        d: int[2,6]
+      constraints:
+        - a * d - b * c > 0
+      defaults:
+        a: 3
+        b: 1
+        c: 1
+        d: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -165,6 +200,45 @@ steps:
           - reverse
       min: 3
       sample: "Die Matrix quetscht die ganze Ebene auf eine Linie. Jede Fläche wird null. Darum kann man die Abbildung nicht umkehren: Man weiß nicht mehr, woher ein Punkt kam."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Matrix A hat die Determinante {{k}}. Welche Determinante hat ihre Inverse?
+    answer:
+      value: 1/{{k}}
+    feedback:
+      - when: numval(state.input) == -k
+        misconception: negative
+        text: Die Inverse spiegelt nicht zusätzlich. Sie macht nur die Flächenänderung rückgängig.
+    hints:
+      - $\det(A) \cdot \det(A^{-1}) = \det(E) = 1$.
+      - "Also 1 : {{k}}."
+    explanation: "1/{{k}}: Wer Flächen mal {{k}} nimmt, muss sie beim Rückweg durch {{k}} teilen."
+    difficulty: 3
+    variants:
+      params:
+        k: choice[2,4,5,8,10]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Die 3 × 3-Matrix streckt um 2 in x-, um 3 in y- und um 4 in z-Richtung. Auf das Wievielfache wächst ein Volumen?
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: add
+        text: Volumen multipliziert sich, statt sich zu addieren.
+    hints:
+      - Die Determinante einer Diagonalmatrix ist das Produkt der Diagonale.
+      - 2 · 3 · 4.
+    explanation: 24. Bei Integralen in neuen Koordinaten taucht genau dieser Faktor auf, etwa r² sin θ bei Kugelkoordinaten.
     difficulty: 3
 
 srs:

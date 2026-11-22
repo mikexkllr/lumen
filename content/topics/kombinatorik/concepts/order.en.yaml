@@ -5,7 +5,7 @@ summary: Factorial – the exclamation mark of math.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: drei
@@ -102,6 +102,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} people sit at a round table. Two seatings count as the same if everyone has the same neighbours on the left and right. How many are there?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == f * n
+        misconception: ignore-rotation
+        text: At a round table there is no fixed first seat. Rotating changes nothing.
+    hints:
+      - Seat one person first. Then only the others remain to arrange.
+      - "The other {{n - 1}} people: (n − 1)! ways."
+    explanation: ({{n}} − 1)! = {{f}}. Every rotation gives the same circle – so you divide n! by n.
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,7]
+      derive:
+        f: "n == 3 ? 2 : n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: How many words can you make from the letters of MISSISSIPPI? Meaning does not matter.
+    answer:
+      value: 34650
+    feedback:
+      - when: numval(state.input) == 39916800
+        misconception: no-repeat-division
+        text: That is 11!. Swapping equal letters gives no new word.
+    hints:
+      - "11 letters: M once, I four times, S four times, P twice."
+      - Divide 11! by 4! · 4! · 2!.
+    explanation: 11! / (4! · 4! · 2!) = 39,916,800 / 1152 = 34,650.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -111,6 +152,61 @@ steps:
     hints:
       - Each zero needs a factor 5. Count the fives in 1 to 25.
     explanation: "5, 10, 15, 20 give one each, 25 gives two: six fives. There are plenty of twos."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "n! grows faster than any power. **Stirling's formula** estimates it: $n! \\approx \\sqrt{2\\pi n}\\,\\left(\\frac{n}{e}\\right)^n$. Already for n = 10 it is off by less than 1 %."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many digits does 52! have – the number of orders of a deck of cards?"
+    params:
+      min: 10
+      max: 120
+    answer:
+      value: 68
+      tolerance: 4
+    explanation: 52! ≈ 8.07 · 10⁶⁷, so 68 digits. Any well-shuffled deck is very likely in an order that has never existed before.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Four guests check their hats. The cloakroom hands them back at random. In how many of the 24 orders does **nobody** get their own hat?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: missed-cycles
+        text: "Too few – count e.g. three-cycles too: A→B→C→A works two ways per group of three."
+    hints:
+      - Subtract all orders where at least one is right – inclusion–exclusion.
+      - 24 − 4 · 6 + 6 · 2 − 4 · 1 + 1.
+    explanation: 24 − 24 + 12 − 4 + 1 = 9. The share 9/24 ≈ 0.375 tends to 1/e ≈ 0.368 for many guests – whether 10 or 1000 hats.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: choice
+    prompt: "With 100 guests: roughly how likely is it that nobody gets their own hat?"
+    params:
+      options:
+        - label: About 37 %
+          correct: true
+        - label: Surprisingly, the chance stays near 1/e.
+          feedback: "Überraschend: Die Chance bleibt bei rund 1/e."
+        - label: Then almost nobody would get a hat back – yet on average exactly one person does.
+          feedback: Dann bekäme fast nie jemand seinen Hut – aber im Schnitt bekommt genau einer seinen.
+    hints:
+      - With 4 guests it was 9/24 = 37.5 %.
+      - The share is $1 - 1 + \frac{1}{2!} - \frac{1}{3!} + \dots$
+    explanation: The sum $\sum (-1)^k / k!$ is the series for $e^{-1} \approx 0.368$. It barely depends on the number of guests.
     difficulty: 3
 
 srs:

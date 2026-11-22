@@ -5,7 +5,7 @@ summary: Vector times number.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: doppelt
@@ -67,6 +67,63 @@ steps:
     explanation: ⅓ · (9, 6) = (3, 2). This is how animations compute in-between frames.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The point $\vec a + t \cdot (\vec b - \vec a)$ moves from A to B as t goes from 0 to 1. At t = ½ it is the midpoint $\frac{\vec a + \vec b}{2}$. This **parametric form** describes every line – and every animation in games.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is the y-coordinate of the midpoint between A({{a}} | {{b}}) and B({{c}} | {{d}})?
+    answer:
+      value: "{{(b + d) / 2}}"
+    feedback:
+      - when: numval(state.input) == (a + c) / 2
+        misconception: wrong-component
+        text: That is the x-coordinate.
+      - when: numval(state.input) == (d - b) / 2
+        misconception: difference
+        text: "Add, do not subtract: the midpoint is the average."
+    hints:
+      - The midpoint is the average of both points.
+      - ({{b}} + {{d}}) / 2.
+    explanation: ({{b}} + {{d}}) / 2 = {{(b + d) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[-8,8]
+        b: int[-8,8]
+        c: int[-8,8]
+        d: int[-8,8]
+      constraints:
+        - b != d
+        - a + c != b + d
+        - b != 0
+      defaults:
+        a: 2
+        b: 8
+        c: 10
+        d: -4
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: The centroid of a triangle is $\frac{\vec a + \vec b + \vec c}{3}$. What is its y-coordinate for A(0 | 0), B(6 | 0) and C(3 | 9)?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4.5
+        misconception: half-height
+        text: That is half the height. The centroid lies lower, at one third.
+    hints:
+      - "Add the y-values: 0 + 0 + 9."
+      - Divide by 3.
+    explanation: 9 / 3 = 3. At this height a paper triangle balances on a pin.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -95,6 +152,56 @@ steps:
     hints:
       - The dot product must be zero.
     explanation: 2 · 3 + 3 · (−2) = 0. Swapping and flipping one sign always gives a perpendicular vector.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Two vectors are **linearly dependent** if one is a multiple of the other – they are parallel. Three points lie on one line exactly when the arrows from one to the other two are dependent.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Do A(1 | 1), B(3 | 5) and C(6 | 11) lie on one line? Give the factor k with $\vec{AC} = k \cdot \vec{AB}$.
+    answer:
+      value: 2.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.4
+        misconception: inverted
+        text: "The other way round: $\\vec{AC}$ is the longer one."
+    hints:
+      - $\vec{AB}$ = (2, 4), $\vec{AC}$ = (5, 10).
+      - 5 / 2 and 10 / 4.
+    explanation: Both components give 2.5. So the arrows are parallel and A, B, C lie on one line.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what the number t means in $\vec a + t(\vec b - \vec a)$.
+    params:
+      keywords:
+        - - anteil
+          - bruchteil
+          - wie weit
+          - share
+          - fraction
+          - how far
+        - - "null"
+          - start
+          - anfang
+          - zero
+          - begin
+        - - eins
+          - ende
+          - ziel
+          - one
+          - end
+      sample: t says what share of the way from A to B you have walked. At t equal to zero you are at the start A, at one at the end B, at 0.5 in the middle. Values above one go past B.
+    explanation: t is like the time of an even trip from A to B. Negative t lie before A.
     difficulty: 3
 
 srs:

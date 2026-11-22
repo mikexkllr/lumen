@@ -5,7 +5,7 @@ summary: Warum zweimal 10 % mehr als 20 % sind.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: faktor
@@ -124,6 +124,49 @@ steps:
     explanation: 1,1³ = 1,331. Der Durchschnitt ist die dritte Wurzel – das **geometrische Mittel**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Bei 100 % Zinsen pro Jahr verdoppelt sich Geld. Zahlt die Bank zweimal 50 %, wird es mal 1,5² = 2,25. Monatlich: $(1 + \\frac{1}{12})^{12}$. Je öfter verzinst wird, desto mehr **Zinseszins** – aber nicht unbegrenzt."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist $(1 + \frac{1}{12})^{12}$ – der Jahresfaktor bei monatlicher Verzinsung von 100 % pro Jahr? Auf zwei Stellen.
+    answer:
+      value: 2.61
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: simple-interest
+        text: Das wäre einmal im Jahr. Monatlich wächst auch der Zins mit.
+    hints:
+      - 1 + 1/12 ≈ 1,0833.
+      - Hoch 12 nehmen.
+    explanation: 1,0833¹² ≈ 2,613. Täglich wären es 2,7146, stetig genau e ≈ 2,7183.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Kredit kostet 1 % Zinsen pro Monat. Wie viel Prozent sind das effektiv pro Jahr? Auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 12.7
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: simple-interest
+        text: Monatlich wird auch auf die Zinsen Zins fällig.
+    hints:
+      - Jahresfaktor 1,01¹².
+      - 1,01¹² ≈ 1,1268.
+    explanation: 1,01¹² ≈ 1,127, also 12,7 % effektiv. Darum müssen Banken den Effektivzins angeben.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -140,6 +183,55 @@ steps:
     hints:
       - Rechne 1,5 · 0,5 · 1,5 · 0,5.
     explanation: 0,75² ≈ 0,56. Schwankungen fressen Rendite – das arithmetische Mittel von 0 % täuscht.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Die Folge $\left(1 + \frac1n\right)^n$ wächst mit n, bleibt aber unter 3. Ihr Grenzwert ist die **Eulersche Zahl** e = 2,71828… Allgemein gilt $\left(1 + \frac{x}{n}\right)^n \to e^x$ – stetiges Wachstum.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Fonds macht abwechselnd +50 % und −50 %. Um wie viel Prozent ändert er sich im Schnitt pro Jahr? Nimm das geometrische Mittel $\sqrt{1{,}5 \cdot 0{,}5}$. Auf eine Stelle, mit Vorzeichen.
+    params:
+      unit: "%"
+    answer:
+      value: -13.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: arithmetic-mean
+        text: Das arithmetische Mittel von +50 und −50 ist 0 – aber Faktoren werden malgenommen, nicht addiert.
+    hints:
+      - 1,5 · 0,5 = 0,75.
+      - √0,75 ≈ 0,866. Wie viel Prozent fehlen bis 1?
+    explanation: √0,75 ≈ 0,866, also −13,4 % pro Jahr. Schwankungen kosten Rendite – auch wenn der Durchschnitt der Prozente null ist.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum sind zweimal +10 % mehr als +20 %?"
+    params:
+      keywords:
+        - - faktor
+          - 1,1
+          - "1.1"
+          - factor
+        - - mal
+          - multipl
+          - times
+        - - zins auf zins
+          - zinseszins
+          - auch auf
+          - compound
+          - on top
+          - interest on interest
+      sample: Plus 10 % heißt mal 1,1. Zweimal ist das 1,1 · 1,1 = 1,21, also 21 %. Beim zweiten Mal wächst auch der erste Zuwachs mit – Zins auf Zins.
+    explanation: Prozente auf Prozente werden malgenommen. Der Extra-Prozentpunkt ist 10 % von 10 %.
     difficulty: 3
 
 srs:

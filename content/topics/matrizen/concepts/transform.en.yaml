@@ -5,7 +5,7 @@ summary: Stretching, rotating, reflecting.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,51 @@ steps:
     explanation: "12 − 2 = 10: every area becomes ten times as large."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "The **columns** of a matrix tell you everything: the first is the image of (1, 0), the second the image of (0, 1). Where the grid goes decides where every point goes."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: graph
+    prompt: The shear (2 1 | 0 1) acts on P = (1 | 1). Drag Q to the image.
+    params:
+      x:
+        - -1
+        - 5
+      y:
+        - -1
+        - 4
+      points:
+        - id: O
+          x: 0
+          y: 0
+          draggable: false
+        - id: P
+          x: 1
+          y: 1
+          draggable: false
+        - id: Q
+          x: 0
+          y: 2
+      segments:
+        - - O
+          - P
+        - - O
+          - Q
+    answer:
+      points:
+        Q:
+          x: 3
+          y: 1
+    hints:
+      - "Top: 2 · 1 + 1 · 1."
+      - "Bottom: 0 · 1 + 1 · 1."
+    explanation: Q = (3 | 1). The height stays, x is stretched and shifted by y.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -114,6 +159,71 @@ steps:
     hints:
       - "Area factor zero: how large is an image without area?"
     explanation: Information is lost. Such matrices have no inverse – the matching system of equations has no unique solution.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The **rotation matrix** for angle θ has the columns (cos θ, sin θ) and (−sin θ, cos θ) – the rotated axes. For θ = 90° this gives exactly (0 −1 | 1 0).
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Rotate (2, 0) by 30°. What y-coordinate does the result have?
+    answer:
+      value: 1
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 1.732) < 0.01
+        misconception: swapped
+        text: That is the x-coordinate 2 · cos 30°.
+    hints:
+      - (2, 0) becomes (2 cos 30°, 2 sin 30°).
+      - 2 · 0.5.
+    explanation: 2 · sin 30° = 1. The image is (√3, 1).
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: What is the determinant of every rotation matrix (cos θ −sin θ | sin θ cos θ)?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: sign-error
+        text: "Compute ad − bc: cos² θ − (−sin² θ)."
+    hints:
+      - ad − bc = cos θ · cos θ − (−sin θ) · sin θ.
+      - cos² + sin² = ?
+    explanation: cos² θ + sin² θ = 1. Rotating changes no areas and does not mirror.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how the columns of a matrix show what it does to the plane.
+    params:
+      keywords:
+        - - spalte
+          - column
+        - - pfeil
+          - arrow
+          - einheit
+          - basis
+          - unit
+          - achse
+          - axis
+        - - bild
+          - landet
+          - image
+          - lands
+          - goes
+      sample: The first column shows where the arrow (1, 0) lands, the second where (0, 1) lands. Every other point is a combination of these two arrows, so it lands at the same combination of the columns.
+    explanation: "Linear maps preserve combinations: A(x, y) = x · column 1 + y · column 2."
     difficulty: 3
 
 srs:

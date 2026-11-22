@@ -5,7 +5,7 @@ summary: What a vector is.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -112,6 +112,38 @@ steps:
     explanation: "The vector is (5, −4): 5 right, 4 down."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "In space a vector has three **components**: right, back, up – for example (2, 5, −1). To a computer that is just a list of numbers. That is why there are also vectors with 100 or 1000 components."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: The arrow goes from A(1 | 2 | {{c}}) to B(4 | 0 | {{c + d}}). What is its third component?
+    answer:
+      value: "{{d}}"
+    feedback:
+      - when: numval(state.input) == -d
+        misconception: tail-minus-tip
+        text: "The other way round: tip minus tail, i.e. B minus A."
+    hints:
+      - Compute tip minus tail.
+      - "{{c + d}} − ({{c}})."
+    explanation: B − A = (3, −2, {{d}}).
+    difficulty: 2
+    variants:
+      params:
+        c: int[-5,5]
+        d: int[-6,8]
+      constraints:
+        - d != 0
+        - c != 0
+      defaults:
+        c: 3
+        d: 4
+
   - kind: problem
     id: x1
     depth: 3
@@ -128,6 +160,56 @@ steps:
     hints:
       - A vector only describes “how far and which way”.
     explanation: A vector is the whole class of equal arrows. That is why you may move it freely when adding.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Mathematicians call anything a vector that can be added and scaled by numbers. Polynomials $a + bx + cx^2$ also form such a **vector space**: their coefficients (a, b, c) are the components. So do sounds, images and functions."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How many numbers do you need to pin down any polynomial of degree at most {{n}} – what is the dimension of this vector space?
+    answer:
+      value: "{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: forgot-constant
+        text: The constant term $x^0$ counts too.
+    hints:
+      - "Count the powers: $x^0, x^1, \\dots, x^{ {{n}} }$."
+      - Each power gets one coefficient.
+    explanation: "{{n + 1}} coefficients, so dimension {{n + 1}}. The powers $1, x, x^2, \\dots$ are a basis – like the axis directions in space."
+    difficulty: 3
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does a vector have no fixed place?"
+    params:
+      keywords:
+        - - richtung
+          - direction
+        - - länge
+          - wie weit
+          - length
+          - how far
+        - - verschieb
+          - egal
+          - überall
+          - move
+          - anywhere
+          - shift
+      sample: A vector only says how far and in which direction to go – not where to start. Two arrows of equal length and direction in different places are the same vector. You may shift it anywhere.
+    explanation: A vector is a displacement, not a point. Only position vectors attach it to the origin.
     difficulty: 3
 
 srs:

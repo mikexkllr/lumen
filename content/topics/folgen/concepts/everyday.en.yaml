@@ -5,7 +5,7 @@ summary: Savings plans, subscriptions and grains of rice.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: sparplan
@@ -78,6 +78,52 @@ steps:
     explanation: 13, 21, 34, 55. The sequence hides in sunflowers and pine cones.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The ratio of neighbouring Fibonacci numbers approaches a number φ. Since $F_{n+1} = F_n + F_{n-1}$, in the limit $\varphi = 1 + \frac{1}{\varphi}$, so $\varphi^2 = \varphi + 1$. This is the **golden ratio**.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Solve $\varphi^2 = \varphi + 1$. Give the positive solution to three decimals.
+    answer:
+      value: 1.618
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) + 0.618) < 0.002
+        misconception: wrong-root
+        text: That is the negative solution. The positive one is wanted.
+    hints:
+      - "Move everything to one side: φ² − φ − 1 = 0."
+      - "Quadratic formula: φ = ½ ± √(¼ + 1)."
+    explanation: φ = (1 + √5) / 2 ≈ 1.618.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: At the end of each year you pay 1000 € into an account with 5 % interest. How many euros are in it right after the third payment?
+    params:
+      unit: €
+    answer:
+      value: 3152.5
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: no-interest
+        text: The interest is missing. The first payment grows for two years.
+      - when: abs(numval(state.input) - 3310.13) < 0.02
+        misconception: one-period-too-many
+        text: Then the last payment would already have earned a year of interest.
+    hints:
+      - The first payment grows for 2 years, the second for 1, the third not at all.
+      - 1000 · (1.05² + 1.05 + 1).
+    explanation: "1102.50 + 1050 + 1000 = 3152.50 €. A savings plan is a geometric series: 1000 · (1.05³ − 1) / 0.05."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -89,6 +135,62 @@ steps:
     hints:
       - Compute 89 ÷ 55.
     explanation: The golden ratio φ ≈ 1.618. It solves x² = x + 1 – exactly the rule of the sequence.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "**Binet's formula** gives each Fibonacci number at once: $F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt5}$ with $\\psi = \\frac{1 - \\sqrt5}{2} \\approx -0.618$. Since ψ is small, $\\psi^n$ soon dies out."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: We have $\varphi^{12} \approx 321.997$. Divide by √5 ≈ 2.236 and round. Which Fibonacci number do you get?
+    answer:
+      value: 144
+    hints:
+      - 321.997 / 2.236 ≈ 144.0.
+      - "Check: … 55, 89, 144 – the 12th term."
+    explanation: F₁₂ = 144. The error term ψ¹² / √5 is only about 0.001. So Fₙ is just φⁿ / √5, rounded.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Compute 8 · 21 − 13². Three neighbouring Fibonacci numbers.
+    answer:
+      value: -1
+    hints:
+      - 8 · 21 = 168.
+      - 13² = 169.
+    explanation: 168 − 169 = −1. **Cassini's identity** says $F_{n-1}F_{n+1} - F_n^2 = (-1)^n$. It is behind the puzzle where 64 squares seem to become 65.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does the ratio of two Fibonacci numbers approach the golden ratio?"
+    params:
+      keywords:
+        - - summe
+          - plus
+          - addier
+          - sum
+          - add
+        - - quotient
+          - verhältnis
+          - ratio
+          - teilen
+          - divide
+        - - phi
+          - golden
+          - gleichung
+          - equation
+      sample: "Each number is the sum of the two before. Dividing by the middle one gives: new ratio = 1 + 1 over old ratio. When the ratio settles, it must satisfy φ = 1 + 1/φ. That is the golden ratio 1.618."
+    explanation: In the limit the recursion turns into the equation φ² = φ + 1. Its positive solution is the golden ratio.
     difficulty: 3
 
 srs:

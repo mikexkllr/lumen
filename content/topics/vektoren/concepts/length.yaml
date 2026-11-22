@@ -5,7 +5,7 @@ summary: Pythagoras misst Vektoren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: drei-vier
@@ -80,6 +80,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie weit liegen die Punkte ({{a}} | {{b}}) und ({{a + 3 * k}} | {{b + 4 * k}}) auseinander?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: manhattan
+        text: Das ist der Weg entlang der Gitterlinien. Gefragt ist die Luftlinie.
+    hints:
+      - "Bilde den Differenzvektor: ({{3 * k}}, {{4 * k}})."
+      - Seine Länge nach Pythagoras.
+    explanation: √(({{3 * k}})² + ({{4 * k}})²) = {{5 * k}}. Der Abstand zweier Punkte ist die Länge ihres Differenzvektors.
+    difficulty: 2
+    variants:
+      params:
+        a: int[-5,5]
+        b: int[-5,5]
+        k: int[1,4]
+      defaults:
+        a: 1
+        b: 2
+        k: 1
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Raum ist 3 m breit, 4 m lang und 12 m hoch. Wie lang ist die Raumdiagonale von einer unteren Ecke zur gegenüberliegenden oberen?
+    params:
+      unit: m
+    answer:
+      value: 13
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: floor-only
+        text: Das ist nur die Bodendiagonale. Die Höhe kommt noch dazu.
+    hints:
+      - "Erst die Bodendiagonale: √(3² + 4²) = 5."
+      - Dann √(5² + 12²).
+    explanation: √(9 + 16 + 144) = √169 = 13 m. Im Raum gilt einfach $\sqrt{x^2 + y^2 + z^2}$.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +134,68 @@ steps:
     hints:
       - Die Länge ist 5.
     explanation: (0,6 | 0,8) zeigt in dieselbe Richtung, hat aber Länge 1. Das heißt **Normieren**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "In einer Stadt mit Straßengitter läuft man nicht Luftlinie. Dort misst der **Manhattan-Abstand** |x| + |y|. Beides sind Normen: Sie sind nie negativ, strecken sich mit und erfüllen die Dreiecksungleichung."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Taxi fährt in Manhattan von (0 | 0) nach (3 | 4), nur entlang der Straßen. Wie lang ist der kürzeste Weg in Blocks?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: euclid
+        text: Das ist die Luftlinie. Das Taxi kann nicht durch Häuser fahren.
+    hints:
+      - Wie viele Blocks nach rechts, wie viele nach oben?
+      - 3 + 4.
+    explanation: 3 + 4 = 7 Blocks. Und es gibt $\binom{7}{3} = 35$ solcher kürzesten Wege.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Wie sieht ein »Kreis« im Manhattan-Abstand aus – alle Punkte mit Abstand 1 vom Nullpunkt?
+    params:
+      options:
+        - label: Ein auf der Spitze stehendes Quadrat
+          correct: true
+        - label: Ein normaler Kreis
+          feedback: "Prüf (0,5 | 0,5): Luftlinie 0,71, Manhattan genau 1."
+        - label: Ein Kreuz
+          feedback: Auch Punkte wie (0,5 | 0,5) haben Abstand 1.
+    hints:
+      - "Probiere Punkte: (1 | 0), (0 | 1), (0,5 | 0,5)."
+      - "|x| + |y| = 1 ist im ersten Viertel die Gerade y = 1 − x."
+    explanation: "Vier Geradenstücke durch (1 | 0), (0 | 1), (−1 | 0) und (0 | −1): eine Raute. Was »rund« ist, hängt davon ab, wie man misst."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Länge des Vektors (3, 4) genau 5 ist.
+    params:
+      keywords:
+        - - pythagoras
+          - rechtwinklig
+          - right triangle
+        - - quadrat
+          - hoch zwei
+          - square
+          - "25"
+        - - wurzel
+          - square root
+          - root
+      sample: Der Pfeil ist die Hypotenuse eines rechtwinkligen Dreiecks mit den Katheten 3 und 4. Nach Pythagoras ist seine Länge die Wurzel aus 3² + 4² = 25, also 5.
+    explanation: Komponenten sind Katheten, die Länge ist die Hypotenuse. Im Raum kommt einfach ein drittes Quadrat dazu.
     difficulty: 3
 
 srs:

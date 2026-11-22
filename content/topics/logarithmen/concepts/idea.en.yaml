@@ -5,7 +5,7 @@ summary: The logarithm asks for the exponent.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -95,6 +95,53 @@ steps:
     explanation: (2²)^x = 2³ means 2x = 3. Fractional exponents are allowed too.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Calculators often only know log₁₀ and ln. The **change of base** handles any base: $\\log_b x = \\frac{\\log x}{\\log b}$. Example: $\\log_2 8 = \\frac{0.903}{0.301} = 3$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Compute $\log_2 1000$ with the change of base. (log₁₀ 2 ≈ 0.301) To two decimals.
+    answer:
+      value: 9.97
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: rounded
+        text: "Close: 2¹⁰ = 1024 is a bit more than 1000, so the value is just under 10."
+    hints:
+      - log₁₀ 1000 = 3.
+      - 3 / 0.301.
+    explanation: 3 / 0.301 ≈ 9.97.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: What is $\log_{ {{b}} } {{b ** k}}$?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == b ** k / b
+        misconception: divide
+        text: The logarithm counts the factors, it does not divide.
+    hints:
+      - How many times must you multiply {{b}} by itself?
+      - "{{b}} to what power gives {{b ** k}}?"
+    explanation: ${{b}}^{ {{k}} } = {{b ** k}}$, so {{k}}.
+    difficulty: 2
+    variants:
+      params:
+        b: choice[3,5,7]
+        k: int[2,5]
+      defaults:
+        b: 5
+        k: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -111,6 +158,70 @@ steps:
     hints:
       - What is 2 to the −3?
     explanation: Negative exponents make small, not negative. Only with complex numbers does log(−8) make sense.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The **natural logarithm** ln has the base e ≈ 2.718. Geometrically ln x is the area under the curve 1/t from 1 to x. That is why its derivative is 1/x – and why it shows up everywhere in calculus.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How many digits does $3^{50}$ have? (log₁₀ 3 ≈ 0.4771)
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 23
+        misconception: floor-not-plus-one
+        text: log₁₀ ≈ 23.86 means between 10²³ and 10²⁴ – that is 24 digits.
+    hints:
+      - log₁₀ 3⁵⁰ = 50 · 0.4771.
+      - A number with log₁₀ between 23 and 24 has 24 digits.
+    explanation: "50 · 0.4771 = 23.86. The number of digits is the rounded-down logarithm plus 1: 24."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: "Which grows faster for very large x: ln x or √x?"
+    params:
+      options:
+        - label: √x – every root eventually beats the logarithm.
+          correct: true
+        - label: At x = 10¹⁰⁰, ln x ≈ 230 while √x = 10⁵⁰.
+          feedback: Bei x = 10¹⁰⁰ ist ln x ≈ 230, √x = 10⁵⁰.
+        - label: The gap becomes enormous.
+          feedback: Der Abstand wird riesig.
+    hints:
+      - Plug in x = 10¹⁰⁰.
+      - ln 10¹⁰⁰ = 100 · ln 10 ≈ 230.
+    explanation: The logarithm grows more slowly than any power $x^\varepsilon$, however small. That is why an algorithm with log n steps is so good.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why log₁₀ 1000 = 3.
+    params:
+      keywords:
+        - - hoch
+          - exponent
+          - power
+        - - zehn
+          - ten
+          - basis
+          - base
+        - - nullen
+          - mal
+          - zeros
+          - times
+          - three
+      sample: "The logarithm asks: ten to what power gives 1000? Ten times ten times ten is 1000, so the exponent is three. You basically count the zeros."
+    explanation: Logarithm = the exponent you are looking for. $10^3 = 1000 \Leftrightarrow \log_{10} 1000 = 3$.
     difficulty: 3
 
 srs:

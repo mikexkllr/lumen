@@ -5,7 +5,7 @@ summary: Decibels, earthquakes and curves.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -81,6 +81,53 @@ steps:
     explanation: 10 · 0.3 = 3 dB. Not double – decibels do not simply add.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: For earthquakes one step up on the **magnitude** scale means about 31.6 times as much energy, because $10^{1.5} \approx 31.6$. Two steps mean $10^3 = 1000$ times as much.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: One earthquake has magnitude {{m + k}}, another {{m}}. How many times as much energy does the stronger one release? Round to a whole number.
+    answer:
+      value: "{{round(10 ** (1.5 * k))}}"
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 10 ** k
+        misconception: amplitude-not-energy
+        text: That is the amplitude. Energy grows by 10 to the 1.5 per step.
+    hints:
+      - Per step a factor of $10^{1.5}$.
+      - $10^{1.5 \cdot {{k}}}$.
+    explanation: $10^{ {{1.5 * k}} } \approx {{round(10 ** (1.5 * k))}}$.
+    difficulty: 2
+    variants:
+      params:
+        m: int[3,6]
+        k: choice[1,2,3,4]
+      defaults:
+        m: 6
+        k: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: For stars, 5 magnitudes mean exactly a factor of 100 in brightness. How many times brighter is a star that is 10 magnitudes brighter?
+    answer:
+      value: 10000
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: additive
+        text: "The factors of magnitudes multiply, they do not add: 100 · 100."
+    hints:
+      - 10 magnitudes = 2 times 5 magnitudes.
+      - 100 · 100.
+    explanation: 100² = 10,000. One magnitude is $\sqrt[5]{100} \approx 2.512$. The eye perceives brightness logarithmically – that is why the scale is built this way.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -91,6 +138,51 @@ steps:
     hints:
       - Each pH step is a factor of 10.
     explanation: 10³ = 1000. Logarithmic scales turn factors into distances.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "**Benford's law**: in many real data sets a number starts with digit d with probability $\\log_{10}\\left(1 + \\frac1d\\right)$. A leading 1 occurs in about 30 % of cases. Tax auditors use it to spot faked figures."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How likely does a number start with the digit 9 by Benford? Give percent to one decimal. (log₁₀ 10/9 ≈ 0.0458)
+    params:
+      unit: "%"
+    answer:
+      value: 4.6
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 11.1) < 0.1
+        misconception: uniform
+        text: That would be with equally likely digits 1 to 9. Benford is skewed.
+    hints:
+      - "Put d = 9: log₁₀(1 + 1/9)."
+      - 0.0458 = 4.58 %.
+    explanation: "Only 4.6 %, versus 30.1 % for 1. Benford holds where data spread over many orders of magnitude: populations, river lengths, invoice amounts."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: A semitone raises the frequency by the factor $2^{1/12}$. The note A is 440 Hz. What is the frequency of E, 7 semitones higher? To one decimal.
+    params:
+      unit: Hz
+    answer:
+      value: 659.3
+      tolerance: 0.2
+    feedback:
+      - when: abs(numval(state.input) - 660) < 0.05
+        misconception: just-fifth
+        text: That would be the pure fifth 3/2. The equal-tempered one is a tiny bit lower.
+    hints:
+      - $2^{7/12} \approx 1.4983$.
+      - 440 · 1.4983.
+    explanation: "440 · 1.4983 ≈ 659.3 Hz. Our musical scale is a logarithmic scale: equal steps to the ear are equal factors."
     difficulty: 3
 
 srs:

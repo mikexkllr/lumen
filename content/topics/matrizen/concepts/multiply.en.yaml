@@ -5,7 +5,7 @@ summary: Row times column.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -75,6 +75,50 @@ steps:
     explanation: 4 + 3 = 7. The top gives 8.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Matrix times matrix: the entry in row i, column j is **row times column** – row i of the first times column j of the second. The first needs as many columns as the second has rows."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Compute (1 2 | 3 4) · (5 6 | 7 8). Which entry is bottom right?
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 32
+        misconception: entrywise
+        text: That is 4 · 8. Bottom right means row 2 times column 2, i.e. 3 · 6 + 4 · 8.
+    hints:
+      - "Row 2 of the first: (3, 4). Column 2 of the second: (6, 8)."
+      - 3 · 6 + 4 · 8.
+    explanation: 18 + 32 = 50. The whole product is (19 22 | 43 50).
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A 2 × 3 matrix is multiplied by a 3 × {{p}} matrix. How many entries does the result have?
+    answer:
+      value: "{{2 * p}}"
+    feedback:
+      - when: numval(state.input) == 3 * p
+        misconception: inner-dimension
+        text: The middle 3 cancels out. 2 × {{p}} remains.
+    hints:
+      - (2 × 3) · (3 × {{p}}) gives 2 × {{p}}.
+      - 2 · {{p}}.
+    explanation: 2 × {{p}} = {{2 * p}} entries.
+    difficulty: 2
+    variants:
+      params:
+        p: int[2,7]
+      defaults:
+        p: 4
+
   - kind: problem
     id: x1
     depth: 3
@@ -85,6 +129,43 @@ steps:
     hints:
       - "First row of A times first column of B: 1 · 0 + 2 · 1."
     explanation: "A · B = (2 1 | 4 3): B swaps the columns of A. B · A instead swaps the rows."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Take A = (0 1 | 0 0) and B = (0 0 | 1 0). Which entry is top left in A · B? In B · A it would be 0.
+    answer:
+      value: 1
+    hints:
+      - "Row 1 of A: (0, 1). Column 1 of B: (0, 1)."
+      - 0 · 0 + 1 · 1.
+    explanation: A · B = (1 0 | 0 0), B · A = (0 0 | 0 1). A small example showing AB ≠ BA. In quantum mechanics the uncertainty principle rests on this.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: Multiplying two n × n matrices the usual way costs n³ multiplications. Strassen found a trick in 1969 needing only about $n^{2.81}$. The **Strassen algorithm** showed that the school method is not the fastest.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: How many billion multiplications does the school method need for two 1000 × 1000 matrices?
+    params:
+      unit: billion
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0.001
+        misconception: n-squared
+        text: Each of the 10⁶ entries needs 1000 multiplications.
+    hints:
+      - The result has 1000 · 1000 entries.
+      - "Each entry: 1000 products."
+    explanation: 1000³ = 10⁹ – one billion. Graphics cards do this in milliseconds, which is why AI is trained on them.
     difficulty: 3
 
 srs:

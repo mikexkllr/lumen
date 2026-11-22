@@ -1,0 +1,176 @@
+id: math.series.constants
+type: concept
+title: "e und π als Reihen"
+summary: "Die zwei berühmtesten Zahlen der Mathematik, Glied für Glied ausgerechnet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Was ergibt $1 + 1 + \\frac12 + \\frac16 + \\frac1{24} + \\dots$ – die Kehrwerte aller Fakultäten?"
+    params:
+      min: 2
+      max: 4
+      step: 0.01
+    answer:
+      value: 2.718
+      tolerance: 0.06
+    explanation: Die Eulersche Zahl e = 2,71828… Die Reihe ist das Taylor-Polynom von $e^x$ bei x = 1.
+
+  - kind: explain
+    id: c1
+    body: "Setzt man x = 1 in die Reihe von $e^x$ ein, erhält man die **Eulersche Zahl**: $e = \\sum_{n=0}^{\\infty} \\frac{1}{n!}$. Weil n! so schnell wächst, reichen wenige Glieder für viele Stellen."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Addiere $1 + 1 + \frac12 + \frac16 + \frac1{24}$. Auf drei Stellen.
+    answer:
+      value: 2.708
+      tolerance: 0.001
+    hints:
+      - ½ = 0,5; ⅙ ≈ 0,1667; 1/24 ≈ 0,0417.
+      - 2 + 0,5 + 0,1667 + 0,0417.
+    explanation: "≈ 2,708. Mit 1/120 dazu: 2,7167, mit 1/720: 2,71806. Jedes Glied bringt etwa eine Stelle."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Warum konvergiert die Reihe für e so schnell?
+    params:
+      options:
+        - label: n! wächst schneller als jede Potenz – die Glieder schrumpfen rasant.
+          correct: true
+        - label: Weil e kleiner als 3 ist.
+          feedback: Die Größe des Ergebnisses sagt nichts über das Tempo.
+        - label: Weil alle Glieder positiv sind.
+          feedback: Die harmonische Reihe hat auch nur positive Glieder – und divergiert.
+    hints:
+      - Vergleiche 1/10! mit 1/2¹⁰.
+      - 10! = 3 628 800, 2¹⁰ = 1024.
+    explanation: 1/10! ist kleiner als drei Zehnmillionstel. Nach 15 Gliedern stimmen schon 12 Stellen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Die **Leibniz-Reihe** lautet $\frac{\pi}{4} = 1 - \frac13 + \frac15 - \frac17 + \dots$ Nimm vier Glieder und mal 4. Was erhältst du für π? Auf drei Stellen.
+    answer:
+      value: 2.895
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.724) < 0.002
+        misconception: forgot-four
+        text: Das ist π/4. Nimm es noch mal 4.
+    hints:
+      - 1 − 0,3333 + 0,2 − 0,1429.
+      - 0,7238 · 4.
+    explanation: ≈ 2,895 – noch weit weg von 3,14. Die Leibniz-Reihe konvergiert quälend langsam.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Bei einer Reihe mit wechselnden Vorzeichen und schrumpfenden Gliedern ist der Fehler kleiner als das erste weggelassene Glied – das **Leibniz-Kriterium**. Für π auf 6 Stellen braucht die Leibniz-Reihe darum Millionen Glieder.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Nach 1000 Gliedern der Leibniz-Reihe ist das nächste Glied 1/2001. Höchstens wie groß ist der Fehler für π, also 4 mal dieses Glied? Auf drei Stellen.
+    answer:
+      value: 0.002
+      tolerance: 0.0002
+    hints:
+      - "1 : 2001 ≈ 0,0005."
+      - Mal 4.
+    explanation: "4 : 2001 ≈ 0,002. Tausend Glieder für gerade mal zwei sichere Nachkommastellen."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Der Grenzwert $(1 + \frac1n)^n$ ergibt ebenfalls e. Für n = 1000 ist er 2,71692. Wie viele Nachkommastellen stimmen mit e = 2,71828 überein?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: miscount
+        text: "2,716 gegen 2,718: Die dritte Stelle weicht ab."
+    hints:
+      - "Vergleiche Stelle für Stelle: 2,71…"
+      - "Bei der dritten Stelle: 6 gegen 8."
+    explanation: Nur 2 Stellen nach 1000 Schritten – die Fakultätsreihe schafft das mit 6 Gliedern. Gleicher Grenzwert, ganz anderes Tempo.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "John Machin fand 1706: $\\frac{\\pi}{4} = 4 \\arctan\\frac15 - \\arctan\\frac{1}{239}$. Die **Arkustangens-Reihe** $x - \\frac{x^3}{3} + \\frac{x^5}{5} - \\dots$ konvergiert für kleine x schnell. So berechnete er 100 Stellen von π – von Hand."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Berechne $\arctan\frac15 \approx x - \frac{x^3}{3}$ mit x = 0,2. Auf vier Stellen.
+    answer:
+      value: 0.1973
+      tolerance: 0.0002
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: first-term
+        text: "Das zweite Glied 0,008 : 3 fehlt noch."
+    hints:
+      - 0,2³ = 0,008.
+      - 0,2 − 0,00267.
+    explanation: ≈ 0,19733 – echt 0,19740. Weil x klein ist, schrumpfen die Glieder mit 1/25 pro Schritt.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Setzt man iφ in die Reihe von $e^x$ ein und sortiert nach reell und imaginär – was entsteht?
+    params:
+      options:
+        - label: Die Reihen von cos φ und i · sin φ – also $e^{i\varphi} = \cos\varphi + i\sin\varphi$.
+          correct: true
+        - label: Eine divergente Reihe
+          feedback: Die Fakultäten sorgen auch hier für Konvergenz.
+        - label: Wieder $e^\varphi$
+          feedback: Die Potenzen von i wechseln das Vorzeichen und die Richtung.
+    hints:
+      - $i^2 = -1$, $i^3 = -i$, $i^4 = 1$.
+      - Gerade Potenzen sind reell, ungerade imaginär.
+    explanation: Die geraden Glieder $1 - \frac{\varphi^2}{2!} + \dots$ sind cos φ, die ungeraden $\varphi - \frac{\varphi^3}{3!} + \dots$ sind sin φ. Mit φ = π folgt $e^{i\pi} = -1$.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Reihe für e viel schneller ans Ziel kommt als die Leibniz-Reihe für π.
+    params:
+      keywords:
+        - - fakultät
+          - n!
+          - factorial
+        - - schrumpf
+          - schnell
+          - langsam
+          - shrink
+          - fast
+          - slow
+        - - fehler
+          - glied
+          - error
+          - term
+      sample: Bei e stehen Fakultäten im Nenner, die wachsen rasend schnell, also schrumpfen die Glieder sofort. Bei Leibniz stehen nur ungerade Zahlen im Nenner, die Glieder schrumpfen langsam. Der Fehler ist etwa so groß wie das nächste Glied.
+    explanation: Tempo der Konvergenz = Tempo, mit dem die Glieder schrumpfen. 1/n! schlägt 1/n um Welten.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

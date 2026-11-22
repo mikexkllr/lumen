@@ -1,0 +1,200 @@
+id: math.series.convergence
+type: concept
+title: "Wann konvergiert eine Reihe?"
+summary: "Vergleichen, teleskopieren, Quotienten bilden – und Eulers Lösung des Basler Problems."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wohin läuft $1 + \\frac14 + \\frac19 + \\frac1{16} + \\dots$, die Summe der Kehrwerte aller Quadratzahlen?"
+    params:
+      min: 1
+      max: 3
+      step: 0.01
+    answer:
+      value: 1.645
+      tolerance: 0.06
+    explanation: Gegen 1,6449… – genau $\frac{\pi^2}{6}$. Warum hier π auftaucht, klärt die Experten-Stufe.
+
+  - kind: explain
+    id: c1
+    body: "Das **Vergleichskriterium**: Ist jedes Glied höchstens so groß wie das einer konvergenten Reihe, konvergiert auch die kleinere. Etwa ist $\\frac1{n^2} \\le \\frac{1}{(n-1)n}$ – und diese Reihe kann man genau ausrechnen."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Es ist $\frac{1}{k(k+1)} = \frac1k - \frac{1}{k+1}$. Berechne $\frac{1}{1 \cdot 2} + \frac{1}{2 \cdot 3} + \dots + \frac{1}{ {{n}} \cdot {{n + 1}} }$ als Bruch.
+    answer:
+      value: "{{n}}/{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: limit-too-early
+        text: Unendlich viele Glieder ergäben 1. Hier hörst du bei {{n}} auf.
+    hints:
+      - "Schreib die Differenzen untereinander: (1 − ½) + (½ − ⅓) + …"
+      - Fast alles hebt sich weg. Es bleibt 1 − 1/{{n + 1}}.
+    explanation: "1 − 1/{{n + 1}} = {{n}}/{{n + 1}}. Eine **Teleskopsumme**: Sie schiebt sich zusammen wie ein Fernrohr."
+    variants:
+      params:
+        n: int[3,20]
+      defaults:
+        n: 9
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Konvergiert die Reihe, wenn man über alle n ≥ 1 summiert?
+    params:
+      buckets:
+        - id: b1
+          label: Konvergiert
+        - id: b2
+          label: Divergiert
+      items:
+        - label: 1/n²
+          bucket: b1
+        - label: 1/2ⁿ
+          bucket: b1
+        - label: 1/n³
+          bucket: b1
+        - label: 1/n
+          bucket: b2
+        - label: 1/√n
+          bucket: b2
+        - label: n/(n + 1)
+          bucket: b2
+    hints:
+      - 1/√n ist größer als 1/n.
+      - n/(n + 1) geht gegen 1, nicht gegen 0.
+    explanation: $\sum \frac1{n^p}$ konvergiert genau für p > 1. 1/√n ist größer als 1/n und divergiert erst recht.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ab welchem Exponenten p konvergiert $\sum \frac{1}{n^p}$? Sie konvergiert für alle p größer als …
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-high
+        text: Auch p = 1,5 konvergiert schon. Die Grenze liegt bei der harmonischen Reihe.
+    hints:
+      - Bei p = 1 ist es die harmonische Reihe.
+      - Jedes p über 1 reicht.
+    explanation: p > 1. Die harmonische Reihe ist genau der Grenzfall.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Das **Quotientenkriterium**: Geht $\\left|\\frac{a_{n+1}}{a_n}\\right|$ gegen eine Zahl kleiner als 1, verhält sich die Reihe am Ende wie eine geometrische und konvergiert. Ist der Grenzwert größer als 1, divergiert sie."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Für $a_n = \frac{2^n}{n!}$ ist $\frac{a_{n+1}}{a_n} = \frac{2}{n + 1}$. Wie groß ist dieser Quotient bei n = {{n}}?
+    answer:
+      value: "{{2 / (n + 1)}}"
+      tolerance: 0.001
+    hints:
+      - Setz n = {{n}} ein.
+      - "2 : {{n + 1}}."
+    explanation: "2 : {{n + 1}} = {{2 / (n + 1)}}. Der Quotient geht gegen 0 – die Reihe konvergiert, sogar gegen e² ≈ 7,39. Fakultäten schlagen Potenzen."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[3,4,7,9,19]
+      defaults:
+        n: 9
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Was sagt das Quotientenkriterium über die harmonische Reihe?
+    params:
+      options:
+        - label: Nichts – der Quotient geht gegen genau 1.
+          correct: true
+        - label: Sie konvergiert.
+          feedback: Sie divergiert, aber das zeigt dieser Test nicht.
+        - label: Sie divergiert.
+          feedback: Stimmt, folgt aber nicht aus dem Quotienten – der ist hier 1.
+    hints:
+      - $\frac{1/(n+1)}{1/n} = \frac{n}{n+1}$.
+      - Wogegen geht das?
+    explanation: Bei Grenzwert 1 versagt der Test. 1/n und 1/n² haben beide den Grenzwert 1 – die eine divergiert, die andere nicht.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Euler löste 1734 das **Basler Problem**: $\\sum \\frac{1}{n^2} = \\frac{\\pi^2}{6}$. Allgemein heißt $\\zeta(s) = \\sum \\frac{1}{n^s}$ Zeta-Funktion. Die Riemannsche Vermutung über ihre Nullstellen ist eines der größten offenen Probleme."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Aus $\\sum \\frac1{n^2} = \\frac{\\pi^2}{6}$ folgt $\\pi = \\sqrt{6S}$. Mit S ≈ 1,6449: Wie groß ist π auf drei Stellen?"
+    answer:
+      value: 3.142
+      tolerance: 0.001
+    hints:
+      - 6 · 1,6449 ≈ 9,869.
+      - √9,869.
+    explanation: √9,869 ≈ 3,1416. Eine Summe über ganze Zahlen kennt den Kreis.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Euler schrieb $\sum \frac1n = \prod_p \frac{1}{1 - 1/p}$, ein Produkt über alle Primzahlen p. Die linke Seite ist unendlich. Was folgt?
+    params:
+      options:
+        - label: Es gibt unendlich viele Primzahlen.
+          correct: true
+        - label: Es gibt nur endlich viele Primzahlen.
+          feedback: Ein Produkt aus endlich vielen endlichen Faktoren wäre endlich.
+        - label: Die harmonische Reihe konvergiert doch.
+          feedback: Sie divergiert – das ist die Voraussetzung.
+    hints:
+      - Jeder Faktor $\frac{1}{1 - 1/p}$ ist eine endliche Zahl.
+      - Wie wird ein Produkt endlicher Zahlen unendlich?
+    explanation: Nur unendlich viele Faktoren können ein unendliches Produkt ergeben. Ein Beweis für unendlich viele Primzahlen – ganz aus der Analysis.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum konvergiert $\\sum \\frac{1}{n^2}$, aber $\\sum \\frac1n$ nicht?"
+    params:
+      keywords:
+        - - schneller
+          - schnell
+          - faster
+          - quickly
+          - schrumpf
+          - shrink
+        - - vergleich
+          - kleiner als
+          - compare
+          - smaller than
+          - teleskop
+          - telescop
+        - - zwei
+          - endlich
+          - two
+          - finite
+      sample: Beide Glieder gehen gegen null, aber 1/n² schrumpft viel schneller. Man kann 1/n² mit einer Teleskopsumme vergleichen, die genau 1 ergibt, also bleibt die Summe unter 2 und endlich. Bei 1/n bilden Gruppen immer wieder mehr als ½.
+    explanation: "Entscheidend ist das Tempo des Schrumpfens: Quadratisch reicht, linear nicht."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

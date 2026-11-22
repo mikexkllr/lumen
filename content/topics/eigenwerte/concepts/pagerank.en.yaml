@@ -1,0 +1,195 @@
+id: math.eigen.pagerank
+type: concept
+title: "PageRank"
+summary: "How Google ranked the web in 1998: a random surfer and an eigenvector."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two pages each have 10 incoming links. Which one is probably more important?
+    params:
+      options:
+        - label: The one linked from important pages themselves
+          correct: true
+        - label: A link from a big newspaper counts more than one from an empty page.
+          feedback: Ein Link von einer großen Zeitung zählt mehr als einer von einer leeren Seite.
+        - label: PageRank looks only at links, not at text.
+          feedback: PageRank schaut nur auf Links, nicht auf Text.
+    hints:
+      - Importance should be passed on.
+      - A link is a recommendation. Who recommends matters.
+    explanation: What matters is being linked by important pages. That sounds circular – and an eigenvector resolves exactly that circle.
+
+  - kind: explain
+    id: c1
+    body: A random surfer always clicks a random link on the current page. A page's **PageRank** is the share of time he spends there in the long run – the stationary distribution of this Markov chain.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Three pages: A links to B and C, B only to C, C only to A. At equilibrium A = C and B = ½ · A. What share does C have, in percent?"
+    params:
+      unit: "%"
+    answer:
+      value: 40
+    feedback:
+      - when: abs(numval(state.input) - 33.3) < 0.2
+        misconception: uniform
+        text: A third would mean equally important pages. Here B gets only half as much.
+    hints:
+      - "A : B : C = 2 : 1 : 2."
+      - C = 2 / 5.
+    explanation: A = 40 %, B = 20 %, C = 40 %. C gets visits from A and B but passes everything to A.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: And what share does B have, in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 20
+    hints:
+      - B gets only half of A's attention.
+      - B = ½ · 40 %.
+    explanation: 20 %. Only half a link, and from a page that splits its power.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: A page has 1000 links, but all from empty pages that nobody links to. What happens to its PageRank?
+    params:
+      options:
+        - label: It stays small – the empty pages have hardly any rank to pass on.
+          correct: true
+        - label: Many links from nothing add up to little.
+          feedback: Viele Links von Nichts ergeben wenig.
+        - label: Thanks to random jumps every page gets something.
+          feedback: Durch Zufallssprünge bekommt jede Seite etwas.
+    hints:
+      - A link passes on part of the page's own rank.
+      - How much rank does a page with no incoming links have?
+    explanation: Link farms achieve little. That is exactly what made PageRank so robust against tricks.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: With 85 % the surfer follows a link, with 15 % he jumps to a completely random page. This **damping factor** 0.85 prevents dead ends and endless loops. PageRank is the eigenvector with eigenvalue 1 of the new matrix.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: With damping 0.85 and {{n}} pages every page gets at least the share 0.15 / {{n}}. How many percent is that?
+    params:
+      unit: "%"
+    answer:
+      value: "{{15 / n}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 85 / n) < 0.01
+        misconception: wrong-part
+        text: 0.85 is the link chance. The floor comes from the 15 % random jumps.
+    hints:
+      - Random jumps spread 15 % evenly.
+      - 15 % / {{n}}.
+    explanation: "{{15 / n}} %. No rank is zero – even a page without links is sometimes visited at random."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[3,5,10,15,30]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "In the example A → B, C; B → C; C → A everyone starts with ⅓. After one click without damping: what share does C have, in percent?"
+    params:
+      unit: "%"
+    answer:
+      value: 50
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 40) < 0.1
+        misconception: limit-too-early
+        text: 40 % is the final value. After one step you are not there yet.
+    hints:
+      - C gets half of A and all of B.
+      - ½ · ⅓ + ⅓.
+    explanation: ⅙ + ⅓ = ½ = 50 %. Further clicks settle at 40 %. Google runs this **power method** with billions of pages.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: The power method multiplies by the matrix again and again. Errors shrink per step roughly by the second eigenvalue, at most 0.85 for PageRank. That is why about 50 rounds suffice – even for **billions** of pages.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: An error shrinks by 0.85 per round. After how many rounds has it dropped below 1 %? (ln 0.01 ≈ −4.605, ln 0.85 ≈ −0.1625)
+    answer:
+      value: 29
+    feedback:
+      - when: numval(state.input) == 28
+        misconception: rounding
+        text: 0.85²⁸ ≈ 1.05 % – just above. One more round.
+    hints:
+      - 0.85ⁿ < 0.01, so n > ln 0.01 / ln 0.85.
+      - 4.605 / 0.1625 ≈ 28.3.
+    explanation: From 29 rounds on. The effort barely depends on the size of the web, only on the number of links.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: A page has no outgoing links at all. What is the problem for the matrix?
+    params:
+      options:
+        - label: Its column is zero – the column sum is no longer 1, and rank leaks away.
+          correct: true
+        - label: The surfer would be stuck, and the total of all shares would shrink.
+          feedback: Der Surfer säße fest, und die Summe aller Anteile schrumpfte.
+        - label: Without a fix the system loses rank rather than creating it.
+          feedback: Ohne Korrektur verliert das System Rang, statt welchen zu erzeugen.
+    hints:
+      - Where does the surfer click on such a page?
+      - The column holds the click chances.
+    explanation: Such dead ends are treated as if they linked to every page. Together with damping the matrix becomes positive – and Perron–Frobenius guarantees a unique ranking.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how Google measures the importance of web pages with a random surfer.
+    params:
+      keywords:
+        - - zufall
+          - zufällig
+          - random
+        - - link
+          - links
+          - klick
+          - click
+        - - zeit
+          - anteil
+          - häufig
+          - time
+          - share
+          - often
+      sample: An imaginary surfer clicks randomly from link to link and sometimes jumps to any page. How often he lands on a page in the long run is its rank. Pages linked by many important pages are visited more often.
+    explanation: PageRank = the random surfer's share of time = eigenvector with eigenvalue 1.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

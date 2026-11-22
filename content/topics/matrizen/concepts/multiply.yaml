@@ -5,7 +5,7 @@ summary: Zeile mal Spalte.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -75,6 +75,50 @@ steps:
     explanation: 4 + 3 = 7. Oben ergibt sich 8.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Matrix mal Matrix: Der Eintrag in Zeile i und Spalte j ist **Zeile mal Spalte** – Zeile i der ersten mal Spalte j der zweiten. Das geht nur, wenn die erste so viele Spalten hat wie die zweite Zeilen."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Berechne (1 2 | 3 4) · (5 6 | 7 8). Welcher Eintrag steht unten rechts?
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 32
+        misconception: entrywise
+        text: "Das ist 4 · 8. Unten rechts heißt: Zeile 2 mal Spalte 2, also 3 · 6 + 4 · 8."
+    hints:
+      - "Zeile 2 der ersten: (3, 4). Spalte 2 der zweiten: (6, 8)."
+      - 3 · 6 + 4 · 8.
+    explanation: 18 + 32 = 50. Das ganze Produkt ist (19 22 | 43 50).
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Eine 2 × 3-Matrix wird mit einer 3 × {{p}}-Matrix multipliziert. Wie viele Einträge hat das Ergebnis?
+    answer:
+      value: "{{2 * p}}"
+    feedback:
+      - when: numval(state.input) == 3 * p
+        misconception: inner-dimension
+        text: Die mittlere 3 verschwindet beim Multiplizieren. Übrig bleibt 2 × {{p}}.
+    hints:
+      - (2 × 3) · (3 × {{p}}) ergibt 2 × {{p}}.
+      - 2 · {{p}}.
+    explanation: 2 × {{p}} = {{2 * p}} Einträge.
+    difficulty: 2
+    variants:
+      params:
+        p: int[2,7]
+      defaults:
+        p: 4
+
   - kind: problem
     id: x1
     depth: 3
@@ -85,6 +129,43 @@ steps:
     hints:
       - "Erste Zeile von A mal erste Spalte von B: 1 · 0 + 2 · 1."
     explanation: "A · B = (2 1 | 4 3): B vertauscht die Spalten von A. B · A vertauscht dagegen die Zeilen."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Nimm A = (0 1 | 0 0) und B = (0 0 | 1 0). Welcher Eintrag steht oben links in A · B? Und in B · A wäre er 0.
+    answer:
+      value: 1
+    hints:
+      - "Zeile 1 von A: (0, 1). Spalte 1 von B: (0, 1)."
+      - 0 · 0 + 1 · 1.
+    explanation: A · B = (1 0 | 0 0), B · A = (0 0 | 0 1). Ein kleines Beispiel, das AB ≠ BA zeigt. In der Quantenmechanik hängt daran die Unschärferelation.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: "Zwei n × n-Matrizen auf die übliche Art zu multiplizieren kostet n³ Multiplikationen. Strassen fand 1969 einen Trick mit nur etwa $n^{2{,}81}$. Der **Strassen-Algorithmus** zeigte: Die Schulmethode ist nicht die schnellste."
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Zwei Matrizen haben je 1000 mal 1000 Einträge. Wie viele Milliarden Malaufgaben braucht die Schulmethode für ihr Produkt?
+    params:
+      unit: Mrd.
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0.001
+        misconception: n-squared
+        text: Jeder der 10⁶ Einträge braucht 1000 Multiplikationen.
+    hints:
+      - Das Ergebnis hat 1000 · 1000 Einträge.
+      - "Jeder Eintrag: 1000 Produkte."
+    explanation: 1000³ = 10⁹ – eine Milliarde. Grafikkarten schaffen das in Millisekunden, darum trainiert man KI auf ihnen.
     difficulty: 3
 
 srs:

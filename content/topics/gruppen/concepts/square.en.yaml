@@ -1,0 +1,213 @@
+id: math.groups.square
+type: concept
+title: "The symmetries of a square"
+summary: "Eight ways to put a square back into its hole – and how to compute with them."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: A cardboard square sits in a matching hole. In how many ways can you take it out and put it back exactly? Flipping it over is allowed.
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: no-flips
+        text: Those are the rotations. You can also flip it – that gives four more.
+    hints:
+      - How many rotations fit? 0°, 90°, …
+      - After flipping, every rotation works again.
+    explanation: "4 rotations and 4 reflections: 8 symmetries. »Just put it back« counts too."
+
+  - kind: explain
+    id: c1
+    body: "A **symmetry** is a motion after which a shape looks exactly as before. For the square: rotating by 0°, 90°, 180°, 270° and reflecting in four axes – two through the midpoints of the sides, two through the corners."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Rotation or reflection?
+    params:
+      buckets:
+        - id: b1
+          label: Rotation
+        - id: b2
+          label: Reflection
+      items:
+        - label: turn by 90°
+          bucket: b1
+        - label: turn by 180°
+          bucket: b1
+        - label: do nothing (0°)
+          bucket: b1
+        - label: flip in the vertical axis
+          bucket: b2
+        - label: flip in the horizontal axis
+          bucket: b2
+        - label: flip in a diagonal
+          bucket: b2
+    hints:
+      - After a reflection the back side faces up.
+      - Doing nothing is a rotation by 0°.
+    explanation: Rotations keep the front up, reflections turn the square over. Doing nothing is also a symmetry – the most important one.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A regular shape has {{n}} equal sides. How many symmetries does it have – turns and flips together?
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: rotations-only
+        text: Those are just the rotations. There are as many mirror axes.
+    hints:
+      - "{{n}} rotations, including 0°."
+      - Plus {{n}} mirror axes.
+    explanation: "{{n}} + {{n}} = {{2 * n}}."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: You turn the square by 90° twice in a row. Which symmetry is that altogether?
+    params:
+      options:
+        - label: The rotation by 180°
+          correct: true
+        - label: Two rotations keep the front side up.
+          feedback: Zwei Drehungen lassen die Vorderseite oben.
+        - label: Symmetries done one after the other are again symmetries.
+          feedback: Nacheinander ausgeführte Symmetrien sind wieder Symmetrien.
+    hints:
+      - 90° + 90°.
+      - Rotation angles add up.
+    explanation: Two symmetries in a row give another symmetry. You can compute with them like with numbers.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Doing one after the other is called **composition**. Two reflections always give a rotation – by twice the angle between the axes. A rotation and a reflection give a reflection.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: First you flip in the vertical axis, then in a diagonal. The axes form 45°. What is the result?
+    params:
+      options:
+        - label: A rotation by 90°
+          correct: true
+        - label: "The angle doubles: 2 · 45°."
+          feedback: "Der Winkel verdoppelt sich: 2 · 45°."
+        - label: Flipping twice – the front is back on top.
+          feedback: Zweimal umdrehen – die Vorderseite liegt wieder oben.
+    hints:
+      - "Two reflections: is the front up afterwards?"
+      - Rotation angle = 2 · angle between the axes.
+    explanation: "2 · 45° = 90°. This also explains kaleidoscopes: two mirrors at an angle create rotational symmetry."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Is »first turn by 90°, then flip vertically« the same as »first flip, then turn«?
+    params:
+      options:
+        - label: No – the corners end up in different places.
+          correct: true
+        - label: Try it with a labelled sheet of paper.
+          feedback: Probier es mit einem beschrifteten Zettel aus.
+        - label: Here it really is different.
+          feedback: Hier ist es tatsächlich verschieden.
+    hints:
+      - Number the corners 1 to 4 and try both.
+      - The results are two different reflections.
+    explanation: The order matters – like with matrices. Such groups are called non-commutative.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: The eight symmetries form the **dihedral group** D₄. The four rotations on their own are a smaller group inside it, a subgroup. A table of all 8 · 8 compositions describes D₄ completely.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: How many of the 8 symmetries give »do nothing« when done twice – not counting »do nothing« itself?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: missed-rotation
+        text: The four reflections are right – but one rotation belongs too.
+      - when: numval(state.input) == 6
+        misconception: counted-identity
+        text: »Do nothing« should not be counted.
+    hints:
+      - Every reflection twice gives the original.
+      - Which rotation done twice gives 360°?
+    explanation: "4 reflections and the rotation by 180°: 5. The 90° rotations need four rounds."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: How many elements does the subgroup of rotations of a regular {{n}}-gon have?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: whole-group
+        text: That is the whole group with the reflections.
+    hints:
+      - Rotations by multiples of 360° / {{n}}.
+      - Including the rotation by 0°.
+    explanation: "{{n}} rotations – exactly half of the {{2 * n}} symmetries. Subgroups always split a group into equal-sized pieces."
+    difficulty: 3
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 8
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: you flip the square twice. Why is the result a rotation?"
+    params:
+      keywords:
+        - - umdrehen
+          - rückseite
+          - vorderseite
+          - flip
+          - back
+          - front
+        - - zweimal
+          - beide
+          - zwei
+          - twice
+          - both
+          - two
+        - - winkel
+          - doppelt
+          - angle
+          - double
+      sample: Each reflection flips the square so the back faces up. After two reflections the front is up again, so it must be a rotation. Its angle is double the angle between the axes.
+    explanation: Reflecting reverses the sense of turning; reflecting twice restores it. What remains is a rotation.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "x3"]

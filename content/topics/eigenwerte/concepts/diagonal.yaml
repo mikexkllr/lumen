@@ -1,0 +1,177 @@
+id: math.eigen.diagonal
+type: concept
+title: "Diagonalisieren"
+summary: "Mit Eigenvektoren werden Matrixpotenzen leicht – von Fibonacci bis zur Datenanalyse."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie groß ist die 30. Fibonacci-Zahl (1, 1, 2, 3, 5, 8, …)?"
+    params:
+      min: 1000
+      max: 100000000
+      scale: log
+    answer:
+      value: 832040
+      within: 40
+    explanation: F₃₀ = 832 040. Am Ende dieser Lektion kannst du sie mit Eigenwerten direkt ausrechnen.
+
+  - kind: explain
+    id: c1
+    body: "Bei einer **Diagonalmatrix** sind Potenzen leicht: $\\begin{pmatrix} 2 & 0 \\\\ 0 & 3 \\end{pmatrix}^n = \\begin{pmatrix} 2^n & 0 \\\\ 0 & 3^n \\end{pmatrix}$. Jede Achse wird einfach n-mal mit ihrem Faktor gestreckt."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Welcher Eintrag steht unten rechts in $\begin{pmatrix} 2 & 0 \\ 0 & {{b}} \end{pmatrix}^{ {{n}} }$?
+    answer:
+      value: "{{b ** n}}"
+    feedback:
+      - when: numval(state.input) == b * n
+        misconception: multiply
+        text: "Potenz, nicht Produkt: {{b}} wird {{n}}-mal malgenommen."
+    hints:
+      - Unten rechts steht {{b}} hoch {{n}}.
+      - "{{b}}^{{n}}."
+    explanation: "{{b}}^{{n}} = {{b ** n}}."
+    variants:
+      params:
+        b: int[3,5]
+        n: int[2,5]
+      defaults:
+        b: 3
+        n: 4
+
+  - kind: explain
+    id: c3
+    body: "Hat A genug Eigenvektoren, schreibt man $A = P D P^{-1}$: In P stehen die Eigenvektoren, in D die Eigenwerte. Dann gilt $A^n = P D^n P^{-1}$. Das ist **Diagonalisieren** – die Matrix in ihren eigenen Achsen ansehen."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Für M = (1 1 | 1 0) gilt $M^n = \begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix}$ mit Fibonacci-Zahlen. Welcher Eintrag steht oben links in $M^{ {{n}} }$?
+    answer:
+      value: "{{f}}"
+    hints:
+      - Oben links steht $F_{n+1}$, hier $F_{ {{n + 1}} }$.
+      - 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 …
+    explanation: $F_{ {{n + 1}} }$ = {{f}}. Jede Multiplikation mit M macht einen Fibonacci-Schritt.
+    variants:
+      params:
+        n: int[3,9]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : n == 8 ? 34 : 55"
+      defaults:
+        n: 5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die Eigenwerte von M = (1 1 | 1 0) lösen $\\lambda^2 - \\lambda - 1 = 0$: Es sind φ ≈ 1,618 und ψ ≈ −0,618. Diagonalisieren liefert genau die **Binet-Formel** $F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt5}$."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist das Produkt der beiden Eigenwerte φ · ψ von M = (1 1 | 1 0)?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: sign
+        text: Die Determinante ist 1 · 0 − 1 · 1.
+    hints:
+      - Produkt der Eigenwerte = Determinante.
+      - 1 · 0 − 1 · 1.
+    explanation: φ · ψ = −1. Darum ist ψ = −1/φ, und |ψ| < 1 lässt $\psi^n$ schnell verschwinden.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Berechne $F_{30} \approx \frac{\varphi^{30}}{\sqrt5}$ mit $\varphi^{30} \approx 1\,860\,498$ und √5 ≈ 2,23607. Runde auf eine ganze Zahl.
+    answer:
+      value: 832040
+      tolerance: 1
+    hints:
+      - "1 860 498 : 2,23607."
+      - Etwa 832 040.
+    explanation: F₃₀ = 832 040 – ohne 29 Additionen. Der Anteil von ψ ist kleiner als ein Millionstel.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: In der Datenanalyse sucht man die Eigenvektoren der Kovarianzmatrix. Der mit dem größten Eigenwert zeigt die Richtung, in der die Daten am meisten streuen. Diese **Hauptkomponentenanalyse** komprimiert Bilder, Gesichter und Gene.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Kovarianzmatrix (2 1 | 1 2) hat die Eigenwerte 3 und 1. Wie viel Prozent der Streuung erklärt die erste Hauptkomponente?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 300
+        misconception: not-normalised
+        text: Teile durch die Summe aller Eigenwerte, 3 + 1.
+    hints:
+      - "Anteil = Eigenwert : Summe der Eigenwerte."
+      - "3 : 4."
+    explanation: 75 % – in Richtung (1, 1). Mit einer statt zwei Zahlen pro Punkt behält man drei Viertel der Information.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Kann man jede Matrix diagonalisieren?
+    params:
+      options:
+        - label: Nein – die Scherung (1 1 | 0 1) hat nur eine Eigenrichtung.
+          correct: true
+        - label: Ja, immer
+          feedback: Für $PDP^{-1}$ braucht man so viele unabhängige Eigenvektoren wie Dimensionen.
+        - label: Nur Diagonalmatrizen
+          feedback: Auch (2 1 | 1 2) lässt sich diagonalisieren.
+    hints:
+      - Die Scherung hat den doppelten Eigenwert 1.
+      - Welche Pfeile behalten ihre Richtung?
+    explanation: Nur die waagerechten. Ein zweiter unabhängiger Eigenvektor fehlt. Für solche Fälle gibt es die Jordan-Normalform.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man mit Eigenvektoren hohe Potenzen einer Matrix schnell ausrechnen kann.
+    params:
+      keywords:
+        - - eigenvektor
+          - eigenrichtung
+          - eigenvector
+          - eigendirection
+        - - eigenwert hoch
+          - potenz
+          - hoch n
+          - power
+          - to the n
+        - - strecken
+          - gestreckt
+          - stretch
+          - stretches
+          - diagonal
+      sample: In Richtung eines Eigenvektors wird bei jedem Schritt nur mit dem Eigenwert gestreckt. Nach n Schritten also mit dem Eigenwert hoch n. Zerlegt man einen Vektor in Eigenvektoren, muss man nur Zahlen potenzieren statt Matrizen zu multiplizieren.
+    explanation: In der Eigenbasis ist die Matrix diagonal – und Potenzen von Diagonalmatrizen sind Potenzen von Zahlen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

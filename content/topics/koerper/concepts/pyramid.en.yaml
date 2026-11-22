@@ -5,7 +5,7 @@ summary: A third of the prism.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: drittel
@@ -96,6 +96,54 @@ steps:
     explanation: 3.14 · 9 · 4 ÷ 3 = 37.68.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Where does the third come from? A cube can be cut into three equal pyramids. Each has a face of the cube as base and its tip in the same far corner. This **dissection** shows: ⅓ · a² · a."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: the Great Pyramid has 230 m sides and was 146 m tall. How many million m³ of stone is that?"
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+      unit: million m³
+    answer:
+      value: 2.6
+      within: 25
+    explanation: ⅓ · 230² · 146 ≈ 2.57 million m³. That is more than 2 million stone blocks.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A cone has radius {{r}} cm and height {{h}} cm. What is its volume? Use π ≈ 3.14.
+    params:
+      unit: cm³
+    answer:
+      value: "{{3.14 * r * r * h / 3}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 3.14 * r * r * h) < 0.2
+        misconception: no-third
+        text: That is the cylinder. The cone has only a third.
+    hints:
+      - Base πr², then times the height.
+      - Finally divide by 3.
+    explanation: 3.14 · {{r}}² · {{h}} / 3 ≈ {{3.14 * r * r * h / 3}} cm³.
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,6]
+        h: step[3,12,3]
+      defaults:
+        r: 2
+        h: 6
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +160,60 @@ steps:
     hints:
       - The tip is a scaled copy with factor 1/2.
     explanation: (1/2)³ = 1/8. Seven eighths of the stone are in the lower half.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: A pyramid has a base of {{g}} m². How large is its horizontal cross-section halfway up?
+    params:
+      unit: m²
+    answer:
+      value: "{{g / 4}}"
+    feedback:
+      - when: numval(state.input) == g / 2
+        misconception: linear-area
+        text: Every length halves – so the area shrinks by ½ · ½.
+    hints:
+      - Halfway up the cross-section is a shrunk copy of the base.
+      - Lengths times ½, areas times ¼.
+    explanation: "Half the lengths, a quarter of the area: {{g}} / 4 = {{g / 4}} m²."
+    difficulty: 3
+    variants:
+      params:
+        g: choice[16,36,64,100,144]
+      defaults:
+        g: 36
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: At height z the cross-section is $G\,(1 - \frac{z}{h})^2$. Adding all the slices becomes the **integral** $\int_0^h G\,(1 - \frac{z}{h})^2\,dz = \frac13 G h$. The third comes from the square.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does a pyramid have exactly one third of the prism with the same base and height?"
+    params:
+      keywords:
+        - - drei
+          - drittel
+          - three
+          - third
+        - - würfel
+          - zerlegen
+          - cube
+          - split
+          - cut
+        - - gleich
+          - identisch
+          - same
+          - equal
+          - cavalieri
+      sample: A cube splits into three equal pyramids sharing one tip. So each is a third. By Cavalieri this holds for every pyramid with the same base and height.
+    explanation: Three equal pyramids fill a cube; Cavalieri carries this over to every pyramid.
     difficulty: 3
 
 srs:

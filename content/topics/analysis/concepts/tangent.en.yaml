@@ -5,7 +5,7 @@ summary: From the average to the speedometer.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -105,6 +105,51 @@ steps:
     explanation: At x = 0, the vertex. There the slope is zero.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The tangent at x = a has the equation $y = f(a) + f'(a)\,(x - a)$. Close to a it is almost the curve itself. This **linearisation** is used when a function is hard to compute.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: The tangent to $y = x^2$ at x = {{a}} is $y = {{a * a}} + {{2 * a}}(x - {{a}})$. Where does it cross the y-axis?
+    answer:
+      value: "{{-a * a}}"
+    feedback:
+      - when: numval(state.input) == a * a
+        misconception: sign-error
+        text: "Sign: at x = 0 the bracket is −{{a}}."
+    hints:
+      - Put x = 0.
+      - "{{a * a}} + {{2 * a}} · (−{{a}})."
+    explanation: "{{a * a}} − {{2 * a * a}} = {{-a * a}}. Every tangent to x² meets the y-axis at −a²."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+      defaults:
+        a: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Estimate √4.1 with the tangent to √x at x = 4. The slope there is $\frac{1}{2\sqrt4} = 0.25$. To three decimals.
+    answer:
+      value: 2.025
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2.1
+        misconception: slope-one
+        text: The root does not grow as fast as x. Take 0.1 times the slope 0.25.
+    hints:
+      - √4 = 2, plus 0.1 · 0.25.
+      - 2 + 0.025.
+    explanation: 2.025 – the true value is 2.0248. This is how engineers computed before calculators.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -123,6 +168,52 @@ steps:
     answer:
       slope: 9
     explanation: "At x = 2 or x = −2: f′(x) = 3x² − 3 = 9."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "**Newton's method** finds zeros with tangents: follow the tangent down to the x-axis, then start again there. $x_{new} = x - \\frac{f(x)}{f'(x)}$. Each step roughly doubles the correct digits."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Find √5 as the zero of $f(x) = x^2 - 5$, starting at x = 2. We have f(2) = −1 and f′(2) = 4. What does the first Newton step give?
+    answer:
+      value: 2.25
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.75
+        misconception: sign-error
+        text: "Minus times minus: 2 − (−1) / 4 = 2 + 0.25."
+    hints:
+      - $x_{new} = 2 - \frac{-1}{4}$.
+      - 2 + 0.25.
+    explanation: 2.25. The second step gives 2.2361 – already equal to √5 = 2.23607 to four places.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what a tangent is and how it relates to a speedometer.
+    params:
+      keywords:
+        - - berührt
+          - touch
+          - berühren
+        - - jetzt
+          - augenblick
+          - moment
+          - instant
+          - now
+        - - steigung
+          - tempo
+          - slope
+          - speed
+      sample: The tangent touches the curve at one point and has the same slope there. In a distance–time graph this slope is the speed at exactly that moment – what the speedometer shows.
+    explanation: Secant = average speed, tangent = instant speed.
     difficulty: 3
 
 srs:

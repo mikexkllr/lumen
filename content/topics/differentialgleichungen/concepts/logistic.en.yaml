@@ -1,0 +1,206 @@
+id: math.diffeq.logistic
+type: concept
+title: "Limited growth and epidemics"
+summary: "Rabbits on an island, viruses in a city – and why vaccination protects everyone."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: an island has room for 500 rabbits. 10 start, and each generation adds 30 % – while there is room. How many are there after 40 generations?"
+    params:
+      min: 0
+      max: 1000
+    answer:
+      value: 500
+      within: 10
+    explanation: Almost exactly 500. Without a limit there would be over 360,000. The room brakes the growth.
+
+  - kind: explain
+    id: c1
+    body: The **logistic equation** $y' = r\,y\left(1 - \frac yK\right)$ is growth with a brake. K is the capacity. For small y it grows almost exponentially, near K hardly at all.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Set 40 generations and a capacity of 800. Where does the number of rabbits end up?
+    params:
+      scene: population
+      controls:
+        rate:
+          value: 30
+          fixed: true
+      show:
+        - size
+        - unlimited
+        - share
+    answer:
+      gens: 40
+      capacity: 800
+      size:
+        - 780
+        - 800
+    explanation: At almost 800. How fast it goes is set by r – where it ends is set by K.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: For which two populations does nothing change any more, i.e. y′ = 0? Give the larger one if K = {{K}}.
+    answer:
+      value: "{{K}}"
+    feedback:
+      - when: numval(state.input) == K / 2
+        misconception: max-growth
+        text: At K/2 growth is largest, not zero.
+    hints:
+      - The product y · (1 − y/K) is zero if one factor is zero.
+      - y = 0 or y = K.
+    explanation: y = 0 and y = {{K}}. These are the **equilibria**. At {{K}} the population stays put.
+    variants:
+      params:
+        K: step[200,2000,100]
+      defaults:
+        K: 800
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "With r = 0.4 and K = 800: how fast does the population grow at y = 600?"
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 240
+        misconception: no-brake
+        text: "The brake is missing: (1 − 600/800) = ¼."
+    hints:
+      - 0.4 · 600 · (1 − 600/800).
+      - 240 · 0.25.
+    explanation: 0.4 · 600 · 0.25 = 60 per generation. At y = 400 it would be 80 – the maximum.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The SIR model splits people into susceptible S, infected I and recovered R: $S' = -\\beta S I$, $I' = \\beta S I - \\gamma I$. The **basic reproduction number** $R_0 = \\frac\\beta\\gamma$ says how many people one sick person infects at first."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: "With R₀ = 3: set the vaccination rate so that R at the start is below 1."
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 3
+          fixed: true
+      show:
+        - peak
+        - total
+        - reff
+    answer:
+      reff:
+        - 0
+        - 0.99
+    explanation: From 70 % on, R = 3 · 0.3 = 0.9 < 1. Then no wave can build up – even unvaccinated people are protected.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: From what vaccination rate in percent is there herd immunity if R₀ = {{R}}? Use $1 - \frac{1}{R_0}$.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 - 1 / R)}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 100 / R) < 0.1
+        misconception: complement
+        text: That is the share that may stay unprotected. You want the rest.
+    hints:
+      - 1 / {{R}} = {{1 / R}}.
+      - 1 − {{1 / R}}.
+    explanation: "{{100 * (1 - 1 / R)}} %. Measles has an R₀ around 15 – which is why over 90 % is needed there."
+    difficulty: 2
+    variants:
+      params:
+        R: choice[4,5,8,10]
+      defaults:
+        R: 4
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The logistic equation can be solved exactly: $y(t) = \\frac{K}{1 + A\\,e^{-rt}}$. This **sigmoid curve** is the same function neural networks use to squash signals between 0 and 1."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "With K = 1000 and starting value y(0) = 10: what is A in $y = \\frac{K}{1 + A\\,e^{-rt}}$?"
+    answer:
+      value: 99
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: forgot-one
+        text: At t = 0 the denominator is 1 + A. You need 1 + A = 100.
+    hints:
+      - At t = 0, $e^0 = 1$, so y(0) = 1000 / (1 + A).
+      - 1000 / (1 + A) = 10.
+    explanation: 1 + A = 100, so A = 99. In general A = K / y(0) − 1.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Why is the equilibrium y = 0 unstable but y = K stable?
+    params:
+      options:
+        - label: A few animals near y = 0 multiply away; above K it shrinks, below K it grows back.
+          correct: true
+        - label: Stability depends on the behaviour nearby, not on size.
+          feedback: Stabilität hängt am Verhalten in der Nähe, nicht an der Größe.
+        - label: At y = 0 a single pair is enough to run away.
+          feedback: Bei y = 0 genügt ein einziges Paar, um wegzulaufen.
+    hints:
+      - What happens at y = 1? And at y = K + 50?
+      - Look at the sign of y′.
+    explanation: "Stable means: small disturbances are pushed back. You see this from the sign of y′ on both sides of the equilibrium."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why vaccination also protects people who are not vaccinated.
+    params:
+      keywords:
+        - - unter 1
+          - weniger als einen
+          - below 1
+          - less than one
+          - r < 1
+        - - ansteck
+          - steckt
+          - infiz
+          - infect
+          - weitergeb
+          - pass on
+        - - welle
+          - ausbreit
+          - wave
+          - spread
+          - herde
+          - herd
+      sample: When enough people are vaccinated, each sick person infects on average less than one other person. Then the chain keeps getting shorter and no wave forms. So the virus hardly reaches unvaccinated people either.
+    explanation: "Herd immunity: with R < 1 every chain of infection shrinks by itself."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3"]

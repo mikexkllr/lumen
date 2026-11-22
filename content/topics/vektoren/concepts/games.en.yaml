@@ -5,7 +5,7 @@ summary: Position plus velocity.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -74,6 +74,42 @@ steps:
     explanation: 4 + 3 + 2 = 9. This step-by-step method is called the **Euler method**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Each frame a game does two sums. Speed plus push gives the new speed. Place plus speed gives the new place. This **physics loop** runs 60 times a second. Friction just means: speed times 0.9."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A puck slides at (10, 0) per frame. Friction multiplies its velocity by 0.9 each frame. What is the x-component after 2 frames?
+    answer:
+      value: 8.1
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: linear-friction
+        text: Friction does not subtract 1 each time – it multiplies by 0.9.
+    hints:
+      - "After one frame: 10 · 0.9 = 9."
+      - "After two frames: 9 · 0.9."
+    explanation: 10 · 0.9² = 8.1. The speed decreases exponentially – the puck never quite reaches zero, it just gets tiny.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Two balls in a game have radii 2 and 3. Their centres are at (1 | 1) and (5 | 4). How far apart are the centres?
+    answer:
+      value: 5
+    hints:
+      - "Difference vector: (4, 3)."
+      - Length √(16 + 9).
+    explanation: "Distance 5 = 2 + 3: the balls just touch. That is how a game checks every collision: is the distance less than the sum of the radii?"
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -115,6 +151,45 @@ steps:
           - step
       min: 3
       sample: Every character has a position and a velocity. In each frame the velocity is added to the position – that creates the motion.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: For a bounce off a slanted wall you need its **normal** n, an arrow of length 1 perpendicular to the wall. Then $\vec v\,' = \vec v - 2\,(\vec v \cdot \vec n)\,\vec n$. Only the part perpendicular to the wall flips.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A ball flies with $\vec v$ = (3, −4) onto the floor with normal $\vec n$ = (0, 1). What is its y-component after the bounce?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == -4
+        misconception: no-flip
+        text: Without bouncing it would stay −4. The perpendicular part flips.
+    hints:
+      - $\vec v \cdot \vec n = -4$.
+      - (3, −4) − 2 · (−4) · (0, 1).
+    explanation: (3, −4) + (0, 8) = (3, 4). On the floor that is just »flip y« – but the formula works for any wall.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Now a slanted wall with $\vec n = \frac{1}{\sqrt2}(1, 1)$. The ball comes in at (−2, 0). What is its y-component after the bounce?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: axis-only
+        text: With a slanted wall the y-direction changes too.
+    hints:
+      - $\vec v \cdot \vec n = -\frac{2}{\sqrt2} = -\sqrt2$.
+      - $-2 \cdot (-\sqrt2) \cdot \frac{1}{\sqrt2}(1, 1) = (2, 2)$.
+    explanation: (−2, 0) + (2, 2) = (0, 2). The ball came from the right and flies straight up after the 45° bounce.
     difficulty: 3
 
 srs:

@@ -1,0 +1,198 @@
+id: math.diffeq.rate
+type: concept
+title: "Gleichungen für Veränderung"
+summary: "Kaffee kühlt ab, Geld wächst, Stoffe zerfallen – alles folgt einer Regel für die Änderung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Ein Kaffee hat 90 °C in einem 20 °C warmen Raum. Nach 10 Minuten hat er 55 °C. Wie warm ist er nach weiteren 10 Minuten?"
+    params:
+      min: 20
+      max: 90
+      unit: °C
+    answer:
+      value: 37.5
+      tolerance: 5
+    explanation: "Etwa 37,5 °C. Der Abstand zur Raumtemperatur halbiert sich alle 10 Minuten: 70, 35, 17,5. Er kühlt nicht gleichmäßig ab, sondern umso schneller, je heißer er ist."
+
+  - kind: explain
+    id: c1
+    body: "Eine **Differentialgleichung** verbindet eine Größe mit ihrer Änderung. $y' = k \\cdot y$ heißt: Die Änderung ist proportional zum Bestand. Gesucht ist nicht eine Zahl, sondern eine ganze Funktion y(t)."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Welche Gleichung beschreibt welchen Vorgang?
+    params:
+      pairs:
+        - left: $y' = 0{,}05\,y$
+          right: Konto mit 5 % stetigem Zins
+        - left: $y' = -0{,}1\,(y - 20)$
+          right: Kaffee kühlt auf 20 °C ab
+        - left: $y' = 3$
+          right: Gleichmäßiger Zufluss
+        - left: $y' = -0{,}2\,y$
+          right: Radioaktiver Zerfall
+      leftTitle: Gleichung
+      rightTitle: Vorgang
+    hints:
+      - Positiv und proportional heißt Wachstum, negativ heißt Abnahme.
+      - Bei (y − 20) zählt der Abstand zu 20.
+    explanation: Das Vorzeichen sagt rauf oder runter, die Klammer sagt, wovon die Änderung abhängt. Konstante Änderung ist eine Gerade.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Konto folgt $y' = {{p / 100}} \cdot y$ (pro Jahr). Gerade liegen {{y}} € darauf. Wie viel Euro pro Jahr wächst es in diesem Moment?
+    params:
+      unit: €/a
+    answer:
+      value: "{{p * y / 100}}"
+    feedback:
+      - when: numval(state.input) == y + p * y / 100
+        misconception: value-not-rate
+        text: Gefragt ist die Änderung, nicht der neue Kontostand.
+    hints:
+      - Setz y = {{y}} in die rechte Seite ein.
+      - "{{p / 100}} · {{y}}."
+    explanation: "{{p / 100}} · {{y}} = {{p * y / 100}} € pro Jahr – jetzt. Mit wachsendem Konto wächst auch das Tempo."
+    variants:
+      params:
+        p: int[2,8]
+        y: step[1000,10000,500]
+      defaults:
+        p: 5
+        y: 1000
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Welche Funktion löst $y' = y$?
+    params:
+      options:
+        - label: $y = e^t$ – und jedes Vielfache $C e^t$
+          correct: true
+        - label: $y = t^2$
+          feedback: Die Ableitung 2t ist nicht t².
+        - label: $y = t$
+          feedback: Die Ableitung ist 1, nicht t.
+    hints:
+      - "Gesucht: eine Funktion, die gleich ihrer Ableitung ist."
+      - Denk an die e-Funktion.
+    explanation: "$(Ce^t)' = Ce^t$. Die Konstante C legt der Startwert fest: C = y(0)."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Ob eine Funktion eine **Lösung** ist, prüft man durch Einsetzen. Für $y = C e^{kt}$ ist $y' = kCe^{kt} = k \cdot y$. Passt. Ebenso löst $T(t) = 20 + 70\,e^{-kt}$ die Abkühlgleichung $T' = -k\,(T - 20)$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Beim Abkühlen mit k = 0,1 pro Minute halbiert sich der Abstand zur Raumtemperatur alle $\frac{\ln 2}{k}$ Minuten. Wie viele Minuten sind das? Auf zwei Stellen.
+    params:
+      unit: min
+    answer:
+      value: 6.93
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: half-not-ln2
+        text: "Das wäre 0,5 : k. Es heißt aber ln 2 ≈ 0,693."
+    hints:
+      - ln 2 ≈ 0,6931.
+      - "0,6931 : 0,1."
+    explanation: ≈ 6,93 min. Dieselbe Formel wie bei der Halbwertszeit – Abkühlen ist Zerfall des Temperaturunterschieds.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Löse $y' = 2y$ mit y(0) = 3. Wie groß ist y(1)? Auf zwei Stellen. (e² ≈ 7,389)
+    answer:
+      value: 22.17
+      tolerance: 0.02
+    feedback:
+      - when: abs(numval(state.input) - 9) < 0.01
+        misconception: linear
+        text: Das wäre mit gleichmäßigem Wachstum. Hier wächst y mit sich selbst.
+    hints:
+      - "Lösung: $y = 3e^{2t}$."
+      - 3 · e² = 3 · 7,389.
+    explanation: 3 · 7,389 ≈ 22,17.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Viele Gleichungen löst man durch **Trennung der Variablen**: Aus $\\frac{dy}{dt} = k y$ wird $\\frac{dy}{y} = k\\,dt$. Beide Seiten integrieren: ln y = kt + c. Daraus folgt wieder $y = C e^{kt}$."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Die Gleichung $y' = y^2$ mit y(0) = 1 hat die Lösung $y = \frac{1}{1 - t}$. Zu welcher Zeit t wird y unendlich groß?
+    answer:
+      value: 1
+    hints:
+      - Wann wird der Nenner null?
+      - 1 − t = 0.
+    explanation: Bei t = 1. Wachstum mit y² ist schneller als exponentiell und »explodiert« in endlicher Zeit. Exponentielles Wachstum tut das nie.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Die Gleichung $y' = \sqrt{y}$ mit y(0) = 0 hat die Lösung y = 0. Gibt es noch eine?
+    params:
+      options:
+        - label: "Ja: $y = \\frac{t^2}{4}$ löst sie auch."
+          correct: true
+        - label: Nein, Lösungen sind immer eindeutig.
+          feedback: Eindeutigkeit braucht eine Bedingung an die rechte Seite – √y verletzt sie bei 0.
+        - label: Nein, y muss konstant sein.
+          feedback: "Prüf t²/4: Ableitung t/2, und √(t²/4) = t/2."
+    hints:
+      - Setz $y = \frac{t^2}{4}$ ein.
+      - $y' = \frac t2$ und $\sqrt{t^2/4} = \frac t2$ für t ≥ 0.
+    explanation: Zwei Lösungen mit demselben Start. Der Satz von Picard-Lindelöf garantiert Eindeutigkeit nur, wenn die rechte Seite nicht zu steil ist – √y ist bei 0 unendlich steil.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Differentialgleichung ist.
+    params:
+      keywords:
+        - - änderung
+          - ändert
+          - ableitung
+          - change
+          - derivative
+          - rate
+        - - funktion
+          - kurve
+          - function
+          - curve
+        - - regel
+          - abhängt
+          - rule
+          - depends
+          - bestand
+          - amount
+      sample: Eine Differentialgleichung ist eine Regel, die sagt, wie schnell sich eine Größe ändert – abhängig davon, wie groß sie gerade ist. Gesucht ist die Funktion, die diese Regel zu jedem Zeitpunkt erfüllt.
+    explanation: Gleichung für die Ableitung, Lösung ist eine Funktion. Mit einem Startwert ist sie meist eindeutig.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

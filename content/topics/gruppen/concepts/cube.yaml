@@ -1,0 +1,191 @@
+id: math.groups.cube
+type: concept
+title: "Permutationen und der Zauberwürfel"
+summary: "Vertauschen, Zyklen, Ordnungen – und warum der Würfel 43 Trillionen Stellungen hat."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene Stellungen hat ein Zauberwürfel?"
+    params:
+      min: 1000000
+      max: 1e+30
+      scale: log
+    answer:
+      value: 43000000000000000000
+      within: 80
+    explanation: Genau 43 252 003 274 489 856 000 – rund 43 Trillionen. Würde man jede Sekunde eine durchprobieren, bräuchte man über eine Billion Jahre.
+
+  - kind: explain
+    id: c1
+    body: Eine **Permutation** ordnet Dinge neu an. Alle Permutationen von n Dingen bilden mit Nacheinander-Ausführen eine Gruppe, die symmetrische Gruppe $S_n$. Sie hat n! Elemente. Jeder Würfelzug ist eine Permutation der Steinchen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie viele Elemente hat $S_{ {{n}} }$, die Gruppe aller Umordnungen von {{n}} Dingen?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: square
+        text: Nicht n², sondern n · (n − 1) · … · 1.
+    hints:
+      - Für den ersten Platz gibt es {{n}} Möglichkeiten, dann {{n - 1}}, …
+      - "{{n}}!"
+    explanation: "{{n}}! = {{f}}."
+    variants:
+      params:
+        n: int[3,7]
+      derive:
+        f: "n == 3 ? 6 : n == 4 ? 24 : n == 5 ? 120 : n == 6 ? 720 : 5040"
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Drei Plätze A, B, C. Erst tauschst du die Inhalte von A und B, dann die von B und C. Wo landet, was anfangs auf A lag?
+    params:
+      options:
+        - label: Auf C
+          correct: true
+        - label: Auf A
+          feedback: Es wird im ersten Tausch nach B gebracht.
+        - label: Auf B
+          feedback: Im zweiten Tausch wandert es von B weiter.
+    hints:
+      - Nach dem ersten Tausch liegt es auf B.
+      - Der zweite Tausch betrifft B und C.
+    explanation: A → B → C. Zwei Vertauschungen ergeben einen Dreierkreis. Jede Permutation lässt sich aus Vertauschungen bauen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Ein Zug schickt drei Ecken im Kreis: A → B → C → A. Wie oft musst du ihn ausführen, bis alles wieder stimmt?"
+    answer:
+      value: 3
+    hints:
+      - Verfolge eine Ecke.
+      - "A → B → C → A: drei Schritte."
+    explanation: Ein Dreierkreis hat die Ordnung 3.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Zerlegt man eine Permutation in Kreise, ist ihre **Ordnung** das kleinste gemeinsame Vielfache der Kreislängen. Ein Zweier- und ein Dreierkreis brauchen kgV(2, 3) = 6 Wiederholungen.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Zug vertauscht {{a}} Kanten im Kreis und zugleich {{b}} Ecken in einem anderen Kreis. Wie oft musst du ihn wiederholen, bis alles wieder stimmt?
+    answer:
+      value: "{{lcm(a, b)}}"
+    feedback:
+      - when: numval(state.input) == a * b && lcm(a, b) != a * b
+        misconception: product-not-lcm
+        text: Das Produkt reicht immer, ist aber nicht das kleinste. Nimm das kgV.
+    hints:
+      - Beide Kreise müssen gleichzeitig fertig sein.
+      - kgV({{a}}, {{b}}).
+    explanation: kgV({{a}}, {{b}}) = {{lcm(a, b)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: int[2,6]
+      constraints:
+        - a != b
+      defaults:
+        a: 4
+        b: 6
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wie oft musst du die Zugfolge »rechts drehen, oben drehen« (R U) wiederholen, bis der Würfel wieder gelöst ist?
+    params:
+      options:
+        - label: 105-mal
+          correct: true
+        - label: 4-mal
+          feedback: Jede Drehung für sich hätte Ordnung 4, die Kombination nicht.
+        - label: Nie
+          feedback: Jedes Element einer endlichen Gruppe hat eine Ordnung.
+    hints:
+      - R U bewegt Ecken und Kanten in Kreisen verschiedener Länge.
+      - Die Ordnung ist das kgV, mit Drehungen der Steine eingerechnet.
+    explanation: 105 = kgV aus den Kreislängen und Verdrehungen. In einer endlichen Gruppe kommt man mit jeder Zugfolge irgendwann zurück – garantiert.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Die Würfelgruppe hat $\\frac{8! \\cdot 3^7 \\cdot 12! \\cdot 2^{11}}{2}$ Elemente. 8! Plätze und $3^7$ Drehungen der Ecken, 12! Plätze und $2^{11}$ Kippungen der Kanten. Der letzte Faktor ½ kommt aus der **Parität**: Ecken und Kanten werden immer gemeinsam gerade oder ungerade vertauscht."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum steht dort $3^7$ und nicht $3^8$, obwohl jede der 8 Ecken drei Lagen hat?
+    params:
+      options:
+        - label: Die Drehung der letzten Ecke folgt aus den anderen sieben.
+          correct: true
+        - label: Eine Ecke kann man nie drehen.
+          feedback: Jede Ecke lässt sich drehen – aber nicht allein.
+        - label: Weil 3⁸ zu groß wäre.
+          feedback: Die Größe ist kein Grund. Es geht um eine Erhaltungsregel.
+    hints:
+      - Jeder Zug ändert die Summe der Eckdrehungen nur um Vielfache von 3.
+      - Also ist die Summe modulo 3 immer 0.
+    explanation: Die Summe aller Eckdrehungen ist modulo 3 erhalten. Wer eine Ecke einzeln verdreht, macht den Würfel unlösbar.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Möglichkeiten gibt es allein für die 8 Ecken – $8! \cdot 3^7$?
+    answer:
+      value: 88179840
+    hints:
+      - 8! = 40 320 und 3⁷ = 2187.
+      - 40 320 · 2187.
+    explanation: "88 179 840 – schon fast 90 Millionen nur für die Ecken. 2010 bewies man: Jede Stellung ist in höchstens 20 Zügen lösbar, die »Gotteszahl«."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum jede Zugfolge am Zauberwürfel irgendwann wieder zum Anfang führt.
+    params:
+      keywords:
+        - - endlich
+          - begrenzt
+          - finite
+          - limited
+        - - wiederhol
+          - gleiche stellung
+          - repeat
+          - same position
+        - - rückgängig
+          - invers
+          - umkehr
+          - undo
+          - inverse
+          - reverse
+      sample: Es gibt nur endlich viele Stellungen. Wiederholt man eine Zugfolge, muss irgendwann eine Stellung zum zweiten Mal kommen. Weil man jeden Zug rückgängig machen kann, war schon die erste Wiederholung der Anfang.
+    explanation: "Endlich viele Stellungen plus Umkehrbarkeit: Jedes Element einer endlichen Gruppe hat eine endliche Ordnung."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2"]

@@ -5,7 +5,7 @@ summary: What a matrix is.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -86,6 +86,31 @@ steps:
     explanation: It leaves every vector unchanged – the “1” of matrices.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Networks are matrices too. In the **adjacency matrix**, row i, column j holds a 1 if i and j are friends, otherwise a 0. A row sum counts a person's friends.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Three people are all friends with each other. How many ones does their adjacency matrix have? Nobody is their own friend.
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: once-per-edge
+        text: "Each friendship appears twice: at A→B and at B→A."
+      - when: numval(state.input) == 9
+        misconception: diagonal
+        text: The diagonal stays 0 – nobody is their own friend.
+    hints:
+      - The matrix is 3 × 3, the diagonal is 0.
+      - 9 − 3.
+    explanation: 6 ones for 3 friendships. The matrix is symmetric because friendship goes both ways.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -96,6 +121,52 @@ steps:
     hints:
       - Three matrices stacked.
     explanation: 3 million. Such stacked matrices are called **tensors** – the data format of AI.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Squaring the adjacency matrix, the entry $(A^2)_{ij}$ counts the **walks of length 2** from i to j. In general $A^n$ counts walks of length n. Search engines and social networks compute like this.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: In the triangle A, B, C everyone is linked. How many walks of length 2 lead from A back to A?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-return
+        text: "A walk may come back: A → B → A counts."
+    hints:
+      - First step to B or C.
+      - From there straight back.
+    explanation: A → B → A and A → C → A. The diagonal entry of A² is the number of friends – here 2.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how a greyscale photo is stored as a matrix.
+    params:
+      keywords:
+        - - pixel
+          - bildpunkt
+          - point
+        - - zeile
+          - spalte
+          - row
+          - column
+        - - helligkeit
+          - zahl
+          - brightness
+          - number
+          - wert
+          - value
+      sample: Each pixel gets a number for its brightness. The numbers sit in rows and columns exactly as the pixels are arranged in the picture. That forms a matrix.
+    explanation: Row = height in the picture, column = position from the left, entry = brightness. Colour images have three such matrices.
     difficulty: 3
 
 srs:

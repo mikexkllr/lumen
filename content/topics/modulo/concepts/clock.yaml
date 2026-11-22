@@ -5,7 +5,7 @@ summary: Nach 24 geht es wieder bei 0 los.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: uhrzeit
@@ -84,6 +84,53 @@ steps:
     explanation: 22 + 16 = 38, und 38 mod 24 = 14.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Zwei Zahlen sind **kongruent** modulo n, wenn sie beim Teilen durch n denselben Rest lassen. Man schreibt $27 \\equiv 3 \\pmod{24}$. Gleichwertig: n teilt die Differenz 27 − 3 = 24."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: choice
+    prompt: Der 1. Januar 2025 war ein Mittwoch. Welcher Wochentag war der 1. Januar 2026?
+    params:
+      options:
+        - label: Donnerstag
+          correct: true
+        - label: Mittwoch
+          feedback: Ein Jahr sind nicht genau 52 Wochen. 365 lässt beim Teilen durch 7 einen Rest.
+        - label: Freitag
+          feedback: Das wäre nach einem Schaltjahr mit 366 Tagen. 2025 hat 365.
+    hints:
+      - Wie viele Tage hat 2025?
+      - 365 = 52 · 7 + 1.
+    explanation: "365 ≡ 1 (mod 7): Jedes normale Jahr rückt der Wochentag um einen Tag weiter, nach einem Schaltjahr um zwei."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Welchen Rest lässt {{a}} · {{b}} beim Teilen durch 7? Rechne mit den Resten, nicht mit dem Produkt.
+    answer:
+      value: "{{mod(a * b, 7)}}"
+    hints:
+      - "{{a}} ≡ {{mod(a, 7)}} und {{b}} ≡ {{mod(b, 7)}} (mod 7)."
+      - Nimm die Reste mal und teile noch einmal durch 7.
+    explanation: "{{mod(a, 7)}} · {{mod(b, 7)}} = {{mod(a, 7) * mod(b, 7)}} ≡ {{mod(a * b, 7)}} (mod 7)."
+    difficulty: 2
+    variants:
+      params:
+        a: int[20,99]
+        b: int[20,99]
+      constraints:
+        - mod(a, 7) != 0
+        - mod(b, 7) != 0
+      defaults:
+        a: 30
+        b: 45
+
   - kind: problem
     id: x1
     depth: 3
@@ -94,6 +141,53 @@ steps:
     hints:
       - Addiere so lange 5, bis du im Bereich 0 bis 4 landest.
     explanation: −7 + 10 = 3. Viele Programmiersprachen liefern hier −2 – eine klassische Fehlerquelle.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Eine Zahl lässt bei 3 den Rest 2 und bei 5 den Rest 3. Welche ist es? Der **chinesische Restsatz** sagt: Sind die Teiler teilerfremd, gibt es modulo 3 · 5 = 15 genau eine Lösung – hier 8."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Rätsel aus dem alten China: Eine Zahl lässt bei 3 den Rest 2, bei 5 den Rest 3 und bei 7 den Rest 2. Wie heißt die kleinste positive?"
+    answer:
+      value: 23
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: partial
+        text: 8 passt zu 3 und 5, lässt bei 7 aber den Rest 1.
+    hints:
+      - "Rest 2 bei 3 und bei 7 heißt: Rest 2 bei 21. Kandidaten: 2, 23, 44, …"
+      - Welcher Kandidat lässt bei 5 den Rest 3?
+    explanation: 23 = 7 · 3 + 2 = 4 · 5 + 3 = 3 · 7 + 2. Alle Lösungen sind 23 + 105k. Computer nutzen den Satz, um mit riesigen Zahlen parallel zu rechnen.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum rechnet man mit Wochentagen modulo 7?"
+    params:
+      keywords:
+        - - sieben
+          - seven
+          - woche
+          - week
+        - - rest
+          - remainder
+          - übrig
+          - left
+        - - wiederhol
+          - kreis
+          - zyklus
+          - repeat
+          - cycle
+          - circle
+      sample: Nach sieben Tagen kommt derselbe Wochentag wieder. Ganze Wochen ändern also nichts, nur der Rest beim Teilen durch 7 zählt. Die Tage laufen im Kreis.
+    explanation: Was sich nach n Schritten wiederholt, rechnet man modulo n. Uhren mit 12 oder 24, Winkel mit 360.
     difficulty: 3
 
 srs:

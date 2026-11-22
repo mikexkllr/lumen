@@ -1,0 +1,213 @@
+id: math.series.geometric
+type: concept
+title: "Die geometrische Reihe"
+summary: "Halbe Pizza, Viertel, Achtel – und trotzdem nur eine Pizza."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Du isst eine halbe Pizza, dann ein Viertel, dann ein Achtel – und so weiter, ewig. Wie viele Pizzen isst du insgesamt?"
+    params:
+      min: 0
+      max: 4
+      step: 0.1
+    answer:
+      value: 1
+      tolerance: 0.1
+    explanation: Genau eine. Jedes Stück ist die Hälfte des Rests – die Pizza wird nie überschritten und doch ganz aufgegessen.
+
+  - kind: explain
+    id: c1
+    body: Addiert man die ersten n Glieder, erhält man die **Partialsumme** $S_n$. Bei ½ + ¼ + ⅛ + … fehlt nach n Schritten genau $\frac{1}{2^n}$ bis zur 1. Dieser Rest wird beliebig klein.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie groß ist $\frac12 + \frac14 + \dots + \frac{1}{ {{2 ** n}} }$ – die Summe der ersten {{n}} Glieder? Als Bruch.
+    answer:
+      value: "{{2 ** n - 1}}/{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: limit-too-early
+        text: Erst unendlich viele Glieder ergeben 1. Nach {{n}} Schritten fehlt noch ein Stück.
+    hints:
+      - Wie viel fehlt bis 1?
+      - Es fehlt genau das letzte Glied, also 1/{{2 ** n}}.
+    explanation: 1 − 1/{{2 ** n}} = {{2 ** n - 1}}/{{2 ** n}}.
+    variants:
+      params:
+        n: int[3,10]
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c3
+    widget: numberline
+    prompt: Markiere ½ + ¼ + ⅛ auf dem Zahlenstrahl.
+    params:
+      min: 0
+      max: 1
+      ticks: 8
+      labels: decimals
+    answer:
+      value: 0.875
+    hints:
+      - 0,5 + 0,25 + 0,125.
+      - Ein Achtel vor der 1.
+    explanation: 0,875 – noch ⅛ bis zur 1. Der nächste Schritt halbiert diesen Rest.
+
+  - kind: explain
+    id: c4
+    body: "Allgemein gilt für |q| < 1: $a + aq + aq^2 + \\dots = \\frac{a}{1 - q}$. Das ist die **geometrische Reihe** – die wichtigste unendliche Summe der Mathematik."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Berechne ${{a}} + {{a}} \cdot \frac{1}{ {{k}} } + {{a}} \cdot \frac{1}{ {{k * k}} } + \dots$ Auf zwei Stellen.
+    answer:
+      value: "{{a * k / (k - 1)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - a / (1 - k)) < 0.01
+        misconception: q-inverted
+        text: Hier ist q = 1/{{k}}, nicht {{k}}.
+    hints:
+      - a = {{a}}, q = 1/{{k}}.
+      - "{{a}} : (1 − 1/{{k}})."
+    explanation: "{{a}} : ({{k - 1}}/{{k}}) = {{a * k / (k - 1)}}."
+    variants:
+      params:
+        a: int[2,9]
+        k: choice[2,3,4,5]
+      defaults:
+        a: 6
+        k: 3
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ist |q| ≥ 1, schrumpfen die Glieder nicht. Dann wächst die Summe über alle Grenzen oder springt hin und her: Sie **divergiert**. Eine Reihe kann nur konvergieren, wenn ihre Glieder gegen 0 gehen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: buckets
+    prompt: Konvergiert die Reihe $\sum q^n$ oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: Konvergiert
+        - id: b2
+          label: Divergiert
+      items:
+        - label: q = 1/2
+          bucket: b1
+        - label: q = −1/2
+          bucket: b1
+        - label: q = 0,99
+          bucket: b1
+        - label: q = 2
+          bucket: b2
+        - label: q = −1
+          bucket: b2
+        - label: q = 1
+          bucket: b2
+    hints:
+      - Es kommt nur auf |q| an.
+      - Konvergenz genau für |q| < 1.
+    explanation: "Auch q = 0,99 konvergiert, nur langsam: gegen 1 : 0,01 = 100. Bei q = −1 springt die Summe zwischen 1 und 0."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist 0,9 + 0,09 + 0,009 + …?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0.999
+        misconception: finite
+        text: Das sind nur drei Glieder. Unendlich viele schließen die Lücke ganz.
+    hints:
+      - a = 0,9, q = 0,1.
+      - "0,9 : 0,9."
+    explanation: "0,9 : (1 − 0,1) = 1. Das ist der Grund, warum 0,999… = 1."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Die **Koch-Schneeflocke**: Setz auf jede Strecke eines Dreiecks ein kleines Dreieck, immer wieder. Der Umfang wächst jedes Mal mal 4/3 – also ins Unendliche. Die Fläche aber ist eine geometrische Reihe und bleibt endlich."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Das Start-Dreieck der Schneeflocke hat die Fläche 1. Die neuen Dreiecke bringen $\frac13 + \frac13 \cdot \frac49 + \frac13 \cdot \left(\frac49\right)^2 + \dots$ dazu. Wie groß ist die Fläche am Ende?
+    answer:
+      value: 1.6
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.6
+        misconception: forgot-start
+        text: Das ist nur der Zuwachs. Das Start-Dreieck kommt dazu.
+    hints:
+      - "Zuwachs: (1/3) : (1 − 4/9) = (1/3) : (5/9)."
+      - Das ist 3/5. Plus 1.
+    explanation: 1 + 3/5 = 8/5 = 1,6. Unendlicher Rand um eine endliche Fläche – ein Fraktal.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Was ergibt 1 − 1 + 1 − 1 + 1 − …?
+    params:
+      options:
+        - label: Keinen Grenzwert – die Teilsummen springen 1, 0, 1, 0.
+          correct: true
+        - label: Genau 0
+          feedback: Klammert man (1 − 1) + (1 − 1), sieht es so aus. Anders geklammert kommt 1 heraus.
+        - label: Genau ½
+          feedback: Das ist der Mittelwert der Teilsummen – ein Ersatzwert, kein Grenzwert.
+    hints:
+      - Schreib die Teilsummen auf.
+      - Nähern sie sich einer Zahl?
+    explanation: Die Reihe divergiert, weil q = −1. Wer bei unendlichen Summen beliebig umklammert, kann alles »beweisen« – darum braucht man den Grenzwert.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Wie können unendlich viele Stücke ½ + ¼ + ⅛ + … zusammen genau 1 ergeben?"
+    params:
+      keywords:
+        - - rest
+          - lücke
+          - fehlt
+          - gap
+          - missing
+          - left
+        - - halb
+          - hälfte
+          - half
+          - halv
+        - - grenzwert
+          - beliebig klein
+          - "null"
+          - limit
+          - tiny
+          - zero
+      sample: Nach jedem Schritt fehlt bis zur 1 noch ein Rest, und der nächste Schritt füllt genau die Hälfte davon. Der Rest wird also beliebig klein. Der Grenzwert der Teilsummen ist deshalb genau 1.
+    explanation: Eine unendliche Summe ist der Grenzwert ihrer Teilsummen. Schrumpft der Rest gegen 0, ist das Ergebnis endlich.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c5", "d2"]

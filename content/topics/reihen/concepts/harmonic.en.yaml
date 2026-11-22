@@ -1,0 +1,193 @@
+id: math.series.harmonic
+type: concept
+title: "The harmonic series"
+summary: "Books hanging over the edge, and a sum that creeps slowly to infinity."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You stack identical books so that each sticks out over the one below. How many do you need at least until the top one lies completely beyond the table edge?
+    params:
+      options:
+        - label: "4"
+          correct: true
+        - label: Fewer suffice – try it with the calculation in a moment.
+          feedback: Weniger reicht schon – probier es mit der Rechnung gleich aus.
+        - label: It works – and with enough books the stack reaches out arbitrarily far.
+          feedback: Es geht – und mit genug Büchern ragt der Stapel sogar beliebig weit hinaus.
+    hints:
+      - The top book can stick out by half a length.
+      - The next ones by ¼, ⅙, ⅛ …
+    explanation: "With 4 books: ½ + ¼ + ⅙ + ⅛ ≈ 1.04 book lengths. The overhang is half a harmonic series."
+
+  - kind: explain
+    id: c1
+    body: The **harmonic series** is $1 + \frac12 + \frac13 + \frac14 + \dots$ Its partial sums are called $H_n$. For the book stack, the largest overhang with n books is exactly $\frac12 H_n$ book lengths.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: What is $H_4 = 1 + \frac12 + \frac13 + \frac14$? To two decimals.
+    answer:
+      value: 2.08
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 1.04) < 0.01
+        misconception: halved
+        text: That is already halved, the overhang. H₄ itself is twice as big.
+    hints:
+      - Common denominator 12.
+      - 12/12 + 6/12 + 4/12 + 3/12.
+    explanation: "25/12 ≈ 2.08. The overhang with 4 books is half of it: 25/24 ≈ 1.04."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Does the harmonic series converge?
+    params:
+      options:
+        - label: No – it grows past every bound, just very slowly.
+          correct: true
+        - label: After 4 terms it is already above 2.
+          feedback: Nach 4 Gliedern ist sie schon über 2.
+        - label: That is not enough. The terms shrink too slowly.
+          feedback: Das reicht nicht. Die Glieder schrumpfen zu langsam.
+    hints:
+      - "Group ⅓ + ¼: more than ½."
+      - "Then ⅕ to ⅛: again more than ½."
+    explanation: Ever new groups worth more than ½ – infinitely many. That is why the book stack can overhang arbitrarily far.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: What is the largest overhang in book lengths for a stack of {{n}} books? The partial sum is $H_{ {{n}} } \approx {{h}}$. To two decimals.
+    answer:
+      value: "{{h / 2}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - h) < 0.01
+        misconception: not-halved
+        text: The overhang is half the harmonic sum.
+    hints:
+      - Overhang = ½ · Hₙ.
+      - "{{h}} / 2."
+    explanation: ½ · {{h}} ≈ {{h / 2}} book lengths.
+    variants:
+      params:
+        n: choice[5,6,8,10]
+      derive:
+        h: "n == 5 ? 2.283 : n == 6 ? 2.45 : n == 8 ? 2.718 : 2.929"
+      defaults:
+        n: 10
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The partial sums grow almost exactly like the logarithm: $H_n \\approx \\ln n + \\gamma$. The number γ ≈ 0.5772 is called the **Euler–Mascheroni constant**. Nobody knows to this day whether it is a fraction."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Estimate $H_{1000}$ using $\ln 1000 \approx 6.908$ and γ ≈ 0.577. To two decimals.
+    answer:
+      value: 7.49
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 6.91) < 0.01
+        misconception: forgot-gamma
+        text: Add the constant γ.
+    hints:
+      - $H_n \approx \ln n + \gamma$.
+      - 6.908 + 0.577.
+    explanation: "≈ 7.49 (exactly: 7.4855). A thousand terms, and the sum is not even 8."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many books do you need for an overhang of 3 book lengths, i.e. $H_n > 6$?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 227
+      within: 30
+    explanation: Exactly 227 books. For 10 book lengths you would need around 270 million.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "With alternating signs it converges: $1 - \\frac12 + \\frac13 - \\frac14 + \\dots = \\ln 2$. But the **Riemann rearrangement theorem** says: by reordering the terms you can reach any value you like."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: What is $1 - \frac12 + \frac13 - \frac14 + \dots$ to three decimals?
+    answer:
+      value: 0.693
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.583) < 0.002
+        misconception: partial
+        text: That is only four terms. The limit is ln 2.
+    hints:
+      - The series for ln(1 + x) is x − x²/2 + x³/3 − …
+      - Put x = 1.
+    explanation: ln 2 ≈ 0.693. The partial sums swing around this value and get ever closer.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: When can you safely reorder the terms of an infinite sum?
+    params:
+      options:
+        - label: When the sum of the absolute values is finite too.
+          correct: true
+        - label: For finite sums yes, for infinite ones no.
+          feedback: Für endliche Summen ja, für unendliche nicht.
+        - label: For ½ + ¼ + ⅛ + … reordering changes nothing.
+          feedback: Bei ½ + ¼ + ⅛ + … ändert Umordnen nichts.
+    hints:
+      - The absolute values of the alternating series form the harmonic series.
+      - That diverges – which makes the alternating series fragile.
+    explanation: This is called **absolute convergence**. Only then does an infinite sum behave like a finite one.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the harmonic series grows past every bound.
+    params:
+      keywords:
+        - - gruppe
+          - zusammenfass
+          - group
+        - - hälfte
+          - half
+          - mehr als
+          - more than
+        - - unendlich
+          - beliebig
+          - infinite
+          - endless
+          - grenze
+          - bound
+      sample: "I group the terms: ⅓ + ¼, then ⅕ to ⅛, then 1/9 to 1/16. Each group is more than a half. There are infinitely many groups, so the sum grows past every bound."
+    explanation: Infinitely many halves are infinite – however slowly they come.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

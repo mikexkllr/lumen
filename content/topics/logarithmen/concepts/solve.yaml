@@ -5,7 +5,7 @@ summary: Wann ist es doppelt so viel?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: gleichung
@@ -77,6 +77,49 @@ steps:
     explanation: "Nach 11 Jahren. Die 72er-Regel schätzt: 72 : 7 ≈ 10,3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Steht die Unbekannte im Exponenten, nimmt man auf beiden Seiten den **Logarithmus**. Aus $a^x = b$ wird $x \log a = \log b$, also $x = \frac{\log b}{\log a}$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Löse $2^x = 10$ auf zwei Stellen. (log₁₀ 2 ≈ 0,301)
+    answer:
+      value: 3.32
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: multiply-not-power
+        text: 2 · 5 = 10, aber hier ist 2 hoch x gesucht.
+    hints:
+      - "x = log 10 : log 2."
+      - "1 : 0,301."
+    explanation: "x ≈ 3,32. Probe: 2³ = 8, 2⁴ = 16 – die Lösung liegt dazwischen."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Geld wächst mit 5 % pro Jahr. Nach wie vielen Jahren hat es sich verdreifacht? Löse $1{,}05^x = 3$ auf eine Stelle. (ln 3 ≈ 1,0986, ln 1,05 ≈ 0,0488)
+    params:
+      unit: Jahre
+    answer:
+      value: 22.5
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: simple-interest
+        text: "Das wäre ohne Zinseszins: 3 = 1 + 0,05 · 40."
+    hints:
+      - "x = ln 3 : ln 1,05."
+      - "1,0986 : 0,0488."
+    explanation: ≈ 22,5 Jahre – also nach 23 vollen Jahren.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -111,6 +154,46 @@ steps:
         - - basis
           - base
       sample: "Der Logarithmus ist die Umkehrung des Potenzierens. Er fragt: Mit welchem Exponenten muss ich die Basis hoch nehmen, um die Zahl zu bekommen?"
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Logarithmen gibt es nur von positiven Zahlen. Löst man $\log x + \log(x - 3) = 1$, wird daraus x(x − 3) = 10 mit x = 5 oder x = −2. Der **Definitionsbereich** verlangt x > 3 – nur x = 5 bleibt.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Löse $\log_2 x + \log_2(x + 2) = 3$.
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == -4
+        misconception: domain
+        text: x = −4 löst x(x + 2) = 8, aber log₂(−4) gibt es nicht.
+    hints:
+      - "Zusammenfassen: $\\log_2(x(x + 2)) = 3$, also x(x + 2) = 8."
+      - x² + 2x − 8 = (x − 2)(x + 4).
+    explanation: "x = 2 oder x = −4; nur x = 2 ist erlaubt. Probe: log₂ 2 + log₂ 4 = 1 + 2 = 3."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Löse $e^{2x} = 7$ auf drei Stellen. (ln 7 ≈ 1,9459)
+    answer:
+      value: 0.973
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 1.946) < 0.002
+        misconception: forgot-coefficient
+        text: Das ist 2x. Teile noch durch 2.
+    hints:
+      - "ln auf beiden Seiten: 2x = ln 7."
+      - "x = 1,9459 : 2."
+    explanation: x ≈ 0,973. Beim Zerfall $e^{-\lambda t}$ löst man genauso nach t auf.
     difficulty: 3
 
 srs:

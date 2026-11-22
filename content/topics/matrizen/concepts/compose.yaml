@@ -5,7 +5,7 @@ summary: Matrix mal Matrix.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,28 @@ steps:
     explanation: Die achte Potenz der Drehmatrix ist die Einheitsmatrix.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Die **Inverse** einer 2 × 2-Matrix: Tausche a und d, dreh die Vorzeichen von b und c um und teile durch die Determinante: $\\frac{1}{ad - bc}\\begin{pmatrix} d & -b \\\\ -c & a \\end{pmatrix}$. Ist die Determinante 0, gibt es keine."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Bestimme die Inverse von (2 1 | 1 1). Welcher Eintrag steht oben rechts?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-sign-flip
+        text: Bei b und c dreht sich das Vorzeichen um.
+    hints:
+      - "Determinante: 2 · 1 − 1 · 1 = 1."
+      - "Inverse: (1 −1 | −1 2)."
+    explanation: "Oben rechts steht −1. Probe: (2 1 | 1 1) · (1 −1 | −1 2) = (1 0 | 0 1)."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +130,57 @@ steps:
     hints:
       - Erst Socken, dann Schuhe. Wie ziehst du sie wieder aus?
     explanation: Rückgängig macht man in umgekehrter Reihenfolge.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Erst um β drehen, dann um α, ist eine Drehung um α + β. Multipliziert man die zwei Drehmatrizen aus, steht oben links $\cos\alpha\cos\beta - \sin\alpha\sin\beta$. Das muss cos(α + β) sein – so beweist man die **Additionstheoreme**.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Die Scherung S = (1 1 | 0 1) wird {{n}}-mal hintereinander angewendet. Welcher Eintrag steht dann oben rechts in $S^{ {{n}} }$?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-growth
+        text: "Rechne S² aus: (1 2 | 0 1). Der Eintrag wächst."
+      - when: numval(state.input) == 2 ** n
+        misconception: exponential
+        text: Er verdoppelt sich nicht – es kommt jedes Mal 1 dazu.
+    hints:
+      - S² = (1 2 | 0 1), S³ = (1 3 | 0 1).
+      - Jede Scherung schiebt um eine weitere Einheit.
+    explanation: $S^{ {{n}} }$ = (1 {{n}} | 0 1). Scherungen addieren sich – wie Verschiebungen im Kleinen.
+    difficulty: 3
+    variants:
+      params:
+        n: int[2,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum (A · B)⁻¹ = B⁻¹ · A⁻¹ ist – mit Socken und Schuhen.
+    params:
+      keywords:
+        - - socken
+          - socks
+        - - schuhe
+          - shoes
+        - - umgekehrt
+          - rückwärts
+          - reverse
+          - backwards
+          - zuerst
+          - first
+      sample: "Morgens ziehe ich erst Socken, dann Schuhe an. Abends mache ich es rückgängig in umgekehrter Reihenfolge: erst Schuhe aus, dann Socken. Genauso macht man A · B rückgängig: in umgekehrter Reihenfolge, also B⁻¹ · A⁻¹."
+    explanation: Was zuletzt gemacht wurde, wird zuerst rückgängig gemacht.
     difficulty: 3
 
 srs:

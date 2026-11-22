@@ -1,0 +1,191 @@
+id: math.groups.cube
+type: concept
+title: "Permutations and the Rubik's cube"
+summary: "Swaps, cycles, orders – and why the cube has 43 quintillion positions."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different positions does a Rubik's cube have?"
+    params:
+      min: 1000000
+      max: 1e+30
+      scale: log
+    answer:
+      value: 43000000000000000000
+      within: 80
+    explanation: Exactly 43,252,003,274,489,856,000 – about 43 quintillion. Trying one per second would take more than a trillion years.
+
+  - kind: explain
+    id: c1
+    body: A **permutation** rearranges things. All permutations of n things form a group under composition, the symmetric group $S_n$. It has n! elements. Every cube move is a permutation of the little pieces.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many elements does $S_{ {{n}} }$, the group of all rearrangements of {{n}} things, have?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: square
+        text: Not n², but n · (n − 1) · … · 1.
+    hints:
+      - The first place has {{n}} options, then {{n - 1}}, …
+      - "{{n}}!"
+    explanation: "{{n}}! = {{f}}."
+    variants:
+      params:
+        n: int[3,7]
+      derive:
+        f: "n == 3 ? 6 : n == 4 ? 24 : n == 5 ? 120 : n == 6 ? 720 : 5040"
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Three places A, B, C. First you swap the contents of A and B, then those of B and C. Where does what started on A end up?
+    params:
+      options:
+        - label: On C
+          correct: true
+        - label: It is moved to B in the first swap.
+          feedback: Es wird im ersten Tausch nach B gebracht.
+        - label: In the second swap it moves on from B.
+          feedback: Im zweiten Tausch wandert es von B weiter.
+    hints:
+      - After the first swap it lies on B.
+      - The second swap involves B and C.
+    explanation: A → B → C. Two swaps give a three-cycle. Every permutation can be built from swaps.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "A move sends three corners round in a circle: A → B → C → A. How often must you do it until everything is back?"
+    answer:
+      value: 3
+    hints:
+      - Follow one corner.
+      - "A → B → C → A: three steps."
+    explanation: A three-cycle has order 3.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: If you split a permutation into cycles, its **order** is the least common multiple of the cycle lengths. A two-cycle and a three-cycle need lcm(2, 3) = 6 repetitions.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A move cycles {{a}} edges and at the same time {{b}} corners in another cycle. How often must you repeat it until everything is back?
+    answer:
+      value: "{{lcm(a, b)}}"
+    feedback:
+      - when: numval(state.input) == a * b && lcm(a, b) != a * b
+        misconception: product-not-lcm
+        text: The product always works, but is not the smallest. Take the lcm.
+    hints:
+      - Both cycles must finish at the same time.
+      - lcm({{a}}, {{b}}).
+    explanation: lcm({{a}}, {{b}}) = {{lcm(a, b)}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: int[2,6]
+      constraints:
+        - a != b
+      defaults:
+        a: 4
+        b: 6
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: How often must you repeat the sequence »turn right, turn top« (R U) until the cube is solved again?
+    params:
+      options:
+        - label: 105 times
+          correct: true
+        - label: Each turn alone has order 4, the combination does not.
+          feedback: Jede Drehung für sich hätte Ordnung 4, die Kombination nicht.
+        - label: Every element of a finite group has an order.
+          feedback: Jedes Element einer endlichen Gruppe hat eine Ordnung.
+    hints:
+      - R U moves corners and edges in cycles of different lengths.
+      - The order is the lcm, counting the twists of the pieces.
+    explanation: 105 = the lcm of cycle lengths and twists. In a finite group every sequence eventually comes back – guaranteed.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The cube group has $\\frac{8! \\cdot 3^7 \\cdot 12! \\cdot 2^{11}}{2}$ elements. 8! places and $3^7$ twists of the corners, 12! places and $2^{11}$ flips of the edges. The last factor ½ comes from **parity**: corners and edges are always permuted evenly or oddly together."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Why does it say $3^7$ and not $3^8$, although each of the 8 corners has three orientations?
+    params:
+      options:
+        - label: The twist of the last corner follows from the other seven.
+          correct: true
+        - label: Every corner can be twisted – just not on its own.
+          feedback: Jede Ecke lässt sich drehen – aber nicht allein.
+        - label: Size is no reason. It is about a conservation rule.
+          feedback: Die Größe ist kein Grund. Es geht um eine Erhaltungsregel.
+    hints:
+      - Every move changes the sum of corner twists only by multiples of 3.
+      - So the sum modulo 3 is always 0.
+    explanation: The sum of all corner twists is conserved modulo 3. Twisting a single corner makes the cube unsolvable.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: How many possibilities are there for the 8 corners alone – $8! \cdot 3^7$?
+    answer:
+      value: 88179840
+    hints:
+      - 8! = 40,320 and 3⁷ = 2187.
+      - 40,320 · 2187.
+    explanation: 88,179,840 – nearly 90 million for the corners alone. In 2010 it was proved that every position can be solved in at most 20 moves, »God's number«.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why every move sequence on a Rubik's cube eventually leads back to the start.
+    params:
+      keywords:
+        - - endlich
+          - begrenzt
+          - finite
+          - limited
+        - - wiederhol
+          - gleiche stellung
+          - repeat
+          - same position
+        - - rückgängig
+          - invers
+          - umkehr
+          - undo
+          - inverse
+          - reverse
+      sample: There are only finitely many positions. Repeating a move sequence, some position must come up a second time. Because every move can be undone, the first repeat was already the start.
+    explanation: "Finitely many positions plus reversibility: every element of a finite group has a finite order."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2"]

@@ -5,7 +5,7 @@ summary: Sine, cosine, and tangent in a triangle.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -122,6 +122,50 @@ steps:
     explanation: 2000 · 0.5 = 1000 m.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "In every triangle the **law of sines** holds: $\\frac{a}{\\sin\\alpha} = \\frac{b}{\\sin\\beta} = \\frac{c}{\\sin\\gamma}$. Big sides face big angles. This also works in triangles without a right angle."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: In a triangle a = 10 cm, α = 30° and β = 45°. How long is b? To two decimals. (sin 45° ≈ 0.7071)
+    params:
+      unit: cm
+    answer:
+      value: 14.14
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 7.07) < 0.01
+        misconception: swapped-ratio
+        text: You divided by sin 45° instead of sin 30°.
+    hints:
+      - b = a · sin β / sin α.
+      - 10 · 0.7071 / 0.5.
+    explanation: b = 10 · 0.7071 / 0.5 ≈ 14.14 cm. The bigger angle β faces the longer side.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A triangle has sides 3, 5 and 7. How large is the angle opposite the side 7, in degrees?
+    params:
+      unit: °
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: sign-cos
+        text: cos γ is negative, so γ is obtuse.
+    hints:
+      - "Law of cosines rearranged: cos γ = (a² + b² − c²) / (2ab)."
+      - (9 + 25 − 49) / 30 = −0.5.
+    explanation: cos γ = −0.5, so γ = 120°. An obtuse angle – 7² is bigger than 3² + 5².
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -132,6 +176,60 @@ steps:
     hints:
       - "Law of cosines: c² = a² + b² − 2ab · cos γ."
     explanation: 25 + 64 − 40 = 49, so c = 7. The law of cosines is Pythagoras for arbitrary triangles.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "The **law of cosines** $c^2 = a^2 + b^2 - 2ab\\cos\\gamma$ is Pythagoras with a correction. Proof with vectors: $|\\vec a - \\vec b|^2 = |\\vec a|^2 + |\\vec b|^2 - 2\\,\\vec a \\cdot \\vec b$. At γ = 90° the dot product is zero."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Two sides of a triangle are {{a}} cm and {{b}} cm long and enclose 30°. What is the area $\frac12 ab \sin\gamma$ in cm²?
+    params:
+      unit: cm²
+    answer:
+      value: "{{a * b / 4}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a * b / 2
+        misconception: right-angle
+        text: That would be at 90°. At 30° the height is only half as big.
+    hints:
+      - The height on a is b · sin 30° = b / 2.
+      - ½ · {{a}} · {{b}} · 0.5.
+    explanation: ½ · {{a}} · {{b}} · ½ = {{a * b / 4}} cm².
+    difficulty: 3
+    variants:
+      params:
+        a: int[3,12]
+        b: step[4,16,2]
+      defaults:
+        a: 6
+        b: 8
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is the law of cosines a generalisation of Pythagoras?"
+    params:
+      keywords:
+        - - "90"
+          - rechter winkel
+          - right angle
+        - - "null"
+          - zero
+          - cos 90
+        - - korrektur
+          - abzug
+          - minus
+          - correction
+          - subtract
+      sample: The law of cosines says c² = a² + b² − 2ab cos γ. For a right angle of 90° cos γ is zero and the subtraction vanishes. Then exactly Pythagoras is left.
+    explanation: "The extra term measures how far γ is from 90°: acute makes c shorter, obtuse longer."
     difficulty: 3
 
 srs:

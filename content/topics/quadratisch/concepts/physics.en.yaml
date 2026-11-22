@@ -5,7 +5,7 @@ summary: When does the ball hit the ground?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,63 @@ steps:
     explanation: 5t² = 45, so t² = 9 and t = 3. The negative solution has no meaning here.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "If you throw straight up at $v_0$, the height is $h(t) = v_0 t - 5t^2$ (with g ≈ 10 m/s²). This **throw parabola** has two zeros: the throw at t = 0 and the landing at $t = \\frac{v_0}{5}$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: You throw a ball straight up at {{v}} m/s. After how many seconds is it back down? Use $h(t) = {{v}}t - 5t^2$.
+    params:
+      unit: s
+    answer:
+      value: "{{v / 5}}"
+    feedback:
+      - when: numval(state.input) == v / 10
+        misconception: peak-not-landing
+        text: That is the peak. Landing takes twice as long.
+    hints:
+      - "Factor out t: t · ({{v}} − 5t) = 0."
+      - "{{v}} − 5t = 0."
+    explanation: t = {{v}} / 5 = {{v / 5}} s. Up and down take equally long.
+    difficulty: 2
+    variants:
+      params:
+        v: step[10,40,5]
+      defaults:
+        v: 20
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: On the Moon gravity is only 1.6 m/s². Set it and throw at least 60 m at 10 m/s.
+    params:
+      scene: projectile
+      controls:
+        g:
+          fixed: false
+          value: 9.8
+        speed:
+          value: 10
+          fixed: true
+      show:
+        - range
+        - height
+        - time
+    answer:
+      g:
+        - 1.55
+        - 1.65
+      range:
+        - 60
+        - 63
+    explanation: The range is $\frac{v^2 \sin 2\alpha}{g}$. With g = 1.6 and 45° the ball flies 62.5 m – six times as far as on Earth.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +164,79 @@ steps:
     answer:
       angle: 45
     explanation: At 45°. The range depends on sin(2α) – which is largest at 2α = 90°.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Split the throw into horizontal $v\cos\alpha$ and vertical $v\sin\alpha$. The flight time is $\frac{2v\sin\alpha}{g}$, so the **range** is $\frac{v^2 \cdot 2\sin\alpha\cos\alpha}{g} = \frac{v^2 \sin 2\alpha}{g}$. Largest at 2α = 90°.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: sim
+    prompt: At 20 m/s and 30° the ball lands at 35.3 m. Find another angle that gives exactly the same range.
+    params:
+      scene: projectile
+      controls:
+        speed:
+          value: 20
+          fixed: true
+        angle:
+          value: 30
+      show:
+        - range
+        - height
+    answer:
+      angle: 60
+    explanation: sin(2 · 60°) = sin(120°) = sin(60°) = sin(2 · 30°). Two angles that add up to 90° fly equally far – the steep one just higher and longer.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: How does air resistance change the best launch angle?
+    params:
+      options:
+        - label: It becomes less than 45°.
+          correct: true
+        - label: 45° holds only without air. A long flight loses a lot of speed in air.
+          feedback: 45° gilt nur ohne Luft. Ein langer Flug kostet mit Luft viel Tempo.
+        - label: Steeper means a longer flight – the air slows it even more.
+          feedback: Steiler heißt längere Flugzeit – das bremst die Luft noch mehr.
+    hints:
+      - The air brakes more the longer the ball flies.
+      - A flatter throw spends less time in the air.
+    explanation: With air resistance the path is no longer a parabola, and the best angle is below 45°. Shot-putters usually release below 40° – partly because the shot starts over 2 m above the ground.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is a ball thrown upward at the same height twice?"
+    params:
+      keywords:
+        - - steigen
+          - hoch
+          - rauf
+          - rising
+          - up
+          - going up
+        - - fallen
+          - runter
+          - falling
+          - down
+          - coming down
+        - - zwei lösungen
+          - zweimal
+          - parabel
+          - two solutions
+          - twice
+          - parabola
+      sample: The height follows a parabola. The ball is at 5 m once going up and once coming down. That is why the quadratic equation h(t) = 5 has two solutions.
+    explanation: A horizontal line cuts a parabola twice below the peak. At the peak only once, above it never.
     difficulty: 3
 
 srs:

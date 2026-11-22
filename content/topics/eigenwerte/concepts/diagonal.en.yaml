@@ -1,0 +1,177 @@
+id: math.eigen.diagonal
+type: concept
+title: "Diagonalisation"
+summary: "With eigenvectors matrix powers become easy – from Fibonacci to data analysis."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how big is the 30th Fibonacci number (1, 1, 2, 3, 5, 8, …)?"
+    params:
+      min: 1000
+      max: 100000000
+      scale: log
+    answer:
+      value: 832040
+      within: 40
+    explanation: F₃₀ = 832,040. By the end of this lesson you can compute it directly with eigenvalues.
+
+  - kind: explain
+    id: c1
+    body: "For a **diagonal matrix** powers are easy: $\\begin{pmatrix} 2 & 0 \\\\ 0 & 3 \\end{pmatrix}^n = \\begin{pmatrix} 2^n & 0 \\\\ 0 & 3^n \\end{pmatrix}$. Each axis is simply stretched n times by its factor."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Which entry is bottom right in $\begin{pmatrix} 2 & 0 \\ 0 & {{b}} \end{pmatrix}^{ {{n}} }$?
+    answer:
+      value: "{{b ** n}}"
+    feedback:
+      - when: numval(state.input) == b * n
+        misconception: multiply
+        text: "Power, not product: {{b}} is multiplied {{n}} times."
+    hints:
+      - Bottom right is {{b}} to the power {{n}}.
+      - "{{b}}^{{n}}."
+    explanation: "{{b}}^{{n}} = {{b ** n}}."
+    variants:
+      params:
+        b: int[3,5]
+        n: int[2,5]
+      defaults:
+        b: 3
+        n: 4
+
+  - kind: explain
+    id: c3
+    body: "If A has enough eigenvectors, write $A = P D P^{-1}$: P holds the eigenvectors, D the eigenvalues. Then $A^n = P D^n P^{-1}$. That is **diagonalisation** – viewing the matrix in its own axes."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: For M = (1 1 | 1 0), $M^n = \begin{pmatrix} F_{n+1} & F_n \\ F_n & F_{n-1} \end{pmatrix}$ with Fibonacci numbers. Which entry is top left in $M^{ {{n}} }$?
+    answer:
+      value: "{{f}}"
+    hints:
+      - Top left is $F_{n+1}$, here $F_{ {{n + 1}} }$.
+      - 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 …
+    explanation: $F_{ {{n + 1}} }$ = {{f}}. Each multiplication by M takes one Fibonacci step.
+    variants:
+      params:
+        n: int[3,9]
+      derive:
+        f: "n == 3 ? 3 : n == 4 ? 5 : n == 5 ? 8 : n == 6 ? 13 : n == 7 ? 21 : n == 8 ? 34 : 55"
+      defaults:
+        n: 5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The eigenvalues of M = (1 1 | 1 0) solve $\\lambda^2 - \\lambda - 1 = 0$: they are φ ≈ 1.618 and ψ ≈ −0.618. Diagonalising yields exactly **Binet's formula** $F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt5}$."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: What is the product of the two eigenvalues φ · ψ of M = (1 1 | 1 0)?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: sign
+        text: The determinant is 1 · 0 − 1 · 1.
+    hints:
+      - Product of the eigenvalues = determinant.
+      - 1 · 0 − 1 · 1.
+    explanation: φ · ψ = −1. So ψ = −1/φ, and |ψ| < 1 makes $\psi^n$ vanish quickly.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Compute $F_{30} \approx \frac{\varphi^{30}}{\sqrt5}$ with $\varphi^{30} \approx 1,860,498$ and √5 ≈ 2.23607. Round to a whole number.
+    answer:
+      value: 832040
+      tolerance: 1
+    hints:
+      - 1,860,498 / 2.23607.
+      - About 832,040.
+    explanation: F₃₀ = 832,040 – without 29 additions. The contribution of ψ is less than a millionth.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: In data work you take the eigenvectors of the covariance matrix. The one with the biggest eigenvalue points where the data spread most. This **principal component analysis** shrinks photos, faces and gene data.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A covariance matrix (2 1 | 1 2) has eigenvalues 3 and 1. What percentage of the spread does the first principal component explain?
+    params:
+      unit: "%"
+    answer:
+      value: 75
+    feedback:
+      - when: numval(state.input) == 300
+        misconception: not-normalised
+        text: Divide by the sum of all eigenvalues, 3 + 1.
+    hints:
+      - Share = eigenvalue / sum of eigenvalues.
+      - 3 / 4.
+    explanation: 75 % – along (1, 1). Using one instead of two numbers per point keeps three quarters of the information.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Can every matrix be diagonalised?
+    params:
+      options:
+        - label: No – the shear (1 1 | 0 1) has only one eigendirection.
+          correct: true
+        - label: For $PDP^{-1}$ you need as many independent eigenvectors as dimensions.
+          feedback: Für $PDP^{-1}$ braucht man so viele unabhängige Eigenvektoren wie Dimensionen.
+        - label: (2 1 | 1 2) can be diagonalised too.
+          feedback: Auch (2 1 | 1 2) lässt sich diagonalisieren.
+    hints:
+      - The shear has the double eigenvalue 1.
+      - Which arrows keep their direction?
+    explanation: Only the horizontal ones. A second independent eigenvector is missing. For such cases there is the Jordan normal form.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why eigenvectors let you compute high powers of a matrix quickly.
+    params:
+      keywords:
+        - - eigenvektor
+          - eigenrichtung
+          - eigenvector
+          - eigendirection
+        - - eigenwert hoch
+          - potenz
+          - hoch n
+          - power
+          - to the n
+        - - strecken
+          - gestreckt
+          - stretch
+          - stretches
+          - diagonal
+      sample: Along an eigenvector each step only stretches by the eigenvalue. After n steps that is the eigenvalue to the power n. Split a vector into eigenvectors, and you only raise numbers to powers instead of multiplying matrices.
+    explanation: In the eigenbasis the matrix is diagonal – and powers of diagonal matrices are powers of numbers.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

@@ -5,7 +5,7 @@ summary: Schätzen, einstellen, messen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: rechter
@@ -90,6 +90,49 @@ steps:
     explanation: Bei 30°. Der Sinus von 30° ist genau ein Halb.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Im **Bogenmaß** misst man einen Winkel durch die Länge seines Bogens auf dem Kreis mit Radius 1. Eine volle Drehung ist der Umfang 2π. Also sind 180° genau π, und 1 rad ≈ 57,3°.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viel ist {{w}}° im Bogenmaß? Gib den Faktor vor π an, etwa 1/2 für 90°.
+    answer:
+      value: "{{w}}/180"
+    feedback:
+      - when: numval(state.input) == w / 360
+        misconception: full-turn-pi
+        text: Eine volle Drehung ist 2π, nicht π. Teile durch 180.
+    hints:
+      - 180° = π.
+      - "Faktor = {{w}} : 180."
+    explanation: "{{w}}° = {{w}}/180 · π."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[30,45,60,120,135,150,270,300]
+      defaults:
+        w: 135
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Der Erdumfang ist rund 40 000 km. Wie viele km liegen zwischen zwei Breitengraden, die 1° auseinander sind? Runde auf ganze km.
+    params:
+      unit: km
+    answer:
+      value: 111
+      tolerance: 1
+    hints:
+      - Ein Grad ist der 360. Teil eines Kreises.
+      - "40 000 : 360."
+    explanation: "40 000 : 360 ≈ 111 km. Eine Bogenminute, ein Sechzigstel davon, ist die Seemeile: 1,852 km."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -102,6 +145,48 @@ steps:
     hints:
       - π entspricht 180°.
     explanation: "180° : 3 = 60°."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Warum rechnen Profis im Bogenmaß? Nur dort gilt für kleine Winkel $\sin x \approx x$ – die **Kleinwinkelnäherung**. Und nur dort ist die Ableitung von sin genau cos. In Grad stünde überall ein lästiger Faktor π/180.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Pendel schwingt 5° weit aus. Wie viel sind 5° im Bogenmaß? Auf drei Stellen. Vergleich mit sin 5° ≈ 0,0872.
+    answer:
+      value: 0.087
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: no-conversion
+        text: Das sind Grad. Mal π/180 nehmen.
+    hints:
+      - "5 · π : 180."
+      - "π : 36 ≈ 0,0873."
+    explanation: 0,0873 gegen 0,0872 – fast gleich. Darum ist die Pendelformel $T = 2\pi\sqrt{l/g}$ für kleine Ausschläge so genau.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein Winkel von 1 Radiant ist.
+    params:
+      keywords:
+        - - bogen
+          - arc
+        - - radius
+          - so lang wie der radius
+          - as long as the radius
+        - - "57"
+          - 57,3
+          - "57.3"
+      sample: Ein Radiant ist der Winkel, bei dem der Bogen auf dem Kreis genau so lang ist wie der Radius. Das sind etwa 57,3 Grad. Eine volle Drehung hat 2π Radiant.
+    explanation: Bogenmaß misst Winkel mit Längen. Darum passt es so gut zu Formeln für Bogen, Fläche und Ableitung.
     difficulty: 3
 
 srs:

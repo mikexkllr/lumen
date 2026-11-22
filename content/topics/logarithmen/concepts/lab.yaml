@@ -5,7 +5,7 @@ summary: Kurven, Skalen und Halbwertszeiten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: kurve
@@ -64,6 +64,59 @@ steps:
     explanation: Etwa 30, 60, 80 und 110 dB – das Konzert hat millionenfach mehr Energie als Flüstern.
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: slider
+    prompt: Die Kurve zeigt $y = \log_b x$. Stell die Basis b so ein, dass sie genau auf der gestrichelten Kurve liegt.
+    params:
+      expr: ln(x)/ln(b)
+      x:
+        - 0.25
+        - 8
+      y:
+        - -3
+        - 4
+      sliders:
+        - id: b
+          label: b
+          min: 1.5
+          max: 5
+          step: 0.5
+          initial: 4
+      target:
+        expr: ln(x)/ln(2)
+      markers:
+        - x: 8
+          y: 3
+          label: P
+    answer:
+      matchTarget: true
+    hints:
+      - Die gestrichelte Kurve geht durch (8 | 3).
+      - b hoch 3 = 8.
+    explanation: b = 2, denn 2³ = 8. Alle Logarithmus-Kurven gehen durch (1 | 0) – egal welche Basis.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: choice
+    prompt: In einem Diagramm sind beide Achsen logarithmisch. Die Kurve $y = x^3$ wird dort zu …?
+    params:
+      options:
+        - label: einer Geraden mit Steigung 3
+          correct: true
+        - label: einer Parabel
+          feedback: "Logarithmen machen aus Potenzen Faktoren: log y = 3 log x."
+        - label: einer waagerechten Linie
+          feedback: y wächst ja weiter mit x.
+    hints:
+      - Nimm auf beiden Seiten den Logarithmus.
+      - log y = 3 · log x.
+    explanation: log y = 3 log x ist eine Gerade in den Koordinaten (log x, log y). Ihre Steigung verrät den Exponenten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -79,6 +132,52 @@ steps:
     hints:
       - Was passiert bei 100 % Zins, wenn man unendlich oft verzinst?
     explanation: (1 + 1/n)ⁿ nähert sich e. Darum ist ln, der Logarithmus zur Basis e, der »natürliche«.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Viele Naturgesetze sind **Potenzgesetze** $y = c \\cdot x^k$: Fallzeit und Höhe, Umlaufzeit und Bahnradius, Stoffwechsel und Körpermasse. Im doppellogarithmischen Plot werden sie zu Geraden, und die Steigung ist k."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "Bei Planeten gilt: Ist die Bahn 100-mal so weit, dauert ein Umlauf 1000-mal so lang. Im Log-Plot sind das 2 Stufen nach rechts und 3 nach oben. Welches k steht in T ∝ rᵏ?"
+    answer:
+      value: 1.5
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.667) < 0.01
+        misconception: inverted
+        text: "Steigung ist Höhe durch Breite: 3 : 2, nicht 2 : 3."
+    hints:
+      - "Steigung = Δlog T : Δlog r."
+      - "3 : 2."
+    explanation: "k = 1,5: T² ∝ r³, das dritte Keplersche Gesetz. Kepler fand es 1619 – mit Logarithmen als Werkzeug kurz danach."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum wird Wachstum mit festem Faktor auf einer Log-Achse zur Geraden?"
+    params:
+      keywords:
+        - - faktor
+          - mal
+          - factor
+          - times
+        - - gleich
+          - gleiche schritte
+          - same
+          - equal steps
+        - - gerade
+          - linear
+          - line
+          - straight
+      sample: "Exponentiell heißt: in gleichen Zeitschritten mal denselben Faktor. Auf der logarithmischen Achse ist jeder Faktor ein gleich großer Schritt nach oben. Gleiche Schritte pro Zeit ergeben eine Gerade."
+    explanation: log(a · qᵗ) = log a + t · log q – das ist eine lineare Funktion von t mit Steigung log q.
     difficulty: 3
 
 srs:

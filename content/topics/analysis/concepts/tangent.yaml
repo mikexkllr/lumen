@@ -5,7 +5,7 @@ summary: Vom Durchschnitt zum Tacho.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -105,6 +105,51 @@ steps:
     explanation: Bei x = 0, im Scheitel. Dort ist die Steigung null.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Die Tangente bei x = a hat die Gleichung $y = f(a) + f'(a)\,(x - a)$. Nahe a ist sie fast die Kurve selbst. Diese **Linearisierung** nutzt man, wenn eine Funktion schwer zu rechnen ist.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Tangente an $y = x^2$ bei x = {{a}} ist $y = {{a * a}} + {{2 * a}}(x - {{a}})$. Wo schneidet sie die y-Achse?
+    answer:
+      value: "{{-a * a}}"
+    feedback:
+      - when: numval(state.input) == a * a
+        misconception: sign-error
+        text: "Vorzeichen: Bei x = 0 ist die Klammer −{{a}}."
+    hints:
+      - Setz x = 0 ein.
+      - "{{a * a}} + {{2 * a}} · (−{{a}})."
+    explanation: "{{a * a}} − {{2 * a * a}} = {{-a * a}}. Jede Tangente an x² schneidet die y-Achse bei −a²."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+      defaults:
+        a: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Schätze √4,1 mit der Tangente an √x bei x = 4. Die Steigung dort ist $\frac{1}{2\sqrt4} = 0{,}25$. Auf drei Stellen.
+    answer:
+      value: 2.025
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2.1
+        misconception: slope-one
+        text: Die Wurzel wächst nicht so schnell wie x. Nimm 0,1 mal die Steigung 0,25.
+    hints:
+      - √4 = 2, dazu 0,1 · 0,25.
+      - 2 + 0,025.
+    explanation: 2,025 – der echte Wert ist 2,0248. So rechneten Ingenieure vor dem Taschenrechner.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -123,6 +168,52 @@ steps:
     answer:
       slope: 9
     explanation: "Bei x = 2 oder x = −2: f′(x) = 3x² − 3 = 9."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Das **Newton-Verfahren** sucht Nullstellen mit Tangenten: Folge der Tangente bis zur x-Achse, dort neu ansetzen. $x_{neu} = x - \\frac{f(x)}{f'(x)}$. Jeder Schritt verdoppelt etwa die richtigen Stellen."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Suche √5 als Nullstelle von $f(x) = x^2 - 5$, Start bei x = 2. Es ist f(2) = −1 und f′(2) = 4. Was liefert der erste Newton-Schritt?
+    answer:
+      value: 2.25
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.75
+        misconception: sign-error
+        text: "Minus mal minus: 2 − (−1) : 4 = 2 + 0,25."
+    hints:
+      - $x_{neu} = 2 - \frac{-1}{4}$.
+      - 2 + 0,25.
+    explanation: 2,25. Der zweite Schritt gibt 2,2361 – schon auf vier Stellen gleich √5 = 2,23607.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was eine Tangente ist und wie sie mit dem Tacho zusammenhängt.
+    params:
+      keywords:
+        - - berührt
+          - touch
+          - berühren
+        - - jetzt
+          - augenblick
+          - moment
+          - instant
+          - now
+        - - steigung
+          - tempo
+          - slope
+          - speed
+      sample: Die Tangente berührt die Kurve in einem Punkt und hat dort dieselbe Steigung. Im Weg-Zeit-Graphen ist diese Steigung das Tempo in genau diesem Moment – das, was der Tacho zeigt.
+    explanation: Sekante = Durchschnittstempo, Tangente = Tempo im Augenblick.
     difficulty: 3
 
 srs:

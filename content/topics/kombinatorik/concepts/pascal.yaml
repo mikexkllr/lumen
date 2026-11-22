@@ -5,7 +5,7 @@ summary: Jede Zahl ist die Summe der zwei darüber.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: naechste
@@ -63,6 +63,50 @@ steps:
     explanation: "Das ist der **binomische Lehrsatz**: Die Zeilen liefern die Vorfaktoren von (a + b)ⁿ."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Multipliziere $(a + b)^n$ aus: Aus jeder der n Klammern nimmst du a oder b. Für $a^{n-k} b^k$ wählst du k Klammern für b – das geht auf $\\binom{n}{k}$ Arten. Das ist der **binomische Lehrsatz**."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Welcher Koeffizient steht vor $x^2$ in $(1 + x)^{ {{n}} }$?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: first-order
+        text: Das ist der Koeffizient vor x. Für x² wählst du zwei Klammern aus.
+    hints:
+      - Wie viele Arten gibt es, aus {{n}} Klammern 2 für x zu wählen?
+      - $\binom{n}{2} = n(n-1)/2$.
+    explanation: "$\\binom{ {{n}} }{2}$ = {{n}} · {{n - 1}} : 2 = {{n * (n - 1) / 2}}."
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist der Koeffizient vor $x^2$ in $(2 + x)^4$?
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-power
+        text: Das ist nur $\binom{4}{2}$. Die zwei übrigen Klammern liefern je eine 2.
+    hints:
+      - Zwei Klammern liefern x, die anderen zwei liefern 2.
+      - $\binom{4}{2} \cdot 2^2$.
+    explanation: $\binom{4}{2} \cdot 2^2 = 6 \cdot 4 = 24$.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -79,6 +123,64 @@ steps:
     hints:
       - Zeilen 2, 4, 8 … bestehen innen nur aus geraden Zahlen.
     explanation: Ein einfaches Zählmuster erzeugt ein Fraktal – Selbstähnlichkeit auf jeder Stufe.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "Addiere eine schräge Reihe im Dreieck: 1 + 3 + 6 + 10 + 15. Das Ergebnis steht direkt darunter versetzt. Wie lautet es?"
+    answer:
+      value: 35
+    hints:
+      - Rechne einfach aus – und suche die Zahl dann in Zeile 7.
+      - 1 + 3 + 6 + 10 + 15.
+    explanation: "35 = $\\binom{7}{3}$. Die **Hockeyschläger-Regel**: $\\sum_{i=2}^{6} \\binom{i}{2} = \\binom{7}{3}$. Sie folgt, weil jede Zahl die Summe der zwei darüber ist."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Setze x = −1 in $(1 + x)^n = \sum \binom{n}{k} x^k$ ein, mit n ≥ 1. Was folgt?
+    params:
+      options:
+        - label: Die Wechselsumme jeder Zeile ist 0.
+          correct: true
+        - label: Jede Zeilensumme ist 2ⁿ.
+          feedback: Das folgt aus x = +1.
+        - label: Die Zeilen sind symmetrisch.
+          feedback: Stimmt, folgt aber nicht aus x = −1.
+    hints:
+      - Links steht dann $0^n$.
+      - "Rechts wechseln die Vorzeichen: 1 − n + …"
+    explanation: $0 = 1 - \binom{n}{1} + \binom{n}{2} - \dots$ Es gibt also gleich viele Teilmengen mit gerader wie mit ungerader Größe.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum ist jede Zahl im Pascalschen Dreieck die Summe der zwei darüber? Denk an Wege."
+    params:
+      keywords:
+        - - weg
+          - wege
+          - path
+          - route
+        - - links
+          - rechts
+          - oben
+          - left
+          - right
+          - above
+        - - summe
+          - addier
+          - plus
+          - sum
+          - add
+      sample: Die Zahl zählt die Wege von der Spitze bis zu ihr. Jeder Weg kommt entweder von links oben oder von rechts oben. Also addiert man die Wege zu diesen zwei Feldern.
+    explanation: Jeder Weg hat einen letzten Schritt – von links oder von rechts. Darum gilt $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$.
     difficulty: 3
 
 srs:

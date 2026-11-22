@@ -5,7 +5,7 @@ summary: Ein Kreis, abgerollt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -102,6 +102,72 @@ steps:
     explanation: "Bei 270° ist der Punkt ganz unten: Sinus −1."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Die allgemeine Sinuskurve ist $y = a \\sin(b x) + d$. a ist die **Amplitude**, d die Mittellinie. Die Periode wird mit b kürzer: Sie ist 360° : b, im Bogenmaß 2π : b."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie lang ist die Periode von $y = \sin({{b}}x)$ in Grad?
+    params:
+      unit: °
+    answer:
+      value: "{{360 / b}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 360 * b
+        misconception: inverse-period
+        text: Ein größeres b macht die Schwingung schneller – die Periode kürzer.
+    hints:
+      - Eine volle Schwingung, wenn {{b}}x = 360°.
+      - "x = 360° : {{b}}."
+    explanation: "360° : {{b}} = {{360 / b}}°."
+    difficulty: 2
+    variants:
+      params:
+        b: choice[2,3,4,5,6,8]
+      defaults:
+        b: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: slider
+    prompt: Stell a und b so ein, dass $y = a \sin(b x)$ genau auf der gestrichelten Kurve liegt.
+    params:
+      expr: a*sin(b*x)
+      x:
+        - -4
+        - 4
+      y:
+        - -3
+        - 3
+      sliders:
+        - id: a
+          label: a
+          min: -3
+          max: 3
+          step: 0.5
+          initial: 1
+        - id: b
+          label: b
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 1
+      target:
+        expr: 2*sin(2*x)
+    answer:
+      matchTarget: true
+    hints:
+      - Wie hoch schwingt die Zielkurve? Das ist a.
+      - "Zähl die Wellen: Sie schwingt doppelt so schnell."
+    explanation: a = 2 (Höhe) und b = 2 (doppeltes Tempo, halbe Periode π).
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -118,6 +184,77 @@ steps:
     hints:
       - Denk an einen Akkord aus mehreren Tönen.
     explanation: MP3, JPEG und Rauschunterdrückung zerlegen Signale so in Frequenzen.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Riesenrad hat 50 m Durchmesser. Die Achse ist 30 m hoch, eine Runde dauert 20 Minuten. Du steigst unten ein. Wie hoch bist du nach 5 Minuten?
+    params:
+      unit: m
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 55
+        misconception: half-turn
+        text: Ganz oben bist du erst nach einer halben Runde, also nach 10 Minuten.
+      - when: abs(numval(state.input) - 17.5) < 0.1
+        misconception: linear-height
+        text: Die Höhe wächst nicht gleichmäßig – nach einer Vierteldrehung bist du auf Achshöhe.
+    hints:
+      - Die Höhe ist $30 - 25\cos(\frac{360°}{20} \cdot t)$.
+      - "Nach 5 Minuten: 90°, und cos 90° = 0."
+    explanation: "h(5) = 30 − 25 · cos 90° = 30 m: eine Vierteldrehung, genau auf Achshöhe."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: "Fourier zeigte: Jede periodische Kurve ist eine Summe von Sinuswellen. Eine **Rechteckwelle** ist $\\frac4\\pi\\left(\\sin x + \\frac13 \\sin 3x + \\frac15 \\sin 5x + \\dots\\right)$. Darauf beruhen MP3, JPEG und die Spektren der Physik."
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Eine Flöte und eine Geige spielen denselben Ton, also dieselbe Grundfrequenz. Warum klingen sie verschieden?
+    params:
+      options:
+        - label: Sie mischen verschieden starke Obertöne – Vielfache der Grundfrequenz – dazu.
+          correct: true
+        - label: Ihre Töne haben verschiedene Perioden.
+          feedback: Gleicher Ton heißt gleiche Periode.
+        - label: Die Geige ist lauter.
+          feedback: Lautstärke ändert die Amplitude, nicht die Klangfarbe.
+    hints:
+      - "Denk an Fourier: Welche Sinuswellen stecken im Ton?"
+      - Neben dem Grundton schwingen 2-, 3-, 4-mal so schnelle Wellen mit.
+    explanation: Die Mischung der Obertöne ist die **Klangfarbe**. Eine Flöte klingt fast wie ein reiner Sinus, eine Geige hat viele kräftige Obertöne.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Sinuskurve ein abgerollter Kreis ist.
+    params:
+      keywords:
+        - - höhe
+          - height
+        - - kreis
+          - drehen
+          - dreht
+          - circle
+          - rotat
+          - turn
+        - - winkel
+          - zeit
+          - angle
+          - time
+          - abrollen
+          - unroll
+      sample: Ein Punkt dreht sich auf dem Einheitskreis. Ich trage seine Höhe über dem Winkel ab. Weil sich die Drehung nach 360 Grad wiederholt, wiederholt sich auch die Kurve – das ist die Sinuskurve.
+    explanation: Sinus ist die Höhe beim Drehen. Alles, was sich gleichmäßig dreht oder schwingt, erzeugt darum Sinuskurven.
     difficulty: 3
 
 srs:

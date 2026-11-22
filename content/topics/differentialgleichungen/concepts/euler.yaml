@@ -1,0 +1,172 @@
+id: math.diffeq.euler
+type: concept
+title: "Das Euler-Verfahren"
+summary: "Schritt für Schritt der Steigung folgen – so rechnen Computer jede Simulation."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Es gilt $y' = y$ und y(0) = 1. Wie groß ist y(1)?"
+    params:
+      min: 1
+      max: 5
+      step: 0.05
+    answer:
+      value: 2.718
+      tolerance: 0.3
+    explanation: y(1) = e ≈ 2,718. Gleich rechnen wir das ohne Formel nach – nur mit kleinen Schritten.
+
+  - kind: explain
+    id: c1
+    body: "Das **Euler-Verfahren**: Kennst du den Wert jetzt, kennst du auch die Steigung. Geh ein kleines Stück h in diese Richtung: neuer Wert = alter Wert + h · Steigung. Dann wiederhole."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Löse $y' = y$, y(0) = 1 mit zwei Euler-Schritten der Länge h = 0,5. Was erhältst du für y(1)?
+    answer:
+      value: 2.25
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: one-step
+        text: Das wäre ein Schritt mit h = 1. Hier sind es zwei halbe.
+    hints:
+      - "Schritt 1: 1 + 0,5 · 1 = 1,5."
+      - "Schritt 2: 1,5 + 0,5 · 1,5."
+    explanation: 1,5 · 1,5 = 2,25. Jeder Schritt multipliziert mit (1 + h).
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Jetzt mit vier Schritten, h = 0,25. Was erhältst du für y(1)? Auf drei Stellen.
+    answer:
+      value: 2.441
+      tolerance: 0.001
+    hints:
+      - "Jeder Schritt: mal 1,25."
+      - 1,25⁴.
+    explanation: 1,25⁴ ≈ 2,441. Näher an e = 2,718. Mit n Schritten erhält man $(1 + \frac1n)^n$ – genau die Folge, die gegen e läuft.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Ordne die Schritte einer Runde der Rechnung.
+    params:
+      items:
+        - label: Aktuellen Wert y und Zeit t kennen
+        - label: Steigung f(t, y) ausrechnen
+        - label: y um h · Steigung erhöhen
+        - label: t um h erhöhen
+        - label: Wiederholen, bis das Ziel erreicht ist
+    hints:
+      - Die Steigung braucht den aktuellen Wert.
+      - Erst rechnen, dann weitergehen.
+    explanation: So rechnen Spiele, Wettermodelle und Crashtests – Millionen kleiner Schritte.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Halbiert man die **Schrittweite**, halbiert sich ungefähr der Fehler. Bei h = 0,5 fehlen 0,47 bis e, bei h = 0,25 noch 0,28. Euler ist ein Verfahren erster Ordnung: genau, aber langsam."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Mit h = 0,1 braucht man 10 Schritte, jeder mal 1,1. Wie groß ist $1{,}1^{10}$? Auf drei Stellen.
+    answer:
+      value: 2.594
+      tolerance: 0.001
+    hints:
+      - 1,1² = 1,21, 1,1⁴ ≈ 1,4641.
+      - 1,1¹⁰ = 1,1⁸ · 1,1².
+    explanation: ≈ 2,594, Fehler 0,12. Zehnmal so viel Arbeit wie mit h = 1 für etwa sechsmal weniger Fehler.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Ein Fallschirmspringer: $v' = 10 - 0{,}5\\,v$ (in m/s²), v(0) = 0. Rechne zwei Euler-Schritte mit h = 1 s. Wie groß ist v nach 2 s?"
+    params:
+      unit: m/s
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: no-drag
+        text: Ohne Luftwiderstand wären es 20. Im zweiten Schritt bremst die Luft schon.
+    hints:
+      - "Schritt 1: 0 + 1 · (10 − 0) = 10."
+      - "Schritt 2: 10 + 1 · (10 − 5)."
+    explanation: 10 + 5 = 15 m/s. Die Luft bremst umso stärker, je schneller man fällt.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Bei welcher Geschwindigkeit hört der Springer aus der letzten Aufgabe auf, schneller zu werden?
+    params:
+      unit: m/s
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: not-equilibrium
+        text: Bei v = 10 ist die Beschleunigung noch 5. Gesucht ist v′ = 0.
+    hints:
+      - Er wird nicht mehr schneller, wenn v′ = 0.
+      - 10 − 0,5 v = 0.
+    explanation: v = 20 m/s ist die **Grenzgeschwindigkeit** – ein Gleichgewicht. Man findet sie, ohne die Gleichung zu lösen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Euler für $y' = -10y$ mit h = 0,3: Jeder Schritt multipliziert mit 1 − 10 · 0,3 = −2. Was passiert?"
+    params:
+      options:
+        - label: Die Werte springen hin und her und explodieren – obwohl die echte Lösung gegen 0 geht.
+          correct: true
+        - label: Die Näherung ist einfach etwas ungenau.
+          feedback: Mal −2 pro Schritt ist kein kleiner Fehler, sondern Unsinn.
+        - label: Die Werte gehen gegen 0.
+          feedback: Dafür müsste der Faktor zwischen −1 und 1 liegen.
+    hints:
+      - Rechne 1, −2, 4, −8, …
+      - Die echte Lösung ist $e^{-10t}$.
+    explanation: Zu große Schritte machen das Verfahren **instabil**. Gute Programme wählen h darum automatisch – oder nutzen Runge-Kutta, das auch das Räuber-Beute-Labor antreibt.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das Euler-Verfahren eine Differentialgleichung Schritt für Schritt löst.
+    params:
+      keywords:
+        - - steigung
+          - slope
+          - richtung
+          - direction
+        - - schritt
+          - kleiner schritt
+          - step
+          - small step
+        - - wiederhol
+          - immer wieder
+          - repeat
+          - again
+      sample: Die Gleichung sagt mir an jedem Punkt die Steigung. Ich gehe einen kleinen Schritt in diese Richtung, berechne dort die neue Steigung und wiederhole das. So entsteht eine Kette aus kurzen Geradenstücken, die der echten Lösung folgt.
+    explanation: Kleine Geradenstücke nähern die Kurve – je kleiner, desto genauer, aber auch desto mehr Arbeit.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

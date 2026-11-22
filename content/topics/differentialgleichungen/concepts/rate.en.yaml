@@ -1,0 +1,198 @@
+id: math.diffeq.rate
+type: concept
+title: "Equations for change"
+summary: "Coffee cools, money grows, substances decay – all follow a rule for change."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a coffee is at 90 °C in a 20 °C room. After 10 minutes it is at 55 °C. How warm is it after another 10 minutes?"
+    params:
+      min: 20
+      max: 90
+      unit: °C
+    answer:
+      value: 37.5
+      tolerance: 5
+    explanation: "About 37.5 °C. The gap to room temperature halves every 10 minutes: 70, 35, 17.5. It does not cool evenly but faster the hotter it is."
+
+  - kind: explain
+    id: c1
+    body: "A **differential equation** links a quantity with its change. $y' = k \\cdot y$ means: the change is proportional to the amount. What you look for is not a number but a whole function y(t)."
+
+  - kind: problem
+    id: c2
+    widget: match
+    prompt: Which equation describes which process?
+    params:
+      pairs:
+        - left: $y' = 0.05\,y$
+          right: Account with 5 % continuous interest
+        - left: $y' = -0.1\,(y - 20)$
+          right: Coffee cools to 20 °C
+        - left: $y' = 3$
+          right: Steady inflow
+        - left: $y' = -0.2\,y$
+          right: Radioactive decay
+      leftTitle: Equation
+      rightTitle: Process
+    hints:
+      - Positive and proportional means growth, negative means decline.
+      - With (y − 20) the gap to 20 counts.
+    explanation: The sign says up or down; the bracket says what the change depends on. Constant change is a straight line.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: An account follows $y' = {{p / 100}} \cdot y$ (per year). Right now it holds {{y}} €. How many euros per year is it growing at this moment?
+    params:
+      unit: €/yr
+    answer:
+      value: "{{p * y / 100}}"
+    feedback:
+      - when: numval(state.input) == y + p * y / 100
+        misconception: value-not-rate
+        text: The change is wanted, not the new balance.
+    hints:
+      - Put y = {{y}} into the right side.
+      - "{{p / 100}} · {{y}}."
+    explanation: "{{p / 100}} · {{y}} = {{p * y / 100}} € per year – right now. As the account grows, so does the speed."
+    variants:
+      params:
+        p: int[2,8]
+        y: step[1000,10000,500]
+      defaults:
+        p: 5
+        y: 1000
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Which function solves $y' = y$?
+    params:
+      options:
+        - label: $y = e^t$ – and every multiple $C e^t$
+          correct: true
+        - label: The derivative 2t is not t².
+          feedback: Die Ableitung 2t ist nicht t².
+        - label: The derivative is 1, not t.
+          feedback: Die Ableitung ist 1, nicht t.
+    hints:
+      - "Wanted: a function equal to its own derivative."
+      - Think of the exponential function.
+    explanation: "$(Ce^t)' = Ce^t$. The constant C is fixed by the starting value: C = y(0)."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Whether a function is a **solution** is checked by plugging it in. For $y = C e^{kt}$, $y' = kCe^{kt} = k \cdot y$. It fits. Likewise $T(t) = 20 + 70\,e^{-kt}$ solves the cooling equation $T' = -k\,(T - 20)$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: When cooling with k = 0.1 per minute, the gap to room temperature halves every $\frac{\ln 2}{k}$ minutes. How many minutes is that? To two decimals.
+    params:
+      unit: min
+    answer:
+      value: 6.93
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: half-not-ln2
+        text: That would be 0.5 / k. But it is ln 2 ≈ 0.693.
+    hints:
+      - ln 2 ≈ 0.6931.
+      - 0.6931 / 0.1.
+    explanation: ≈ 6.93 min. The same formula as for half-life – cooling is the decay of the temperature gap.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Solve $y' = 2y$ with y(0) = 3. What is y(1)? To two decimals. (e² ≈ 7.389)
+    answer:
+      value: 22.17
+      tolerance: 0.02
+    feedback:
+      - when: abs(numval(state.input) - 9) < 0.01
+        misconception: linear
+        text: That would be steady growth. Here y grows with itself.
+    hints:
+      - "Solution: $y = 3e^{2t}$."
+      - 3 · e² = 3 · 7.389.
+    explanation: 3 · 7.389 ≈ 22.17.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Many equations are solved by **separation of variables**: $\\frac{dy}{dt} = k y$ becomes $\\frac{dy}{y} = k\\,dt$. Integrate both sides: ln y = kt + c. That gives $y = C e^{kt}$ again."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: The equation $y' = y^2$ with y(0) = 1 has the solution $y = \frac{1}{1 - t}$. At what time t does y become infinite?
+    answer:
+      value: 1
+    hints:
+      - When does the denominator become zero?
+      - 1 − t = 0.
+    explanation: At t = 1. Growth like y² is faster than exponential and »blows up« in finite time. Exponential growth never does that.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: The equation $y' = \sqrt{y}$ with y(0) = 0 has the solution y = 0. Is there another one?
+    params:
+      options:
+        - label: "Yes: $y = \\frac{t^2}{4}$ solves it too."
+          correct: true
+        - label: Uniqueness needs a condition on the right side – √y violates it at 0.
+          feedback: Eindeutigkeit braucht eine Bedingung an die rechte Seite – √y verletzt sie bei 0.
+        - label: "Check t²/4: derivative t/2, and √(t²/4) = t/2."
+          feedback: "Prüf t²/4: Ableitung t/2, und √(t²/4) = t/2."
+    hints:
+      - Plug in $y = \frac{t^2}{4}$.
+      - $y' = \frac t2$ and $\sqrt{t^2/4} = \frac t2$ for t ≥ 0.
+    explanation: Two solutions with the same start. The Picard–Lindelöf theorem guarantees uniqueness only if the right side is not too steep – √y is infinitely steep at 0.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what a differential equation is.
+    params:
+      keywords:
+        - - änderung
+          - ändert
+          - ableitung
+          - change
+          - derivative
+          - rate
+        - - funktion
+          - kurve
+          - function
+          - curve
+        - - regel
+          - abhängt
+          - rule
+          - depends
+          - bestand
+          - amount
+      sample: A differential equation is a rule that says how fast a quantity changes – depending on how big it is right now. You look for the function that obeys this rule at every moment.
+    explanation: An equation for the derivative; the solution is a function. With a starting value it is usually unique.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d2", "d3"]

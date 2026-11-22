@@ -5,7 +5,7 @@ summary: Counting shortest paths.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: weg
@@ -80,6 +80,45 @@ steps:
     explanation: 24, 32, 120, 1000 – factorials grow fast, powers of ten even faster.
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: On a grid you go {{r}} steps right and 2 steps up. How many shortest paths are there?
+    answer:
+      value: "{{(r + 2) * (r + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == r * 2
+        misconception: multiply-steps
+        text: "Do not multiply: you choose which 2 of the {{r + 2}} steps go up."
+    hints:
+      - Every path has {{r + 2}} steps, 2 of them up.
+      - $\binom{r+2}{2}$.
+    explanation: $\binom{ {{r + 2}} }{2}$ = {{r + 2}} · {{r + 1}} / 2 = {{(r + 2) * (r + 1) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,9]
+      defaults:
+        r: 4
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: You go 3 right and 3 up, but may never rise above the diagonal – never more up-steps than right-steps so far. How many paths remain?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: all-paths
+        text: Those are all paths. Many of them rise above the diagonal.
+    hints:
+      - Write paths as strings of R and U, e.g. RRURUU.
+      - Every prefix needs at least as many R as U.
+    explanation: "Exactly 5: RRRUUU, RRURUU, RRUURU, RURRUU, RURURU. Without the rule there would be $\\binom{6}{3} = 20$."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +128,53 @@ steps:
     hints:
       - From 7 steps choose the 3 that go up.
     explanation: 7 · 6 · 5 ÷ 6 = 35. Counting paths is choosing.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "1, 2, 5, 14, 42 … are the **Catalan numbers**. They count paths below the diagonal, correct bracketings and ways to cut a polygon into triangles. Formula: $C_n = \\frac{1}{n+1}\\binom{2n}{n}$."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How many correct bracket sequences of 4 opening and 4 closing brackets are there, like (()())()?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: no-restriction
+        text: 70 is $\binom{8}{4}$ – all strings, including wrong ones like ))((.
+    hints:
+      - Open = step right, close = step up.
+      - $C_4 = \frac{1}{5}\binom{8}{4}$.
+    explanation: $\frac{1}{5} \cdot 70 = 14$. Bracket strings are the same paths as on the grid – just written differently.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why are there exactly $\\binom{7}{3} = 35$ shortest paths for 4 right and 3 up?"
+    params:
+      keywords:
+        - - sieben
+          - seven
+          - schritte
+          - steps
+        - - wählen
+          - auswählen
+          - choose
+          - pick
+          - welche
+          - which
+        - - oben
+          - up
+          - rechts
+          - right
+      sample: Every shortest path has 7 steps, 3 of them up. A path is fixed once I choose which 3 of the 7 steps go up. There are 7 choose 3 = 35 ways.
+    explanation: "A path is a choice: which steps go up. That is why $\\binom{7}{3}$ counts the paths."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Vektor mal Zahl.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: doppelt
@@ -67,6 +67,63 @@ steps:
     explanation: ⅓ · (9, 6) = (3, 2). So berechnen Animationen Zwischenbilder.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Der Punkt $\vec a + t \cdot (\vec b - \vec a)$ wandert für t von 0 bis 1 von A nach B. Bei t = ½ liegt die Mitte $\frac{\vec a + \vec b}{2}$. Diese **Parameterform** beschreibt jede Gerade – und jede Animation in Spielen.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Welche y-Koordinate hat die Mitte zwischen A({{a}} | {{b}}) und B({{c}} | {{d}})?
+    answer:
+      value: "{{(b + d) / 2}}"
+    feedback:
+      - when: numval(state.input) == (a + c) / 2
+        misconception: wrong-component
+        text: Das ist die x-Koordinate.
+      - when: numval(state.input) == (d - b) / 2
+        misconception: difference
+        text: "Addieren, nicht abziehen: die Mitte ist der Durchschnitt."
+    hints:
+      - Die Mitte ist der Durchschnitt beider Punkte.
+      - "({{b}} + {{d}}) : 2."
+    explanation: "({{b}} + {{d}}) : 2 = {{(b + d) / 2}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[-8,8]
+        b: int[-8,8]
+        c: int[-8,8]
+        d: int[-8,8]
+      constraints:
+        - b != d
+        - a + c != b + d
+        - b != 0
+      defaults:
+        a: 2
+        b: 8
+        c: 10
+        d: -4
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Der Schwerpunkt eines Dreiecks ist $\frac{\vec a + \vec b + \vec c}{3}$. Welche y-Koordinate hat er für A(0 | 0), B(6 | 0) und C(3 | 9)?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4.5
+        misconception: half-height
+        text: Das ist die halbe Höhe. Der Schwerpunkt liegt tiefer, bei einem Drittel.
+    hints:
+      - "Addiere die y-Werte: 0 + 0 + 9."
+      - Teile durch 3.
+    explanation: "9 : 3 = 3. Auf dieser Höhe balanciert ein Papierdreieck auf einer Nadelspitze."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -95,6 +152,56 @@ steps:
     hints:
       - Das Skalarprodukt muss null sein.
     explanation: 2 · 3 + 3 · (−2) = 0. Vertauschen und ein Vorzeichen drehen ergibt immer einen senkrechten Vektor.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Zwei Vektoren sind **linear abhängig**, wenn einer ein Vielfaches des anderen ist – sie sind parallel. Drei Punkte liegen genau dann auf einer Geraden, wenn die Pfeile von einem zu den beiden anderen abhängig sind.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Liegen A(1 | 1), B(3 | 5) und C(6 | 11) auf einer Geraden? Gib den Faktor k mit $\vec{AC} = k \cdot \vec{AB}$ an.
+    answer:
+      value: 2.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.4
+        misconception: inverted
+        text: "Andersherum: $\\vec{AC}$ ist das längere."
+    hints:
+      - $\vec{AB}$ = (2, 4), $\vec{AC}$ = (5, 10).
+      - "5 : 2 und 10 : 4."
+    explanation: Beide Komponenten ergeben 2,5. Also sind die Pfeile parallel, und A, B, C liegen auf einer Geraden.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Zahl t in $\vec a + t(\vec b - \vec a)$ bedeutet.
+    params:
+      keywords:
+        - - anteil
+          - bruchteil
+          - wie weit
+          - share
+          - fraction
+          - how far
+        - - "null"
+          - start
+          - anfang
+          - zero
+          - begin
+        - - eins
+          - ende
+          - ziel
+          - one
+          - end
+      sample: t sagt, welchen Anteil des Wegs von A nach B man gegangen ist. Bei t gleich null steht man am Anfang A, bei t gleich eins am Ende B, bei 0,5 in der Mitte. Werte über eins gehen über B hinaus.
+    explanation: t ist wie die Zeit einer gleichmäßigen Fahrt von A nach B. Negative t liegen vor A.
     difficulty: 3
 
 srs:

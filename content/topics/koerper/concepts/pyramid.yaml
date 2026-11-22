@@ -5,7 +5,7 @@ summary: Ein Drittel vom Prisma.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: drittel
@@ -96,6 +96,54 @@ steps:
     explanation: "3,14 · 9 · 4 : 3 = 37,68."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Woher kommt das Drittel? Ein Würfel lässt sich in drei gleiche Pyramiden zerlegen. Jede hat eine Würfelfläche als Grundfläche und die Spitze in derselben Ecke. Diese **Zerlegung** zeigt: ⅓ · a² · a."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Die Cheops-Pyramide hat 230 m Seitenlänge und war 146 m hoch. Wie viele Millionen m³ Stein sind das?"
+    params:
+      min: 0.1
+      max: 100
+      scale: log
+      unit: Mio. m³
+    answer:
+      value: 2.6
+      within: 25
+    explanation: ⅓ · 230² · 146 ≈ 2,57 Millionen m³. Das sind über 2 Millionen Steinblöcke.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Kegel hat den Radius {{r}} cm und die Höhe {{h}} cm. Wie groß ist sein Volumen? Rechne mit π ≈ 3,14.
+    params:
+      unit: cm³
+    answer:
+      value: "{{3.14 * r * r * h / 3}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 3.14 * r * r * h) < 0.2
+        misconception: no-third
+        text: Das ist der Zylinder. Der Kegel hat nur ein Drittel.
+    hints:
+      - Grundfläche πr², dann mal Höhe.
+      - Zum Schluss durch 3 teilen.
+    explanation: "3,14 · {{r}}² · {{h}} : 3 ≈ {{3.14 * r * r * h / 3}} cm³."
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,6]
+        h: step[3,12,3]
+      defaults:
+        r: 2
+        h: 6
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +160,60 @@ steps:
     hints:
       - Die Spitze ist eine verkleinerte Kopie mit Faktor 1/2.
     explanation: (1/2)³ = 1/8. Sieben Achtel des Steins stecken in der unteren Hälfte.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Pyramide hat die Grundfläche {{g}} m². Wie groß ist ihr waagerechter Querschnitt auf halber Höhe?
+    params:
+      unit: m²
+    answer:
+      value: "{{g / 4}}"
+    feedback:
+      - when: numval(state.input) == g / 2
+        misconception: linear-area
+        text: Jede Länge halbiert sich – die Fläche also mit ½ · ½.
+    hints:
+      - Auf halber Höhe ist der Querschnitt eine verkleinerte Grundfläche.
+      - Längen mal ½, Flächen mal ¼.
+    explanation: "Längen halb so groß, Fläche ein Viertel: {{g}} : 4 = {{g / 4}} m²."
+    difficulty: 3
+    variants:
+      params:
+        g: choice[16,36,64,100,144]
+      defaults:
+        g: 36
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: In Höhe z ist der Querschnitt $G\,(1 - \frac{z}{h})^2$. Addiert man alle Scheiben, wird das zum **Integral** $\int_0^h G\,(1 - \frac{z}{h})^2\,dz = \frac13 G h$. Das Drittel kommt aus dem Quadrat.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum hat eine Pyramide genau ein Drittel des Prismas mit gleicher Grundfläche und Höhe?"
+    params:
+      keywords:
+        - - drei
+          - drittel
+          - three
+          - third
+        - - würfel
+          - zerlegen
+          - cube
+          - split
+          - cut
+        - - gleich
+          - identisch
+          - same
+          - equal
+          - cavalieri
+      sample: Ein Würfel zerfällt in drei gleiche Pyramiden, die alle dieselbe Spitze haben. Also ist jede ein Drittel. Nach Cavalieri gilt das dann für jede Pyramide mit gleicher Grundfläche und Höhe.
+    explanation: Drei gleiche Pyramiden füllen einen Würfel; Cavalieri überträgt das auf jede Pyramide.
     difficulty: 3
 
 srs:

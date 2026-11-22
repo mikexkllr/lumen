@@ -5,7 +5,7 @@ summary: When is it twice as much?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: gleichung
@@ -77,6 +77,49 @@ steps:
     explanation: "After 11 years. The rule of 72 estimates: 72 ÷ 7 ≈ 10.3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: When the unknown is in the exponent, take the **logarithm** of both sides. $a^x = b$ becomes $x \log a = \log b$, so $x = \frac{\log b}{\log a}$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Solve $2^x = 10$ to two decimals. (log₁₀ 2 ≈ 0.301)
+    answer:
+      value: 3.32
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: multiply-not-power
+        text: 2 · 5 = 10, but here 2 to the power x is wanted.
+    hints:
+      - x = log 10 / log 2.
+      - 1 / 0.301.
+    explanation: "x ≈ 3.32. Check: 2³ = 8, 2⁴ = 16 – the solution is in between."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Money grows at 5 % a year. After how many years has it tripled? Solve $1.05^x = 3$ to one decimal. (ln 3 ≈ 1.0986, ln 1.05 ≈ 0.0488)
+    params:
+      unit: years
+    answer:
+      value: 22.5
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: simple-interest
+        text: "That would be without compounding: 3 = 1 + 0.05 · 40."
+    hints:
+      - x = ln 3 / ln 1.05.
+      - 1.0986 / 0.0488.
+    explanation: ≈ 22.5 years – so after 23 full years.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -111,6 +154,46 @@ steps:
         - - basis
           - base
       sample: "The logarithm is the inverse of raising to a power. It asks: to which exponent must I raise the base to get the number?"
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Logarithms only exist for positive numbers. Solving $\log x + \log(x - 3) = 1$ gives x(x − 3) = 10 with x = 5 or x = −2. The **domain** requires x > 3 – only x = 5 remains.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Solve $\log_2 x + \log_2(x + 2) = 3$.
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == -4
+        misconception: domain
+        text: x = −4 solves x(x + 2) = 8, but log₂(−4) does not exist.
+    hints:
+      - "Combine: $\\log_2(x(x + 2)) = 3$, so x(x + 2) = 8."
+      - x² + 2x − 8 = (x − 2)(x + 4).
+    explanation: "x = 2 or x = −4; only x = 2 is allowed. Check: log₂ 2 + log₂ 4 = 1 + 2 = 3."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Solve $e^{2x} = 7$ to three decimals. (ln 7 ≈ 1.9459)
+    answer:
+      value: 0.973
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 1.946) < 0.002
+        misconception: forgot-coefficient
+        text: That is 2x. Now divide by 2.
+    hints:
+      - "ln of both sides: 2x = ln 7."
+      - x = 1.9459 / 2.
+    explanation: x ≈ 0.973. For decay $e^{-\lambda t}$ you solve for t the same way.
     difficulty: 3
 
 srs:

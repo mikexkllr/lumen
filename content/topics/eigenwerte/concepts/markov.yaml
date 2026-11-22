@@ -1,0 +1,188 @@
+id: math.eigen.markov
+type: concept
+title: "Markov-Ketten"
+summary: "Morgen Sonne oder Regen? Zufall mit Gedächtnis von einem Tag – und wohin er auf Dauer führt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Auf einen sonnigen Tag folgt zu 80 % wieder Sonne. Auf einen Regentag folgt zu 50 % wieder Regen. Wie viel Prozent der Tage sind auf Dauer sonnig?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 71
+      tolerance: 6
+    explanation: Rund 71 % – genau 5/7. Ausrechnen werden wir es gleich mit einem Eigenvektor.
+
+  - kind: explain
+    id: c1
+    body: "Eine **Übergangsmatrix** enthält die Chancen für den nächsten Schritt. Spalte »Sonne« ist (0,8; 0,2), Spalte »Regen« ist (0,5; 0,5). Jede Spalte ergibt zusammen 1. Mal die Matrix heißt: einen Tag weiter."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Heute ist es sonnig. Wie wahrscheinlich ist übermorgen Sonne? In Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: 74
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: one-path
+        text: Das sind nur zwei Sonnentage in Folge. Auch Regen → Sonne zählt.
+    hints:
+      - "Zwei Wege: Sonne → Sonne → Sonne und Sonne → Regen → Sonne."
+      - 0,8 · 0,8 + 0,2 · 0,5.
+    explanation: 0,64 + 0,10 = 0,74. Genau das rechnet die Matrix mal sich selbst.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Wie viel ergibt jede Spalte einer Übergangsmatrix, wenn man sie addiert?
+    params:
+      options:
+        - label: Genau 1
+          correct: true
+        - label: Genau 0
+          feedback: Wahrscheinlichkeiten sind nie negativ, also kann nur 0 herauskommen, wenn alle 0 sind.
+        - label: Beliebig
+          feedback: Von jedem Zustand aus muss es irgendwohin weitergehen – zu 100 %.
+    hints:
+      - Eine Spalte listet alle möglichen nächsten Zustände.
+      - Einer davon tritt sicher ein.
+    explanation: "Die Spaltensumme ist 1, weil es sicher irgendwie weitergeht. Daraus folgt: 1 ist immer ein Eigenwert."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Zwei Orte: Jedes Jahr ziehen 10 % der Stadtleute aufs Land und 5 % der Landleute in die Stadt. Welcher Anteil lebt auf Dauer in der Stadt? In Prozent, auf eine Stelle."
+    params:
+      unit: "%"
+    answer:
+      value: 33.3
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 66.7) < 0.1
+        misconception: swapped
+        text: Das ist der Anteil auf dem Land.
+    hints:
+      - "Im Gleichgewicht ziehen gleich viele hin wie her: 0,1 · S = 0,05 · L."
+      - Also L = 2S, und S + L = 1.
+    explanation: S = 1/3 ≈ 33,3 %. Egal, wie es anfängt – die Verteilung läuft auf ein Drittel zu.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Auf Dauer ändert sich die Verteilung nicht mehr: $P\\pi = \\pi$. Die **stationäre Verteilung** π ist also ein Eigenvektor zum Eigenwert 1. Beim Wetter: 0,2 · Sonne = 0,5 · Regen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Löse 0,2 · s = 0,5 · r mit s + r = 1. Wie groß ist der Sonnenanteil s in Prozent? Auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 71.4
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 28.6) < 0.1
+        misconception: swapped
+        text: Das ist der Regenanteil.
+    hints:
+      - s = 2,5 r.
+      - 2,5 r + r = 1, also r = 2/7.
+    explanation: s = 5/7 ≈ 71,4 %. Die Schätzung vom Anfang, jetzt bewiesen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: "Dieselbe Idee steckt im Hardy-Weinberg-Gesetz der Genetik: Die Anteile der Genotypen bleiben von Generation zu Generation gleich. Stell p so ein, dass genau 9 % den Genotyp aa haben."
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 8.9
+        - 9.1
+    explanation: q² = 0,09 heißt q = 0,3 und p = 0,7. Ohne Selektion ist diese Verteilung stationär – ein Gleichgewicht wie bei Markov.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Der Satz von **Perron-Frobenius**: Sind alle Übergänge positiv, gibt es genau eine stationäre Verteilung, und jede Startverteilung läuft dorthin. Wie schnell, verrät der zweite Eigenwert: Abweichungen schrumpfen pro Schritt um diesen Faktor."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Bei einer 2 × 2-Übergangsmatrix ist der zweite Eigenwert Spur − 1. Wie groß ist er beim Wetter mit 0,8 und 0,5 auf der Diagonale?
+    answer:
+      value: 0.3
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.3
+        misconception: trace
+        text: Das ist die Spur. Der erste Eigenwert 1 geht noch ab.
+    hints:
+      - Spur = 0,8 + 0,5.
+      - Die Eigenwerte summieren sich zur Spur, einer ist 1.
+    explanation: 0,3. Nach drei Tagen ist eine Abweichung auf 0,3³ ≈ 3 % geschrumpft – das Wetter »vergisst« schnell.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Eine Kette springt immer A → B → A → B. Was passiert mit der Verteilung, wenn man sicher in A startet?
+    params:
+      options:
+        - label: Sie pendelt ewig zwischen (1, 0) und (0, 1) – kein Grenzwert.
+          correct: true
+        - label: Sie läuft gegen (½, ½).
+          feedback: (½, ½) ist zwar stationär, wird aber von (1, 0) aus nie erreicht.
+        - label: Sie bleibt bei (1, 0).
+          feedback: Nach einem Schritt ist man sicher in B.
+    hints:
+      - Die Matrix ist (0 1 | 1 0). Ihre Eigenwerte sind 1 und −1.
+      - Ein Eigenwert −1 schrumpft nichts, er klappt nur um.
+    explanation: Perron-Frobenius braucht positive Übergänge. Hier ist der zweite Eigenwert −1, und |−1| = 1 schrumpft nicht.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Langzeit-Verteilung einer Markov-Kette ein Eigenvektor ist.
+    params:
+      keywords:
+        - - gleich
+          - dieselbe
+          - nicht mehr
+          - unchanged
+          - same
+          - stays
+          - no longer
+        - - matrix
+          - schritt
+          - step
+        - - eigenwert 1
+          - eigenwert eins
+          - eigenvalue 1
+          - eigenvalue one
+      sample: "Auf lange Sicht ändert sich die Verteilung durch einen weiteren Schritt nicht mehr. Mal die Matrix ergibt also wieder dieselbe Verteilung. Genau das heißt: Sie ist ein Eigenvektor zum Eigenwert 1."
+    explanation: Gleichgewicht = Fixpunkt der Matrix = Eigenvektor zum Eigenwert 1.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

@@ -5,7 +5,7 @@ summary: Wie Barcodes Tippfehler finden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,28 @@ steps:
     explanation: 100 ist schon ein Vielfaches von 10 – die Prüfziffer ist 0.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Kreditkarten nutzen den **Luhn-Algorithmus**: Von rechts wird jede zweite Ziffer verdoppelt. Ist das Ergebnis über 9, zieht man 9 ab. Die Summe aller Ziffern muss durch 10 teilbar sein."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: An 1234 wird nach Luhn eine Prüfziffer angehängt. Verdoppelt werden 4 und 2. Welche Prüfziffer ergänzt die Summe zum Vielfachen von 10?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: no-doubling
+        text: Ohne Verdoppeln wäre die Summe 10. Verdopple 4 und 2.
+    hints:
+      - "Verdoppelt: 4 → 8 und 2 → 4. Dazu 3 und 1."
+      - 8 + 3 + 4 + 1 = 16. Was fehlt bis 20?
+    explanation: 16 + 4 = 20. Die vollständige Nummer ist 12344. Luhn erkennt jeden einzelnen Tippfehler und fast jeden Dreher.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -96,6 +118,55 @@ steps:
     hints:
       - Beim Vertauschen von a und b ändert sich die Summe um 2 · (a − b).
     explanation: 2 · 5 = 10 – die Summe ändert sich um ein Vielfaches von 10 und bleibt unauffällig.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Das alte ISBN-10 rechnet **modulo 11**, einer Primzahl. Eine falsche Ziffer ändert die Summe um Gewicht mal Fehler. Beide sind kleiner als 11, und 11 ist prim. Also fällt jeder solche Fehler auf.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Die ISBN-10 3-16-148410-? hat die Gewichte 10, 9, …, 2 für die ersten neun Ziffern. Ihre gewichtete Summe ist 177. Welcher Prüfwert c macht 177 + c durch 11 teilbar?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: remainder-not-complement
+        text: Das ist der Rest von 177. Gesucht ist, was bis zum nächsten Vielfachen fehlt.
+    hints:
+      - 177 = 16 · 11 + 1.
+      - Bis 187 = 17 · 11 fehlen wie viele?
+    explanation: "c = 10. Weil das keine Ziffer ist, schreibt man X: ISBN 3-16-148410-X."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Wie merkt eine Prüfziffer, dass du dich vertippt hast?"
+    params:
+      keywords:
+        - - summe
+          - rechnet
+          - sum
+          - computes
+        - - passt nicht
+          - stimmt nicht
+          - falsch
+          - no longer fits
+          - mismatch
+          - wrong
+        - - rest
+          - vielfach
+          - teilbar
+          - remainder
+          - multiple
+          - divisible
+      sample: Die Prüfziffer ist so gewählt, dass eine gewichtete Summe aller Ziffern durch 10 teilbar ist. Ändert ein Tippfehler eine Ziffer, ändert sich die Summe, und der Rest passt nicht mehr.
+    explanation: Eine Prüfziffer ist eine Rechnung modulo n, die zur richtigen Nummer aufgeht. Fehler zerstören das Aufgehen.
     difficulty: 3
 
 srs:

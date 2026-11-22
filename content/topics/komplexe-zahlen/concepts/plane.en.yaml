@@ -5,7 +5,7 @@ summary: Numbers as points.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -82,6 +82,51 @@ steps:
     explanation: 9 + 16 = 25 – the square of the absolute value. Always real.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "The **modulus** |z| is the distance from the origin: $|a + bi| = \\sqrt{a^2 + b^2}$. The conjugate $\\bar z = a - bi$ is z mirrored in the real axis. We have $z \\cdot \\bar z = |z|^2$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is $|{{5 * k}} - {{12 * k}}i|$?
+    answer:
+      value: "{{13 * k}}"
+    feedback:
+      - when: numval(state.input) == -7 * k
+        misconception: subtract
+        text: The modulus is a length – never negative. Square both parts.
+    hints:
+      - √(({{5 * k}})² + ({{12 * k}})²).
+      - 5, 12, 13 is a Pythagorean triple.
+    explanation: √({{25 * k * k}} + {{144 * k * k}}) = {{13 * k}}.
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Compute $\frac{1}{3 + 4i}$. Multiply top and bottom by $3 - 4i$. What is the real part of the result?
+    answer:
+      value: 0.12
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.333) < 0.002
+        misconception: ignore-imaginary
+        text: 1/3 would hold without the imaginary part. The denominator becomes |z|² = 25.
+    hints:
+      - "Denominator: (3 + 4i)(3 − 4i) = 9 + 16 = 25."
+      - "Result: (3 − 4i) / 25."
+    explanation: "3/25 = 0.12, the imaginary part is −0.16. Dividing means: multiply by the conjugate, then the denominator is real."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -92,6 +137,55 @@ steps:
     hints:
       - Multiply top and bottom by the conjugate 1 − 2i.
     explanation: 10(1 − 2i) / 5 = 2 − 4i. The conjugate makes the denominator real.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Every complex number has a **polar form**: length r and angle φ, so $z = r(\\cos\\varphi + i\\sin\\varphi)$. The angle is called the argument. For adding, a + bi is handy; for multiplying, the polar form."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: What angle in degrees does $z = 1 + \sqrt3\,i$ have?
+    params:
+      unit: °
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: swapped
+        text: tan φ = √3 / 1. That belongs to 60°, not 30°.
+    hints:
+      - tan φ = imaginary part / real part = √3.
+      - At what angle is the tangent √3?
+    explanation: φ = 60° and r = 2, so z = 2(cos 60° + i sin 60°).
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how to draw a complex number as a point.
+    params:
+      keywords:
+        - - realteil
+          - reell
+          - rechts
+          - real
+          - right
+        - - imaginärteil
+          - imaginär
+          - oben
+          - imaginary
+          - up
+        - - punkt
+          - ebene
+          - point
+          - plane
+      sample: I go as far right as the real part says and as far up as the imaginary part says. There the point lies in the complex plane.
+    explanation: a + bi ↔ (a | b). The real numbers form the horizontal axis, the imaginary ones the vertical axis.
     difficulty: 3
 
 srs:

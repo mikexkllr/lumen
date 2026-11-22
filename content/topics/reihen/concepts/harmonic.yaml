@@ -1,0 +1,193 @@
+id: math.series.harmonic
+type: concept
+title: "Die harmonische Reihe"
+summary: "Bücher, die über die Kante ragen, und eine Summe, die langsam ins Unendliche kriecht."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du stapelst gleiche Bücher so, dass jedes über das darunter hinausragt. Wie viele brauchst du mindestens, bis das oberste ganz über die Tischkante hinausragt?
+    params:
+      options:
+        - label: "4"
+          correct: true
+        - label: "10"
+          feedback: Weniger reicht schon – probier es mit der Rechnung gleich aus.
+        - label: Das geht gar nicht
+          feedback: Es geht – und mit genug Büchern ragt der Stapel sogar beliebig weit hinaus.
+    hints:
+      - Das oberste Buch kann um eine halbe Länge überstehen.
+      - Die nächsten um ¼, ⅙, ⅛ …
+    explanation: "Mit 4 Büchern: ½ + ¼ + ⅙ + ⅛ ≈ 1,04 Buchlängen. Der Überhang ist eine halbe harmonische Reihe."
+
+  - kind: explain
+    id: c1
+    body: Die **harmonische Reihe** ist $1 + \frac12 + \frac13 + \frac14 + \dots$ Ihre Teilsummen heißen $H_n$. Beim Bücherstapel ist der größte Überhang mit n Büchern genau $\frac12 H_n$ Buchlängen.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Wie groß ist $H_4 = 1 + \frac12 + \frac13 + \frac14$? Auf zwei Stellen.
+    answer:
+      value: 2.08
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 1.04) < 0.01
+        misconception: halved
+        text: Das ist schon der halbe Wert, der Überhang. H₄ selbst ist doppelt so groß.
+    hints:
+      - Gemeinsamer Nenner 12.
+      - 12/12 + 6/12 + 4/12 + 3/12.
+    explanation: "25/12 ≈ 2,08. Der Überhang mit 4 Büchern ist die Hälfte: 25/24 ≈ 1,04."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Konvergiert die harmonische Reihe?
+    params:
+      options:
+        - label: Nein – sie wächst über jede Grenze, nur sehr langsam.
+          correct: true
+        - label: Ja, gegen etwa 2
+          feedback: Nach 4 Gliedern ist sie schon über 2.
+        - label: Ja, weil die Glieder gegen 0 gehen
+          feedback: Das reicht nicht. Die Glieder schrumpfen zu langsam.
+    hints:
+      - "Fasse ⅓ + ¼ zusammen: mehr als ½."
+      - "Dann ⅕ bis ⅛: wieder mehr als ½."
+    explanation: Immer neue Gruppen von mehr als ½ – unendlich viele. Darum kann der Bücherstapel beliebig weit überhängen.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie viele Buchlängen Überhang schafft ein Stapel aus {{n}} Büchern höchstens? Die Teilsumme ist $H_{ {{n}} } \approx {{h}}$. Auf zwei Stellen.
+    answer:
+      value: "{{h / 2}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - h) < 0.01
+        misconception: not-halved
+        text: Der Überhang ist die halbe harmonische Summe.
+    hints:
+      - Überhang = ½ · Hₙ.
+      - "{{h}} : 2."
+    explanation: ½ · {{h}} ≈ {{h / 2}} Buchlängen.
+    variants:
+      params:
+        n: choice[5,6,8,10]
+      derive:
+        h: "n == 5 ? 2.283 : n == 6 ? 2.45 : n == 8 ? 2.718 : 2.929"
+      defaults:
+        n: 10
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die Teilsummen wachsen fast genau wie der Logarithmus: $H_n \\approx \\ln n + \\gamma$. Die Zahl γ ≈ 0,5772 heißt **Euler-Mascheroni-Konstante**. Ob sie ein Bruch ist, weiß bis heute niemand."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Schätze $H_{1000}$ mit $\ln 1000 \approx 6{,}908$ und γ ≈ 0,577. Auf zwei Stellen.
+    answer:
+      value: 7.49
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 6.91) < 0.01
+        misconception: forgot-gamma
+        text: Die Konstante γ kommt noch dazu.
+    hints:
+      - $H_n \approx \ln n + \gamma$.
+      - 6,908 + 0,577.
+    explanation: "≈ 7,49 (genau: 7,4855). Tausend Glieder, und die Summe ist noch nicht einmal 8."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Bücher brauchst du für 3 Buchlängen Überhang, also $H_n > 6$?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 227
+      within: 30
+    explanation: Genau 227 Bücher. Für 10 Buchlängen wären es schon rund 270 Millionen.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Mit wechselnden Vorzeichen konvergiert sie: $1 - \\frac12 + \\frac13 - \\frac14 + \\dots = \\ln 2$. Doch der **Riemannsche Umordnungssatz** sagt: Ordnet man die Glieder um, kann man jeden beliebigen Wert erreichen."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Wie groß ist $1 - \frac12 + \frac13 - \frac14 + \dots$ auf drei Stellen?
+    answer:
+      value: 0.693
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.583) < 0.002
+        misconception: partial
+        text: Das sind nur vier Glieder. Der Grenzwert ist ln 2.
+    hints:
+      - Die Reihe für ln(1 + x) ist x − x²/2 + x³/3 − …
+      - Setze x = 1 ein.
+    explanation: ln 2 ≈ 0,693. Die Teilsummen pendeln um diesen Wert und kommen ihm immer näher.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Wann darf man die Glieder einer unendlichen Summe gefahrlos umordnen?
+    params:
+      options:
+        - label: Wenn auch die Summe der Beträge endlich ist.
+          correct: true
+        - label: Immer – Addition ist vertauschbar.
+          feedback: Für endliche Summen ja, für unendliche nicht.
+        - label: Nie.
+          feedback: Bei ½ + ¼ + ⅛ + … ändert Umordnen nichts.
+    hints:
+      - Die Beträge der Wechselreihe bilden die harmonische Reihe.
+      - Die divergiert – darum ist die Wechselreihe empfindlich.
+    explanation: Man nennt das **absolute Konvergenz**. Nur dann verhält sich eine unendliche Summe wie eine endliche.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die harmonische Reihe über jede Grenze wächst.
+    params:
+      keywords:
+        - - gruppe
+          - zusammenfass
+          - group
+        - - hälfte
+          - half
+          - mehr als
+          - more than
+        - - unendlich
+          - beliebig
+          - infinite
+          - endless
+          - grenze
+          - bound
+      sample: "Ich fasse die Glieder in Gruppen zusammen: ⅓ + ¼, dann ⅕ bis ⅛, dann ⅑ bis 1/16. Jede Gruppe ist mehr als eine Hälfte. Es gibt unendlich viele Gruppen, also wächst die Summe über jede Grenze."
+    explanation: Unendlich viele Hälften sind unendlich – egal, wie langsam sie kommen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

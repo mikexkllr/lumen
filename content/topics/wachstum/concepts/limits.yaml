@@ -5,7 +5,7 @@ summary: Warum nichts ewig exponentiell wächst.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: platz
@@ -92,6 +92,55 @@ steps:
     explanation: Exponentielles Wachstum lässt kaum Reaktionszeit, sobald man es bemerkt.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Im **logistischen** Modell wächst ein Bestand N mit $r \cdot N \cdot (1 - \frac{N}{K})$. Ist N klein, ist die Klammer fast 1 – fast exponentiell. Nahe der Kapazität K wird sie fast 0 – das Wachstum stoppt.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Kapazität 500, 15 Generationen. Stell die Vermehrung so ein, dass der Bestand mindestens 90 % der Kapazität erreicht.
+    params:
+      scene: population
+      controls:
+        capacity:
+          value: 500
+          fixed: true
+        gens:
+          value: 15
+          fixed: true
+        rate:
+          value: 20
+      show:
+        - size
+        - unlimited
+        - share
+    answer:
+      share:
+        - 90
+        - 100
+    explanation: "Ab etwa 45 % pro Generation klappt es. Vergleiche mit »ohne Grenze«: Dort wären es schon zigtausend."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Bestand wächst logistisch mit r = 0,4 und K = 1000. Wie groß ist der Zuwachs pro Generation höchstens?
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: no-brake
+        text: Das wäre bei N = K ohne Bremse. Die Bremse ist bei K/2 schon halb gezogen.
+    hints:
+      - Am stärksten wächst es bei N = K/2 = 500.
+      - 0,4 · 500 · (1 − ½).
+    explanation: 0,4 · 500 · 0,5 = 100. Allgemein ist der größte Zuwachs r · K/4 – mitten in der S-Kurve.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +157,78 @@ steps:
     hints:
       - Wachstum braucht viele Individuen **und** viel freien Platz.
     explanation: Die Rate ist proportional zu N · (K − N) – eine Parabel mit Gipfel bei K/2, dem Wendepunkt der S-Kurve.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Die **logistische Abbildung** $x \to r\,x\,(1 - x)$ zählt Generationen einzeln. Bis r = 3 pendelt sie sich auf einen Wert ein. Darüber springt sie zwischen 2, 4, 8 Werten, und ab etwa r = 3,57 wird sie chaotisch.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Für welches x bleibt die logistische Abbildung mit r = 2,5 stehen, also $x = 2{,}5 \cdot x\,(1 - x)$ mit x > 0?
+    answer:
+      value: 0.6
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.4
+        misconception: swapped
+        text: "Prüf: 2,5 · 0,4 · 0,6 = 0,6 – nicht 0,4."
+    hints:
+      - "Teile durch x: 1 = 2,5 · (1 − x)."
+      - 1 − x = 0,4.
+    explanation: "x = 1 − 1/r = 0,6. Probe: 2,5 · 0,6 · 0,4 = 0,6. Dieser Fixpunkt ist stabil, solange 1 < r < 3."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Was passiert bei r = 3,2 auf lange Sicht?
+    params:
+      options:
+        - label: Der Bestand springt immer zwischen zwei Werten hin und her.
+          correct: true
+        - label: Er pendelt sich auf einen Wert ein.
+          feedback: Das gilt nur bis r = 3.
+        - label: Er wächst über jede Grenze.
+          feedback: Die Bremse (1 − x) verhindert das.
+        - label: Er wird völlig chaotisch.
+          feedback: Chaos beginnt erst bei etwa 3,57.
+    hints:
+      - Bei r = 3 gabelt sich das Verhalten zum ersten Mal.
+      - Erst kommen zwei Werte, dann vier, dann Chaos.
+    explanation: "Ein 2er-Zyklus. Robert May zeigte 1976: Schon diese einfache Formel kann Chaos erzeugen. Das machte Ökologen vorsichtig mit Langzeitprognosen."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum ist eine S-Kurve in der Mitte am steilsten?"
+    params:
+      keywords:
+        - - viele
+          - groß
+          - many
+          - large
+          - bestand
+          - population
+        - - platz
+          - bremse
+          - kapazität
+          - room
+          - brake
+          - capacity
+          - space
+        - - hälfte
+          - mitte
+          - half
+          - middle
+      sample: "Der Zuwachs braucht zwei Dinge: viele, die sich vermehren, und freien Platz. Am Anfang gibt es wenige, am Ende kaum Platz. In der Mitte, bei der Hälfte der Kapazität, ist das Produkt aus beidem am größten."
+    explanation: N · (K − N) ist eine Parabel mit dem Gipfel bei N = K/2. Dort ist der Zuwachs maximal.
     difficulty: 3
 
 srs:

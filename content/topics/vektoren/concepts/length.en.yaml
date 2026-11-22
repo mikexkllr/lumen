@@ -5,7 +5,7 @@ summary: Pythagoras measures vectors.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: drei-vier
@@ -80,6 +80,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: How far apart are the points ({{a}} | {{b}}) and ({{a + 3 * k}} | {{b + 4 * k}})?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: manhattan
+        text: That is the distance along the grid lines. The straight-line distance is wanted.
+    hints:
+      - "Form the difference vector: ({{3 * k}}, {{4 * k}})."
+      - Its length by Pythagoras.
+    explanation: √(({{3 * k}})² + ({{4 * k}})²) = {{5 * k}}. The distance between two points is the length of their difference vector.
+    difficulty: 2
+    variants:
+      params:
+        a: int[-5,5]
+        b: int[-5,5]
+        k: int[1,4]
+      defaults:
+        a: 1
+        b: 2
+        k: 1
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A hall is 3 m wide, 4 m long and 12 m high. How long is the space diagonal from a bottom corner to the opposite top corner?
+    params:
+      unit: m
+    answer:
+      value: 13
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: floor-only
+        text: That is only the floor diagonal. Add the height.
+    hints:
+      - "First the floor diagonal: √(3² + 4²) = 5."
+      - Then √(5² + 12²).
+    explanation: √(9 + 16 + 144) = √169 = 13 m. In space it is simply $\sqrt{x^2 + y^2 + z^2}$.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +134,68 @@ steps:
     hints:
       - The length is 5.
     explanation: (0.6, 0.8) points the same way but has length 1. This is called **normalising**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "In a city with a street grid you cannot walk in a straight line. There the **Manhattan distance** |x| + |y| applies. Both are norms: never negative, they scale along and satisfy the triangle inequality."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A taxi in Manhattan drives from (0 | 0) to (3 | 4), only along the streets. How many blocks is the shortest route?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: euclid
+        text: That is as the crow flies. The taxi cannot drive through buildings.
+    hints:
+      - How many blocks right, how many up?
+      - 3 + 4.
+    explanation: 3 + 4 = 7 blocks. And there are $\binom{7}{3} = 35$ such shortest routes.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: What does a »circle« look like in Manhattan distance – all points at distance 1 from the origin?
+    params:
+      options:
+        - label: A square standing on its corner
+          correct: true
+        - label: "Check (0.5 | 0.5): straight-line 0.71, Manhattan exactly 1."
+          feedback: "Prüf (0,5 | 0,5): Luftlinie 0,71, Manhattan genau 1."
+        - label: Points like (0.5 | 0.5) also have distance 1.
+          feedback: Auch Punkte wie (0,5 | 0,5) haben Abstand 1.
+    hints:
+      - "Try points: (1 | 0), (0 | 1), (0.5 | 0.5)."
+      - In the first quarter |x| + |y| = 1 is the line y = 1 − x.
+    explanation: "Four line segments through (1 | 0), (0 | 1), (−1 | 0) and (0 | −1): a diamond. What is »round« depends on how you measure."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the length of the vector (3, 4) is exactly 5.
+    params:
+      keywords:
+        - - pythagoras
+          - rechtwinklig
+          - right triangle
+        - - quadrat
+          - hoch zwei
+          - square
+          - "25"
+        - - wurzel
+          - square root
+          - root
+      sample: The arrow is the hypotenuse of a right triangle with legs 3 and 4. By Pythagoras its length is the square root of 3² + 4² = 25, so 5.
+    explanation: Components are the legs, the length is the hypotenuse. In space a third square is simply added.
     difficulty: 3
 
 srs:

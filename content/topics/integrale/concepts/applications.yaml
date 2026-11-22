@@ -5,7 +5,7 @@ summary: Mengen, Arbeit, Wahrscheinlichkeiten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wasser
@@ -77,6 +77,48 @@ steps:
     explanation: 25 m – ein Dreieck mit der Breite 5 und der Höhe 10.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Dreht man eine Kurve y = f(x) um die x-Achse, entsteht ein **Rotationskörper**. Jede dünne Scheibe ist ein Zylinder mit Volumen $\pi f(x)^2\,dx$. Also ist $V = \pi \int_a^b f(x)^2\,dx$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Halbkreis $y = \sqrt{1 - x^2}$ dreht sich zur Kugel. $V = \pi \int_{-1}^{1} (1 - x^2)\,dx$. Mit welcher Zahl wird π malgenommen? Auf drei Stellen.
+    answer:
+      value: 1.333
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: partial
+        text: Das ist nur ∫1 dx. Der Teil −x² fehlt noch.
+    hints:
+      - "Stammfunktion: x − x³/3."
+      - (1 − 1/3) − (−1 + 1/3).
+    explanation: 4/3 ≈ 1,333. Also V = 4/3 π – genau die Kugelformel für r = 1.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Durch ein Rohr fließen $r(t) = 3t^2$ Liter pro Minute. Wie viele Liter fließen in den ersten 2 Minuten?
+    params:
+      unit: L
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: rate-not-amount
+        text: Das ist die Rate bei t = 2. Gefragt ist die Menge – das Integral.
+    hints:
+      - Eine Stammfunktion von 3t² ist t³.
+      - 2³ − 0³.
+    explanation: 8 Liter. Rate integriert ergibt Menge – wie Tempo integriert Strecke ergibt.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -87,6 +129,77 @@ steps:
     hints:
       - Stammfunktion x³/3 bei 3.
     explanation: 27/3 = 9, also 9π. Passt zur Kegelformel ⅓ π r² h mit r = h = 3.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Lebensdauern folgen oft der **Exponentialverteilung** mit Dichte $\lambda e^{-\lambda t}$. Die Fläche darunter ist insgesamt 1. Die Chance, länger als t zu halten, ist $\int_t^\infty \lambda e^{-\lambda s}\,ds = e^{-\lambda t}$.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Bauteil hält im Mittel 1000 Stunden, exponentialverteilt mit λ = 1/1000. Wie wahrscheinlich hält es länger als 1000 Stunden? In Prozent, auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 36.8
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: median-mean
+        text: Bei einer schiefen Verteilung liegt der Mittelwert nicht in der Mitte. Die meisten fallen früher aus.
+    hints:
+      - $e^{-\lambda t}$ mit λt = 1.
+      - $e^{-1} \approx 0{,}368$.
+    explanation: Nur 36,8 % überleben den Mittelwert. Der Median liegt bei ln 2 · 1000 ≈ 693 Stunden.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: "Drehe $y = \\frac1x$ für x ≥ 1 um die x-Achse: das »Gabriels Horn«. Was stimmt?"
+    params:
+      options:
+        - label: Es hat endliches Volumen π, aber unendliche Oberfläche.
+          correct: true
+        - label: Volumen und Oberfläche sind unendlich.
+          feedback: $\pi \int_1^\infty \frac{1}{x^2}\,dx = \pi$ – das Volumen ist endlich.
+        - label: Beides ist endlich.
+          feedback: Die Oberfläche wächst mindestens wie $\int \frac1x$, also wie ln x – ohne Grenze.
+    hints:
+      - "Volumen: $\\pi \\int_1^\\infty \\frac{1}{x^2}\\,dx$."
+      - Die Oberfläche ist größer als $2\pi \int_1^\infty \frac1x\,dx$.
+    explanation: Man könnte das Horn mit Farbe füllen, aber nie innen anstreichen – ein berühmtes Paradox. Es löst sich auf, weil eine Farbschicht eine Dicke hat.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man das Volumen eines Rotationskörpers mit Scheiben berechnet.
+    params:
+      keywords:
+        - - scheibe
+          - zylinder
+          - slice
+          - disc
+          - disk
+          - cylinder
+        - - πr²
+          - pi
+          - kreis
+          - circle
+          - f(x)²
+        - - addier
+          - integral
+          - summe
+          - add
+          - sum
+      sample: Ich schneide den Körper in dünne Scheiben. Jede ist ein flacher Zylinder mit Radius f(x), also Fläche π f(x)² mal Dicke dx. Das Integral addiert alle Scheiben zum Volumen.
+    explanation: "Wie bei Cavalieri: Querschnitt mal Dicke, aufsummiert. Nur ist der Querschnitt hier ein Kreis."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Teilbarkeit ohne Division.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,58 @@ steps:
     explanation: 11 ist durch 11 teilbar – also auch 9185 = 11 · 835.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Durch 4 entscheiden nur die **letzten zwei Ziffern**, weil 100 durch 4 teilbar ist. Durch 8 entscheiden die letzten drei, weil 1000 = 8 · 125.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: buckets
+    prompt: Durch 4 teilbar oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: Durch 4 teilbar
+        - id: b2
+          label: Nicht durch 4 teilbar
+      items:
+        - label: "1316"
+          bucket: b1
+        - label: "7500"
+          bucket: b1
+        - label: "9988"
+          bucket: b1
+        - label: "2022"
+          bucket: b2
+        - label: "1234"
+          bucket: b2
+        - label: "3030"
+          bucket: b2
+    hints:
+      - Schau nur auf die letzten zwei Ziffern.
+      - 16, 00 und 88 sind Vielfache von 4.
+    explanation: 16, 00 und 88 sind durch 4 teilbar; 22, 34 und 30 nicht. Der Rest der Zahl ist ein Vielfaches von 100.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: "Bilde die Wechselsumme von 918 082, von rechts beginnend: 2 − 8 + 0 − … Was kommt heraus?"
+    answer:
+      value: -22
+    feedback:
+      - when: numval(state.input) == 22
+        misconception: sign-order
+        text: Von rechts beginnt es mit + 2. Prüf die Vorzeichen.
+    hints:
+      - "Ziffern von rechts: 2, 8, 0, 8, 1, 9."
+      - 2 − 8 + 0 − 8 + 1 − 9.
+    explanation: "−22 ist durch 11 teilbar, also auch 918 082. Der Grund: 10 ≡ −1 (mod 11), darum wechseln die Vorzeichen."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +164,66 @@ steps:
     hints:
       - Schreib 347 als 3 · 100 + 4 · 10 + 7.
     explanation: 3 · 100 + 4 · 10 + 7 hat denselben Rest wie 3 + 4 + 7. In einem anderen Zahlensystem gälte die Regel für eine andere Zahl.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Es ist 1001 = 7 · 11 · 13 und 1000 ≡ −1 modulo 1001. Teile eine Zahl von rechts in **Dreierblöcke** und bilde ihre Wechselsumme. Die verrät den Rest bei 7, 11 und 13 auf einmal.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "Welchen Rest lässt 1 234 567 beim Teilen durch 7? Nutze die Dreierblöcke: 567 − 234 + 1."
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 334
+        misconception: not-reduced
+        text: Das ist die Blocksumme. Teile sie noch durch 7.
+    hints:
+      - 567 − 234 + 1 = 334.
+      - 334 = 7 · 47 + 5.
+    explanation: "334 ≡ 5 (mod 7), also auch 1 234 567. Probe: 7 · 176 366 = 1 234 562."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: "Jede sechsstellige Zahl der Form abcabc ist durch 7, 11 und 13 teilbar. Rechne 123 123 : 1001."
+    answer:
+      value: 123
+    hints:
+      - 123 123 = 123 · 1000 + 123.
+      - Klammere 123 aus.
+    explanation: 123 123 = 123 · 1001 = 123 · 7 · 11 · 13. Das klappt mit jeder Zahl abc.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Quersummenregel für 3 funktioniert.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+          - hundert
+          - hundred
+        - - rest 1
+          - rest eins
+          - remainder 1
+          - remainder one
+          - ≡ 1
+        - - quersumme
+          - ziffern
+          - digit sum
+          - digits
+      sample: 10 lässt beim Teilen durch 3 den Rest 1, also auch 100, 1000 und jede Zehnerpotenz. Darum hat jede Ziffer modulo 3 nur ihren eigenen Wert. Die Zahl hat denselben Rest wie ihre Quersumme.
+    explanation: $10^k \equiv 1 \pmod 3$. Deshalb ist $\sum a_k 10^k \equiv \sum a_k$ – die Zahl verhält sich wie ihre Quersumme.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Wenn der Faktor kleiner als 1 ist.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: medikament
@@ -99,6 +99,54 @@ steps:
     explanation: Nach 17 Stunden sind es 9,5 %. Dafür braucht es gut 3,3 Halbwertszeiten – denn 2^3,3 ≈ 10.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Zerfall lässt sich mit 2 oder mit e schreiben: $N(t) = N_0 \\cdot 2^{-t/T} = N_0 \\cdot e^{-\\lambda t}$. Die **Zerfallskonstante** ist $\\lambda = \\frac{\\ln 2}{T}$. Große Konstante heißt kurze Halbwertszeit."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Die Zeit steht fest auf 12 Stunden. Stell die Halbwertszeit so ein, dass genau 12,5 % übrig sind.
+    params:
+      scene: decay
+      controls:
+        time:
+          value: 12
+          fixed: true
+        halflife:
+          value: 2
+      show:
+        - left
+        - halvings
+    answer:
+      left: 12.5
+    explanation: "12,5 % = ⅛ = drei Halbierungen. 12 h : 3 = 4 h Halbwertszeit."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Du nimmst alle 8 Stunden 100 mg eines Mittels mit 8 Stunden Halbwertszeit. Wie viel mg sind auf lange Sicht direkt nach einer Einnahme im Körper?
+    params:
+      unit: mg
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == 150
+        misconception: partial-sum
+        text: Das ist nach zwei Einnahmen. Die Reste früherer Dosen addieren sich weiter.
+      - when: numval(state.input) == 100
+        misconception: no-accumulation
+        text: Von jeder alten Dosis ist noch etwas übrig.
+    hints:
+      - Neue Dosis 100, von der vorigen 50, davor 25, …
+      - 100 + 50 + 25 + … ist eine geometrische Reihe mit q = ½.
+    explanation: "100 : (1 − ½) = 200 mg. Der Spiegel pendelt sich zwischen 100 und 200 mg ein. So planen Ärzte Dosierungen."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -137,6 +185,45 @@ steps:
           - again
           - same
       sample: Die Halbwertszeit ist die Zeit, nach der nur noch die Hälfte übrig ist. Sie ist immer gleich lang – egal, wie viel gerade da ist.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Holz enthält nur noch 10 % seines C-14. Halbwertszeit 5730 Jahre. Wie alt ist es? Es gilt $t = 5730 \cdot \log_2 10$ und $\log_2 10 \approx 3{,}32$. Auf hundert Jahre genau.
+    params:
+      unit: Jahre
+    answer:
+      value: 19000
+      tolerance: 100
+    feedback:
+      - when: abs(numval(state.input) - 51570) < 200
+        misconception: linear-decay
+        text: Das wären 9 Halbwertszeiten. Bis 10 % sind es nur gut 3.
+    hints:
+      - Wie viele Halbierungen bis 10 %? 2^3,32 ≈ 10.
+      - 5730 · 3,32.
+    explanation: 5730 · 3,32 ≈ 19 000 Jahre. Mit der Formel $t = T \log_2 \frac{N_0}{N}$ lässt sich jedes Verhältnis in ein Alter übersetzen.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Warum kann man Dinosaurier-Knochen nicht mit C-14 datieren?
+    params:
+      options:
+        - label: Nach 66 Millionen Jahren ist praktisch kein C-14 mehr übrig.
+          correct: true
+        - label: Knochen enthalten kein Kohlenstoff.
+          feedback: Lebewesen bestehen zu einem großen Teil aus Kohlenstoff.
+        - label: C-14 zerfällt bei Kälte nicht.
+          feedback: Radioaktiver Zerfall hängt nicht von der Temperatur ab.
+    hints:
+      - Wie viele Halbwertszeiten sind 66 Millionen Jahre?
+      - Rund 11 500 Halbierungen.
+    explanation: Schon nach 50 000 Jahren ist weniger als 1 % übrig, dann wird die Messung unsicher. Für Dinosaurier datiert man Vulkanasche über und unter den Knochen – mit Uran oder Kalium, deren Halbwertszeiten Milliarden Jahre betragen.
     difficulty: 3
 
 srs:

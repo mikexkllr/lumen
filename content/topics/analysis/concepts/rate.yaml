@@ -5,7 +5,7 @@ summary: Die mittlere Änderungsrate.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -83,6 +83,60 @@ steps:
     explanation: "(9 − 1) : 2 = 4. Das ist die Steigung der Sekante."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Die Steigung zwischen x und x + h ist der **Differenzenquotient** $\frac{f(x + h) - f(x)}{h}$. Für $f(x) = x^2$ bei x = 2 ist das $\frac{(2 + h)^2 - 4}{h} = 4 + h$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Für $f(x) = x^2$ ist der Differenzenquotient bei x = {{a}} gleich {{2 * a}} + h. Wie groß ist er für h = {{h}}?
+    answer:
+      value: "{{2 * a + h}}"
+      tolerance: 0.0001
+    feedback:
+      - when: numval(state.input) == 2 * a
+        misconception: limit-too-early
+        text: Das ist der Grenzwert für h → 0. Hier ist h noch {{h}}.
+    hints:
+      - Setz h = {{h}} in {{2 * a}} + h ein.
+      - "{{2 * a}} + {{h}}."
+    explanation: "{{2 * a}} + {{h}} = {{2 * a + h}}. Je kleiner h, desto näher an {{2 * a}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        h: choice[0.1,0.01,0.5]
+      defaults:
+        a: 2
+        h: 0.1
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: Bleib bei x = 1. Stell h so ein, dass die Sekante genau die Steigung 2,1 hat.
+    params:
+      scene: tangent
+      expr: x^2
+      controls:
+        x:
+          value: 1
+          fixed: true
+        h:
+          value: 1
+      show:
+        - secant
+        - slope
+    answer:
+      secant:
+        - 2.095
+        - 2.105
+    explanation: "h = 0,1: Die Sekantensteigung ist 2 + h. Wird h winzig, bleibt die 2 – die Steigung der Tangente."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -93,6 +147,54 @@ steps:
     hints:
       - Setz für h immer kleinere Zahlen ein.
     explanation: Der **Grenzwert** ist 2 – die Steigung genau im Punkt x = 1.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Die Ableitung ist der **Grenzwert** des Differenzenquotienten. Für x²: $(x + h)^2 - x^2 = 2xh + h^2$. Geteilt durch h bleibt 2x + h. Lässt man h gegen 0 gehen, bleibt genau 2x."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Für $f(x) = x^3$ ist $\frac{(2 + h)^3 - 8}{h} = 12 + 6h + h^2$. Welchem Wert nähert er sich für h → 0?
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: value-not-slope
+        text: Das ist f(2), der Funktionswert. Gesucht ist die Steigung.
+    hints:
+      - Was passiert mit 6h und h², wenn h winzig wird?
+      - Beide verschwinden.
+    explanation: 12 = 3 · 2². Das bestätigt die Potenzregel $(x^3)' = 3x^2$.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Ableitung von x² genau 2x ist.
+    params:
+      keywords:
+        - - winzig
+          - "null"
+          - tiny
+          - zero
+          - gegen 0
+        - - 2xh
+          - ausmultipl
+          - expand
+          - binom
+        - - sekante
+          - differenzenquotient
+          - secant
+          - difference quotient
+          - steigung
+          - slope
+      sample: Ich nehme die Sekante von x bis x + h. Ausmultipliziert ist (x + h)² − x² = 2xh + h². Geteilt durch h ergibt die Steigung 2x + h. Wird h winzig, bleibt 2x.
+    explanation: "Sekante → Tangente: Der Rest h verschwindet im Grenzwert."
     difficulty: 3
 
 srs:

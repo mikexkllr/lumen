@@ -5,7 +5,7 @@ summary: Arithmetische Folgen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: weiter
@@ -86,6 +86,63 @@ steps:
     explanation: d = 4, also a = 17 − 4 · 4 = 1.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Zeichne die Glieder als Punkte (n | aₙ). Sie liegen auf einer **Geraden**: Jeder Schritt nach rechts geht d nach oben. Eine arithmetische Folge ist eine lineare Funktion, die man nur an ganzen Stellen abliest."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Folge beginnt bei {{a}} und wächst um {{d}}. Das wievielte Glied ist {{a + (k - 1) * d}}?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: off-by-one
+        text: Das ist die Zahl der Schritte. Das erste Glied kommt noch dazu.
+    hints:
+      - Wie viele Schritte von {{d}} liegen zwischen {{a}} und {{a + (k - 1) * d}}?
+      - Schritte plus 1 ergibt die Nummer.
+    explanation: "({{a + (k - 1) * d}} − {{a}}) : {{d}} = {{k - 1}} Schritte, also das {{k}}. Glied."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,7]
+        k: int[10,40]
+      defaults:
+        a: 4
+        d: 3
+        k: 33
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Addiere die ersten {{n}} Glieder der Folge {{a}}, {{a + d}}, {{a + 2 * d}}, …
+    answer:
+      value: "{{n * (2 * a + (n - 1) * d) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (2 * a + n * d) / 2
+        misconception: off-by-one
+        text: Das letzte Glied ist a + (n − 1) · d, nicht a + n · d.
+    hints:
+      - "Wie beim Gauß-Trick: erstes plus letztes Glied, mal halbe Anzahl."
+      - Das letzte Glied ist {{a + (n - 1) * d}}.
+    explanation: "({{a}} + {{a + (n - 1) * d}}) · {{n}} : 2 = {{n * (2 * a + (n - 1) * d) / 2}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,5]
+        n: int[6,20]
+      defaults:
+        a: 3
+        d: 4
+        n: 10
+
   - kind: problem
     id: x1
     depth: 3
@@ -96,6 +153,54 @@ steps:
     hints:
       - 5 − 3 und 7 − 5.
     explanation: Konstante zweite Differenzen verraten eine **quadratische** Folge – eine Vorahnung der zweiten Ableitung.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Bilde von einer Folge die Abstände, dann die Abstände der Abstände. Ist die zweite **Differenzenfolge** konstant, ist die Folge quadratisch. Das ist die Ableitung im Kleinen – für ganze Schritte statt winziger.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Die Folge 2, 5, 10, 17, 26, … hat konstante zweite Differenzen. Wie lautet ihr 10. Glied?
+    answer:
+      value: 101
+    feedback:
+      - when: numval(state.input) == 82
+        misconception: off-by-one
+        text: Das ist das 9. Glied. Noch ein Schritt.
+    hints:
+      - Die Abstände sind 3, 5, 7, 9 – und die Folge sieht aus wie die Quadratzahlen plus etwas.
+      - aₙ = n² + 1.
+    explanation: "aₙ = n² + 1, also a₁₀ = 101. Konstante zweite Differenz 2 heißt: Leitkoeffizient 2 : 2 = 1."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum liegen die Punkte einer arithmetischen Folge auf einer Geraden?"
+    params:
+      keywords:
+        - - gleich
+          - immer
+          - same
+          - always
+          - konstant
+          - constant
+        - - schritt
+          - abstand
+          - step
+          - gap
+        - - steigung
+          - gerade
+          - linear
+          - slope
+          - line
+      sample: Von einem Glied zum nächsten kommt immer dasselbe d dazu. Ein Schritt nach rechts heißt also immer d nach oben. Gleiche Steigung überall ergibt eine Gerade.
+    explanation: Konstanter Zuwachs pro Schritt ist konstante Steigung – genau das macht eine Gerade aus.
     difficulty: 3
 
 srs:

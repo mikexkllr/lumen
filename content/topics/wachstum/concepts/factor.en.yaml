@@ -5,7 +5,7 @@ summary: Why two rises of 10% are more than 20%.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: faktor
@@ -124,6 +124,49 @@ steps:
     explanation: 1.1³ = 1.331. The average is the cube root – the **geometric mean**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "At 100 % interest a year, money doubles. If the bank pays 50 % twice, it grows by 1.5² = 2.25. Monthly: $(1 + \\frac{1}{12})^{12}$. The more often interest is paid, the more **compound interest** – but not without limit."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is $(1 + \frac{1}{12})^{12}$ – the yearly factor when 100 % a year is paid monthly? To two decimals.
+    answer:
+      value: 2.61
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: simple-interest
+        text: That would be once a year. Monthly, the interest also earns interest.
+    hints:
+      - 1 + 1/12 ≈ 1.0833.
+      - Raise it to the 12th power.
+    explanation: 1.0833¹² ≈ 2.613. Daily it would be 2.7146, continuously exactly e ≈ 2.7183.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A loan costs 1 % interest per month. What is the effective rate per year? To one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 12.7
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: simple-interest
+        text: Each month interest is also charged on the interest.
+    hints:
+      - Yearly factor 1.01¹².
+      - 1.01¹² ≈ 1.1268.
+    explanation: 1.01¹² ≈ 1.127, so 12.7 % effective. That is why banks must state the effective rate.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -140,6 +183,55 @@ steps:
     hints:
       - Compute 1.5 · 0.5 · 1.5 · 0.5.
     explanation: 0.75² ≈ 0.56. Volatility eats returns – the arithmetic mean of 0% is deceptive.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The sequence $\left(1 + \frac1n\right)^n$ grows with n but stays below 3. Its limit is **Euler's number** e = 2.71828… In general $\left(1 + \frac{x}{n}\right)^n \to e^x$ – continuous growth.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A fund alternates +50 % and −50 %. By what percentage does it change per year on average? Use the geometric mean $\sqrt{1.5 \cdot 0.5}$. To one decimal, with sign.
+    params:
+      unit: "%"
+    answer:
+      value: -13.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: arithmetic-mean
+        text: The arithmetic mean of +50 and −50 is 0 – but factors multiply, they do not add.
+    hints:
+      - 1.5 · 0.5 = 0.75.
+      - √0.75 ≈ 0.866. How many percent short of 1 is that?
+    explanation: √0.75 ≈ 0.866, so −13.4 % a year. Volatility costs returns – even if the average of the percentages is zero.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is +10 % twice more than +20 %?"
+    params:
+      keywords:
+        - - faktor
+          - 1,1
+          - "1.1"
+          - factor
+        - - mal
+          - multipl
+          - times
+        - - zins auf zins
+          - zinseszins
+          - auch auf
+          - compound
+          - on top
+          - interest on interest
+      sample: Plus 10 % means times 1.1. Twice is 1.1 · 1.1 = 1.21, so 21 %. The second time, the first increase grows as well – interest on interest.
+    explanation: Percentages on percentages multiply. The extra point is 10 % of 10 %.
     difficulty: 3
 
 srs:

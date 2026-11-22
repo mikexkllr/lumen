@@ -1,0 +1,172 @@
+id: math.diffeq.euler
+type: concept
+title: "Euler's method"
+summary: "Follow the slope step by step – this is how computers run every simulation."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: $y' = y$ and y(0) = 1. What is y(1)?"
+    params:
+      min: 1
+      max: 5
+      step: 0.05
+    answer:
+      value: 2.718
+      tolerance: 0.3
+    explanation: y(1) = e ≈ 2.718. Next we will compute it without a formula – just with small steps.
+
+  - kind: explain
+    id: c1
+    body: "**Euler's method**: if you know the value now, you also know the slope. Move a small step h in that direction: new value = old value + h · slope. Then repeat."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Solve $y' = y$, y(0) = 1 with two Euler steps of length h = 0.5. What do you get for y(1)?
+    answer:
+      value: 2.25
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: one-step
+        text: That would be one step with h = 1. Here there are two half steps.
+    hints:
+      - "Step 1: 1 + 0.5 · 1 = 1.5."
+      - "Step 2: 1.5 + 0.5 · 1.5."
+    explanation: 1.5 · 1.5 = 2.25. Each step multiplies by (1 + h).
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Now with four steps, h = 0.25. What do you get for y(1)? To three decimals.
+    answer:
+      value: 2.441
+      tolerance: 0.001
+    hints:
+      - "Each step: times 1.25."
+      - 1.25⁴.
+    explanation: 1.25⁴ ≈ 2.441. Closer to e = 2.718. With n steps you get $(1 + \frac1n)^n$ – exactly the sequence that tends to e.
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Put one pass of the simulation loop in the right order.
+    params:
+      items:
+        - label: Know the current value y and time t
+        - label: Compute the slope f(t, y)
+        - label: Increase y by h · slope
+        - label: Increase t by h
+        - label: Repeat until the target is reached
+    hints:
+      - The slope needs the current value.
+      - Compute first, then move on.
+    explanation: This is how games, weather models and crash tests compute – millions of small steps.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Halving the **step size** roughly halves the error. At h = 0.5 we are 0.47 short of e, at h = 0.25 still 0.28. Euler is a first-order method: accurate, but slow."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: With h = 0.1 you need 10 steps, each times 1.1. What is $1.1^{10}$? To three decimals.
+    answer:
+      value: 2.594
+      tolerance: 0.001
+    hints:
+      - 1.1² = 1.21, 1.1⁴ ≈ 1.4641.
+      - 1.1¹⁰ = 1.1⁸ · 1.1².
+    explanation: ≈ 2.594, error 0.12. Ten times the work of h = 1 for about six times less error.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "A skydiver: $v' = 10 - 0.5\\,v$ (in m/s²), v(0) = 0. Do two Euler steps with h = 1 s. What is v after 2 s?"
+    params:
+      unit: m/s
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: no-drag
+        text: Without drag it would be 20. In the second step the air already brakes.
+    hints:
+      - "Step 1: 0 + 1 · (10 − 0) = 10."
+      - "Step 2: 10 + 1 · (10 − 5)."
+    explanation: 10 + 5 = 15 m/s. The air brakes harder the faster you fall.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: At what speed does the skydiver from the last task stop getting faster?
+    params:
+      unit: m/s
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: not-equilibrium
+        text: At v = 10 the acceleration is still 5. You want v′ = 0.
+    hints:
+      - He stops speeding up when v′ = 0.
+      - 10 − 0.5 v = 0.
+    explanation: v = 20 m/s is the **terminal velocity** – an equilibrium. You find it without solving the equation.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Euler for $y' = -10y$ with h = 0.3: each step multiplies by 1 − 10 · 0.3 = −2. What happens?"
+    params:
+      options:
+        - label: The values jump back and forth and explode – although the true solution tends to 0.
+          correct: true
+        - label: Times −2 per step is not a small error but nonsense.
+          feedback: Mal −2 pro Schritt ist kein kleiner Fehler, sondern Unsinn.
+        - label: For that the factor would have to lie between −1 and 1.
+          feedback: Dafür müsste der Faktor zwischen −1 und 1 liegen.
+    hints:
+      - Compute 1, −2, 4, −8, …
+      - The true solution is $e^{-10t}$.
+    explanation: Steps that are too big make the method **unstable**. Good programs therefore choose h automatically – or use Runge–Kutta, which also drives the predator–prey lab.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how Euler's method solves a differential equation step by step.
+    params:
+      keywords:
+        - - steigung
+          - slope
+          - richtung
+          - direction
+        - - schritt
+          - kleiner schritt
+          - step
+          - small step
+        - - wiederhol
+          - immer wieder
+          - repeat
+          - again
+      sample: The equation tells me the slope at every point. I take a small step in that direction, compute the new slope there and repeat. This gives a chain of short straight pieces that follows the true solution.
+    explanation: Small straight pieces approximate the curve – the smaller, the more accurate, but also the more work.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

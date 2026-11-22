@@ -5,7 +5,7 @@ summary: Arithmetic sequences.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: weiter
@@ -86,6 +86,63 @@ steps:
     explanation: d = 4, so a = 17 − 4 · 4 = 1.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Plot the terms as points (n | aₙ). They lie on a **straight line**: every step right goes d up. An arithmetic sequence is a linear function read off only at whole numbers."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: The sequence starts at {{a}} and grows by {{d}}. Which term number is {{a + (k - 1) * d}}?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: off-by-one
+        text: That is the number of steps. Add the first term.
+    hints:
+      - How many steps of {{d}} lie between {{a}} and {{a + (k - 1) * d}}?
+      - Steps plus 1 gives the number.
+    explanation: ({{a + (k - 1) * d}} − {{a}}) / {{d}} = {{k - 1}} steps, so term number {{k}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,7]
+        k: int[10,40]
+      defaults:
+        a: 4
+        d: 3
+        k: 33
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Add the first {{n}} terms of the sequence {{a}}, {{a + d}}, {{a + 2 * d}}, …
+    answer:
+      value: "{{n * (2 * a + (n - 1) * d) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (2 * a + n * d) / 2
+        misconception: off-by-one
+        text: The last term is a + (n − 1) · d, not a + n · d.
+    hints:
+      - "As in the Gauss trick: first plus last term, times half the count."
+      - The last term is {{a + (n - 1) * d}}.
+    explanation: ({{a}} + {{a + (n - 1) * d}}) · {{n}} / 2 = {{n * (2 * a + (n - 1) * d) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,5]
+        n: int[6,20]
+      defaults:
+        a: 3
+        d: 4
+        n: 10
+
   - kind: problem
     id: x1
     depth: 3
@@ -96,6 +153,54 @@ steps:
     hints:
       - 5 − 3 and 7 − 5.
     explanation: Constant second differences reveal a **quadratic** sequence – a preview of the second derivative.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Take the gaps of a sequence, then the gaps of the gaps. If the second **difference sequence** is constant, the sequence is quadratic. This is the derivative in miniature – for whole steps instead of tiny ones.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: The sequence 2, 5, 10, 17, 26, … has constant second differences. What is its 10th term?
+    answer:
+      value: 101
+    feedback:
+      - when: numval(state.input) == 82
+        misconception: off-by-one
+        text: That is the 9th term. One more step.
+    hints:
+      - The gaps are 3, 5, 7, 9 – and the sequence looks like the squares plus something.
+      - aₙ = n² + 1.
+    explanation: aₙ = n² + 1, so a₁₀ = 101. A constant second difference of 2 means a leading coefficient of 2 / 2 = 1.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why do the points of an arithmetic sequence lie on a straight line?"
+    params:
+      keywords:
+        - - gleich
+          - immer
+          - same
+          - always
+          - konstant
+          - constant
+        - - schritt
+          - abstand
+          - step
+          - gap
+        - - steigung
+          - gerade
+          - linear
+          - slope
+          - line
+      sample: From one term to the next the same d is always added. So one step right always means d up. The same slope everywhere gives a straight line.
+    explanation: Constant growth per step is constant slope – exactly what makes a straight line.
     difficulty: 3
 
 srs:

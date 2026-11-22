@@ -5,7 +5,7 @@ summary: The antiderivative.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -93,6 +93,61 @@ steps:
     explanation: "6x³/3 + 4x²/2 = 2x³ + 2x². Check: differentiate."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Every function has infinitely many antiderivatives: F(x) + C. Whether one is right is shown by **checking by differentiating**. The constant C is fixed by one known value, such as the starting point."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: We have F′(x) = 2x and F(0) = {{c}}. What is F({{a}})?
+    answer:
+      value: "{{a * a + c}}"
+    feedback:
+      - when: numval(state.input) == a * a
+        misconception: forgot-constant
+        text: Add the starting value F(0) = {{c}}.
+      - when: numval(state.input) == 2 * a
+        misconception: derivative
+        text: That is F′({{a}}), not F({{a}}).
+    hints:
+      - F(x) = x² + C.
+      - F(0) = C = {{c}}.
+    explanation: F(x) = x² + {{c}}, so F({{a}}) = {{a * a + c}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,9]
+        c: int[1,9]
+      defaults:
+        a: 2
+        c: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: match
+    prompt: Match each function with an antiderivative.
+    params:
+      pairs:
+        - left: cos x
+          right: sin x
+        - left: sin x
+          right: −cos x
+        - left: eˣ
+          right: eˣ
+        - left: 1/x (x > 0)
+          right: ln x
+      leftTitle: Function
+      rightTitle: Antiderivative
+    hints:
+      - Differentiate the right side and compare.
+      - (−cos x)′ = sin x.
+    explanation: Every derivative rule read backwards is an integration rule. The minus in −cos is the most common trap.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -109,6 +164,73 @@ steps:
     hints:
       - $x^{-1}$ would become $x^0 / 0$.
     explanation: The natural logarithm sits exactly in this gap – an entirely new function.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "**Substitution** is the chain rule backwards. $2x\\,(x^2 + 1)^3$ contains the inner function $u = x^2 + 1$ with $u' = 2x$. So $\\frac{(x^2 + 1)^4}{4}$ is an antiderivative."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Compute $\int_0^1 2x\,(x^2 + 1)^3\,dx$.
+    answer:
+      value: 3.75
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: lower-limit
+        text: The lower limit gives (0 + 1)⁴ / 4 = 0.25. Subtract it.
+    hints:
+      - F(x) = (x² + 1)⁴ / 4.
+      - F(1) − F(0) = 16/4 − 1/4.
+    explanation: 4 − 0.25 = 3.75.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Does $e^{x^2}$ have an antiderivative you can write down with the usual functions?
+    params:
+      options:
+        - label: No – that has been proved. You need a new function.
+          correct: true
+        - label: "Differentiate it: the quotient rule gives something else."
+          feedback: "Leite ab: Die Quotientenregel liefert etwas anderes."
+        - label: The derivative of $e^{x^2}$ is $2x\,e^{x^2}$.
+          feedback: Die Ableitung von $e^{x^2}$ ist $2x\,e^{x^2}$.
+    hints:
+      - Check each candidate by differentiating.
+      - A factor 2x for substitution is missing.
+    explanation: "Liouville proved in the 19th century: some simple functions have no elementary antiderivative. For the bell curve $e^{-x^2}$ the error function erf was introduced for this reason."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why one function has many antiderivatives, not just one. What can you add?
+    params:
+      keywords:
+        - - konstante
+          - constant
+          - plus c
+          - + c
+        - - ableiten
+          - ableitung
+          - "null"
+          - derivative
+          - zero
+          - differentiat
+        - - verschieb
+          - nach oben
+          - shift
+          - up
+      sample: A constant has derivative zero. So I can add any constant to an antiderivative and the derivative stays the same. In the picture it is the same curve, only shifted up.
+    explanation: Differentiating forgets the height; only the slope remains. That is why you need a starting value to fix C.
     difficulty: 3
 
 srs:

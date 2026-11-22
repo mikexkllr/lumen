@@ -5,7 +5,7 @@ summary: Günstige durch mögliche – richtig gezählt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: sieben
@@ -67,6 +67,47 @@ steps:
     explanation: 1 − (5/6)² = 11/36. Nicht 12/36 – der Sechserpasch würde doppelt gezählt.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "»Mindestens eins« ist mühsam zu zählen. Leichter ist das **Gegenereignis** »keins«: P(mindestens eine 6) = 1 − P(keine 6)."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: "Der Chevalier de Méré wettete im 17. Jahrhundert: In 4 Würfen fällt mindestens eine 6. Wie groß ist seine Chance in Prozent? Auf eine Stelle."
+    params:
+      unit: "%"
+    answer:
+      value: 51.8
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 66.7) < 0.2
+        misconception: add-probabilities
+        text: 4 · ⅙ wäre richtig, wenn sich die Fälle nicht überschnitten. Rechne lieber mit »keine 6«.
+    hints:
+      - "Keine 6 in einem Wurf: 5/6. In vier Würfen: (5/6)⁴."
+      - 1 − 625/1296.
+    explanation: 1 − (5/6)⁴ = 1 − 625/1296 ≈ 0,518. Gut 51,8 % – die Wette lohnte sich auf Dauer.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: "Seine zweite Wette: In 24 Würfen mit zwei Würfeln fällt mindestens ein Sechserpasch. Wie groß ist die Chance in Prozent? Auf eine Stelle."
+    params:
+      unit: "%"
+    answer:
+      value: 49.1
+      tolerance: 0.15
+    hints:
+      - "Kein Sechserpasch in einem Wurf: 35/36."
+      - 1 − (35/36)²⁴.
+    explanation: 1 − (35/36)²⁴ ≈ 0,491 – knapp unter 50 %. De Méré verlor und fragte Pascal. Aus dem Briefwechsel mit Fermat entstand 1654 die Wahrscheinlichkeitsrechnung.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +149,52 @@ steps:
           - single
           - only
       sample: Für die 7 gibt es sechs Kombinationen, von 1 + 6 bis 6 + 1. Die 12 entsteht nur auf eine einzige Art, nämlich 6 + 6.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "Warum geht das Geburtstagsproblem schon bei 23 Leuten auf? Zähle die Paare: Wie viele Paare bilden {{n}} Leute?"
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1)
+        misconception: ordered-pairs
+        text: So zählst du jedes Paar zweimal – A mit B und B mit A.
+    hints:
+      - Wie bei den Handschlägen.
+      - "n · (n − 1) : 2."
+    explanation: "{{n}} · {{n - 1}} : 2 = {{n * (n - 1) / 2}} Paare. Bei 23 Leuten sind es 253 Paare – jedes hat eine Chance von 1/365. Darum ist ein Treffer so wahrscheinlich."
+    difficulty: 3
+    variants:
+      params:
+        n: int[10,40]
+      defaults:
+        n: 23
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: "Genau gerechnet: Alle verschieden ist $\\frac{365}{365} \\cdot \\frac{364}{365} \\cdots \\frac{343}{365} \\approx 0{,}493$. Mit $1 - x \\approx e^{-x}$ wird das $e^{-n^2/730}$ – eine **Näherung**, die in der Kryptografie die Geburtstagsattacke beschreibt."
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Ein Fingerabdruck einer Datei hat 64 Bit, also $2^{64}$ Werte. Ab etwa wie vielen Dateien wird ein doppelter Abdruck wahrscheinlich?
+    params:
+      options:
+        - label: Etwa $2^{32}$, rund 4 Milliarden
+          correct: true
+        - label: Etwa $2^{63}$
+          feedback: Das wäre richtig ohne Paar-Effekt. Paare wachsen aber quadratisch.
+        - label: Etwa 64
+          feedback: Viel zu wenig – $2^{64}$ ist riesig.
+    hints:
+      - "Beim Geburtstag: 365 Werte, Treffer ab etwa √365 ≈ 19 bis 23."
+      - Die Wurzel aus $2^{64}$ ist $2^{32}$.
+    explanation: Kollisionen werden ab etwa der Wurzel der Wertezahl wahrscheinlich. Darum braucht sichere Kryptografie Abdrücke mit 256 Bit.
     difficulty: 3
 
 srs:

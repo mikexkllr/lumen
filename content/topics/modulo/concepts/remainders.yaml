@@ -5,7 +5,7 @@ summary: Vielfache sichtbar machen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: vielfache
@@ -64,6 +64,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: Welche letzte Ziffer hat $3^{ {{k}} }$?
+    answer:
+      value: "{{c}}"
+    hints:
+      - "Die letzten Ziffern von 3, 9, 27, 81, 243 … wiederholen sich: 3, 9, 7, 1."
+      - Welchen Rest lässt {{k}} beim Teilen durch 4?
+    explanation: "{{k}} ≡ {{mod(k, 4)}} (mod 4), also endet $3^{ {{k}} }$ auf {{c}}."
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,60]
+      derive:
+        c: "mod(k, 4) == 0 ? 1 : mod(k, 4) == 1 ? 3 : mod(k, 4) == 2 ? 9 : 7"
+      defaults:
+        k: 23
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Welchen Rest lässt $2^{100}$ beim Teilen durch 7?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: ignore-leftover
+        text: 2³ ≡ 1, aber 100 ist kein Vielfaches von 3. Es bleibt ein Faktor 2 übrig.
+    hints:
+      - 2³ = 8 ≡ 1 (mod 7).
+      - 100 = 3 · 33 + 1, also $2^{100} = (2^3)^{33} \cdot 2$.
+    explanation: $(2^3)^{33} \cdot 2 \equiv 1^{33} \cdot 2 = 2$. Eine 31-stellige Zahl – und ihr Rest in einer Zeile.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -73,6 +110,66 @@ steps:
     hints:
       - "Die Endziffern von 7, 49, 343, 2401 wiederholen sich: 7, 9, 3, 1."
     explanation: "Der Zyklus hat die Länge 4, und 100 ist durch 4 teilbar. Also wie bei 7⁴: Endziffer 1."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Modulo 7 gilt 3 · 5 = 15 ≡ 1. Also spielt 5 die Rolle von »1/3«. Das ist die **modulare Inverse**. Sie existiert genau dann, wenn a und n teilerfremd sind.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Welche Zahl x zwischen 1 und 8 erfüllt 4 · x ≡ 1 (mod 9)?
+    answer:
+      value: 7
+    hints:
+      - "Probiere: 4 · 1, 4 · 2, … und teile jeweils durch 9."
+      - Gesucht ist ein Vielfaches von 4, das eins mehr als ein Vielfaches von 9 ist.
+    explanation: 4 · 7 = 28 = 3 · 9 + 1. Für große Zahlen findet der erweiterte euklidische Algorithmus die Inverse in wenigen Schritten.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Warum hat 2 modulo 6 keine Inverse?
+    params:
+      options:
+        - label: 2 · x ist immer gerade – und lässt bei 6 nie den Rest 1.
+          correct: true
+        - label: Weil 6 keine Primzahl ist, hat dort keine Zahl eine Inverse.
+          feedback: 5 · 5 = 25 ≡ 1 (mod 6) – 5 hat eine.
+        - label: "Sie hat eine: 2 · 3 = 6."
+          feedback: 6 ≡ 0, nicht 1.
+    hints:
+      - Schreib 2 · 1, 2 · 2, …, 2 · 5 modulo 6 auf.
+      - Es kommen nur 0, 2 und 4 vor.
+    explanation: Ein gemeinsamer Teiler von a und n bleibt in jedem Vielfachen erhalten. Darum braucht man ggT(a, n) = 1. Modulo einer Primzahl hat jede Zahl außer 0 eine Inverse.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum darf man beim Rest einer Summe erst die Reste nehmen?"
+    params:
+      keywords:
+        - - vielfache
+          - vielfaches
+          - multiple
+          - multiples
+        - - rest
+          - remainder
+        - - wegfallen
+          - ändert nichts
+          - zählt nicht
+          - vanish
+          - change nothing
+          - irrelevant
+      sample: Jede Zahl ist ein Vielfaches von n plus ihr Rest. Addiere ich zwei Zahlen, ist die Summe der Vielfachen wieder ein Vielfaches von n und ändert nichts am Rest. Es zählt nur die Summe der Reste.
+    explanation: "a = qn + r: Der Teil qn ist modulo n unsichtbar. Dasselbe gilt fürs Malnehmen."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Position plus Geschwindigkeit.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -74,6 +74,42 @@ steps:
     explanation: 4 + 3 + 2 = 9. Dieses schrittweise Rechnen heißt **Euler-Verfahren**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Ein Spiel rechnet in jedem Bild zwei Zeilen: Geschwindigkeit plus Beschleunigung, dann Position plus Geschwindigkeit. Diese **Physik-Schleife** läuft 60-mal pro Sekunde. Reibung heißt einfach: Geschwindigkeit mal 0,9."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Puck gleitet mit (10, 0) pro Bild. Reibung nimmt seine Geschwindigkeit jedes Bild mal 0,9. Wie groß ist die x-Komponente nach 2 Bildern?
+    answer:
+      value: 8.1
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: linear-friction
+        text: Reibung zieht nicht immer 1 ab – sie nimmt mal 0,9.
+    hints:
+      - "Nach einem Bild: 10 · 0,9 = 9."
+      - "Nach zwei Bildern: 9 · 0,9."
+    explanation: 10 · 0,9² = 8,1. Die Geschwindigkeit nimmt exponentiell ab – der Puck wird nie ganz null, nur winzig.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Zwei Kugeln im Spiel haben die Radien 2 und 3. Ihre Mitten liegen bei (1 | 1) und (5 | 4). Wie weit sind die Mitten voneinander entfernt?
+    answer:
+      value: 5
+    hints:
+      - "Differenzvektor: (4, 3)."
+      - Länge √(16 + 9).
+    explanation: "Abstand 5 = 2 + 3: Die Kugeln berühren sich gerade. So prüft ein Spiel jede Kollision: Abstand kleiner als die Summe der Radien?"
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -115,6 +151,45 @@ steps:
           - step
       min: 3
       sample: Jede Figur hat eine Position und eine Geschwindigkeit. In jedem Bild wird die Geschwindigkeit zur Position addiert – so entsteht die Bewegung.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Für einen Abprall an einer schrägen Wand braucht man ihre **Normale** n, einen Pfeil der Länge 1 senkrecht zur Wand. Dann gilt $\vec v\,' = \vec v - 2\,(\vec v \cdot \vec n)\,\vec n$. Nur der Teil senkrecht zur Wand dreht sich um.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Ball fliegt mit $\vec v$ = (3, −4) auf den Boden mit der Normalen $\vec n$ = (0, 1). Welche y-Komponente hat er nach dem Abprall?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == -4
+        misconception: no-flip
+        text: Ohne Abprall bliebe es −4. Der senkrechte Teil dreht sich um.
+    hints:
+      - $\vec v \cdot \vec n = -4$.
+      - (3, −4) − 2 · (−4) · (0, 1).
+    explanation: (3, −4) + (0, 8) = (3, 4). Am Boden ist das einfach »y umdrehen« – die Formel funktioniert aber für jede Wand.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Jetzt eine schräge Wand mit $\vec n = \frac{1}{\sqrt2}(1, 1)$. Der Ball kommt mit (−2, 0). Welche y-Komponente hat er nach dem Abprall?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: axis-only
+        text: Bei einer schrägen Wand ändert sich auch die y-Richtung.
+    hints:
+      - $\vec v \cdot \vec n = -\frac{2}{\sqrt2} = -\sqrt2$.
+      - $-2 \cdot (-\sqrt2) \cdot \frac{1}{\sqrt2}(1, 1) = (2, 2)$.
+    explanation: (−2, 0) + (2, 2) = (0, 2). Der Ball kam von rechts und fliegt nach dem 45°-Abprall senkrecht hoch.
     difficulty: 3
 
 srs:

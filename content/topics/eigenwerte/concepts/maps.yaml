@@ -1,0 +1,222 @@
+id: math.eigen.maps
+type: concept
+title: "Matrizen als Abbildungen"
+summary: "Was eine Matrix mit der ganzen Ebene macht – und welche Punkte dabei verschwinden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Eine Matrix macht alles doppelt so breit, die Höhe bleibt. Was wird aus einem Kreis um den Nullpunkt?
+    params:
+      options:
+        - label: Eine Ellipse, doppelt so breit wie hoch
+          correct: true
+        - label: Ein größerer Kreis
+          feedback: Dafür müsste auch die Höhe wachsen.
+        - label: Ein Rechteck
+          feedback: Gerade Linien bleiben gerade, krumme bleiben krumm.
+    hints:
+      - Der Punkt (1 | 0) geht nach (2 | 0), der Punkt (0 | 1) bleibt.
+      - Ein gestauchter oder gestreckter Kreis heißt Ellipse.
+    explanation: Eine Ellipse. Jede lineare Abbildung macht aus Kreisen Ellipsen – deren Achsen verraten viel über die Matrix.
+
+  - kind: explain
+    id: c1
+    body: Eine **lineare Abbildung** hält den Nullpunkt fest. Geraden bleiben Geraden, parallele Linien bleiben parallel und gleich weit voneinander entfernt. Jede 2 × 2-Matrix ist so eine Abbildung.
+
+  - kind: problem
+    id: c2
+    widget: graph
+    prompt: Die Matrix (1 1 | 0 2) wirkt auf P = (1 | 2). Zieh Q an das Bild.
+    params:
+      x:
+        - -1
+        - 5
+      y:
+        - -1
+        - 5
+      points:
+        - id: O
+          x: 0
+          y: 0
+          draggable: false
+        - id: P
+          x: 1
+          y: 2
+          draggable: false
+        - id: Q
+          x: 1
+          y: 0
+      segments:
+        - - O
+          - P
+        - - O
+          - Q
+    answer:
+      points:
+        Q:
+          x: 3
+          y: 4
+    hints:
+      - "Oben: 1 · 1 + 1 · 2."
+      - "Unten: 0 · 1 + 2 · 2."
+    explanation: Q = (3 | 4). Die Matrix schert nach rechts und streckt nach oben.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Ist die Abbildung linear?
+    params:
+      buckets:
+        - id: b1
+          label: Linear
+        - id: b2
+          label: Nicht linear
+      items:
+        - label: Drehung um den Nullpunkt
+          bucket: b1
+        - label: Spiegelung an der y-Achse
+          bucket: b1
+        - label: Scherung
+          bucket: b1
+        - label: Verschiebung um (1, 0)
+          bucket: b2
+        - label: (x, y) → (x², y)
+          bucket: b2
+        - label: (x, y) → (x + y, 1)
+          bucket: b2
+    hints:
+      - Bleibt der Nullpunkt, wo er ist?
+      - Bleiben gleich große Abstände gleich groß?
+    explanation: "Eine Verschiebung bewegt den Nullpunkt, x² verzerrt die Abstände. Linear heißt: A(u + v) = Au + Av und A(c · u) = c · Au."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Matrix schickt (1, 0) nach (2, 1) und (0, 1) nach ({{a}}, 3). Welcher Eintrag steht oben rechts?
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: rows-not-columns
+        text: Das Bild von (1, 0) steht in der ersten Spalte, nicht in der ersten Zeile.
+    hints:
+      - Die Bilder der Einheitspfeile sind die Spalten.
+      - "Zweite Spalte: ({{a}}, 3)."
+    explanation: Die Matrix ist (2 {{a}} | 1 3). Oben rechts steht {{a}}.
+    variants:
+      params:
+        a: int[-5,5]
+      constraints:
+        - a != 2
+        - a != 1
+        - a != 3
+      defaults:
+        a: -1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Manche Matrizen schicken ganze Geraden auf den Nullpunkt. Diese Vektoren bilden den **Kern**. Ist der Kern mehr als nur der Nullpunkt, quetscht die Matrix die Ebene zusammen – und die Determinante ist 0.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die Matrix (1 2 | 2 4) schickt den Vektor (2, y) auf (0, 0). Wie groß ist y?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: sign
+        text: Dann wäre oben 1 · 2 + 2 · 1 = 4, nicht 0.
+    hints:
+      - "Oben: 1 · 2 + 2 · y = 0."
+      - 2y = −2.
+    explanation: "y = −1. Unten passt es auch: 4 − 4 = 0. Die ganze Gerade durch (2, −1) landet im Nullpunkt."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Die Matrix (1 0 | 0 0) wirft jeden Punkt senkrecht auf die x-Achse. Wie groß ist ihre Determinante?
+    answer:
+      value: 0
+    hints:
+      - ad − bc = 1 · 0 − 0 · 0.
+      - Eine Fläche wird zur Linie.
+    explanation: "Determinante 0: Flächen werden platt. Der Kern ist die y-Achse – alles darauf landet im Nullpunkt."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Der **Rang** zählt, wie viele Dimensionen das Bild hat. Es gilt: Rang + Dimension des Kerns = Dimension des Raums. Was an Dimensionen im Bild fehlt, verschwindet im Kern."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine 3 × 3-Matrix drückt den ganzen Raum auf eine Ebene. Welche Dimension hat ihr Kern?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: rank-not-kernel
+        text: Das ist die Dimension des Bildes, der Rang.
+    hints:
+      - "Das Bild ist eine Ebene: Rang 2."
+      - 3 − 2.
+    explanation: "3 − 2 = 1: Eine ganze Gerade landet im Nullpunkt."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Spiele verschieben Figuren mit (x, y) → (x + 5, y). Das ist nicht linear. Wie machen Grafikkarten trotzdem eine Matrix daraus?
+    params:
+      options:
+        - label: Sie hängen eine 1 als dritte Koordinate an und nehmen eine 3 × 3-Matrix.
+          correct: true
+        - label: Gar nicht – Verschiebungen werden extra gerechnet.
+          feedback: Das ginge, aber mit dem Trick passt alles in ein Matrixprodukt.
+        - label: Mit einer 2 × 2-Matrix mit 5 auf der Diagonale.
+          feedback: Das streckt, statt zu verschieben.
+    hints:
+      - In höherer Dimension kann eine Scherung wie eine Verschiebung wirken.
+      - (x, y, 1) → (x + 5 · 1, y, 1).
+    explanation: Diese **homogenen Koordinaten** machen Drehen, Strecken und Verschieben zu einer einzigen Matrix – Grundlage jeder 3D-Grafik.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was es bedeutet, wenn eine Matrix einen Pfeil auf den Nullpunkt schickt.
+    params:
+      keywords:
+        - - kern
+          - kernel
+        - - determinante
+          - "null"
+          - determinant
+          - zero
+        - - platt
+          - zusammen
+          - quetsch
+          - flat
+          - squash
+          - collapse
+      sample: Dann liegt der Pfeil im Kern der Matrix. Die Matrix drückt die Ebene in dieser Richtung platt, deshalb ist die Determinante null. Man kann die Abbildung dann nicht mehr rückgängig machen.
+    explanation: Kern ≠ {0} ⇔ det = 0 ⇔ keine Inverse. Drei Sätze, eine Idee.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

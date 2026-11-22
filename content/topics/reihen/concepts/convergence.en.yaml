@@ -1,0 +1,200 @@
+id: math.series.convergence
+type: concept
+title: "When does a series converge?"
+summary: "Compare, telescope, take ratios – and Euler's solution of the Basel problem."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: where does $1 + \\frac14 + \\frac19 + \\frac1{16} + \\dots$, the sum of the reciprocals of all squares, go?"
+    params:
+      min: 1
+      max: 3
+      step: 0.01
+    answer:
+      value: 1.645
+      tolerance: 0.06
+    explanation: Towards 1.6449… – exactly $\frac{\pi^2}{6}$. Why π shows up here is explained in the expert stage.
+
+  - kind: explain
+    id: c1
+    body: "The **comparison test**: if every term is at most the term of a convergent series, the smaller one converges too. For instance $\\frac1{n^2} \\le \\frac{1}{(n-1)n}$ – and that series can be computed exactly."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: We have $\frac{1}{k(k+1)} = \frac1k - \frac{1}{k+1}$. Compute $\frac{1}{1 \cdot 2} + \frac{1}{2 \cdot 3} + \dots + \frac{1}{ {{n}} \cdot {{n + 1}} }$ as a fraction.
+    answer:
+      value: "{{n}}/{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: limit-too-early
+        text: Infinitely many terms would give 1. Here you stop at {{n}}.
+    hints:
+      - "Write the differences one after another: (1 − ½) + (½ − ⅓) + …"
+      - Almost everything cancels. 1 − 1/{{n + 1}} remains.
+    explanation: "1 − 1/{{n + 1}} = {{n}}/{{n + 1}}. A **telescoping sum**: it collapses like a telescope."
+    variants:
+      params:
+        n: int[3,20]
+      defaults:
+        n: 9
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Does the series converge when summed over all n ≥ 1?
+    params:
+      buckets:
+        - id: b1
+          label: Converges
+        - id: b2
+          label: Diverges
+      items:
+        - label: 1/n²
+          bucket: b1
+        - label: 1/2ⁿ
+          bucket: b1
+        - label: 1/n³
+          bucket: b1
+        - label: 1/n
+          bucket: b2
+        - label: 1/√n
+          bucket: b2
+        - label: n/(n + 1)
+          bucket: b2
+    hints:
+      - 1/√n is bigger than 1/n.
+      - n/(n + 1) tends to 1, not to 0.
+    explanation: $\sum \frac1{n^p}$ converges exactly for p > 1. 1/√n is bigger than 1/n and diverges all the more.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: From which exponent p does $\sum \frac{1}{n^p}$ converge? It converges for all p greater than …
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-high
+        text: Even p = 1.5 converges. The border is the harmonic series.
+    hints:
+      - At p = 1 it is the harmonic series.
+      - Any p above 1 is enough.
+    explanation: p > 1. The harmonic series is exactly the borderline case.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The **ratio test**: if $\\left|\\frac{a_{n+1}}{a_n}\\right|$ tends to a number below 1, the series eventually behaves like a geometric one and converges. If the limit is above 1, it diverges."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: For $a_n = \frac{2^n}{n!}$ the ratio is $\frac{a_{n+1}}{a_n} = \frac{2}{n + 1}$. What is it at n = {{n}}?
+    answer:
+      value: "{{2 / (n + 1)}}"
+      tolerance: 0.001
+    hints:
+      - Put n = {{n}}.
+      - 2 / {{n + 1}}.
+    explanation: 2 / {{n + 1}} = {{2 / (n + 1)}}. The ratio tends to 0 – the series converges, in fact to e² ≈ 7.39. Factorials beat powers.
+    difficulty: 2
+    variants:
+      params:
+        n: choice[3,4,7,9,19]
+      defaults:
+        n: 9
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: What does the ratio test say about the harmonic series?
+    params:
+      options:
+        - label: Nothing – the ratio tends to exactly 1.
+          correct: true
+        - label: It diverges, but this test does not show it.
+          feedback: Sie divergiert, aber das zeigt dieser Test nicht.
+        - label: True, but it does not follow from the ratio – which is 1 here.
+          feedback: Stimmt, folgt aber nicht aus dem Quotienten – der ist hier 1.
+    hints:
+      - $\frac{1/(n+1)}{1/n} = \frac{n}{n+1}$.
+      - What does that tend to?
+    explanation: At limit 1 the test fails. 1/n and 1/n² both have limit 1 – one diverges, the other does not.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Euler solved the **Basel problem** in 1734: $\\sum \\frac{1}{n^2} = \\frac{\\pi^2}{6}$. In general $\\zeta(s) = \\sum \\frac{1}{n^s}$ is called the zeta function. The Riemann hypothesis about its zeros is one of the greatest open problems."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "From $\\sum \\frac1{n^2} = \\frac{\\pi^2}{6}$ we get $\\pi = \\sqrt{6S}$. With S ≈ 1.6449: what is π to three decimals?"
+    answer:
+      value: 3.142
+      tolerance: 0.001
+    hints:
+      - 6 · 1.6449 ≈ 9.869.
+      - √9.869.
+    explanation: √9.869 ≈ 3.1416. A sum over whole numbers knows about the circle.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Euler wrote $\sum \frac1n = \prod_p \frac{1}{1 - 1/p}$, a product over all primes p. The left side is infinite. What follows?
+    params:
+      options:
+        - label: There are infinitely many primes.
+          correct: true
+        - label: A product of finitely many finite factors would be finite.
+          feedback: Ein Produkt aus endlich vielen endlichen Faktoren wäre endlich.
+        - label: It diverges – that is the premise.
+          feedback: Sie divergiert – das ist die Voraussetzung.
+    hints:
+      - Each factor $\frac{1}{1 - 1/p}$ is a finite number.
+      - How can a product of finite numbers be infinite?
+    explanation: Only infinitely many factors can give an infinite product. A proof that there are infinitely many primes – straight from calculus.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does $\\sum \\frac{1}{n^2}$ converge but $\\sum \\frac1n$ not?"
+    params:
+      keywords:
+        - - schneller
+          - schnell
+          - faster
+          - quickly
+          - schrumpf
+          - shrink
+        - - vergleich
+          - kleiner als
+          - compare
+          - smaller than
+          - teleskop
+          - telescop
+        - - zwei
+          - endlich
+          - two
+          - finite
+      sample: Both terms tend to zero, but 1/n² shrinks much faster. You can compare 1/n² with a telescoping sum that equals exactly 1, so the sum stays below 2 and finite. With 1/n, groups keep adding more than ½.
+    explanation: "What matters is how fast the terms shrink: squared is enough, linear is not."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

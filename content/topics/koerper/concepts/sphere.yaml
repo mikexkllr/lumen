@@ -5,7 +5,7 @@ summary: Vier Drittel π r³.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 166
       tolerance: 50
     explanation: Etwa 166-mal. Der Radius ist 5,5-mal so groß, das Volumen wächst mit hoch drei.
-
 
   - kind: explain
     id: s1
@@ -93,6 +92,45 @@ steps:
     explanation: 4 · 3,14 · 40,96 ≈ 514 Millionen km².
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Archimedes' Trick: Schneide eine Halbkugel, einen Zylinder und einen Kegel auf gleicher Höhe z. Die Kugelscheibe hat π(r² − z²) – genau **Zylinder minus Kegel**. Also ist die Halbkugel πr³ − ⅓πr³ = ⅔πr³."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Zylinder mit r = h = 3 cm hat 84,78 cm³ (π ≈ 3,14). Nimm den Kegel mit gleicher Grundfläche und Höhe weg. Wie viel cm³ bleiben – das Volumen der Halbkugel?
+    params:
+      unit: cm³
+    answer:
+      value: 56.52
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 28.26) < 0.05
+        misconception: cone-not-rest
+        text: Das ist der Kegel selbst. Zieh ihn vom Zylinder ab.
+    hints:
+      - Der Kegel ist ein Drittel des Zylinders.
+      - 84,78 − 28,26.
+    explanation: "84,78 − 28,26 = 56,52 cm³. Probe: ⅔ · 3,14 · 27 = 56,52."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Der Mond hat einen Radius von 1737 km, die Erde von 6371 km. Wie viele Monde passen vom Volumen her in die Erde?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 49
+      tolerance: 8
+    explanation: Der Radius ist 3,67-mal so groß, das Volumen also 3,67³ ≈ 49-mal.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -109,6 +147,72 @@ steps:
     hints:
       - Der Zylinder hat die Höhe 2r und das Volumen π r² · 2r.
     explanation: "(4/3 π r³) : (2 π r³) = 2/3. Archimedes ließ das Bild auf seinen Grabstein setzen."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: choice
+    prompt: Leite das Volumen $V(r) = \frac43\pi r^3$ nach r ab. Was kommt heraus?
+    params:
+      options:
+        - label: $4\pi r^2$ – genau die Oberfläche
+          correct: true
+        - label: $\frac43\pi r^2$
+          feedback: "Der Exponent 3 wandert nach vorn: 3 · ⁴⁄₃ = 4."
+        - label: $\pi r^2$
+          feedback: Das ist nur der Querschnitt.
+    hints:
+      - Aus r³ wird 3r².
+      - ⁴⁄₃ · 3 = 4.
+    explanation: "Wächst r um ein winziges dr, kommt eine dünne Schale dazu: Oberfläche mal dr. Darum ist V′ = O. Beim Kreis genauso: (πr²)′ = 2πr, der Umfang."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viel Prozent des Volumens einer Kugel liegen in der äußeren Hälfte des Radius, also zwischen r/2 und r?
+    params:
+      unit: "%"
+    answer:
+      value: 87.5
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: linear-thinking
+        text: Die äußere Schale ist viel dicker an Volumen, weil sie weiter außen liegt.
+    hints:
+      - Die innere Kugel hat den halben Radius – also welchen Anteil am Volumen?
+      - (½)³ = ⅛ innen, der Rest außen.
+    explanation: Innen ⅛ = 12,5 %, außen 87,5 %. In 100 Dimensionen wäre es 1 − 0,5¹⁰⁰ – praktisch alles. Hochdimensionale Kugeln sind fast nur Haut.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum ist die Ableitung des Kugelvolumens genau die Oberfläche?"
+    params:
+      keywords:
+        - - schale
+          - schicht
+          - haut
+          - shell
+          - layer
+          - skin
+        - - dünn
+          - winzig
+          - klein
+          - thin
+          - tiny
+          - small
+        - - oberfläche
+          - fläche
+          - surface
+          - area
+      sample: Wächst der Radius ein winziges Stück, kommt eine dünne Schale dazu. Ihr Volumen ist Oberfläche mal Dicke. Die Änderung des Volumens pro Radius ist also die Oberfläche.
+    explanation: Neues Volumen = Oberfläche · Schalendicke. Darum ist dV/dr = O.
     difficulty: 3
 
 srs:

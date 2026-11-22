@@ -5,7 +5,7 @@ summary: When an infinite sum stays finite.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: schritte
@@ -73,6 +73,47 @@ steps:
     explanation: 1 ÷ (2/3) = 3/2. This holds for every q between −1 and 1.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The finite sum is $a \frac{1 - q^n}{1 - q}$. For |q| < 1, $q^n$ shrinks towards zero. So the **limit** of the infinite series is $\frac{a}{1 - q}$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Write 0.{{d}}{{d}}{{d}}… with infinitely many {{d}}s as a fraction.
+    answer:
+      value: "{{d}}/9"
+    feedback:
+      - when: numval(state.input) == d / 10
+        misconception: first-term-only
+        text: That is only the first digit. Infinitely many more follow.
+    hints:
+      - 0.{{d}}{{d}}… = {{d}}/10 + {{d}}/100 + … – a geometric series with q = 1/10.
+      - a / (1 − q) = ({{d}}/10) / (9/10).
+    explanation: ({{d}}/10) / (9/10) = {{d}}/9. With d = 9 you get 9/9 = 1 – that is why 0.999… = 1.
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,8]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Write 0.121212… as a fraction in lowest terms.
+    answer:
+      value: 4/33
+      form: simplified
+    hints:
+      - The repeating block is 12, so q = 1/100.
+      - 12/100 / (99/100) = 12/99. Now reduce.
+    explanation: 12/99 = 4/33. Every repeating decimal is a fraction – and every fraction has a repeating decimal.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -117,6 +158,45 @@ steps:
           - beyond
           - darüber
       sample: The numbers keep getting smaller, for example half as large each time. The sum then approaches a limit that it never exceeds.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Why does $1 + \\frac12 + \\frac13 + \\dots$ grow past every bound? Group the terms: $\\frac13 + \\frac14 > \\frac12$, $\\frac15 + \\dots + \\frac18 > \\frac12$ and so on. Infinitely many halves are **infinite**. Oresme showed this around 1350."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many terms of the harmonic series does it take for the sum to exceed 10?"
+    params:
+      min: 10
+      max: 1000000
+      scale: log
+    answer:
+      value: 12367
+      within: 40
+    explanation: Exactly 12,367. The sum grows like ln n + 0.577. For a sum of 100 you would need about 10⁴³ terms.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: The term 1/n tends to 0, and still the series diverges. What follows?
+    params:
+      options:
+        - label: Terms tending to 0 are not enough – they must shrink fast enough.
+          correct: true
+        - label: "No: ½ + ¼ + ⅛ + … converges."
+          feedback: "Nein: ½ + ¼ + ⅛ + … konvergiert."
+        - label: The groups of halves show it exceeds every number.
+          feedback: "Die Gruppen aus Hälften zeigen: Sie übersteigt jede Zahl."
+    hints:
+      - Compare 1/n with 1/2ⁿ.
+      - Both tend to 0 – but only one sum stays finite.
+    explanation: "Terms tending to 0 are necessary but not sufficient. 1/n shrinks too slowly; 1/n² is fast enough: that series converges to π²/6."
     difficulty: 3
 
 srs:

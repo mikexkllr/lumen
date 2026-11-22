@@ -5,7 +5,7 @@ summary: Handshakes, teams, and the lottery.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: haende
@@ -103,6 +103,53 @@ steps:
     explanation: 336 ÷ 6 = 56.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Choosing k out of n: first draw in order n · (n − 1) · …, then divide by k!. In short: the **binomial coefficient** $\\binom{n}{k} = \\frac{n!}{k!\\,(n-k)!}$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A team of 3 is picked from {{n}} people. How many teams are possible?
+    answer:
+      value: "{{n * (n - 1) * (n - 2) / 6}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1) * (n - 2)
+        misconception: ordered-count
+        text: That counts each team 6 times – once per order. Divide by 3! = 6.
+    hints:
+      - "In order: {{n}} · {{n - 1}} · {{n - 2}}."
+      - Each team appears in 3! = 6 orders.
+    explanation: "{{n}} · {{n - 1}} · {{n - 2}} / 6 = {{n * (n - 1) * (n - 2) / 6}}."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,12]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A club with 10 members elects a chair and two equal deputies. How many ways are there?
+    answer:
+      value: 360
+    feedback:
+      - when: numval(state.input) == 720
+        misconception: ordered-deputies
+        text: The two deputies are equal – their order does not matter.
+      - when: numval(state.input) == 120
+        misconception: all-unordered
+        text: The chair is a special post. Who holds it makes a difference.
+    hints:
+      - "First the chair: 10 options."
+      - Then 2 of the remaining 9, order irrelevant.
+    explanation: 10 · $\binom{9}{2}$ = 10 · 36 = 360. Ordered and unordered parts can be mixed – the product rule holds it all together.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -119,6 +166,77 @@ steps:
     hints:
       - Think of the people who are **not** chosen.
     explanation: Every choice of 3 matches exactly one remainder of 7. Such pairings are called a **bijection**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "How many numbers up to 100 are divisible by 2 **or** 3? 50 plus 33 counts the multiples of 6 twice. So you subtract them once. That is **inclusion–exclusion**: |A ∪ B| = |A| + |B| − |A ∩ B|."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How many numbers from 1 to {{N}} are divisible by 2 or by 3?
+    answer:
+      value: "{{N / 2 + N / 3 - N / 6}}"
+    feedback:
+      - when: numval(state.input) == N / 2 + N / 3
+        misconception: double-count
+        text: You counted the multiples of 6 twice.
+    hints:
+      - "Divisible by 2: {{N / 2}}, by 3: {{N / 3}}."
+      - Both – i.e. by 6 – subtract once.
+    explanation: "{{N / 2}} + {{N / 3}} − {{N / 6}} = {{N / 2 + N / 3 - N / 6}}."
+    difficulty: 3
+    variants:
+      params:
+        N: step[60,600,60]
+      defaults:
+        N: 120
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: How many numbers from 1 to 1000 are divisible by 2, 3 or 5?
+    answer:
+      value: 734
+    feedback:
+      - when: numval(state.input) == 1033
+        misconception: no-exclusion
+        text: You only added. The overlaps are counted several times.
+      - when: numval(state.input) == 701
+        misconception: forgot-triple
+        text: You removed the multiples of 30 completely. Add them back once.
+    hints:
+      - 500 + 333 + 200, then subtract the pairs 6, 10, 15.
+      - "The multiples of 30 come back at the end: + 33."
+    explanation: 500 + 333 + 200 − 166 − 100 − 66 + 33 = 734. Plus, minus, plus – this way every number is counted exactly once.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why do you subtract the overlap when counting »A or B«?"
+    params:
+      keywords:
+        - - doppelt
+          - zweimal
+          - twice
+          - double
+        - - beide
+          - schnitt
+          - both
+          - overlap
+          - intersection
+        - - einmal
+          - once
+          - genau
+          - exactly
+      sample: Anyone in both A and B is counted twice when adding A and B. Subtracting the overlap once makes everyone count exactly once.
+    explanation: Adding counts the overlap twice, subtracting fixes that. With three sets you must add the triple overlap back.
     difficulty: 3
 
 srs:

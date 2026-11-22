@@ -5,7 +5,7 @@ summary: Grow cubes, drag base areas.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: wuerfel
@@ -66,6 +66,63 @@ steps:
     explanation: 0.33, 1, 4.19, 6.28.
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: chart
+    prompt: From a 12 × 12 cm sheet you cut a square of side x from each corner and fold an open box. Its volume is x · (12 − 2x)². Set the bars.
+    params:
+      title: Volume in cm³
+      labels:
+        - x = 1
+        - x = 2
+        - x = 3
+        - x = 4
+        - x = 5
+      values:
+        - 100
+        - 4
+        - 4
+        - 4
+        - 4
+      editable:
+        - 1
+        - 2
+        - 3
+        - 4
+      min: 0
+      max: 140
+      step: 4
+    answer:
+      values:
+        - 100
+        - 128
+        - 108
+        - 64
+        - 20
+    hints:
+      - At x = 2 the bottom is 8 × 8 cm and the height 2 cm.
+      - "x = 3: 3 · 6², x = 4: 4 · 4², x = 5: 5 · 2²."
+    explanation: "100, 128, 108, 64, 20. The biggest box comes at x = 2: there V′(x) = (12 − 2x)(12 − 6x) is zero."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: An icosahedron has 20 triangles as faces. Every edge belongs to exactly two faces. How many edges does it have?
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: double-count
+        text: Then you counted every edge twice. Divide by 2.
+    hints:
+      - 20 triangles have 60 sides in total.
+      - Each edge was counted twice.
+    explanation: "20 · 3 / 2 = 30 edges. Euler then gives: vertices = 2 + 30 − 20 = 12."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -75,6 +132,58 @@ steps:
     hints:
       - V − 90 + 32 = 2.
     explanation: 60 vertices. The carbon molecule C₆₀ has the same shape.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "At every corner of a regular solid at least three equal polygons meet. Their angles must add up to **less than 360°**, or it lies flat. Only five cases allow that: the **Platonic solids**."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: buckets
+    prompt: Which corner is possible? Sort them.
+    params:
+      buckets:
+        - id: b1
+          label: Possible corner
+        - id: b2
+          label: Flat or too much
+      items:
+        - label: 3 triangles (180°)
+          bucket: b1
+        - label: 5 triangles (300°)
+          bucket: b1
+        - label: 3 pentagons (324°)
+          bucket: b1
+        - label: 6 triangles (360°)
+          bucket: b2
+        - label: 4 squares (360°)
+          bucket: b2
+        - label: 3 hexagons (360°)
+          bucket: b2
+    hints:
+      - A triangle has 60°, a square 90°, a pentagon 108°, a hexagon 120°.
+      - Exactly 360° gives a flat tiling, not a corner.
+    explanation: "Below 360°: 3, 4 or 5 triangles, 3 squares, 3 pentagons – tetrahedron, octahedron, icosahedron, cube, dodecahedron. There are no more."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: A dodecahedron has 12 pentagons as faces, and 3 meet at every corner. How many corners does it have?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: triple-count
+        text: Every corner belongs to three pentagons – you counted each three times.
+    hints:
+      - 12 pentagons have 60 corners in total.
+      - Each corner of the solid was counted three times.
+    explanation: "12 · 5 / 3 = 20 corners, 12 · 5 / 2 = 30 edges. Check: 20 − 30 + 12 = 2."
     difficulty: 3
 
 srs:

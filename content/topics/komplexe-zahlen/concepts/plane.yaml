@@ -5,7 +5,7 @@ summary: Zahlen als Punkte.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -82,6 +82,51 @@ steps:
     explanation: 9 + 16 = 25 – das Quadrat des Betrags. Immer reell.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Der **Betrag** |z| ist der Abstand vom Nullpunkt: $|a + bi| = \\sqrt{a^2 + b^2}$. Die konjugierte Zahl $\\bar z = a - bi$ ist z an der reellen Achse gespiegelt. Es gilt $z \\cdot \\bar z = |z|^2$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie groß ist $|{{5 * k}} - {{12 * k}}i|$?
+    answer:
+      value: "{{13 * k}}"
+    feedback:
+      - when: numval(state.input) == -7 * k
+        misconception: subtract
+        text: Der Betrag ist eine Länge – nie negativ. Quadriere beide Teile.
+    hints:
+      - √(({{5 * k}})² + ({{12 * k}})²).
+      - 5, 12, 13 ist ein pythagoreisches Tripel.
+    explanation: √({{25 * k * k}} + {{144 * k * k}}) = {{13 * k}}.
+    difficulty: 2
+    variants:
+      params:
+        k: int[1,4]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Berechne $\frac{1}{3 + 4i}$. Erweitere mit $3 - 4i$. Welchen Realteil hat das Ergebnis?
+    answer:
+      value: 0.12
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.333) < 0.002
+        misconception: ignore-imaginary
+        text: 1/3 wäre richtig ohne den Imaginärteil. Der Nenner wird |z|² = 25.
+    hints:
+      - "Nenner: (3 + 4i)(3 − 4i) = 9 + 16 = 25."
+      - "Ergebnis: (3 − 4i) : 25."
+    explanation: "3/25 = 0,12, der Imaginärteil ist −0,16. Teilen heißt: mit der Konjugierten erweitern, dann ist der Nenner reell."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -92,6 +137,55 @@ steps:
     hints:
       - Erweitere mit der konjugierten Zahl 1 − 2i.
     explanation: 10(1 − 2i) / 5 = 2 − 4i. Die Konjugierte macht den Nenner reell.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Jede komplexe Zahl hat eine **Polarform**: Länge r und Winkel φ, also $z = r(\\cos\\varphi + i\\sin\\varphi)$. Der Winkel heißt Argument. Für Plus ist die Form a + bi bequem, für Mal die Polarform."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Welchen Winkel in Grad hat $z = 1 + \sqrt3\,i$?
+    params:
+      unit: °
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: swapped
+        text: "tan φ = √3 : 1. Das gehört zu 60°, nicht zu 30°."
+    hints:
+      - "tan φ = Imaginärteil : Realteil = √3."
+      - Bei welchem Winkel ist der Tangens √3?
+    explanation: φ = 60° und r = 2, also z = 2(cos 60° + i sin 60°).
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man eine komplexe Zahl als Punkt zeichnet.
+    params:
+      keywords:
+        - - realteil
+          - reell
+          - rechts
+          - real
+          - right
+        - - imaginärteil
+          - imaginär
+          - oben
+          - imaginary
+          - up
+        - - punkt
+          - ebene
+          - point
+          - plane
+      sample: Ich gehe so weit nach rechts, wie der Realteil angibt, und so weit nach oben, wie der Imaginärteil angibt. Dort liegt der Punkt in der Zahlenebene.
+    explanation: a + bi ↔ (a | b). Die reellen Zahlen sind die waagerechte Achse, die imaginären die senkrechte.
     difficulty: 3
 
 srs:
