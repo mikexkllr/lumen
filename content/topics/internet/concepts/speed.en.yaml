@@ -5,7 +5,7 @@ summary: Bits, bytes and ping.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: mbyte
@@ -72,6 +72,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: A web page loads 20 files one after another. Each needs a 50 ms ping before it arrives. How many ms do you wait for pings alone?
+    params:
+      unit: ms
+    answer:
+      value: 1000
+    hints:
+      - One after another means the waits add up.
+      - 20 · 50 ms.
+    explanation: 20 · 50 ms = 1 s – however fast the line is. That is why browsers load many things at once.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: "**Latency** has a hard limit: light covers about 200,000 km per second in fibre. More bandwidth does not make a single packet faster – it only makes the pipe wider."
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: 100 TB must go from Berlin to Munich. A 1 Gbit/s line – how many hours does it take? (A car full of drives takes 6 hours.)"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: h
+    answer:
+      value: 222
+      within: 25
+    explanation: 100 TB = 800,000 Gbit, so 800,000 s ≈ 222 hours. The car clearly wins. Cloud providers really do ship disks for this.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -93,6 +129,60 @@ steps:
           - reply
       min: 3
       sample: The browser asks DNS for the IP address of the name. Then it sends a request in packets to the server, and the server sends the page back as its response.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: A line carries 100 Mbit/s, a ping takes 40 ms. How many megabits are in flight at once when the line is fully used?
+    params:
+      unit: Mbit
+    answer:
+      value: 4
+    hints:
+      - Bandwidth times time gives an amount.
+      - 100 Mbit/s · 0.04 s.
+    explanation: 100 · 0.04 = 4 Mbit. The sender must have this bandwidth-delay product in flight before the first acknowledgement returns.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: A 10 MB download over 100 Mbit/s. Add a 0.05 s ping to get started. About how many seconds does it take in total?
+    params:
+      unit: s
+    answer:
+      value: 0.85
+      tolerance: 0.02
+    feedback:
+      - when: abs(numval(state.input) - 0.15) < 0.01
+        misconception: bits-bytes
+        text: Mixed up MB and Mbit? 10 MB are 80 Mbit.
+    hints:
+      - Convert megabytes to megabits.
+      - 80 Mbit / 100 Mbit/s plus 0.05 s.
+    explanation: 80 / 100 = 0.8 s, plus 0.05 s = 0.85 s. For big files bandwidth counts, for small ones the ping.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Video streaming runs smoothly, but an online game on the same line lags. Why?
+    params:
+      options:
+        - label: Streaming buffers ahead, in a game every millisecond of ping counts
+          correct: true
+        - label: Games need more bandwidth than video
+          feedback: Usually the reverse – games send few, small packets.
+        - label: Games do not use the internet
+          feedback: Online games send packets all the time.
+    hints:
+      - Can a video load in advance? Can a game?
+      - Your input must reach the server right away.
+    explanation: A video loads a few seconds ahead and smooths over hiccups. A game cannot load the future in advance – latency is what counts.
     difficulty: 3
 
 srs:

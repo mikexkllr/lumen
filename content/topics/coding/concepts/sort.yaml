@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.sort]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: tauschen
@@ -90,6 +90,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: swap
+    prompt: Sortiere mit höchstens 6 Nachbar-Tauschen – genau so viele, wie Paare falsch herum stehen.
+    params:
+      values:
+        - 5
+        - 1
+        - 4
+        - 2
+        - 3
+      adjacent: true
+      maxSwaps: 6
+    hints:
+      - Jeder Tausch sollte ein falsches Paar richten.
+      - Tausche nie zwei Nachbarn, die schon richtig stehen.
+    explanation: 5 steht vor 1, 4, 2, 3 und 4 vor 2, 3 – sechs falsche Paare. Jeder Nachbar-Tausch richtet genau eins.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: Bubblesort macht einen Durchgang über 3, 1, 4, 2. Wie sieht die Liste danach aus?
+    params:
+      items:
+        - label: "1"
+        - label: "3"
+        - label: "2"
+        - label: "4"
+      direction: horizontal
+    hints:
+      - Vergleiche 3 und 1, dann 3 und 4, dann 4 und 2.
+      - Nach einem Durchgang steht nur das Größte sicher richtig.
+    explanation: 3,1 → 1,3. 3,4 bleibt. 4,2 → 2,4. Ergebnis 1, 3, 2, 4 – noch nicht sortiert, aber die 4 steht schon am Ende.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: "Bubblesort, schlimmster Fall, {{n}} Elemente: Wie viele Vergleiche braucht er insgesamt?"
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: n-squared
+        text: Jedes Paar wird nur einmal verglichen, und ein Element nie mit sich selbst.
+      - when: numval(state.input) == n - 1
+        misconception: one-pass
+        text: Das ist nur der erste Durchgang.
+    hints:
+      - Der erste Durchgang braucht {{n - 1}} Vergleiche, der nächste einen weniger.
+      - "{{n - 1}} + {{n - 2}} + … + 1."
+    explanation: "{{n - 1}} + … + 1 = {{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}. Das wächst wie n² – quadratisch."
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,20]
+      defaults:
+        n: 8
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -126,4 +189,36 @@ steps:
           - middle
           - midpoint
       sample: In einer sortierten Liste schaue ich in die Mitte und weiß sofort, in welcher Hälfte das Gesuchte liegt. Jeder Schritt halbiert die Möglichkeiten, statt nur eine auszuschließen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Jeder Vergleich hat zwei Ausgänge. 4 Karten können in 4! = 24 Reihenfolgen liegen. Wie viele Vergleiche braucht man mindestens, um sie sicher zu sortieren?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: too-few
+        text: Mit 4 Vergleichen unterscheidest du nur $2^4$ = 16 Fälle – zu wenig für 24.
+    hints:
+      - k Vergleiche unterscheiden höchstens $2^k$ Fälle.
+      - Die kleinste Zweierpotenz, die mindestens 24 ist?
+    explanation: $2^4$ = 16 < 24 ≤ 32 = $2^5$. Also mindestens 5 Vergleiche – und 5 reichen auch. Allgemein braucht man mindestens log₂(n!) ≈ n · log₂ n.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wievielmal schneller ist ein Verfahren mit n · log₂ n Schritten als eines mit n² – bei einer Million Zahlen?"
+    params:
+      min: 10
+      max: 10000000
+      scale: log
+    answer:
+      value: 50000
+      within: 40
+    explanation: n² / (n · log₂ n) = n / log₂ n = 1 000 000 / 20 = 50 000. Was mit Mergesort eine Sekunde dauert, braucht Bubblesort fast 14 Stunden.
     difficulty: 3

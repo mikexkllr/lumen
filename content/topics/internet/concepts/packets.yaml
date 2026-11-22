@@ -5,7 +5,7 @@ summary: Alles wird in kleine Stücke zerlegt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 15
       tolerance: 8
     explanation: Meist 10 bis 20 – und das in wenigen Hundertstelsekunden.
-
 
   - kind: problem
     id: wie-viele
@@ -84,6 +83,65 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Paket ist 1500 Byte groß. 40 Byte davon sind der Kopf mit Adressen und Nummer. Wie viel Prozent sind das? Runde auf eine Stelle.
+    params:
+      unit: "%"
+    answer:
+      value: 2.7
+      tolerance: 0.05
+    hints:
+      - Teile 40 durch 1500.
+      - Mal 100 ergibt Prozent.
+    explanation: 40 / 1500 ≈ 0,027 = 2,7 %. Fast alles im Paket sind Nutzdaten – nur ein kleiner Teil ist Verwaltung.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: "Ein **Protokoll** ist eine feste Abmachung. Im Netz stapeln sich mehrere: IP bringt Pakete zur richtigen Adresse. TCP sorgt dafür, dass alles vollständig und in Reihenfolge ankommt. HTTP sagt, was drinsteht."
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: match
+    prompt: Welche Schicht kümmert sich um was?
+    params:
+      pairs:
+        - left: HTTP
+          right: Welche Webseite will ich?
+        - left: TCP
+          right: Vollständig und in Reihenfolge
+        - left: IP
+          right: Adresse und Weg durchs Netz
+        - left: WLAN
+          right: Bis zum nächsten Gerät
+    hints:
+      - "Von oben nach unten: vom Inhalt bis zur Funkwelle."
+      - TCP nummeriert und bestätigt Pakete.
+    explanation: Jede Schicht nutzt die darunter, ohne ihre Details zu kennen. Darum läuft HTTP über WLAN genauso wie über Glasfaser.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: order
+    prompt: Bevor TCP Daten schickt, verabreden sich beide Seiten. Bring diesen Handschlag in die richtige Reihenfolge.
+    params:
+      items:
+        - label: SYN – »Ich will reden«
+        - label: SYN-ACK – »Verstanden, ich auch«
+        - label: ACK – »Verstanden«
+        - label: Daten fließen
+    hints:
+      - Wer fängt an?
+      - Jede Seite bestätigt die andere einmal.
+    explanation: Der Drei-Wege-Handschlag. Danach kennen beide die Startnummern der Pakete.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +157,89 @@ steps:
     hints:
       - Was bringt dir ein Wort, das zwei Sekunden zu spät ankommt?
     explanation: Zuverlässig oder schnell – jedes Protokoll ist ein Kompromiss für seinen Zweck.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: TCP schickt höchstens 64 KB und wartet dann auf eine Bestätigung. Ein Ping dauert 100 ms. Wie viele KB pro Sekunde schafft die Verbindung höchstens?
+    params:
+      unit: KB/s
+    answer:
+      value: 640
+    feedback:
+      - when: numval(state.input) == 6.4
+        misconception: divide-wrong
+        text: Pro Sekunde passen 10 Pings, nicht ein Zehntel davon.
+    hints:
+      - Wie viele Runden aus Senden und Warten passen in eine Sekunde?
+      - 1 s / 0,1 s = 10 Runden zu je 64 KB.
+    explanation: 10 · 64 KB = 640 KB/s – egal, wie dick die Leitung ist. Darum dürfen moderne Verbindungen viel mehr Daten »in der Luft« haben.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Warum zerlegt man Daten überhaupt in Pakete, statt sie am Stück zu schicken?
+    params:
+      options:
+        - label: Viele können sich die Leitungen teilen, und bei einem Fehler wird nur ein kleines Stück neu gesendet
+          correct: true
+        - label: Kleine Pakete sind schneller als Licht
+          feedback: Auch Pakete reisen höchstens mit Lichtgeschwindigkeit.
+        - label: Weil Router nur kleine Dateien kennen
+          feedback: Router kennen gar keine Dateien – nur Pakete.
+    hints:
+      - Denk an eine Autobahn mit vielen kleinen Autos.
+      - Was passiert, wenn ein riesiger Block unterwegs beschädigt wird?
+    explanation: Paketvermittlung teilt die Leitungen fair auf und macht Fehler billig. Das alte Telefonnetz reservierte dagegen eine ganze Leitung pro Gespräch.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: TCP schickt verlorene Pakete neu.
+          right: true
+          why: Fehlt eine Bestätigung, sendet TCP noch einmal.
+        - text: UDP garantiert die Reihenfolge.
+          right: false
+          why: UDP schickt einfach los – ohne Nummern-Kontrolle und Neusenden.
+        - text: Für Live-Video ist UDP oft besser.
+          right: true
+          why: Ein verspätetes Bild ist wertlos – lieber das nächste.
+        - text: Jedes Paket nimmt denselben Weg.
+          right: false
+          why: Router entscheiden pro Paket. Wege können sich unterwegs ändern.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Datei vollständig ankommt, obwohl unterwegs Pakete verloren gehen.
+    params:
+      keywords:
+        - - nummer
+          - number
+          - reihenfolge
+          - order
+          - sequence
+        - - bestätig
+          - ack
+          - quittung
+          - confirm
+        - - neu
+          - erneut
+          - resend
+          - again
+          - wieder
+      sample: Jedes Paket bekommt eine Nummer. Der Empfänger bestätigt, was angekommen ist, und sortiert nach Nummer. Fehlt eine Bestätigung, schickt der Absender das Paket erneut.
     difficulty: 3
 
 srs:

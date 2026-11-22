@@ -5,7 +5,7 @@ summary: XOR, NAND und das Treppenhaus-Licht.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: kette
@@ -94,6 +94,90 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: "Mehrheitsentscheid: Die Lampe soll leuchten, wenn mindestens zwei von drei Schaltern an sind. Wähle die ersten drei Gatter."
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: g1
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: g2
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: g3
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g4
+          type: OR
+          in:
+            - g1
+            - g2
+            - g3
+      outputs:
+        - id: Q
+          from: g4
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - Jedes der drei Gatter prüft ein Paar von Schaltern.
+      - Ein Paar zählt nur, wenn beide an sind.
+    explanation: "(A UND B) ODER (A UND C) ODER (B UND C): Sobald irgendein Paar an ist, haben zwei zugestimmt."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele der 16 Zeilen von A XOR B XOR C XOR D ergeben 1?
+    answer:
+      value: 8
+    hints:
+      - Eine XOR-Kette ist 1, wenn ungerade viele Eingänge an sind.
+      - Genau die Hälfte aller Zeilen hat eine ungerade Zahl von Einsen.
+    explanation: Drehst du A um, kippt das Ergebnis. So bilden die Zeilen Paare mit 0 und 1 – also 8 von 16.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Welcher einfachere Ausdruck ist dasselbe wie A ODER (A UND B)?
+    params:
+      options:
+        - label: A
+          correct: true
+        - label: A UND B
+          feedback: Bei A = 1, B = 0 ist der Ausdruck 1, A UND B aber 0.
+        - label: B
+          feedback: Bei A = 1, B = 0 ist der Ausdruck 1, B aber 0.
+    hints:
+      - Probier alle vier Zeilen aus.
+      - Ist A = 1, ist alles 1. Ist A = 0, ist auch A UND B gleich 0.
+    explanation: Das ist die Absorptionsregel. Mit solchen Regeln spart man in Chips Gatter, Strom und Platz.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,6 +193,67 @@ steps:
     hints:
       - Probier alle vier Kombinationen.
     explanation: "Darum verschlüsselt man mit XOR: Schlüssel drauf zum Verschlüsseln, derselbe Schlüssel nochmal zum Entschlüsseln."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: "XOR-Tausch: a = 6 (110), b = 3 (011). Der erste Schritt rechnet a = a XOR b. Welchen Wert hat a danach?"
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: xor-as-add
+        text: "XOR ist keine Addition: 1 XOR 1 ergibt 0, ohne Übertrag."
+    hints:
+      - "Vergleiche Stelle für Stelle: gleich gibt 0, verschieden gibt 1."
+      - 110 XOR 011 = 101.
+    explanation: a = 101 = 5. Dann b = a XOR b = 101 XOR 011 = 110 = 6 und a = 101 XOR 110 = 011 = 3. Getauscht – ganz ohne Hilfsvariable.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Kann man aus UND- und ODER-Gattern allein, ganz ohne NICHT, ein NICHT bauen?
+    params:
+      options:
+        - label: Nein – bei lauter Nullen am Eingang geben sie immer 0 aus
+          correct: true
+        - label: Ja, mit genug Gattern
+          feedback: "Egal wie viele: Aus 0 machen UND und ODER nie eine 1."
+        - label: Ja, mit einem XOR
+          feedback: XOR ist kein UND oder ODER.
+    hints:
+      - Was gibt UND(0, 0)? Was gibt ODER(0, 0)?
+      - NICHT muss aus 0 eine 1 machen.
+    explanation: "UND und ODER sind monoton: Mehr Einsen am Eingang erzeugen nie weniger Einsen am Ausgang. NICHT ist nicht monoton – darum braucht man es extra."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie das Licht im Treppenhaus mit zwei Schaltern funktioniert.
+    params:
+      keywords:
+        - - xor
+          - entweder
+          - either
+          - genau einer
+          - exactly one
+        - - umschalt
+          - wechsel
+          - toggle
+          - flip
+          - ändert
+          - change
+        - - beide
+          - zwei schalter
+          - two switches
+          - both
+      sample: "Das Licht ist ein XOR der beiden Schalter: Es brennt, wenn genau einer oben ist. Egal, welcher Schalter umgelegt wird – das Ergebnis wechselt jedes Mal. Sind beide gleich, ist es aus."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Nachbarn tauschen, bis alles stimmt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: drei
@@ -60,6 +60,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: Ein Durchgang Bubble-Sort über 5, 1, 4, 2, 8. Wie sieht die Reihe danach aus?
+    params:
+      items:
+        - label: "1"
+        - label: "4"
+        - label: "2"
+        - label: "5"
+        - label: "8"
+      direction: horizontal
+    hints:
+      - Vergleiche nacheinander 5 und 1, 5 und 4, 5 und 2, 5 und 8.
+      - Die 5 wandert, bis sie auf die 8 trifft.
+    explanation: "5 tauscht mit 1, 4 und 2 und bleibt vor der 8 stehen: 1, 4, 2, 5, 8. Noch nicht sortiert – die 2 steht falsch."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Reihe aus {{n}} Zahlen steht genau falsch herum. Wie viele Nachbar-Tausche braucht Bubble-Sort?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: one-pass
+        text: Das ist nur die erste Runde. Danach steht erst die größte Zahl richtig.
+    hints:
+      - Jedes Paar steht falsch herum. Wie viele Paare gibt es?
+      - "{{n - 1}} + {{n - 2}} + … + 1."
+    explanation: Jeder Nachbar-Tausch richtet genau ein falsches Paar. Hier sind alle {{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} Paare falsch.
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swap
+    prompt: Sortiere mit höchstens 8 Nachbar-Tauschen. Kein Tausch darf verschwendet sein.
+    params:
+      values:
+        - 3
+        - 6
+        - 1
+        - 5
+        - 2
+        - 4
+      adjacent: true
+      maxSwaps: 8
+    hints:
+      - "Zähle die falschen Paare: 3 vor 1 und 2, 6 vor vier Zahlen …"
+      - Tausche nur Nachbarn, bei denen links die größere Zahl steht.
+    explanation: 2 + 4 + 2 = 8 falsche Paare. Weniger Nachbar-Tausche gehen nicht, mehr braucht man nicht.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Nach Runde k gilt: Die k größten Zahlen stehen ganz rechts – schon richtig sortiert. Diese **Invariante** erklärt, warum Bubble-Sort nach höchstens n − 1 Runden fertig ist."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -75,6 +142,59 @@ steps:
     hints:
       - Er merkt erst nach einem Durchgang, dass nichts zu tun ist.
     explanation: Bester Fall n, schlimmster Fall n². Ein Algorithmus hat oft sehr verschiedene Gesichter.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine zufällig gemischte Reihe mit n Zahlen hat im Schnitt n · (n − 1) / 4 falsche Paare. Wie viele sind das bei 100 Zahlen?
+    answer:
+      value: 2475
+    hints:
+      - Jedes Paar steht mit Wahrscheinlichkeit 1/2 falsch.
+      - 100 · 99 / 4.
+    explanation: 100 · 99 / 4 = 2475. Auch im Durchschnitt ist Bubble-Sort quadratisch – nur halb so schlimm wie im schlechtesten Fall.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Bubble-Sort tauscht nur, wenn die linke Zahl echt größer ist. Was folgt daraus für gleiche Zahlen?
+    params:
+      options:
+        - label: Sie behalten ihre Reihenfolge – das Verfahren ist stabil
+          correct: true
+        - label: Sie werden zufällig vertauscht
+          feedback: Gleiche Nachbarn werden nie getauscht.
+        - label: Das Verfahren hängt in einer Schleife
+          feedback: Ohne Tausch endet es ganz normal.
+    hints:
+      - Was passiert bei zwei gleichen Nachbarn?
+      - Kann eine 7 eine andere 7 überholen?
+    explanation: Gleiche Elemente überholen sich nie. Das ist wichtig, wenn man erst nach Name und dann nach Stadt sortiert.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Bubble-Sort sicher fertig wird.
+    params:
+      keywords:
+        - - größt
+          - largest
+          - biggest
+        - - rechts
+          - ende
+          - right
+          - end
+        - - runde
+          - durchgang
+          - pass
+          - round
+      sample: In jeder Runde wandert die größte noch unsortierte Zahl nach rechts ans Ende. Danach muss man sie nie wieder anfassen. Nach n − 1 Runden stehen alle Zahlen richtig.
     difficulty: 3
 
 srs:

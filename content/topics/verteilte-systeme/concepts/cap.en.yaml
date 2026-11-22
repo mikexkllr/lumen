@@ -1,0 +1,214 @@
+id: cs.distributed.cap
+type: concept
+title: "The CAP theorem"
+summary: "Consistent or available – when the network splits, you must choose."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two branches of a bank lose their connection. In both, someone wants to withdraw the last euro of the same account. What can the system do?
+    params:
+      options:
+        - label: Either one branch refuses, or both pay out and the account goes negative
+          correct: true
+        - label: Both pay and everything stays correct
+          feedback: Without a connection neither branch knows about the other.
+        - label: Repair the connection at once
+          feedback: That would be nice – but a decision is needed now.
+    hints:
+      - Can one branch know what the other is doing right now?
+      - Safe or helpful – not both.
+    explanation: This is exactly the dilemma the CAP theorem describes. Banks often choose »safe«, web shops rather »helpful«.
+
+  - kind: explain
+    id: c1
+    body: "The **CAP theorem**: if the network between machines splits, a system must choose – either always deliver the latest state or always answer. Both at once are impossible during the outage."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: What matters more here if the network splits?
+    params:
+      buckets:
+        - id: b1
+          label: latest state
+        - id: b2
+          label: always answer
+      items:
+        - label: Bank balance
+          bucket: b1
+        - label: Like counter of a video
+          bucket: b2
+        - label: Shopping cart in a web shop
+          bucket: b2
+        - label: Booking a plane seat
+          bucket: b1
+        - label: Number of page views
+          bucket: b2
+        - label: Access to a safe
+          bucket: b1
+    hints:
+      - Would a stale value be dangerous or just untidy?
+      - One like more or less harms nobody.
+    explanation: Where mistakes are costly you would rather wait. Where availability counts you accept briefly inexact data.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Can a system spread over many machines just make sure the net never fails?
+    params:
+      options:
+        - label: No – networks do fail in practice; you can only choose how to behave meanwhile
+          correct: true
+        - label: Yes, with better cables
+          feedback: Even the best networks have outages.
+        - label: Yes, with just one data centre
+          feedback: Connections break in there too.
+    hints:
+      - Are there cables, routers and software without faults?
+      - Outages are routine, not the exception.
+    explanation: "That is why the rule of thumb »pick two of three« is misleading. The real question is: what do we do when the network splits?"
+
+  - kind: explain
+    id: c4
+    body: "Many large systems choose **eventual consistency**: every copy answers at once, with slightly stale data if need be. After the outage the copies sync up until all show the same again."
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: With eventual consistency not everyone sees the same thing for a while.
+          right: true
+          why: That is exactly the price of constant availability.
+        - text: CAP means you always freely pick two of three properties.
+          right: false
+          why: The choice only arises during a network outage.
+        - text: A single machine has no CAP problem.
+          right: true
+          why: With no network between copies nothing can split.
+        - text: "Consistent here means: everyone reads the latest value."
+          right: true
+          why: As if there were only a single copy.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The clocks of different machines never run exactly alike. A **logical clock** counts events instead: everyone increases their counter and sends it along. Whoever receives a message jumps to the maximum plus one."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Machine A's logical clock reads {{a}}. It receives a message with timestamp {{b}}. What does its clock read afterwards?
+    answer:
+      value: "{{max(a, b) + 1}}"
+    feedback:
+      - when: numval(state.input) == a + 1
+        misconception: ignore-message
+        text: The message comes from its »future« – it must jump to its stamp.
+      - when: numval(state.input) == max(a, b)
+        misconception: forgot-increment
+        text: Receiving is itself an event – plus one.
+    hints:
+      - Take the larger of {{a}} and {{b}}.
+      - Then add one.
+    explanation: max({{a}}, {{b}}) + 1 = {{max(a, b) + 1}}. That way every reply is guaranteed to come after its cause.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,20]
+        b: int[2,20]
+      constraints:
+        - b > a
+      defaults:
+        a: 5
+        b: 9
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "Two copies were changed differently during an outage. Rule: »the last writer wins«. What is the catch?"
+    params:
+      options:
+        - label: One change is silently lost – and »last« is unclear with unequal clocks
+          correct: true
+        - label: None at all
+          feedback: The losing change disappears without warning.
+        - label: Both changes are kept
+          feedback: That is exactly what the rule does not do.
+    hints:
+      - What happens to the change that loses?
+      - Whose clock decides what was »last«?
+    explanation: The rule is simple but lossy. For counters or lists there are better ways that merge changes.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "A like counter keeps each copy's own likes. Copy 1 knows (A: 12, B: 5, C: 30), copy 2 knows (A: 10, B: 7, C: 30). Merging takes the maximum per entry. How many likes is that in total?"
+    answer:
+      value: 49
+    feedback:
+      - when: numval(state.input) == 94
+        misconception: double-count
+        text: Do not add both states – C would count twice.
+    hints:
+      - "Maximum per entry: A 12, B 7, C 30."
+      - 12 + 7 + 30.
+    explanation: 49 likes. Because maximum and sum do not depend on order, such counters can be merged any way – with no conflict. Such structures are called CRDTs.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Even without a network outage there is a trade-off with copies. Which one?
+    params:
+      options:
+        - label: Fast response versus consistency – syncing with other copies takes time
+          correct: true
+        - label: Memory versus power
+          feedback: That is not the point here.
+        - label: None, without outages all is perfect
+          feedback: Even without outages messages take time.
+    hints:
+      - How does a copy learn the latest state of the others?
+      - Only through messages – and they have latency.
+    explanation: "This extension is called PACELC: on a partition choose A or C, else choose latency or consistency."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the CAP theorem with an example.
+    params:
+      keywords:
+        - - netz
+          - partition
+          - verbindung
+          - network
+          - connection
+        - - konsistent
+          - neueste
+          - consistent
+          - latest
+        - - antwort
+          - erreichbar
+          - verfügbar
+          - available
+          - answer
+      sample: If the network connection between two copies breaks, the system must choose. Either it stays consistent and only delivers the latest state – then one copy must wait. Or it stays available and always gives an answer, with old data if need be. A bank would rather wait; likes would not.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3", "x1"]

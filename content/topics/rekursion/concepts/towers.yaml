@@ -5,7 +5,7 @@ summary: Löse n mit Hilfe von n − 1.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 1023
       tolerance: 200
     explanation: 1023 – also 2¹⁰ − 1. Jede weitere Scheibe verdoppelt den Aufwand.
-
 
   - kind: explain
     id: s1
@@ -85,6 +84,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: hanoi
+    prompt: Vier Scheiben in höchstens 15 Zügen – diesmal auf den mittleren Stab.
+    params:
+      disks: 4
+      target: 1
+      maxMoves: 15
+    hints:
+      - Wohin müssen die oberen drei, damit die größte zur Mitte kann?
+      - Drei Scheiben nach rechts, die größte zur Mitte, dann die drei obendrauf.
+    explanation: 7 + 1 + 7 = 15 Züge. Das Ziel ändert nichts an der Idee.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie oft bewegt sich die kleinste Scheibe bei der besten Lösung mit {{n}} Scheiben?
+    answer:
+      value: "{{2 ** (n - 1)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n - 1
+        misconception: all-moves
+        text: Das sind alle Züge zusammen. Die kleinste macht genau jeden zweiten.
+    hints:
+      - "Probier es mit 2 Scheiben: Wie oft zieht die kleine?"
+      - Jeder zweite Zug gehört der kleinsten Scheibe.
+    explanation: Von $2^{ {{n}} }$ − 1 Zügen gehören {{2 ** (n - 1)}} der kleinsten – die Züge 1, 3, 5 …
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,10]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: "Ein Trick ohne Rekursion: Die kleinste Scheibe zieht immer im Kreis weiter. Was macht man in jedem zweiten Zug?"
+    params:
+      options:
+        - label: Den einzigen erlaubten Zug, der nicht die kleinste Scheibe bewegt
+          correct: true
+        - label: Die größte Scheibe bewegen
+          feedback: Die größte bewegt sich nur ein einziges Mal.
+        - label: Irgendeinen Zug
+          feedback: Es gibt dann genau einen erlaubten Zug.
+    hints:
+      - Die kleinste liegt auf einem Stab. Welche Scheiben kann man noch bewegen?
+      - Zwischen den beiden anderen Stäben geht nur eine Richtung.
+    explanation: Die kleinere der beiden anderen oberen Scheiben darf auf die größere. So entsteht dieselbe Zugfolge wie bei der Rekursion.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +155,67 @@ steps:
     hints:
       - T(n) = 2 · T(n − 1) + 1. Warum **zweimal**?
     explanation: Zweimal der kleine Turm plus ein Zug für die große Scheibe. Die Rekursion **ist** der Beweis.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: "Beweis per Induktion: Angenommen, T(n − 1) = $2^{n-1}$ − 1. Was ergibt dann T(n) = 2 · T(n − 1) + 1?"
+    params:
+      options:
+        - label: $2^n$ − 1
+          correct: true
+        - label: $2^n$ + 1
+          feedback: 2 · (−1) + 1 = −1, nicht +1.
+        - label: $2^{n-1}$
+          feedback: Die Zwei vor der Klammer erhöht den Exponenten.
+    hints:
+      - "Multipliziere die Klammer aus: 2 · ($2^{n-1}$ − 1)."
+      - $2^n$ − 2 + 1.
+    explanation: 2 · $2^{n-1}$ − 2 + 1 = $2^n$ − 1. Mit T(1) = 1 als Anfang gilt die Formel damit für alle n.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Mit einem vierten Stab geht es schneller. Wie viele Züge braucht man mindestens für 3 Scheiben auf 4 Stäben?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: three-pegs
+        text: Das ist die Lösung mit 3 Stäben. Der vierte Stab spart Züge.
+    hints:
+      - Mit zwei freien Stäben kann jede kleine Scheibe ihren eigenen Platz bekommen.
+      - Klein weg, Mittel weg, Groß ans Ziel, dann zurück.
+    explanation: "Klein, Mittel, Groß, Mittel, Klein: 5 Züge. Für allgemein viele Stäbe ist die beste Zugzahl bis heute nur teilweise bewiesen."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die rekursive Lösung für den Turm von Hanoi.
+    params:
+      keywords:
+        - - n − 1
+          - n-1
+          - kleiner turm
+          - smaller tower
+          - kleineren
+        - - größte
+          - largest
+          - biggest
+          - unterste
+          - bottom
+        - - obendrauf
+          - darauf
+          - on top
+          - zurück
+          - back
+      sample: Um n Scheiben zu bewegen, bewege ich erst den kleineren Turm aus n − 1 Scheiben zur Seite. Dann die größte Scheibe ans Ziel. Dann den kleinen Turm wieder obendrauf. Der kleinere Turm geht genauso.
     difficulty: 3
 
 srs:

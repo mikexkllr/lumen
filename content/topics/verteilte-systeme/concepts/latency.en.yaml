@@ -1,0 +1,197 @@
+id: cs.distributed.latency
+type: concept
+title: "Numbers everyone should know"
+summary: "Nanoseconds to milliseconds – why distance is everything."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a main-memory access takes 100 ns, a ping across the Atlantic and back 80 ms. How many times longer is the ping?"
+    params:
+      min: 10
+      max: 1000000000
+      scale: log
+    answer:
+      value: 800000
+      within: 30
+    explanation: 80 ms / 100 ns = 800,000. In the time of one ping a core could run hundreds of millions of instructions.
+
+  - kind: explain
+    id: c1
+    body: "**Latency** is the waiting time until data arrives. Computers are fast, paths are slow: cache 1 ns, main memory 100 ns, SSD 100 µs, within a data centre 0.5 ms, across an ocean 80 ms."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Order from fastest to slowest.
+    params:
+      items:
+        - label: Read the cache
+        - label: Read main memory
+        - label: Read an SSD
+        - label: Ping within a data centre
+        - label: "Hard disk: head seeks"
+        - label: Ping Europe–America
+    hints:
+      - Everything on the chip is faster than anything outside.
+      - Mechanics and oceans are the slowest.
+    explanation: About 1 ns, 100 ns, 100 µs, 0.5 ms, 10 ms, 80 ms – each level roughly ten to a thousand times slower.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Imagine 1 ns were 1 second. How many days would a 100 µs SSD access then take? Round to two decimals.
+    params:
+      unit: days
+    answer:
+      value: 1.16
+      tolerance: 0.01
+    hints:
+      - 100 µs = 100,000 ns, so 100,000 seconds.
+      - A day has 86,400 seconds.
+    explanation: 100,000 / 86,400 ≈ 1.16 days. A ping across the Atlantic would then be two and a half years.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A web page queries a database in the same data centre 10 times in a row, 0.5 ms each. How many ms does it wait in total?
+    params:
+      unit: ms
+    answer:
+      value: 5
+    hints:
+      - "In a row means: the times add up."
+      - 10 · 0.5 ms.
+    explanation: 5 ms. If the database were on another continent it would be 800 ms – that is why data and programs belong close together.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: A server is in Frankfurt, many users are in Australia. What speeds up the site most for them?
+    params:
+      options:
+        - label: Copies of the data close to the users, for example via a CDN
+          correct: true
+        - label: A faster processor in Frankfurt
+          feedback: No processor helps against 16,000 km.
+        - label: More bandwidth
+          feedback: Bandwidth makes the pipe wider, not the path shorter.
+    hints:
+      - What limits the round-trip time?
+      - Light cannot be made faster – only the path shorter.
+    explanation: A content delivery network places copies in many cities. Latency falls from 300 ms to a few milliseconds.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: A program reads a million values scattered at random from main memory, 100 ns each. How many milliseconds does that take?
+    params:
+      unit: ms
+    answer:
+      value: 100
+    hints:
+      - $10^6$ · 100 ns = $10^8$ ns.
+      - 1 ms = $10^6$ ns.
+    explanation: 100 ms. If the values lay side by side the cache would kick in – and it would be ten times faster.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The same million values at random from an SSD, 100 µs each. How many seconds?
+    params:
+      unit: s
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 0.1
+        misconception: unit
+        text: µs are a thousand times longer than ns.
+    hints:
+      - $10^6$ · 100 µs = $10^8$ µs.
+      - 1 s = $10^6$ µs.
+    explanation: 100 seconds instead of 0.1 – a thousand times slower. Databases do everything to avoid random disk reads.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: Latency and **throughput** are different. A lorry full of disks has huge throughput but hours of latency. Many requests at once hide latency – none of them gets faster.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A request asks 100 servers at once and waits for all of them. Each is slow with 1 % probability. What percentage of requests are slow? Round to a whole percent.
+    params:
+      unit: "%"
+    answer:
+      value: 63
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: single-server
+        text: A single slow server out of a hundred is enough.
+      - when: numval(state.input) == 100
+        misconception: certain
+        text: "Not every one: with 0.99 to the 100 ≈ 37 % all are fast."
+    hints:
+      - "Probability that all are fast: $0.99^{100}$."
+      - $0.99^{100}$ ≈ 0.366.
+    explanation: 1 − 0.366 ≈ 63 %. Rare outliers become normal in large systems – this is called tail latency.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: How do large services fight such outliers?
+    params:
+      options:
+        - label: They send a slow request to a second copy after a short wait and take whichever answers first
+          correct: true
+        - label: They simply wait longer
+          feedback: That makes exactly the slow cases slower.
+        - label: They ask fewer servers
+          feedback: But often the data of all of them is needed.
+    hints:
+      - Two copies are rarely slow at the same time.
+      - A little extra work against a lot of waiting.
+    explanation: Such hedged requests cost a few percent of extra load and strongly cut the slowest responses.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why distance matters so much for fast software.
+    params:
+      keywords:
+        - - licht
+          - light
+          - entfernung
+          - distance
+          - weg
+          - path
+        - - latenz
+          - latency
+          - warten
+          - wait
+        - - nah
+          - kopie
+          - cache
+          - near
+          - copy
+          - close
+      sample: Data travels at most at the speed of light. The longer the path, the greater the latency – waiting time that no fast processor can make up. That is why copies and caches are placed near the users.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1", "x1"]

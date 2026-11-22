@@ -5,7 +5,7 @@ summary: When you can trace every line exactly once.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: grad
@@ -111,6 +111,104 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: "The envelope house: draw it in one stroke. Tap the corners in turn, using every line exactly once."
+    params:
+      aspect: 1
+      nodes:
+        - id: A
+          x: 20
+          y: 95
+        - id: B
+          x: 80
+          y: 95
+        - id: C
+          x: 20
+          y: 45
+        - id: D
+          x: 80
+          y: 45
+        - id: E
+          x: 50
+          y: 5
+      edges:
+        - a: A
+          b: B
+        - a: A
+          b: C
+        - a: B
+          b: D
+        - a: C
+          b: D
+        - a: A
+          b: D
+        - a: B
+          b: C
+        - a: C
+          b: E
+        - a: D
+          b: E
+    check:
+      predicate: everyEdgeOnce
+    solution:
+      state:
+        path:
+          - A
+          - C
+          - E
+          - D
+          - C
+          - B
+          - D
+          - A
+          - B
+        colors: {}
+        edges: []
+    hints:
+      - The bottom corners A and B have odd degree. Start at one of them.
+      - Save the line A–B for last.
+    explanation: For example A, C, E, D, C, B, D, A, B. Start and end are at the two odd corners.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: The corners of a network have degrees 3, 3, 2, 2 and 4. How many edges does it have?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: double-count
+        text: Each edge has two ends and is therefore counted twice.
+    hints:
+      - Add up all the degrees.
+      - Every edge counts at both ends.
+    explanation: 3 + 3 + 2 + 2 + 4 = 14, divided by 2 gives 7. This is the handshake lemma.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Can a network have exactly one corner of odd degree?
+    params:
+      options:
+        - label: No – the sum of all degrees is twice the number of edges, so it is even
+          correct: true
+        - label: Yes, a triangle for example
+          feedback: In a triangle every corner has degree 2.
+        - label: Only in big networks
+          feedback: Size does not matter.
+    hints:
+      - What do you know about the sum of all degrees?
+      - A single odd number makes a sum odd.
+    explanation: "Odd corners always come in even numbers: 0, 2, 4 … That is why a stroke through all edges never has exactly one loose end."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -126,6 +224,68 @@ steps:
     hints:
       - Almost the same question – entirely different difficulty.
     explanation: A tiny change in the question turns an easy problem into an NP-complete one.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: In Königsberg the four districts have degrees 5, 3, 3 and 3. How many new bridges are needed at least so that a walk over every bridge exactly once becomes possible? Start and end may differ.
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: closed-walk
+        text: Two odd corners may stay – start and end.
+    hints:
+      - How many odd corners may an open walk have?
+      - One new bridge makes two odd corners even.
+    explanation: One bridge between two odd districts leaves exactly two odd ones. A round trip would need 2.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A postman must walk every street at least once and return to the start. What does he do about odd corners?
+    params:
+      options:
+        - label: He walks some streets twice – the shortest ones that pair up odd corners
+          correct: true
+        - label: He skips streets
+          feedback: Every street must be served.
+        - label: Nothing, it always works without a detour
+          feedback: Only without odd corners.
+    hints:
+      - Odd corners prevent a round trip.
+      - Streets walked twice act like new edges.
+    explanation: This is the Chinese postman problem. It can be solved quickly, using shortest paths and matchings – unlike the travelling salesperson problem.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why Euler's rule about odd corners holds.
+    params:
+      keywords:
+        - - rein
+          - raus
+          - hinein
+          - hinaus
+          - in and out
+          - enter
+          - leave
+        - - paar
+          - gerade
+          - even
+          - pair
+        - - start
+          - ende
+          - end
+          - anfang
+          - begin
+      sample: Every time I pass through a corner I go in and out again – that uses two lines, a pair. So corners I pass through have even degree. Only at the start and the end may one line be left over.
     difficulty: 3
 
 srs:

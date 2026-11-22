@@ -5,7 +5,7 @@ summary: Hash, Salz und Passwort-Manager.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -163,6 +163,36 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: bcrypt mit dem Kostenfaktor 12 rechnet $2^{12}$ Runden. Wievielmal langsamer ist Kostenfaktor 14?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: linear-cost
+        text: Jede Stufe verdoppelt – zwei Stufen vervierfachen.
+    hints:
+      - $2^{14}$ / $2^{12}$.
+      - $2^2$.
+    explanation: Viermal langsamer – für dich ein paar Millisekunden, für einen Angreifer mit Milliarden Versuchen ein Vielfaches an Jahren.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Grafikkarte schafft 10 Milliarden einfache Hashes pro Sekunde, aber nur 10 000 bcrypt-Hashes. Wievielmal langsamer wird der Angriff?
+    answer:
+      value: 1000000
+    hints:
+      - $10^{10}$ / $10^4$.
+      - Exponenten abziehen.
+    explanation: Eine Million mal langsamer. Was in einer Sekunde ging, dauert nun 11 Tage.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -178,6 +208,88 @@ steps:
     hints:
       - Wer leidet mehr unter 0,1 Sekunden pro Versuch – du oder der Angreifer?
     explanation: "Asymmetrie: einmal für dich, Milliarden Mal für den Angreifer."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: "Manche Dienste nutzen zusätzlich einen »Pfeffer«: einen geheimen Wert, der nicht in der Datenbank liegt. Was bringt das?"
+    params:
+      options:
+        - label: Wer nur die Datenbank stiehlt, kann gar nicht erst anfangen zu raten
+          correct: true
+        - label: Er ersetzt das Salz
+          feedback: Salz bleibt nötig – es macht jeden Hash einzigartig.
+        - label: Er macht das Login schneller
+          feedback: Er kostet kaum Zeit, beschleunigt aber nichts.
+    hints:
+      - Was fehlt dem Dieb, wenn ein Teil der Rechnung woanders liegt?
+      - Ohne Pfeffer kann er keinen einzigen Rateversuch prüfen.
+    explanation: Der Pfeffer liegt etwa in einem Hardware-Modul. Erst wer Datenbank und Pfeffer erbeutet, kann offline raten.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Argon2 braucht absichtlich viel Arbeitsspeicher. Warum?
+    params:
+      options:
+        - label: Grafikkarten und Spezialchips haben wenig Speicher pro Rechenkern – das bremst Massenangriffe
+          correct: true
+        - label: Um mehr Passwörter zu speichern
+          feedback: Der Speicher wird nur beim Rechnen gebraucht.
+        - label: Damit der Hash länger wird
+          feedback: Die Hashlänge ist davon unabhängig.
+    hints:
+      - Angreifer rechnen auf Tausenden Kernen gleichzeitig.
+      - Rechnen ist billig, Speicher ist teuer.
+    explanation: "Speicherhart heißt: Jeder Rateversuch braucht viel RAM. Tausende Versuche parallel werden so unbezahlbar."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Bei Passkeys speichert der Dienst nur einen öffentlichen Schlüssel. Was kann ein Hacker mit der gestohlenen Datenbank anfangen?
+    params:
+      options:
+        - label: Nichts zum Einloggen – der private Schlüssel bleibt auf deinem Gerät
+          correct: true
+        - label: Alle Passwörter auslesen
+          feedback: Es gibt gar keine Passwörter mehr.
+        - label: Die privaten Schlüssel ausrechnen
+          feedback: Das ist genau das schwere Problem der Public-Key-Kryptografie.
+    hints:
+      - Was liegt beim Dienst, was bei dir?
+      - "Öffentlich heißt: darf jeder kennen."
+    explanation: Beim Login signiert dein Gerät eine Zufallszahl. Der Dienst prüft mit dem öffentlichen Schlüssel. Ein Datenleck verrät nichts, womit man sich anmelden könnte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Dienste Passwörter salzen und hashen.
+    params:
+      keywords:
+        - - hash
+          - fingerabdruck
+          - fingerprint
+        - - salz
+          - salt
+        - - zurück
+          - umkehr
+          - reverse
+          - back
+        - - tabelle
+          - liste
+          - table
+          - list
+          - gleich
+          - same
+      sample: "Gespeichert wird nur ein Hash, ein Fingerabdruck, aus dem man das Passwort nicht zurückrechnen kann. Das Salz ist ein Zufallswert pro Person: So sehen gleiche Passwörter verschieden aus, und fertige Tabellen mit Hashes nützen dem Angreifer nichts."
     difficulty: 3
 
 srs:

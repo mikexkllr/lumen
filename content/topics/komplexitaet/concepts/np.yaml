@@ -5,7 +5,7 @@ summary: Die Klasse NP.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: sudoku
@@ -93,6 +93,114 @@ steps:
     explanation: "Sudoku, Stundenpläne, Rundreise: tausende Probleme sind im Kern **dasselbe**. Ein schnelles Verfahren für eines bewiese P = NP."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Eine **Reduktion** übersetzt Problem A schnell in Problem B. Kann man B schnell lösen, dann auch A. »A lässt sich auf B reduzieren« heißt also: B ist mindestens so schwer wie A."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: "Man zeigt: Sudoku lässt sich auf SAT reduzieren. Was folgt daraus?"
+    params:
+      options:
+        - label: Ein schneller SAT-Löser würde auch Sudoku schnell lösen
+          correct: true
+        - label: SAT ist leichter als Sudoku
+          feedback: "Umgekehrt: SAT ist mindestens so schwer."
+        - label: Sudoku ist unlösbar
+          feedback: Eine Reduktion sagt nichts über Unlösbarkeit.
+    hints:
+      - Die Übersetzung geht von Sudoku nach SAT.
+      - Wer B kann, kann auch A.
+    explanation: "Genau so arbeiten echte Sudoku- und Planungsprogramme: Sie übersetzen in SAT und nutzen einen hochoptimierten SAT-Löser."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: gates
+    prompt: "Ein kleines SAT-Problem: (A ODER B) UND (NICHT A ODER C) UND NICHT (B UND C). Finde eine Belegung, bei der die Lampe leuchtet."
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: g1
+          type: OR
+          in:
+            - A
+            - B
+        - id: na
+          type: NOT
+          in:
+            - A
+        - id: g2
+          type: OR
+          in:
+            - na
+            - C
+        - id: g3
+          type: NAND
+          in:
+            - B
+            - C
+        - id: q
+          type: AND
+          in:
+            - g1
+            - g2
+            - g3
+      outputs:
+        - id: Q
+          from: q
+      goal:
+        Q: 1
+    hints:
+      - Ist A an, muss C an sein. Sind B und C an, ist alles verloren.
+      - Probier A = 1, B = 0, C = 1 – oder nur B.
+    explanation: A = 1, B = 0, C = 1 oder A = 0, B = 1, C = 0. Eine Lösung zu prüfen ist leicht – sie zu finden kann bei vielen Variablen sehr schwer sein.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Wie viele der 8 Belegungen machen die Formel von eben wahr?
+    answer:
+      value: 2
+    hints:
+      - Geh alle 8 Zeilen durch.
+      - Nur 010 und 101 klappen.
+    explanation: Zwei von acht. Bei 100 Variablen gäbe es $2^{100}$ Zeilen – zu viele zum Durchprobieren.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d5
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Jedes Problem in P liegt auch in NP.
+          right: true
+          why: Was man schnell löst, kann man auch schnell prüfen.
+        - text: NP heißt »nicht polynomiell«.
+          right: false
+          why: NP heißt »nichtdeterministisch polynomiell«.
+        - text: Wäre ein NP-vollständiges Problem in P, dann wäre P = NP.
+          right: true
+          why: Alle NP-Probleme lassen sich darauf reduzieren.
+        - text: Man hat bewiesen, dass P ≠ NP.
+          right: false
+          why: Die Frage ist bis heute offen.
+        - text: Faktorisieren ist NP-vollständig.
+          right: false
+          why: Das ist nicht bekannt – und wird eher bezweifelt.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +211,69 @@ steps:
     hints:
       - Es ist eines der sieben Millennium-Probleme.
     explanation: Eine Million Dollar vom Clay-Institut. Von den sieben Problemen ist bisher erst eines gelöst.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Welches Problem wurde 1971 als erstes als NP-vollständig bewiesen?
+    params:
+      options:
+        - label: SAT – die Erfüllbarkeit logischer Formeln
+          correct: true
+        - label: Die Rundreise
+          feedback: Sie folgte kurz darauf durch Reduktionen.
+        - label: Sudoku
+          feedback: Sudoku wurde erst viel später untersucht.
+    hints:
+      - "Stephen Cook zeigte: Jede Rechnung lässt sich als Formel schreiben."
+      - Es ist das Problem, das du eben mit Gattern gelöst hast.
+    explanation: Der Satz von Cook und Levin. Ein Jahr später reduzierte Karp 21 weitere Probleme darauf – darunter Färben und Rundreisen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Das Halteproblem ist NP-schwer, aber nicht NP-vollständig. Warum?
+    params:
+      options:
+        - label: Es liegt nicht in NP – es ist nicht einmal entscheidbar
+          correct: true
+        - label: Weil es leichter ist als SAT
+          feedback: Es ist viel schwerer.
+        - label: Weil man es schnell prüfen kann
+          feedback: Eine Antwort »läuft ewig« lässt sich nicht prüfen.
+    hints:
+      - NP-vollständig = NP-schwer und selbst in NP.
+      - Kann man das Halteproblem überhaupt lösen?
+    explanation: "SAT lässt sich darauf reduzieren: Ein Programm sucht eine Lösung und hält, wenn es eine findet. Lösen kann es aber kein Computer."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen P und NP.
+    params:
+      keywords:
+        - - prüf
+          - check
+          - verif
+        - - find
+          - lös
+          - solv
+        - - schnell
+          - polynom
+          - fast
+          - efficient
+        - - offen
+          - unbekannt
+          - open
+          - unknown
+          - million
+      sample: P sind Probleme, die man schnell lösen kann. NP sind Probleme, deren Lösung man schnell prüfen kann, etwa ein fertiges Sudoku. Ob alles, was schnell prüfbar ist, auch schnell zu finden ist, ist offen – dafür gibt es eine Million Dollar.
     difficulty: 3
 
 srs:

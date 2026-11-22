@@ -1,0 +1,197 @@
+id: cs.distributed.latency
+type: concept
+title: "Zahlen, die jeder kennen sollte"
+summary: "Nanosekunden bis Millisekunden – warum Entfernung alles ist."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Ein Zugriff auf den Arbeitsspeicher dauert 100 ns, ein Ping über den Atlantik und zurück 80 ms. Wievielmal länger ist der Ping?"
+    params:
+      min: 10
+      max: 1000000000
+      scale: log
+    answer:
+      value: 800000
+      within: 30
+    explanation: 80 ms / 100 ns = 800 000. In der Zeit eines Pings könnte ein Kern Hunderte Millionen Befehle ausführen.
+
+  - kind: explain
+    id: c1
+    body: "Die **Latenz** ist die Wartezeit, bis Daten da sind. Rechner sind schnell, Wege sind langsam: Cache 1 ns, Arbeitsspeicher 100 ns, SSD 100 µs, im Rechenzentrum 0,5 ms, über einen Ozean 80 ms."
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: Ordne vom schnellsten zum langsamsten.
+    params:
+      items:
+        - label: Cache lesen
+        - label: Arbeitsspeicher lesen
+        - label: SSD lesen
+        - label: Ping im Rechenzentrum
+        - label: "Festplatte: Kopf springt"
+        - label: Ping Europa–Amerika
+    hints:
+      - Alles im Chip ist schneller als alles außerhalb.
+      - Mechanik und Ozeane sind am langsamsten.
+    explanation: Etwa 1 ns, 100 ns, 100 µs, 0,5 ms, 10 ms, 80 ms – jede Stufe rund zehn- bis tausendmal langsamer.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Stell dir vor, 1 ns wäre 1 Sekunde. Wie viele Tage dauerte dann ein SSD-Zugriff von 100 µs? Runde auf zwei Stellen.
+    params:
+      unit: Tage
+    answer:
+      value: 1.16
+      tolerance: 0.01
+    hints:
+      - 100 µs = 100 000 ns, also 100 000 Sekunden.
+      - Ein Tag hat 86 400 Sekunden.
+    explanation: 100 000 / 86 400 ≈ 1,16 Tage. Ein Ping über den Atlantik wären dann zweieinhalb Jahre.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine Webseite fragt nacheinander 10-mal eine Datenbank im selben Rechenzentrum, je 0,5 ms. Wie viele ms wartet sie insgesamt?
+    params:
+      unit: ms
+    answer:
+      value: 5
+    hints:
+      - "Nacheinander heißt: Die Zeiten addieren sich."
+      - 10 · 0,5 ms.
+    explanation: 5 ms. Stünde die Datenbank auf einem anderen Kontinent, wären es 800 ms – darum gehören Daten und Programme nah zusammen.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Ein Server steht in Frankfurt, viele Nutzer sitzen in Australien. Was macht die Seite für sie am meisten schneller?
+    params:
+      options:
+        - label: Kopien der Daten nah bei den Nutzern, etwa über ein CDN
+          correct: true
+        - label: Ein schnellerer Prozessor in Frankfurt
+          feedback: Gegen die 16 000 km hilft kein Prozessor.
+        - label: Mehr Bandbreite
+          feedback: Bandbreite macht die Leitung breiter, nicht den Weg kürzer.
+    hints:
+      - Was begrenzt die Zeit hin und zurück?
+      - Licht ist nicht schneller zu machen – nur der Weg kürzer.
+    explanation: Ein Content Delivery Network legt Kopien in viele Städte. Die Latenz sinkt von 300 ms auf wenige Millisekunden.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Programm liest eine Million Werte zufällig verstreut aus dem Arbeitsspeicher, je 100 ns. Wie viele Millisekunden dauert das?
+    params:
+      unit: ms
+    answer:
+      value: 100
+    hints:
+      - $10^6$ · 100 ns = $10^8$ ns.
+      - 1 ms = $10^6$ ns.
+    explanation: 100 ms. Lägen die Werte nebeneinander, käme der Cache ins Spiel – und es ginge zehnmal schneller.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Dieselbe Million Werte zufällig von einer SSD, je 100 µs. Wie viele Sekunden?
+    params:
+      unit: s
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 0.1
+        misconception: unit
+        text: µs sind tausendmal länger als ns.
+    hints:
+      - $10^6$ · 100 µs = $10^8$ µs.
+      - 1 s = $10^6$ µs.
+    explanation: 100 Sekunden statt 0,1 – tausendmal langsamer. Datenbanken tun alles, um zufällige Plattenzugriffe zu vermeiden.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: Latenz und **Durchsatz** sind verschieden. Ein Lkw voller Festplatten hat riesigen Durchsatz, aber Stunden Latenz. Viele Anfragen gleichzeitig verstecken die Latenz – keine einzelne wird dadurch schneller.
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Anfrage fragt 100 Server gleichzeitig und wartet auf alle. Jeder ist mit 1 % Wahrscheinlichkeit langsam. Wie viel Prozent der Anfragen sind langsam? Runde auf ganze Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: 63
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: single-server
+        text: Ein einziger langsamer Server von hundert reicht schon.
+      - when: numval(state.input) == 100
+        misconception: certain
+        text: "Nicht jede: Mit 0,99 hoch 100 ≈ 37 % sind alle schnell."
+    hints:
+      - "Wahrscheinlichkeit, dass alle schnell sind: $0,99^{100}$."
+      - $0,99^{100}$ ≈ 0,366.
+    explanation: 1 − 0,366 ≈ 63 %. Seltene Ausreißer werden bei großen Systemen zum Normalfall – man nennt das Tail Latency.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Wie bekämpfen große Dienste solche Ausreißer?
+    params:
+      options:
+        - label: Sie schicken eine langsame Anfrage nach kurzer Zeit zusätzlich an eine zweite Kopie und nehmen die schnellere Antwort
+          correct: true
+        - label: Sie warten einfach länger
+          feedback: Das macht genau die langsamen Fälle noch langsamer.
+        - label: Sie fragen weniger Server
+          feedback: Oft braucht man aber die Daten aller.
+    hints:
+      - Zwei Kopien sind selten gleichzeitig langsam.
+      - Ein wenig Mehrarbeit gegen viel Wartezeit.
+    explanation: Solche abgesicherten Anfragen kosten ein paar Prozent Extra-Last und drücken die langsamsten Antworten stark.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Entfernung für schnelle Software so wichtig ist.
+    params:
+      keywords:
+        - - licht
+          - light
+          - entfernung
+          - distance
+          - weg
+          - path
+        - - latenz
+          - latency
+          - warten
+          - wait
+        - - nah
+          - kopie
+          - cache
+          - near
+          - copy
+          - close
+      sample: Daten reisen höchstens mit Lichtgeschwindigkeit. Je weiter der Weg, desto größer die Latenz – die Wartezeit, die kein schneller Prozessor wettmacht. Darum legt man Kopien und Caches nah an die Nutzer.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d1", "x1"]

@@ -5,7 +5,7 @@ summary: Every letter moves along.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hallo
@@ -90,6 +90,47 @@ steps:
     explanation: 3. This **frequency analysis** cracks every simple letter substitution.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "**Vigenère** encryption uses a keyword. Each of its letters sets its own shift: with KEY you shift by 10, 4 and 24, then start over."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Vigenère with the key »BC« – shift 1, then 2. What does »AAAA« become?
+    params:
+      options:
+        - label: BCBC
+          correct: true
+        - label: BBBB
+          feedback: That would be Caesar with shift 1.
+        - label: CCCC
+          feedback: The shift changes with every letter.
+    hints:
+      - A shifted by 1 is B, A shifted by 2 is C.
+      - "The key repeats: B, C, B, C."
+    explanation: Equal plaintext letters get encrypted differently. That makes simple frequency counting useless.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: How many different 5-letter keywords are there (A to Z)?
+    answer:
+      value: 11881376
+    feedback:
+      - when: numval(state.input) == 130
+        misconception: add-vs-multiply
+        text: The options multiply, they do not add.
+    hints:
+      - Each of the 5 places has 26 options.
+      - $26^5$.
+    explanation: $26^5$ = 11,881,376 – almost 12 million. A lot for humans, little for computers.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +147,52 @@ steps:
     hints:
       - The most frequent symbol is probably E.
     explanation: Many keys alone do not make it secure. Good ciphers blur every statistical pattern.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: How do you break Vigenère anyway?
+    params:
+      options:
+        - label: Find the key length, then break every k-th letter like Caesar by frequency
+          correct: true
+        - label: Not at all – it is unbreakable
+          feedback: It was once called that, until Kasiski published a method in 1863.
+        - label: Try every dictionary
+          feedback: The key need not be a word.
+    hints:
+      - If the key length is 3 – what holds for every third letter?
+      - Every third letter was shifted the same.
+    explanation: Repeated patterns in the ciphertext reveal the key length. After that Vigenère falls apart into several Caesar puzzles.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x2
+    depth: 3
+    body: "**Kerckhoffs's principle**: a method must stay secure even if the opponent knows everything except the key. A secret algorithm is no security – sooner or later it gets out."
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why Caesar is so easy to break.
+    params:
+      keywords:
+        - - "25"
+          - wenige
+          - few
+          - "26"
+        - - probier
+          - alle
+          - try
+          - brute
+        - - häufig
+          - frequen
+          - zählen
+          - count
+      sample: "There are only 25 keys – you can simply try them all. Also the frequencies stay the same: the most common letter is usually a shifted E."
     difficulty: 3
 
 srs:

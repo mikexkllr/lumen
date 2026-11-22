@@ -5,7 +5,7 @@ summary: Werte merken und verändern.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "a = 4, b = 7. Dann: a = b, danach b = a. Welchen Wert hat b am Ende?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: simultaneous-swap
+        text: Nach der ersten Zeile ist a schon 7 – die 4 ist weg.
+    hints:
+      - Geh Zeile für Zeile. Was steht nach a = b in a?
+      - Die alte 4 wurde überschrieben.
+    explanation: a = b macht a zu 7. b = a schreibt dann 7 nach b. Beide sind 7 – zum Tauschen braucht man eine Hilfsvariable.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: x = {{a}}. Dann x = x · 2, danach x = x − {{b}}, zuletzt x = x · x. Welchen Wert hat x?
+    answer:
+      value: "{{(2 * a - b) ** 2}}"
+    hints:
+      - Schreib nach jeder Zeile den neuen Wert auf.
+      - "{{a}} → {{2 * a}} → {{2 * a - b}} → ?"
+    explanation: "{{a}} → {{2 * a}} → {{2 * a - b}} → {{(2 * a - b) ** 2}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[3,9]
+        b: int[1,5]
+      defaults:
+        a: 5
+        b: 3
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Jede Variable hat einen **Datentyp**. 3 + 4 ergibt 7. Aber "3" + "4" ergibt in vielen Sprachen "34" – Text wird einfach aneinandergehängt.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: In `x = x + 1` heißt das Zeichen = nicht »ist gleich«, sondern [[bekommt]]. Zuerst wird rechts [[gerechnet]], dann wird links [[gespeichert]].
+      distractors:
+        - vergleicht
+        - geraten
+    hints:
+      - Mathematisch wäre x = x + 1 unmöglich.
+      - Lies es als Befehl, nicht als Behauptung.
+    explanation: "Die Zuweisung ist ein Befehl: neuen Wert ausrechnen, alten überschreiben. Manche Sprachen schreiben darum x := x + 1."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +160,69 @@ steps:
     hints:
       - Beide lesen 100, **bevor** der andere geschrieben hat.
     explanation: Eine **Race Condition**. Solche Fehler treten nur manchmal auf und sind berüchtigt schwer zu finden.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine 32-Bit-Variable ohne Vorzeichen steht bei 4 294 967 295. Du zählst 1 dazu. Welcher Wert steht danach drin?
+    answer:
+      value: 0
+    feedback:
+      - when: numval(state.input) == 4294967296
+        misconception: no-overflow
+        text: Diese Zahl bräuchte 33 Bit. Das oberste Bit fällt heraus.
+    hints:
+      - 4 294 967 295 ist $2^{32}$ − 1 – alle 32 Bits sind 1.
+      - Wie bei einem Kilometerzähler, der von 999999 umspringt.
+    explanation: "Alle Bits kippen auf 0, der Übertrag passt nicht mehr hinein: 0. Solche Überläufe stecken hinter vielen Fehlern, etwa dem Jahr-2038-Problem."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Zwei Programme ändern denselben Kontostand gleichzeitig. Wie verhindert man, dass eine Einzahlung verloren geht?
+    params:
+      options:
+        - label: Lesen, Rechnen und Schreiben als unteilbaren Schritt sperren
+          correct: true
+        - label: Schneller rechnen
+          feedback: Auch ein schneller Rechner kann im falschen Moment unterbrochen werden.
+        - label: Zweimal speichern
+          feedback: Doppeltes Speichern ändert nichts am falsch gelesenen Wert.
+    hints:
+      - Das Problem entsteht zwischen Lesen und Schreiben.
+      - Während einer rechnet, muss der andere warten.
+    explanation: Eine Sperre (Lock) oder eine Transaktion macht die drei Schritte unteilbar. Das andere Programm wartet, bis der Kontostand fertig geschrieben ist.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was bei `x = x + 1` genau passiert.
+    params:
+      keywords:
+        - - alt
+          - old
+          - vorher
+          - before
+          - aktuell
+          - current
+        - - rechn
+          - plus
+          - add
+          - comput
+          - calculat
+        - - speicher
+          - ablegen
+          - store
+          - save
+          - überschreib
+          - overwrite
+      sample: Der Computer liest den alten Wert von x, rechnet plus 1 und speichert das Ergebnis wieder in x. Der alte Wert wird dabei überschrieben.
     difficulty: 3
 
 srs:

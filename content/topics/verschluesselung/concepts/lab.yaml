@@ -5,7 +5,7 @@ summary: XOR, Caesar und Schlüsseltausch.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: explain
     id: s1
@@ -61,6 +61,58 @@ steps:
     explanation: Wer nur die Mischungen sieht, kann die Geheimfarben nicht herausrechnen.
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: Nachricht {{bin(a)}}, Schlüssel {{kb}}. Verschlüssele per XOR und stelle das Ergebnis ein.
+    params:
+      bits: 4
+      showValue: false
+    answer:
+      value: "{{x}}"
+    hints:
+      - "Stelle für Stelle: gleich ergibt 0, verschieden 1."
+      - Wo der Schlüssel 1 hat, kippt das Nachrichtenbit.
+    explanation: "{{bin(a)}} XOR {{kb}} = {{bin(x + 16).slice(1)}}. Noch einmal XOR mit dem Schlüssel bringt die Nachricht zurück."
+    variants:
+      params:
+        a: int[8,15]
+        b: int[1,15]
+      derive:
+        kb: bin(b + 16).slice(1)
+        x: mod(a + b, 2) + 2 * mod(floor(a / 2) + floor(b / 2), 2) + 4 * mod(floor(a / 4) + floor(b / 4), 2) + 8 * mod(floor(a / 8) + floor(b / 8), 2)
+      constraints:
+        - x != 0
+      defaults:
+        a: 12
+        b: 10
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Eine **Stromchiffre** erzeugt aus einem kurzen Schlüssel einen langen Strom von Zufallsbits, die nur echt aussehen. Diesen verknüpft sie per XOR mit der Nachricht. So spart man den riesigen Einmal-Schlüssel.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Zwei Nachrichten wurden mit demselben Schlüsselstrom verschlüsselt. Der Angreifer rechnet c1 XOR c2. Was erhält er?
+    params:
+      options:
+        - label: m1 XOR m2 – der Schlüssel fällt ganz heraus
+          correct: true
+        - label: Nur Zufall
+          feedback: Der Schlüssel hebt sich auf, übrig bleiben die Nachrichten.
+        - label: Den Schlüssel
+          feedback: Den bekäme er nur mit einer bekannten Nachricht.
+    hints:
+      - (m1 XOR k) XOR (m2 XOR k) – was passiert mit k?
+      - k XOR k = 0.
+    explanation: Zwei Texte, ineinander verschränkt, lassen sich oft mit Sprachwissen trennen. Darum darf ein Schlüsselstrom nie zweimal benutzt werden.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -103,6 +155,42 @@ steps:
           - unlock
       min: 3
       sample: Den öffentlichen Schlüssel darf jeder kennen – damit verschlüsselt man eine Nachricht. Entschlüsseln kann sie nur, wer den privaten Schlüssel hat, und der bleibt geheim.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein One-Time-Pad soll eine 1-GB-Datei verschlüsseln. Wie viele Milliarden Bit Schlüssel braucht man?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: bits-bytes
+        text: Ein Gigabyte sind 8 Milliarden Bit, nicht eine.
+    hints:
+      - Der Schlüssel ist so lang wie die Nachricht.
+      - 1 GB = 8 Gbit.
+    explanation: 8 Milliarden echte Zufallsbits – und die müssen vorher sicher beim Empfänger sein. Genau dieses Problem löst eine Stromchiffre.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Angreifer kippt in einem XOR-verschlüsselten Geheimtext ein einzelnes Bit. Was passiert beim Entschlüsseln?
+    params:
+      options:
+        - label: Genau dieses Bit der Nachricht kippt – unbemerkt
+          correct: true
+        - label: Die ganze Nachricht wird unlesbar
+          feedback: XOR wirkt Bit für Bit, ohne Lawineneffekt.
+        - label: Das Entschlüsseln schlägt mit Fehler fehl
+          feedback: XOR merkt nichts – es gibt keine Prüfung.
+    hints:
+      - Was macht XOR mit einem gekippten Bit?
+      - Kein Bit hängt von einem anderen ab.
+    explanation: Aus »Zahle 100 €« kann so gezielt »Zahle 900 €« werden. Darum kombiniert man Verschlüsselung immer mit einem Prüfwert wie einem HMAC.
     difficulty: 3
 
 srs:

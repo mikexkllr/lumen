@@ -5,7 +5,7 @@ summary: Binary to decimal and back.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: nach-dezimal
@@ -120,6 +120,87 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Add in binary: {{bin(a)}} + {{bin(b)}}. Write the sum in binary."
+    params:
+      placeholder: only 0 and 1
+    answer:
+      value: "{{bin(a + b)}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: wrong-base
+        text: That is the sum in decimal. It is asked for in binary.
+    hints:
+      - Work from right to left. 1 + 1 gives 0, carry 1.
+      - "To check: {{a}} + {{b}} = {{a + b}}. Convert that."
+    explanation: "{{a}} + {{b}} = {{a + b}}, in binary {{bin(a + b)}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[5,15]
+        b: int[3,15]
+      defaults:
+        a: 11
+        b: 6
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Computers store negative numbers in **two's complement**. With 8 bits the left bit counts −128 instead of +128. So 11111111 = −128 + 127 = −1.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: bits
+    prompt: Set −{{n}} in two's complement. The left bit counts −128.
+    params:
+      bits: 8
+      showValue: false
+      placeValues: false
+      labels:
+        - −128
+        - "64"
+        - "32"
+        - "16"
+        - "8"
+        - "4"
+        - "2"
+        - "1"
+    answer:
+      value: "{{256 - n}}"
+    hints:
+      - Without the left bit everything is positive. So the left bit must be on.
+      - −128 + {{128 - n}} = −{{n}}. Use the other bits to make {{128 - n}}.
+    explanation: −{{n}} = −128 + {{128 - n}}, so {{bin(256 - n)}}.
+    variants:
+      params:
+        n: int[2,30]
+      defaults:
+        n: 3
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: What is a quick way to get from 5 (00000101) to −5?
+    params:
+      options:
+        - label: Flip all bits, then add 1
+          correct: true
+        - label: Set only the left bit to 1
+          feedback: That gives −128 + 5 = −123.
+        - label: Flip all bits
+          feedback: Almost – 11111010 is −6. You still need +1.
+    hints:
+      - "Try it: what is 11111010 in two's complement?"
+      - Flipping gives −6. What is missing to reach −5?
+    explanation: Flipping gives −x − 1, and adding 1 gives −x. 00000101 → 11111010 → 11111011.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -135,6 +216,73 @@ steps:
     hints:
       - Add 1 to 11111111 and drop the carry.
     explanation: 11111111 + 1 = 00000000. In **two’s complement** the same adder circuit works for plus and minus.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: What is the smallest number 8 bits can store in two's complement?
+    answer:
+      value: -128
+    feedback:
+      - when: numval(state.input) == -127
+        misconception: sign-magnitude
+        text: That would be with sign and magnitude. Two's complement has one more negative number.
+      - when: numval(state.input) == -255
+        misconception: unsigned-range
+        text: 8 bits only give 256 values – from negative to positive.
+    hints:
+      - Only the left bit is on, all others off.
+      - The left bit counts −128.
+    explanation: 10000000 = −128. The range runs from −128 to 127 – 256 values.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A signed 8-bit counter holds 127 (01111111). You add 1. What does it hold now?
+    params:
+      options:
+        - label: −128 – an overflow
+          correct: true
+        - label: "128"
+          feedback: 128 does not fit in 8 signed bits.
+        - label: "0"
+          feedback: Only 11111111 + 1 wraps to 0.
+    hints:
+      - Compute 01111111 + 1 in binary.
+      - You get 10000000. What does the left bit count?
+    explanation: "The carry lands in the sign bit: 127 becomes −128. Such **overflows** have crashed real systems – the Ariane 5 rocket in 1996, for example."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x3
+    depth: 3
+    body: Why do computers like two's complement so much?
+    reveal:
+      body: Adding works as usual, with no special case for the sign. 00000101 + 11111011 = 1 00000000. The carry falls out of the 8 bits – what is left is 0, i.e. 5 + (−5).
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer stores −1 in 8 bits – and why that way.
+    params:
+      keywords:
+        - - "11111111"
+          - alle einsen
+          - all ones
+        - - "-128"
+          - minus 128
+          - −128
+        - - addier
+          - plus
+          - add
+          - summe
+          - sum
+      sample: "As 11111111. In two's complement the left bit counts −128 and the rest add up to 127. −128 + 127 = −1. The benefit: adding works with no special rule, because −1 plus 1 gives 0 as the carry falls out."
     difficulty: 3
 
 srs:

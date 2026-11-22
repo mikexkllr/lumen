@@ -5,7 +5,7 @@ summary: Jeder Datensatz eindeutig.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 15
 steps:
   - kind: problem
     id: hook
@@ -159,6 +159,43 @@ steps:
     explanation: Genau einmal. Zieht sie um, ändert man eine einzige Zeile.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Manchmal macht erst eine Kombination eine Zeile eindeutig. In einer Tabelle »Belegung« ist (Schüler, Kurs) ein **zusammengesetzter Schlüssel**: Jeder Schüler belegt jeden Kurs höchstens einmal."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Schüler belegen viele Kurse, Kurse haben viele Schüler. Wie bildet man das in Tabellen ab?
+    params:
+      options:
+        - label: Mit einer dritten Tabelle, die Paare aus Schülernummer und Kursnummer speichert
+          correct: true
+        - label: Eine Spalte »Kurse« beim Schüler mit allen Kursen
+          feedback: Das verletzt die erste Normalform.
+        - label: Kurse und Schüler in eine große Tabelle
+          feedback: Dann stehen Namen und Kursdaten vielfach doppelt.
+    hints:
+      - Weder Schüler noch Kurs kann einen einzelnen Fremdschlüssel tragen.
+      - Die Beziehung selbst bekommt eine Tabelle.
+    explanation: Viele-zu-viele-Beziehungen brauchen eine Verbindungstabelle. Jede Zeile darin ist ein Paar aus zwei Fremdschlüsseln.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: 30 Schüler belegen je 4 Kurse. Wie viele Zeilen hat die Belegungstabelle?
+    answer:
+      value: 120
+    hints:
+      - Jede Belegung ist eine Zeile.
+      - 30 · 4.
+    explanation: 30 · 4 = 120 Zeilen – jede nur zwei kleine Nummern. Namen und Kursdaten stehen weiter nur einmal.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -175,6 +212,74 @@ steps:
     hints:
       - Worauf zeigt der Fremdschlüssel der Bestellung danach?
     explanation: "**Referenzielle Integrität**: Die Datenbank garantiert, dass jeder Verweis ein Ziel hat."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Die **dritte Normalform** sagt: Jede Spalte hängt vom Schlüssel ab, vom ganzen Schlüssel und von nichts als dem Schlüssel. Steht in »Kunden« der Ort zur Postleitzahl, hängt er an der PLZ – er gehört in eine eigene Tabelle."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Belegung(Schüler, Kurs, Kursraum) mit Schlüssel (Schüler, Kurs). Der Raum hängt nur vom Kurs ab. Was ist das Problem?
+    params:
+      options:
+        - label: Der Raum steht bei jedem Schüler des Kurses erneut – er gehört in die Kurstabelle
+          correct: true
+        - label: Keins, der Schlüssel ist eindeutig
+          feedback: Eindeutig ja, aber der Raum hängt nur an einem Teil davon.
+        - label: Schüler können dann keine Kurse wechseln
+          feedback: Wechseln geht – nur der Raum ist mehrfach gespeichert.
+    hints:
+      - Hängt der Raum vom ganzen Schlüssel ab?
+      - Was passiert, wenn ein Kurs umzieht?
+    explanation: Das verletzt die zweite Normalform. Zieht der Kurs um, muss man 30 Zeilen ändern – vergisst man eine, widerspricht sich die Datenbank.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Warum nehmen viele Datenbanken eine künstliche Nummer statt der E-Mail-Adresse als Primärschlüssel?
+    params:
+      options:
+        - label: E-Mails ändern sich – die Nummer bleibt für immer gleich
+          correct: true
+        - label: Weil E-Mails nicht eindeutig sind
+          feedback: Meist sind sie eindeutig – aber nicht dauerhaft.
+        - label: Weil Nummern geheim sind
+          feedback: Geheim muss ein Schlüssel nicht sein.
+    hints:
+      - Was passiert mit allen Fremdschlüsseln, wenn sich der Schlüssel ändert?
+      - Ein guter Schlüssel ändert sich nie.
+    explanation: Ändert sich ein Primärschlüssel, müssen alle Verweise mitziehen. Eine künstliche Nummer hat keine Bedeutung – und deshalb nie einen Grund, sich zu ändern.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wozu Primärschlüssel und Fremdschlüssel gut sind.
+    params:
+      keywords:
+        - - eindeutig
+          - unique
+          - einmalig
+        - - verweis
+          - zeigt
+          - refer
+          - point
+          - link
+        - - doppelt
+          - kopie
+          - redundan
+          - duplicate
+          - copy
+          - einmal
+          - once
+      sample: Der Primärschlüssel macht jede Zeile eindeutig, etwa eine Kundennummer. Ein Fremdschlüssel in einer anderen Tabelle verweist auf diese Nummer. So muss man Daten wie die Adresse nicht kopieren – sie stehen nur einmal da.
     difficulty: 3
 
 srs:

@@ -1,0 +1,213 @@
+id: cs.cpu.machinecode
+type: concept
+title: "Machine code"
+summary: "A tiny instruction set – and loops grow out of it."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: "Memory holds M[10] = {{a}} and M[11] = {{b}}. The program is: `LOAD 10`, `ADD 11`, `HALT`. What is in the accumulator afterwards?"
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == 21
+        misconception: address-vs-value
+        text: The computation uses the contents of the slots, not their numbers.
+    hints:
+      - LOAD 10 fetches the contents of slot 10 into the accumulator.
+      - ADD 11 adds the contents of slot 11.
+    explanation: "{{a}} + {{b}} = {{a + b}}. The accumulator is the working register – every computation passes through it."
+    variants:
+      params:
+        a: int[3,20]
+        b: int[3,20]
+      constraints:
+        - a + b != 21
+      defaults:
+        a: 5
+        b: 7
+
+  - kind: explain
+    id: c1
+    body: "A processor only understands **machine code**: instructions as numbers. Written readably it is called assembly. Our mini computer knows LOAD, ADD, SUB, STORE, JUMP, JUMPZERO and HALT."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "M[10] = {{a}}, M[11] = {{b}}. Program: `LOAD 10`, `SUB 11`, `STORE 12`, `ADD 12`, `HALT`. What is in the accumulator at the end?"
+    answer:
+      value: "{{2 * (a - b)}}"
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: stop-early
+        text: STORE only copies – ADD 12 still follows.
+    hints:
+      - After SUB the accumulator holds {{a - b}}.
+      - STORE 12 puts a copy into slot 12. ADD 12 adds it.
+    explanation: "{{a}} − {{b}} = {{a - b}}, doubled {{2 * (a - b)}}. Storing does not change the accumulator."
+    variants:
+      params:
+        a: int[10,30]
+        b: int[1,9]
+      defaults:
+        a: 15
+        b: 4
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Write a program that puts M[20] + M[21] into slot 22. Put the instructions in the right order.
+    params:
+      items:
+        - label: LOAD 20
+        - label: ADD 21
+        - label: STORE 22
+        - label: HALT
+    hints:
+      - First a number must get into the accumulator.
+      - You store once the result is ready.
+    explanation: Load, compute, store – this pattern lies behind almost every line of a high-level language such as `c = a + b`.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A processor knows 16 different instructions. How many bits does the instruction code need at least?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: count-vs-bits
+        text: The question is about bits, not the number of instructions.
+    hints:
+      - With k bits you can tell $2^k$ instructions apart.
+      - $2^4$ = 16.
+    explanation: 4 bits for 16 instructions. The remaining bits of an instruction word carry, say, the address.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: What does the instruction STORE 12 do?
+    params:
+      options:
+        - label: It copies the accumulator into slot 12
+          correct: true
+        - label: It puts the number 12 into the accumulator
+          feedback: The 12 is an address, not a number to compute with.
+        - label: It empties slot 12
+          feedback: It overwrites it with the accumulator.
+    hints:
+      - STORE is the counterpart of LOAD.
+      - The direction is from the accumulator into memory.
+    explanation: "LOAD: memory → accumulator. STORE: accumulator → memory. The accumulator keeps its value."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: A **conditional jump** such as JUMPZERO only jumps if the accumulator is 0. That turns a rigid list of instructions into a program with loops and decisions.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: M[20] = 3 (counter), M[21] = 1, M[22] = 0 (sum), M[23] = 5. What is M[22] at the end?
+    body: "`0 LOAD 22 · 1 ADD 23 · 2 STORE 22` `3 LOAD 20 · 4 SUB 21 · 5 STORE 20` `6 JUMPZERO 8 · 7 JUMP 0 · 8 HALT`"
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: one-pass
+        text: The loop runs more than once – as often as the counter says.
+    hints:
+      - Instructions 0 to 2 add 5 to the sum, 3 to 5 count the counter down.
+      - The counter goes 3 → 2 → 1 → 0. At 0 the program jumps to HALT.
+    explanation: "Adding 5 three times: 15. The program multiplies 3 · 5 by repeated addition."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: In the same program M[20] = {{n}}. How many instructions does the processor execute in total, counting HALT?
+    answer:
+      value: "{{8 * n}}"
+    hints:
+      - A full pass executes instructions 0 to 7.
+      - In the last pass instruction 6 jumps straight to HALT.
+    explanation: ({{n}} − 1) · 8 + 7 + 1 = {{8 * n}}. The effort grows linearly with the counter.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why does hardly anyone write programs directly in machine code today?
+    params:
+      options:
+        - label: It is tedious, error-prone and tied to one processor type – compilers translate high-level languages
+          correct: true
+        - label: Because it is forbidden
+          feedback: It is allowed – sometimes even necessary.
+        - label: Because machine code is slower
+          feedback: In the end everything runs as machine code.
+    hints:
+      - How many instructions would a single line like `x = a · b + c` need?
+      - And does the same code run on both ARM and x86?
+    explanation: Compilers translate millions of lines in seconds – often better optimised than by hand. Low-level code is only written for hot spots now.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: The ARM chips in phones use few, simple instructions (RISC). What is the advantage?
+    params:
+      options:
+        - label: Simple instructions run fast and power-efficiently through a pipeline
+          correct: true
+        - label: Programs get shorter
+          feedback: With simple instructions they tend to get longer.
+        - label: No compiler is needed
+          feedback: It is needed just the same.
+    hints:
+      - Equal-length, simple instructions are easy to predict.
+      - What matters most with a battery?
+    explanation: RISC shifts work into the compiler and keeps hardware lean. x86 now internally translates its complex instructions into RISC-like steps itself.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how LOAD, ADD and JUMP become a loop.
+    params:
+      keywords:
+        - - sprung
+          - spring
+          - jump
+        - - "null"
+          - zero
+          - bedingung
+          - condition
+          - zähler
+          - counter
+        - - zurück
+          - wiederhol
+          - back
+          - repeat
+          - schleife
+          - loop
+      sample: A counter sits in memory. The program computes something, counts the counter down and jumps back to the start with JUMP. A conditional jump checks whether the counter is zero – then it goes to the end instead of back.
+    difficulty: 3
+
+srs:
+  cards_from: ["hook", "c2", "d2", "d3"]

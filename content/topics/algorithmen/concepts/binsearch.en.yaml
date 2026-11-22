@@ -5,7 +5,7 @@ summary: Binary search in a few steps.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: erster
@@ -76,6 +76,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: You look for 52 in 2, 5, 8, 11, 17, 23, 31, 40, 52. The middle is rounded down. Put the numbers you look at in order.
+    params:
+      items:
+        - label: "17"
+        - label: "31"
+        - label: "40"
+        - label: "52"
+      direction: horizontal
+    hints:
+      - The middle of the 9 numbers is the 5th.
+      - Then 23 to 52 is left – its middle, rounded down?
+    explanation: 17 → go right, 31 → go right, 40 → go right, 52. Four comparisons for nine numbers.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Now you look for 20 in the same list. After how many comparisons do you know for sure that it is missing?
+    answer:
+      value: 3
+    hints:
+      - First 17, then to the right the middle of 23 to 52.
+      - After 17, 31 and 23 the range is empty.
+    explanation: 17 is too small, 31 too big, 23 too big – nothing is left between 17 and 23. A failed search also takes only log₂ n steps.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: The list 3, 7, 7, 7, 9 contains 7 three times. Simple search finds some 7. How do you find the first one?
+    params:
+      options:
+        - label: On a hit, do not stop but keep searching to the left
+          correct: true
+        - label: Walk left step by step from the hit
+          feedback: That works but can get linearly slow with many equal values.
+        - label: It cannot be done
+          feedback: It can – with a small change to the search.
+    hints:
+      - What do you know about the first 7 after a hit?
+      - It is here or further left.
+    explanation: You remember the hit and keep halving to the left. That keeps it at log₂ n steps. Libraries often call this lower_bound.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -91,6 +141,66 @@ steps:
     hints:
       - What happens if left + right exceeds the largest storable number?
     explanation: Correct is left + (right − left) / 2. Even simple algorithms hide traps.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Halving works without a list too. We want √2 between 1 and 2: is 1.5² too big? Yes, so √2 is to the left. Every question halves the interval. This is called **bisection**."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: How many halvings does bisection need to pin √2 between 1 and 2 down to within 0.001?
+    answer:
+      value: 10
+    hints:
+      - After k halvings the interval is $1/2^k$ wide.
+      - $2^{10}$ = 1024.
+    explanation: $1/2^{10}$ ≈ 0.00098 < 0.001. Ten questions for three decimal places – computers use this to solve equations.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Is binary search worth it in a linked list where each element only knows its successor?
+    params:
+      options:
+        - label: No – reaching the middle already means walking half the list
+          correct: true
+        - label: Yes, just like in an array
+          feedback: In an array you jump straight to the middle, here you cannot.
+        - label: Only if the list is short
+          feedback: Walking gets expensive precisely for long lists.
+    hints:
+      - How do you reach the middle link of a chain?
+      - The search needs direct access.
+    explanation: Binary search needs O(1) jumps. For linked data you use search trees.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why binary search only works on sorted lists.
+    params:
+      keywords:
+        - - sortiert
+          - sorted
+          - ordnung
+          - order
+        - - mitte
+          - middle
+        - - hälfte
+          - halb
+          - half
+          - ausschließ
+          - rule out
+          - wegfallen
+          - discard
+      sample: "I look in the middle. Because the list is sorted, I know: if the target is bigger it can only be on the right. The whole left half drops out. Without order I could not know that."
     difficulty: 3
 
 srs:

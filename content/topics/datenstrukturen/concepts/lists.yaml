@@ -5,7 +5,7 @@ summary: Springen statt suchen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -126,6 +126,55 @@ steps:
     explanation: "Array und verkettete Liste tauschen Stärken: schneller Zugriff gegen schnelles Einfügen."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Warum ist der Zugriff so schnell? Die **Adresse** jedes Elements lässt sich ausrechnen: Anfang + Nummer · Größe. Eine Rechnung statt einer Suche – egal, wie lang die Liste ist."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Array beginnt bei Adresse 1000, jedes Element ist 4 Byte groß. An welcher Adresse liegt Element Nr. {{i}}? Gezählt wird ab 0.
+    answer:
+      value: "{{1000 + 4 * i}}"
+    feedback:
+      - when: numval(state.input) == 1000 + 4 * (i - 1)
+        misconception: off-by-one
+        text: "Gezählt wird ab 0: Element 0 liegt bei 1000."
+      - when: numval(state.input) == 1000 + i
+        misconception: forgot-size
+        text: Jedes Element belegt 4 Byte, nicht eins.
+    hints:
+      - Element 0 liegt bei 1000, Element 1 bei 1004.
+      - 1000 + {{i}} · 4.
+    explanation: "1000 + {{i}} · 4 = {{1000 + 4 * i}}. Darum zählen viele Sprachen ab 0: Die Nummer ist der Abstand vom Anfang."
+    difficulty: 2
+    variants:
+      params:
+        i: int[3,50]
+      defaults:
+        i: 10
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Du liest sehr oft das 1000. Element und fügst nur selten etwas ein. Welche Struktur passt?
+    params:
+      options:
+        - label: Ein Array
+          correct: true
+        - label: Eine verkettete Liste
+          feedback: Bis zum 1000. Element müsste man 999 Nachfolgern folgen.
+        - label: Egal
+          feedback: Der Unterschied ist O(1) gegen O(n).
+    hints:
+      - Was kann ein Array besonders schnell?
+      - Was kann eine verkettete Liste besonders schnell?
+    explanation: Arrays sind stark beim Zugriff, verkettete Listen beim Einfügen. Die passende Struktur hängt davon ab, was man oft tut.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -142,6 +191,63 @@ steps:
     hints:
       - Wie oft müsste man kopieren, wenn man jedes Mal nur einen Platz anfügt?
     explanation: Bei einer Million Elementen wird nur 20-mal kopiert statt eine Million Mal. Das heißt **amortisierte** Laufzeit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Array verdoppelt seine Größe, sobald es voll ist: 1, 2, 4, 8 … Wie viele Elemente werden insgesamt umkopiert, bis es auf 1024 Plätze gewachsen ist?"
+    answer:
+      value: 1023
+    hints:
+      - Beim Wachsen von 1 auf 2 wird 1 Element kopiert, von 2 auf 4 zwei …
+      - 1 + 2 + 4 + … + 512.
+    explanation: 1 + 2 + … + 512 = 1023 – weniger als eine Kopie pro Element. Im Schnitt kostet Anfügen also O(1), obwohl einzelne Schritte teuer sind.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Arrays sind in der Praxis oft schneller als verkettete Listen – sogar beim einfachen Durchlaufen. Warum?
+    params:
+      options:
+        - label: Die Elemente liegen nebeneinander, der Prozessor lädt sie blockweise in den Cache
+          correct: true
+        - label: Weil verkettete Listen mehr Elemente haben
+          feedback: Beide speichern dieselben Elemente.
+        - label: Weil Arrays sortiert sind
+          feedback: Arrays sind nicht von selbst sortiert.
+    hints:
+      - Wo liegen die Glieder einer verketteten Liste im Speicher?
+      - Verstreut – jeder Sprung kann den Cache verfehlen.
+    explanation: Ein Cache-Fehlgriff kostet rund 100-mal so viel wie ein Treffer. Nebeneinander liegende Daten sind darum viel schneller, auch bei gleichem O.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Array und verketteter Liste.
+    params:
+      keywords:
+        - - nummer
+          - index
+          - position
+          - adresse
+          - address
+        - - nachfolger
+          - zeiger
+          - next
+          - pointer
+          - verweis
+          - link
+        - - einfüg
+          - insert
+          - aufrück
+          - shift
+      sample: "Im Array liegen alle Elemente nebeneinander. Über die Nummer berechnet man die Adresse und springt direkt hin, aber beim Einfügen vorne müssen alle aufrücken. In der verketteten Liste zeigt jedes Element auf seinen Nachfolger: Einfügen geht schnell, Springen nicht."
     difficulty: 3
 
 srs:

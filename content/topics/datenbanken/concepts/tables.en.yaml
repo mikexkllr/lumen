@@ -5,7 +5,7 @@ summary: Rows, columns, data types.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -99,6 +99,63 @@ steps:
     explanation: What looks like a number is not always one. Phone numbers and postcodes are text.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "The **first normal form** demands: every cell holds exactly one value. »Phone: 0151…, 0170…« in one cell is not allowed. Each number gets its own row in a table of its own."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: Does the cell satisfy the first normal form?
+    params:
+      buckets:
+        - id: b1
+          label: one value – fine
+        - id: b2
+          label: several values – not allowed
+      items:
+        - label: "Birth date: 2001-05-03"
+          bucket: b1
+        - label: "Hobbies: reading, tennis"
+          bucket: b2
+        - label: "Price: 4.99"
+          bucket: b1
+        - label: "Children: Mia, Ben"
+          bucket: b2
+        - label: "Tags: red; blue"
+          bucket: b2
+        - label: "City: Leipzig"
+          bucket: b1
+    hints:
+      - Is there a list inside the cell?
+      - Commas or semicolons often separate several values.
+    explanation: Lists inside cells are hard to search and count. »Who plays tennis?« only works cleanly if each hobby has a row of its own.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: A table has {{r}} million rows of {{b}} bytes each. How many megabytes is that?
+    params:
+      unit: MB
+    answer:
+      value: "{{r * b}}"
+    hints:
+      - One million bytes are 1 MB.
+      - "{{r}} · {{b}}."
+    explanation: "{{r}} million · {{b}} bytes = {{r * b}} MB – plus the indexes on top."
+    difficulty: 2
+    variants:
+      params:
+        r: int[1,9]
+        b: choice[100,200,250,500]
+      defaults:
+        r: 1
+        b: 200
+
   - kind: problem
     id: x1
     depth: 3
@@ -115,6 +172,69 @@ steps:
     hints:
       - What happens if one of the 50 copies is forgotten?
     explanation: "**Normalisation**: every piece of information is stored exactly once. That is the basic principle of good database design."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "If a value is missing, the cell holds **NULL** – »unknown«, not 0 and not empty. Careful: NULL = NULL is not true but unknown again. So you test with IS NULL."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: What does SELECT COUNT(phone) FROM customers count?
+    params:
+      options:
+        - label: Only the rows where phone is not NULL
+          correct: true
+        - label: All rows
+          feedback: That is what COUNT(*) does.
+        - label: The distinct phone numbers
+          feedback: That needs COUNT(DISTINCT phone).
+    hints:
+      - COUNT of a column skips missing values.
+      - What is the difference from COUNT(*)?
+    explanation: COUNT(*) counts rows, COUNT(column) counts values that are present. If 30 of 100 customers lack a number, that gives 70.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Why are money amounts not stored as floating-point numbers?
+    params:
+      options:
+        - label: Because of rounding errors – you use DECIMAL or whole cents
+          correct: true
+        - label: Because floating point takes too much space
+          feedback: A double has only 8 bytes.
+        - label: Because databases do not know decimals
+          feedback: They even know several kinds.
+    hints:
+      - What does 0.1 + 0.2 give on a computer?
+      - With money no cent may be lost.
+    explanation: €0.10 cannot be represented exactly in binary. Over millions of bookings the errors add up. DECIMAL stores decimal places exactly.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a table in a database is built.
+    params:
+      keywords:
+        - - zeile
+          - row
+          - datensatz
+          - record
+        - - spalte
+          - column
+          - eigenschaft
+          - attribute
+        - - typ
+          - type
+      sample: Each row is a record, such as one customer. Each column is an attribute such as name or age and has a fixed data type, like text or number.
     difficulty: 3
 
 srs:

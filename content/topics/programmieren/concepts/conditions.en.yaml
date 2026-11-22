@@ -5,7 +5,7 @@ summary: Programs that decide.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -102,6 +102,76 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Rule: if x > 10, then x = x − 10, else x = x · 3. Apply the rule twice to {{x}}. What do you get?"
+    answer:
+      value: "{{z}}"
+    hints:
+      - Apply the rule once and write down the result.
+      - After the first time x = {{y}}. Is that greater than 10?
+    explanation: "{{x}} → {{y}} → {{z}}."
+    difficulty: 2
+    variants:
+      params:
+        x: int[2,25]
+      derive:
+        y: "x > 10 ? x - 10 : 3 * x"
+        z: "y > 10 ? y - 10 : 3 * y"
+      defaults:
+        x: 7
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: For which numbers is »x > 3 AND x < 8« true?
+    params:
+      buckets:
+        - id: b1
+          label: "true"
+        - id: b2
+          label: "false"
+      items:
+        - label: "2"
+          bucket: b2
+        - label: "3"
+          bucket: b2
+        - label: "4"
+          bucket: b1
+        - label: "7"
+          bucket: b1
+        - label: "8"
+          bucket: b2
+        - label: "10"
+          bucket: b2
+    hints:
+      - Both parts must hold.
+      - 3 > 3 is false, and so is 8 < 8.
+    explanation: True only for 4, 5, 6 and 7. The edges 3 and 8 are excluded – exactly where many bugs happen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: "»If score ≥ 50: »passed«. Else if score ≥ 90: »excellent«.« What appears for a score of 95?"
+    params:
+      options:
+        - label: »passed« – the second condition is never reached
+          correct: true
+        - label: »excellent«
+          feedback: 95 ≥ 50 is already true, so the check stops there.
+        - label: both
+          feedback: With »else if« at most one branch runs.
+    hints:
+      - Conditions are checked from top to bottom.
+      - Which number ≥ 90 is not also ≥ 50?
+    explanation: "The more specific case must come first: ≥ 90 before ≥ 50. Otherwise the second branch is dead code."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +187,71 @@ steps:
     hints:
       - Check the conditions in the right order.
     explanation: 1900 is divisible by 100 but not by 400. Nested conditions are a common source of bugs.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Many languages evaluate with **short-circuiting**: in »A AND B«, B is not even checked if A is already false. So »n ≠ 0 AND 10 / n > 2« is safe – it never divides by 0."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Which condition is the same as NOT (x > 5 AND x < 10)?
+    params:
+      options:
+        - label: x ≤ 5 OR x ≥ 10
+          correct: true
+        - label: x ≤ 5 AND x ≥ 10
+          feedback: That can never hold at once.
+        - label: x < 5 OR x > 10
+          feedback: Then 5 and 10 themselves are missing.
+    hints:
+      - "De Morgan: NOT (A AND B) = (NOT A) OR (NOT B)."
+      - The opposite of x > 5 is x ≤ 5.
+    explanation: AND turns into OR and each condition flips. The edges 5 and 10 are now included.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: A program has 3 if-then-else checks in a row. How many different paths through the code are there?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: add-paths
+        text: "The paths multiply: each check doubles them."
+    hints:
+      - Each check has 2 outcomes.
+      - 2 · 2 · 2.
+    explanation: $2^3$ = 8 paths. With 30 checks it would be over a billion – testing every path quickly becomes impossible.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a program decides with »if … then … else«.
+    params:
+      keywords:
+        - - bedingung
+          - condition
+          - prüf
+          - check
+          - test
+        - - wahr
+          - "true"
+          - erfüllt
+          - stimmt
+          - holds
+        - - sonst
+          - else
+          - andernfalls
+          - otherwise
+      sample: The program checks a condition. If it is true, the then-part runs. Otherwise the else-part runs. That way it reacts differently depending on the input.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Two factors and good backups.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Something you have – and something you know.
     explanation: Two hurdles instead of one. That works for online accounts too.
-
 
   - kind: explain
     id: s1
@@ -85,6 +84,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: An authenticator app makes a new 6-digit code every 30 seconds. How many codes is that per day?
+    answer:
+      value: 2880
+    hints:
+      - A day has 86,400 seconds.
+      - 86,400 / 30.
+    explanation: 2880 codes. Each is valid for only 30 seconds – an intercepted code is soon worthless.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: An attacker guesses a 6-digit code and has 3 tries. What is his chance in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 0.0003
+      tolerance: 0.00001
+    hints:
+      - There are $10^6$ codes.
+      - 3 / 1,000,000, times 100.
+    explanation: 3 / $10^6$ = 0.0003 %. Guessing is hopeless – so attackers try to trick you into revealing the code instead.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Under the **principle of least privilege** every account gets only what it really needs. If it is hijacked, the damage stays small. Admin rights are used only when necessary.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: buckets
+    prompt: Which kind of factor is this?
+    params:
+      buckets:
+        - id: b1
+          label: Knowing
+        - id: b2
+          label: Having
+        - id: b3
+          label: Being
+      items:
+        - label: Password
+          bucket: b1
+        - label: PIN
+          bucket: b1
+        - label: Fingerprint
+          bucket: b3
+        - label: Face
+          bucket: b3
+        - label: Security key
+          bucket: b2
+        - label: Phone with app
+          bucket: b2
+    hints:
+      - What you can forget is knowing.
+      - What you can lose is having.
+    explanation: Two factors of different kinds protect best – a thief then needs two completely different things.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -111,6 +176,64 @@ steps:
           - passwort
           - password
       sample: The best technology does not help if someone hands over their password voluntarily. So attackers deceive people and exploit their trust and helpfulness – that is often easier than cracking a system.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: What does »zero trust« mean in company networks?
+    params:
+      options:
+        - label: Every request is checked – even from inside the network
+          correct: true
+        - label: Nobody gets access
+          feedback: Access exists – just never unchecked.
+        - label: You trust only the firewall
+          feedback: Zero trust is meant to replace exactly this castle thinking.
+    hints:
+      - What happens once an attacker is inside?
+      - Inside does not automatically mean trustworthy.
+    explanation: "It used to be: whoever is inside is a friend. Today device, person and permission are checked on every access."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: A hard drive fails within a year with 5 % probability. How likely is it that two independent copies both fail in the same year? In percent.
+    params:
+      unit: "%"
+    answer:
+      value: 0.25
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: add-vs-multiply
+        text: "Adding gives the chance that either fails. Both at once: multiply."
+    hints:
+      - "Independent means: multiply the probabilities."
+      - 0.05 · 0.05.
+    explanation: "0.05 · 0.05 = 0.0025 = 0.25 %. But careful: a fire or ransomware hits both copies at once – hence one off-site."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: With end-to-end encryption, who can read the messages?
+    params:
+      options:
+        - label: Only sender and receiver – not even the provider
+          correct: true
+        - label: The provider too, but no hacker
+          feedback: It is exactly the provider who should not be able to read.
+        - label: Anyone with the server password
+          feedback: The keys exist only on the devices.
+    hints:
+      - Where are the keys?
+      - "End to end means: from device to device."
+    explanation: The server only relays encrypted data. Even if it is broken into, the contents stay protected.
     difficulty: 3
 
 srs:

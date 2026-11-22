@@ -5,7 +5,7 @@ summary: Adressen, Telefonbuch und verschlossene Umschläge.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: begriffe
@@ -85,6 +85,52 @@ steps:
     explanation: 96 zusätzliche Bits – 2⁹⁶-mal so viele Adressen. Genug für jedes Sandkorn der Erde.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Ein **Subnetz** wie 192.168.1.0/24 heißt: Die ersten 24 Bit der Adresse sind für alle Geräte darin gleich. Die übrigen 8 Bit unterscheiden die Geräte."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Netz hat die Endung /{{p}}. Wie viele Adressen umfasst es?
+    answer:
+      value: "{{2 ** (32 - p)}}"
+    feedback:
+      - when: numval(state.input) == 2 ** p
+        misconception: fixed-vs-free
+        text: Die {{p}} Bit sind fest. Frei sind die übrigen {{32 - p}}.
+    hints:
+      - IPv4-Adressen haben 32 Bit. Wie viele davon sind frei?
+      - Mit {{32 - p}} freien Bits gibt es 2 hoch {{32 - p}} Adressen.
+    explanation: "32 − {{p}} = {{32 - p}} freie Bits, also {{2 ** (32 - p)}} Adressen. Zwei davon sind reserviert: die Netzadresse und die für alle."
+    difficulty: 2
+    variants:
+      params:
+        p: int[20,30]
+      defaults:
+        p: 24
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Du rufst über HTTPS bank.de/konto/umsatz auf. Was kann jemand im selben WLAN trotzdem erkennen?
+    params:
+      options:
+        - label: Dass du mit bank.de verbunden bist – nicht aber Seite und Inhalt
+          correct: true
+        - label: Alles, auch dein Passwort
+          feedback: HTTPS verschlüsselt den gesamten Inhalt.
+        - label: Gar nichts
+          feedback: Die Zieladresse muss offen bleiben, sonst findet kein Paket den Weg.
+    hints:
+      - Router müssen wissen, wohin ein Paket geht.
+      - Der Pfad /konto/umsatz steht im verschlüsselten Teil.
+    explanation: Sichtbar bleiben die IP-Adresse und meist der Servername. Pfad, Formulare und Inhalte sind verschlüsselt.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -101,6 +147,56 @@ steps:
     hints:
       - Der Router führt eine Tabelle mit laufenden Verbindungen.
     explanation: "**NAT** hat das Ende der IPv4-Adressen um Jahrzehnte hinausgezögert."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: IPv6 hat $2^{128}$ Adressen, rund 3,4 · 10 hoch wie viel? Gib den Exponenten an.
+    answer:
+      value: 38
+    hints:
+      - $2^{10}$ ist etwa $10^3$.
+      - 128 Bit sind 12,8 mal 10 Bit – also etwa 10 hoch 38.
+    explanation: $2^{128}$ ≈ 3,4 · $10^{38}$. Das sind Milliarden Adressen für jedes Sandkorn der Erde.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Woher weiß dein Browser, dass er wirklich mit bank.de spricht und nicht mit einem Betrüger?
+    params:
+      options:
+        - label: bank.de zeigt ein Zertifikat, das eine vertraute Stelle unterschrieben hat
+          correct: true
+        - label: Am grünen Logo auf der Seite
+          feedback: Logos kann jeder kopieren.
+        - label: Am Schloss allein
+          feedback: Das Schloss zeigt Verschlüsselung – geprüft wird über das Zertifikat.
+    hints:
+      - Wer bürgt dafür, dass ein Schlüssel zu bank.de gehört?
+      - Der Browser kennt eine Liste vertrauter Zertifizierungsstellen.
+    explanation: "Eine Zertifizierungsstelle unterschreibt: »Dieser Schlüssel gehört bank.de.« Der Browser prüft die Unterschrift. Ein Betrüger bekommt so ein Zertifikat nicht."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: order
+    prompt: So beginnt eine HTTPS-Verbindung. Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Browser grüßt den Server
+        - label: Server schickt sein Zertifikat
+        - label: Browser prüft die Unterschrift
+        - label: Beide vereinbaren einen gemeinsamen Schlüssel
+        - label: Verschlüsselte Daten fließen
+    hints:
+      - Erst prüfen, wer da ist – dann Geheimnisse tauschen.
+      - Ohne gemeinsamen Schlüssel gibt es keine verschlüsselten Daten.
+    explanation: Das ist der TLS-Handschlag in Kurzform. Der gemeinsame Schlüssel entsteht mit einem Schlüsseltausch wie Diffie-Hellman.
     difficulty: 3
 
 srs:

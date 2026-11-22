@@ -5,7 +5,7 @@ summary: Swap neighbors until everything is in order.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: drei
@@ -60,6 +60,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: One pass of bubble sort over 5, 1, 4, 2, 8. What does the row look like afterwards?
+    params:
+      items:
+        - label: "1"
+        - label: "4"
+        - label: "2"
+        - label: "5"
+        - label: "8"
+      direction: horizontal
+    hints:
+      - Compare in turn 5 and 1, 5 and 4, 5 and 2, 5 and 8.
+      - The 5 travels until it meets the 8.
+    explanation: "5 swaps with 1, 4 and 2 and stops before the 8: 1, 4, 2, 5, 8. Not sorted yet – the 2 is out of place."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: A row of {{n}} numbers is in exactly reverse order. How many neighbour swaps does bubble sort need?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: one-pass
+        text: That is only the first round. After it only the largest number is in place.
+    hints:
+      - Every pair is in the wrong order. How many pairs are there?
+      - "{{n - 1}} + {{n - 2}} + … + 1."
+    explanation: Each neighbour swap fixes exactly one wrong pair. Here all {{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} pairs are wrong.
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swap
+    prompt: Sort with at most 8 neighbour swaps. No swap may be wasted.
+    params:
+      values:
+        - 3
+        - 6
+        - 1
+        - 5
+        - 2
+        - 4
+      adjacent: true
+      maxSwaps: 8
+    hints:
+      - "Count the wrong pairs: 3 before 1 and 2, 6 before four numbers …"
+      - Only swap neighbours where the larger number is on the left.
+    explanation: 2 + 4 + 2 = 8 wrong pairs. Fewer neighbour swaps are impossible, more are not needed.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: After round k, the k largest numbers sit at the far right – already sorted. This **invariant** explains why bubble sort is done after at most n − 1 rounds.
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -75,6 +142,59 @@ steps:
     hints:
       - It only notices after one pass that there is nothing to do.
     explanation: Best case n, worst case n². An algorithm often has very different faces.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: A randomly shuffled row of n numbers has n · (n − 1) / 4 wrong pairs on average. How many is that for 100 numbers?
+    answer:
+      value: 2475
+    hints:
+      - Each pair is wrong with probability 1/2.
+      - 100 · 99 / 4.
+    explanation: 100 · 99 / 4 = 2475. Even on average bubble sort is quadratic – just half as bad as the worst case.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Bubble sort only swaps if the left number is strictly larger. What follows for equal numbers?
+    params:
+      options:
+        - label: They keep their order – the method is stable
+          correct: true
+        - label: They get swapped at random
+          feedback: Equal neighbours are never swapped.
+        - label: The method gets stuck in a loop
+          feedback: Without a swap it ends normally.
+    hints:
+      - What happens with two equal neighbours?
+      - Can one 7 overtake another 7?
+    explanation: Equal elements never pass each other. That matters if you sort by name first and then by city.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why bubble sort is sure to finish.
+    params:
+      keywords:
+        - - größt
+          - largest
+          - biggest
+        - - rechts
+          - ende
+          - right
+          - end
+        - - runde
+          - durchgang
+          - pass
+          - round
+      sample: In every round the largest unsorted number travels right to the end. After that it never needs touching again. After n − 1 rounds all numbers are in place.
     difficulty: 3
 
 srs:

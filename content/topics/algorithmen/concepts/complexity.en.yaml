@@ -5,7 +5,7 @@ summary: Logarithmic, linear, quadratic.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: telefonbuch
@@ -89,6 +89,86 @@ steps:
     explanation: 10² = 100 times as long.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "**Big-O notation** sums up growth: constant factors and small terms drop out. 3n² + 5n + 7 is O(n²), because for large n only the n² part counts."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: Which growth fits?
+    params:
+      buckets:
+        - id: b1
+          label: O(1)
+        - id: b2
+          label: O(log n)
+        - id: b3
+          label: O(n)
+        - id: b4
+          label: O(n²)
+      items:
+        - label: Read element no. 5 of a list
+          bucket: b1
+        - label: Binary search
+          bucket: b2
+        - label: Find the maximum of a list
+          bucket: b3
+        - label: Compare all pairs
+          bucket: b4
+        - label: Sum a list
+          bucket: b3
+        - label: Search a balanced search tree
+          bucket: b2
+        - label: Bubble sort
+          bucket: b4
+        - label: Hash table lookup (on average)
+          bucket: b1
+    hints:
+      - Do you have to look at every element? Then at least O(n).
+      - Halving gives log n, all pairs n².
+    explanation: Direct access is O(1), halving O(log n), looking at everything once O(n), every pair O(n²).
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: A method needs n · log₂ n steps. How many million steps is that for n = 1,048,576 = $2^{20}$? Round to whole millions.
+    answer:
+      value: 21
+      tolerance: 0.5
+    feedback:
+      - when: abs(numval(state.input) - 1) < 0.1
+        misconception: forgot-log
+        text: That is n alone. It still has to be multiplied by log₂ n = 20.
+    hints:
+      - log₂ of $2^{20}$ is 20.
+      - 1,048,576 · 20.
+    explanation: 1,048,576 · 20 ≈ 21 million. An n² method would need over a trillion steps.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: "»For i from 1 to n: for j from i to n: count one.« What growth does this have?"
+    params:
+      options:
+        - label: O(n²) – it is n · (n + 1) / 2 steps
+          correct: true
+        - label: O(n) – the inner loop gets shorter
+          feedback: It gets shorter, but on average it still runs n/2 times.
+        - label: O(n log n)
+          feedback: Nothing is halved here.
+    hints:
+      - "Count for n = 4: 4 + 3 + 2 + 1."
+      - The sum 1 + … + n grows like n² / 2.
+    explanation: "n + (n − 1) + … + 1 = n · (n + 1) / 2. The factor 1/2 drops out: O(n²)."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -105,6 +185,89 @@ steps:
     hints:
       - Plug in n = 10 and n = 1000.
     explanation: "**Big-O notation** ignores constant factors: for large n only the kind of growth counts."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: A computer does $10^9$ steps per second. How large can n be at most for an n² method to finish in one second?
+    answer:
+      value: 31623
+      tolerance: 100
+    feedback:
+      - when: abs(numval(state.input) - 1000000000) < 1
+        misconception: linear
+        text: That would work for an n method. With n² the square root counts.
+    hints:
+      - Find n with n² = $10^9$.
+      - The square root of $10^9$.
+    explanation: √($10^9$) ≈ 31,623. With n · log₂ n you handle about 40 million in the same second.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: What exactly does »f is O(g)« mean?
+    params:
+      options:
+        - label: From some n₀ on, f(n) ≤ c · g(n) for a fixed number c
+          correct: true
+        - label: f and g are always equal
+          feedback: O is just an upper bound.
+        - label: f is smaller than g for every n
+          feedback: For small n f may be larger – and by a constant factor too.
+    hints:
+      - Constants should not matter.
+      - Small n should not matter either.
+    explanation: For example 3n² + 5n ≤ 4n² for all n ≥ 5. So 3n² + 5n is in O(n²) with c = 4 and n₀ = 5.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: An O(n²) method takes exactly 1 second for n = 1000. How many seconds does it take for n = {{n}}?
+    params:
+      unit: s
+    answer:
+      value: "{{(n / 1000) ** 2}}"
+    feedback:
+      - when: numval(state.input) == n / 1000
+        misconception: linear
+        text: That is linear thinking. With n² the time grows with the square of the factor.
+    hints:
+      - By what factor does n grow?
+      - Time grows with the square of that factor.
+    explanation: n grows by a factor of {{n / 1000}}, the time by {{n / 1000}}² = {{(n / 1000) ** 2}}.
+    difficulty: 3
+    variants:
+      params:
+        n: choice[2000,3000,5000,10000,30000]
+      defaults:
+        n: 5000
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what O(n²) means and why constants do not matter.
+    params:
+      keywords:
+        - - wachs
+          - grow
+        - - verdoppel
+          - doppelt
+          - double
+          - vierfach
+          - quadrup
+          - four times
+        - - konstant
+          - faktor
+          - constant
+          - factor
+      sample: "O(n²) describes how the effort grows: if the input doubles, the time grows four times. A constant factor like 3 only changes the speed, not the growth – so it is left out."
     difficulty: 3
 
 srs:

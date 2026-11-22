@@ -5,7 +5,7 @@ summary: Fragen an die Datenbank.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -97,6 +97,73 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: In welcher Reihenfolge geht die Datenbank die Teile einer Abfrage durch?
+    params:
+      items:
+        - label: FROM
+        - label: WHERE
+        - label: GROUP BY
+        - label: HAVING
+        - label: SELECT
+        - label: ORDER BY
+    hints:
+      - Erst muss klar sein, aus welcher Tabelle die Zeilen kommen.
+      - Gefiltert wird vor dem Gruppieren, sortiert ganz am Schluss.
+    explanation: Deshalb darf WHERE keine Spaltennamen nutzen, die erst SELECT vergibt. Die Schreibreihenfolge ist eine andere als die Denkreihenfolge.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Spalte alter enthält 25, 34, 41, 29 und 52. Was liefert SELECT AVG(alter) FROM kunden?
+    answer:
+      value: 36.2
+    hints:
+      - Summe geteilt durch Anzahl.
+      - 181 / 5.
+    explanation: 25 + 34 + 41 + 29 + 52 = 181, durch 5 ergibt 36,2. Solche Rechnungen heißen Aggregatfunktionen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Was unterscheidet WHERE von HAVING?
+    params:
+      options:
+        - label: WHERE filtert Zeilen vor dem Gruppieren, HAVING filtert Gruppen danach
+          correct: true
+        - label: Nichts, beides ist gleich
+          feedback: HAVING kann Bedingungen wie COUNT(*) > 10 prüfen, WHERE nicht.
+        - label: HAVING ist nur schneller
+          feedback: Es arbeitet an einer ganz anderen Stelle.
+    hints:
+      - Wann gibt es die Gruppen überhaupt erst?
+      - COUNT(*) pro Stadt kennt man erst nach GROUP BY.
+    explanation: »Städte mit über 10 Kunden« braucht HAVING COUNT(*) > 10 – dieser Wert entsteht erst beim Gruppieren.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: cloze
+    prompt: Ergänze die Abfrage »Städte mit mehr als 10 Kunden, alphabetisch«.
+    params:
+      text: SELECT stadt, COUNT(*) FROM kunden [[GROUP BY]] stadt [[HAVING]] COUNT(*) > 10 [[ORDER BY]] stadt
+      distractors:
+        - WHERE
+        - JOIN
+    hints:
+      - Erst gruppieren, dann Gruppen filtern, dann sortieren.
+      - Die Bedingung über COUNT(*) steht bei HAVING.
+    explanation: GROUP BY bildet die Städte, HAVING behält die großen, ORDER BY sortiert.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +179,42 @@ steps:
     hints:
       - GROUP BY bildet Gruppen, COUNT zählt in jeder.
     explanation: Gruppieren und Zusammenfassen – das Herz jeder Auswertung und jedes Dashboards.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Die Spalte alter enthält 20, NULL, 40, NULL und 60. Wie viele Zeilen liefert WHERE alter > 30 OR alter <= 30?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: null-logic
+        text: Für NULL ist jeder Vergleich »unbekannt« – und unbekannt fliegt raus.
+    hints:
+      - Was ergibt NULL > 30?
+      - Unbekannt ODER unbekannt bleibt unbekannt.
+    explanation: "SQL kennt drei Wahrheitswerte: wahr, falsch, unbekannt. Die beiden NULL-Zeilen fallen weg, obwohl die Bedingung »immer« klingt."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: SQL beschreibt, was man will, nicht wie man es findet. Wer entscheidet über den Weg?
+    params:
+      options:
+        - label: Der Abfrageoptimierer der Datenbank
+          correct: true
+        - label: Der Programmierer in jeder Abfrage
+          feedback: Er kann Hinweise geben – entscheiden muss er nicht.
+        - label: Der Zufall
+          feedback: Der Optimierer schätzt Kosten und wählt planvoll.
+    hints:
+      - Index nutzen oder alles durchgehen – wer weiß, was schneller ist?
+      - Die Datenbank kennt ihre Tabellengrößen.
+    explanation: Der Optimierer vergleicht Pläne – welcher Index, welche Join-Reihenfolge – und nimmt den billigsten. Mit EXPLAIN kann man ihm zuschauen.
     difficulty: 3
 
 srs:

@@ -1,0 +1,200 @@
+id: cs.os.deadlock
+type: concept
+title: "Verklemmungen"
+summary: "Sperren, Wettläufe und das Warten im Kreis."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Autos stehen sich auf einer einspurigen Brücke gegenüber. Keins will zurücksetzen. Was passiert?
+    params:
+      options:
+        - label: Nichts – beide warten für immer
+          correct: true
+        - label: Das schnellere fährt durch
+          feedback: Es gibt keinen Platz zum Vorbeifahren.
+        - label: Beide fahren abwechselnd
+          feedback: Dafür müsste einer zurück.
+    hints:
+      - Jeder braucht, was der andere blockiert.
+      - Keiner gibt nach.
+    explanation: Genau so verklemmen sich Programme. Es fehlt eine Regel, wer zurücksetzt.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Deadlock** entsteht, wenn Prozesse im Kreis aufeinander warten: A hält den Drucker und will den Scanner, B hält den Scanner und will den Drucker. Keiner kommt je weiter."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Zwei Threads rechnen je 1000-mal x = x + 1, ganz ohne Sperre. x startet bei 0. Was kann am Ende in x stehen?
+    params:
+      options:
+        - label: Weniger als 2000 – manche Erhöhungen gehen verloren
+          correct: true
+        - label: Immer genau 2000
+          feedback: Lesen, Rechnen und Schreiben können sich überlappen.
+        - label: Immer genau 1000
+          feedback: Meist gehen nur einige Erhöhungen verloren, nicht die Hälfte.
+    hints:
+      - Beide lesen x = 5 gleichzeitig. Was schreiben sie?
+      - Beide schreiben 6 – eine Erhöhung ist weg.
+    explanation: Das ist ein Wettlauf, eine Race Condition. Das Ergebnis hängt vom Zufall der Zeitscheiben ab.
+
+  - kind: explain
+    id: c3
+    body: Eine **Sperre** (Mutex) lässt immer nur einen Thread in einen kritischen Abschnitt. Wer sie nicht bekommt, wartet. Das verhindert verlorene Updates – kann aber Verklemmungen auslösen.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Verklemmung oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: Deadlock
+        - id: b2
+          label: kein Deadlock
+      items:
+        - label: A wartet auf B, B wartet auf A
+          bucket: b1
+        - label: A wartet auf B, B auf C, C auf A
+          bucket: b1
+        - label: A wartet auf B, B gibt bald frei
+          bucket: b2
+        - label: A und B warten auf C, C ist frei
+          bucket: b2
+    hints:
+      - Gibt es einen Kreis im Warten?
+      - Wer auf niemanden wartet, wird irgendwann fertig.
+    explanation: Ein Deadlock ist ein Kreis im Wartegraphen. Ohne Kreis kommt die Kette irgendwann ins Rollen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Ein Deadlock braucht vier Dinge zugleich: exklusive Mittel, Halten und Warten, kein Wegnehmen und einen Warte-Kreis. Das sind die **Coffman-Bedingungen**. Bricht man eine, kann keiner entstehen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Welche einfache Regel verhindert den Warte-Kreis sicher?
+    params:
+      options:
+        - label: Alle sperren in derselben festen Reihenfolge – erst Drucker, dann Scanner
+          correct: true
+        - label: Schneller rechnen
+          feedback: Auch schnell kann man im Kreis warten.
+        - label: Mehr Threads starten
+          feedback: Mehr Beteiligte machen Kreise eher wahrscheinlicher.
+    hints:
+      - Wer den Scanner hält, hält dann auch schon den Drucker.
+      - Ein Kreis bräuchte jemanden, der gegen die Reihenfolge sperrt.
+    explanation: Mit fester Reihenfolge zeigen alle Warte-Pfeile in dieselbe Richtung – ein Kreis ist unmöglich.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Fünf Philosophen sitzen an einem runden Tisch, zwischen je zwei liegt eine Gabel. Jeder braucht beide Nachbargabeln zum Essen. Wie viele können höchstens gleichzeitig essen?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 2.5
+        misconception: fraction
+        text: Halbe Philosophen gibt es nicht.
+    hints:
+      - Jeder Essende belegt 2 der 5 Gabeln.
+      - Zwei Essende brauchen 4 Gabeln, drei bräuchten 6.
+    explanation: Höchstens 2, und die dürfen nicht nebeneinandersitzen. Greifen alle gleichzeitig zur linken Gabel, droht der Deadlock.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ein einziger Philosoph greift zuerst nach rechts statt nach links. Was bewirkt das?
+    params:
+      options:
+        - label: Der Warte-Kreis kann nicht mehr entstehen
+          correct: true
+        - label: Nichts
+          feedback: Es reicht schon einer, um den Kreis zu brechen.
+        - label: Er verhungert
+          feedback: Er kommt genauso dran wie die anderen.
+    hints:
+      - Wann entsteht der Kreis?
+      - Wenn alle gleichzeitig ihre linke Gabel halten.
+    explanation: "Das ist die feste Reihenfolge in Kleinformat: Nummeriert man die Gabeln, greift jeder zuerst zur kleineren Nummer."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Zwei Menschen weichen sich im Flur aus – immer gleichzeitig zur selben Seite. Wie heißt das bei Prozessen?
+    params:
+      options:
+        - label: Livelock – beide sind aktiv, kommen aber nicht voran
+          correct: true
+        - label: Deadlock
+          feedback: Beim Deadlock steht alles still. Hier bewegt sich alles.
+        - label: Race Condition
+          feedback: Dabei geht ein Ergebnis verloren, hier ein Fortschritt.
+    hints:
+      - Stehen sie still?
+      - Sie tun etwas, aber nichts bringt sie weiter.
+    explanation: "Abhilfe ist Zufall: Jeder wartet eine zufällige kurze Zeit. Genau so lösen Netzwerke Kollisionen."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Das System prüft vor jeder Zuteilung, ob danach noch alle Prozesse fertig werden können – sonst lässt es warten. Wie heißt das Verfahren?
+    params:
+      options:
+        - label: Bankier-Algorithmus
+          correct: true
+        - label: Round Robin
+          feedback: Das verteilt Rechenzeit, keine Mittel.
+        - label: LRU
+          feedback: Das wählt Seiten zum Auslagern aus.
+    hints:
+      - Eine Bank verleiht nur so viel, dass sie alle Kunden noch bedienen kann.
+      - Dijkstra erfand es 1965.
+    explanation: Der Bankier-Algorithmus vermeidet Deadlocks, braucht aber vorab den Höchstbedarf jedes Prozesses. Darum nutzt man ihn in der Praxis selten.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Deadlock entsteht und wie man ihn verhindert.
+    params:
+      keywords:
+        - - wartet
+          - warten
+          - wait
+        - - kreis
+          - gegenseitig
+          - cycle
+          - circle
+          - each other
+        - - reihenfolge
+          - order
+        - - sperr
+          - hält
+          - lock
+          - hold
+      sample: Ein Deadlock entsteht, wenn Prozesse etwas halten und gleichzeitig auf etwas warten, das ein anderer hält – im Kreis, gegenseitig. Verhindern kann man ihn, wenn alle ihre Sperren in derselben Reihenfolge holen. Dann gibt es keinen Kreis.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3", "x1"]

@@ -5,7 +5,7 @@ summary: Von 8 Bits bis zu Millionen Farben.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: byte
@@ -112,6 +112,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Bild hat {{w}} × {{h}} Pixel mit je 3 Bytes. Wie viele Megabyte sind das unkomprimiert? Runde auf eine Stelle.
+    params:
+      unit: MB
+    answer:
+      value: "{{w * h * 3 / 1000000}}"
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - w * h / 1000000) < 0.06
+        misconception: forgot-channels
+        text: Das sind nur die Pixel. Jedes Pixel braucht 3 Bytes.
+    hints:
+      - Pixel mal Bytes pro Pixel ergibt die Bytes.
+      - Eine Million Bytes sind 1 MB.
+    explanation: "{{w}} · {{h}} · 3 = {{w * h * 3}} Byte ≈ {{round(w * h * 3 / 100000) / 10}} MB."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[1280,1920,3840]
+      derive:
+        h: w * 9 / 16
+      defaults:
+        w: 1920
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Megabyte braucht eine Minute Musik in CD-Qualität? 44 100 Werte pro Sekunde, je 2 Byte, zwei Kanäle."
+    params:
+      min: 1
+      max: 100
+      unit: MB
+    answer:
+      value: 10.6
+      within: 25
+    explanation: 44 100 · 2 · 2 · 60 = 10 584 000 Byte, also gut 10 MB. MP3 schrumpft das auf etwa 1 MB.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Achtung, zwei Sitten: Hersteller zählen 1 kB = 1000 Byte. Betriebssysteme zählen oft 1 **Kibibyte** (KiB) = 1024 Byte. Darum zeigt eine 1-TB-Platte nur rund 931 GiB."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Byte hat ein Mebibyte (MiB), also 1024 · 1024 Byte?
+    answer:
+      value: 1048576
+    hints:
+      - 1024 ist $2^{10}$.
+      - $2^{20}$ = 1024 · 1024.
+    explanation: $2^{20}$ = 1 048 576 – knapp 5 % mehr als eine Million.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -127,6 +187,71 @@ steps:
     hints:
       - Binär gehen nur Brüche auf, deren Nenner eine Zweierpotenz ist.
     explanation: 1/10 ist binär periodisch. **Gleitkommazahlen** sind fast immer nur Näherungen – darum rechnet man Geld in Cent.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Kommazahlen speichert der Computer als **Gleitkommazahl**: Vorzeichen, Mantisse und Exponent, etwa 1,5 · 2³ = 12. Ein double hat 64 Bit – 1 fürs Vorzeichen, 11 für den Exponenten, 52 für die Mantisse."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Welche dieser Zahlen kann ein double **exakt** speichern?
+    params:
+      multiple: true
+      options:
+        - label: 0,5
+          correct: true
+        - label: 0,375
+          correct: true
+        - label: 0,1
+          feedback: 1/10 ist binär unendlich periodisch – wie 1/3 im Zehnersystem.
+        - label: 0,2
+          feedback: 1/5 hat binär keine endliche Darstellung.
+    hints:
+      - Exakt geht nur, was sich als Bruch mit einer Zweierpotenz unten schreiben lässt.
+      - 0,375 = 3/8. Und 0,1 = 1/10?
+    explanation: 1/2 und 3/8 haben Zweierpotenzen im Nenner. 1/10 und 1/5 enthalten den Faktor 5 – binär werden sie periodisch und müssen gerundet werden.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Ein double hat 53 Bit Genauigkeit. Was passiert mit $2^{53} + 1$?
+    params:
+      options:
+        - label: Es wird zu $2^{53}$ gerundet – die +1 geht verloren
+          correct: true
+        - label: Es wird exakt gespeichert
+          feedback: Dafür bräuchte die Mantisse 54 Stellen.
+        - label: Das Programm stürzt ab
+          feedback: Gleitkomma rundet still, ohne Fehler.
+    hints:
+      - Wie viele Binärstellen hat $2^{53} + 1$?
+      - 54 Stellen passen nicht in 53.
+    explanation: Ab $2^{53}$ liegen benachbarte doubles 2 auseinander. Ungerade Zahlen dort sind nicht darstellbar – ein Grund für Rundungsfehler in Geldbeträgen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Warum prüft man in Programmen nicht `0.1 + 0.2 == 0.3`?
+    params:
+      options:
+        - label: Wegen Rundungsfehlern ist das falsch – man prüft, ob der Abstand winzig ist
+          correct: true
+        - label: Weil == bei Kommazahlen verboten ist
+          feedback: Erlaubt ist es, aber es liefert hier false.
+        - label: Weil der Computer 0,3 gar nicht kennt
+          feedback: Er kennt eine Zahl ganz nah an 0,3 – nur nicht dieselbe.
+    hints:
+      - Beide Seiten sind gerundet – aber verschieden.
+      - Man vergleicht |a − b| mit einer kleinen Schranke.
+    explanation: 0,1 + 0,2 ergibt 0,30000000000000004. Sicher ist |a − b| < ε. Für Geld rechnet man gleich in ganzen Cent.
     difficulty: 3
 
 srs:

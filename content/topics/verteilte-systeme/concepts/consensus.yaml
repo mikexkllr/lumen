@@ -1,0 +1,192 @@
+id: cs.distributed.consensus
+type: concept
+title: "Einigung ohne Chef"
+summary: "Mehrheiten, Anführer und Rechner, die lügen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Heere wollen nur gemeinsam angreifen. Ihre Boten können abgefangen werden. Können sie sich je ganz sicher sein, dass beide angreifen?
+    params:
+      options:
+        - label: Nein – die letzte Bestätigung könnte immer verloren gehen
+          correct: true
+        - label: Ja, mit genug Boten
+          feedback: Auch der letzte Bote kann abgefangen werden.
+        - label: Ja, mit einer Bestätigung der Bestätigung
+          feedback: Dann fehlt die Bestätigung dafür.
+    hints:
+      - Wer schickt die allerletzte Nachricht?
+      - Weiß der Absender, dass sie ankam?
+    explanation: Das Zwei-Generäle-Problem ist unlösbar. Echte Systeme leben darum mit Wahrscheinlichkeiten, Zeitlimits und Mehrheiten.
+
+  - kind: explain
+    id: c1
+    body: "**Konsens** heißt: Mehrere Rechner einigen sich auf einen Wert, obwohl Nachrichten verloren gehen und Rechner ausfallen. Der Trick vieler Verfahren: Entscheidend ist eine Mehrheit."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Verbund hat {{n}} Rechner. Wie viele bilden mindestens eine Mehrheit?
+    answer:
+      value: "{{floor(n / 2) + 1}}"
+    feedback:
+      - when: numval(state.input) == n / 2
+        misconception: half
+        text: Die Hälfte reicht nicht – zwei Hälften könnten sich widersprechen.
+    hints:
+      - Mehr als die Hälfte.
+      - Die Hälfte von {{n}}, abgerundet, plus eins.
+    explanation: "{{floor(n / 2) + 1}} von {{n}}. Zwei Mehrheiten haben immer mindestens einen Rechner gemeinsam – darum können sie sich nicht widersprechen."
+    variants:
+      params:
+        n: int[3,11]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Wie viele von 5 Rechnern dürfen ausfallen, damit die übrigen noch eine Mehrheit bilden?
+    answer:
+      value: 2
+    hints:
+      - Die Mehrheit von 5 ist 3.
+      - 5 − 3.
+    explanation: "2 Ausfälle sind verkraftbar. Allgemein: Mit 2f + 1 Rechnern übersteht man f Ausfälle."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum nimmt man meist 3 oder 5 Rechner, aber selten 4?
+    params:
+      options:
+        - label: Bei 4 braucht die Mehrheit 3 – es darf nur einer ausfallen, genau wie bei 3
+          correct: true
+        - label: Weil 4 Unglück bringt
+          feedback: Es ist reine Rechnung.
+        - label: Weil sich 4 Rechner nicht verbinden lassen
+          feedback: Verbinden lassen sie sich problemlos.
+    hints:
+      - Wie viele Ausfälle verkraften 3 Rechner? Wie viele 4?
+      - Beide Male nur einen.
+    explanation: Der vierte Rechner kostet, bringt aber keine zusätzliche Sicherheit. Darum ungerade Zahlen.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Das Netz zerreißt. Ohne Mehrheitsregel wählt jede Hälfte ihren eigenen Chef. Wie heißt das?
+    params:
+      options:
+        - label: Split Brain – zwei Chefs, widersprüchliche Daten
+          correct: true
+        - label: Deadlock
+          feedback: Hier warten sie nicht – beide machen munter weiter.
+        - label: Cache-Ansturm
+          feedback: Das ist ein anderes Problem.
+    hints:
+      - Beide Hälften glauben, sie seien das System.
+      - Ein Gehirn, das sich teilt.
+    explanation: Mit Mehrheitsregel kann höchstens eine Hälfte weitermachen – die mit der Mehrheit. Die andere wartet, bis das Netz heilt.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Im Verfahren **Raft** gibt es einen gewählten Anführer. Er schickt jede Änderung an die anderen. Erst wenn eine Mehrheit sie gespeichert hat, gilt sie als fest. Fällt er aus, wählen die übrigen neu.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: So schreibt Raft eine Änderung. Bring die Schritte in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Ein Client schickt die Änderung an den Anführer
+        - label: Der Anführer trägt sie in sein Logbuch ein
+        - label: Er schickt sie an die anderen
+        - label: Eine Mehrheit bestätigt
+        - label: Die Änderung gilt, der Client bekommt sein OK
+    hints:
+      - Das OK kommt ganz zum Schluss.
+      - Ohne Mehrheit gibt es kein OK.
+    explanation: Weil jede feste Änderung bei einer Mehrheit liegt, kennt jeder künftige Anführer sie – er braucht ja selbst eine Mehrheit der Stimmen.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: In einem Verbund aus 7 Rechnern läuft eine Wahl. A bekommt 3 Stimmen, B 3, C 1. Wie viele Stimmen fehlen A mindestens zum Sieg?
+    answer:
+      value: 1
+    hints:
+      - Die Mehrheit von 7 ist 4.
+      - 4 − 3.
+    explanation: Niemand hat 4 Stimmen – die Wahl scheitert. Raft wartet dann eine zufällige Zeit und wählt neu, damit sich das Patt auflöst.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Rechner, die lügen oder sich beliebig falsch verhalten, heißen byzantinisch. Man braucht 3f + 1 Rechner, um f solche zu verkraften. Wie viele Rechner braucht man für 2 Lügner?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: crash-vs-byzantine
+        text: Das reicht für 2 Ausfälle – Lügner sind gefährlicher.
+    hints:
+      - Setze f = 2 ein.
+      - 3 · 2 + 1.
+    explanation: 7 Rechner. Blockchains und Flugzeugsteuerungen müssen mit solchen Lügnern rechnen – Rechenzentren meist nur mit Ausfällen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Fischer, Lynch und Paterson bewiesen 1985: In einem Netz ohne jede Zeitgarantie kann schon ein einziger Ausfall …"
+    params:
+      options:
+        - label: … die Einigung für immer verhindern – kein Verfahren schafft sie garantiert in endlicher Zeit
+          correct: true
+        - label: … alle Daten löschen
+          feedback: Es geht um Einigung, nicht um Datenverlust.
+        - label: … nichts bewirken
+          feedback: Gerade ein einziger Ausfall reicht für die Unmöglichkeit.
+    hints:
+      - "Ohne Zeitgarantie: Ist ein Rechner tot oder nur langsam?"
+      - Man kann es nie sicher wissen.
+    explanation: Das FLP-Ergebnis. Raft und Paxos sind darum immer korrekt, kommen aber nur voran, wenn das Netz zeitweise pünktlich ist.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie sich Rechner ohne festen Chef einigen.
+    params:
+      keywords:
+        - - mehrheit
+          - majority
+        - - anführer
+          - wahl
+          - gewählt
+          - leader
+          - elect
+          - vote
+        - - ausfall
+          - fällt aus
+          - fail
+          - crash
+      sample: Die Rechner wählen einen Anführer – wer die Mehrheit der Stimmen bekommt. Der Anführer verteilt jede Änderung, und sie gilt erst, wenn eine Mehrheit sie gespeichert hat. Bei einem Ausfall wählen die anderen einen neuen. Weil sich zwei Mehrheiten immer überschneiden, geht nichts verloren.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3", "x1"]

@@ -1,0 +1,214 @@
+id: cs.os.scheduling
+type: concept
+title: "Wer darf rechnen?"
+summary: "Scheduling – Reihenfolgen, Wartezeiten und Fairness."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "An der Kasse: Du hast einen Artikel, vor dir steht jemand mit 50. Was wäre für alle zusammen am schnellsten?"
+    params:
+      options:
+        - label: Den mit wenig Artikeln vorlassen
+          correct: true
+        - label: Die Reihenfolge ist egal
+          feedback: Für die gesamte Wartezeit nicht.
+        - label: Den mit vielen Artikeln zuerst
+          feedback: Dann warten alle hinter ihm lange.
+    hints:
+      - Wie lange wartest du, wenn die 50 Artikel zuerst kommen?
+      - Und wie lange wartet der andere, wenn du zuerst dran bist?
+    explanation: Kurze Aufträge zuerst senken die durchschnittliche Wartezeit. Genau diese Idee nutzen Scheduler.
+
+  - kind: explain
+    id: c1
+    body: "Der **Scheduler** entscheidet, welcher Prozess als Nächstes rechnen darf. Die einfachste Regel lautet: Wer zuerst kommt, kommt zuerst dran."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Drei Aufträge kommen gleichzeitig: A braucht 8 s, B 2 s, C 4 s. Sie laufen in der Reihenfolge A, B, C. Wie viele Sekunden wartet C, bis er startet?"
+    params:
+      unit: s
+    answer:
+      value: 10
+    hints:
+      - C wartet, bis A und B fertig sind.
+      - 8 + 2.
+    explanation: C startet nach 8 + 2 = 10 s.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Gleiche Reihenfolge A, B, C. Wie lange warten die drei im Schnitt, bis sie starten?
+    params:
+      unit: s
+    answer:
+      value: 6
+    hints:
+      - A wartet 0 s, B 8 s, C 10 s.
+      - (0 + 8 + 10) / 3.
+    explanation: 18 / 3 = 6 s im Schnitt.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Jetzt kürzester Auftrag zuerst: B, C, A. Wie lange warten sie im Schnitt? Runde auf zwei Stellen."
+    params:
+      unit: s
+    answer:
+      value: 2.67
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: same-order
+        text: "Neue Reihenfolge, neue Wartezeiten: B 0, C 2, A 6."
+    hints:
+      - B wartet 0 s, C 2 s, A 6 s.
+      - (0 + 2 + 6) / 3.
+    explanation: 8 / 3 ≈ 2,67 s statt 6 s. »Kürzester zuerst« ist für die mittlere Wartezeit sogar beweisbar optimal.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Was ist der Haken an »kürzester Auftrag zuerst«?
+    params:
+      options:
+        - label: Lange Aufträge können ewig warten, und die Dauer ist vorher oft unbekannt
+          correct: true
+        - label: Es ist langsamer als der Reihe nach
+          feedback: Im Schnitt ist es schneller.
+        - label: Es geht nur mit zwei Aufträgen
+          feedback: Es geht mit beliebig vielen.
+    hints:
+      - Was, wenn ständig neue kurze Aufträge kommen?
+      - Woher weiß der Scheduler, wie lange ein Programm rechnet?
+    explanation: Das »Verhungern« langer Aufträge ist ein echtes Problem. Dauern schätzt man aus der Vergangenheit – mit Fehlern.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Beim **Round Robin** bekommt jeder Prozess reihum eine Zeitscheibe. Wer nicht fertig wird, stellt sich hinten wieder an. Niemand verhungert, und kurze Aufgaben sind schnell durch.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Round Robin mit 2 s pro Scheibe. A braucht 5 s, B 2 s, C 3 s, Start in der Reihenfolge A, B, C. Nach wie vielen Sekunden ist C fertig?
+    params:
+      unit: s
+    answer:
+      value: 9
+    hints:
+      - Erst A 2 s, dann B 2 s, dann C 2 s – und weiter?
+      - Dann A noch einmal 2 s, danach C seine letzte Sekunde.
+    explanation: A 0–2, B 2–4 (fertig), C 4–6, A 6–8, C 8–9 (fertig), A 9–10.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Im selben Beispiel: Nach wie vielen Sekunden ist B fertig?"
+    params:
+      unit: s
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: forgot-first
+        text: Vor B ist erst A 2 s dran.
+    hints:
+      - B ist als Zweites dran.
+      - A 2 s, dann B 2 s.
+    explanation: B ist nach 4 s fertig. Mit »der Reihe nach« wäre es 7 s gewesen – kurze Aufträge profitieren.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Zeitscheibe dauert 100 ms, 20 Prozesse sind bereit. Wie viele Sekunden kann es dauern, bis ein Prozess wieder drankommt?
+    params:
+      unit: s
+    answer:
+      value: 1.9
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: include-own
+        text: Seine eigene Scheibe zählt nicht als Warten.
+    hints:
+      - 19 andere sind vorher dran.
+      - 19 · 0,1 s.
+    explanation: 1,9 s – das merkt man beim Tippen deutlich. Darum bevorzugen Scheduler interaktive Prozesse, die meist schnell wieder blockieren.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein wichtiger Prozess wartet auf eine Sperre, die ein unwichtiger hält. Der unwichtige kommt nie dran, weil mittelwichtige rechnen. Wie heißt das?
+    params:
+      options:
+        - label: Prioritätsinversion
+          correct: true
+        - label: Deadlock
+          feedback: Hier wartet niemand im Kreis – es ist ein Vorrangproblem.
+        - label: Kontextwechsel
+          feedback: Der ist nur der Wechsel selbst.
+    hints:
+      - Der Wichtige ist faktisch hinter den Mittleren gelandet.
+      - Die Prioritäten wirken verkehrt herum.
+    explanation: "1997 legte genau das den Mars Pathfinder lahm. Abhilfe: Der Halter der Sperre erbt kurz die hohe Priorität."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Linux nutzte lange einen Scheduler, der jedem Prozess einen fairen Anteil geben soll. Wen wählt so ein Scheduler als Nächstes?
+    params:
+      options:
+        - label: Den Prozess, der bisher am wenigsten Rechenzeit bekommen hat
+          correct: true
+        - label: Den neuesten Prozess
+          feedback: Neu heißt nicht benachteiligt.
+        - label: Immer denselben Prozess
+          feedback: Dann wäre es nicht fair.
+    hints:
+      - "Fair heißt: Wer zu kurz kam, ist dran."
+      - Der Scheduler führt Buch über die Rechenzeit.
+    explanation: Der »Completely Fair Scheduler« hielt die Prozesse in einem Suchbaum, sortiert nach verbrauchter Zeit. Ganz links stand der Nächste – O(log n) pro Entscheidung.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Round Robin fair ist.
+    params:
+      keywords:
+        - - reihum
+          - abwechselnd
+          - turn
+          - round
+        - - zeitscheibe
+          - time slice
+          - slice
+          - kurz
+        - - hinten
+          - anstellen
+          - back
+          - queue
+          - schlange
+      sample: Jeder Prozess kommt reihum dran und bekommt eine kurze Zeitscheibe. Wer nicht fertig ist, stellt sich hinten an der Schlange wieder an. So muss niemand ewig warten, und kurze Aufgaben sind schnell erledigt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2", "x1"]

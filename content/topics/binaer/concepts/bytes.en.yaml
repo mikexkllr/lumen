@@ -5,7 +5,7 @@ summary: From 8 bits to millions of colors.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: byte
@@ -112,6 +112,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: An image has {{w}} × {{h}} pixels with 3 bytes each. How many megabytes is that uncompressed? Round to one decimal.
+    params:
+      unit: MB
+    answer:
+      value: "{{w * h * 3 / 1000000}}"
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - w * h / 1000000) < 0.06
+        misconception: forgot-channels
+        text: That is just the pixel count. Each pixel needs 3 bytes.
+    hints:
+      - Pixels times bytes per pixel gives the bytes.
+      - One million bytes are 1 MB.
+    explanation: "{{w}} · {{h}} · 3 = {{w * h * 3}} bytes ≈ {{round(w * h * 3 / 100000) / 10}} MB."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[1280,1920,3840]
+      derive:
+        h: w * 9 / 16
+      defaults:
+        w: 1920
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many megabytes does one minute of CD-quality music take? 44,100 samples per second, 2 bytes each, two channels."
+    params:
+      min: 1
+      max: 100
+      unit: MB
+    answer:
+      value: 10.6
+      within: 25
+    explanation: 44,100 · 2 · 2 · 60 = 10,584,000 bytes, so just over 10 MB. MP3 shrinks that to about 1 MB.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Careful, two conventions: makers count 1 kB = 1000 bytes. Operating systems often count 1 **kibibyte** (KiB) = 1024 bytes. That is why a 1 TB drive shows only about 931 GiB."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: How many bytes are in a mebibyte (MiB), i.e. 1024 · 1024 bytes?
+    answer:
+      value: 1048576
+    hints:
+      - 1024 is $2^{10}$.
+      - $2^{20}$ = 1024 · 1024.
+    explanation: $2^{20}$ = 1,048,576 – almost 5 % more than a million.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -127,6 +187,71 @@ steps:
     hints:
       - In binary only fractions whose denominator is a power of two terminate.
     explanation: 1/10 is periodic in binary. **Floating-point numbers** are almost always approximations – that is why money is computed in cents.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Computers store decimals as **floating-point numbers**: sign, mantissa and exponent, like 1.5 · 2³ = 12. A double has 64 bits – 1 for the sign, 11 for the exponent, 52 for the mantissa."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Which of these numbers can a double store **exactly**?
+    params:
+      multiple: true
+      options:
+        - label: "0.5"
+          correct: true
+        - label: "0.375"
+          correct: true
+        - label: "0.1"
+          feedback: 1/10 repeats forever in binary – like 1/3 in decimal.
+        - label: "0.2"
+          feedback: 1/5 has no finite binary form.
+    hints:
+      - Only fractions with a power of two below the line work exactly.
+      - 0.375 = 3/8. And 0.1 = 1/10?
+    explanation: 1/2 and 3/8 have powers of two below the line. 1/10 and 1/5 contain the factor 5 – in binary they repeat and must be rounded.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: A double has 53 bits of precision. What happens to $2^{53} + 1$?
+    params:
+      options:
+        - label: It is rounded to $2^{53}$ – the +1 is lost
+          correct: true
+        - label: It is stored exactly
+          feedback: That would need 54 mantissa digits.
+        - label: The program crashes
+          feedback: Floating point rounds silently, without an error.
+    hints:
+      - How many binary digits does $2^{53} + 1$ have?
+      - 54 digits do not fit into 53.
+    explanation: From $2^{53}$ on, neighbouring doubles are 2 apart. Odd numbers there cannot be stored – one reason not to use floats for money.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Why do programs not test `0.1 + 0.2 == 0.3`?
+    params:
+      options:
+        - label: Rounding makes it false – you check whether the difference is tiny
+          correct: true
+        - label: Because == is not allowed for decimals
+          feedback: It is allowed, it just gives false here.
+        - label: Because the computer does not know 0.3
+          feedback: It knows a number very close to 0.3 – just not the same one.
+    hints:
+      - Both sides are rounded – but differently.
+      - You compare |a − b| with a small bound.
+    explanation: 0.1 + 0.2 gives 0.30000000000000004. Safe is |a − b| < ε. For money you compute in whole cents instead.
     difficulty: 3
 
 srs:

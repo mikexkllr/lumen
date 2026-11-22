@@ -5,7 +5,7 @@ summary: Mit NAND baut man jeden Chip.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 15000000000
       within: 85
     explanation: Über 15 Milliarden. Und fast alles daraus ließe sich mit einer einzigen Gatter-Sorte bauen.
-
 
   - kind: explain
     id: s1
@@ -84,6 +83,83 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: Ein XOR aus vier NAND-Gattern. Ein Gatter ist noch offen – wähle es.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: n1
+          type: NAND
+          in:
+            - A
+            - B
+        - id: n2
+          type: "?"
+          in:
+            - A
+            - n1
+          options:
+            - AND
+            - OR
+            - NAND
+        - id: n3
+          type: NAND
+          in:
+            - B
+            - n1
+        - id: n4
+          type: NAND
+          in:
+            - n2
+            - n3
+      outputs:
+        - id: Q
+          from: n4
+    check:
+      predicate: table('Q') == [0, 1, 1, 0]
+    hints:
+      - "Der Bauplan ist symmetrisch: Was macht das Gatter auf der B-Seite?"
+      - "Teste A = 1, B = 0: Die Lampe muss leuchten."
+    explanation: Alle vier sind NAND. Der Bau ist symmetrisch und braucht keinen anderen Gattertyp.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein ODER braucht 3 NAND-Gatter. Wie viele braucht ein NOR mindestens?
+    answer:
+      value: 4
+    hints:
+      - NOR ist NICHT von ODER.
+      - Ein NICHT aus NAND kostet ein Gatter.
+    explanation: "3 für das ODER plus 1 für das NICHT: 4 NAND-Gatter."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Warum bauen Chiphersteller gern alles aus einem einzigen Gattertyp?
+    params:
+      options:
+        - label: Ein Baustein lässt sich milliardenfach gleich fertigen und optimieren
+          correct: true
+        - label: Weil andere Gatter verboten sind
+          feedback: Erlaubt ist alles – es ist eine Frage der Fertigung.
+        - label: Weil NAND schneller rechnet als UND
+          feedback: In CMOS ist NAND sogar einfacher als UND – UND ist ein NAND plus NICHT.
+    hints:
+      - Denk an Lego mit nur einer Steinsorte.
+      - Weniger Sorten heißt einfachere Fabriken.
+    explanation: Ein NAND braucht in CMOS-Technik nur 4 Transistoren. Ein einheitlicher Baustein vereinfacht Entwurf, Prüfung und Fertigung.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +175,70 @@ steps:
     hints:
       - Durch die Rückkopplung hängt der Ausgang von der Vergangenheit ab.
     explanation: Ein **Flipflop**. Aus Gattern ohne Gedächtnis wird durch Rückkopplung Speicher – der zweite Grundbaustein jedes Computers.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Eine Gattermenge heißt **funktional vollständig**, wenn sich damit jede Wahrheitstabelle bauen lässt. NAND allein reicht, NOR allein auch. UND mit ODER reicht dagegen nicht – es fehlt das NICHT.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: "{NOR} ist funktional vollständig."
+          right: true
+          why: NOR mit sich selbst ergibt NICHT, und daraus folgt alles.
+        - text: "{UND, ODER} ist funktional vollständig."
+          right: false
+          why: Ohne NICHT kommt aus lauter Nullen nie eine 1.
+        - text: "{UND, NICHT} ist funktional vollständig."
+          right: true
+          why: Daraus baut man NAND – und NAND reicht.
+        - text: "{XOR} ist funktional vollständig."
+          right: false
+          why: Aus lauter Nullen macht XOR immer 0 – ein NICHT geht so nicht.
+        - text: "{ODER, NICHT} ist funktional vollständig."
+          right: true
+          why: NICHT von ODER ist NOR.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein NAND-Gatter besteht in CMOS-Technik aus 4 Transistoren. Wie viele Transistoren braucht ein XOR aus 4 NAND-Gattern?
+    answer:
+      value: 16
+    hints:
+      - Jedes Gatter hat 4 Transistoren.
+      - 4 · 4.
+    explanation: 4 · 4 = 16. Geschickte Schaltungen schaffen XOR auch mit weniger – Chipentwurf ist die Kunst, solche Abkürzungen zu finden.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein einziger Gattertyp für einen ganzen Computer reicht.
+    params:
+      keywords:
+        - - nand
+        - - nicht
+          - not
+          - und
+          - and
+          - oder
+          - or
+        - - jede
+          - alle
+          - every
+          - any
+          - all
+      sample: Aus NAND kann man NICHT, UND und ODER bauen. Mit diesen dreien lässt sich jede Wahrheitstabelle zusammensetzen – also jede Schaltung, vom Addierer bis zum Speicher.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: How web pages write colors.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: vier-bits
@@ -63,6 +63,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: match
+    prompt: Every four bits make one hex digit. Match them.
+    params:
+      pairs:
+        - left: "1010"
+          right: A
+        - left: "1111"
+          right: F
+        - left: "1100"
+          right: C
+        - left: "0111"
+          right: "7"
+        - left: "1001"
+          right: "9"
+      leftTitle: Binary
+      rightTitle: Hex
+    hints:
+      - Work out the four bits in decimal first.
+      - A is 10, B 11, C 12 … F 15.
+    explanation: 8 + 2 = 10 = A, 15 = F, 8 + 4 = 12 = C, 7 stays 7, 8 + 1 = 9.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "A web colour #RRGGBB has six hex digits. How many different colours are there?"
+    answer:
+      value: 16777216
+    feedback:
+      - when: numval(state.input) == 96
+        misconception: multiply-wrong
+        text: "You multiply the possibilities, not the digits: 16 · 16 · …"
+    hints:
+      - Each hex digit has 16 options.
+      - $16^6$ or $2^{24}$.
+    explanation: $16^6 = 2^{24}$ = 16,777,216 – about 16.7 million colours.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: "#000000 is white."
+          right: false
+          why: All channels off – that is black.
+        - text: "#FFFFFF is white."
+          right: true
+          why: Red, green and blue at full give white.
+        - text: "#FF00FF is magenta."
+          right: true
+          why: Red plus blue without green.
+        - text: "#00FFFF is yellow."
+          right: false
+          why: "Green plus blue is cyan. Yellow would be #FFFF00."
+        - text: "#333333 is darker than #CCCCCC."
+          right: true
+          why: 33 is 51, CC is 204.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -78,6 +144,67 @@ steps:
     hints:
       - 80 hex is 128 – half of 255. All three channels are equal.
     explanation: Equal values for red, green and blue always give grey.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: A **bit mask** lets you pick out single bits. x AND 0x0F keeps only the right four bits and clears the rest. So 0xB6 becomes 0x06.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: You compute 0x{{hex(n)}} AND 0x0F. What do you get? Give the number in decimal.
+    answer:
+      value: "{{mod(n, 16)}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 16)
+        misconception: mask-side
+        text: That is the left hex digit. The mask 0F keeps the right one.
+    hints:
+      - 0x0F is 00001111 in binary.
+      - Only the right hex digit remains.
+    explanation: The right digit of {{hex(n)}} is {{hex(mod(n, 16))}}, i.e. {{mod(n, 16)}}. That equals {{n}} mod 16.
+    difficulty: 3
+    variants:
+      params:
+        n: int[26,250]
+      constraints:
+        - mod(n, 16) > 0
+      defaults:
+        n: 182
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: An IPv6 address has 128 bits. How many hex digits does it take to write it down?
+    answer:
+      value: 32
+    hints:
+      - How many bits are in one hex digit?
+      - 128 divided by 4.
+    explanation: 128 / 4 = 32 digits, written as 8 groups of 4 – like 2001:0db8:….
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Why do programmers like to write bytes in hex and not in decimal?
+    params:
+      options:
+        - label: Each hex digit is exactly 4 bits – you can see the bits directly
+          correct: true
+        - label: Hex numbers are smaller
+          feedback: It is the same number, just written differently.
+        - label: The computer computes in hex internally
+          feedback: Internally it uses binary. Hex is just notation for humans.
+    hints:
+      - How many bits match one decimal digit?
+      - "With hex the boundary fits exactly: 16 = $2^4$."
+    explanation: "Decimal digits do not line up with bits. In hex you read it off: 0xB6 = 1011 0110."
     difficulty: 3
 
 srs:

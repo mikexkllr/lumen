@@ -1,0 +1,207 @@
+id: cs.languages.syntax
+type: concept
+title: "Syntax and grammar"
+summary: "Rules that decide which texts are programs."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Which sentence is grammatically correct but meaningless?
+    params:
+      options:
+        - label: Colourless green ideas sleep furiously.
+          correct: true
+        - label: The dog barks loudly.
+          feedback: Well formed and meaningful.
+        - label: Dog the loudly barks.
+          feedback: Here even the grammar is wrong.
+    hints:
+      - Check the sentence structure first, then the meaning.
+      - Ideas can be neither green nor colourless.
+    explanation: The sentence is Noam Chomsky's. It shows that form and meaning are two different things.
+
+  - kind: explain
+    id: c1
+    body: "**Syntax** is the form, semantics the meaning. A compiler checks the syntax first: `x = (3 + 4` is broken because a bracket is missing – whatever was meant."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Syntax error or meaning error?
+    params:
+      buckets:
+        - id: b1
+          label: syntax
+        - id: b2
+          label: meaning
+      items:
+        - label: A bracket is missing
+          bucket: b1
+        - label: "Keyword misspelt: whlie"
+          bucket: b1
+        - label: Area computed with + instead of ·
+          bucket: b2
+        - label: Loop counts one too far
+          bucket: b2
+        - label: Semicolon forgotten
+          bucket: b1
+        - label: Divided by the wrong variable
+          bucket: b2
+    hints:
+      - Would the compiler even accept the program?
+      - Meaning errors run – just wrongly.
+    explanation: The compiler finds syntax errors at once. Meaning errors must be tested for – they are the more dangerous ones.
+
+  - kind: explain
+    id: c3
+    body: "A **grammar** uses rules to fix which texts are allowed. The rule S → a S b | ab means: replace S by »a S b« or by »ab«. Because S occurs inside itself, words of any length arise."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Derive the word »aaabbb« with S → a S b | ab. Put the intermediate steps in the right order.
+    params:
+      items:
+        - label: S
+        - label: a S b
+        - label: a a S b b
+        - label: a a a b b b
+      direction: horizontal
+    hints:
+      - At the start there is only the start symbol.
+      - Twice »a S b«, then once »ab«.
+    explanation: Each step replaces the S. At the end only the word of a and b remains.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Which word can S → a S b | ab NOT produce?
+    params:
+      options:
+        - label: aab
+          correct: true
+        - label: ab
+          feedback: That is the second rule directly.
+        - label: aabb
+          feedback: Once a S b, then ab.
+        - label: aaaabbbb
+          feedback: Three times a S b, then ab.
+    hints:
+      - Every rule adds the same number of a and b.
+      - Count the a and the b.
+    explanation: "The grammar produces exactly the words aⁿbⁿ: n a's, then n b's. aab does not fit."
+
+  - kind: problem
+    id: c6
+    widget: numeric
+    prompt: How many words with at most 10 characters does S → a S b | ab produce?
+    answer:
+      value: 5
+    hints:
+      - The words are ab, aabb, aaabbb …
+      - Each has 2n characters.
+    explanation: n = 1 to 5 gives lengths 2, 4, 6, 8, 10 – so 5 words.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Every derivation has a **parse tree**: the root is the start symbol, the leaves are the characters of the word. Compilers build exactly such trees from programs."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Grammar A → A − A | number. How many different trees does »8 − 4 − 2« have?
+    params:
+      options:
+        - label: "Two: (8 − 4) − 2 = 2 and 8 − (4 − 2) = 6"
+          correct: true
+        - label: One – the result is unique
+          feedback: Try both ways of bracketing.
+        - label: Three
+          feedback: With two minus signs there are two ways to bracket.
+    hints:
+      - Which minus is computed first?
+      - Each choice gives a different tree.
+    explanation: The grammar is ambiguous – and here the trees even change the result. Programming languages must rule this out.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: In the rule expression → expression + term | term, expression is a [[nonterminal]] and + is a [[terminal]]. Because expression appears on both sides, the rule is [[recursive]].
+      distractors:
+        - comment
+        - number
+    hints:
+      - Terminals really appear in the text at the end.
+      - Nonterminals get replaced further.
+    explanation: Terminals are the real characters, nonterminals placeholders. Recursive rules allow expressions of any length.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: How many different trees does »8 − 4 − 2 − 1« have with the ambiguous grammar A → A − A | number?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: orders-vs-trees
+        text: Some orders give the same tree – count bracketings, not orders.
+    hints:
+      - Which minus is at the top of the tree? There are three options.
+      - "Top is the first: 2 trees on the right. Top is the middle: 1. Top is the last: 2."
+    explanation: 2 + 1 + 2 = 5 – the Catalan number C₃. Ambiguity grows explosively with length.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: How do you make the minus grammar unambiguous so that it groups from the left as usual?
+    params:
+      options:
+        - label: Rewrite it as A → A − number | number
+          correct: true
+        - label: To A → number − A | number
+          feedback: "That groups from the right: 8 − (4 − 2)."
+        - label: Not at all
+          feedback: A rewrite does it.
+    hints:
+      - Only a single number may stand to the right of the minus.
+      - Then the last minus is always at the top of the tree.
+    explanation: "Now every expression has exactly one tree: ((8 − 4) − 2) − 1. That is how real language grammars fix precedence and direction."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between syntax and semantics.
+    params:
+      keywords:
+        - - form
+          - regel
+          - rule
+          - grammat
+        - - bedeutung
+          - meaning
+          - sinn
+          - sense
+        - - fehler
+          - error
+      sample: "Syntax is the form: the rules of the grammar say how a program must be built. Semantics is the meaning: what the program does. A program can be syntactically perfect and still have an error in its meaning."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "c5", "x1"]

@@ -5,7 +5,7 @@ summary: Programs that do more than arrive.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: reihe
@@ -76,6 +76,83 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: Two lanes full of gems. Collect them all – with at most 9 blocks.
+    params:
+      grid:
+        - S*****
+        - "******"
+      blocks:
+        - forward
+        - left
+        - right
+        - repeat
+        - end
+      repeatCounts:
+        - 3
+        - 4
+        - 5
+      maxBlocks: 9
+      goal: collect
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 5
+          - op: forward
+          - op: end
+          - op: right
+          - op: forward
+          - op: right
+          - op: repeat
+            n: 5
+          - op: forward
+          - op: end
+    hints:
+      - Drive the top lane, turn round, drive back along the bottom one.
+      - Repeat 5× forward, then right, forward, right – and 5× forward again.
+    explanation: Loop – turn – loop. Turning here means right twice with one step in between.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: A robot mows a lawn of 6 lanes of 10 squares each in a zigzag. It starts on the first square. How many forward steps does it make in total?
+    answer:
+      value: 59
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: fence-post
+        text: It already stands on the first square – that takes no step.
+    hints:
+      - In a lane of 10 squares it makes 9 steps.
+      - Add one step per lane change.
+    explanation: "6 · 9 = 54 steps within lanes, plus 5 changes: 59. 60 squares in total, minus the starting one."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Which plan picks up all the gems on any open field shaped like a box?
+    params:
+      options:
+        - label: "Zigzag: down one lane, turn, back along the next"
+          correct: true
+        - label: Always drive straight on
+          feedback: That keeps the robot in a single lane.
+        - label: Drive at random until everything is gone
+          feedback: That might end some day – with no guarantee.
+    hints:
+      - An algorithm should work for any field size.
+      - That is also how you mow a lawn.
+    explanation: The zigzag visits every square exactly once – however big the rectangle is.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -87,6 +164,66 @@ steps:
     hints:
       - "Area divided by lane width: 20 m² ÷ 0.25 m."
     explanation: 80 metres. Every overlap and detour adds to that – that is why good planning pays off.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Five gems lie scattered. In how many orders can you collect them?
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: no-shrinking
+        text: "Not 5 · 5: after each gem there is one fewer to choose from."
+    hints:
+      - There are 5 choices for the first gem, 4 for the second …
+      - 5 · 4 · 3 · 2 · 1.
+    explanation: 5! = 120. With 20 gems it is over $10^{18}$ – trying everything no longer works.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: The strategy »always go to the nearest gem« – does it always find the shortest total route?
+    params:
+      options:
+        - label: No – it is fast, but can force costly detours at the end
+          correct: true
+        - label: Yes, short steps make a short route
+          feedback: A gem left behind at the far end can make the route much longer.
+        - label: Yes, but only on square fields
+          feedback: There are counterexamples there too.
+    hints:
+      - What if one gem lies far back, right next to the start?
+      - "Greedy means: good now, maybe bad later."
+    explanation: This is a greedy algorithm. For the travelling salesperson problem it often gives good routes, rarely the best.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you plan first and program afterwards.
+    params:
+      keywords:
+        - - plan
+          - weg
+          - route
+          - path
+        - - muster
+          - wiederhol
+          - pattern
+          - repeat
+          - schleife
+          - loop
+        - - fehler
+          - bug
+          - error
+          - test
+      sample: First I work out the route the robot should take. Along the way I spot patterns that repeat – those become loops. With a plan I make fewer errors and find them faster.
     difficulty: 3
 
 srs:

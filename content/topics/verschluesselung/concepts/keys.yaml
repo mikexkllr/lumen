@@ -5,7 +5,7 @@ summary: Länge schlägt Sonderzeichen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Passwort besteht aus {{n}} zufälligen Kleinbuchstaben. Wie viele Bits Entropie hat es etwa? log₂ 26 ≈ 4,7. Runde auf eine Stelle.
+    params:
+      unit: Bit
+    answer:
+      value: "{{n * 4.7}}"
+      tolerance: 0.5
+    hints:
+      - Jedes Zeichen bringt log₂ 26 Bits.
+      - "{{n}} · 4,7."
+    explanation: "{{n}} · 4,7 ≈ {{n * 4.7}} Bit. Jedes Bit verdoppelt die Arbeit des Angreifers."
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Vier Wörter, zufällig gezogen aus einer Liste mit 2048 Wörtern. Wie viele Bits Entropie sind das?
+    params:
+      unit: Bit
+    answer:
+      value: 44
+    hints:
+      - 2048 ist $2^{11}$.
+      - Jedes Wort bringt 11 Bit.
+    explanation: 4 · 11 = 44 Bit – so viel wie 9 bis 10 zufällige Kleinbuchstaben, aber viel leichter zu merken.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "**Symmetrische** Verfahren wie AES nutzen denselben Schlüssel zum Ver- und Entschlüsseln. Sie sind blitzschnell. Das Problem: Wie kommt der Schlüssel sicher zum anderen?"
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Ein AES-Schlüssel hat 128 Bit. Ein Angreifer probiert $10^{18}$ Schlüssel pro Sekunde. Wie viele Jahre braucht er für alle? Gib den Zehnerexponenten an."
+    params:
+      min: 1
+      max: 40
+    answer:
+      value: 13
+      tolerance: 2
+    explanation: $2^{128}$ ≈ 3,4 · $10^{38}$ Schlüssel, geteilt durch $10^{18}$ pro Sekunde ergibt 3,4 · $10^{20}$ s ≈ $10^{13}$ Jahre – tausendmal das Alter des Universums.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -113,6 +168,83 @@ steps:
     hints:
       - Entropie ist log₂ der Zahl der Möglichkeiten.
     explanation: "80 Bits gelten heute als sicher: 2⁸⁰ Versuche sind für niemanden machbar."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Wie verschlüsselt HTTPS große Datenmengen schnell, ohne vorher einen Schlüssel getauscht zu haben?
+    params:
+      options:
+        - label: "Hybrid: Public-Key-Verfahren für den Schlüsseltausch, dann AES für die Daten"
+          correct: true
+        - label: Nur mit Public-Key-Verfahren
+          feedback: Die sind etwa tausendmal langsamer als AES.
+        - label: Nur mit AES und einem festen Schlüssel im Browser
+          feedback: Den könnte jeder herauslesen.
+    hints:
+      - Was ist schnell, was löst das Schlüsselproblem?
+      - Man kombiniert beides.
+    explanation: Der Schlüsseltausch dauert Millisekunden, danach läuft alles mit AES. So vereint HTTPS Tempo und Sicherheit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "Was ist für Angreifer leichter zu erraten: »Sommer2024!« oder vier zufällige Wörter?"
+    params:
+      options:
+        - label: »Sommer2024!« – Angreifer probieren Muster wie Wort, Jahreszahl, Zeichen zuerst
+          correct: true
+        - label: Die Wörter, weil sie nur Kleinbuchstaben haben
+          feedback: Die Länge und der Zufall zählen mehr als die Zeichenart.
+        - label: Beide sind gleich stark
+          feedback: Ein bekanntes Muster schrumpft die Suche enorm.
+    hints:
+      - Wie viele Menschen wählen ein Wort plus Jahreszahl?
+      - Entropie misst Zufall, nicht Aussehen.
+    explanation: Ein Muster aus Wort, Jahr und Ausrufezeichen hat vielleicht 30 Bit. Vier echt zufällige Wörter aus 2048 haben 44 Bit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Schlüssel hat 128 statt 64 Bit. Wievielmal mehr Möglichkeiten sind das? Gib den Exponenten zur Basis 2 an.
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: length-vs-count
+        text: Doppelte Länge heißt nicht doppelt so viele Schlüssel.
+    hints:
+      - $2^{128}$ / $2^{64}$.
+      - Exponenten werden beim Teilen abgezogen.
+    explanation: $2^{64}$-mal so viele – rund 18 Trillionen. 64-Bit-Schlüssel gelten heute als knackbar, 128 Bit als sicher.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Länge ein Passwort stärker macht als Sonderzeichen.
+    params:
+      keywords:
+        - - multipl
+          - mal
+          - times
+        - - jedes zeichen
+          - each character
+          - stelle
+          - zeichen
+          - character
+        - - exponent
+          - hoch
+          - power
+          - potenz
+      sample: Jedes zusätzliche Zeichen multipliziert die Möglichkeiten – die Länge steht im Exponenten. Sonderzeichen vergrößern nur die Basis ein wenig. 26 hoch 12 ist viel mehr als 94 hoch 8.
     difficulty: 3
 
 srs:

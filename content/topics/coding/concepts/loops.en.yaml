@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.loops]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: lange-strecke
@@ -86,6 +86,70 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "x = {{s}}. Repeat {{n}}×: x = x · 2. What is x afterwards?"
+    answer:
+      value: "{{s * 2 ** n}}"
+    feedback:
+      - when: numval(state.input) == s + 2 * n
+        misconception: add-vs-multiply
+        text: The loop doubles, it does not add 2.
+    hints:
+      - Write down x after every pass.
+      - "{{s}}, {{s * 2}}, {{s * 4}}, …"
+    explanation: "Doubling {{n}} times means times $2^{ {{n}} }$: {{s}} · {{2 ** n}} = {{s * 2 ** n}}."
+    difficulty: 2
+    variants:
+      params:
+        s: int[1,5]
+        n: int[3,7]
+      defaults:
+        s: 3
+        n: 4
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "sum = 0. For i from 1 to {{n}}: sum = sum + i. What is sum at the end?"
+    answer:
+      value: "{{n * (n + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: last-value
+        text: That is the last value of i. The loop adds up all the i.
+    hints:
+      - The loop computes 1 + 2 + … + {{n}}.
+      - "Make pairs: 1 + {{n}}, 2 + {{n - 1}} …"
+    explanation: 1 + 2 + … + {{n}} = {{n}} · {{n + 1}} / 2 = {{n * (n + 1) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,20]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: "»For i from 1 to 4: if i is even, print i, else print i · 10.« Put the outputs in the order they appear."
+    params:
+      items:
+        - label: "10"
+        - label: "2"
+        - label: "30"
+        - label: "4"
+      direction: horizontal
+    hints:
+      - Go through i = 1, 2, 3, 4 one at a time.
+      - i = 1 is odd – so 1 · 10.
+    explanation: 1 → 10, 2 → 2, 3 → 30, 4 → 4. Running code by hand like this is called tracing.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -101,4 +165,94 @@ steps:
     hints:
       - "Write down the values: 7, 5, 3, 1, …"
     explanation: An **infinite loop**. The condition “while x is greater than 0” is safer.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: A **loop invariant** is a statement that holds before and after every pass. In the sum loop it is always true that sum = 1 + 2 + … + i. When the loop ends, the correct result follows.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: "x = 0, y = 10. While y > 0: x = x + 1, y = y − 1. What holds before and after every pass?"
+    params:
+      options:
+        - label: x + y = 10
+          correct: true
+        - label: x = y
+          feedback: That holds only at one moment, when x = y = 5.
+        - label: x < y
+          feedback: At the end x = 10 and y = 0.
+    hints:
+      - What happens to the sum x + y in one pass?
+      - One added, one taken away.
+    explanation: Each pass gives x one and takes one from y – the sum stays 10. At the end y = 0, so x = 10.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: "While n > 1: n = n / 2, rounded down. n starts at {{n}}. How many passes does the loop make?"
+    answer:
+      value: "{{k}}"
+    hints:
+      - Keep halving {{n}} and count.
+      - How often does the factor 2 fit before 1 is left?
+    explanation: "It takes {{k}} passes – that is how often {{n}} can be halved. Halving is logarithmic: $2^{ {{k}} }$ ≤ {{n}} < $2^{ {{k + 1}} }$."
+    difficulty: 3
+    variants:
+      params:
+        k: int[4,9]
+        r: int[0,400]
+      derive:
+        n: 2 ** k + mod(r, 2 ** k)
+      defaults:
+        k: 6
+        r: 36
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: How can you be sure that a loop will end?
+    params:
+      options:
+        - label: A whole number drops on every pass and cannot go below 0
+          correct: true
+        - label: It is written briefly
+          feedback: Even one line can run forever.
+        - label: It finished quickly in testing
+          feedback: Other inputs might hang.
+    hints:
+      - In the endless loop x jumped past 0.
+      - Look for a quantity that keeps shrinking – but not forever.
+    explanation: Such a quantity is called a variant or termination function. A natural number can only decrease finitely often.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x5
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you check that a loop does the right thing and also ends.
+    params:
+      keywords:
+        - - invariant
+          - immer gilt
+          - always true
+          - always holds
+        - - kleiner
+          - sinkt
+          - abnehm
+          - decreas
+          - smaller
+          - shrink
+        - - endet
+          - ende
+          - stop
+          - terminat
+          - halt
+      sample: I look for an invariant that holds before and after every pass – the result follows from it at the end. And I look for a number that gets smaller on every pass but cannot drop below 0. Then the loop is sure to stop.
     difficulty: 3

@@ -1,0 +1,211 @@
+id: cs.os.processes
+type: concept
+title: "Processes"
+summary: "How many programs share one processor."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many processes are running right now on a typical laptop?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 300
+      within: 80
+    explanation: Usually a few hundred – most of them sleep and wait for something. You can check in the task manager or activity monitor.
+
+  - kind: explain
+    id: c1
+    body: "The **operating system** manages the computer: it hands out CPU time, memory and devices to programs and protects them from each other. A running program is called a process."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: A processor with just one core – yet browser, music and chat run »at the same time«. How?
+    params:
+      options:
+        - label: The operating system switches between them in a flash – each gets short time slices
+          correct: true
+        - label: The core computes everything at once
+          feedback: A core runs only one instruction stream at any moment.
+        - label: Two of them pause until one is finished
+          feedback: Then the music would stutter.
+    hints:
+      - How long is a millisecond for you?
+      - Fast switching looks like simultaneity.
+    explanation: Every few milliseconds the process changes. To us it looks simultaneous – like the frames of a film.
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: A process needs data from the disk. Put its states in the right order.
+    params:
+      items:
+        - label: Running – it computes
+        - label: Blocked – waiting for the disk
+        - label: Ready – the data has arrived
+        - label: Running again – it gets the core
+    hints:
+      - Whoever is waiting does not need the core.
+      - "Done waiting does not yet mean: allowed to compute."
+    explanation: Running, blocked, ready – every process moves between these three states. Blocked processes cost no CPU time.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Which state is the process in?
+    params:
+      buckets:
+        - id: b1
+          label: running
+        - id: b2
+          label: ready
+        - id: b3
+          label: blocked
+      items:
+        - label: Is computing on the core
+          bucket: b1
+        - label: Could compute, but the core is busy
+          bucket: b2
+        - label: Waits for a key press
+          bucket: b3
+        - label: Waits for data from the network
+          bucket: b3
+        - label: Its time slice just ran out
+          bucket: b2
+    hints:
+      - "Blocked means: waiting for something from outside."
+      - "Ready means: waiting only for the core."
+    explanation: Waiting only for the core means ready. Waiting for a device or a message means blocked.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Four processes take turns, 10 ms each. How many ms does a process wait between two of its slices?
+    params:
+      unit: ms
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: include-own
+        text: Its own 10 ms do not count as waiting.
+    hints:
+      - Who runs while it waits?
+      - The other three, 10 ms each.
+    explanation: 3 · 10 ms = 30 ms pause. Much shorter than a human can notice.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In a **context switch** the operating system saves the old process's registers and program counter and loads those of the new one. This costs a few microseconds each time – and often flushes the caches.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A context switch costs 5 µs, a time slice lasts 1 ms. What percentage of time goes to switching? Round to one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 0.5
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: unit
+        text: A millisecond is 1000 µs, not 100.
+    hints:
+      - 1 ms = 1000 µs.
+      - 5 / 1005 ≈ ?
+    explanation: About 0.5 %. Shorter slices make the system smoother, but the switching share rises.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: What distinguishes threads from processes?
+    params:
+      options:
+        - label: Threads of one process share memory, processes each have their own
+          correct: true
+        - label: Threads are slower
+          feedback: They are lighter and quicker to switch.
+        - label: Processes cannot run in parallel
+          feedback: Processes also run in parallel on several cores.
+    hints:
+      - One browser tab crashes, the others do not. Why?
+      - Separate processes cannot see each other's memory.
+    explanation: "Shared memory makes threads fast but dangerous: they can corrupt each other's data. Processes are safely separated."
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Why may an ordinary program not access the disk directly itself?
+    params:
+      options:
+        - label: It runs in user mode; only the system kernel may drive devices – programs ask via a system call
+          correct: true
+        - label: Because disks only know one user
+          feedback: The disk knows no users at all.
+        - label: Because it would be too slow
+          feedback: It is about protection, not speed.
+    hints:
+      - What could a malicious program do with direct access?
+      - The processor has two modes with different rights.
+    explanation: Switching to privileged mode only works through defined system calls. That way the system can check whether a program is allowed.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A program calls fork() three times in a row. Each call doubles all running copies. How many processes are there at the end?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: linear
+        text: The new copies also call the following fork()s.
+      - when: numval(state.input) == 6
+        misconception: add
+        text: Each call doubles – it does not add two.
+    hints:
+      - After the first fork there are 2.
+      - Both call the second one …
+    explanation: "1 → 2 → 4 → 8. That is how Unix starts new programs: copy first, then load the new program into the copy."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer with a single core runs many programs at once.
+    params:
+      keywords:
+        - - wechsel
+          - abwechselnd
+          - reihum
+          - switch
+          - take turns
+        - - zeitscheibe
+          - millisek
+          - time slice
+          - slice
+        - - betriebssystem
+          - scheduler
+          - operating system
+      sample: The operating system gives each process a short time slice of a few milliseconds in turn, then switches to the next. Because this is so fast, it looks simultaneous to us.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d2", "x2"]

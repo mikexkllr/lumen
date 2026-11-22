@@ -1,0 +1,232 @@
+id: cs.cpu.alu
+type: concept
+title: "Das Rechenwerk"
+summary: "Eine Schaltung, die rechnet, vergleicht und auswählt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Additionen schafft ein einziger moderner Prozessorkern pro Sekunde?"
+    params:
+      min: 1000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 10000000000
+      within: 90
+    explanation: "Rund $10^{10}$: etwa 3 Milliarden Takte pro Sekunde, und pro Takt mehrere Additionen nebeneinander."
+
+  - kind: explain
+    id: c1
+    body: Das **Rechenwerk** (ALU) bekommt zwei Zahlen und einen Befehl, etwa »addiere« oder »UND«. Innen rechnen alle Schaltungen gleichzeitig. Ein Umschalter wählt das gewünschte Ergebnis aus.
+
+  - kind: problem
+    id: c2
+    widget: gates
+    prompt: "Eine 1-Bit-ALU: Bei S = 0 rechnet sie A UND B, bei S = 1 rechnet sie A XOR B. A ist fest 1. Lass sie XOR rechnen und bring die Lampe zum Leuchten."
+    params:
+      inputs:
+        - id: A
+          value: 1
+          fixed: true
+        - id: B
+        - id: S
+      gates:
+        - id: und
+          type: AND
+          in:
+            - A
+            - B
+        - id: xor
+          type: XOR
+          in:
+            - A
+            - B
+        - id: ns
+          type: NOT
+          in:
+            - S
+        - id: m1
+          type: AND
+          in:
+            - und
+            - ns
+        - id: m2
+          type: AND
+          in:
+            - xor
+            - S
+        - id: q
+          type: OR
+          in:
+            - m1
+            - m2
+      outputs:
+        - id: Q
+          from: q
+    check:
+      predicate: inputs.S == 1 && Q == 1
+    hints:
+      - Erst S = 1, damit der XOR-Zweig durchkommt.
+      - 1 XOR B ist 1, wenn B = 0 ist.
+    explanation: S = 1 wählt XOR, und 1 XOR 0 = 1. Eine echte ALU hat statt eines Bits 64 und wählt unter Dutzenden Operationen.
+
+  - kind: problem
+    id: c3
+    widget: match
+    prompt: Welche Operation liefert welches Ergebnis?
+    params:
+      pairs:
+        - left: 1100 UND 1010
+          right: "1000"
+        - left: 1100 ODER 1010
+          right: "1110"
+        - left: 1100 XOR 1010
+          right: "0110"
+        - left: 0110 + 0011
+          right: "1001"
+    hints:
+      - UND braucht zwei Einsen, ODER eine.
+      - "XOR: genau eine Eins."
+    explanation: "Bitweise Operationen arbeiten Stelle für Stelle, ohne Übertrag. Die Addition dagegen trägt Überträge weiter: 6 + 3 = 9."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Eine 8-Bit-ALU ohne Vorzeichen addiert 200 + 100. Welche Zahl steht danach im 8-Bit-Ergebnis?
+    answer:
+      value: 44
+    feedback:
+      - when: numval(state.input) == 300
+        misconception: no-overflow
+        text: 300 passt nicht in 8 Bit – höchstens 255.
+    hints:
+      - 8 Bit reichen bis 255. Was passiert mit dem Rest?
+      - 300 − 256.
+    explanation: 300 − 256 = 44. Das neunte Bit landet im Übertrag-Flag – so merkt das Programm, dass etwas übergelaufen ist.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Wie rechnet die ALU 9 − 4, wenn sie nur ein Addierwerk hat?
+    params:
+      options:
+        - label: Sie addiert 9 und das Zweierkomplement von 4
+          correct: true
+        - label: Gar nicht – dafür braucht sie ein Subtrahierwerk
+          feedback: Das Zweierkomplement macht Subtraktion zur Addition.
+        - label: Sie zählt von 9 viermal rückwärts
+          feedback: Das wäre viel zu langsam.
+    hints:
+      - Wie schreibt man −4 im Binären?
+      - Bits umdrehen, 1 addieren – dann addieren.
+    explanation: 9 + (−4) = 5. Ein NICHT vor jedem Eingang von B und ein Übertrag von 1 genügen – das ist fast umsonst.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Neben dem Ergebnis setzt die ALU **Flags**: Null-Flag bei Ergebnis 0, Übertrag-Flag bei einem Überlauf, Vorzeichen-Flag bei negativem Ergebnis. Sprungbefehle lesen diese Flags – so entstehen Entscheidungen."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: bits
+    prompt: Eine Verschiebung nach links verdoppelt. Schiebe 0011 um zwei Stellen nach links und stelle das Ergebnis ein.
+    params:
+      bits: 4
+      initial: "0011"
+      showValue: false
+    answer:
+      value: 12
+    hints:
+      - Jede Stelle nach links ist mal 2.
+      - 3 · 4 = 12.
+    explanation: "0011 → 0110 → 1100 = 12. Multiplizieren baut die ALU aus solchen Verschiebungen und Additionen: 3 · 5 = 3 · 4 + 3 · 1."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Wie prüft eine ALU, ob a kleiner als b ist?
+    params:
+      options:
+        - label: Sie rechnet a − b und schaut auf die Flags
+          correct: true
+        - label: Sie vergleicht die Zahlen als Text
+          feedback: Gerechnet wird mit Bits, nicht mit Text.
+        - label: Sie braucht dafür einen eigenen Chip
+          feedback: Die Subtraktion reicht völlig.
+    hints:
+      - Wann ist a − b negativ?
+      - Das Ergebnis selbst wird gar nicht gebraucht – nur die Flags.
+    explanation: Ein Vergleich ist eine Subtraktion, deren Ergebnis man wegwirft. Null-Flag heißt gleich, Vorzeichen- oder Übertrag-Flag heißt kleiner.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Eine 8-Bit-ALU mit Vorzeichen rechnet 100 + 50. Welche Zahl steht danach im Ergebnis?
+    answer:
+      value: -106
+    feedback:
+      - when: numval(state.input) == 150
+        misconception: no-overflow
+        text: Mit Vorzeichen reichen 8 Bit nur bis 127.
+    hints:
+      - 150 ist binär 10010110 – das linke Bit zählt −128.
+      - 150 − 256.
+    explanation: 150 − 256 = −106. Zwei positive Zahlen ergeben ein negatives Ergebnis – das Überlauf-Flag schlägt Alarm.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Warum berechnet die ALU alle Operationen gleichzeitig und wählt erst dann aus?
+    params:
+      options:
+        - label: Gatter rechnen sowieso ständig – Auswählen ist schneller als Umbauen
+          correct: true
+        - label: Damit sie mehr Strom spart
+          feedback: Mehr Rechnen kostet eher Strom.
+        - label: Weil sie nicht weiß, welcher Befehl kommt
+          feedback: Der Befehl liegt schon vor – es ist eine Tempofrage.
+    hints:
+      - Kann eine Schaltung ihre Verdrahtung in einer Nanosekunde ändern?
+      - Ein Umschalter ist nur ein paar Gatter tief.
+    explanation: Hardware ist parallel. Alle Teilschaltungen liefern ihr Ergebnis, ein Multiplexer lässt eines durch. Moderne Chips schalten unbenutzte Teile zum Stromsparen ab.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was das Rechenwerk eines Prozessors tut.
+    params:
+      keywords:
+        - - zwei zahlen
+          - two numbers
+          - eingabe
+          - input
+          - operand
+        - - befehl
+          - operation
+          - wählt
+          - auswahl
+          - select
+          - choose
+        - - flag
+          - ergebnis
+          - result
+      sample: Das Rechenwerk bekommt zwei Zahlen als Eingabe und einen Befehl, etwa addieren oder UND. Es rechnet alles parallel und wählt das passende Ergebnis aus. Dazu setzt es Flags, etwa für null oder Überlauf.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d2", "x1"]

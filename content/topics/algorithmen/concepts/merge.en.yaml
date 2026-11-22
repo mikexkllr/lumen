@@ -5,7 +5,7 @@ summary: Merge sort – sorting by merging.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: zusammen
@@ -65,6 +65,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: How many comparisons does merging 2, 5, 8 and 1, 6, 9 take?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: last-card
+        text: The last card comes along without a comparison – the other pile is empty by then.
+    hints:
+      - Always compare the two top cards.
+      - 2 vs 1, 2 vs 6, 5 vs 6, 8 vs 6, 8 vs 9 – then?
+    explanation: After 5 comparisons only the 9 is left. It goes on top without a comparison.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: At most how many comparisons does merging two sorted piles of {{m}} cards each take?
+    answer:
+      value: "{{2 * m - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * m
+        misconception: last-card
+        text: The last card needs no comparison.
+    hints:
+      - Every comparison places one card.
+      - Once one pile is empty, the rest is free.
+    explanation: At most {{2 * m}} − 1 = {{2 * m - 1}}. Merging is linear – the reason merge sort is so fast.
+    difficulty: 2
+    variants:
+      params:
+        m: int[3,20]
+      defaults:
+        m: 8
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Merge sort is an example of **divide and conquer**: halve the problem, solve both halves the same way, combine the results. There are log₂ n levels with n work each – together n · log₂ n."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: "Quicksort picks a pivot and splits: smaller items to the left, larger to the right. When does it get slow?"
+    params:
+      options:
+        - label: When the pivot is always the smallest or largest – then O(n²)
+          correct: true
+        - label: When the list is randomly shuffled
+          feedback: Then it is very fast on average.
+        - label: Never, it is always n · log n
+          feedback: Not in the worst case.
+    hints:
+      - How uneven can the two parts get?
+      - One part empty, the other of size n − 1 – again and again.
+    explanation: With sorted input and the first element as pivot you get n levels instead of log₂ n. That is why the pivot is chosen at random.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -90,6 +153,53 @@ steps:
           - together
           - join
       sample: You split a big problem into smaller ones that are easier to solve. Then you put the partial solutions together into a complete solution.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: For merge sort T(n) = 2 · T(n/2) + n and T(1) = 0. What is T(8)?
+    answer:
+      value: 24
+    hints:
+      - "Work from the bottom: T(2) = 2 · 0 + 2."
+      - T(4) = 2 · 2 + 4, T(8) = 2 · T(4) + 8.
+    explanation: T(2) = 2, T(4) = 8, T(8) = 24 = 8 · 3 = n · log₂ n. The recurrence confirms the formula.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: roughly how many comparisons does merge sort need for a billion numbers?"
+    params:
+      min: 1000000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 30000000000
+      within: 40
+    explanation: n · log₂ n = $10^9$ · 30 = 3 · $10^{10}$ – a few seconds on a fast machine. Bubble sort would need about 5 · $10^{17}$, so years.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Python and Java sort with Timsort, a mix of merge sort and insertion sort. Why that choice?
+    params:
+      options:
+        - label: It is stable and exploits already sorted runs in real data
+          correct: true
+        - label: It needs no memory at all
+          feedback: Merge sort needs extra memory – so does Timsort.
+        - label: It is always O(n)
+          feedback: In the worst case it is still n · log n.
+    hints:
+      - Real data is often already half sorted.
+      - What is insertion sort especially good at?
+    explanation: Timsort looks for sorted runs, extends short ones with insertion sort and merges them like merge sort. On nearly sorted data it is almost linear.
     difficulty: 3
 
 srs:

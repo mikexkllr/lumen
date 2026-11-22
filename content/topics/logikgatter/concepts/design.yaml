@@ -5,7 +5,7 @@ summary: Alarmanlage, Vergleicher, Prüfbit.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: alarm
@@ -76,6 +76,121 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: "Ein Vergleicher: Die Lampe soll leuchten, wenn A größer als B ist – also A = 1 und B = 0. Wähle das zweite Gatter."
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: nb
+          type: NOT
+          in:
+            - B
+        - id: g
+          type: "?"
+          in:
+            - A
+            - nb
+          options:
+            - AND
+            - OR
+            - XOR
+      outputs:
+        - id: Q
+          from: g
+    check:
+      predicate: table('Q') == [0, 0, 1, 0]
+    hints:
+      - Das NICHT liefert 1, wenn B aus ist.
+      - A muss an sein und NICHT B auch.
+    explanation: A UND (NICHT B). Ketten solcher Vergleicher vergleichen ganze Zahlen – Bit für Bit von links.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: gates
+    prompt: "Ein Umschalter (Multiplexer): Ist S = 0, zeigt die Lampe A, ist S = 1, zeigt sie B. Wähle die beiden UND-Kandidaten."
+    params:
+      inputs:
+        - id: S
+        - id: A
+        - id: B
+      gates:
+        - id: ns
+          type: NOT
+          in:
+            - S
+        - id: g1
+          type: "?"
+          in:
+            - A
+            - ns
+          options:
+            - AND
+            - OR
+        - id: g2
+          type: "?"
+          in:
+            - B
+            - S
+          options:
+            - AND
+            - OR
+        - id: g3
+          type: OR
+          in:
+            - g1
+            - g2
+      outputs:
+        - id: Q
+          from: g3
+    check:
+      predicate: table('Q') == [0, 0, 1, 1, 0, 1, 0, 1]
+    hints:
+      - g1 soll A nur durchlassen, wenn S = 0 ist.
+      - "Durchlassen heißt: A UND Erlaubnis."
+    explanation: (A UND NICHT S) ODER (B UND S). So wählt ein Prozessor zwischen Rechenergebnissen aus.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: bits
+    prompt: "Die ersten 7 Bits sind Daten, das rechte ist das Prüfbit. Stelle es richtig ein: 1 bei ungerader Zahl von Einsen in den Daten, sonst 0."
+    params:
+      bits: 8
+      initial: "{{bin(n)}}{{1 - p}}"
+      locked:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+      showValue: false
+      placeValues: false
+    answer:
+      value: "{{2 * n + p}}"
+    hints:
+      - Zähle die Einsen in den ersten sieben Bits.
+      - Ungerade Anzahl → Prüfbit 1, gerade → 0.
+    explanation: Die Daten {{bin(n)}} haben {{c}} Einsen, also Prüfbit {{p}}. Danach ist die Zahl der Einsen immer gerade.
+    variants:
+      params:
+        n: int[65,127]
+      derive:
+        c: mod(n, 2) + mod(floor(n / 2), 2) + mod(floor(n / 4), 2) + mod(floor(n / 8), 2) + mod(floor(n / 16), 2) + mod(floor(n / 32), 2) + mod(floor(n / 64), 2)
+        p: mod(c, 2)
+      defaults:
+        n: 89
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -104,6 +219,47 @@ steps:
           - carry
           - bit
       sample: Schalter werden zu Logikgattern wie UND, ODER und XOR verbunden. Kombiniert man Gatter geschickt, können sie zwei Bits addieren und einen Übertrag bilden – viele davon rechnen mit ganzen Zahlen.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Ein Prüfbit erkennt einen Fehler, findet ihn aber nicht. Der **Hamming-Code** nutzt mehrere Prüfbits, die sich überlappen. Aus dem Muster der falschen Prüfbits liest man die Fehlerstelle ab und kippt sie zurück.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Hamming(7,4): 4 Datenbits, 3 Prüfbits. Die 3 Prüfbits bilden $2^3$ Muster, eines davon heißt »kein Fehler«. Wie viele Fehlerstellen lassen sich damit unterscheiden?"
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: forgot-ok
+        text: Ein Muster ist für »alles in Ordnung« reserviert.
+    hints:
+      - Wie viele Muster bleiben für Fehler übrig?
+      - 8 − 1.
+    explanation: "7 Muster für 7 Stellen – genau die Länge des Codes. Das ist kein Zufall: Hamming-Codes nutzen jedes Muster aus."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Warum haben Server meist einen Speicher, der Fehler selbst heilt (ECC)?
+    params:
+      options:
+        - label: Strahlung und Störungen kippen gelegentlich Bits – ECC repariert sie unbemerkt
+          correct: true
+        - label: Weil Server-Programme mehr Fehler haben
+          feedback: ECC repariert Hardware-Bits, keine Programmierfehler.
+        - label: Damit der Speicher schneller ist
+          feedback: ECC kostet eher ein wenig Tempo.
+    hints:
+      - Was passiert, wenn in Millionen Rechnern ab und zu ein Bit kippt?
+      - Ein Hamming-artiger Code steckt in jedem Speicherwort.
+    explanation: Kosmische Strahlung kippt tatsächlich Bits. Bei Tausenden Servern passiert das täglich. ECC korrigiert einzelne Fehler und meldet doppelte.
     difficulty: 3
 
 srs:

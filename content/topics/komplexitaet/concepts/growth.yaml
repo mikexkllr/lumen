@@ -5,7 +5,7 @@ summary: n, n² und 2ⁿ.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -78,6 +78,65 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Verfahren braucht n! Schritte, der Rechner schafft $10^9$ pro Sekunde. Wie viele Sekunden dauert es für n = 15? 15! ≈ 1,3077 · $10^{12}$. Runde auf ganze Sekunden.
+    params:
+      unit: s
+    answer:
+      value: 1308
+      tolerance: 2
+    hints:
+      - Teile 15! durch $10^9$.
+      - 1,3077 · $10^{12}$ / $10^9$ = 1,3077 · $10^3$.
+    explanation: Rund 1308 Sekunden, gut 20 Minuten. Bei n = 20 wären es schon 77 Jahre.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: Ordne nach Wachstum, das langsamste zuerst.
+    params:
+      items:
+        - label: log n
+        - label: √n
+        - label: n
+        - label: n · log n
+        - label: n²
+        - label: n³
+        - label: 2ⁿ
+        - label: n!
+    hints:
+      - Wurzel wächst langsamer als n, aber schneller als log n.
+      - n! überholt am Ende sogar 2ⁿ.
+    explanation: Für großes n überholt jede Stufe die vorige endgültig, egal mit welchen Konstanten.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Ab welchem n ist 2ⁿ für immer größer als n³?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: early-case
+        text: Bei n = 1 stimmt es zwar, aber bei n = 2 bis 9 nicht mehr.
+    hints:
+      - Vergleiche bei n = 9 und n = 10.
+      - $2^9$ = 512 < 729, $2^{10}$ = 1024 > 1000.
+    explanation: Ab n = 10 gewinnt 2ⁿ und gibt nie wieder ab, denn pro Schritt verdoppelt es sich, n³ wächst dann viel langsamer.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "Die O-Notation ist eine obere Schranke. Ihr Gegenstück ist die **untere Schranke** Ω: So viel braucht jedes Verfahren mindestens. Sortieren durch Vergleichen ist Ω(n · log n) – schneller geht es nicht."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -93,6 +152,57 @@ steps:
     hints:
       - 2ⁿ⁺¹ ist doppelt so viel wie 2ⁿ.
     explanation: Hardware hilft gegen exponentielles Wachstum praktisch nicht. Nur bessere Algorithmen tun es.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: T(n) = 2 · T(n/2) + n wächst wie n · log n. Wie wächst T(n) = 4 · T(n/2) + n? Gib den Exponenten k in $n^k$ an.
+    answer:
+      value: 2
+    hints:
+      - Pro Ebene vervierfacht sich die Zahl der Teilprobleme, ihre Größe halbiert sich.
+      - log₂ 4 = 2.
+    explanation: "Mit a Teilproblemen der Größe n/b wächst es wie $n^{log_b a}$, wenn der Rest klein ist: $n^{log_2 4}$ = n². Das ist der Hauptsatz der Laufzeitfunktionen."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ist O(log n) dasselbe wie O(log n²)?
+    params:
+      options:
+        - label: Ja – log n² = 2 · log n, der Faktor 2 fällt weg
+          correct: true
+        - label: Nein, n² wächst viel schneller
+          feedback: Der Logarithmus macht aus dem Quadrat nur einen Faktor.
+        - label: Nur für kleine n
+          feedback: O beschreibt gerade großes n.
+    hints:
+      - Welche Rechenregel gilt für log(a^k)?
+      - log(n²) = 2 · log n.
+    explanation: "Auch die Basis des Logarithmus ist egal: log₂ n und log₁₀ n unterscheiden sich nur um einen festen Faktor."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum schnellere Computer 2ⁿ-Verfahren nicht retten.
+    params:
+      keywords:
+        - - verdoppel
+          - doppelt
+          - double
+        - - eins mehr
+          - ein element
+          - one more
+          - one element
+        - - exponent
+          - explod
+      sample: Bei 2ⁿ verdoppelt jedes zusätzliche Element die Arbeit. Ein doppelt so schneller Computer schafft darum nur ein Element mehr in derselben Zeit. Das Wachstum ist exponentiell – es explodiert schneller, als Technik aufholt.
     difficulty: 3
 
 srs:

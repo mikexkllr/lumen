@@ -5,7 +5,7 @@ summary: Ein Schloss für alle, ein Schlüssel für dich.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -108,6 +108,55 @@ steps:
     explanation: Beide mischen ihre geheime Zahl in eine öffentliche. So entsteht jede HTTPS-Verbindung.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "So geht **Diffie-Hellman**: Öffentlich sind p = 23 und g = 5. Anna wählt geheim a und schickt $5^a$ mod 23. Ben wählt geheim b und schickt $5^b$ mod 23. Beide rechnen daraus denselben Schlüssel."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Anna wählt a = 6. Was schickt sie, also $5^6$ mod 23?
+    answer:
+      value: 8
+    hints:
+      - $5^2$ = 25 ≡ 2 (mod 23).
+      - $5^6$ = $(5^2)^3$ ≡ $2^3$.
+    explanation: "$5^6$ = 15 625 = 679 · 23 + 8. Zwischendurch reduzieren macht es einfach: $2^3$ = 8."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Ben hat b = 9 gewählt und schickt 11. Anna rechnet $11^6$ mod 23. Welcher gemeinsame Schlüssel kommt heraus?
+    answer:
+      value: 9
+    hints:
+      - $11^2$ = 121 ≡ 6 (mod 23).
+      - $11^6$ ≡ $6^3$ = 216. Und 216 mod 23?
+    explanation: 216 = 9 · 23 + 9, also 9. Ben rechnet $8^9$ mod 23 und erhält ebenfalls 9 – denn beides ist $5^{54}$ mod 23.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: "Neue Runde: Öffentlich sind g = 3 und p = 17. Ben wählt b = {{b}}. Was schickt er, also $3^b$ mod 17?"
+    answer:
+      value: "{{mod(3 ** b, 17)}}"
+    hints:
+      - Rechne Potenz für Potenz und reduziere jedes Mal mod 17.
+      - 3, 9, 10, 13, 5, 15, 11, 16 …
+    explanation: $3^{ {{b}} }$ mod 17 = {{mod(3 ** b, 17)}}. Ein Lauscher sieht diese Zahl – aber b daraus zurückzurechnen ist das schwere »diskrete Logarithmus«-Problem.
+    difficulty: 2
+    variants:
+      params:
+        b: int[2,12]
+      defaults:
+        b: 5
+
   - kind: problem
     id: x1
     depth: 3
@@ -118,6 +167,92 @@ steps:
     hints:
       - 4³ = 64. Zieh 33 ab.
     explanation: "64 − 33 = 31. Entschlüsselt wird mit d = 7: 31⁷ mod 33 = 4. Bei echten Schlüsseln hat n über 600 Stellen."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "**RSA** in klein: Wähle die Primzahlen p = 5 und q = 11, also n = 55 und φ = 4 · 10 = 40. Öffentlich ist e = 3. Geheim ist d = 27, denn 3 · 27 = 81 ≡ 1 (mod 40)."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Verschlüssele die Nachricht m = 2 mit dem öffentlichen Schlüssel: c = $2^3$ mod 55."
+    answer:
+      value: 8
+    hints:
+      - $2^3$ = 8.
+      - 8 ist schon kleiner als 55.
+    explanation: c = 8. Zum Entschlüsseln rechnet man $8^{27}$ mod 55 – und erhält wieder 2. Das garantiert der Satz von Euler.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Für RSA wählst du p = {{p}} und q = {{q}}. Wie groß ist φ = (p − 1) · (q − 1)?
+    answer:
+      value: "{{(p - 1) * (q - 1)}}"
+    feedback:
+      - when: numval(state.input) == p * q
+        misconception: n-vs-phi
+        text: Das ist n. φ zieht von jeder Primzahl 1 ab.
+    hints:
+      - "{{p}} − 1 = {{p - 1}}, {{q}} − 1 = {{q - 1}}."
+      - Multipliziere die beiden.
+    explanation: φ = {{p - 1}} · {{q - 1}} = {{(p - 1) * (q - 1)}}. Wer φ kennt, kann d ausrechnen – und φ kennt nur, wer p und q kennt.
+    difficulty: 3
+    variants:
+      params:
+        p: choice[3,5,7,11]
+        q: choice[13,17,19,23]
+      defaults:
+        p: 7
+        q: 13
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Warum ist RSA mit n = 55 unsicher, mit einer 2048-Bit-Zahl aber sicher?
+    params:
+      options:
+        - label: 55 = 5 · 11 zerlegt jeder sofort, eine 617-stellige Zahl kann niemand zerlegen
+          correct: true
+        - label: Weil große Zahlen schneller rechnen
+          feedback: Größere Zahlen rechnen sogar langsamer.
+        - label: Weil e bei großen Zahlen geheim ist
+          feedback: e bleibt öffentlich.
+    hints:
+      - Was muss ein Angreifer tun, um d zu finden?
+      - n in seine Primfaktoren zerlegen.
+    explanation: Die Sicherheit hängt daran, dass Faktorisieren schwer ist. Quantencomputer könnten das ändern – darum wird an neuen Verfahren gearbeitet.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x5
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie zwei Fremde über eine abgehörte Leitung einen gemeinsamen Schlüssel bekommen.
+    params:
+      keywords:
+        - - öffentlich
+          - public
+        - - geheim
+          - privat
+          - secret
+          - private
+        - - potenz
+          - hoch
+          - power
+          - exponent
+          - mod
+        - - gleich
+          - same
+          - gemeinsam
+          - shared
+      sample: Beide einigen sich öffentlich auf g und p. Jeder wählt eine geheime Zahl und schickt g hoch diese Zahl mod p. Mit der eigenen geheimen Zahl rechnet jeder aus der empfangenen Zahl denselben gemeinsamen Schlüssel. Der Lauscher kann die Potenz nicht zurückrechnen.
     difficulty: 3
 
 srs:

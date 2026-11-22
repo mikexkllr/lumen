@@ -5,7 +5,7 @@ summary: Spot errors, protect passwords.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: quersumme
@@ -86,6 +86,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "ISBN-13: digits are weighted alternately 1 and 3, and the sum must be divisible by 10. For 978-3-16-148410-? the first twelve give exactly 100. Which check digit is missing?"
+    answer:
+      value: 0
+    hints:
+      - What is missing up to the next multiple of 10?
+      - 100 is already divisible by 10.
+    explanation: 100 + 0 = 100. The ISBN is 978-3-16-148410-0.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Why does the ISBN weight digits alternately by 1 and 3 instead of just adding them?
+    params:
+      options:
+        - label: That way swapped neighbouring digits are usually caught
+          correct: true
+        - label: To make the sum bigger
+          feedback: The size does not matter, only the remainder.
+        - label: Out of tradition
+          feedback: The weights have a clear purpose.
+    hints:
+      - What happens to the plain sum with 4738 instead of 4378?
+      - With weights each digit counts differently depending on its place.
+    explanation: Swapping a and b changes the sum by 2 · (a − b). That is divisible by 10 only for a gap of 5 – almost every swap is caught.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Good hash functions show the **avalanche effect**: if a single input bit changes, about half of all hash bits flip. Similar texts get completely different fingerprints."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: A SHA-256 hash has 256 bits. How many hex digits does a web page show for it?
+    answer:
+      value: 64
+    hints:
+      - One hex digit is 4 bits.
+      - 256 / 4.
+    explanation: 256 / 4 = 64 digits. Comparing just the start and end already helps – forging both is defeated by the avalanche effect.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -95,6 +145,61 @@ steps:
     hints:
       - "The square root of the number of possibilities: half the exponent."
     explanation: 2¹²⁸ – still out of reach. That is why a hash needs twice as many bits as the desired security.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: You look for a text that hits one specific 64-bit hash. About how many attempts do you need? Give the exponent to base 2.
+    answer:
+      value: 64
+    feedback:
+      - when: numval(state.input) == 32
+        misconception: birthday-vs-preimage
+        text: That holds for any collision between two texts. A fixed target hash is much harder.
+    hints:
+      - Each attempt hits with probability $1/2^{64}$.
+      - The birthday paradox does not help here – the target is fixed.
+    explanation: "Preimage: about $2^{64}$ attempts. Collision: only $2^{32}$, because any pair counts. That is why collision resistance needs hashes twice as long."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: MD5 is considered broken. What does that mean?
+    params:
+      options:
+        - label: You can deliberately craft two different files with the same hash
+          correct: true
+        - label: You can compute the file back from the hash
+          feedback: That is still not practical today.
+        - label: The hash changes on every call
+          feedback: A hash is always the same for the same data.
+    hints:
+      - Which property of a hash is easiest to attack?
+      - Collisions are found faster than preimages.
+    explanation: MD5 collisions take seconds on a laptop. In 2012 the Flame malware used this to forge signatures.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: How do you check that a message is not just intact but also from the right sender?
+    params:
+      options:
+        - label: With a secret key in the hash (HMAC) or a digital signature
+          correct: true
+        - label: With a longer hash
+          feedback: Anyone can recompute a long hash as well.
+        - label: With two hashes
+          feedback: A forger can simply recompute two hashes too.
+    hints:
+      - Anyone can recompute a normal hash.
+      - It needs something only the sender knows.
+    explanation: An HMAC mixes in a shared key. A signature uses the sender's private key. A forger can reproduce neither.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Every record unique.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 15
 steps:
   - kind: problem
     id: hook
@@ -159,6 +159,43 @@ steps:
     explanation: Exactly once. If she moves, a single row is changed.
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "Sometimes only a combination makes a row unique. In an »enrolment« table, (student, course) is a **composite key**: each student takes each course at most once."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: Students take many courses, courses have many students. How do you model that in tables?
+    params:
+      options:
+        - label: With a third table that stores pairs of student number and course number
+          correct: true
+        - label: A column »courses« with all courses at the student
+          feedback: That breaks the first normal form.
+        - label: Students and courses in one big table
+          feedback: Then names and course data repeat many times.
+    hints:
+      - Neither student nor course can carry a single foreign key.
+      - The relationship itself gets a table.
+    explanation: Many-to-many relationships need a link table. Each of its rows is a pair of two foreign keys.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: 30 students take 4 courses each. How many rows does the enrolment table have?
+    answer:
+      value: 120
+    hints:
+      - Each enrolment is a row.
+      - 30 · 4.
+    explanation: 30 · 4 = 120 rows – each just two small numbers. Names and course data still appear only once.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -175,6 +212,74 @@ steps:
     hints:
       - What does the order’s foreign key point to afterwards?
     explanation: "**Referential integrity**: the database guarantees that every reference has a target."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "The **third normal form** says: every column depends on the key, the whole key and nothing but the key. If »customers« stores the town of each postcode, the town depends on the postcode – it needs its own table."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Enrolment(student, course, course room) with key (student, course). The room depends only on the course. What is the problem?
+    params:
+      options:
+        - label: The room is repeated for every student of the course – it belongs in the course table
+          correct: true
+        - label: None, the key is unique
+          feedback: Unique yes, but the room depends on only part of it.
+        - label: Students then cannot change courses
+          feedback: Changing works – only the room is stored many times.
+    hints:
+      - Does the room depend on the whole key?
+      - What happens if a course moves rooms?
+    explanation: That violates the second normal form. If the course moves, 30 rows must change – forget one and the database contradicts itself.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Why do many databases pick a made-up number as the main key, not the email?
+    params:
+      options:
+        - label: Emails change – the number stays the same forever
+          correct: true
+        - label: Because emails are not unique
+          feedback: Usually they are unique – but not permanent.
+        - label: Because numbers are secret
+          feedback: A key need not be secret.
+    hints:
+      - What happens to all foreign keys if the key changes?
+      - A good key never changes.
+    explanation: If a primary key changes, every reference must follow. An artificial number has no meaning – so it never has a reason to change.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what primary keys and foreign keys are good for.
+    params:
+      keywords:
+        - - eindeutig
+          - unique
+          - einmalig
+        - - verweis
+          - zeigt
+          - refer
+          - point
+          - link
+        - - doppelt
+          - kopie
+          - redundan
+          - duplicate
+          - copy
+          - einmal
+          - once
+      sample: The primary key makes each row unique, like a customer number. A foreign key in another table refers to that number. So data like the address need not be copied – it is stored only once.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Each place is worth twice as much.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 1023
       tolerance: 150
     explanation: Up to 1023 – instead of just 10. Each finger doubles the possibilities.
-
 
   - kind: problem
     id: fuenf
@@ -108,6 +107,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: Set {{n}} with eight bits – no display this time.
+    params:
+      bits: 8
+      showValue: false
+    answer:
+      value: "{{n}}"
+    hints:
+      - "Start on the left: does 128 fit?"
+      - Subtract every power of two that fits and carry on with the rest.
+    explanation: "{{n}} is {{bin(n)}} in binary."
+    variants:
+      params:
+        n: int[100,250]
+      defaults:
+        n: 182
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: What is the largest number that fits in {{k}} bits?
+    answer:
+      value: "{{2 ** k - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k
+        misconception: off-by-one
+        text: That is the number of values. Zero counts too – the largest number is one less.
+    hints:
+      - How many different values do {{k}} bits give?
+      - The smallest value is 0. So the largest is 2 to the {{k}} minus 1.
+    explanation: "All {{k}} bits on: $2^{ {{k}} } - 1 = {{2 ** k - 1}}$."
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,16]
+      defaults:
+        k: 10
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Why is 1111 exactly one less than 10000?
+    reveal:
+      body: Add one. All the ones flip to 0 and the carry runs all the way left. That is why 1 + 2 + 4 + 8 = 16 − 1.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: Every odd number ends in 1 in binary.
+          right: true
+          why: The last digit is worth 1 – only it can make a number odd.
+        - text: Binary 1000 means a thousand.
+          right: false
+          why: Binary 1000 is 8.
+        - text: A 5-digit binary number without a leading zero is at least 16.
+          right: true
+          why: The leading digit is worth 16.
+        - text: With 8 bits you can count up to 256.
+          right: false
+          why: Up to 255 – together with 0 that makes 256 values.
+        - text: Appending a 1 on the right turns n into 2n + 1.
+          right: true
+          why: Appending doubles, and the new 1 adds one.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -123,6 +196,77 @@ steps:
     hints:
       - Every digit moves one place left – and is worth twice as much there.
     explanation: "Computers multiply by 2 by shifting bits: a **shift**. That is lightning fast."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: The number {{n}} is {{bin(n)}} in binary. You delete the last digit. Which number is left?
+    answer:
+      value: "{{floor(n / 2)}}"
+    feedback:
+      - when: numval(state.input) == n * 2
+        misconception: shift-direction
+        text: Appending doubles – deleting does the opposite.
+    hints:
+      - Appending a digit doubles. What does deleting do?
+      - Halve and round down – the deleted 1 is lost.
+    explanation: "Deleting is a right shift: divide by 2 and round down. {{bin(n)}} becomes {{bin(floor(n / 2))}}."
+    difficulty: 3
+    variants:
+      params:
+        n: int[21,99]
+      constraints:
+        - n % 2 == 1
+      defaults:
+        n: 45
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: How many binary digits does the number {{n}} need?
+    answer:
+      value: "{{k}}"
+    hints:
+      - What is the largest power of two that fits into {{n}}?
+      - The top digit is worth {{2 ** (k - 1)}}. Count the places from 1 up to it.
+    explanation: $2^{ {{k - 1}} } = {{2 ** (k - 1)}}$ fits, $2^{ {{k}} } = {{2 ** k}}$ does not. So {{k}} digits.
+    difficulty: 3
+    variants:
+      params:
+        k: int[6,11]
+        r: int[0,500]
+      derive:
+        n: 2 ** (k - 1) + mod(r, 2 ** (k - 1))
+      defaults:
+        k: 10
+        r: 488
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: why do n bits give exactly 2ⁿ different values?"
+    params:
+      keywords:
+        - - verdoppel
+          - doppelt
+          - double
+          - mal 2
+          - times 2
+        - - bit
+          - stelle
+          - digit
+          - place
+        - - zwei zustände
+          - 0 oder 1
+          - null oder eins
+          - two states
+          - 0 or 1
+          - zero or one
+      sample: "Each bit is 0 or 1 – two states. A new bit doubles the possibilities: every old combination appears once with a 0 and once with a 1 in front. n bits means doubling n times, so 2ⁿ."
     difficulty: 3
 
 srs:

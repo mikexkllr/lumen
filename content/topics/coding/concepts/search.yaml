@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.search]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 30
       tolerance: 6
     explanation: Nur 30. Jede Frage halbiert – und 2³⁰ ist gut eine Milliarde.
-
 
   - kind: problem
     id: raten
@@ -90,6 +89,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: Gesucht ist die 70 zwischen 1 und 100. Du fragst immer die Mitte, abgerundet. Bring deine Tipps in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "50"
+        - label: "75"
+        - label: "62"
+        - label: "68"
+        - label: "71"
+        - label: "69"
+        - label: "70"
+      direction: horizontal
+    hints:
+      - Mitte von 1 und 100 ist 50. Danach bleibt 51 bis 100.
+      - Mitte von 51 und 100 ist 75 – zu groß. Weiter mit 51 bis 74.
+    explanation: 50 → 75 → 62 → 68 → 71 → 69 → 70. Sieben Fragen – genau die Höchstzahl für 100 Möglichkeiten.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Fragen braucht die binäre Suche höchstens, wenn es {{n}} Möglichkeiten gibt?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: one-short
+        text: "Knapp: Mit {{k - 1}} Fragen unterscheidet man nur {{2 ** (k - 1)}} Möglichkeiten."
+    hints:
+      - Mit k Fragen kannst du $2^k$ Möglichkeiten unterscheiden.
+      - Finde die kleinste Zweierpotenz, die mindestens {{n}} ist.
+    explanation: $2^{ {{k - 1}} }$ = {{2 ** (k - 1)}} reicht nicht, $2^{ {{k}} }$ = {{2 ** k}} schon. Also {{k}} Fragen.
+    difficulty: 2
+    variants:
+      params:
+        k: int[5,12]
+        r: int[1,900]
+      derive:
+        n: 2 ** (k - 1) + 1 + mod(r, 2 ** (k - 1))
+      defaults:
+        k: 10
+        r: 487
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Ja/Nein-Fragen braucht man höchstens, um einen von 8 Milliarden Menschen zu finden?"
+    params:
+      min: 1
+      max: 100
+    answer:
+      value: 33
+      tolerance: 4
+    explanation: $2^{32}$ sind 4,3 Milliarden, $2^{33}$ sind 8,6 Milliarden. 33 Fragen für die ganze Menschheit.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,4 +165,45 @@ steps:
     hints:
       - Der erste Schritt halbiert 2 Millionen auf 1 Million.
     explanation: "Der Aufwand wächst **logarithmisch**: log₂(n). Das macht Suchmaschinen und Datenbanken möglich."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Die binäre Suche hält eine **Invariante**: Wenn die Zahl überhaupt da ist, liegt sie zwischen links und rechts. Jede Frage macht diesen Bereich kleiner, aber nie falsch. Ist er leer, fehlt die Zahl sicher."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Programm setzt nach »größer« links = mitte statt links = mitte + 1. Was kann passieren?
+    params:
+      options:
+        - label: Bei zwei übrigen Zahlen hängt es ewig fest
+          correct: true
+        - label: Nichts – es dauert nur einen Schritt länger
+          feedback: Prüf den Fall links = 69, rechts = 70, gesucht 70.
+        - label: Es findet eine falsche Zahl
+          feedback: Falsch wird nichts – aber es kommt nicht voran.
+    hints:
+      - "Spiel es durch: links = 69, rechts = 70, gesucht ist 70."
+      - Die Mitte ist 69. Danach ist links wieder 69 …
+    explanation: "Der Bereich schrumpft nicht mehr: eine Endlosschleife. Die Invariante allein reicht nicht – der Bereich muss auch echt kleiner werden."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Möglichkeiten kann man mit 20 Ja/Nein-Fragen höchstens auseinanderhalten?
+    answer:
+      value: 1048576
+    feedback:
+      - when: numval(state.input) == 40
+        misconception: add-vs-multiply
+        text: Jede Frage verdoppelt – sie zählt nicht 2 dazu.
+    hints:
+      - Jede Frage verdoppelt die Zahl der unterscheidbaren Fälle.
+      - $2^{20}$.
+    explanation: $2^{20}$ = 1 048 576 – gut eine Million. Darum klappt das Spiel »20 Fragen« so oft.
     difficulty: 3

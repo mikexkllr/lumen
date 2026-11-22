@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.debug]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: bug-eins
@@ -94,6 +94,77 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: This program should reach the flag but stops one square short. Fix it – at most 3 blocks.
+    params:
+      grid:
+        - S.....G
+      blocks:
+        - forward
+        - repeat
+        - end
+      repeatCounts:
+        - 4
+        - 5
+        - 6
+        - 7
+      maxBlocks: 3
+      program:
+        - op: repeat
+          n: 5
+        - op: forward
+        - op: end
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 6
+          - op: forward
+          - op: end
+    hints:
+      - Count the squares to the flag.
+      - The loop runs once too few. Swap »repeat 5×« for 6×.
+    explanation: "An off-by-one bug: 6 squares, but only 5 iterations."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "A program should count from 1 to 5: »x = 1. While x < 5: print x, then x = x + 1.« How many numbers does it print?"
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: off-by-one
+        text: "Check carefully: at x = 5, »x < 5« is no longer true."
+    hints:
+      - "Write down the values of x: 1, 2, …"
+      - What happens when x = 5?
+    explanation: It prints 1, 2, 3, 4 – the 5 is missing. Correct would be »x ≤ 5«. A classic off-by-one bug.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: Put the steps of debugging in a sensible order.
+    params:
+      items:
+        - label: Reproduce the bug reliably
+        - label: Form a hypothesis
+        - label: Test it, e.g. print values
+        - label: Fix the bug
+        - label: Test everything again
+    hints:
+      - What must you be able to do before searching?
+      - First understand, then change, then check.
+    explanation: If you cannot reproduce the bug, you never know if it is gone. And the final test shows the fix did not break anything else.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -109,4 +180,88 @@ steps:
     hints:
       - The same idea as in the number-guessing search.
     explanation: "Binary search for debugging: at most 10 checks instead of 1000. Tools like “git bisect” do exactly that."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: A bug crept in somewhere among 1000 program versions. How many versions do you need to test at most if you always halve?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 500
+        misconception: linear-search
+        text: That is the average when testing one by one. Halving is much faster.
+    hints:
+      - Each test halves the suspicious versions.
+      - $2^{10}$ = 1024.
+    explanation: 10 tests suffice because $2^{10}$ > 1000. The tool git bisect does exactly this.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A program passes 100 tests. What do you now know for sure?
+    params:
+      options:
+        - label: That it works for these 100 inputs – nothing more
+          correct: true
+        - label: That it is bug-free
+          feedback: Tests show bugs, never their absence.
+        - label: That it is 99 % bug-free
+          feedback: No percentage follows from that.
+    hints:
+      - Are there inputs that were never tested?
+      - Certainty would need a proof.
+    explanation: "Edsger Dijkstra: testing can show the presence of bugs, never their absence. Certainty needs proofs."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Why does it help to explain your code to a rubber duck line by line?
+    params:
+      options:
+        - label: Explaining makes you check every step, and you trip over wrong assumptions
+          correct: true
+        - label: The duck knows the answer
+          feedback: The duck is silent – the explaining itself helps.
+        - label: It does not help
+          feedback: Many professionals swear by it.
+    hints:
+      - Explaining forces you to think slowly.
+      - Where do you say »and then somehow …«?
+    explanation: In your head you skip steps. Said out loud, you notice where you only believe what the code does.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you find a bug in a long program.
+    params:
+      keywords:
+        - - halbier
+          - mitte
+          - half
+          - middle
+          - bisect
+          - eingrenz
+          - narrow
+        - - erwart
+          - soll
+          - vergleich
+          - expected
+          - compare
+          - should
+        - - schritt
+          - step
+          - stück
+          - piece
+          - teil
+          - part
+      sample: "I compare what should happen with what does happen. Then I narrow it down: I check in the middle whether everything is right so far and halve the suspicious part – step by step until only the bug is left."
     difficulty: 3

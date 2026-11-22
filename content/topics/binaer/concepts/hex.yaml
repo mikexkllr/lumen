@@ -5,7 +5,7 @@ summary: Wie Webseiten Farben schreiben.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: vier-bits
@@ -63,6 +63,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: match
+    prompt: Je vier Bits ergeben eine Hex-Ziffer. Verbinde.
+    params:
+      pairs:
+        - left: "1010"
+          right: A
+        - left: "1111"
+          right: F
+        - left: "1100"
+          right: C
+        - left: "0111"
+          right: "7"
+        - left: "1001"
+          right: "9"
+      leftTitle: Binär
+      rightTitle: Hex
+    hints:
+      - Rechne die vier Bits erst dezimal aus.
+      - A ist 10, B 11, C 12 … F 15.
+    explanation: 8 + 2 = 10 = A, 15 = F, 8 + 4 = 12 = C, 7 bleibt 7, 8 + 1 = 9.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "Eine Webfarbe #RRGGBB hat sechs Hex-Ziffern. Wie viele verschiedene Farben gibt es?"
+    answer:
+      value: 16777216
+    feedback:
+      - when: numval(state.input) == 96
+        misconception: multiply-wrong
+        text: "Ziffern werden nicht malgenommen, sondern die Möglichkeiten: 16 · 16 · …"
+    hints:
+      - Jede Hex-Ziffer hat 16 Möglichkeiten.
+      - $16^6$ oder $2^{24}$.
+    explanation: $16^6 = 2^{24}$ = 16 777 216 – rund 16,7 Millionen Farben.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: "#000000 ist Weiß."
+          right: false
+          why: Alle Kanäle aus – das ist Schwarz.
+        - text: "#FFFFFF ist Weiß."
+          right: true
+          why: Rot, Grün und Blau voll an ergibt Weiß.
+        - text: "#FF00FF ist Magenta."
+          right: true
+          why: Rot plus Blau ohne Grün.
+        - text: "#00FFFF ist Gelb."
+          right: false
+          why: "Grün plus Blau ist Cyan. Gelb wäre #FFFF00."
+        - text: "#333333 ist dunkler als #CCCCCC."
+          right: true
+          why: 33 ist 51, CC ist 204.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -78,6 +144,67 @@ steps:
     hints:
       - 80 hex ist 128 – die Hälfte von 255. Alle drei Kanäle sind gleich.
     explanation: Gleiche Werte für Rot, Grün und Blau ergeben immer Grau.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Mit einer **Bitmaske** liest man einzelne Bits aus. x UND 0x0F behält nur die rechten vier Bits, alles andere wird 0. Aus 0xB6 wird so 0x06.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Du rechnest 0x{{hex(n)}} UND 0x0F. Was kommt heraus? Gib die Zahl im Zehnersystem an.
+    answer:
+      value: "{{mod(n, 16)}}"
+    feedback:
+      - when: numval(state.input) == floor(n / 16)
+        misconception: mask-side
+        text: Das ist die linke Hex-Ziffer. Die Maske 0F behält die rechte.
+    hints:
+      - 0x0F ist binär 00001111.
+      - Übrig bleibt nur die rechte Hex-Ziffer.
+    explanation: Die rechte Ziffer von {{hex(n)}} ist {{hex(mod(n, 16))}}, also {{mod(n, 16)}}. Das ist dasselbe wie {{n}} mod 16.
+    difficulty: 3
+    variants:
+      params:
+        n: int[26,250]
+      constraints:
+        - mod(n, 16) > 0
+      defaults:
+        n: 182
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Eine IPv6-Adresse hat 128 Bit. Wie viele Hex-Ziffern braucht man, um sie aufzuschreiben?
+    answer:
+      value: 32
+    hints:
+      - Wie viele Bits stecken in einer Hex-Ziffer?
+      - 128 geteilt durch 4.
+    explanation: 128 / 4 = 32 Ziffern, geschrieben in 8 Gruppen zu je 4 – etwa 2001:0db8:….
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: Warum schreiben Programmierer Bytes lieber in Hex als in Dezimal?
+    params:
+      options:
+        - label: Jede Hex-Ziffer sind genau 4 Bits – man sieht die Bits direkt
+          correct: true
+        - label: Hex-Zahlen sind kleiner
+          feedback: Es ist dieselbe Zahl, nur anders geschrieben.
+        - label: Der Computer rechnet intern in Hex
+          feedback: Intern rechnet er binär. Hex ist nur eine Schreibweise für Menschen.
+    hints:
+      - Wie viele Bits passen zu einer Dezimalziffer?
+      - "Bei Hex passt die Grenze genau: 16 = $2^4$."
+    explanation: "Dezimalziffern passen nicht sauber auf Bits. Bei Hex liest man ab: 0xB6 = 1011 0110."
     difficulty: 3
 
 srs:

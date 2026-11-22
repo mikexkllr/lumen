@@ -1,0 +1,237 @@
+id: cs.languages.automata
+type: concept
+title: "Automata and regular expressions"
+summary: "Machines with few states that recognise patterns."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "A turnstile: inserting a coin unlocks it, walking through locks it again. It is locked and you push without a coin. What happens?"
+    params:
+      options:
+        - label: It stays locked
+          correct: true
+        - label: It unlocks
+          feedback: That needs a coin.
+        - label: It remembers the attempt for later
+          feedback: It only knows two states – it remembers nothing more.
+    hints:
+      - The turnstile knows only »locked« and »open«.
+      - Pushing changes nothing in the locked state.
+    explanation: Two states, two inputs, fixed transitions – that is already a finite automaton.
+
+  - kind: explain
+    id: c1
+    body: A **finite automaton** has finitely many states. It reads one character after another and changes state depending on the character. If it ends in an accepting state, the word is accepted.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: An automaton only tracks »even« or »odd« numbers of ones. It starts at »even« and reads 1, 0, 1, 1. Where does it end?
+    params:
+      options:
+        - label: At »odd«
+          correct: true
+        - label: At »even«
+          feedback: "Count the ones: there are three."
+        - label: It gets stuck at the 0
+          feedback: At a 0 it simply stays where it is.
+    hints:
+      - Every 1 switches the state, every 0 does not.
+      - even → odd → odd → even → ?
+    explanation: "Three ones: odd. The automaton does not count to three – it keeps just a single bit."
+
+  - kind: problem
+    id: c3
+    widget: swipe
+    prompt: Does the »even number of ones« automaton accept the word?
+    params:
+      cards:
+        - text: "1100"
+          right: true
+          why: Two ones – even.
+        - text: "111"
+          right: false
+          why: Three ones – odd.
+        - text: "0"
+          right: true
+          why: Zero ones – zero is even.
+        - text: "10101"
+          right: false
+          why: Three ones.
+        - text: "1001"
+          right: true
+          why: Two ones.
+      left: rejected
+      right: accepted
+
+  - kind: explain
+    id: c4
+    body: "A **regular expression** describes a pattern: `a*` means any number of a, `[0-9]+` means one or more digits, `?` means »may be missing«. Every such expression has a finite automaton."
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: Which text matches which pattern?
+    params:
+      pairs:
+        - left: "`[0-9]+`"
+          right: "2024"
+        - left: "`a*b`"
+          right: aaab
+        - left: "`(ab)*`"
+          right: ababab
+        - left: "`colou?r`"
+          right: color
+      leftTitle: Pattern
+      rightTitle: Text
+    hints:
+      - The u in colou?r may be missing.
+      - (ab)* repeats the pair ab.
+    explanation: Each pattern fits exactly one text here. Search boxes, forms and editors use such patterns all the time.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An automaton reads a binary number digit by digit and must decide whether it is divisible by 3. How many states does it need at least?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: yes-no-only
+        text: Divisible or not is not enough – it must know the remainder to carry on.
+    hints:
+      - What must it remember to continue at the next bit?
+      - "The remainder on dividing by 3: 0, 1 or 2."
+    explanation: Three states for the remainders 0, 1 and 2. It never needs to remember the whole number.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The automaton only keeps the remainder on dividing by 3. New remainder = (2 · old remainder + digit) mod 3, starting at 0. It reads {{bin(n)}}. Which remainder is there at the end?
+    answer:
+      value: "{{mod(n, 3)}}"
+    hints:
+      - "Go digit by digit, or work out the number: {{bin(n)}} = {{n}}."
+      - "{{n}} mod 3."
+    explanation: "{{n}} mod 3 = {{mod(n, 3)}}. Times 2 is an appended bit, plus the digit is the new bit – that is how the automaton computes piece by piece."
+    difficulty: 2
+    variants:
+      params:
+        n: int[9,60]
+      defaults:
+        n: 22
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Which text matches the pattern `[a-z]+@[a-z]+\.de`?
+    params:
+      options:
+        - label: ana@post.de
+          correct: true
+        - label: ana@post.com
+          feedback: It must end in .de.
+        - label: ana.b@post.de
+          feedback: "[a-z] only allows letters – no dot before the @."
+        - label: "@post.de"
+          feedback: At least one letter must come before the @.
+    hints:
+      - "+ means: at least one character."
+      - \. stands for a real dot.
+    explanation: Real email addresses are far more varied – a pattern that checks all of them correctly is notoriously long.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Can a finite automaton check whether brackets are properly nested, such as »((( … )))«?
+    params:
+      options:
+        - label: No – it would have to count arbitrarily far, but it has only finitely many states
+          correct: true
+        - label: Yes, with a big pattern
+          feedback: For any fixed size perhaps, for unlimited depth never.
+        - label: Yes, that is easy
+          feedback: That needs a stack, so more than an automaton.
+    hints:
+      - How many open brackets must it remember?
+      - With k states it loses track from k + 1 brackets on.
+    explanation: The pumping lemma shows this. Brackets need grammars with recursion – and a stack.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: An automaton with 5 states reads a word of 7 characters. What is certain?
+    params:
+      options:
+        - label: At least one state is visited more than once
+          correct: true
+        - label: Every state is visited
+          feedback: Some states may stay unused.
+        - label: The word is rejected
+          feedback: That depends on the rules.
+    hints:
+      - Including the start it visits 8 states.
+      - 8 visits but only 5 states.
+    explanation: "Pigeonhole principle: there is a loop. That loop can be repeated as often as you like – the heart of the pumping lemma."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Some regex engines take extremely long for `(a+)+b` on »aaaaaaaaaaaaaaaaaaaaaaaa« without a b. Why?
+    params:
+      options:
+        - label: They try exponentially many ways to split up the a's
+          correct: true
+        - label: Because the pattern is invalid
+          feedback: It is valid – just dangerous.
+        - label: Because 24 characters are too many
+          feedback: An automaton reads them in 24 steps.
+    hints:
+      - In how many ways can you split 24 a's into groups?
+      - After each failure the program tries the next split.
+    explanation: Such backtracking can bring servers down (ReDoS). A true finite automaton would need just one pass.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a finite automaton checks a word.
+    params:
+      keywords:
+        - - zustand
+          - state
+        - - zeichen
+          - buchstab
+          - character
+          - letter
+          - symbol
+        - - akzept
+          - accept
+          - gültig
+          - valid
+        - - endlich
+          - finite
+          - wenige
+          - few
+      sample: The automaton has finitely many states and begins in the start state. It reads the word character by character and changes state by fixed rules. If it ends in an accepting state, the word is valid.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c5", "d2", "x1"]

@@ -5,7 +5,7 @@ summary: Programme, die entscheiden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -102,6 +102,76 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Regel: Wenn x > 10, dann x = x − 10, sonst x = x · 3. Wende die Regel zweimal auf {{x}} an. Was kommt heraus?"
+    answer:
+      value: "{{z}}"
+    hints:
+      - Wende die Regel erst einmal an und schreib das Ergebnis auf.
+      - Nach dem ersten Mal ist x = {{y}}. Ist das größer als 10?
+    explanation: "{{x}} → {{y}} → {{z}}."
+    difficulty: 2
+    variants:
+      params:
+        x: int[2,25]
+      derive:
+        y: "x > 10 ? x - 10 : 3 * x"
+        z: "y > 10 ? y - 10 : 3 * y"
+      defaults:
+        x: 7
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: buckets
+    prompt: Für welche Zahlen ist »x > 3 UND x < 8« wahr?
+    params:
+      buckets:
+        - id: b1
+          label: wahr
+        - id: b2
+          label: falsch
+      items:
+        - label: "2"
+          bucket: b2
+        - label: "3"
+          bucket: b2
+        - label: "4"
+          bucket: b1
+        - label: "7"
+          bucket: b1
+        - label: "8"
+          bucket: b2
+        - label: "10"
+          bucket: b2
+    hints:
+      - Beide Teile müssen stimmen.
+      - 3 > 3 ist falsch, 8 < 8 auch.
+    explanation: Wahr nur für 4, 5, 6 und 7. Die Grenzen 3 und 8 gehören nicht dazu – genau dort passieren viele Fehler.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: "»Wenn Note ≥ 50: »bestanden«. Sonst wenn Note ≥ 90: »sehr gut«.« Was erscheint bei Note 95?"
+    params:
+      options:
+        - label: »bestanden« – die zweite Bedingung wird nie erreicht
+          correct: true
+        - label: »sehr gut«
+          feedback: 95 ≥ 50 ist schon wahr, also endet die Prüfung dort.
+        - label: beides
+          feedback: Bei »sonst wenn« läuft höchstens ein Zweig.
+    hints:
+      - Bedingungen werden von oben nach unten geprüft.
+      - Welche Zahl ≥ 90 ist nicht auch ≥ 50?
+    explanation: "Der speziellere Fall muss zuerst kommen: erst ≥ 90, dann ≥ 50. Sonst ist der zweite Zweig toter Code."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +187,71 @@ steps:
     hints:
       - Prüfe die Bedingungen in der richtigen Reihenfolge.
     explanation: 1900 ist durch 100, aber nicht durch 400 teilbar. Verschachtelte Bedingungen sind eine häufige Fehlerquelle.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: "Viele Sprachen werten mit **Kurzschluss** aus: Bei »A UND B« wird B gar nicht erst geprüft, wenn A schon falsch ist. So ist »n ≠ 0 UND 10 / n > 2« sicher – durch 0 wird nie geteilt."
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Welche Bedingung ist dasselbe wie NICHT (x > 5 UND x < 10)?
+    params:
+      options:
+        - label: x ≤ 5 ODER x ≥ 10
+          correct: true
+        - label: x ≤ 5 UND x ≥ 10
+          feedback: Das kann nie gleichzeitig gelten.
+        - label: x < 5 ODER x > 10
+          feedback: Dann fehlen 5 und 10 selbst.
+    hints:
+      - "De Morgan: NICHT (A UND B) = (NICHT A) ODER (NICHT B)."
+      - Das Gegenteil von x > 5 ist x ≤ 5.
+    explanation: UND wird zu ODER, jede Bedingung kippt. Die Grenzen 5 und 10 gehören jetzt dazu.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Ein Programm hat 3 Wenn-dann-sonst-Abfragen hintereinander. Wie viele verschiedene Wege gibt es durch den Code?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: add-paths
+        text: "Die Wege multiplizieren sich: jede Abfrage verdoppelt."
+    hints:
+      - Jede Abfrage hat 2 Ausgänge.
+      - 2 · 2 · 2.
+    explanation: $2^3$ = 8 Wege. Bei 30 Abfragen wären es über eine Milliarde – alle Wege zu testen wird schnell unmöglich.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Programm mit »wenn … dann … sonst« entscheidet.
+    params:
+      keywords:
+        - - bedingung
+          - condition
+          - prüf
+          - check
+          - test
+        - - wahr
+          - "true"
+          - erfüllt
+          - stimmt
+          - holds
+        - - sonst
+          - else
+          - andernfalls
+          - otherwise
+      sample: Das Programm prüft eine Bedingung. Ist sie wahr, läuft der Dann-Teil. Sonst läuft der Sonst-Teil. So reagiert es je nach Eingabe anders.
     difficulty: 3
 
 srs:

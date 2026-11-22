@@ -5,7 +5,7 @@ summary: Fewer stops does not mean shorter.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 50
       within: 80
     explanation: About 50 million. A sat-nav still finds the shortest path in it within milliseconds.
-
 
   - kind: problem
     id: route-a-f
@@ -151,6 +150,99 @@ steps:
     explanation: "Like a wave spreading from the start: what it reaches first is certainly nearest."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "This is how **Dijkstra** works: every place has a tentative distance. Take the nearest place that is still open and fix it. Then check whether its neighbours are closer via it."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: network
+    prompt: Find the shortest route from S to T. Think like Dijkstra – the shortest route here has many stops.
+    params:
+      start: S
+      end: T
+      unit: km
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: A
+          x: 30
+          y: 12
+        - id: B
+          x: 30
+          y: 88
+        - id: D
+          x: 55
+          y: 55
+        - id: C
+          x: 72
+          y: 12
+        - id: E
+          x: 72
+          y: 88
+        - id: T
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: A
+          w: 2
+        - a: S
+          b: B
+          w: 5
+        - a: A
+          b: B
+          w: 2
+        - a: A
+          b: C
+          w: 7
+        - a: B
+          b: D
+          w: 3
+        - a: D
+          b: C
+          w: 1
+        - a: C
+          b: T
+          w: 2
+        - a: D
+          b: E
+          w: 4
+        - a: B
+          b: E
+          w: 7
+        - a: E
+          b: T
+          w: 2
+    hints:
+      - "Via A you reach B sooner than directly: 2 + 2 = 4."
+      - From B via D to C is shorter than from A straight to C.
+    explanation: "S → A → B → D → C → T: 2 + 2 + 3 + 1 + 2 = 10 km. Six places, and still the shortest route."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: In what order does Dijkstra fix the places in the network above if it runs to the end?
+    params:
+      items:
+        - label: S (0)
+        - label: A (2)
+        - label: B (4)
+        - label: D (7)
+        - label: C (8)
+        - label: T (10)
+        - label: E (11)
+    hints:
+      - Always the open place with the smallest distance first.
+      - B is at 4 via A, D at 7 via B.
+    explanation: "Distances only rise as places are fixed: 0, 2, 4, 7, 8, 10, 11. That is why a fixed place is final."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -167,6 +259,85 @@ steps:
     hints:
       - 49! orderings – a number with 63 digits.
     explanation: An **NP-hard** problem. In practice approximations that are almost optimal are used.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Why does Dijkstra fail if some edges have negative lengths?
+    params:
+      options:
+        - label: A fixed place could later become cheaper via a negative edge
+          correct: true
+        - label: He computes with wrong numbers
+          feedback: The arithmetic is fine – only the assumption »fixed means final« breaks.
+        - label: He does not fail
+          feedback: A three-place counterexample is enough.
+    hints:
+      - Why could you fix a place for good so far?
+      - Every detour used to be longer – with negative edges not any more.
+    explanation: For negative edges you use the Bellman–Ford method. It is slower but even detects cycles of negative length.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Dijkstra with a priority queue needs about (edges + nodes) · log₂(nodes) steps. How many million is that for 1 million nodes and 3 million edges?
+    answer:
+      value: 80
+      tolerance: 2
+    hints:
+      - log₂ of a million is about 20.
+      - (3 + 1) million · 20.
+    explanation: 4 million · 20 = 80 million steps – a tenth of a second on a phone. That is why navigation apps compute in real time.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Navigation apps often use A* instead of plain Dijkstra. What is the trick?
+    params:
+      options:
+        - label: They estimate the remaining distance as the crow flies and search towards the goal first
+          correct: true
+        - label: They always take the motorway
+          feedback: That would be a rule of thumb with no guarantee.
+        - label: They guess at random
+          feedback: A* is systematic and still finds the shortest route.
+    hints:
+      - Dijkstra spreads in all directions like a circle.
+      - The straight-line distance is never longer than the real route.
+    explanation: Since the straight line never overestimates, A* is guaranteed to find the shortest route – while visiting far fewer places.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how Dijkstra finds the shortest route.
+    params:
+      keywords:
+        - - nächst
+          - kleinste
+          - closest
+          - smallest
+          - nearest
+        - - fest
+          - endgültig
+          - final
+          - settle
+          - fix
+        - - nachbar
+          - neighbo
+        - - kürzer
+          - verbesser
+          - shorter
+          - improve
+          - update
+      sample: Every place has a tentative distance, the start 0. I always take the nearest open place and fix it – its distance is then final. For every neighbour I check whether the route via this place is shorter and improve the number.
     difficulty: 3
 
 srs:

@@ -1,0 +1,213 @@
+id: cs.cpu.machinecode
+type: concept
+title: "Maschinensprache"
+summary: "Ein winziger Befehlssatz – und daraus werden Schleifen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: "Im Speicher steht M[10] = {{a}} und M[11] = {{b}}. Das Programm lautet: `LADE 10`, `ADD 11`, `HALT`. Was steht danach im Akku?"
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == 21
+        misconception: address-vs-value
+        text: Rechnet wird mit dem Inhalt der Fächer, nicht mit ihren Nummern.
+    hints:
+      - LADE 10 holt den Inhalt von Fach 10 in den Akku.
+      - ADD 11 zählt den Inhalt von Fach 11 dazu.
+    explanation: "{{a}} + {{b}} = {{a + b}}. Der Akku ist das Arbeitsregister – jede Rechnung läuft durch ihn."
+    variants:
+      params:
+        a: int[3,20]
+        b: int[3,20]
+      constraints:
+        - a + b != 21
+      defaults:
+        a: 5
+        b: 7
+
+  - kind: explain
+    id: c1
+    body: "Ein Prozessor versteht nur **Maschinensprache**: Befehle als Zahlen. Lesbar geschrieben heißt das Assembler. Unser Mini-Rechner kennt LADE, ADD, SUB, SPEICHERE, SPRING, SPRINGNULL und HALT."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "M[10] = {{a}}, M[11] = {{b}}. Programm: `LADE 10`, `SUB 11`, `SPEICHERE 12`, `ADD 12`, `HALT`. Was steht am Ende im Akku?"
+    answer:
+      value: "{{2 * (a - b)}}"
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: stop-early
+        text: SPEICHERE kopiert nur – danach kommt noch ADD 12.
+    hints:
+      - Nach SUB steht {{a - b}} im Akku.
+      - SPEICHERE 12 legt eine Kopie in Fach 12. ADD 12 zählt sie dazu.
+    explanation: "{{a}} − {{b}} = {{a - b}}, verdoppelt {{2 * (a - b)}}. Speichern verändert den Akku nicht."
+    variants:
+      params:
+        a: int[10,30]
+        b: int[1,9]
+      defaults:
+        a: 15
+        b: 4
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Schreib ein Programm, das M[20] + M[21] in Fach 22 ablegt. Bring die Befehle in die richtige Reihenfolge.
+    params:
+      items:
+        - label: LADE 20
+        - label: ADD 21
+        - label: SPEICHERE 22
+        - label: HALT
+    hints:
+      - Erst muss eine Zahl in den Akku.
+      - Gespeichert wird, wenn das Ergebnis fertig ist.
+    explanation: Laden, rechnen, speichern – dieses Muster steckt hinter fast jeder Zeile einer Hochsprache wie `c = a + b`.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Prozessor kennt 16 verschiedene Befehle. Wie viele Bits braucht der Befehlscode mindestens?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: count-vs-bits
+        text: Es geht um Bits, nicht um die Zahl der Befehle.
+    hints:
+      - Mit k Bits unterscheidet man $2^k$ Befehle.
+      - $2^4$ = 16.
+    explanation: 4 Bits für 16 Befehle. Die übrigen Bits eines Befehlsworts tragen etwa die Adresse.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Was macht der Befehl SPEICHERE 12?
+    params:
+      options:
+        - label: Er kopiert den Akku in Fach 12
+          correct: true
+        - label: Er legt die Zahl 12 in den Akku
+          feedback: Die 12 ist eine Adresse, keine Zahl zum Rechnen.
+        - label: Er leert Fach 12
+          feedback: Er überschreibt es mit dem Akku.
+    hints:
+      - SPEICHERE ist das Gegenstück zu LADE.
+      - Die Richtung geht vom Akku in den Speicher.
+    explanation: "LADE: Speicher → Akku. SPEICHERE: Akku → Speicher. Der Akku behält seinen Wert."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Ein **bedingter Sprung** wie SPRINGNULL springt nur, wenn der Akku 0 ist. Damit wird aus einer starren Befehlsliste ein Programm mit Schleifen und Entscheidungen.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: M[20] = 3 (Zähler), M[21] = 1, M[22] = 0 (Summe), M[23] = 5. Welchen Wert hat M[22] am Ende?
+    body: "`0 LADE 22 · 1 ADD 23 · 2 SPEICHERE 22` `3 LADE 20 · 4 SUB 21 · 5 SPEICHERE 20` `6 SPRINGNULL 8 · 7 SPRING 0 · 8 HALT`"
+    answer:
+      value: 15
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: one-pass
+        text: Die Schleife läuft mehr als einmal – so oft, wie der Zähler sagt.
+    hints:
+      - Befehle 0 bis 2 addieren 5 zur Summe, 3 bis 5 zählen den Zähler runter.
+      - Der Zähler geht 3 → 2 → 1 → 0. Bei 0 springt das Programm zu HALT.
+    explanation: "Dreimal 5 dazu: 15. Das Programm multipliziert 3 · 5 durch wiederholtes Addieren."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Im selben Programm ist M[20] = {{n}}. Wie viele Befehle führt der Prozessor insgesamt aus, HALT mitgezählt?
+    answer:
+      value: "{{8 * n}}"
+    hints:
+      - Ein voller Durchlauf führt die Befehle 0 bis 7 aus.
+      - Im letzten Durchlauf springt Befehl 6 direkt zu HALT.
+    explanation: ({{n}} − 1) · 8 + 7 + 1 = {{8 * n}}. Der Aufwand wächst linear mit dem Zähler.
+    difficulty: 2
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Warum schreibt heute kaum jemand Programme direkt in Maschinensprache?
+    params:
+      options:
+        - label: Es ist mühsam, fehleranfällig und an einen Prozessortyp gebunden – Compiler übersetzen Hochsprachen
+          correct: true
+        - label: Weil es verboten ist
+          feedback: Erlaubt ist es – manchmal sogar nötig.
+        - label: Weil Maschinensprache langsamer ist
+          feedback: Am Ende läuft alles als Maschinensprache.
+    hints:
+      - Wie viele Befehle bräuchte eine einzige Zeile wie `x = a · b + c`?
+      - Und läuft derselbe Code auf ARM und x86?
+    explanation: Compiler übersetzen in Sekunden Millionen Zeilen – oft besser optimiert als von Hand. Maschinennah programmiert man nur noch an heißen Stellen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Die ARM-Chips im Handy nutzen wenige, einfache Befehle (RISC). Was ist der Vorteil?
+    params:
+      options:
+        - label: Einfache Befehle laufen schnell und stromsparend durch eine Pipeline
+          correct: true
+        - label: Programme werden kürzer
+          feedback: Mit einfachen Befehlen werden sie eher länger.
+        - label: Man braucht keinen Compiler
+          feedback: Den braucht man genauso.
+    hints:
+      - Gleich lange, einfache Befehle sind leicht vorherzusagen.
+      - Was zählt bei einem Akku am meisten?
+    explanation: RISC verlagert Arbeit in den Compiler und hält die Hardware schlank. x86 übersetzt seine komplexen Befehle intern inzwischen selbst in RISC-artige Schritte.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie aus LADE, ADD und SPRING eine Schleife wird.
+    params:
+      keywords:
+        - - sprung
+          - spring
+          - jump
+        - - "null"
+          - zero
+          - bedingung
+          - condition
+          - zähler
+          - counter
+        - - zurück
+          - wiederhol
+          - back
+          - repeat
+          - schleife
+          - loop
+      sample: Ein Zähler steht im Speicher. Das Programm rechnet etwas, zählt den Zähler herunter und springt mit SPRING zurück an den Anfang. Ein bedingter Sprung prüft, ob der Zähler null ist – dann geht es zum Ende statt zurück.
+    difficulty: 3
+
+srs:
+  cards_from: ["hook", "c2", "d2", "d3"]

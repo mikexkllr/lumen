@@ -5,7 +5,7 @@ summary: Bits, Bytes und Ping.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: mbyte
@@ -72,6 +72,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Webseite lädt 20 Dateien nacheinander. Jede braucht einen Ping von 50 ms, bevor sie kommt. Wie viele ms wartest du allein auf Pings?
+    params:
+      unit: ms
+    answer:
+      value: 1000
+    hints:
+      - "Nacheinander heißt: Die Wartezeiten addieren sich."
+      - 20 · 50 ms.
+    explanation: 20 · 50 ms = 1 s – egal, wie schnell die Leitung ist. Darum laden Browser vieles gleichzeitig.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: "Die **Latenz** hat eine harte Grenze: Licht schafft in Glasfaser rund 200 000 km pro Sekunde. Mehr Bandbreite macht ein einzelnes Paket nicht schneller – nur die Leitung breiter."
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: 100 TB sollen von Berlin nach München. Eine Leitung mit 1 Gbit/s – wie viele Stunden braucht sie? (Ein Auto mit Festplatten braucht 6 Stunden.)"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+      unit: h
+    answer:
+      value: 222
+      within: 25
+    explanation: 100 TB = 800 000 Gbit, also 800 000 s ≈ 222 Stunden. Das Auto gewinnt klar. Cloud-Anbieter verschicken für so etwas wirklich Festplatten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -93,6 +129,60 @@ steps:
           - reply
       min: 3
       sample: Der Browser fragt per DNS nach der IP-Adresse zum Namen. Dann schickt er eine Anfrage in Paketen an den Server, und der Server schickt die Seite als Antwort zurück.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Leitung schafft 100 Mbit/s, ein Ping dauert 40 ms. Wie viele Megabit sind gleichzeitig unterwegs, wenn die Leitung voll ausgelastet ist?
+    params:
+      unit: Mbit
+    answer:
+      value: 4
+    hints:
+      - Bandbreite mal Zeit ergibt eine Menge.
+      - 100 Mbit/s · 0,04 s.
+    explanation: 100 · 0,04 = 4 Mbit. Dieses Bandbreite-Verzögerung-Produkt muss der Absender »vorschießen«, bevor die erste Bestätigung kommt.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein 10-MB-Download über 100 Mbit/s. Dazu kommt ein Ping von 0,05 s für den Start. Wie viele Sekunden dauert es insgesamt etwa?
+    params:
+      unit: s
+    answer:
+      value: 0.85
+      tolerance: 0.02
+    feedback:
+      - when: abs(numval(state.input) - 0.15) < 0.01
+        misconception: bits-bytes
+        text: MB und Mbit verwechselt? 10 MB sind 80 Mbit.
+    hints:
+      - Rechne Megabyte in Megabit um.
+      - 80 Mbit / 100 Mbit/s plus 0,05 s.
+    explanation: 80 / 100 = 0,8 s, plus 0,05 s = 0,85 s. Bei großen Dateien zählt die Bandbreite, bei kleinen der Ping.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Videostreaming läuft flüssig, ein Online-Spiel auf derselben Leitung ruckelt. Woran liegt das?
+    params:
+      options:
+        - label: Streaming puffert vorab, beim Spiel zählt jede Millisekunde Ping
+          correct: true
+        - label: Spiele brauchen mehr Bandbreite als Video
+          feedback: Meist ist es umgekehrt – Spiele schicken wenige, kleine Pakete.
+        - label: Spiele nutzen kein Internet
+          feedback: Online-Spiele schicken ständig Pakete.
+    hints:
+      - Kann ein Video schon vorher laden? Kann ein Spiel das?
+      - Deine Eingabe muss sofort beim Server sein.
+    explanation: Ein Video lädt einige Sekunden voraus und überbrückt Schwankungen. Ein Spiel kann die Zukunft nicht vorab laden – da zählt die Latenz.
     difficulty: 3
 
 srs:

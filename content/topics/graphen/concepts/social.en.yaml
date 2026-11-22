@@ -5,7 +5,7 @@ summary: Friends of friends.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: kette
@@ -77,6 +77,61 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: In a group of {{n}} people everyone knows everyone. How many acquaintances are there?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1)
+        misconception: double-count
+        text: That counts each acquaintance twice – once from each side.
+    hints:
+      - Each person knows {{n - 1}} others.
+      - "{{n}} · {{n - 1}}, divided by 2."
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}. The number of pairs grows quadratically."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,30]
+      defaults:
+        n: 10
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: through how many people in between was each Facebook user linked to any other in 2016, on average?"
+    params:
+      min: 1
+      max: 20
+    answer:
+      value: 3.6
+      tolerance: 1
+    explanation: A 2016 analysis found about 3.6 people in between on average. The »six degrees« of old experiments have shrunk further online.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: What is the fastest way to find the shortest chain of acquaintances between two people?
+    params:
+      options:
+        - label: "Breadth-first search: first all direct friends, then their friends …"
+          correct: true
+        - label: "Depth-first search: follow one chain as far as possible"
+          feedback: It finds some path, not necessarily the shortest.
+        - label: List all chains
+          feedback: There are astronomically many.
+    hints:
+      - Without weights only the number of steps counts.
+      - Ring by ring outwards.
+    explanation: Breadth-first search reaches each person first via the shortest chain. It is Dijkstra for networks where every edge costs 1.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -120,6 +175,38 @@ steps:
           - network
           - map
       sample: A graph consists of nodes and edges that connect them. It describes networks of all kinds, such as road maps for shortest paths or friendships in social networks.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Bea has 4 friends. Of the possible pairs among them, 3 are friends. What fraction of the pairs is that? (This is Bea's clustering coefficient.)
+    answer:
+      value: 0.5
+    hints:
+      - How many pairs do 4 people form?
+      - 4 · 3 / 2 = 6 pairs.
+    explanation: "3 of 6 = 0.5. In social networks this value is high: friends of friends are often friends themselves."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Google rated web pages early on with PageRank. What counts most?
+    params:
+      options:
+        - label: How many important pages link to a page
+          correct: true
+        - label: How often a search word appears on the page
+          feedback: That was too easy to game.
+        - label: How new the page is
+          feedback: Age played no role in PageRank.
+    hints:
+      - A link is like a vote.
+      - A vote from an important page counts more.
+    explanation: Important is whoever is linked by important pages – a recursive definition. Mathematically PageRank is an eigenvector of the link matrix.
     difficulty: 3
 
 srs:

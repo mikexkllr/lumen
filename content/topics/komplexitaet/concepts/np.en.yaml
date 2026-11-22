@@ -5,7 +5,7 @@ summary: The class NP.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: sudoku
@@ -93,6 +93,114 @@ steps:
     explanation: "Sudoku, timetables, the round trip: thousands of problems are **the same** at heart. A fast method for one would prove P = NP."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "A **reduction** quickly translates problem A into problem B. If B can be solved fast, so can A. »A reduces to B« therefore means: B is at least as hard as A."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: choice
+    prompt: "One shows: sudoku reduces to SAT. What follows?"
+    params:
+      options:
+        - label: A fast SAT solver would also solve sudoku fast
+          correct: true
+        - label: SAT is easier than sudoku
+          feedback: "The reverse: SAT is at least as hard."
+        - label: Sudoku is unsolvable
+          feedback: A reduction says nothing about unsolvability.
+    hints:
+      - The translation goes from sudoku to SAT.
+      - Whoever can do B can also do A.
+    explanation: "That is exactly how real sudoku and planning software works: it translates into SAT and uses a highly optimised SAT solver."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: gates
+    prompt: "A small SAT problem: (A OR B) AND (NOT A OR C) AND NOT (B AND C). Find an assignment that lights the lamp."
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: g1
+          type: OR
+          in:
+            - A
+            - B
+        - id: na
+          type: NOT
+          in:
+            - A
+        - id: g2
+          type: OR
+          in:
+            - na
+            - C
+        - id: g3
+          type: NAND
+          in:
+            - B
+            - C
+        - id: q
+          type: AND
+          in:
+            - g1
+            - g2
+            - g3
+      outputs:
+        - id: Q
+          from: q
+      goal:
+        Q: 1
+    hints:
+      - If A is on, C must be on. If B and C are both on, it fails.
+      - Try A = 1, B = 0, C = 1 – or just B.
+    explanation: A = 1, B = 0, C = 1 or A = 0, B = 1, C = 0. Checking a solution is easy – finding one can be very hard with many variables.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: How many of the 8 assignments make the formula above true?
+    answer:
+      value: 2
+    hints:
+      - Go through all 8 rows.
+      - Only 010 and 101 work.
+    explanation: Two out of eight. With 100 variables there would be $2^{100}$ rows – too many to try.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d5
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: Every problem in P is also in NP.
+          right: true
+          why: What you can solve fast you can also check fast.
+        - text: NP means »not polynomial«.
+          right: false
+          why: NP means »nondeterministic polynomial«.
+        - text: If an NP-complete problem were in P, then P = NP.
+          right: true
+          why: All NP problems reduce to it.
+        - text: It has been proven that P ≠ NP.
+          right: false
+          why: The question is open to this day.
+        - text: Factoring is NP-complete.
+          right: false
+          why: That is not known – and rather doubted.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -103,6 +211,69 @@ steps:
     hints:
       - It is one of the seven Millennium Problems.
     explanation: One million dollars from the Clay Institute. Of the seven problems only one has been solved so far.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Which problem was the first to be proven NP-complete, in 1971?
+    params:
+      options:
+        - label: SAT – satisfiability of logical formulas
+          correct: true
+        - label: The round trip
+          feedback: It followed soon after by reductions.
+        - label: Sudoku
+          feedback: Sudoku was studied much later.
+    hints:
+      - "Stephen Cook showed: every computation can be written as a formula."
+      - It is the problem you just solved with gates.
+    explanation: The Cook–Levin theorem. A year later Karp reduced 21 more problems to it – including colouring and round trips.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: The halting problem is NP-hard but not NP-complete. Why?
+    params:
+      options:
+        - label: It is not in NP – it is not even decidable
+          correct: true
+        - label: Because it is easier than SAT
+          feedback: It is much harder.
+        - label: Because it can be checked quickly
+          feedback: An answer »runs forever« cannot be checked.
+    hints:
+      - NP-complete = NP-hard and itself in NP.
+      - Can the halting problem be solved at all?
+    explanation: "SAT reduces to it: a program searches for a solution and halts when it finds one. But no computer can solve it."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between P and NP.
+    params:
+      keywords:
+        - - prüf
+          - check
+          - verif
+        - - find
+          - lös
+          - solv
+        - - schnell
+          - polynom
+          - fast
+          - efficient
+        - - offen
+          - unbekannt
+          - open
+          - unknown
+          - million
+      sample: P is problems you can solve fast. NP is problems whose solution you can check fast, like a finished sudoku. Whether everything quickly checkable can also be found quickly is open – there is a million dollars for it.
     difficulty: 3
 
 srs:

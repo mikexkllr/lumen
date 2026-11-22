@@ -5,7 +5,7 @@ summary: Das Fach direkt ausrechnen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,64 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Fächer 0 bis 6, Fach = Schlüssel mod 7. Ist ein Fach belegt, nimm das nächste freie. Du fügst nacheinander 10, 17 und 24 ein. In welchem Fach landet 24?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: ignore-collision
+        text: 24 mod 7 ist zwar 3 – aber dort liegt schon die 10.
+    hints:
+      - Alle drei Schlüssel ergeben mod 7 dieselbe 3.
+      - 10 nimmt Fach 3, 17 rutscht auf 4 …
+    explanation: 10 → 3, 17 → 4, 24 → 5. Dieses Weiterrutschen heißt lineares Sondieren. Kollisionen ballen sich dabei zu Klumpen.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Der **Lastfaktor** ist die Zahl der Einträge geteilt durch die Zahl der Fächer. Steigt er über etwa 0,75, verdoppeln viele Tabellen ihre Fächer und verteilen alles neu. So bleibt Nachschlagen schnell.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Eine Hash-Tabelle hat 365 Fächer, die Schlüssel verteilen sich zufällig. Ab wie vielen Einträgen ist eine Kollision wahrscheinlicher als keine?
+    answer:
+      value: 23
+    feedback:
+      - when: numval(state.input) >= 180
+        misconception: birthday-intuition
+        text: "Viel weniger: Es zählen alle Paare, und davon gibt es schnell viele."
+    hints:
+      - Das ist das Geburtstagsproblem.
+      - Bei n Einträgen gibt es n · (n − 1) / 2 Paare.
+    explanation: Ab 23 Einträgen liegt die Chance über 50 %. Kollisionen sind darum der Normalfall – jede Hash-Tabelle muss mit ihnen umgehen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: Eine Tabelle nimmt als Fach nur den ersten Buchstaben des Namens. Was ist das Problem?
+    params:
+      options:
+        - label: Viele Namen beginnen gleich – manche Fächer quellen über, andere bleiben leer
+          correct: true
+        - label: Es gibt zu viele Fächer
+          feedback: 26 Fächer sind eher zu wenig.
+        - label: Gar keins
+          feedback: Unter S stünden Tausende – die Suche dort wäre langsam.
+    hints:
+      - Wie viele Namen beginnen mit S, wie viele mit X?
+      - Eine gute Hashfunktion verteilt gleichmäßig.
+    explanation: Eine gute Hashfunktion mischt alle Zeichen ein, damit ähnliche Schlüssel weit auseinanderliegen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -106,6 +164,65 @@ steps:
     hints:
       - Eine gute Hashfunktion ist eine Einbahnstraße.
     explanation: Beim Login wird die Eingabe gehasht und verglichen. Das Passwort selbst kennt der Server nie.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Angreifer schickt einem Server lauter Schlüssel, die im selben Fach landen. Was passiert?
+    params:
+      options:
+        - label: Nachschlagen wird langsam wie in einer Liste – O(n) statt O(1)
+          correct: true
+        - label: Die Tabelle wird kleiner
+          feedback: Die Größe bleibt; nur ein Fach wird riesig.
+        - label: Nichts, Hash-Tabellen sind immer O(1)
+          feedback: Nur im Schnitt – und nur bei gut verteilten Schlüsseln.
+    hints:
+      - Was steckt in einem Fach mit vielen Einträgen?
+      - Eine lange Liste, die man durchsuchen muss.
+    explanation: Darum würfeln Sprachen wie Python ihre Hashfunktion bei jedem Start neu. Ohne den Startwert kann niemand gezielt Kollisionen bauen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Gleich viele Einträge wie Fächer, zufällig verteilt. Wie viel Prozent der Fächer bleiben etwa leer? Tipp: (1 − 1/n)ⁿ ≈ 1/e. Runde auf ganze Prozent."
+    params:
+      unit: "%"
+    answer:
+      value: 37
+      tolerance: 1
+    hints:
+      - Ein bestimmtes Fach wird bei jedem Eintrag mit Wahrscheinlichkeit 1 − 1/n verfehlt.
+      - 1/e ≈ 0,368.
+    explanation: Rund 37 % bleiben leer, dafür haben manche Fächer zwei oder drei Einträge. Zufall verteilt nie perfekt gleichmäßig.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Hash-Tabelle etwas findet, ohne zu suchen.
+    params:
+      keywords:
+        - - rechn
+          - berechn
+          - comput
+          - calculat
+          - funktion
+          - function
+        - - fach
+          - bucket
+          - platz
+          - slot
+        - - kollision
+          - collision
+          - gleiche fach
+          - same bucket
+      sample: "Eine Hashfunktion berechnet aus dem Schlüssel direkt die Nummer des Fachs. Dort schaut man nach – ohne zu suchen. Landen zwei Schlüssel im gleichen Fach, ist das eine Kollision: Das Fach hält dann eine kleine Liste."
     difficulty: 3
 
 srs:

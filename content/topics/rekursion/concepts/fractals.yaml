@@ -5,7 +5,7 @@ summary: Muster, die in sich selbst stecken.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: explain
     id: s1
@@ -79,6 +79,79 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: pixels
+    prompt: "Regel: Ein Feld ist an, wenn genau eins der beiden Felder darüber an ist – direkt darüber oder links darüber. Fülle die letzte Zeile."
+    params:
+      cells:
+        - "#...."
+        - "##..."
+        - "#.#.."
+        - "####."
+        - .....
+      locked:
+        - xxxxx
+        - xxxxx
+        - xxxxx
+        - xxxxx
+        - .....
+    answer:
+      pattern:
+        - "#...."
+        - "##..."
+        - "#.#.."
+        - "####."
+        - "#...#"
+    hints:
+      - Die Zeile darüber ist ganz voll bis auf das letzte Feld.
+      - Zwei volle Felder darüber ergeben aus. Nur ganz links und ganz rechts ist genau eins an.
+    explanation: Das ist das Pascal-Dreieck, nur ungerade Zahlen gefärbt. Weitergemacht entsteht das Sierpinski-Dreieck.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Die Koch-Kurve beginnt mit 1 m und wird pro Schritt um den Faktor 4/3 länger. Wie lang ist sie nach 5 Schritten? Runde auf zwei Stellen.
+    params:
+      unit: m
+    answer:
+      value: 4.21
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 2.67) < 0.02
+        misconception: linear-growth
+        text: "Das wäre linear: 1 + 5 · 1/3. Die Länge wird aber jedes Mal multipliziert."
+    hints:
+      - Rechne $(4/3)^5$.
+      - $4^5$ = 1024, $3^5$ = 243.
+    explanation: 1024 / 243 ≈ 4,21 m. Nach 100 Schritten wäre sie länger als der Weg zum Mond – in einem Kasten von 1 m.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: Die Koch-Schneeflocke beginnt mit einem Dreieck aus 3 Strecken. Jeder Schritt macht aus jeder Strecke 4. Wie viele Strecken hat sie nach {{n}} Schritten?
+    answer:
+      value: "{{3 * 4 ** n}}"
+    feedback:
+      - when: numval(state.input) == 4 ** n
+        misconception: forgot-start
+        text: Du hast mit einer Strecke angefangen. Die Flocke hat drei.
+    hints:
+      - Jeder Schritt multipliziert mit 4.
+      - 3 · $4^{ {{n}} }$.
+    explanation: "3 · $4^{ {{n}} }$ = {{3 * 4 ** n}} Strecken. Ein Programm zeichnet sie rekursiv: Strecke = vier kleinere Strecken."
+    difficulty: 2
+    variants:
+      params:
+        n: int[1,6]
+      defaults:
+        n: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +162,77 @@ steps:
     hints:
       - log 3 ≈ 0,477 und log 2 ≈ 0,301.
     explanation: 1,58 – mehr als eine Linie, weniger als eine Fläche. Fraktale haben gebrochene Dimensionen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Die Koch-Kurve besteht aus 4 Kopien, jede um den Faktor 3 verkleinert. Wie groß ist ihre fraktale Dimension log 4 / log 3? Runde auf zwei Stellen.
+    answer:
+      value: 1.26
+      tolerance: 0.01
+    hints:
+      - log 4 ≈ 0,602, log 3 ≈ 0,477.
+      - Teile die beiden Zahlen.
+    explanation: 0,602 / 0,477 ≈ 1,26. Mehr als eine Linie (1), weniger als eine Fläche (2).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: "Der Sierpinski-Teppich: Ein Quadrat wird in 9 Teile geteilt, das mittlere fällt weg. Es bleiben 8 Kopien mit Faktor 3. Welche Dimension hat er? Runde auf zwei Stellen."
+    answer:
+      value: 1.89
+      tolerance: 0.01
+    hints:
+      - Dimension = log(Kopien) / log(Faktor).
+      - log 8 / log 3 ≈ 0,903 / 0,477.
+    explanation: log 8 / log 3 ≈ 1,89 – fast eine Fläche, aber eben nicht ganz.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Beim Sierpinski-Dreieck fällt in jedem Schritt ein Viertel der Fläche weg. Was bleibt nach unendlich vielen Schritten?
+    params:
+      options:
+        - label: Fläche 0 – obwohl unendlich viele Punkte übrig sind
+          correct: true
+        - label: Ein Viertel der Fläche
+          feedback: Es fällt in jedem Schritt erneut ein Viertel weg.
+        - label: Gar nichts mehr
+          feedback: Alle Ecken und Ränder bleiben stehen.
+    hints:
+      - Nach n Schritten bleibt $(3/4)^n$ der Fläche.
+      - Was passiert mit $(3/4)^n$ für großes n?
+    explanation: $(3/4)^n$ geht gegen 0. Das Fraktal hat keine Fläche – und doch unendlich viele Punkte. Deshalb liegt seine Dimension zwischen 1 und 2.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein Fraktal ist.
+    params:
+      keywords:
+        - - selbst
+          - self
+          - kopie
+          - copy
+          - sich
+        - - kleiner
+          - smaller
+          - verklein
+          - scale
+        - - immer wieder
+          - unendlich
+          - forever
+          - infinit
+          - again
+      sample: Ein Fraktal enthält kleinere Kopien von sich selbst. Jede Kopie besteht wieder aus noch kleineren Kopien – immer wieder, im Prinzip unendlich. Darum lässt es sich rekursiv zeichnen.
     difficulty: 3
 
 srs:

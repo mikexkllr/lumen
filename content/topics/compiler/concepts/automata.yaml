@@ -1,0 +1,237 @@
+id: cs.languages.automata
+type: concept
+title: "Automaten und reguläre Ausdrücke"
+summary: "Maschinen mit wenigen Zuständen, die Muster erkennen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: "Ein Drehkreuz: Münze einwerfen entsperrt es, Durchgehen sperrt es wieder. Es ist gesperrt, und du drückst ohne Münze dagegen. Was passiert?"
+    params:
+      options:
+        - label: Es bleibt gesperrt
+          correct: true
+        - label: Es entsperrt sich
+          feedback: Dafür braucht es eine Münze.
+        - label: Es merkt sich den Versuch für später
+          feedback: Es kennt nur zwei Zustände – mehr merkt es sich nicht.
+    hints:
+      - Das Drehkreuz kennt nur »gesperrt« und »offen«.
+      - Drücken ändert im gesperrten Zustand nichts.
+    explanation: Zwei Zustände, zwei Eingaben, feste Übergänge – das ist schon ein endlicher Automat.
+
+  - kind: explain
+    id: c1
+    body: Ein **endlicher Automat** hat endlich viele Zustände. Er liest ein Zeichen nach dem anderen und wechselt je nach Zeichen den Zustand. Endet er in einem akzeptierenden Zustand, gilt das Wort.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Ein Automat merkt sich nur »gerade« oder »ungerade« viele Einsen. Er startet bei »gerade« und liest 1, 0, 1, 1. Wo endet er?
+    params:
+      options:
+        - label: Bei »ungerade«
+          correct: true
+        - label: Bei »gerade«
+          feedback: "Zähle die Einsen: Es sind drei."
+        - label: Er hängt bei der 0 fest
+          feedback: Bei 0 bleibt er einfach, wo er ist.
+    hints:
+      - Jede 1 wechselt den Zustand, jede 0 nicht.
+      - gerade → ungerade → ungerade → gerade → ?
+    explanation: "Drei Einsen: ungerade. Der Automat zählt nicht bis drei – er merkt sich nur ein einziges Bit."
+
+  - kind: problem
+    id: c3
+    widget: swipe
+    prompt: Akzeptiert der Automat »gerade viele Einsen« das Wort?
+    params:
+      cards:
+        - text: "1100"
+          right: true
+          why: Zwei Einsen – gerade.
+        - text: "111"
+          right: false
+          why: Drei Einsen – ungerade.
+        - text: "0"
+          right: true
+          why: Null Einsen – null ist gerade.
+        - text: "10101"
+          right: false
+          why: Drei Einsen.
+        - text: "1001"
+          right: true
+          why: Zwei Einsen.
+      left: abgelehnt
+      right: akzeptiert
+
+  - kind: explain
+    id: c4
+    body: "Ein **regulärer Ausdruck** beschreibt ein Muster: `a*` heißt beliebig viele a, `[0-9]+` heißt eine oder mehr Ziffern, `?` heißt »darf fehlen«. Zu jedem solchen Ausdruck gibt es einen endlichen Automaten."
+
+  - kind: problem
+    id: c5
+    widget: match
+    prompt: Welcher Text passt auf welches Muster?
+    params:
+      pairs:
+        - left: "`[0-9]+`"
+          right: "2024"
+        - left: "`a*b`"
+          right: aaab
+        - left: "`(ab)*`"
+          right: ababab
+        - left: "`colou?r`"
+          right: color
+      leftTitle: Muster
+      rightTitle: Text
+    hints:
+      - Das u in colou?r darf fehlen.
+      - (ab)* wiederholt das Paar ab.
+    explanation: Jedes Muster passt hier auf genau einen Text. Suchfelder, Formulare und Editoren nutzen solche Muster ständig.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Automat liest eine Binärzahl Ziffer für Ziffer und soll erkennen, ob sie durch 3 teilbar ist. Wie viele Zustände braucht er mindestens?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: yes-no-only
+        text: Teilbar oder nicht reicht nicht – er muss den Rest kennen, um weiterzurechnen.
+    hints:
+      - Was muss er sich merken, um beim nächsten Bit weiterzurechnen?
+      - "Den Rest beim Teilen durch 3: 0, 1 oder 2."
+    explanation: Drei Zustände für die Reste 0, 1 und 2. Die ganze Zahl muss er sich nie merken.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Der Automat merkt sich nur den Rest beim Teilen durch 3. Neuer Rest = (2 · alter Rest + Ziffer) mod 3, Start bei 0. Er liest {{bin(n)}}. Welcher Rest steht am Ende?
+    answer:
+      value: "{{mod(n, 3)}}"
+    hints:
+      - "Geh Ziffer für Ziffer, oder rechne die Zahl aus: {{bin(n)}} = {{n}}."
+      - "{{n}} mod 3."
+    explanation: "{{n}} mod 3 = {{mod(n, 3)}}. Mal 2 ist ein angehängtes Bit, plus Ziffer das neue Bit – so rechnet der Automat Stück für Stück."
+    difficulty: 2
+    variants:
+      params:
+        n: int[9,60]
+      defaults:
+        n: 22
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Welcher Text passt auf das Muster `[a-z]+@[a-z]+\.de`?
+    params:
+      options:
+        - label: ana@post.de
+          correct: true
+        - label: ana@post.com
+          feedback: Am Ende muss .de stehen.
+        - label: ana.b@post.de
+          feedback: "[a-z] erlaubt nur Buchstaben – kein Punkt vor dem @."
+        - label: "@post.de"
+          feedback: Vor dem @ muss mindestens ein Buchstabe stehen.
+    hints:
+      - "+ heißt: mindestens ein Zeichen."
+      - \. steht für einen echten Punkt.
+    explanation: Echte E-Mail-Adressen sind viel vielfältiger – ein Muster, das alle korrekt prüft, ist berüchtigt lang.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Kann ein endlicher Automat prüfen, ob Klammern richtig verschachtelt sind, etwa »((( … )))«?
+    params:
+      options:
+        - label: Nein – er müsste beliebig weit zählen, hat aber nur endlich viele Zustände
+          correct: true
+        - label: Ja, mit einem großen Muster
+          feedback: Für jede feste Größe vielleicht, für beliebige Tiefe nie.
+        - label: Ja, das ist leicht
+          feedback: Dafür braucht man einen Stapel, also mehr als einen Automaten.
+    hints:
+      - Wie viele offene Klammern muss er sich merken?
+      - Bei k Zuständen verliert er ab k + 1 Klammern den Überblick.
+    explanation: Das zeigt das Pumping-Lemma. Für Klammern braucht man Grammatiken mit Rekursion – und einen Stapel.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein Automat mit 5 Zuständen liest ein Wort mit 7 Zeichen. Was gilt sicher?
+    params:
+      options:
+        - label: Mindestens ein Zustand wird mehrfach besucht
+          correct: true
+        - label: Jeder Zustand wird besucht
+          feedback: Manche Zustände können ungenutzt bleiben.
+        - label: Das Wort wird abgelehnt
+          feedback: Das hängt von den Regeln ab.
+    hints:
+      - Mit dem Start sind es 8 besuchte Zustände.
+      - 8 Besuche, aber nur 5 Zustände.
+    explanation: "Schubfachprinzip: Es gibt eine Schleife. Diese Schleife kann man beliebig oft wiederholen – das ist der Kern des Pumping-Lemmas."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Manche Regex-Programme brauchen für `(a+)+b` auf »aaaaaaaaaaaaaaaaaaaaaaaa« ohne b extrem lange. Warum?
+    params:
+      options:
+        - label: Sie probieren exponentiell viele Aufteilungen der a durch
+          correct: true
+        - label: Weil das Muster falsch ist
+          feedback: Es ist gültig – nur gefährlich.
+        - label: Weil 24 Zeichen zu viel sind
+          feedback: Ein Automat liest sie in 24 Schritten.
+    hints:
+      - Auf wie viele Arten kann man 24 a in Gruppen aufteilen?
+      - Bei jedem Fehlschlag versucht das Programm die nächste Aufteilung.
+    explanation: Solches Backtracking kann Server lahmlegen (ReDoS). Ein echter endlicher Automat bräuchte nur einen Durchlauf.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein endlicher Automat ein Wort prüft.
+    params:
+      keywords:
+        - - zustand
+          - state
+        - - zeichen
+          - buchstab
+          - character
+          - letter
+          - symbol
+        - - akzept
+          - accept
+          - gültig
+          - valid
+        - - endlich
+          - finite
+          - wenige
+          - few
+      sample: Der Automat hat endlich viele Zustände und beginnt im Startzustand. Er liest das Wort Zeichen für Zeichen und wechselt nach festen Regeln den Zustand. Steht er am Ende in einem akzeptierenden Zustand, ist das Wort gültig.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c5", "d2", "x1"]

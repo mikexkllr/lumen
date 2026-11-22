@@ -5,7 +5,7 @@ summary: With NAND, you can build any chip.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 15000000000
       within: 85
     explanation: Over 15 billion. And almost all of it could be built from a single kind of gate.
-
 
   - kind: explain
     id: s1
@@ -84,6 +83,83 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: gates
+    prompt: An XOR from four NAND gates. One gate is still open – pick it.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: n1
+          type: NAND
+          in:
+            - A
+            - B
+        - id: n2
+          type: "?"
+          in:
+            - A
+            - n1
+          options:
+            - AND
+            - OR
+            - NAND
+        - id: n3
+          type: NAND
+          in:
+            - B
+            - n1
+        - id: n4
+          type: NAND
+          in:
+            - n2
+            - n3
+      outputs:
+        - id: Q
+          from: n4
+    check:
+      predicate: table('Q') == [0, 1, 1, 0]
+    hints:
+      - "The plan is symmetric: what does the gate on the B side do?"
+      - "Test A = 1, B = 0: the lamp must light up."
+    explanation: All four are NAND. The design is symmetric and needs no other gate type.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: An OR needs 3 NAND gates. How many does a NOR need at least?
+    answer:
+      value: 4
+    hints:
+      - NOR is NOT of OR.
+      - A NOT made of NAND costs one gate.
+    explanation: "3 for the OR plus 1 for the NOT: 4 NAND gates."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Why do chipmakers like to build everything from a single gate type?
+    params:
+      options:
+        - label: One building block can be made identically billions of times and optimised
+          correct: true
+        - label: Because other gates are forbidden
+          feedback: Everything is allowed – it is about manufacturing.
+        - label: Because NAND computes faster than AND
+          feedback: In CMOS NAND is even simpler than AND – AND is a NAND plus a NOT.
+    hints:
+      - Think of Lego with only one kind of brick.
+      - Fewer kinds means simpler factories.
+    explanation: In CMOS a NAND needs only 4 transistors. A uniform building block simplifies design, testing and manufacturing.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -99,6 +175,70 @@ steps:
     hints:
       - Through the feedback the output depends on the past.
     explanation: A **flip-flop**. Feedback turns gates without memory into storage – the second basic building block of every computer.
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: A set of gates is **functionally complete** if it can build every truth table. NAND alone is enough, and so is NOR. AND with OR is not – the NOT is missing.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: "{NOR} is functionally complete."
+          right: true
+          why: NOR with itself gives NOT, and everything follows.
+        - text: "{AND, OR} is functionally complete."
+          right: false
+          why: Without NOT, all zeros never give a 1.
+        - text: "{AND, NOT} is functionally complete."
+          right: true
+          why: From these you build NAND – and NAND suffices.
+        - text: "{XOR} is functionally complete."
+          right: false
+          why: XOR turns all zeros into 0 – no NOT that way.
+        - text: "{OR, NOT} is functionally complete."
+          right: true
+          why: NOT of OR is NOR.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: In CMOS a NAND gate has 4 transistors. How many transistors does an XOR built from 4 NANDs need?
+    answer:
+      value: 16
+    hints:
+      - Each gate has 4 transistors.
+      - 4 · 4.
+    explanation: 4 · 4 = 16. Clever circuits do XOR with fewer – chip design is the art of finding such shortcuts.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a single gate type is enough for a whole computer.
+    params:
+      keywords:
+        - - nand
+        - - nicht
+          - not
+          - und
+          - and
+          - oder
+          - or
+        - - jede
+          - alle
+          - every
+          - any
+          - all
+      sample: From NAND you can build NOT, AND and OR. With these three you can assemble every truth table – so any circuit, from adders to memory.
     difficulty: 3
 
 srs:

@@ -1,0 +1,186 @@
+id: cs.languages.parsing
+type: concept
+title: "Parsing and syntax trees"
+summary: "How a compiler turns text into a tree."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: What is 2 + 3 · 4?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: left-to-right
+        text: "Multiplication before addition: first 3 · 4, then + 2."
+    hints:
+      - What is computed first?
+      - 3 · 4 = 12.
+    explanation: 2 + 12 = 14. A computer does not know this by itself – the parser must read it off the grammar.
+
+  - kind: explain
+    id: c1
+    body: A **parser** reads text and builds a syntax tree from it. In 2 + 3 · 4 the · hangs lower in the tree than the +. Whatever hangs lower is computed first.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: In what order is the tree of 2 · (3 + 4) − 5 evaluated?
+    params:
+      items:
+        - label: 3 + 4 = 7
+        - label: 2 · 7 = 14
+        - label: 14 − 5 = 9
+    hints:
+      - The bracket hangs lowest.
+      - At the very top, and so last, is the minus.
+    explanation: "From the leaves to the root: each node first needs its children's values."
+
+  - kind: explain
+    id: c3
+    body: "Before the parser, a lexer splits the text into **tokens**: `sum = x1 + 42` becomes name, equals, name, plus, number. Spaces and comments drop out."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: How many tokens does `if (x >= 10) y = 0;` have? The symbol >= counts as one token.
+    answer:
+      value: 10
+    hints:
+      - "Count words, numbers and symbols separately: if, (, x …"
+      - if ( x >= 10 ) y = 0 ;
+    explanation: if, (, x, >=, 10, ), y, =, 0, ; – ten tokens. The spaces do not count.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: What is {{a}} + {{b}} · {{c}}?
+    answer:
+      value: "{{a + b * c}}"
+    feedback:
+      - when: numval(state.input) == (a + b) * c
+        misconception: left-to-right
+        text: Computed left to right. The tree hangs the · lower.
+    hints:
+      - The · is computed first.
+      - "{{b}} · {{c}} = {{b * c}}."
+    explanation: "{{a}} + {{b * c}} = {{a + b * c}}."
+    variants:
+      params:
+        a: int[2,9]
+        b: int[2,9]
+        c: int[2,9]
+      defaults:
+        a: 5
+        b: 3
+        c: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: With **recursive descent** every grammar rule gets a function. expression() calls term(), term() calls factor(), and factor() calls expression() again at a bracket.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The parser reads »((( 7 )))«. At most how many calls of expression() are active at once, counting the first?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: forgot-outer
+        text: The very first call for the whole text counts too.
+    hints:
+      - Every bracket starts a new call.
+      - One call for everything, plus one per bracket.
+    explanation: 1 + 3 = 4 calls stacked up. The parser's recursion mirrors the nesting of the text.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "You read the tree of 2 + 3 · 4 like this: first the children, then the node. What results?"
+    params:
+      options:
+        - label: 2 3 4 · +
+          correct: true
+        - label: 2 + 3 · 4
+          feedback: That is the normal notation – node between the children.
+        - label: + 2 · 3 4
+          feedback: That would be node first, then the children.
+    hints:
+      - The root is the +, its right child the ·.
+      - The root comes at the very end.
+    explanation: That is postfix – exactly the form a stack machine works through without brackets. That is how compilers generate code for stack machines.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: The rule expression → expression − number makes a simple recursive descent crash. Why?
+    params:
+      options:
+        - label: expression() immediately calls expression() again without reading a character – forever
+          correct: true
+        - label: Because minus is forbidden
+          feedback: The symbol is not the problem.
+        - label: Because numbers are missing
+          feedback: The number would only come after the endless call.
+    hints:
+      - What does the function do first of all?
+      - It calls itself – with the same text.
+    explanation: "This is called left recursion. Fix: write it as a loop – read a number, then keep going while »− number« follows."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: What is an abstract syntax tree?
+    params:
+      options:
+        - label: A tree without brackets and punctuation – only the structure that matters
+          correct: true
+        - label: A tree that cannot be drawn
+          feedback: It can be drawn perfectly well.
+        - label: The source code without comments
+          feedback: That is still text, not a tree.
+    hints:
+      - Does the tree still need the brackets of (3 + 4)?
+      - The shape of the tree replaces the brackets.
+    explanation: The AST is the heart of every compiler. Checking, optimising and translating all work on it.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a computer understands 2 + 3 · 4 as 14.
+    params:
+      keywords:
+        - - baum
+          - tree
+        - - punkt vor strich
+          - vorrang
+          - zuerst
+          - precedence
+          - first
+        - - tiefer
+          - unten
+          - kind
+          - deeper
+          - lower
+          - child
+      sample: "The parser builds a tree from the expression. The grammar gives · precedence, so it hangs lower in the tree, as a child of the +. Evaluation goes bottom up: first 3 · 4 = 12, then 2 + 12 = 14."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "c5", "d2"]

@@ -5,7 +5,7 @@ summary: Mergesort – sortieren durch Zusammenlegen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: zusammen
@@ -65,6 +65,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Vergleiche braucht das Zusammenlegen von 2, 5, 8 und 1, 6, 9?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: last-card
+        text: Die letzte Karte kommt ohne Vergleich dazu – der andere Stapel ist dann leer.
+    hints:
+      - Vergleiche immer die beiden oberen Karten.
+      - 2 gegen 1, 2 gegen 6, 5 gegen 6, 8 gegen 6, 8 gegen 9 – dann?
+    explanation: Nach 5 Vergleichen liegt nur noch die 9 da. Sie kommt ohne Vergleich obendrauf.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Vergleiche braucht das Zusammenlegen zweier sortierter Stapel mit je {{m}} Karten höchstens?
+    answer:
+      value: "{{2 * m - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * m
+        misconception: last-card
+        text: Die letzte Karte braucht keinen Vergleich mehr.
+    hints:
+      - Jeder Vergleich legt eine Karte ab.
+      - Wenn ein Stapel leer ist, ist der Rest geschenkt.
+    explanation: Höchstens {{2 * m}} − 1 = {{2 * m - 1}}. Das Zusammenlegen ist linear – der Grund, warum Mergesort so schnell ist.
+    difficulty: 2
+    variants:
+      params:
+        m: int[3,20]
+      defaults:
+        m: 8
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "Mergesort ist ein Beispiel für **Teile und herrsche**: Problem halbieren, beide Hälften genauso lösen, die Ergebnisse zusammensetzen. Es gibt log₂ n Ebenen, auf jeder ist n Arbeit – zusammen n · log₂ n."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: "Quicksort wählt ein Pivot und teilt: links alles Kleinere, rechts alles Größere. Wann wird er langsam?"
+    params:
+      options:
+        - label: Wenn das Pivot immer das Kleinste oder Größte ist – dann O(n²)
+          correct: true
+        - label: Wenn die Liste zufällig gemischt ist
+          feedback: Dann ist er im Schnitt sehr schnell.
+        - label: Nie, er ist immer n · log n
+          feedback: Im schlechtesten Fall nicht.
+    hints:
+      - Wie ungleich können die beiden Teile werden?
+      - Ein Teil leer, der andere n − 1 groß – und das immer wieder.
+    explanation: Bei sortierter Eingabe und dem ersten Element als Pivot entstehen n Ebenen statt log₂ n. Darum wählt man das Pivot zufällig.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -90,6 +153,53 @@ steps:
           - together
           - join
       sample: Man zerlegt ein großes Problem in kleinere, die einfacher zu lösen sind. Die Teillösungen setzt man danach zu einer Gesamtlösung zusammen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Für Mergesort gilt T(n) = 2 · T(n/2) + n und T(1) = 0. Was ist T(8)?
+    answer:
+      value: 24
+    hints:
+      - "Rechne von unten: T(2) = 2 · 0 + 2."
+      - T(4) = 2 · 2 + 4, T(8) = 2 · T(4) + 8.
+    explanation: T(2) = 2, T(4) = 8, T(8) = 24 = 8 · 3 = n · log₂ n. Die Rekursionsgleichung bestätigt die Formel.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Vergleiche braucht Mergesort ungefähr für eine Milliarde Zahlen?"
+    params:
+      min: 1000000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 30000000000
+      within: 40
+    explanation: n · log₂ n = $10^9$ · 30 = 3 · $10^{10}$ – auf einem schnellen Rechner wenige Sekunden. Bubble-Sort bräuchte rund 5 · $10^{17}$, also Jahre.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Python und Java sortieren mit Timsort, einer Mischung aus Mergesort und Insertion-Sort. Warum gerade so?
+    params:
+      options:
+        - label: Er ist stabil und nutzt schon sortierte Stücke in echten Daten aus
+          correct: true
+        - label: Er braucht gar keinen Speicher
+          feedback: Mergesort braucht Zusatzspeicher – Timsort auch.
+        - label: Er ist immer O(n)
+          feedback: Im schlechtesten Fall bleibt er n · log n.
+    hints:
+      - Echte Daten sind oft schon halb sortiert.
+      - Was kann Insertion-Sort besonders gut?
+    explanation: Timsort sucht sortierte Läufe, verlängert kurze mit Insertion-Sort und legt sie wie Mergesort zusammen. Bei fast sortierten Daten ist er nahezu linear.
     difficulty: 3
 
 srs:

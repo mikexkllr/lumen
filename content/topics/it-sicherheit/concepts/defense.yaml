@@ -5,7 +5,7 @@ summary: Zwei Faktoren und gute Backups.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Etwas, das du hast – und etwas, das du weißt.
     explanation: Zwei Hürden statt einer. Das geht auch bei Online-Konten.
-
 
   - kind: explain
     id: s1
@@ -85,6 +84,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Eine Authenticator-App macht alle 30 Sekunden einen neuen 6-stelligen Code. Wie viele Codes sind das an einem Tag?
+    answer:
+      value: 2880
+    hints:
+      - Ein Tag hat 86 400 Sekunden.
+      - 86 400 / 30.
+    explanation: 2880 Codes. Jeder gilt nur 30 Sekunden – ein abgefangener Code ist schnell wertlos.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Angreifer rät einen 6-stelligen Code und hat 3 Versuche. Wie groß ist seine Chance in Prozent?
+    params:
+      unit: "%"
+    answer:
+      value: 0.0003
+      tolerance: 0.00001
+    hints:
+      - Es gibt $10^6$ Codes.
+      - 3 / 1 000 000, mal 100.
+    explanation: 3 / $10^6$ = 0,0003 %. Raten ist aussichtslos – darum versuchen Angreifer lieber, dir den Code zu entlocken.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: Nach dem **Prinzip der minimalen Rechte** bekommt jedes Konto nur, was es wirklich braucht. Wird es gekapert, bleibt der Schaden klein. Admin-Rechte nutzt man nur, wenn es nötig ist.
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: buckets
+    prompt: Welche Art von Faktor ist das?
+    params:
+      buckets:
+        - id: b1
+          label: Wissen
+        - id: b2
+          label: Haben
+        - id: b3
+          label: Sein
+      items:
+        - label: Passwort
+          bucket: b1
+        - label: PIN
+          bucket: b1
+        - label: Fingerabdruck
+          bucket: b3
+        - label: Gesicht
+          bucket: b3
+        - label: Sicherheitsschlüssel
+          bucket: b2
+        - label: Handy mit App
+          bucket: b2
+    hints:
+      - Was man vergessen kann, ist Wissen.
+      - Was man verlieren kann, ist Haben.
+    explanation: Zwei Faktoren verschiedener Art schützen am besten – ein Dieb braucht dann zwei ganz verschiedene Dinge.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -111,6 +176,64 @@ steps:
           - passwort
           - password
       sample: Die beste Technik hilft nicht, wenn jemand sein Passwort freiwillig herausgibt. Angreifer täuschen deshalb Menschen, nutzen ihr Vertrauen und ihre Hilfsbereitschaft – das ist oft leichter, als ein System zu knacken.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Was bedeutet »Zero Trust« in Firmennetzen?
+    params:
+      options:
+        - label: Jede Anfrage wird geprüft – auch aus dem eigenen Netz
+          correct: true
+        - label: Niemand bekommt Zugang
+          feedback: Zugang gibt es – nur nie ungeprüft.
+        - label: Man vertraut nur der Firewall
+          feedback: Genau dieses Burg-Denken soll Zero Trust ersetzen.
+    hints:
+      - Was passiert, wenn ein Angreifer einmal drin ist?
+      - Innen heißt nicht automatisch vertrauenswürdig.
+    explanation: "Früher galt: Wer im Netz ist, ist Freund. Heute prüft man Gerät, Person und Recht bei jedem Zugriff."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Festplatte fällt in einem Jahr mit 5 % Wahrscheinlichkeit aus. Wie wahrscheinlich fallen zwei unabhängige Kopien im selben Jahr beide aus? In Prozent.
+    params:
+      unit: "%"
+    answer:
+      value: 0.25
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: add-vs-multiply
+        text: "Addiert ergibt das die Chance, dass irgendeine ausfällt. Beide zugleich: multiplizieren."
+    hints:
+      - "Unabhängig heißt: Wahrscheinlichkeiten multiplizieren."
+      - 0,05 · 0,05.
+    explanation: "0,05 · 0,05 = 0,0025 = 0,25 %. Aber Vorsicht: Ein Brand oder Trojaner trifft beide Kopien gleichzeitig – darum eine außer Haus."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Wer kann bei Ende-zu-Ende-Verschlüsselung die Nachrichten lesen?
+    params:
+      options:
+        - label: Nur Absender und Empfänger – nicht einmal der Anbieter
+          correct: true
+        - label: Auch der Anbieter, aber kein Hacker
+          feedback: Gerade der Anbieter soll nicht mitlesen können.
+        - label: Jeder mit dem Passwort des Servers
+          feedback: Die Schlüssel liegen nur auf den Geräten.
+    hints:
+      - Wo liegen die Schlüssel?
+      - "Ende zu Ende heißt: von Gerät zu Gerät."
+    explanation: Der Server leitet nur verschlüsselte Daten weiter. Selbst bei einem Einbruch dort bleiben die Inhalte geschützt.
     difficulty: 3
 
 srs:

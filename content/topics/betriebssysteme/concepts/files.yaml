@@ -1,0 +1,191 @@
+id: cs.os.files
+type: concept
+title: "Dateien und Dateisysteme"
+summary: "Blöcke, Ordner, Pfade – und was beim Löschen wirklich passiert."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Dateien liegen auf einem typischen Laptop?"
+    params:
+      min: 1000
+      max: 1000000000
+      scale: log
+    answer:
+      value: 1000000
+      within: 80
+    explanation: Meist rund eine Million – das Betriebssystem allein bringt Hunderttausende mit.
+
+  - kind: explain
+    id: c1
+    body: Das **Dateisystem** ordnet Daten in Dateien und Ordner. Auf der Platte liegen sie in Blöcken, oft je 4 KiB. Es merkt sich, welche Blöcke zu welcher Datei gehören.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Blöcke sind 4 KiB groß. Wie viele Blöcke belegt eine Datei mit {{s}} KiB?
+    answer:
+      value: "{{ceil(s / 4)}}"
+    feedback:
+      - when: numval(state.input) == s / 4
+        misconception: fractional
+        text: Ein Block lässt sich nicht teilen – angefangene Blöcke zählen ganz.
+    hints:
+      - Teile durch 4.
+      - "Aufrunden: Auch ein halb voller Block ist belegt."
+    explanation: "{{s}} / 4 aufgerundet = {{ceil(s / 4)}} Blöcke. Im letzten bleiben {{4 * ceil(s / 4) - s}} KiB ungenutzt."
+    variants:
+      params:
+        s: int[5,50]
+      constraints:
+        - mod(s, 4) > 0
+      defaults:
+        s: 10
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Du bist im Ordner /home/ana. Wohin führt der relative Pfad ../ben/notizen.txt?
+    params:
+      options:
+        - label: /home/ben/notizen.txt
+          correct: true
+        - label: /home/ana/ben/notizen.txt
+          feedback: .. geht erst eine Ebene nach oben.
+        - label: /ben/notizen.txt
+          feedback: .. geht nur eine Ebene hoch, nicht bis ganz oben.
+    hints:
+      - ".. heißt: der Ordner darüber."
+      - Über /home/ana liegt /home.
+    explanation: Von /home/ana eins hoch nach /home, dann hinein in ben. Ordner bilden einen Baum mit der Wurzel /.
+
+  - kind: problem
+    id: c4
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Löschen überschreibt die Daten sofort.
+          right: false
+          why: Meist wird nur der Eintrag entfernt, die Blöcke werden freigegeben.
+        - text: Ein Ordner ist selbst eine Art Datei – eine Liste von Namen.
+          right: true
+          why: Darin steht, welcher Name zu welcher Datei gehört.
+        - text: Die Endung .jpg macht eine Datei zum Bild.
+          right: false
+          why: Die Endung ist nur ein Hinweis – entscheidend ist der Inhalt.
+        - text: Zwei Dateien im selben Ordner dürfen nicht gleich heißen.
+          right: true
+          why: Sonst wäre der Pfad nicht eindeutig.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Liegt eine Datei in verstreuten Blöcken, spricht man von **Fragmentierung**. Auf Festplatten mit Lesekopf kostet jeder Sprung Millisekunden. SSDs haben keinen Kopf – für sie spielt es kaum eine Rolle.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Festplatte braucht pro Sprung des Lesekopfs etwa 10 ms. Eine Datei liegt in 500 verstreuten Stücken. Wie viele Sekunden kosten allein die Sprünge?
+    params:
+      unit: s
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 5000
+        misconception: unit
+        text: Das sind Millisekunden. Gefragt sind Sekunden.
+    hints:
+      - 500 · 10 ms.
+      - 5000 ms in Sekunden.
+    explanation: 5000 ms = 5 s – am Stück gelesen wäre die Datei vielleicht in einer Zehntelsekunde da.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Mitten beim Speichern fällt der Strom aus. Wie verhindert ein Journal-Dateisystem Chaos?
+    params:
+      options:
+        - label: Es notiert erst, was es vorhat, und führt es dann aus – nach dem Neustart wird beendet oder verworfen
+          correct: true
+        - label: Es speichert alles doppelt
+          feedback: Das kostet viel Platz und löst das Problem halber Änderungen nicht.
+        - label: Es sperrt den Stromausfall
+          feedback: Gegen Stromausfall hilft keine Software.
+    hints:
+      - Gefährlich sind halb durchgeführte Änderungen.
+      - "Wie bei einer Transaktion: ganz oder gar nicht."
+    explanation: Das Journal ist ein kleines Logbuch. Dieselbe Idee nutzen Datenbanken für ihre Transaktionen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Unter Linux beschreibt ein Inode die Datei. Namen in Ordnern sind nur Verweise darauf. Eine Datei hat zwei Namen, du löschst einen. Was passiert?
+    params:
+      options:
+        - label: Die Datei bleibt – erst wenn der letzte Name weg ist, wird sie freigegeben
+          correct: true
+        - label: Die Datei ist weg
+          feedback: Ein zweiter Name zeigt noch auf sie.
+        - label: Beide Namen verschwinden
+          feedback: Gelöscht wird nur der eine Eintrag.
+    hints:
+      - Der Inode zählt, wie viele Namen auf ihn zeigen.
+      - Löschen zieht eins ab.
+    explanation: Das sind harte Links. Der Inode hat einen Zähler – erst bei 0 gibt das System die Blöcke frei.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Dateisystem nummeriert Blöcke mit 32 Bit, ein Block hat 4 KiB. Wie viele TiB kann es höchstens verwalten? 1 TiB = $2^{40}$ Byte.
+    params:
+      unit: TiB
+    answer:
+      value: 16
+    hints:
+      - $2^{32}$ Blöcke zu je $2^{12}$ Byte.
+      - $2^{44}$ / $2^{40}$.
+    explanation: $2^{44}$ Byte = 16 TiB. Genau diese Grenze hatte das ältere ext3 – neuere Systeme nutzen längere Blocknummern.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Dateisystem eine Datei wiederfindet.
+    params:
+      keywords:
+        - - ordner
+          - verzeichnis
+          - folder
+          - directory
+        - - block
+          - blöcke
+          - blocks
+        - - pfad
+          - path
+          - name
+        - - verweis
+          - liste
+          - tabelle
+          - inode
+          - refer
+          - table
+          - list
+      sample: Der Pfad führt durch die Ordner, Ebene für Ebene. Jeder Ordner ist eine Liste, die Namen auf Dateien verweist. Zur Datei gehört ein Eintrag, etwa ein Inode, der sagt, in welchen Blöcken die Daten liegen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x2"]

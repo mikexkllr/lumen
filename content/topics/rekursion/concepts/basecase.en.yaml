@@ -5,7 +5,7 @@ summary: Without a stopping rule, recursion runs forever.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: fehlt
@@ -65,6 +65,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: pow(b, 1) = b. If n is even, pow(b, n) = pow(b, n/2) · pow(b, n/2) – computed once, then squared. How many multiplications does pow(2, 16) take?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: linear-power
+        text: That is what plain b · b · … needs. Squaring halves n each time.
+    hints:
+      - 16 → 8 → 4 → 2 → 1.
+      - Each arrow is one squaring.
+    explanation: "Four squarings: $2^2$, $2^4$, $2^8$, $2^{16}$. Fast exponentiation takes about log₂ n steps – that is what makes RSA possible."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: "countdown(n): print n, then countdown(n − 1). Base case: at n = 0 print »Liftoff!«. How many lines does countdown({{n}}) print?"
+    answer:
+      value: "{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: forgot-base
+        text: The base case prints a line too.
+    hints:
+      - Count the numbers {{n}}, {{n - 1}}, …, 1.
+      - And then »Liftoff!«.
+    explanation: "{{n}} numbers plus »Liftoff!« = {{n + 1}} lines."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: f(n) = f(n − 1) + 1 with f(0) = 0 ends for every n ≥ 0.
+          right: true
+          why: n drops in steps of one exactly to 0.
+        - text: g(n) = g(n + 1) with g(10) = 0 ends for n = 12.
+          right: false
+          why: From 12 it goes up – it never passes 10.
+        - text: h(n) = h(n / 2) with h(1) = 1 ends for n = 8.
+          right: true
+          why: 8, 4, 2, 1.
+        - text: h(n) = h(n / 2) with h(1) = 1 ends for n = 6 with exact division.
+          right: false
+          why: 6, 3, 1.5, 0.75 … – it never hits 1.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -91,6 +151,61 @@ steps:
           - end
           - base
       sample: A folder contains files and subfolders that are folders themselves. To count all files you count each subfolder the same way – until a folder has no more subfolders; there it stops.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: What guarantees for sure that a recursion ends?
+    params:
+      options:
+        - label: A natural number drops with every call – that cannot happen infinitely often
+          correct: true
+        - label: That there is a base case
+          feedback: A base case only helps if it is reached.
+        - label: That the code is short
+          feedback: Short recursions can run forever.
+    hints:
+      - Think of f(n) = f(n − 2) + 1 with odd n.
+      - You need a quantity that cannot shrink forever.
+    explanation: Natural numbers have no infinitely long falling chain. Mathematicians call this well-founded.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: The Ackermann function has base cases and always ends. Yet A(4, 2) has 19,729 digits. What does that show?
+    params:
+      options:
+        - label: Finite does not mean fast
+          correct: true
+        - label: The function is broken
+          feedback: It is correct – just unimaginably fast-growing.
+        - label: Recursion is always slow
+          feedback: Many recursions are very fast, binary search for one.
+    hints:
+      - It ends – but when?
+      - A proof of termination says nothing about how long it takes.
+    explanation: A(4, 2) = $2^{65536}$ − 3. The Ackermann function is computable but grows faster than any construction of loops with fixed depth.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: even(n) calls odd(n − 1), odd(n) calls even(n − 1). even(0) = true, odd(0) = false. How many calls are there in total for even(5)?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: forgot-base
+        text: Count the last call with n = 0 too.
+    hints:
+      - even(5) → odd(4) → even(3) → …
+      - Down to the call with 0.
+    explanation: "even(5), odd(4), even(3), odd(2), even(1), odd(0) = false: 6 calls – and 5 is correctly found to be odd."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Pakete suchen sich den schnellsten Weg.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: route
@@ -87,6 +87,102 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: Ein größeres Netz. Finde den schnellsten Weg von A nach G. Die Zahlen sind Millisekunden.
+    params:
+      start: A
+      end: G
+      unit: ms
+      nodes:
+        - id: A
+          x: 4
+          y: 50
+        - id: B
+          x: 32
+          y: 10
+        - id: C
+          x: 32
+          y: 90
+        - id: D
+          x: 66
+          y: 10
+        - id: E
+          x: 66
+          y: 90
+        - id: G
+          x: 96
+          y: 50
+      edges:
+        - a: A
+          b: B
+          w: 4
+        - a: A
+          b: C
+          w: 2
+        - a: C
+          b: B
+          w: 1
+        - a: B
+          b: D
+          w: 5
+        - a: C
+          b: E
+          w: 8
+        - a: B
+          b: E
+          w: 6
+        - a: D
+          b: G
+          w: 3
+        - a: E
+          b: G
+          w: 1
+    hints:
+      - Der direkte Weg nach B ist nicht der schnellste.
+      - "Über C nach B kostet nur 3. Von B aus: Welcher Weg zu G ist kürzer?"
+    explanation: A → C → B → E → G kostet 2 + 1 + 6 + 1 = 10 ms. Über D wären es 11.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Jeder Router hat eine **Routingtabelle**. Für jedes Ziel steht dort nur der beste nächste Nachbar und die bisher kürzeste Zeit. Router tauschen ihre Tabellen ständig mit den Nachbarn aus.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: "Router R erfährt: Nachbar X erreicht das Ziel in {{x}} ms, Nachbar Y in {{y}} ms. Bis X braucht R {{a}} ms, bis Y {{b}} ms. Wie viele ms dauert der beste Weg von R?"
+    params:
+      unit: ms
+    answer:
+      value: "{{min(a + x, b + y)}}"
+    feedback:
+      - when: numval(state.input) == min(x, y)
+        misconception: forgot-link
+        text: Der Weg zum Nachbarn kostet auch Zeit. Zähl ihn dazu.
+    hints:
+      - "Rechne beide Möglichkeiten aus: über X und über Y."
+      - "Über X: {{a}} + {{x}}. Über Y: {{b}} + {{y}}."
+    explanation: "Über X {{a + x}} ms, über Y {{b + y}} ms. R trägt den kürzeren ein: {{min(a + x, b + y)}} ms. Das ist der Kern des Distanzvektor-Routings."
+    difficulty: 2
+    variants:
+      params:
+        x: int[5,15]
+        y: int[3,12]
+        a: int[1,6]
+        b: int[5,12]
+      constraints:
+        - a + x != b + y
+      defaults:
+        x: 12
+        y: 7
+        a: 2
+        b: 9
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +198,83 @@ steps:
     hints:
       - "Wie bei Wegweisern: Jeder zeigt nur zur nächsten Kreuzung."
     explanation: Router tauschen ihre Tabellen mit den Nachbarn aus. So entsteht aus lokalem Wissen ein globales Netz.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Jedes Paket trägt einen Zähler (TTL), der an jedem Router um 1 sinkt. Bei 0 wird das Paket verworfen. Wozu?
+    params:
+      options:
+        - label: Damit Pakete in einer Routing-Schleife nicht ewig kreisen
+          correct: true
+        - label: Damit alte Pakete schneller sind
+          feedback: Der Zähler bremst nichts – er begrenzt nur die Zahl der Stationen.
+        - label: Um Strom zu sparen
+          feedback: Es geht um verirrte Pakete, nicht um Strom.
+    hints:
+      - Was passiert, wenn zwei Router sich ein Paket immer wieder zuschieben?
+      - Ohne Grenze würde es das Netz ewig belasten.
+    explanation: Fehler in Tabellen erzeugen manchmal Schleifen. Der Zähler sorgt dafür, dass jedes Paket irgendwann verschwindet. Das Werkzeug traceroute nutzt genau diesen Zähler.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Millisekunden braucht ein Ping von Berlin nach Sydney und zurück mindestens? Glasfaser schafft 1000 km in 5 ms, die Strecke ist je 16 000 km."
+    params:
+      min: 10
+      max: 1000
+      scale: log
+      unit: ms
+    answer:
+      value: 160
+      within: 25
+    explanation: 2 · 16 000 km = 32 000 km, also 32 · 5 ms = 160 ms. In echt sind es eher 250 ms – Kabel laufen nicht schnurgerade.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: 2008 meldete ein Netzbetreiber fälschlich, er kenne den besten Weg zu YouTube. Was geschah?
+    params:
+      options:
+        - label: Router weltweit glaubten ihm – YouTube war für viele stundenlang unerreichbar
+          correct: true
+        - label: Nichts – Router prüfen jede Meldung
+          feedback: Das Protokoll BGP vertraut Nachbarn weitgehend.
+        - label: Nur das eigene Land war betroffen
+          feedback: Die Meldung verbreitete sich weltweit.
+    hints:
+      - Router übernehmen die besten Wege ihrer Nachbarn.
+      - Was, wenn ein Nachbar lügt oder sich irrt?
+    explanation: Pakistan Telecom wollte YouTube im eigenen Land sperren, die Meldung entkam ins Internet. Solche BGP-Fehler passieren bis heute; Signaturen für Routen (RPKI) sollen helfen.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Pakete ihren Weg finden, obwohl kein Router das ganze Netz kennt.
+    params:
+      keywords:
+        - - nachbar
+          - neighbo
+        - - nächst
+          - weiter
+          - next
+          - forward
+          - pass on
+        - - tabelle
+          - table
+          - austausch
+          - exchange
+          - teilen
+          - share
+      sample: Jeder Router kennt nur seine Nachbarn. In seiner Tabelle steht für jedes Ziel, an welchen Nachbarn er das Paket als Nächstes weitergibt. Die Router tauschen ihre Tabellen ständig aus, so verbreiten sich gute Wege.
     difficulty: 3
 
 srs:

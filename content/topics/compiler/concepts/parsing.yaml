@@ -1,0 +1,186 @@
+id: cs.languages.parsing
+type: concept
+title: "Parsen und Syntaxbäume"
+summary: "Wie ein Compiler aus Text einen Baum macht."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: numeric
+    prompt: Was ergibt 2 + 3 · 4?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: left-to-right
+        text: "Punkt vor Strich: Erst 3 · 4, dann + 2."
+    hints:
+      - Was wird zuerst gerechnet?
+      - 3 · 4 = 12.
+    explanation: 2 + 12 = 14. Ein Computer weiß das nicht von selbst – der Parser muss es aus der Grammatik ablesen.
+
+  - kind: explain
+    id: c1
+    body: Ein **Parser** liest Text und baut daraus einen Syntaxbaum. Bei 2 + 3 · 4 hängt das · tiefer im Baum als das +. Was tiefer hängt, wird zuerst gerechnet.
+
+  - kind: problem
+    id: c2
+    widget: order
+    prompt: In welcher Reihenfolge wird der Baum von 2 · (3 + 4) − 5 ausgerechnet?
+    params:
+      items:
+        - label: 3 + 4 = 7
+        - label: 2 · 7 = 14
+        - label: 14 − 5 = 9
+    hints:
+      - Die Klammer hängt am tiefsten.
+      - Ganz oben, also zuletzt, steht das Minus.
+    explanation: "Von den Blättern zur Wurzel: Jeder Knoten braucht erst die Werte seiner Kinder."
+
+  - kind: explain
+    id: c3
+    body: "Vor dem Parser zerlegt ein Lexer den Text in **Token**: Aus `summe = x1 + 42` wird Name, Gleich, Name, Plus, Zahl. Leerzeichen und Kommentare fallen dabei weg."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie viele Token hat `if (x >= 10) y = 0;`? Das Zeichen >= zählt als ein Token.
+    answer:
+      value: 10
+    hints:
+      - "Zähle Wörter, Zahlen und Zeichen einzeln: if, (, x …"
+      - if ( x >= 10 ) y = 0 ;
+    explanation: if, (, x, >=, 10, ), y, =, 0, ; – zehn Token. Die Leerzeichen zählen nicht mit.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Was ergibt {{a}} + {{b}} · {{c}}?
+    answer:
+      value: "{{a + b * c}}"
+    feedback:
+      - when: numval(state.input) == (a + b) * c
+        misconception: left-to-right
+        text: Von links nach rechts gerechnet. Der Baum hängt das · tiefer.
+    hints:
+      - Das · wird zuerst gerechnet.
+      - "{{b}} · {{c}} = {{b * c}}."
+    explanation: "{{a}} + {{b * c}} = {{a + b * c}}."
+    variants:
+      params:
+        a: int[2,9]
+        b: int[2,9]
+        c: int[2,9]
+      defaults:
+        a: 5
+        b: 3
+        c: 4
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Beim **rekursiven Abstieg** bekommt jede Grammatikregel eine Funktion. Ausdruck() ruft Term() auf, Term() ruft Faktor() auf, und Faktor() ruft bei einer Klammer wieder Ausdruck() auf.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Der Parser liest »((( 7 )))«. Wie viele Aufrufe von Ausdruck() sind höchstens gleichzeitig aktiv, den ersten mitgezählt?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: forgot-outer
+        text: Der allererste Aufruf für den ganzen Text zählt auch.
+    hints:
+      - Jede Klammer startet einen neuen Aufruf.
+      - Ein Aufruf für alles, dazu einer pro Klammer.
+    explanation: 1 + 3 = 4 Aufrufe übereinander auf dem Stapel. Die Rekursion des Parsers spiegelt die Verschachtelung des Textes.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "Man liest den Baum von 2 + 3 · 4 so: erst die Kinder, dann den Knoten. Was entsteht?"
+    params:
+      options:
+        - label: 2 3 4 · +
+          correct: true
+        - label: 2 + 3 · 4
+          feedback: Das ist die normale Schreibweise – Knoten zwischen den Kindern.
+        - label: + 2 · 3 4
+          feedback: Das wäre erst der Knoten, dann die Kinder.
+    hints:
+      - Die Wurzel ist das +, sein rechtes Kind das ·.
+      - Die Wurzel kommt ganz zum Schluss.
+    explanation: Das ist Postfix – genau die Form, die ein Stapelrechner ohne Klammern abarbeitet. So erzeugen Compiler Code für Stapelmaschinen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Regel Ausdruck → Ausdruck − Zahl lässt einen einfachen rekursiven Abstieg abstürzen. Warum?
+    params:
+      options:
+        - label: Ausdruck() ruft sofort wieder Ausdruck() auf, ohne ein Zeichen zu lesen – endlos
+          correct: true
+        - label: Weil Minus verboten ist
+          feedback: Am Zeichen liegt es nicht.
+        - label: Weil Zahlen fehlen
+          feedback: Die Zahl käme erst nach dem endlosen Aufruf.
+    hints:
+      - Was macht die Funktion als Allererstes?
+      - Sie ruft sich selbst auf – mit demselben Text.
+    explanation: "Das heißt Linksrekursion. Abhilfe: als Schleife schreiben – erst eine Zahl, dann solange »− Zahl« folgt, weiterlesen."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Was ist ein abstrakter Syntaxbaum?
+    params:
+      options:
+        - label: Ein Baum ohne Klammern und Satzzeichen – nur die Struktur, die zählt
+          correct: true
+        - label: Ein Baum, den man nicht zeichnen kann
+          feedback: Man kann ihn sehr wohl zeichnen.
+        - label: Der Quelltext ohne Kommentare
+          feedback: Das ist noch Text, kein Baum.
+    hints:
+      - Braucht man im Baum noch die Klammern von (3 + 4)?
+      - Die Form des Baums ersetzt die Klammern.
+    explanation: Der AST ist das Herz jedes Compilers. Prüfen, optimieren und übersetzen arbeiten alle auf ihm.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Computer 2 + 3 · 4 als 14 versteht.
+    params:
+      keywords:
+        - - baum
+          - tree
+        - - punkt vor strich
+          - vorrang
+          - zuerst
+          - precedence
+          - first
+        - - tiefer
+          - unten
+          - kind
+          - deeper
+          - lower
+          - child
+      sample: "Der Parser baut aus der Rechnung einen Baum. Die Grammatik gibt dem · Vorrang, darum hängt es tiefer im Baum, als Kind des +. Gerechnet wird von unten nach oben: zuerst 3 · 4 = 12, dann 2 + 12 = 14."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "c5", "d2"]

@@ -5,7 +5,7 @@ summary: Binär in dezimal und umgekehrt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: nach-dezimal
@@ -120,6 +120,87 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: "Addiere binär: {{bin(a)}} + {{bin(b)}}. Schreib die Summe binär."
+    params:
+      placeholder: nur 0 und 1
+    answer:
+      value: "{{bin(a + b)}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: wrong-base
+        text: Das ist die Summe als Dezimalzahl. Gefragt ist sie binär.
+    hints:
+      - Rechne von rechts nach links. 1 + 1 ergibt 0, Übertrag 1.
+      - "Zur Kontrolle: {{a}} + {{b}} = {{a + b}}. Wandle das um."
+    explanation: "{{a}} + {{b}} = {{a + b}}, binär {{bin(a + b)}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[5,15]
+        b: int[3,15]
+      defaults:
+        a: 11
+        b: 6
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Negative Zahlen speichert der Computer im **Zweierkomplement**. Bei 8 Bits zählt das linke Bit −128 statt +128. So ist 11111111 = −128 + 127 = −1.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: bits
+    prompt: Stelle −{{n}} im Zweierkomplement ein. Das linke Bit zählt −128.
+    params:
+      bits: 8
+      showValue: false
+      placeValues: false
+      labels:
+        - −128
+        - "64"
+        - "32"
+        - "16"
+        - "8"
+        - "4"
+        - "2"
+        - "1"
+    answer:
+      value: "{{256 - n}}"
+    hints:
+      - Ohne das linke Bit ist alles positiv. Das linke Bit muss also an.
+      - −128 + {{128 - n}} = −{{n}}. Stelle mit den übrigen Bits {{128 - n}} ein.
+    explanation: −{{n}} = −128 + {{128 - n}}, also {{bin(256 - n)}}.
+    variants:
+      params:
+        n: int[2,30]
+      defaults:
+        n: 3
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: choice
+    prompt: Wie kommt man schnell von 5 (00000101) zu −5?
+    params:
+      options:
+        - label: Alle Bits umdrehen, dann 1 addieren
+          correct: true
+        - label: Nur das linke Bit auf 1 setzen
+          feedback: Das ergibt −128 + 5 = −123.
+        - label: Alle Bits umdrehen
+          feedback: Fast – 11111010 ist −6. Es fehlt noch +1.
+    hints:
+      - "Probier es aus: Was ist 11111010 im Zweierkomplement?"
+      - Umdrehen ergibt −6. Was fehlt bis −5?
+    explanation: Umdrehen liefert −x − 1, plus 1 ergibt −x. 00000101 → 11111010 → 11111011.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -135,6 +216,73 @@ steps:
     hints:
       - Addiere 1 zu 11111111 und lass den Übertrag wegfallen.
     explanation: 11111111 + 1 = 00000000. Im **Zweierkomplement** funktioniert dieselbe Addierschaltung für plus und minus.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Welche ist die kleinste Zahl, die 8 Bits im Zweierkomplement speichern?
+    answer:
+      value: -128
+    feedback:
+      - when: numval(state.input) == -127
+        misconception: sign-magnitude
+        text: Das wäre bei »Vorzeichen plus Betrag«. Das Zweierkomplement hat eine negative Zahl mehr.
+      - when: numval(state.input) == -255
+        misconception: unsigned-range
+        text: Mit 8 Bits gibt es nur 256 Werte – von negativ bis positiv.
+    hints:
+      - Nur das linke Bit ist an, alle anderen aus.
+      - Das linke Bit zählt −128.
+    explanation: 10000000 = −128. Der Bereich reicht von −128 bis 127 – 256 Werte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Ein 8-Bit-Zähler mit Vorzeichen steht bei 127 (01111111). Du addierst 1. Was steht danach drin?
+    params:
+      options:
+        - label: −128 – ein Überlauf
+          correct: true
+        - label: "128"
+          feedback: 128 passt nicht in 8 Bits mit Vorzeichen.
+        - label: "0"
+          feedback: Auf 0 springt erst 11111111 + 1.
+    hints:
+      - Rechne 01111111 + 1 binär.
+      - Heraus kommt 10000000. Was zählt das linke Bit?
+    explanation: "Der Übertrag landet im Vorzeichenbit: Aus 127 wird −128. Solche **Überläufe** haben schon echte Systeme lahmgelegt – 1996 etwa die Rakete Ariane 5."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x3
+    depth: 3
+    body: Warum rechnen Computer so gern im Zweierkomplement?
+    reveal:
+      body: Addieren geht wie immer, ohne Sonderfall fürs Vorzeichen. 00000101 + 11111011 = 1 00000000. Der Übertrag fällt aus den 8 Bits – übrig bleibt 0, also 5 + (−5).
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Computer mit 8 Bits die Zahl −1 speichert – und warum gerade so.
+    params:
+      keywords:
+        - - "11111111"
+          - alle einsen
+          - all ones
+        - - "-128"
+          - minus 128
+          - −128
+        - - addier
+          - plus
+          - add
+          - summe
+          - sum
+      sample: "Als 11111111. Im Zweierkomplement zählt das linke Bit −128, die übrigen zusammen 127. −128 + 127 = −1. Der Vorteil: Addieren klappt ohne Sonderregel, denn −1 plus 1 ergibt 0, weil der Übertrag herausfällt."
     difficulty: 3
 
 srs:

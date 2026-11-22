@@ -5,7 +5,7 @@ summary: Modulo – calculating in a circle.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 13
 steps:
   - kind: problem
     id: uhr
@@ -102,6 +102,68 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: What is {{a}} · {{b}} mod {{m}}?
+    answer:
+      value: "{{mod(a * b, m)}}"
+    feedback:
+      - when: numval(state.input) == a * b
+        misconception: no-mod
+        text: That is the product. The question asks for the remainder when dividing by {{m}}.
+    hints:
+      - First compute {{a}} · {{b}} = {{a * b}}.
+      - Subtract {{m}} as often as you can.
+    explanation: "{{a * b}} = {{floor(a * b / m)}} · {{m}} + {{mod(a * b, m)}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[4,15]
+        b: int[4,15]
+        m: choice[7,11,13]
+      defaults:
+        a: 9
+        b: 8
+        m: 11
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: "In modular arithmetic you may **reduce along the way**: (a · b) mod m = ((a mod m) · (b mod m)) mod m. That keeps numbers small – even for huge powers."
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: What is $2^{ {{e}} }$ mod 7?
+    answer:
+      value: "{{mod(2 ** e, 7)}}"
+    hints:
+      - The remainders of 2, 4, 8, 16 … mod 7 repeat.
+      - 2, 4, 1, 2, 4, 1 … – length 3.
+    explanation: $2^3$ = 8 ≡ 1 (mod 7). So only {{e}} mod 3 = {{mod(e, 3)}} matters. Result {{mod(2 ** e, 7)}}.
+    difficulty: 2
+    variants:
+      params:
+        e: int[5,30]
+      defaults:
+        e: 10
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: What is the last digit of $7^{100}$?
+    answer:
+      value: 1
+    hints:
+      - The last digits of 7, 49, 343, 2401 … repeat.
+      - 7, 9, 3, 1 – then over again. 100 mod 4 = ?
+    explanation: The last digit is the remainder mod 10. The cycle has length 4, and 100 is divisible by 4 – so 1.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -111,6 +173,76 @@ steps:
     hints:
       - Try x = 1, 2, 3, … and take the remainder each time.
     explanation: 3 · 5 = 15 = 2 · 7 + 1. Such inverses let you “divide” in modular arithmetic – the basis of RSA.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: By Fermat's little theorem $a^6$ mod 7 = 1 for a = 1 to 6. What is $3^{100}$ mod 7?
+    answer:
+      value: 4
+    hints:
+      - 100 = 6 · 16 + 4.
+      - What is left is $3^4$ = 81 mod 7.
+    explanation: $3^{96}$ ≡ 1, so $3^{100}$ ≡ $3^4$ = 81 ≡ 4 (mod 7). This theorem is behind RSA.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Which x between 1 and 10 satisfies {{a}} · x ≡ 1 (mod 11)?
+    answer:
+      value: "{{mod(a ** 9, 11)}}"
+    hints:
+      - Try x = 1, 2, 3 … and compute {{a}} · x mod 11.
+      - You want a multiple of {{a}} that is 1 more than a multiple of 11.
+    explanation: "{{a}} · {{mod(a ** 9, 11)}} = {{a * mod(a ** 9, 11)}} ≡ 1 (mod 11). Because 11 is prime, every number from 1 to 10 has an inverse."
+    difficulty: 3
+    variants:
+      params:
+        a: int[2,10]
+      defaults:
+        a: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Does 4 have an inverse modulo 8 – an x with 4 · x ≡ 1 (mod 8)?
+    params:
+      options:
+        - label: No – 4 and 8 share the factor 4
+          correct: true
+        - label: Yes, x = 2
+          feedback: 4 · 2 = 8 ≡ 0, not 1.
+        - label: Yes, every number has one
+          feedback: Only numbers sharing no factor with the modulus.
+    hints:
+      - Which remainders can 4 · x mod 8 give at all?
+      - Only 0 and 4.
+    explanation: a has an inverse mod m exactly when gcd(a, m) = 1. That is why cryptography often uses prime moduli.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what modulo is and where it hides in everyday life.
+    params:
+      keywords:
+        - - rest
+          - remainder
+        - - kreis
+          - uhr
+          - clock
+          - circle
+          - von vorn
+          - wrap
+        - - teil
+          - divid
+      sample: "Modulo is the remainder after dividing. 27 mod 24 is 3, because 24 fits once and 3 is left. A clock works like this in a circle: after 24 hours it wraps round."
     difficulty: 3
 
 srs:

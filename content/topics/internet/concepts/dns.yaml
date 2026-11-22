@@ -5,7 +5,7 @@ summary: Von Namen zu Adressen – und falschen Adressen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -128,6 +128,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: Dein Rechner kennt bank.de noch nicht. Bring die Fragen des DNS-Resolvers in die richtige Reihenfolge.
+    params:
+      items:
+        - label: Resolver fragt einen Root-Server
+        - label: Root nennt den Server für .de
+        - label: Der .de-Server nennt den Server von bank.de
+        - label: Dieser nennt die IP-Adresse
+        - label: Resolver merkt sich die Antwort
+    hints:
+      - DNS liest Namen von rechts nach links.
+      - Ganz oben steht die Wurzel, dann die Endung .de.
+    explanation: "DNS ist ein Baum: Wurzel, dann .de, dann bank.de. Jede Ebene verweist nur auf die nächste."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Name wird 1000-mal pro Stunde aufgerufen. Die Antwort gilt 300 Sekunden lang. Wie viele Anfragen gehen pro Stunde höchstens an den Server von bank.de?
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: no-cache
+        text: Der Resolver merkt sich die Antwort. Nur wenn sie abgelaufen ist, fragt er neu.
+    hints:
+      - Wie oft läuft die Antwort in einer Stunde ab?
+      - 3600 s / 300 s.
+    explanation: 3600 / 300 = 12. Der Cache macht aus 1000 Anfragen nur 12.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: login.bank.de.evil.com gehört zu evil.com.
+          right: true
+          why: Entscheidend sind die letzten beiden Teile vor dem ersten Schrägstrich.
+        - text: bank-de.com gehört bestimmt der Bank.
+          right: false
+          why: Jeder kann sich so einen Namen kaufen.
+        - text: Bei shop.bank.de bestimmt bank.de, wohin es geht.
+          right: true
+          why: shop ist eine Unterdomain von bank.de.
+        - text: Ein Name kann wie »bank« aussehen und doch ein anderer sein.
+          right: true
+          why: Etwa mit einem kyrillischen »а«.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -143,6 +199,65 @@ steps:
     hints:
       - Eine DNS-Anfrage kostet Zeit. Muss man sie jedes Mal stellen?
     explanation: "**Caching** steckt überall im Netz: Ergebnisse aufheben, statt sie neu zu holen. Die Kehrseite: veraltete Daten."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Angreifer schiebt deinem Resolver eine falsche Adresse für bank.de unter. Was schützt dich trotzdem?
+    params:
+      options:
+        - label: HTTPS – der Betrüger hat kein gültiges Zertifikat für bank.de
+          correct: true
+        - label: Nichts, DNS ist das einzige Schloss
+          feedback: DNS liefert nur die Adresse. Geprüft wird danach.
+        - label: Ein langes Passwort
+          feedback: Das Passwort hilft nicht, wenn du es der falschen Seite gibst.
+    hints:
+      - Was prüft der Browser, nachdem er eine Adresse hat?
+      - Der falsche Server müsste beweisen, dass er bank.de ist.
+    explanation: Der Browser warnt laut, wenn das Zertifikat nicht passt. DNSSEC sichert zusätzlich die DNS-Antworten selbst mit Signaturen ab.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Firma zieht ihre Webseite auf einen neuen Server um. Warum verkürzt sie vorher die Gültigkeit ihrer DNS-Antworten?
+    params:
+      options:
+        - label: Damit alte Antworten schnell aus allen Caches verschwinden
+          correct: true
+        - label: Damit die Seite schneller lädt
+          feedback: Kürzere Gültigkeit heißt eher mehr Anfragen.
+        - label: Damit Angreifer sie nicht finden
+          feedback: Die Adresse bleibt öffentlich.
+    hints:
+      - Was passiert mit gemerkten Antworten nach dem Umzug?
+      - Caches zeigen noch auf den alten Server – bis sie ablaufen.
+    explanation: "Caching spart Arbeit, macht Änderungen aber träge. Das ist ein Grundproblem jedes Caches: Wann sind gemerkte Daten veraltet?"
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was DNS tut und warum Rechner sich Antworten merken.
+    params:
+      keywords:
+        - - name
+          - namen
+        - - adresse
+          - address
+          - nummer
+          - number
+        - - merk
+          - cache
+          - speicher
+          - store
+          - remember
+      sample: DNS übersetzt Namen wie bank.de in IP-Adressen, also Nummern, die Router verstehen. Weil das Nachfragen dauert, merkt sich der Rechner die Antwort eine Weile im Cache.
     difficulty: 3
 
 srs:

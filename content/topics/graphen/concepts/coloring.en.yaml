@@ -5,7 +5,7 @@ summary: From maps to exam schedules.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 14
 steps:
   - kind: problem
     id: hook
@@ -131,6 +131,132 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: This time you have only 2 colours. Colour the network without a conflict.
+    params:
+      mode: color
+      colors: 2
+      nodes:
+        - id: A
+          x: 10
+          y: 20
+        - id: B
+          x: 50
+          y: 6
+        - id: C
+          x: 90
+          y: 20
+        - id: D
+          x: 90
+          y: 80
+        - id: E
+          x: 50
+          y: 94
+        - id: F
+          x: 10
+          y: 80
+      edges:
+        - a: A
+          b: B
+        - a: B
+          b: C
+        - a: C
+          b: D
+        - a: D
+          b: E
+        - a: E
+          b: F
+        - a: F
+          b: A
+        - a: A
+          b: D
+        - a: B
+          b: E
+    hints:
+      - Give A a colour. Then each neighbour's colour is forced.
+      - Alternate around the circle.
+    explanation: A, C, E get one colour, B, D, F the other. The cross links fit too – the network has only even cycles.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: network
+    prompt: "A wheel: a hub and a pentagon around it. Colour it without conflicts."
+    params:
+      mode: color
+      colors: 4
+      nodes:
+        - id: M
+          x: 50
+          y: 50
+        - id: P1
+          x: 50
+          y: 5
+        - id: P2
+          x: 93
+          y: 36
+        - id: P3
+          x: 77
+          y: 94
+        - id: P4
+          x: 23
+          y: 94
+        - id: P5
+          x: 7
+          y: 36
+      edges:
+        - a: P1
+          b: P2
+        - a: P2
+          b: P3
+        - a: P3
+          b: P4
+        - a: P4
+          b: P5
+        - a: P5
+          b: P1
+        - a: M
+          b: P1
+        - a: M
+          b: P2
+        - a: M
+          b: P3
+        - a: M
+          b: P4
+        - a: M
+          b: P5
+    hints:
+      - The hub touches all – it needs a colour of its own.
+      - A pentagon alone already needs 3 colours.
+    explanation: "1 colour for the hub, 3 for the odd pentagon: 4 in total."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: What is the minimum number of colours for the wheel of hub and pentagon?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: odd-cycle
+        text: The pentagon already needs 3, and the hub touches all three colours.
+    hints:
+      - A cycle with an odd number of corners needs 3 colours.
+      - The hub may not take any of them.
+    explanation: 3 + 1 = 4. The wheel is an example without four mutual neighbours that still needs 4 colours.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d4
+    depth: 2
+    body: "**Greedy colouring** goes through the nodes in turn and always takes the smallest free colour. It never needs more than the highest degree plus 1 colours – but often more than necessary."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -146,6 +272,61 @@ steps:
     hints:
       - What is traditionally demanded of a mathematical proof?
     explanation: Is something proved if only a machine can check it? Today proof assistants verify such proofs formally.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Compilers assign variables to a few processor registers. What problem lies behind this?
+    params:
+      options:
+        - label: Graph colouring – variables needed at the same time need different registers
+          correct: true
+        - label: Shortest paths
+          feedback: It is about conflicts, not routes.
+        - label: Sorting
+          feedback: The order of the variables does not matter here.
+    hints:
+      - When may two variables not share a register?
+      - Conflicts as edges, registers as colours.
+    explanation: Nodes are variables, edges connect those alive at the same time. A colouring with k colours fits into k registers.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: To decide if any given network can be coloured with 3 colours is …
+    params:
+      options:
+        - label: NP-complete – no fast method is known
+          correct: true
+        - label: easy, as with 2 colours
+          feedback: With 2 colours alternating suffices – with 3 it does not.
+        - label: impossible
+          feedback: Trying everything always works – it just takes time.
+    hints:
+      - With 2 colours every colour is forced. With 3?
+      - You would have to try many possibilities.
+    explanation: "2 colours: quickly checkable. 3 colours: NP-complete. A tiny difference in the question, a huge one in effort."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: A sudoku is a colouring problem with 81 nodes and 9 colours. How many other cells is each cell connected to?
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: double-count
+        text: 4 cells of the row and column already lie in the own block – do not count them twice.
+    hints:
+      - 8 in the row, 8 in the column. And in the box?
+      - In the 3 × 3 box only 4 new ones are added.
+    explanation: 8 + 8 + 4 = 20 neighbours. The whole sudoku network has 81 · 20 / 2 = 810 edges.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: How text fits into bits.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -77,6 +77,66 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: bits
+    prompt: This is »A« (65). Turn it into a lowercase »a« – flip exactly one bit.
+    params:
+      bits: 8
+      initial: "01000001"
+    answer:
+      value: 97
+    hints:
+      - »a« is number 97. How far is that from 65?
+      - The gap of 32 is exactly one bit.
+    explanation: 65 + 32 = 97. In ASCII a single bit separates upper and lower case.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: In ASCII the digit »0« has code 48. What code does the digit »{{d}}« have?
+    answer:
+      value: "{{48 + d}}"
+    feedback:
+      - when: numval(state.input) == d
+        misconception: char-vs-number
+        text: The character »{{d}}« is not the number {{d}}. Its code starts at 48.
+    hints:
+      - The digits come in order.
+      - 48 + {{d}}.
+    explanation: »{{d}}« has code {{48 + d}}. Turning text into a number means subtracting 48.
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,9]
+      defaults:
+        d: 7
+
+  - kind: explain
+    id: cs-d3
+    depth: 2
+    body: "**UTF-8** stores ASCII characters in 1 byte. Umlauts like ä need 2 bytes, most Chinese characters 3 and emojis 4."
+
+  - kind: problem
+    id: cs-d4
+    depth: 2
+    widget: numeric
+    prompt: How many bytes does the word »Grüße« take in UTF-8?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: chars-vs-bytes
+        text: That is the character count. ü and ß are not ASCII.
+    hints:
+      - G, r and e are ASCII. What about ü and ß?
+      - ü and ß need 2 bytes each.
+    explanation: 1 + 1 + 2 + 2 + 1 = 7 bytes for 5 characters.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -118,6 +178,55 @@ steps:
           - 0 und 1
           - 0 and 1
       sample: "Everything is translated into numbers: each letter has a number in a table, each pixel three colour values. The computer writes these numbers in binary with bits."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: A UTF-8 byte starting with [[0]] is an ASCII character. Continuation bytes always start with [[10]]. A lead byte starting with 1110 announces [[three]] bytes.
+      distractors:
+        - "11"
+        - two
+        - four
+    hints:
+      - Continuation bytes must differ from lead bytes.
+      - The number of leading ones in the lead byte is the length.
+    explanation: 0xxxxxxx is ASCII, 110 starts 2 bytes, 1110 starts 3, 11110 starts 4, and 10 means continuation. That way you can find the start of a character even mid-text.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A web page shows »GrÃ¼ÃŸe« instead of »Grüße«. What happened?
+    params:
+      options:
+        - label: UTF-8 bytes were read as an old 8-bit encoding – each byte as its own character
+          correct: true
+        - label: The file is broken
+          feedback: The bytes are fine, just misread.
+        - label: The font has no ü
+          feedback: Then you would see a box, not two characters.
+    hints:
+      - ü takes two bytes in UTF-8. How many characters do you see instead of ü?
+      - Two characters per umlaut – so each byte was translated on its own.
+    explanation: ü is C3 BC. In Windows-1252, C3 is »Ã« and BC is »¼«. This garbled text is called mojibake.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: Unicode code points go up to 0x10FFFF, i.e. 1,114,111. How many bits do you need at least to store any of them?
+    answer:
+      value: 21
+    hints:
+      - $2^{20}$ is 1,048,576. Is that enough?
+      - Just not – so one more bit.
+    explanation: $2^{20}$ < 1,114,111 < $2^{21}$. 21 bits – exactly what the longest 4-byte UTF-8 pattern carries.
     difficulty: 3
 
 srs:

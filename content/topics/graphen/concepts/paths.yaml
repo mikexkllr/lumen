@@ -5,7 +5,7 @@ summary: Weniger Stationen heißt nicht kürzer.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 50
       within: 80
     explanation: Rund 50 Millionen. Ein Navi findet darin trotzdem in Millisekunden den kürzesten Weg.
-
 
   - kind: problem
     id: route-a-f
@@ -151,6 +150,99 @@ steps:
     explanation: "Wie eine Welle, die sich vom Start ausbreitet: Was sie zuerst erreicht, ist sicher am nächsten."
     difficulty: 2
 
+  - kind: explain
+    id: cs-d1
+    depth: 2
+    body: "So arbeitet **Dijkstra**: Jeder Ort hat eine vorläufige Entfernung. Nimm den nächsten noch offenen Ort und mach ihn fest. Dann prüfe, ob es über ihn zu seinen Nachbarn kürzer geht."
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: network
+    prompt: Finde den kürzesten Weg von S nach T. Denk wie Dijkstra – der kürzeste Weg hat hier viele Stationen.
+    params:
+      start: S
+      end: T
+      unit: km
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: A
+          x: 30
+          y: 12
+        - id: B
+          x: 30
+          y: 88
+        - id: D
+          x: 55
+          y: 55
+        - id: C
+          x: 72
+          y: 12
+        - id: E
+          x: 72
+          y: 88
+        - id: T
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: A
+          w: 2
+        - a: S
+          b: B
+          w: 5
+        - a: A
+          b: B
+          w: 2
+        - a: A
+          b: C
+          w: 7
+        - a: B
+          b: D
+          w: 3
+        - a: D
+          b: C
+          w: 1
+        - a: C
+          b: T
+          w: 2
+        - a: D
+          b: E
+          w: 4
+        - a: B
+          b: E
+          w: 7
+        - a: E
+          b: T
+          w: 2
+    hints:
+      - "Über A ist B schneller erreicht als direkt: 2 + 2 = 4."
+      - Von B über D nach C ist kürzer als von A direkt nach C.
+    explanation: "S → A → B → D → C → T: 2 + 2 + 3 + 1 + 2 = 10 km. Sechs Orte, und doch der kürzeste Weg."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: order
+    prompt: In welcher Reihenfolge macht Dijkstra im Netz eben die Orte fest, wenn er bis zum Schluss weiterläuft?
+    params:
+      items:
+        - label: S (0)
+        - label: A (2)
+        - label: B (4)
+        - label: D (7)
+        - label: C (8)
+        - label: T (10)
+        - label: E (11)
+    hints:
+      - Immer der offene Ort mit der kleinsten Entfernung zuerst.
+      - B ist über A bei 4, D über B bei 7.
+    explanation: "Die Entfernungen steigen beim Festmachen nur an: 0, 2, 4, 7, 8, 10, 11. Darum ist ein fest gemachter Ort endgültig."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -167,6 +259,85 @@ steps:
     hints:
       - 49! Reihenfolgen – eine Zahl mit 63 Stellen.
     explanation: Ein **NP-schweres** Problem. In der Praxis nutzt man Näherungen, die fast optimal sind.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Warum versagt Dijkstra, wenn manche Kanten negative Längen haben?
+    params:
+      options:
+        - label: Ein fest gemachter Ort könnte über eine negative Kante später doch noch billiger werden
+          correct: true
+        - label: Er rechnet dann mit falschen Zahlen
+          feedback: Die Rechnung stimmt – nur die Annahme »fest heißt endgültig« nicht.
+        - label: Er versagt nicht
+          feedback: Ein Gegenbeispiel mit drei Orten reicht.
+    hints:
+      - Warum durfte man einen Ort bisher endgültig festmachen?
+      - Jeder Umweg war bisher länger – mit negativen Kanten nicht mehr.
+    explanation: Für negative Kanten nimmt man das Verfahren von Bellman und Ford. Es ist langsamer, erkennt aber sogar Kreise mit negativer Länge.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Dijkstra mit Prioritätswarteschlange braucht etwa (Kanten + Knoten) · log₂(Knoten) Schritte. Wie viele Millionen sind das für 1 Million Knoten und 3 Millionen Kanten?
+    answer:
+      value: 80
+      tolerance: 2
+    hints:
+      - log₂ einer Million ist etwa 20.
+      - (3 + 1) Millionen · 20.
+    explanation: 4 Millionen · 20 = 80 Millionen Schritte – auf dem Handy eine Zehntelsekunde. Darum rechnen Navis in Echtzeit.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: Navis nutzen oft A* statt reinem Dijkstra. Was ist der Trick?
+    params:
+      options:
+        - label: Sie schätzen die Restentfernung per Luftlinie und suchen zuerst in Richtung Ziel
+          correct: true
+        - label: Sie nehmen immer die Autobahn
+          feedback: Das wäre eine Faustregel ohne Garantie.
+        - label: Sie raten zufällig
+          feedback: A* ist planvoll und findet weiterhin den kürzesten Weg.
+    hints:
+      - Dijkstra breitet sich wie ein Kreis in alle Richtungen aus.
+      - Die Luftlinie ist nie länger als der echte Weg.
+    explanation: Weil die Luftlinie nie überschätzt, findet A* garantiert den kürzesten Weg – besucht aber viel weniger Orte.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Dijkstra den kürzesten Weg findet.
+    params:
+      keywords:
+        - - nächst
+          - kleinste
+          - closest
+          - smallest
+          - nearest
+        - - fest
+          - endgültig
+          - final
+          - settle
+          - fix
+        - - nachbar
+          - neighbo
+        - - kürzer
+          - verbesser
+          - shorter
+          - improve
+          - update
+      sample: Jeder Ort hat eine vorläufige Entfernung, der Start 0. Ich nehme immer den nächsten offenen Ort und mache ihn fest – seine Entfernung ist dann endgültig. Für jeden Nachbarn prüfe ich, ob der Weg über diesen Ort kürzer ist, und verbessere die Zahl.
     difficulty: 3
 
 srs:

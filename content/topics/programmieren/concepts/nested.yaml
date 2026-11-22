@@ -5,7 +5,7 @@ summary: Schleifen mit mehreren Befehlen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -68,6 +68,72 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie viele einzelne Befehle führt der Roboter aus? »Wiederhole {{a}}× ( Wiederhole {{b}}× vorwärts, dann rechts )«
+    answer:
+      value: "{{a * (b + 1)}}"
+    feedback:
+      - when: numval(state.input) == a * b
+        misconception: forgot-outer
+        text: Das sind nur die »vorwärts«. Das »rechts« kommt in jeder äußeren Runde dazu.
+      - when: numval(state.input) == a + b + 1
+        misconception: add-loops
+        text: Verschachtelte Schleifen multiplizieren – sie addieren nicht.
+    hints:
+      - Was passiert in einer einzigen äußeren Runde?
+      - "{{b}}-mal vorwärts plus einmal rechts – und das {{a}}-mal."
+    explanation: "{{a}} · ({{b}} + 1) = {{a * (b + 1)}} Befehle."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: int[2,6]
+      defaults:
+        a: 4
+        b: 3
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: order
+    prompt: "»Für i von 1 bis 3: Für j von 1 bis 2: drucke i-j.« In welcher Reihenfolge erscheinen die Ausgaben?"
+    params:
+      items:
+        - label: 1-1
+        - label: 1-2
+        - label: 2-1
+        - label: 2-2
+        - label: 3-1
+        - label: 3-2
+      direction: horizontal
+    hints:
+      - Die innere Schleife läuft ganz durch, bevor i weiterzählt.
+      - Bei i = 1 kommen erst j = 1 und j = 2.
+    explanation: "Wie bei einer Uhr: Der innere Zähler j dreht schnell, der äußere i langsam. 3 · 2 = 6 Ausgaben."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Was zeichnet »Wiederhole 5× (vorwärts, rechts 144°)«?
+    params:
+      options:
+        - label: Einen fünfzackigen Stern
+          correct: true
+        - label: Ein Fünfeck
+          feedback: Dafür wären es 72° pro Ecke.
+        - label: Nichts Geschlossenes
+          feedback: 5 · 144° = 720° – zwei volle Runden, die Figur schließt sich.
+    hints:
+      - Wie viel dreht er sich insgesamt?
+      - 720° sind zwei Runden. Beim Fünfeck ist es eine.
+    explanation: "5 · 144° = 720°: Der Roboter umrundet die Mitte zweimal und zeichnet dabei einen Stern."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -83,6 +149,67 @@ steps:
     hints:
       - "Am Ende hat sich der Roboter einmal ganz gedreht: 360°."
     explanation: "360° : 6 = 60°. Für ein n-Eck dreht man immer um 360°/n."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Drei verschachtelte Schleifen mit je 10 Durchläufen. Wie oft läuft die innerste Zeile?
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: add-loops
+        text: Verschachtelte Schleifen multiplizieren.
+    hints:
+      - Zwei Schleifen ergäben 10 · 10.
+      - Noch einmal mal 10.
+    explanation: 10 · 10 · 10 = 1000. Jede weitere Ebene vervielfacht – daher kommt O(n³).
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Der Roboter zeichnet ein regelmäßiges {{n}}-Eck. Um wie viel Grad muss er sich an jeder Ecke drehen?
+    params:
+      unit: °
+    answer:
+      value: "{{360 / n}}"
+    feedback:
+      - when: numval(state.input) == 180 - 360 / n
+        misconception: interior-angle
+        text: Das ist der Innenwinkel. Der Roboter dreht um den Außenwinkel.
+    hints:
+      - Nach allen Ecken hat er sich einmal ganz gedreht.
+      - 360° verteilt auf {{n}} Ecken.
+    explanation: 360° / {{n}} = {{360 / n}}°. Insgesamt dreht er sich genau einmal um sich selbst.
+    difficulty: 3
+    variants:
+      params:
+        n: choice[3,5,6,8,9,10,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum sich die Durchläufe innerer Schleifen multiplizieren.
+    params:
+      keywords:
+        - - jede
+          - jeden
+          - each
+          - every
+        - - mal
+          - multipl
+          - times
+        - - innen
+          - innere
+          - inner
+      sample: Die innere Schleife läuft in jeder Runde der äußeren komplett durch. Läuft die äußere 3-mal und die innere 4-mal, sind das 3 mal 4 = 12 Durchläufe.
     difficulty: 3
 
 srs:

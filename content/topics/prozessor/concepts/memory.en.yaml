@@ -1,0 +1,209 @@
+id: cs.cpu.memory
+type: concept
+title: "Registers and memory"
+summary: "How a computer remembers bits – from the flip-flop to main memory."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many billion bits fit into 16 GB of main memory?"
+    params:
+      min: 1
+      max: 10000
+      scale: log
+    answer:
+      value: 128
+      within: 25
+    explanation: 16 billion bytes · 8 = 128 billion bits – and every single byte has an address.
+
+  - kind: explain
+    id: c1
+    body: A **flip-flop** stores one bit. Two gates hold each other in place crosswise. A short pulse on »set« writes a 1, on »reset« a 0. After that the value stays put.
+
+  - kind: problem
+    id: c2
+    widget: bits
+    prompt: A register is made of 8 flip-flops. Store the number {{n}} in it.
+    params:
+      bits: 8
+      showValue: false
+    answer:
+      value: "{{n}}"
+    hints:
+      - Does 128 fit into {{n}}? Then the left bit is on.
+      - Subtract every power of two that fits.
+    explanation: "{{n}} = {{bin(n)}}. Registers are the fastest storage in the computer – right next to the ALU."
+    variants:
+      params:
+        n: int[20,250]
+      defaults:
+        n: 42
+
+  - kind: explain
+    id: c3
+    body: Main memory is a long row of numbered slots of one byte each. The number is called a **memory address**. Whoever knows the address can read or write at once.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A processor has {{k}}-bit addresses. How many bytes can it address?
+    answer:
+      value: "{{2 ** k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k - 1
+        misconception: off-by-one
+        text: That is the highest address. Including 0 there is one more.
+    hints:
+      - Each address bit doubles the number of slots.
+      - 2 to the power {{k}}.
+    explanation: $2^{ {{k}} }$ = {{2 ** k}} bytes. With 32 bits it would be just over 4 billion – exactly 4 GiB.
+    variants:
+      params:
+        k: int[8,20]
+      defaults:
+        k: 16
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Where does this belong best?
+    params:
+      buckets:
+        - id: b1
+          label: Register
+        - id: b2
+          label: Main memory
+        - id: b3
+          label: SSD
+      items:
+        - label: Intermediate result of an addition
+          bucket: b1
+        - label: The open browser
+          bucket: b2
+        - label: Holiday photos from 2019
+          bucket: b3
+        - label: Counter of the innermost loop
+          bucket: b1
+        - label: A game that is running
+          bucket: b2
+        - label: Installed programs
+          bucket: b3
+    hints:
+      - "Registers: tiny and lightning fast. SSD: huge and permanent."
+      - Main memory forgets everything without power.
+    explanation: The closer to the ALU, the faster, smaller and pricier. This memory hierarchy is the basic pattern of every computer.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: An old 32-bit computer has 8 GB of memory installed. How many GiB of it can it address directly?
+    params:
+      unit: GiB
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: ignore-limit
+        text: 32 bits are only enough for $2^{32}$ bytes.
+    hints:
+      - How many GiB are $2^{32}$ bytes?
+      - 1 GiB = $2^{30}$ bytes.
+    explanation: $2^{32}$ / $2^{30}$ = 4 GiB. The rest stays unused – a major reason for the move to 64 bits.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: The number 0x1234 takes two bytes. A little-endian processor like x86 puts at the lower address …
+    params:
+      options:
+        - label: 0x34 – the low byte first
+          correct: true
+        - label: 0x12 – the high byte first
+          feedback: That is what big-endian systems do.
+        - label: Both into one slot
+          feedback: A slot holds only 8 bits.
+    hints:
+      - "Little means: the small end comes first."
+      - The small end is 0x34.
+    explanation: Little-endian stores 34 12, big-endian 12 34. Network protocols use big-endian – so programs often have to swap.
+    difficulty: 2
+
+  - kind: explain
+    id: d3
+    depth: 2
+    body: "**DRAM** stores every bit as a tiny charge in a capacitor. The charge slowly leaks away. That is why the computer refreshes all of memory about every 64 milliseconds."
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: A memory bus moves 64 bits per transfer, 3200 million transfers per second (DDR4-3200). How many GB per second is that? Round to one decimal.
+    params:
+      unit: GB/s
+    answer:
+      value: 25.6
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 204.8) < 0.1
+        misconception: bits-bytes
+        text: Those are gigabits. Divide by 8 for bytes.
+    hints:
+      - 64 bits = 8 bytes per transfer.
+      - 8 · 3.2 billion.
+    explanation: 8 bytes · 3.2 · $10^9$ = 25.6 GB/s per channel. Even so, the processor could compute faster than data arrives.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Caches are made of SRAM with 6 transistors per bit, main memory of DRAM with one. Why not use SRAM for everything?
+    params:
+      options:
+        - label: SRAM is fast but takes far more space and costs far more per bit
+          correct: true
+        - label: SRAM forgets its data at once
+          feedback: SRAM keeps data as long as there is power – without refreshing.
+        - label: SRAM is slower
+          feedback: It is in fact much faster.
+    hints:
+      - Compare 6 transistors with one.
+      - How many GB fit on a piece of silicon?
+    explanation: Fast, large and cheap all at once does not exist. So every computer combines a little fast memory with lots of slow memory.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer remembers a number and finds it again.
+    params:
+      keywords:
+        - - flipflop
+          - bit
+          - gatter
+          - gate
+          - ladung
+          - charge
+        - - register
+          - speicher
+          - memory
+        - - adresse
+          - address
+          - fach
+          - slot
+          - nummer
+          - number
+      sample: Each bit sits in a flip-flop or as a charge in memory. Eight bits form a byte, several bytes a register. Main memory is a row of slots, and each slot has a number, its address. With it the processor finds every number again.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d1", "x1"]

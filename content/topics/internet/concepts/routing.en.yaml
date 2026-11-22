@@ -5,7 +5,7 @@ summary: Packets find the fastest path.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: route
@@ -87,6 +87,102 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: A bigger network. Find the fastest route from A to G. The numbers are milliseconds.
+    params:
+      start: A
+      end: G
+      unit: ms
+      nodes:
+        - id: A
+          x: 4
+          y: 50
+        - id: B
+          x: 32
+          y: 10
+        - id: C
+          x: 32
+          y: 90
+        - id: D
+          x: 66
+          y: 10
+        - id: E
+          x: 66
+          y: 90
+        - id: G
+          x: 96
+          y: 50
+      edges:
+        - a: A
+          b: B
+          w: 4
+        - a: A
+          b: C
+          w: 2
+        - a: C
+          b: B
+          w: 1
+        - a: B
+          b: D
+          w: 5
+        - a: C
+          b: E
+          w: 8
+        - a: B
+          b: E
+          w: 6
+        - a: D
+          b: G
+          w: 3
+        - a: E
+          b: G
+          w: 1
+    hints:
+      - The direct link to B is not the fastest.
+      - "Via C to B costs only 3. From B: which way to G is shorter?"
+    explanation: A → C → B → E → G costs 2 + 1 + 6 + 1 = 10 ms. Via D it would be 11.
+    difficulty: 2
+
+  - kind: explain
+    id: cs-d2
+    depth: 2
+    body: Every router has a **routing table**. For each destination it lists only the best next neighbour and the shortest time known so far. Routers keep swapping their tables with their neighbours.
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: numeric
+    prompt: "Router R learns: neighbour X reaches the target in {{x}} ms, neighbour Y in {{y}} ms. R needs {{a}} ms to X and {{b}} ms to Y. How many ms does R's best route take?"
+    params:
+      unit: ms
+    answer:
+      value: "{{min(a + x, b + y)}}"
+    feedback:
+      - when: numval(state.input) == min(x, y)
+        misconception: forgot-link
+        text: Getting to the neighbour takes time too. Add it.
+    hints:
+      - "Work out both options: via X and via Y."
+      - "Via X: {{a}} + {{x}}. Via Y: {{b}} + {{y}}."
+    explanation: "Via X {{a + x}} ms, via Y {{b + y}} ms. R records the shorter: {{min(a + x, b + y)}} ms. That is the core of distance-vector routing."
+    difficulty: 2
+    variants:
+      params:
+        x: int[5,15]
+        y: int[3,12]
+        a: int[1,6]
+        b: int[5,12]
+      constraints:
+        - a + x != b + y
+      defaults:
+        x: 12
+        y: 7
+        a: 2
+        b: 9
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -102,6 +198,83 @@ steps:
     hints:
       - "As with signposts: each only points to the next junction."
     explanation: Routers exchange their tables with neighbours. Local knowledge thus becomes a global network.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: Every packet carries a counter (TTL) that drops by 1 at each router. At 0 the packet is dropped. What for?
+    params:
+      options:
+        - label: So that packets do not circle forever in a routing loop
+          correct: true
+        - label: So that old packets are faster
+          feedback: The counter slows nothing – it only limits the number of hops.
+        - label: To save power
+          feedback: It is about lost packets, not power.
+    hints:
+      - What if two routers keep passing a packet back and forth?
+      - Without a limit it would load the net forever.
+    explanation: Table errors sometimes create loops. The counter makes sure every packet disappears eventually. The tool traceroute uses exactly this counter.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess: how many milliseconds does a ping from Berlin to Sydney and back take at least? Fibre covers 1000 km in 5 ms, each way is 16,000 km."
+    params:
+      min: 10
+      max: 1000
+      scale: log
+      unit: ms
+    answer:
+      value: 160
+      within: 25
+    explanation: 2 · 16,000 km = 32,000 km, so 32 · 5 ms = 160 ms. In reality it is closer to 250 ms – cables do not run in straight lines.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: choice
+    prompt: In 2008 a network operator wrongly announced it knew the best route to YouTube. What happened?
+    params:
+      options:
+        - label: Routers worldwide believed it – YouTube was unreachable for many for hours
+          correct: true
+        - label: Nothing – routers check every announcement
+          feedback: The BGP protocol largely trusts neighbours.
+        - label: Only that country was affected
+          feedback: The announcement spread worldwide.
+    hints:
+      - Routers adopt the best routes of their neighbours.
+      - What if a neighbour lies or makes a mistake?
+    explanation: Pakistan Telecom meant to block YouTube at home, but the announcement leaked to the internet. Such BGP errors still happen; signed routes (RPKI) are meant to help.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how packets find their way although no router knows the whole net.
+    params:
+      keywords:
+        - - nachbar
+          - neighbo
+        - - nächst
+          - weiter
+          - next
+          - forward
+          - pass on
+        - - tabelle
+          - table
+          - austausch
+          - exchange
+          - teilen
+          - share
+      sample: Each router only knows its neighbours. Its table says for each destination which neighbour gets the packet next. Routers keep exchanging their tables, so good routes spread.
     difficulty: 3
 
 srs:

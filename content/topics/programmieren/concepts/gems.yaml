@@ -5,7 +5,7 @@ summary: Programme, die mehr tun als ankommen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: reihe
@@ -76,6 +76,83 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: robot
+    prompt: Zwei Bahnen voller Edelsteine. Sammle alle ein – mit höchstens 9 Blöcken.
+    params:
+      grid:
+        - S*****
+        - "******"
+      blocks:
+        - forward
+        - left
+        - right
+        - repeat
+        - end
+      repeatCounts:
+        - 3
+        - 4
+        - 5
+      maxBlocks: 9
+      goal: collect
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 5
+          - op: forward
+          - op: end
+          - op: right
+          - op: forward
+          - op: right
+          - op: repeat
+            n: 5
+          - op: forward
+          - op: end
+    hints:
+      - Fahr die obere Bahn ab, wende, fahr die untere zurück.
+      - Wiederhole 5× vorwärts, dann rechts, vorwärts, rechts – und wieder 5× vorwärts.
+    explanation: Schleife – wenden – Schleife. Wenden heißt hier zweimal rechts mit einem Schritt dazwischen.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Roboter mäht einen Rasen aus 6 Bahnen zu je 10 Feldern in Schlangenlinien. Er startet auf dem ersten Feld. Wie viele Schritte vorwärts macht er insgesamt?
+    answer:
+      value: 59
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: fence-post
+        text: Auf dem ersten Feld steht er schon – dafür braucht es keinen Schritt.
+    hints:
+      - In einer Bahn mit 10 Feldern macht er 9 Schritte.
+      - Dazu kommt ein Schritt pro Bahnwechsel.
+    explanation: "6 · 9 = 54 Schritte in den Bahnen, dazu 5 Wechsel: 59. Insgesamt 60 Felder, minus das Startfeld."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: Welcher Plan sammelt auf jedem rechteckigen Feld ohne Hindernisse alle Steine ein?
+    params:
+      options:
+        - label: "Schlangenlinie: Bahn ab, wenden, nächste Bahn zurück"
+          correct: true
+        - label: Immer geradeaus fahren
+          feedback: So bleibt der Roboter in einer einzigen Bahn.
+        - label: Zufällig fahren, bis alles weg ist
+          feedback: Das endet irgendwann vielleicht – aber ohne Garantie.
+    hints:
+      - Ein Algorithmus soll für jede Feldgröße klappen.
+      - So mäht man auch einen Rasen.
+    explanation: Die Schlangenlinie besucht jedes Feld genau einmal – egal, wie groß das Rechteck ist.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -87,6 +164,66 @@ steps:
     hints:
       - "Fläche geteilt durch Bahnbreite: 20 m² : 0,25 m."
     explanation: 80 Meter. Jede Überlappung und jeder Umweg kommt obendrauf – darum lohnt sich gute Planung.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: numeric
+    prompt: Fünf Edelsteine liegen verstreut. In wie vielen Reihenfolgen kann man sie einsammeln?
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 25
+        misconception: no-shrinking
+        text: "Nicht 5 · 5: Nach jedem Stein bleibt einer weniger zur Wahl."
+    hints:
+      - Für den ersten Stein gibt es 5 Möglichkeiten, für den zweiten 4 …
+      - 5 · 4 · 3 · 2 · 1.
+    explanation: 5! = 120. Bei 20 Steinen sind es schon über $10^{18}$ – alles durchprobieren geht nicht mehr.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: Die Strategie »immer zum nächstgelegenen Stein« – findet sie stets den kürzesten Gesamtweg?
+    params:
+      options:
+        - label: Nein – sie ist schnell, kann aber zu teuren Umwegen am Ende führen
+          correct: true
+        - label: Ja, kurze Schritte ergeben einen kurzen Weg
+          feedback: Ein vergessener Stein am anderen Ende kann den Weg stark verlängern.
+        - label: Ja, aber nur auf quadratischen Feldern
+          feedback: Auch dort gibt es Gegenbeispiele.
+    hints:
+      - Was, wenn ein Stein weit hinten liegt, aber neben dem Start?
+      - "Gierig heißt: jetzt gut, später vielleicht schlecht."
+    explanation: Das ist ein gieriger Algorithmus. Für das Problem des Handlungsreisenden liefert er oft gute, aber selten die besten Wege.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man erst plant und dann programmiert.
+    params:
+      keywords:
+        - - plan
+          - weg
+          - route
+          - path
+        - - muster
+          - wiederhol
+          - pattern
+          - repeat
+          - schleife
+          - loop
+        - - fehler
+          - bug
+          - error
+          - test
+      sample: Erst überlege ich den Weg, den der Roboter nehmen soll. Dabei sehe ich Muster, die sich wiederholen – die werden zu Schleifen. Mit einem Plan mache ich weniger Fehler und finde sie schneller.
     difficulty: 3
 
 srs:

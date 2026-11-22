@@ -5,7 +5,7 @@ summary: Smaller on the left, larger on the right.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -101,6 +101,105 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: network
+    prompt: A bigger search tree. Where is 35? Tap the search path from the root 50.
+    params:
+      start: n50
+      end: n35
+      aspect: 0.7
+      nodes:
+        - id: n50
+          x: 50
+          y: 6
+          label: "50"
+        - id: n30
+          x: 26
+          y: 36
+          label: "30"
+        - id: n70
+          x: 74
+          y: 36
+          label: "70"
+        - id: n20
+          x: 10
+          y: 66
+          label: "20"
+        - id: n40
+          x: 40
+          y: 66
+          label: "40"
+        - id: n60
+          x: 60
+          y: 66
+          label: "60"
+        - id: n80
+          x: 90
+          y: 66
+          label: "80"
+        - id: n35
+          x: 30
+          y: 96
+          label: "35"
+      edges:
+        - a: n50
+          b: n30
+        - a: n50
+          b: n70
+        - a: n30
+          b: n20
+        - a: n30
+          b: n40
+        - a: n70
+          b: n60
+        - a: n70
+          b: n80
+        - a: n40
+          b: n35
+    hints:
+      - 35 is less than 50 – so left.
+      - "At 30: bigger, so right. At 40: smaller, so left."
+    explanation: 50 → 30 → 40 → 35. Three decisions, each ruling out a whole subtree.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: You insert 1, 2, 3, …, 1000 in order into a plain search tree. How many levels does it have afterwards?
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: assume-balanced
+        text: That would be a balanced tree. Here every new number hangs off the bottom right.
+    hints:
+      - Where does 2 go if 1 is the root? Where does 3 go?
+      - Every number is bigger than all before it.
+    explanation: "The tree becomes a long chain: 1000 levels. Searching then costs O(n), just like a list."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: choice
+    prompt: You read a search tree in the order »left subtree – node – right subtree«. What comes out?
+    params:
+      options:
+        - label: All values in sorted order
+          correct: true
+        - label: The values in insertion order
+          feedback: The shape of the tree forgets the insertion order.
+        - label: First all leaves, then the root
+          feedback: That would be a different order.
+    hints:
+      - On the left everything is smaller, on the right everything bigger.
+      - "Try it on the tree above: 20, 30, 35, 40 …"
+    explanation: This in-order traversal yields sorted values. A search tree is a list that always stays sorted.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -130,6 +229,69 @@ steps:
           - strength
           - trade
       sample: "Each structure is fast at something different: lists at access, stacks at undoing, hash tables at searching. You choose the best trade-off for the task."
+    difficulty: 3
+
+  - kind: explain
+    id: cs-x1
+    depth: 3
+    body: Balanced trees such as **AVL trees** rotate themselves into shape on every insert. So the height always stays around log₂ n – even when numbers arrive sorted.
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: numeric
+    prompt: Databases use B-trees with up to 100 children per node. How many levels are needed for 100 million entries?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 27
+        misconception: binary
+        text: That is what a binary tree would need. With 100 children per node it is much flatter.
+    hints:
+      - Each level multiplies the reachable entries by 100.
+      - $100^4$ = $10^8$.
+    explanation: $100^4$ = 100 million. Four levels means four disk reads – that is why B-trees are the heart of almost every database.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: numeric
+    prompt: "A heap stores a binary tree in an array: the children of slot i are at 2i + 1 and 2i + 2. Where is the left child of slot {{i}}?"
+    answer:
+      value: "{{2 * i + 1}}"
+    feedback:
+      - when: numval(state.input) == 2 * i + 2
+        misconception: left-right
+        text: That is the right child.
+    hints:
+      - Plug i = {{i}} into 2i + 1.
+      - 2 · {{i}} + 1.
+    explanation: 2 · {{i}} + 1 = {{2 * i + 1}}. No pointers at all – the shape of the tree lives in the arithmetic. Priority queues work this way.
+    difficulty: 3
+    variants:
+      params:
+        i: int[2,40]
+      defaults:
+        i: 6
+
+  - kind: problem
+    id: cs-x4
+    depth: 3
+    widget: choice
+    prompt: How do you delete a node with two children from a search tree?
+    params:
+      options:
+        - label: Replace it with the next larger value – the smallest element in the right subtree
+          correct: true
+        - label: Delete the whole subtree
+          feedback: Then every other value in it would be lost.
+        - label: Hang both children on the root
+          feedback: Then the order smaller-left, bigger-right breaks.
+    hints:
+      - The replacement must be bigger than everything left and smaller than everything right.
+      - The successor in sorted order fits exactly.
+    explanation: The successor has at most one child and is easy to remove. The tree's order is preserved.
     difficulty: 3
 
 srs:

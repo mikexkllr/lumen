@@ -5,7 +5,7 @@ summary: From names to addresses – and fake addresses.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -128,6 +128,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: cs-d1
+    depth: 2
+    widget: order
+    prompt: Your computer does not know bank.de yet. Put the DNS resolver's questions in the right order.
+    params:
+      items:
+        - label: The resolver asks a root server
+        - label: The root names the server for .de
+        - label: The .de server names the server of bank.de
+        - label: That one gives the IP address
+        - label: The resolver caches the answer
+    hints:
+      - DNS reads names from right to left.
+      - At the top is the root, then the ending .de.
+    explanation: "DNS is a tree: root, then .de, then bank.de. Each level only refers to the next."
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d2
+    depth: 2
+    widget: numeric
+    prompt: A name is looked up 1000 times an hour. The answer stays valid for 300 seconds. How many queries reach bank.de's server per hour at most?
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 1000
+        misconception: no-cache
+        text: The resolver caches the answer. Only when it expires does it ask again.
+    hints:
+      - How often does the answer expire in an hour?
+      - 3600 s / 300 s.
+    explanation: 3600 / 300 = 12. The cache turns 1000 queries into just 12.
+    difficulty: 2
+
+  - kind: problem
+    id: cs-d3
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: login.bank.de.evil.com belongs to evil.com.
+          right: true
+          why: What counts are the last two parts before the first slash.
+        - text: bank-de.com surely belongs to the bank.
+          right: false
+          why: Anyone can buy such a name.
+        - text: With shop.bank.de, bank.de decides where it leads.
+          right: true
+          why: shop is a subdomain of bank.de.
+        - text: A name can look like »bank« and still be a different one.
+          right: true
+          why: For example with a Cyrillic »а«.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -143,6 +199,65 @@ steps:
     hints:
       - A DNS query takes time. Must it be made every time?
     explanation: "**Caching** is everywhere on the net: keep results instead of fetching them again. The downside: stale data."
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x1
+    depth: 3
+    widget: choice
+    prompt: An attacker slips your resolver a fake address for bank.de. What still protects you?
+    params:
+      options:
+        - label: HTTPS – the fraudster has no valid certificate for bank.de
+          correct: true
+        - label: Nothing, DNS is the only lock
+          feedback: DNS just provides the address. The check comes after.
+        - label: A long password
+          feedback: The password does not help if you give it to the wrong site.
+    hints:
+      - What does the browser check after it has an address?
+      - The fake server would have to prove it is bank.de.
+    explanation: The browser warns loudly if the certificate does not match. DNSSEC additionally protects DNS answers themselves with signatures.
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x2
+    depth: 3
+    widget: choice
+    prompt: A company moves its website to a new server. Why does it shorten the lifetime of its DNS answers beforehand?
+    params:
+      options:
+        - label: So that old answers disappear quickly from all caches
+          correct: true
+        - label: So that the site loads faster
+          feedback: A shorter lifetime means more queries, if anything.
+        - label: So that attackers cannot find it
+          feedback: The address stays public.
+    hints:
+      - What happens to cached answers after the move?
+      - Caches still point to the old server – until they expire.
+    explanation: "Caching saves work but makes changes slow. That is a basic problem of every cache: when is stored data out of date?"
+    difficulty: 3
+
+  - kind: problem
+    id: cs-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what DNS does and why computers remember answers.
+    params:
+      keywords:
+        - - name
+          - namen
+        - - adresse
+          - address
+          - nummer
+          - number
+        - - merk
+          - cache
+          - speicher
+          - store
+          - remember
+      sample: DNS translates names like bank.de into IP addresses, the numbers routers understand. Because asking takes time, the computer remembers the answer for a while in a cache.
     difficulty: 3
 
 srs:

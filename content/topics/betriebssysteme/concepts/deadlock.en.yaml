@@ -1,0 +1,200 @@
+id: cs.os.deadlock
+type: concept
+title: "Deadlocks"
+summary: "Locks, races and waiting in a circle."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two cars face each other on a single-lane bridge. Neither will back up. What happens?
+    params:
+      options:
+        - label: Nothing – both wait forever
+          correct: true
+        - label: The faster one drives through
+          feedback: There is no room to pass.
+        - label: They take turns
+          feedback: For that one would have to back up.
+    hints:
+      - Each needs what the other blocks.
+      - Nobody gives way.
+    explanation: This is exactly how programs deadlock. A rule for who backs up is missing.
+
+  - kind: explain
+    id: c1
+    body: "A **deadlock** arises when processes wait for each other in a circle: A holds the printer and wants the scanner, B holds the scanner and wants the printer. Neither ever gets further."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Two threads each run x = x + 1 a thousand times, with no lock. x starts at 0. What can x hold at the end?
+    params:
+      options:
+        - label: Less than 2000 – some increments get lost
+          correct: true
+        - label: Always exactly 2000
+          feedback: Reading, computing and writing can overlap.
+        - label: Always exactly 1000
+          feedback: Usually only some increments are lost, not half.
+    hints:
+      - Both read x = 5 at once. What do they write?
+      - Both write 6 – one increment is gone.
+    explanation: This is a race condition. The result depends on the chance timing of the slices.
+
+  - kind: explain
+    id: c3
+    body: A **lock** (mutex) lets only one thread at a time into a critical section. Whoever cannot get it waits. That prevents lost updates – but can cause deadlocks.
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Deadlock or not?
+    params:
+      buckets:
+        - id: b1
+          label: deadlock
+        - id: b2
+          label: no deadlock
+      items:
+        - label: A waits for B, B waits for A
+          bucket: b1
+        - label: A waits for B, B on C, C on A
+          bucket: b1
+        - label: A waits for B, B releases soon
+          bucket: b2
+        - label: A and B wait for C, C is free
+          bucket: b2
+    hints:
+      - Is there a cycle in the waiting?
+      - Whoever waits for nobody finishes eventually.
+    explanation: A deadlock is a cycle in the wait-for graph. Without a cycle the chain eventually gets moving.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "A deadlock needs four things at once: exclusive resources, hold and wait, no pre-emption and a circular wait. These are the **Coffman conditions**. Break one and none can arise."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Which simple rule surely prevents the circular wait?
+    params:
+      options:
+        - label: Everyone locks in the same fixed order – printer first, then scanner
+          correct: true
+        - label: Compute faster
+          feedback: You can wait in a circle quickly too.
+        - label: Start more threads
+          feedback: More participants make cycles more likely.
+    hints:
+      - Whoever holds the scanner already holds the printer then.
+      - A cycle would need someone locking against the order.
+    explanation: With a fixed order all waiting arrows point the same way – a cycle is impossible.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Five philosophers sit at a round table with a fork between each pair. Each needs both neighbouring forks to eat. At most how many can eat at once?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 2.5
+        misconception: fraction
+        text: There are no half philosophers.
+    hints:
+      - Each eater uses 2 of the 5 forks.
+      - Two eaters need 4 forks, three would need 6.
+    explanation: At most 2, and they must not sit next to each other. If all grab their left fork at once, deadlock looms.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A single philosopher reaches right first instead of left. What does that achieve?
+    params:
+      options:
+        - label: The circular wait can no longer form
+          correct: true
+        - label: Nothing
+          feedback: One is enough to break the cycle.
+        - label: He starves
+          feedback: He gets his turn like the others.
+    hints:
+      - When does the cycle form?
+      - When everyone holds their left fork at once.
+    explanation: "This is the fixed order in miniature: number the forks and everyone grabs the lower number first."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Two people in a corridor keep stepping aside – always to the same side at the same time. What is this called for processes?
+    params:
+      options:
+        - label: Livelock – both are active but make no progress
+          correct: true
+        - label: Deadlock
+          feedback: In a deadlock everything stands still. Here everything moves.
+        - label: Race condition
+          feedback: There a result gets lost, here progress does.
+    hints:
+      - Are they standing still?
+      - They do something, but nothing gets them further.
+    explanation: "The cure is randomness: each waits a random short time. Networks resolve collisions exactly this way."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Before each allocation the system checks whether all processes can still finish afterwards – otherwise it makes the request wait. What is this method called?
+    params:
+      options:
+        - label: Banker's algorithm
+          correct: true
+        - label: Round robin
+          feedback: That distributes CPU time, not resources.
+        - label: LRU
+          feedback: That chooses pages to swap out.
+    hints:
+      - A bank lends only so much that it can still serve every customer.
+      - Dijkstra invented it in 1965.
+    explanation: The banker's algorithm avoids deadlocks but needs each process's maximum demand in advance. That is why it is rarely used in practice.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a deadlock arises and how to prevent it.
+    params:
+      keywords:
+        - - wartet
+          - warten
+          - wait
+        - - kreis
+          - gegenseitig
+          - cycle
+          - circle
+          - each other
+        - - reihenfolge
+          - order
+        - - sperr
+          - hält
+          - lock
+          - hold
+      sample: A deadlock arises when processes hold something and at the same time wait for something another one holds – in a circle, waiting on each other. It can be prevented if everyone takes their locks in the same order. Then there is no cycle.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3", "x1"]
