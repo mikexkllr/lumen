@@ -103,3 +103,33 @@ describe('network', () => {
     expect(s.path).toEqual(['A', 'B']);
   });
 });
+
+describe('gates with feedback (SR latch)', () => {
+  const latch = {
+    inputs: [{ id: 'S', value: 0 }, { id: 'R', value: 0 }],
+    gates: [{ id: 'nq', type: 'NOR', in: ['S', 'q'] }, { id: 'q', type: 'NOR', in: ['R', 'nq'] }],
+    outputs: [{ id: 'Q', from: 'q' }],
+  };
+  it('remembers the last set or reset', () => {
+    const p = gatesWidget.params.parse(latch);
+    let s = gatesWidget.init(p, { locale: 'de', seed: 1 });
+    const q = () => evaluateCircuit(p, s.inputs, s.types, s.mem).Q;
+    expect(q()).toBe(0);
+    s = gatesWidget.applyAction(s, { type: 'toggle', id: 'S' }, p);
+    expect(q()).toBe(1);
+    s = gatesWidget.applyAction(s, { type: 'toggle', id: 'S' }, p);
+    expect(q()).toBe(1); // S back to 0: the latch keeps Q = 1
+    s = gatesWidget.applyAction(s, { type: 'toggle', id: 'R' }, p);
+    expect(q()).toBe(0);
+    s = gatesWidget.applyAction(s, { type: 'toggle', id: 'R' }, p);
+    expect(q()).toBe(0);
+  });
+  it('a problem "store a 1 with both switches off" is solvable and passes the evals', () => {
+    const s = ProblemStepSchema.parse({ kind: 'problem', prompt: 'Speichere eine 1.', hints: ['Tipp'], widget: 'gates', params: latch, check: { predicate: 'Q == 1 && inputs.S == 0 && inputs.R == 0' } }) as ProblemStep;
+    const step = { ...s, id: 't/s1' } as ProblemStep;
+    expect(evalProblem(step, { concept: 't', locale: 'de' }).filter((i) => i.level !== 'info')).toEqual([]);
+    const rp = resolveProblem(step);
+    expect(isCorrect(rp, initialState(rp))).toBe(false);
+    expect(referenceSolve(rp)).not.toBeNull();
+  });
+});

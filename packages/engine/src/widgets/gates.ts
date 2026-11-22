@@ -6,6 +6,8 @@ import { t, type LintIssue, type WidgetDefinition } from './types.ts';
  * Logic circuits: switches → gates → lamps. Learners flip switches and/or
  * pick gate types. Check with `goal` (lamp states) or a predicate using the
  * output ids, `table('Q')` (truth table over all free switches) etc.
+ * Feedback (a gate fed by a later gate, e.g. two NORs as an SR latch) is
+ * allowed: such circuits settle from their previous values, so they remember.
  */
 export const GATE_TYPES = ['AND', 'OR', 'NOT', 'XOR', 'NAND', 'NOR'] as const;
 export type GateType = (typeof GATE_TYPES)[number];
@@ -21,6 +23,8 @@ export type GatesParams = z.infer<typeof Params>;
 export interface GatesState {
   inputs: Record<string, number>;
   types: Record<string, string>;
+  /** Last settled gate values – the memory of circuits with feedback. */
+  mem?: Record<string, number>;
 }
 export type GatesAction = { type: 'toggle'; id: string } | { type: 'cycle'; id: string };
 
@@ -42,8 +46,46 @@ function applyGate(type: string, vals: number[]): number | null {
   }
 }
 
-/** Evaluates every node. Unknown gates ('?') yield null. */
-export function evaluateCircuit(p: GatesParams, inputs: Record<string, number>, types: Record<string, string>): Record<string, number | null> {
+/** Whether some gate depends on its own output (feedback loop). */
+export function hasFeedback(p: GatesParams): boolean {
+  const gateById = new Map(p.gates.map((g) => [g.id, g]));
+  const state: Record<string, 1 | 2> = {};
+  const visit = (id: string): boolean => {
+    if (state[id] === 2 || !gateById.has(id)) return false;
+    if (state[id] === 1) return true;
+    state[id] = 1;
+    const loop = gateById.get(id)!.in.some(visit);
+    state[id] = 2;
+    return loop;
+  };
+  return p.gates.some((g) => visit(g.id));
+}
+
+/**
+ * Circuits with feedback: start from the previous gate values and update the gates in order until nothing changes
+ * (at most 32 rounds; an oscillating circuit keeps its last values).
+ */
+function settle(p: GatesParams, inputs: Record<string, number>, types: Record<string, string>, prev: Record<string, number> = {}): Record<string, number | null> {
+  const v: Record<string, number | null> = { ...inputs };
+  for (const g of p.gates) v[g.id] = prev[g.id] ?? 0;
+  for (let round = 0; round < 32; round++) {
+    let changed = false;
+    for (const g of p.gates) {
+      const next = applyGate(types[g.id] ?? g.type, g.in.map((x) => v[x] ?? null) as number[]);
+      if (next !== v[g.id]) {
+        v[g.id] = next;
+        changed = true;
+      }
+    }
+    if (!changed) break;
+  }
+  for (const o of p.outputs) v[o.id] = v[o.from] ?? null;
+  return v;
+}
+
+/** Evaluates every node. Unknown gates ('?') yield null. Circuits with feedback settle from `prev`. */
+export function evaluateCircuit(p: GatesParams, inputs: Record<string, number>, types: Record<string, string>, prev?: Record<string, number>): Record<string, number | null> {
+  if (hasFeedback(p)) return settle(p, inputs, types, prev);
   const memo: Record<string, number | null> = {};
   const visiting = new Set<string>();
   const gateById = new Map(p.gates.map((g) => [g.id, g]));
@@ -65,7 +107,7 @@ export function evaluateCircuit(p: GatesParams, inputs: Record<string, number>, 
 const freeInputs = (p: GatesParams) => p.inputs.filter((i) => !i.fixed).map((i) => i.id);
 
 function outputs(p: GatesParams, s: GatesState): Record<string, number | null> {
-  const all = evaluateCircuit(p, s.inputs, s.types);
+  const all = evaluateCircuit(p, s.inputs, s.types, s.mem);
   return Object.fromEntries(p.outputs.map((o) => [o.id, all[o.id]]));
 }
 
@@ -76,7 +118,7 @@ export function truthTable(p: GatesParams, s: GatesState, outId: string): (numbe
   for (let k = 0; k < 2 ** free.length; k++) {
     const inputs = { ...s.inputs };
     free.forEach((id, i) => (inputs[id] = (k >> (free.length - 1 - i)) & 1));
-    rows.push(evaluateCircuit(p, inputs, s.types)[outId] ?? null);
+    rows.push(evaluateCircuit(p, inputs, s.types, s.mem)[outId] ?? null);
   }
   return rows;
 }
@@ -86,11 +128,16 @@ export function circuitDepths(p: GatesParams): Record<string, number> {
   const depth: Record<string, number> = {};
   for (const i of p.inputs) depth[i.id] = 0;
   const gateById = new Map(p.gates.map((g) => [g.id, g]));
-  const d = (id: string, guard = 0): number => {
+  const visiting = new Set<string>();
+  // a feedback wire (to a gate still being placed) does not push the gate further right
+  const d = (id: string): number => {
     if (id in depth) return depth[id];
     const g = gateById.get(id);
-    if (!g || guard > 10) return 0;
-    return (depth[id] = 1 + Math.max(0, ...g.in.map((x) => d(x, guard + 1))));
+    if (!g || visiting.has(id)) return 0;
+    visiting.add(id);
+    const v = 1 + Math.max(0, ...g.in.map(d));
+    visiting.delete(id);
+    return (depth[id] = v);
   };
   for (const g of p.gates) d(g.id);
   const maxD = Math.max(0, ...Object.values(depth));
@@ -98,12 +145,19 @@ export function circuitDepths(p: GatesParams): Record<string, number> {
   return depth;
 }
 
+/** Stores the settled gate values of a circuit with feedback (others need no memory). */
+function remember(p: GatesParams, s: GatesState): GatesState {
+  if (!hasFeedback(p)) return s;
+  const all = evaluateCircuit(p, s.inputs, s.types, s.mem);
+  return { ...s, mem: Object.fromEntries(p.gates.map((g) => [g.id, all[g.id] ?? 0])) };
+}
+
 export const gatesWidget: WidgetDefinition<GatesParams, GatesState, GatesAction> = {
   kind: 'gates',
   title: { de: 'Logikgatter', en: 'Logic gates' },
   params: Params,
   interactive: true,
-  init: (p) => ({
+  init: (p) => remember(p, {
     inputs: Object.fromEntries(p.inputs.map((i) => [i.id, i.value])),
     types: Object.fromEntries(p.gates.map((g) => [g.id, g.type])),
   }),
@@ -111,12 +165,12 @@ export const gatesWidget: WidgetDefinition<GatesParams, GatesState, GatesAction>
     if (a.type === 'toggle') {
       const inp = p.inputs.find((i) => i.id === a.id);
       if (!inp || inp.fixed) return s;
-      return { ...s, inputs: { ...s.inputs, [a.id]: 1 - s.inputs[a.id] } };
+      return remember(p, { ...s, inputs: { ...s.inputs, [a.id]: 1 - s.inputs[a.id] } });
     }
     const g = p.gates.find((x) => x.id === a.id);
     if (!g?.options?.length) return s;
     const cur = g.options.indexOf(s.types[a.id] as GateType);
-    return { ...s, types: { ...s.types, [a.id]: g.options[(cur + 1) % g.options.length] } };
+    return remember(p, { ...s, types: { ...s.types, [a.id]: g.options[(cur + 1) % g.options.length] } });
   },
   actions(_s, p) {
     return [
@@ -135,7 +189,7 @@ export const gatesWidget: WidgetDefinition<GatesParams, GatesState, GatesAction>
     return { ...out, out, inputs: s.inputs, types: s.types, table: exprFunction((id: string) => truthTable(p, s, id)) };
   },
   describe(s, p, locale) {
-    const all = evaluateCircuit(p, s.inputs, s.types);
+    const all = evaluateCircuit(p, s.inputs, s.types, s.mem);
     const ins = p.inputs.map((i) => `${i.label ?? i.id} = ${s.inputs[i.id]}`).join(', ');
     const gs = p.gates.map((g) => `${g.id}: ${gateLabel(s.types[g.id], locale)}(${g.in.join(', ')}) = ${all[g.id] ?? '?'}`).join('; ');
     const outs = p.outputs.map((o) => `${o.label ?? o.id} ${all[o.id] === 1 ? t(locale, 'leuchtet', 'on') : t(locale, 'aus', 'off')}`).join(', ');

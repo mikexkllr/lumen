@@ -299,7 +299,7 @@ export function BitsView({ params, state, dispatch, readOnly, locale }: WidgetVi
 
 export function GatesView({ params, state, dispatch, readOnly, locale }: WidgetViewProps<GatesParams, GatesState>) {
   const depth = circuitDepths(params);
-  const vals = evaluateCircuit(params, state.inputs, state.types);
+  const vals = evaluateCircuit(params, state.inputs, state.types, state.mem);
   const cols = Math.max(...Object.values(depth)) + 1;
   const byCol: string[][] = Array.from({ length: cols }, () => []);
   for (const i of params.inputs) byCol[0].push(i.id);
@@ -324,6 +324,11 @@ export function GatesView({ params, state, dispatch, readOnly, locale }: WidgetV
     return { x: p.x - gateW / 2, y: p.y - gateH / 2 + (gateH / (n + 1)) * (k + 1) };
   };
   const wire = (a: { x: number; y: number }, b: { x: number; y: number }) => {
+    // feedback runs back to the left: route it in a loop below both ends
+    if (b.x <= a.x + 8) {
+      const low = Math.min(H - 8, Math.max(a.y, b.y) + gateH * 0.75);
+      return `M${a.x},${a.y} C${a.x + 26},${a.y} ${a.x + 26},${low} ${a.x},${low} L${b.x},${low} C${b.x - 26},${low} ${b.x - 26},${b.y} ${b.x},${b.y}`;
+    }
     const mx = (a.x + b.x) / 2;
     return `M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`;
   };
