@@ -69,4 +69,10 @@ describe('distribution', () => {
     expect(a).toEqual(b);
     expect((a as { draws: number }).draws).toBe(100);
   });
+
+  it('finds items by index as well as by label', () => {
+    const s = step({ widget: 'distribution', params: { mode: 'chance', items: [{ label: 'Tee', weight: 3 }, { label: 'Kaffee', weight: 1 }] }, check: { predicate: "prob(0) == prob('Tee') && topIndex == 0 && prob(5) == 0" } });
+    const rp = resolveProblem(s);
+    expect(isCorrect(rp, initialState(rp))).toBe(true);
+  });
 });

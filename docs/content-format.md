@@ -127,7 +127,7 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `logic-grid` | `categories`, `ordered`, `clues: [{text, rule \| rules}]` | eindeutige Lösung des Rätsels | – |
 | `robot` | `grid` (`.` `#` `S` `G` `*`), `dir`, `blocks`, `repeatCounts`, `maxBlocks`, `goal: reach\|collect`, `program` (vorbelegt, fürs Debuggen) | Ziel erreicht bzw. alle Kristalle, höchstens `maxBlocks` Blöcke | `blocks`, `crashed`, `success` |
 | `chart` | `labels`, `values`, `editable`, `min`, `max`, `step`, `show: [mean, median]` | `values` oder Prädikat | `values`, `avg`, `med` (+ `mean()`, `median()`) |
-| `distribution` | `mode: chance\|tokens`, `context`, `items: [{label, weight \| logit}]`, `temperature`, `sample` | Prädikat | `prob('x')`, `freq('x')`, `count('x')`, `draws`, `temperature`, `top` |
+| `distribution` | `mode: chance\|tokens`, `context`, `items: [{label, weight \| logit}]`, `temperature`, `sample` | Prädikat | `prob('x')`, `freq('x')`, `count('x')` (Label oder Index ab 0 – der Index bleibt in Übersetzungen gleich), `draws`, `temperature`, `top`, `topIndex` |
 | `buckets` | `buckets: [{label}]`, `items: [{label, bucket}]` (bucket = id oder Label) | alle Karten in der richtigen Gruppe | `placed`, `correct` |
 | `match` | `pairs: [{left, right}]`, `leftTitle`, `rightTitle` | alle Paare richtig verbunden | `links`, `correct` |
 | `pixels` | `rows`/`cols` oder `cells` (`.` `#` Ziffern), `locked`, `numbers: {start}`, `labels`, `mirror`, `shades`, `counter` | `pattern` oder Prädikat | `on`, `onLabels`, `cell(r,c)`, `row(r)`, `col(c)`, `symmetric('v'\|'h')`, `pattern` |

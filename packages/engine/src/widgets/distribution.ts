@@ -84,14 +84,16 @@ export const distributionWidget: WidgetDefinition<DistributionParams, Distributi
   isAnswered: () => true,
   scope(s, p) {
     const probs = probabilities(p, s.temperature);
-    const idx = (l: string) => p.items.findIndex((i) => i.label === l);
+    // an item by label or by 0-based index – the index keeps predicates identical across translations
+    const idx = (l: string | number) => (typeof l === 'number' ? (Number.isInteger(l) && l >= 0 && l < p.items.length ? l : -1) : p.items.findIndex((i) => i.label === l));
     return {
-      prob: exprFunction((l: string) => (idx(l) >= 0 ? probs[idx(l)] : 0)),
-      freq: exprFunction((l: string) => (idx(l) >= 0 && s.draws ? s.counts[idx(l)] / s.draws : 0)),
-      count: exprFunction((l: string) => (idx(l) >= 0 ? s.counts[idx(l)] : 0)),
+      prob: exprFunction((l: string | number) => (idx(l) >= 0 ? probs[idx(l)] : 0)),
+      freq: exprFunction((l: string | number) => (idx(l) >= 0 && s.draws ? s.counts[idx(l)] / s.draws : 0)),
+      count: exprFunction((l: string | number) => (idx(l) >= 0 ? s.counts[idx(l)] : 0)),
       draws: s.draws,
       temperature: s.temperature,
       top: p.items[probs.indexOf(Math.max(...probs))].label,
+      topIndex: probs.indexOf(Math.max(...probs)),
     };
   },
   describe(s, p, locale) {
