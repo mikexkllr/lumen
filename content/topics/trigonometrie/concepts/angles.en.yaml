@@ -5,7 +5,7 @@ summary: Estimate, set, measure.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: rechter
@@ -90,6 +90,49 @@ steps:
     explanation: At 30°. The sine of 30° is exactly one half.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: In **radians** an angle is measured by the length of its arc on the circle with radius 1. A full turn is the circumference 2π. So 180° is exactly π, and 1 rad ≈ 57.3°.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is {{w}}° in radians? Give the factor in front of π, e.g. 1/2 for 90°.
+    answer:
+      value: "{{w}}/180"
+    feedback:
+      - when: numval(state.input) == w / 360
+        misconception: full-turn-pi
+        text: A full turn is 2π, not π. Divide by 180.
+    hints:
+      - 180° = π.
+      - Factor = {{w}} / 180.
+    explanation: "{{w}}° = {{w}}/180 · π."
+    difficulty: 2
+    variants:
+      params:
+        w: choice[30,45,60,120,135,150,270,300]
+      defaults:
+        w: 135
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Earth's circumference is about 40,000 km. How many km apart are two lines of latitude that differ by 1°? Round to whole km.
+    params:
+      unit: km
+    answer:
+      value: 111
+      tolerance: 1
+    hints:
+      - One degree is the 360th part of a circle.
+      - 40,000 / 360.
+    explanation: "40,000 / 360 ≈ 111 km. One arc minute, a sixtieth of that, is the nautical mile: 1.852 km."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -102,6 +145,48 @@ steps:
     hints:
       - π corresponds to 180°.
     explanation: 180° ÷ 3 = 60°.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Why do professionals use radians? Only there does $\sin x \approx x$ hold for small angles – the **small-angle approximation**. And only there is the derivative of sin exactly cos. In degrees a nasty factor π/180 would appear everywhere.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A pendulum swings out by 5°. What is 5° in radians? To three decimals. Compare with sin 5° ≈ 0.0872.
+    answer:
+      value: 0.087
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: no-conversion
+        text: Those are degrees. Multiply by π/180.
+    hints:
+      - 5 · π / 180.
+      - π / 36 ≈ 0.0873.
+    explanation: 0.0873 versus 0.0872 – almost equal. That is why the pendulum formula $T = 2\pi\sqrt{l/g}$ is so accurate for small swings.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what an angle of 1 radian is.
+    params:
+      keywords:
+        - - bogen
+          - arc
+        - - radius
+          - so lang wie der radius
+          - as long as the radius
+        - - "57"
+          - 57,3
+          - "57.3"
+      sample: One radian is the angle at which the arc on the circle is exactly as long as the radius. That is about 57.3 degrees. A full turn has 2π radians.
+    explanation: Radians measure angles with lengths. That is why they fit so well with formulas for arcs, areas and derivatives.
     difficulty: 3
 
 srs:

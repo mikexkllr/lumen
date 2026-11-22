@@ -5,7 +5,7 @@ summary: Linear adds, exponential multiplies.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -115,6 +115,49 @@ steps:
     explanation: After about 26 years. At first both curves nearly coincide – that is what makes exponential growth so treacherous.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Where does the rule of 70 come from? Doubling means $(1 + r)^T = 2$, so $T = \frac{\ln 2}{\ln(1 + r)}$. For small r the **approximation** $\ln(1 + r) \approx r$ holds, and ln 2 ≈ 0.693. Hence T ≈ 69.3 / p.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: "Compute the doubling time at 7 % per year exactly: $T = \\frac{\\ln 2}{\\ln 1.07}$. To two decimals."
+    params:
+      unit: years
+    answer:
+      value: 10.24
+      tolerance: 0.02
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: rule-of-thumb
+        text: That is the rule of thumb. The exact value is wanted.
+    hints:
+      - ln 2 ≈ 0.6931 and ln 1.07 ≈ 0.0677.
+      - Divide the two.
+    explanation: 0.6931 / 0.0677 ≈ 10.24 years. The rule of 70 says 10 – close, because 7 % is still small.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: "Test the rule: set 8 % and find the year in which the value has doubled for the first time."
+    params:
+      scene: growth
+      show:
+        - value
+        - factor
+    answer:
+      rate: 8
+      factor:
+        - 1.995
+        - 2.1
+    explanation: After 9 years the factor is 1.08⁹ ≈ 2.0. The rule says 70 / 8 ≈ 8.75 – it fits.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -128,6 +171,54 @@ steps:
     hints:
       - Doubling about every 23 years – so a good 4 doublings.
     explanation: 1.03¹⁰⁰ ≈ 19.2 – 19 times as much, so plus 1800%.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "The last chess square gets $2^{63}$ grains, all of them together $2^{64} - 1$. How many digits does $2^{64}$ have? Hint: $2^{10} \\approx 10^3$."
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 19
+        misconception: rounding
+        text: "The rule underestimates: 2¹⁰ is 1024, a bit more than 1000. 2⁶⁴ ≈ 1.8 · 10¹⁹ has 20 digits."
+    hints:
+      - $2^{64} = 2^4 \cdot (2^{10})^6 \approx 16 \cdot 10^{18}$.
+      - 16 · 10¹⁸ already has 20 digits.
+    explanation: $2^{64} = 18,446,744,073,709,551,616$ – 20 digits. That would be the whole world's rice harvest for several centuries.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: If something grows continuously as $e^{kt}$, the doubling time is exactly $\frac{\ln 2}{k}$. With yearly interest, ln(1 + r) is a bit less than r. That is why the **rule of 72** often beats the rule of 70 for 6 to 10 %.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux where the 70 in the rule of 70 comes from.
+    params:
+      keywords:
+        - - ln 2
+          - 0,693
+          - "0.693"
+          - logarithmus
+          - logarithm
+        - - verdopp
+          - zwei
+          - doubl
+          - two
+        - - prozent
+          - klein
+          - percent
+          - small
+          - näherung
+          - approx
+      sample: Doubling means the factor to the power T equals two. Solving with the logarithm puts ln 2 ≈ 0.693 on top and, for small percentages, about p/100 below. So T ≈ 69.3 / p – roughly 70 / p.
+    explanation: The 70 is 100 · ln 2, rounded up. For large rates the approximation gets worse.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Linear addiert, exponentiell multipliziert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -115,6 +115,49 @@ steps:
     explanation: Nach etwa 26 Jahren. Am Anfang liegen beide Kurven fast aufeinander – das macht exponentielles Wachstum so tückisch.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Woher kommt die 70er-Regel? Verdopplung heißt $(1 + r)^T = 2$, also $T = \\frac{\\ln 2}{\\ln(1 + r)}$. Für kleine r gilt die **Näherung** $\\ln(1 + r) \\approx r$, und ln 2 ≈ 0,693. Darum T ≈ 69,3 : p."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: "Berechne die Verdopplungszeit bei 7 % pro Jahr genau: $T = \\frac{\\ln 2}{\\ln 1{,}07}$. Auf zwei Stellen."
+    params:
+      unit: Jahre
+    answer:
+      value: 10.24
+      tolerance: 0.02
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: rule-of-thumb
+        text: Das ist die Faustregel. Gefragt ist der genaue Wert.
+    hints:
+      - ln 2 ≈ 0,6931 und ln 1,07 ≈ 0,0677.
+      - Teile die beiden.
+    explanation: "0,6931 : 0,0677 ≈ 10,24 Jahre. Die 70er-Regel sagt 10 – nah dran, weil 7 % noch klein ist."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: "Prüf die Regel: Stell 8 % ein und finde das Jahr, in dem sich der Wert zum ersten Mal verdoppelt hat."
+    params:
+      scene: growth
+      show:
+        - value
+        - factor
+    answer:
+      rate: 8
+      factor:
+        - 1.995
+        - 2.1
+    explanation: "Nach 9 Jahren ist der Faktor 1,08⁹ ≈ 2,0. Die Regel sagt 70 : 8 ≈ 8,75 – passt."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -128,6 +171,54 @@ steps:
     hints:
       - Verdopplung etwa alle 23 Jahre – also gut 4 Verdopplungen.
     explanation: 1,03¹⁰⁰ ≈ 19,2 – das 19-Fache, also plus 1800 %.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "Auf das letzte Schachfeld kommen $2^{63}$ Körner, auf alle zusammen $2^{64} - 1$. Wie viele Stellen hat $2^{64}$? Tipp: $2^{10} \\approx 10^3$."
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 19
+        misconception: rounding
+        text: "Die Faustregel unterschätzt: 2¹⁰ ist 1024, etwas mehr als 1000. 2⁶⁴ ≈ 1,8 · 10¹⁹ hat 20 Stellen."
+    hints:
+      - $2^{64} = 2^4 \cdot (2^{10})^6 \approx 16 \cdot 10^{18}$.
+      - 16 · 10¹⁸ hat schon 20 Stellen.
+    explanation: $2^{64} = 18\,446\,744\,073\,709\,551\,616$ – 20 Stellen. Das wäre die Reisernte der ganzen Welt von mehreren Jahrhunderten.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: Wächst etwas stetig mit $e^{kt}$, ist die Verdopplungszeit genau $\frac{\ln 2}{k}$. Bei jährlichen Zinsen ist ln(1 + r) etwas kleiner als r. Darum trifft die **72er-Regel** bei 6 bis 10 % oft besser als die 70er-Regel.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, woher die 70 in der 70er-Regel kommt.
+    params:
+      keywords:
+        - - ln 2
+          - 0,693
+          - "0.693"
+          - logarithmus
+          - logarithm
+        - - verdopp
+          - zwei
+          - doubl
+          - two
+        - - prozent
+          - klein
+          - percent
+          - small
+          - näherung
+          - approx
+      sample: "Verdoppeln heißt, der Faktor hoch T ist zwei. Löst man mit dem Logarithmus, steht ln 2 ≈ 0,693 im Zähler und bei kleinen Prozentsätzen ungefähr p/100 im Nenner. Also T ≈ 69,3 : p – grob 70 : p."
+    explanation: Die 70 ist 100 · ln 2, aufgerundet. Bei großen Raten wird die Näherung ungenau.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Vom Tempo zur Strecke.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: konstant
@@ -73,6 +73,53 @@ steps:
     explanation: "Ab etwa 27 Rechtecken. Mehr Streifen, kleinerer Fehler – der Grenzwert ist das **Integral**: 8/3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Liegt die Kurve unter der x-Achse, zählt die Fläche **negativ**. Beim Tempo heißt das: rückwärts fahren. Das Integral liefert dann die Verschiebung, nicht den gefahrenen Weg."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Nähere die Fläche unter $y = x^3$ von 0 bis 2 mit Rechtecken an. Die exakte Fläche ist 4. Mach den Fehler kleiner als 0,3.
+    params:
+      scene: riemann
+      expr: x^3
+      interval:
+        - 0
+        - 2
+    answer:
+      error:
+        - 0
+        - 0.3
+    explanation: Linke Rechtecke unterschätzen eine steigende Kurve. Mit 40 Rechtecken fehlt nur noch etwa 0,2.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Wagen beschleunigt mit $v(t) = 2t$ m/s. Wie weit fährt er in den ersten {{t}} Sekunden?
+    params:
+      unit: m
+    answer:
+      value: "{{t * t}}"
+    feedback:
+      - when: numval(state.input) == 2 * t * t
+        misconception: no-half
+        text: "Die Fläche ist ein Dreieck: ½ · Breite · Höhe."
+    hints:
+      - Unter v(t) = 2t liegt ein Dreieck.
+      - ½ · {{t}} · {{2 * t}}.
+    explanation: ½ · {{t}} · {{2 * t}} = {{t * t}} m.
+    difficulty: 2
+    variants:
+      params:
+        t: int[2,10]
+      defaults:
+        t: 5
+
   - kind: problem
     id: x1
     depth: 3
@@ -85,6 +132,54 @@ steps:
     hints:
       - Die Fläche unter der Geraden ist ein Dreieck.
     explanation: ½ · 4 · 12 = 24 m. Ableiten macht aus Weg Tempo – Integrieren aus Tempo Weg.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Sei A(x) die Fläche unter f von 0 bis x. Rückt x ein winziges dx weiter, kommt ein Streifen der Fläche f(x) · dx dazu. Also ist A′(x) = f(x). Die **Flächenfunktion** ist eine Stammfunktion – das ist der Hauptsatz.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Die Flächenfunktion von $f(x) = x^2$ ist $A(x) = \frac{x^3}{3}$. Wie groß ist die Fläche von 0 bis 3?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 27
+        misconception: no-third
+        text: Durch 3 teilen nicht vergessen.
+      - when: numval(state.input) == 6
+        misconception: derivative
+        text: Das ist die Ableitung 2x bei 3, keine Fläche.
+    hints:
+      - "A(3) = 27 : 3."
+      - A(0) = 0.
+    explanation: 9. Ohne Rechtecke, ohne Grenzwert – Ableiten rückwärts genügt.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die Fläche unter einer Tempo-Kurve die gefahrene Strecke ist.
+    params:
+      keywords:
+        - - streifen
+          - rechteck
+          - strip
+          - rectangle
+        - - tempo mal zeit
+          - mal zeit
+          - speed times time
+          - times time
+        - - addier
+          - summe
+          - add
+          - sum
+      sample: In einem kurzen Zeitstück ist das Tempo fast gleich. Die Strecke darin ist Tempo mal Zeit – genau die Fläche eines schmalen Rechtecks. Addiert man alle Streifen, erhält man die ganze Strecke.
+    explanation: Strecke = Tempo · Zeit gilt in jedem schmalen Streifen. Die Summe aller Streifen ist die Fläche.
     difficulty: 3
 
 srs:

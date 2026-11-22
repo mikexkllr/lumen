@@ -1,0 +1,176 @@
+id: math.series.constants
+type: concept
+title: "e and π as series"
+summary: "The two most famous numbers in mathematics, computed term by term."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: what does $1 + 1 + \\frac12 + \\frac16 + \\frac1{24} + \\dots$ – the reciprocals of all factorials – add up to?"
+    params:
+      min: 2
+      max: 4
+      step: 0.01
+    answer:
+      value: 2.718
+      tolerance: 0.06
+    explanation: Euler's number e = 2.71828… The series is the Taylor polynomial of $e^x$ at x = 1.
+
+  - kind: explain
+    id: c1
+    body: "Plugging x = 1 into the series of $e^x$ gives **Euler's number**: $e = \\sum_{n=0}^{\\infty} \\frac{1}{n!}$. Because n! grows so fast, a few terms give many digits."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Add $1 + 1 + \frac12 + \frac16 + \frac1{24}$. To three decimals.
+    answer:
+      value: 2.708
+      tolerance: 0.001
+    hints:
+      - ½ = 0.5; ⅙ ≈ 0.1667; 1/24 ≈ 0.0417.
+      - 2 + 0.5 + 0.1667 + 0.0417.
+    explanation: "≈ 2.708. Adding 1/120: 2.7167, adding 1/720: 2.71806. Each term adds about one digit."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Why does the series for e converge so fast?
+    params:
+      options:
+        - label: n! grows faster than any power – the terms shrink rapidly.
+          correct: true
+        - label: The size of the result says nothing about the speed.
+          feedback: Die Größe des Ergebnisses sagt nichts über das Tempo.
+        - label: The harmonic series also has only positive terms – and diverges.
+          feedback: Die harmonische Reihe hat auch nur positive Glieder – und divergiert.
+    hints:
+      - Compare 1/10! with 1/2¹⁰.
+      - 10! = 3,628,800, 2¹⁰ = 1024.
+    explanation: 1/10! is less than three ten-millionths. After 15 terms 12 digits are already correct.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The **Leibniz series** reads $\frac{\pi}{4} = 1 - \frac13 + \frac15 - \frac17 + \dots$ Take four terms and multiply by 4. What do you get for π? To three decimals.
+    answer:
+      value: 2.895
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 0.724) < 0.002
+        misconception: forgot-four
+        text: That is π/4. Multiply by 4.
+    hints:
+      - 1 − 0.3333 + 0.2 − 0.1429.
+      - 0.7238 · 4.
+    explanation: ≈ 2.895 – still far from 3.14. The Leibniz series converges painfully slowly.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: For a series with alternating signs and shrinking terms, the error is less than the first term left out – the **alternating series test**. That is why the Leibniz series needs millions of terms for π to 6 digits.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: After 1000 terms of the Leibniz series the next term is 1/2001. At most how large is the error for π, i.e. 4 times that term? To three decimals.
+    answer:
+      value: 0.002
+      tolerance: 0.0002
+    hints:
+      - 1 / 2001 ≈ 0.0005.
+      - Times 4.
+    explanation: 4 / 2001 ≈ 0.002. A thousand terms for just two reliable decimals.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The limit $(1 + \frac1n)^n$ also gives e. For n = 1000 it is 2.71692. How many decimals agree with e = 2.71828?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: miscount
+        text: "2.716 versus 2.718: the third decimal differs."
+    hints:
+      - "Compare digit by digit: 2.71…"
+      - "At the third decimal: 6 versus 8."
+    explanation: Only 2 decimals after 1000 steps – the factorial series manages that with 6 terms. Same limit, very different speed.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "John Machin found in 1706: $\\frac{\\pi}{4} = 4 \\arctan\\frac15 - \\arctan\\frac{1}{239}$. The **arctangent series** $x - \\frac{x^3}{3} + \\frac{x^5}{5} - \\dots$ converges fast for small x. He computed 100 digits of π this way – by hand."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Compute $\arctan\frac15 \approx x - \frac{x^3}{3}$ with x = 0.2. To four decimals.
+    answer:
+      value: 0.1973
+      tolerance: 0.0002
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: first-term
+        text: The second term 0.008 / 3 is still missing.
+    hints:
+      - 0.2³ = 0.008.
+      - 0.2 − 0.00267.
+    explanation: ≈ 0.19733 – true value 0.19740. Because x is small, the terms shrink by 1/25 per step.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Plug iφ into the series of $e^x$ and sort into real and imaginary parts – what do you get?
+    params:
+      options:
+        - label: The series of cos φ and i · sin φ – so $e^{i\varphi} = \cos\varphi + i\sin\varphi$.
+          correct: true
+        - label: The factorials ensure convergence here too.
+          feedback: Die Fakultäten sorgen auch hier für Konvergenz.
+        - label: The powers of i change sign and direction.
+          feedback: Die Potenzen von i wechseln das Vorzeichen und die Richtung.
+    hints:
+      - $i^2 = -1$, $i^3 = -i$, $i^4 = 1$.
+      - Even powers are real, odd ones imaginary.
+    explanation: The even terms $1 - \frac{\varphi^2}{2!} + \dots$ are cos φ, the odd ones $\varphi - \frac{\varphi^3}{3!} + \dots$ are sin φ. With φ = π, $e^{i\pi} = -1$ follows.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the series for e gets there much faster than the Leibniz series for π.
+    params:
+      keywords:
+        - - fakultät
+          - n!
+          - factorial
+        - - schrumpf
+          - schnell
+          - langsam
+          - shrink
+          - fast
+          - slow
+        - - fehler
+          - glied
+          - error
+          - term
+      sample: For e there are factorials in the denominator; they grow extremely fast, so the terms shrink at once. For Leibniz there are only odd numbers in the denominator, so the terms shrink slowly. The error is about the size of the next term.
+    explanation: Speed of convergence = speed at which the terms shrink. 1/n! beats 1/n by miles.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

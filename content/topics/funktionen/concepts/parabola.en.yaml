@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [fn.parabola]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: a-finden
@@ -124,6 +124,76 @@ steps:
     explanation: At x = 0, at the vertex. To the left the curve falls, to the right it rises.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "**Completing the square** finds the vertex: $x^2 - 6x + 5 = (x - 3)^2 - 9 + 5 = (x - 3)^2 - 4$. So the vertex is (3 | −4)."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is the y-coordinate of the vertex of $y = x^2 - {{2 * h}}x + {{h * h + k}}$?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == h
+        misconception: gave-x
+        text: That is the x-coordinate. Plug it in to get y.
+      - when: numval(state.input) == h * h + k
+        misconception: intercept
+        text: That is the y-intercept at x = 0, not the vertex.
+    hints:
+      - The vertex is at x = {{h}}.
+      - "Complete: $(x - {{h}})^2 - {{h * h}} + {{h * h + k}}$."
+    explanation: $(x - {{h}})^2 + ({{k}})$, so the vertex is ({{h}} | {{k}}).
+    difficulty: 2
+    variants:
+      params:
+        h: int[1,5]
+        k: int[-6,6]
+      constraints:
+        - h * h + k > 0
+      defaults:
+        h: 3
+        k: -4
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: slider
+    prompt: Set a, h and k so that $y = a(x - h)^2 + k$ lies exactly on the dashed parabola.
+    params:
+      expr: a*(x - h)^2 + k
+      sliders:
+        - id: a
+          label: a
+          min: -2
+          max: 2
+          step: 0.5
+          initial: 1
+        - id: h
+          label: h
+          min: -3
+          max: 3
+          step: 1
+          initial: 0
+        - id: k
+          label: k
+          min: -4
+          max: 4
+          step: 1
+          initial: 0
+      target:
+        expr: -0.5*(x - 1)^2 + 3
+    answer:
+      matchTarget: true
+    hints:
+      - "First hit the vertex: where is the highest point?"
+      - "Then a: it opens downwards and is wider than the standard parabola."
+    explanation: "Vertex (1 | 3), opening down and squashed: a = −0.5, h = 1, k = 3."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -140,4 +210,77 @@ steps:
     hints:
       - The receiver sits at one very specific point.
     explanation: This point is called the **focus**. Car headlights use the same idea in reverse.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: choice
+    prompt: For $y = ax^2 + bx + c$ the slope is $2ax + b$. So where is the vertex?
+    params:
+      options:
+        - label: At $x = -\frac{b}{2a}$
+          correct: true
+        - label: "Check the sign: 2ax + b = 0 means 2ax = −b."
+          feedback: "Vorzeichen prüfen: 2ax + b = 0 heißt 2ax = −b."
+        - label: The factor 2 from the derivative is missing.
+          feedback: Der Faktor 2 aus der Ableitung fehlt.
+    hints:
+      - At the vertex the slope is zero.
+      - Solve 2ax + b = 0 for x.
+    explanation: "2ax + b = 0 gives x = −b / (2a). Check with x² − 6x + 5: 6 / 2 = 3."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: Every parabola $y = \frac{x^2}{4f}$ has a **focus** at (0 | f). All rays coming straight down are reflected exactly there. That is why a satellite dish has its receiver at the focus.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: A dish has the profile $y = \frac{x^2}{ {{4 * f}} }$ (in dm). At what height in dm must the receiver sit?
+    params:
+      unit: dm
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == 4 * f
+        misconception: forgot-four
+        text: The denominator is 4f, not f. Divide by 4.
+    hints:
+      - Compare with $\frac{x^2}{4f}$.
+      - 4f = {{4 * f}}.
+    explanation: 4f = {{4 * f}}, so f = {{f}} dm.
+    difficulty: 3
+    variants:
+      params:
+        f: int[1,6]
+      defaults:
+        f: 2
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: how do you find the vertex of y = x² − 6x + 5 without drawing?"
+    params:
+      keywords:
+        - - ergänzung
+          - ergänzen
+          - binom
+          - complete
+          - square
+          - quadrat
+        - - (x − 3)
+          - drei
+          - three
+          - x = 3
+        - - −4
+          - minus 4
+          - minus vier
+          - minus four
+      sample: "I complete the square: x² − 6x + 5 = (x − 3)² − 9 + 5 = (x − 3)² − 4. The square is smallest, zero, at x = 3. So the vertex is at (3 | −4), minus four."
+    explanation: "The vertex form $(x - h)^2 + k$ shows the vertex directly: (h | k)."
     difficulty: 3

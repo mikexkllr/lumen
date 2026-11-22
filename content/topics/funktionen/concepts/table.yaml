@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [fn.table]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: taxi
@@ -108,6 +108,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: buckets
+    prompt: Funktion oder nicht? Eine Funktion gibt jedem Eingang genau einen Ausgang.
+    params:
+      buckets:
+        - id: b1
+          label: Funktion
+        - id: b2
+          label: Keine Funktion
+      items:
+        - label: Mensch → sein Geburtstag
+          bucket: b1
+        - label: Zahl x → x²
+          bucket: b1
+        - label: Uhrzeit → Temperatur in Rom
+          bucket: b1
+        - label: Datum → wer an dem Tag Geburtstag hat
+          bucket: b2
+        - label: Zahl → ihre Teiler
+          bucket: b2
+        - label: x → y mit x² + y² = 25
+          bucket: b2
+    hints:
+      - "Frag bei jedem Eingang: Kann es zwei Ausgänge geben?"
+      - Zu x = 3 gehören bei x² + y² = 25 sowohl y = 4 als auch y = −4.
+    explanation: Viele Menschen haben am selben Tag Geburtstag, 12 hat mehrere Teiler, ein Kreis hat zu x zwei y-Werte. Beim Rest gibt es genau ein Ergebnis.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Für $f(x) = {{m}}x + {{b}}$ gilt $f(x) = {{m * x + b}}$. Wie groß ist x?
+    answer:
+      value: "{{x}}"
+    feedback:
+      - when: numval(state.input) == m * (m * x + b) + b
+        misconception: forward-not-back
+        text: Du hast f noch einmal angewendet. Gesucht ist der Weg zurück.
+    hints:
+      - "Rückwärts: erst {{b}} abziehen, dann durch {{m}} teilen."
+      - "({{m * x + b}} − {{b}}) : {{m}}."
+    explanation: "({{m * x + b}} − {{b}}) : {{m}} = {{x}}. Das ist die Umkehrfunktion: $f^{-1}(y) = (y - {{b}}) : {{m}}$."
+    difficulty: 2
+    variants:
+      params:
+        m: int[2,6]
+        b: int[1,9]
+        x: int[2,9]
+      defaults:
+        m: 2
+        b: 3
+        x: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -117,6 +173,75 @@ steps:
     hints:
       - "Erst innen: f(3) = 7."
     explanation: g(7) = 49. Aber f(g(3)) = 19 – bei der **Verkettung** zählt die Reihenfolge.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Die **Umkehrfunktion** macht f rückgängig. Ihr Graph ist f, gespiegelt an der Geraden y = x. Es gibt sie nur, wenn kein y zweimal vorkommt. Darum kehrt man x² nur für x ≥ 0 um – das ergibt √x.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "Mit $f(x) = 2x + 1$ und $g(x) = x^2$: Wie groß ist $f(g(3))$?"
+    answer:
+      value: 19
+    feedback:
+      - when: numval(state.input) == 49
+        misconception: order-of-composition
+        text: Das ist g(f(3)). Bei f(g(3)) wird zuerst g gerechnet.
+    hints:
+      - "Innen zuerst: g(3) = 9."
+      - Dann f(9).
+    explanation: "g(3) = 9, f(9) = 19. Andersherum kommt 49 heraus: Verketten ist nicht vertauschbar."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Welche Funktion lässt sich auf allen reellen Zahlen umkehren?
+    params:
+      options:
+        - label: $f(x) = x^3$
+          correct: true
+        - label: $f(x) = x^2$
+          feedback: 2 und −2 haben dasselbe Quadrat. Zurück ginge es nicht eindeutig.
+        - label: $f(x) = |x|$
+          feedback: "|3| = |−3|. Zwei Eingänge, ein Ausgang."
+        - label: $f(x) = \sin x$
+          feedback: Der Sinus wiederholt sich – jeder Wert kommt unendlich oft vor.
+    hints:
+      - "Umkehrbar heißt: kein y-Wert kommt doppelt vor."
+      - Eine Funktion, die überall steigt, trifft jeden Wert nur einmal.
+    explanation: x³ steigt überall streng. Darum hat jedes y genau ein Urbild, die dritte Wurzel.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Was macht eine Zuordnung zu einer Funktion?"
+    params:
+      keywords:
+        - - jedem
+          - jede
+          - each
+          - every
+        - - genau
+          - eindeutig
+          - exactly
+          - unique
+          - nur
+        - - eingang
+          - x-wert
+          - input
+          - ausgang
+          - output
+          - y-wert
+      sample: Eine Funktion ordnet jedem Eingang genau einen Ausgang zu. Zwei Eingänge dürfen dasselbe Ergebnis haben, aber ein Eingang nie zwei verschiedene.
+    explanation: Entscheidend ist »genau einer« pro Eingang. Rückwärts darf es mehrdeutig sein.
     difficulty: 3
 
 srs:

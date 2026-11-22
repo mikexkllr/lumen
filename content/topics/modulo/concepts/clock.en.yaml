@@ -5,7 +5,7 @@ summary: After 24, it starts again at 0.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: uhrzeit
@@ -84,6 +84,53 @@ steps:
     explanation: 22 + 16 = 38, and 38 mod 24 = 14.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Two numbers are **congruent** modulo n if they leave the same remainder when divided by n. We write $27 \\equiv 3 \\pmod{24}$. Equivalently: n divides the difference 27 − 3 = 24."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: choice
+    prompt: 1 January 2025 was a Wednesday. Which weekday was 1 January 2026?
+    params:
+      options:
+        - label: Thursday
+          correct: true
+        - label: A year is not exactly 52 weeks. 365 leaves a remainder when divided by 7.
+          feedback: Ein Jahr sind nicht genau 52 Wochen. 365 lässt beim Teilen durch 7 einen Rest.
+        - label: That would follow a leap year with 366 days. 2025 has 365.
+          feedback: Das wäre nach einem Schaltjahr mit 366 Tagen. 2025 hat 365.
+    hints:
+      - How many days does 2025 have?
+      - 365 = 52 · 7 + 1.
+    explanation: "365 ≡ 1 (mod 7): every normal year the weekday moves on by one, after a leap year by two."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: What remainder does {{a}} · {{b}} leave when divided by 7? Work with the remainders, not the product.
+    answer:
+      value: "{{mod(a * b, 7)}}"
+    hints:
+      - "{{a}} ≡ {{mod(a, 7)}} and {{b}} ≡ {{mod(b, 7)}} (mod 7)."
+      - Multiply the remainders and divide by 7 again.
+    explanation: "{{mod(a, 7)}} · {{mod(b, 7)}} = {{mod(a, 7) * mod(b, 7)}} ≡ {{mod(a * b, 7)}} (mod 7)."
+    difficulty: 2
+    variants:
+      params:
+        a: int[20,99]
+        b: int[20,99]
+      constraints:
+        - mod(a, 7) != 0
+        - mod(b, 7) != 0
+      defaults:
+        a: 30
+        b: 45
+
   - kind: problem
     id: x1
     depth: 3
@@ -94,6 +141,53 @@ steps:
     hints:
       - Keep adding 5 until you land in the range 0 to 4.
     explanation: −7 + 10 = 3. Many programming languages return −2 here – a classic source of bugs.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "A number leaves remainder 2 when divided by 3 and 3 when divided by 5. Which is it? The **Chinese remainder theorem** says: if the divisors are coprime, there is exactly one solution modulo 3 · 5 = 15 – here 8."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "A puzzle from ancient China: a number leaves remainder 2 when divided by 3, remainder 3 by 5 and remainder 2 by 7. What is the smallest positive one?"
+    answer:
+      value: 23
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: partial
+        text: 8 works for 3 and 5 but leaves remainder 1 for 7.
+    hints:
+      - "Remainder 2 for both 3 and 7 means remainder 2 for 21. Candidates: 2, 23, 44, …"
+      - Which candidate leaves remainder 3 for 5?
+    explanation: 23 = 7 · 3 + 2 = 4 · 5 + 3 = 3 · 7 + 2. All solutions are 23 + 105k. Computers use the theorem to compute with huge numbers in parallel.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why do weekdays work modulo 7?"
+    params:
+      keywords:
+        - - sieben
+          - seven
+          - woche
+          - week
+        - - rest
+          - remainder
+          - übrig
+          - left
+        - - wiederhol
+          - kreis
+          - zyklus
+          - repeat
+          - cycle
+          - circle
+      sample: After seven days the same weekday returns. Whole weeks change nothing; only the remainder after dividing by 7 counts. The days run in a circle.
+    explanation: Whatever repeats after n steps is computed modulo n. Clocks use 12 or 24, angles 360.
     difficulty: 3
 
 srs:

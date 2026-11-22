@@ -5,7 +5,7 @@ summary: Sparpläne, Abos und Reiskörner.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: sparplan
@@ -78,6 +78,52 @@ steps:
     explanation: 13, 21, 34, 55. Die Folge steckt in Sonnenblumen und Tannenzapfen.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Der Quotient benachbarter Fibonacci-Zahlen nähert sich einer Zahl φ. Weil $F_{n+1} = F_n + F_{n-1}$ ist, gilt im Grenzfall $\varphi = 1 + \frac{1}{\varphi}$, also $\varphi^2 = \varphi + 1$. Das ist der **goldene Schnitt**.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Löse $\varphi^2 = \varphi + 1$. Gib die positive Lösung auf drei Stellen an.
+    answer:
+      value: 1.618
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) + 0.618) < 0.002
+        misconception: wrong-root
+        text: Das ist die negative Lösung. Gesucht ist die positive.
+    hints:
+      - "Bring alles auf eine Seite: φ² − φ − 1 = 0."
+      - "pq-Formel: φ = ½ ± √(¼ + 1)."
+    explanation: "φ = (1 + √5) : 2 ≈ 1,618."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Am Ende jedes Jahres zahlst du 1000 € auf ein Konto mit 5 % Zinsen ein. Wie viel Euro liegen direkt nach der dritten Einzahlung darauf?
+    params:
+      unit: €
+    answer:
+      value: 3152.5
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 3000
+        misconception: no-interest
+        text: Die Zinsen fehlen. Die erste Einzahlung wächst zwei Jahre lang.
+      - when: abs(numval(state.input) - 3310.13) < 0.02
+        misconception: one-period-too-many
+        text: Dann hätte auch die letzte Einzahlung schon ein Jahr Zinsen bekommen.
+    hints:
+      - Die erste Einzahlung wächst 2 Jahre, die zweite 1 Jahr, die dritte gar nicht.
+      - 1000 · (1,05² + 1,05 + 1).
+    explanation: "1102,50 + 1050 + 1000 = 3152,50 €. Ein Sparplan ist eine geometrische Reihe: 1000 · (1,05³ − 1) : 0,05."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -89,6 +135,62 @@ steps:
     hints:
       - "Rechne 89 : 55."
     explanation: Der Goldene Schnitt φ ≈ 1,618. Er löst x² = x + 1 – genau die Regel der Folge.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Die **Binet-Formel** liefert jede Fibonacci-Zahl direkt: $F_n = \\frac{\\varphi^n - \\psi^n}{\\sqrt5}$ mit $\\psi = \\frac{1 - \\sqrt5}{2} \\approx -0{,}618$. Weil |ψ| < 1 ist, verschwindet $\\psi^n$ schnell."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Es ist $\varphi^{12} \approx 321{,}997$. Teile durch √5 ≈ 2,236 und runde. Welche Fibonacci-Zahl kommt heraus?
+    answer:
+      value: 144
+    hints:
+      - "321,997 : 2,236 ≈ 144,0."
+      - "Probe: … 55, 89, 144 – das 12. Glied."
+    explanation: "F₁₂ = 144. Der Fehlerterm ψ¹² : √5 ist nur etwa 0,001. Darum ist Fₙ einfach φⁿ : √5, gerundet."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Rechne 8 · 21 − 13². Drei benachbarte Fibonacci-Zahlen.
+    answer:
+      value: -1
+    hints:
+      - 8 · 21 = 168.
+      - 13² = 169.
+    explanation: "168 − 169 = −1. Die **Cassini-Identität** sagt: $F_{n-1}F_{n+1} - F_n^2 = (-1)^n$. Darauf beruht das Puzzle, bei dem aus 64 Kästchen scheinbar 65 werden."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum nähert sich der Quotient zweier Fibonacci-Zahlen dem goldenen Schnitt?"
+    params:
+      keywords:
+        - - summe
+          - plus
+          - addier
+          - sum
+          - add
+        - - quotient
+          - verhältnis
+          - ratio
+          - teilen
+          - divide
+        - - phi
+          - golden
+          - gleichung
+          - equation
+      sample: "Jede Zahl ist die Summe der zwei davor. Teilt man durch die mittlere, ergibt sich: neuer Quotient = 1 + 1 durch alter Quotient. Pendelt sich der Quotient ein, muss er φ = 1 + 1/φ erfüllen. Das ist der goldene Schnitt 1,618."
+    explanation: Aus der Rekursion wird im Grenzfall die Gleichung φ² = φ + 1. Ihre positive Lösung ist der goldene Schnitt.
     difficulty: 3
 
 srs:

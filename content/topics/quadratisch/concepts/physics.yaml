@@ -5,7 +5,7 @@ summary: Wann trifft der Ball den Boden?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -87,6 +87,63 @@ steps:
     explanation: 5t² = 45, also t² = 9 und t = 3. Die negative Lösung hat hier keine Bedeutung.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Wer mit $v_0$ senkrecht nach oben wirft, hat die Höhe $h(t) = v_0 t - 5t^2$ (mit g ≈ 10 m/s²). Die **Wurfparabel** hat zwei Nullstellen: den Abwurf bei t = 0 und die Landung bei $t = \\frac{v_0}{5}$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Du wirfst einen Ball mit {{v}} m/s senkrecht hoch. Nach wie vielen Sekunden ist er wieder unten? Rechne mit $h(t) = {{v}}t - 5t^2$.
+    params:
+      unit: s
+    answer:
+      value: "{{v / 5}}"
+    feedback:
+      - when: numval(state.input) == v / 10
+        misconception: peak-not-landing
+        text: Das ist der Gipfel. Bis zur Landung dauert es doppelt so lange.
+    hints:
+      - "Klammere t aus: t · ({{v}} − 5t) = 0."
+      - "{{v}} − 5t = 0."
+    explanation: "t = {{v}} : 5 = {{v / 5}} s. Rauf und runter dauern gleich lang."
+    difficulty: 2
+    variants:
+      params:
+        v: step[10,40,5]
+      defaults:
+        v: 20
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: Auf dem Mond ist die Schwerkraft nur 1,6 m/s². Stell sie ein und wirf mit 10 m/s mindestens 60 m weit.
+    params:
+      scene: projectile
+      controls:
+        g:
+          fixed: false
+          value: 9.8
+        speed:
+          value: 10
+          fixed: true
+      show:
+        - range
+        - height
+        - time
+    answer:
+      g:
+        - 1.55
+        - 1.65
+      range:
+        - 60
+        - 63
+    explanation: Die Weite ist $\frac{v^2 \sin 2\alpha}{g}$. Mit g = 1,6 und 45° fliegt der Ball 62,5 m – sechsmal so weit wie auf der Erde.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +164,79 @@ steps:
     answer:
       angle: 45
     explanation: Bei 45°. Die Weite hängt von sin(2α) ab – und das ist bei 2α = 90° am größten.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Zerlege den Abwurf in waagerecht $v\cos\alpha$ und senkrecht $v\sin\alpha$. Die Flugzeit ist $\frac{2v\sin\alpha}{g}$, die **Wurfweite** also $\frac{v^2 \cdot 2\sin\alpha\cos\alpha}{g} = \frac{v^2 \sin 2\alpha}{g}$. Am größten bei 2α = 90°.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: sim
+    prompt: Mit 20 m/s und 30° landet der Ball bei 35,3 m. Finde einen anderen Winkel, der genau dieselbe Weite liefert.
+    params:
+      scene: projectile
+      controls:
+        speed:
+          value: 20
+          fixed: true
+        angle:
+          value: 30
+      show:
+        - range
+        - height
+    answer:
+      angle: 60
+    explanation: sin(2 · 60°) = sin(120°) = sin(60°) = sin(2 · 30°). Zwei Winkel, die sich zu 90° ergänzen, fliegen gleich weit – der steile nur höher und länger.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Wie ändert Luftwiderstand den besten Abwurfwinkel?
+    params:
+      options:
+        - label: Er wird kleiner als 45°.
+          correct: true
+        - label: Er bleibt genau 45°.
+          feedback: 45° gilt nur ohne Luft. Ein langer Flug kostet mit Luft viel Tempo.
+        - label: Er wird größer als 45°.
+          feedback: Steiler heißt längere Flugzeit – das bremst die Luft noch mehr.
+    hints:
+      - Die Luft bremst umso mehr, je länger der Ball fliegt.
+      - Ein flacherer Wurf ist kürzer in der Luft.
+    explanation: Mit Luftwiderstand ist die Bahn keine Parabel mehr, und der beste Winkel liegt unter 45°. Kugelstoßer werfen meist unter 40° ab – auch weil die Kugel in gut 2 m Höhe startet.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum ist ein hochgeworfener Ball zweimal auf derselben Höhe?"
+    params:
+      keywords:
+        - - steigen
+          - hoch
+          - rauf
+          - rising
+          - up
+          - going up
+        - - fallen
+          - runter
+          - falling
+          - down
+          - coming down
+        - - zwei lösungen
+          - zweimal
+          - parabel
+          - two solutions
+          - twice
+          - parabola
+      sample: Die Höhe folgt einer Parabel. Einmal ist der Ball beim Steigen auf 5 m, einmal beim Fallen. Darum hat die quadratische Gleichung h(t) = 5 zwei Lösungen.
+    explanation: Eine waagerechte Linie schneidet eine Parabel unter dem Gipfel zweimal. Am Gipfel nur einmal, darüber nie.
     difficulty: 3
 
 srs:

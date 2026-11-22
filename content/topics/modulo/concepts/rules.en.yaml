@@ -5,7 +5,7 @@ summary: Divisibility without division.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -96,6 +96,58 @@ steps:
     explanation: 11 is divisible by 11 – so 9185 = 11 · 835 is too.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: For 4 only the **last two digits** decide, because 100 is divisible by 4. For 8 the last three decide, because 1000 = 8 · 125.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: buckets
+    prompt: Divisible by 4 or not?
+    params:
+      buckets:
+        - id: b1
+          label: Divisible by 4
+        - id: b2
+          label: Not divisible by 4
+      items:
+        - label: "1316"
+          bucket: b1
+        - label: "7500"
+          bucket: b1
+        - label: "9988"
+          bucket: b1
+        - label: "2022"
+          bucket: b2
+        - label: "1234"
+          bucket: b2
+        - label: "3030"
+          bucket: b2
+    hints:
+      - Look only at the last two digits.
+      - 16, 00 and 88 are multiples of 4.
+    explanation: 16, 00 and 88 are divisible by 4; 22, 34 and 30 are not. The rest of the number is a multiple of 100.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: "Form the alternating sum of 918,082, starting from the right: 2 − 8 + 0 − … What do you get?"
+    answer:
+      value: -22
+    feedback:
+      - when: numval(state.input) == 22
+        misconception: sign-order
+        text: From the right it starts with + 2. Check the signs.
+    hints:
+      - "Digits from the right: 2, 8, 0, 8, 1, 9."
+      - 2 − 8 + 0 − 8 + 1 − 9.
+    explanation: "−22 is divisible by 11, so 918,082 is too. The reason: 10 ≡ −1 (mod 11), so the signs alternate."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -112,6 +164,66 @@ steps:
     hints:
       - Write 347 as 3 · 100 + 4 · 10 + 7.
     explanation: 3 · 100 + 4 · 10 + 7 has the same remainder as 3 + 4 + 7. In another number system the rule would hold for a different number.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: We have 1001 = 7 · 11 · 13 and 1000 ≡ −1 modulo 1001. Split a number into **blocks of three** from the right and take their alternating sum. It tells the remainder for 7, 11 and 13 at once.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "What remainder does 1,234,567 leave when divided by 7? Use the blocks of three: 567 − 234 + 1."
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 334
+        misconception: not-reduced
+        text: That is the block sum. Now divide it by 7.
+    hints:
+      - 567 − 234 + 1 = 334.
+      - 334 = 7 · 47 + 5.
+    explanation: "334 ≡ 5 (mod 7), so 1,234,567 is too. Check: 7 · 176,366 = 1,234,562."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Every six-digit number of the form abcabc is divisible by 7, 11 and 13. Compute 123,123 / 1001.
+    answer:
+      value: 123
+    hints:
+      - 123,123 = 123 · 1000 + 123.
+      - Factor out 123.
+    explanation: 123,123 = 123 · 1001 = 123 · 7 · 11 · 13. This works for every abc.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the digit-sum rule for 3 works.
+    params:
+      keywords:
+        - - zehn
+          - "10"
+          - ten
+          - hundert
+          - hundred
+        - - rest 1
+          - rest eins
+          - remainder 1
+          - remainder one
+          - ≡ 1
+        - - quersumme
+          - ziffern
+          - digit sum
+          - digits
+      sample: 10 leaves remainder 1 when divided by 3, and so do 100, 1000 and every power of ten. So modulo 3 each digit only counts its face value. The number has the same remainder as its digit sum.
+    explanation: $10^k \equiv 1 \pmod 3$. Hence $\sum a_k 10^k \equiv \sum a_k$ – the number behaves like its digit sum.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Fakultät – das Ausrufezeichen der Mathematik.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: drei
@@ -102,6 +102,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: "{{n}} Leute setzen sich an einen runden Tisch. Zwei Sitzordnungen gelten als gleich, wenn jeder dieselben Nachbarn links und rechts hat. Wie viele gibt es?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == f * n
+        misconception: ignore-rotation
+        text: Am runden Tisch zählt kein fester Startplatz. Drehen ändert nichts.
+    hints:
+      - Setz eine Person fest hin. Dann sind nur noch die anderen zu verteilen.
+      - "Die übrigen {{n - 1}} Leute: (n − 1)! Möglichkeiten."
+    explanation: ({{n}} − 1)! = {{f}}. Jede Drehung einer Reihe ergibt dieselbe Runde – darum teilt man n! durch n.
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,7]
+      derive:
+        f: "n == 3 ? 2 : n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Wörter kann man aus den Buchstaben von MISSISSIPPI legen? Sinn ist egal.
+    answer:
+      value: 34650
+    feedback:
+      - when: numval(state.input) == 39916800
+        misconception: no-repeat-division
+        text: Das ist 11!. Gleiche Buchstaben zu tauschen, ergibt aber kein neues Wort.
+    hints:
+      - "11 Buchstaben: M einmal, I viermal, S viermal, P zweimal."
+      - Teile 11! durch 4! · 4! · 2!.
+    explanation: "11! : (4! · 4! · 2!) = 39 916 800 : 1152 = 34 650."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -111,6 +152,61 @@ steps:
     hints:
       - Jede Null braucht einen Faktor 5. Zähle die Fünfen in 1 bis 25.
     explanation: "5, 10, 15, 20 liefern je eine, 25 liefert zwei: sechs Fünfen. Zweien gibt es genug."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "n! wächst schneller als jede Potenz. Die **Stirling-Formel** schätzt es: $n! \\approx \\sqrt{2\\pi n}\\,\\left(\\frac{n}{e}\\right)^n$. Schon für n = 10 liegt sie weniger als 1 % daneben."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Stellen hat 52! – die Zahl der Reihenfolgen eines Kartenspiels?"
+    params:
+      min: 10
+      max: 120
+    answer:
+      value: 68
+      tolerance: 4
+    explanation: 52! ≈ 8,07 · 10⁶⁷, also 68 Stellen. Jedes gut gemischte Kartenspiel liegt sehr wahrscheinlich in einer Reihenfolge, die es noch nie gab.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Vier Gäste geben ihre Hüte ab. Die Garderobe gibt sie zufällig zurück. Bei wie vielen der 24 Reihenfolgen bekommt **niemand** seinen eigenen Hut?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: missed-cycles
+        text: "Zu wenig – zähle zum Beispiel alle Dreierkreise mit: A→B→C→A geht auf zwei Arten pro Dreiergruppe."
+    hints:
+      - Zieh von 24 alle ab, bei denen mindestens einer richtig liegt – Inklusion-Exklusion.
+      - 24 − 4 · 6 + 6 · 2 − 4 · 1 + 1.
+    explanation: 24 − 24 + 12 − 4 + 1 = 9. Der Anteil 9/24 ≈ 0,375 nähert sich für viele Gäste 1/e ≈ 0,368 – egal ob 10 oder 1000 Hüte.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: choice
+    prompt: "Bei 100 Gästen: Wie wahrscheinlich ist es ungefähr, dass niemand seinen Hut bekommt?"
+    params:
+      options:
+        - label: Etwa 37 %
+          correct: true
+        - label: Fast 0 %
+          feedback: "Überraschend: Die Chance bleibt bei rund 1/e."
+        - label: Fast 100 %
+          feedback: Dann bekäme fast nie jemand seinen Hut – aber im Schnitt bekommt genau einer seinen.
+    hints:
+      - Bei 4 Gästen waren es 9/24 = 37,5 %.
+      - Der Anteil ist $1 - 1 + \frac{1}{2!} - \frac{1}{3!} + \dots$
+    explanation: Die Summe $\sum (-1)^k / k!$ ist die Reihe für $e^{-1} \approx 0{,}368$. Sie hängt kaum von der Gästezahl ab.
     difficulty: 3
 
 srs:

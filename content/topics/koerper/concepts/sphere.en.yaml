@@ -5,7 +5,7 @@ summary: Four thirds π r³.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -18,7 +18,6 @@ steps:
       value: 166
       tolerance: 50
     explanation: About 166 times. The radius is 5.5 times as large, and volume grows with the cube.
-
 
   - kind: explain
     id: s1
@@ -93,6 +92,45 @@ steps:
     explanation: 4 · 3.14 · 40.96 ≈ 514 million km².
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Archimedes' trick: slice a hemisphere, a cylinder and a cone at the same height z. The sphere slice has π(r² − z²) – exactly **cylinder minus cone**. So the hemisphere is πr³ − ⅓πr³ = ⅔πr³."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A cylinder with r = h = 3 cm holds 84.78 cm³ (π ≈ 3.14). Remove the cone with the same base and height. How many cm³ are left – the volume of the hemisphere?
+    params:
+      unit: cm³
+    answer:
+      value: 56.52
+      tolerance: 0.05
+    feedback:
+      - when: abs(numval(state.input) - 28.26) < 0.05
+        misconception: cone-not-rest
+        text: That is the cone itself. Subtract it from the cylinder.
+    hints:
+      - The cone is one third of the cylinder.
+      - 84.78 − 28.26.
+    explanation: "84.78 − 28.26 = 56.52 cm³. Check: ⅔ · 3.14 · 27 = 56.52."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: the Moon has a radius of 1737 km, Earth 6371 km. How many Moons fit into Earth by volume?"
+    params:
+      min: 1
+      max: 200
+    answer:
+      value: 49
+      tolerance: 8
+    explanation: The radius is 3.67 times as big, so the volume is 3.67³ ≈ 49 times.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -109,6 +147,72 @@ steps:
     hints:
       - The cylinder has height 2r and volume π r² · 2r.
     explanation: (4/3 π r³) ÷ (2 π r³) = 2/3. Archimedes had the picture put on his tombstone.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: choice
+    prompt: Differentiate the volume $V(r) = \frac43\pi r^3$ with respect to r. What do you get?
+    params:
+      options:
+        - label: $4\pi r^2$ – exactly the surface area
+          correct: true
+        - label: "The exponent 3 moves to the front: 3 · ⁴⁄₃ = 4."
+          feedback: "Der Exponent 3 wandert nach vorn: 3 · ⁴⁄₃ = 4."
+        - label: That is just the cross-section.
+          feedback: Das ist nur der Querschnitt.
+    hints:
+      - r³ becomes 3r².
+      - ⁴⁄₃ · 3 = 4.
+    explanation: "If r grows by a tiny dr, a thin shell is added: surface times dr. That is why V′ = S. Same for the circle: (πr²)′ = 2πr, the circumference."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: What percentage of a ball's volume lies in the outer half of the radius, between r/2 and r?
+    params:
+      unit: "%"
+    answer:
+      value: 87.5
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: linear-thinking
+        text: The outer shell holds far more volume because it is further out.
+    hints:
+      - The inner ball has half the radius – so what share of the volume?
+      - (½)³ = ⅛ inside, the rest outside.
+    explanation: ⅛ = 12.5 % inside, 87.5 % outside. In 100 dimensions it would be 1 − 0.5¹⁰⁰ – practically everything. High-dimensional balls are almost all skin.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is the derivative of the ball's volume exactly its surface area?"
+    params:
+      keywords:
+        - - schale
+          - schicht
+          - haut
+          - shell
+          - layer
+          - skin
+        - - dünn
+          - winzig
+          - klein
+          - thin
+          - tiny
+          - small
+        - - oberfläche
+          - fläche
+          - surface
+          - area
+      sample: When the radius grows a tiny bit, a thin shell is added. Its volume is surface times thickness. So the change of volume per radius is the surface area.
+    explanation: New volume = surface · shell thickness. That is why dV/dr = S.
     difficulty: 3
 
 srs:

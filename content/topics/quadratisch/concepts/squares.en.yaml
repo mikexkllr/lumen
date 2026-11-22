@@ -5,7 +5,7 @@ summary: Why x² = 49 also has −7.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: wie-viele
@@ -96,6 +96,59 @@ steps:
     explanation: x = 7 or x = −1.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The square root is never negative. So $\sqrt{x^2} = |x|$, the **absolute value** of x. From $x^2 = 49$ we get |x| = 7 – hence x = 7 or x = −7.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Solve $(x - {{a}})^2 = {{b * b}}$. Give the smaller solution.
+    answer:
+      value: "{{a - b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: larger-root
+        text: That is the larger solution. The bracket can also be −{{b}}.
+      - when: numval(state.input) == b - a
+        misconception: sign-error
+        text: "Check the sign: x − {{a}} = −{{b}} means x = {{a}} − {{b}}."
+    hints:
+      - The bracket is {{b}} or −{{b}}.
+      - x − {{a}} = −{{b}}.
+    explanation: x = {{a}} + {{b}} = {{a + b}} or x = {{a}} − {{b}} = {{a - b}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[2,9]
+      constraints:
+        - a != b
+      defaults:
+        a: 2
+        b: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: choice
+    prompt: For which c does $x^2 + c = 0$ have exactly one solution?
+    params:
+      options:
+        - label: c = 0
+          correct: true
+        - label: x² = −1 has no real solution.
+          feedback: x² = −1 hat keine reelle Lösung.
+        - label: x² = 1 has two solutions, 1 and −1.
+          feedback: x² = 1 hat zwei Lösungen, 1 und −1.
+    hints:
+      - When do x and −x coincide?
+      - Only at x = 0.
+    explanation: x² = 0 has only x = 0. The parabola then just touches the x-axis at its vertex.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +159,71 @@ steps:
     hints:
       - First isolate x².
     explanation: x² = 25, so x = ±5.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Is √2 a fraction? Suppose $\sqrt2 = \frac{p}{q}$ in lowest terms. Then $p^2 = 2q^2$, so p is even. Then q is even too – contradicting lowest terms. √2 is **irrational**.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: order
+    prompt: Put the proof that √2 is not a fraction in the right order.
+    params:
+      items:
+        - label: Assume √2 = p/q in lowest terms.
+        - label: "Square it: p² = 2q²."
+        - label: "So p² is even and hence p is even: p = 2k."
+        - label: "Substitute: 4k² = 2q², so q² = 2k²."
+        - label: So q is even too – p/q was not in lowest terms. Contradiction!
+    hints:
+      - A proof by contradiction starts by assuming the opposite.
+      - The contradiction comes at the end.
+    explanation: The assumption leads to a contradiction, so it is false. Still, the Babylonians knew √2 to six digits.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: "**Heron's method** approximates √2: start with x = 1 and repeat $x \\to \\frac12 \\left(x + \\frac{2}{x}\\right)$. What do you get after two steps? To three decimals."
+    answer:
+      value: 1.417
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: one-step
+        text: That is after one step. Put 1.5 in once more.
+    hints:
+      - "Step 1: ½ · (1 + 2) = 1.5."
+      - "Step 2: ½ · (1.5 + 2/1.5)."
+    explanation: ½ · (1.5 + 1.333) ≈ 1.4167. The true value is 1.41421. Each step roughly doubles the number of correct digits – this is Newton's method.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does x² = 49 have two solutions, x² = 0 one and x² = −4 none?"
+    params:
+      keywords:
+        - - minus
+          - negativ
+          - negative
+          - −7
+        - - quadrat
+          - square
+          - mal sich
+          - times itself
+        - - nie negativ
+          - nicht negativ
+          - never negative
+          - positiv
+          - positive
+      sample: A square is never negative, so x² = −4 has no solution. For 49 both 7 and −7 work, because minus times minus is plus. For 0 the two coincide.
+    explanation: x and −x have the same square. Only at 0 are they equal, and real numbers have no negative squares.
     difficulty: 3
 
 srs:

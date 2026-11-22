@@ -5,7 +5,7 @@ summary: Reste wiederholen sich.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: zyklus
@@ -63,6 +63,50 @@ steps:
     explanation: 3² = 9 lässt Rest 2.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Für $3^{16}$ braucht man keine 15 Malaufgaben. Quadriere viermal: $3 \\to 3^2 \\to 3^4 \\to 3^8 \\to 3^{16}$. So rechnet RSA blitzschnell mit riesigen Hochzahlen. Der Trick heißt **Square-and-Multiply**."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Quadrierungen brauchst du, um von x zu $x^{ {{2 ** k}} }$ zu kommen?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k - 1
+        misconception: naive
+        text: So viele Multiplikationen bräuchte man ohne Trick.
+    hints:
+      - Jede Quadrierung verdoppelt den Exponenten.
+      - $2^{ {{k}} } = {{2 ** k}}$.
+    explanation: "{{k}} Quadrierungen statt {{2 ** k - 1}} Multiplikationen. Der Aufwand wächst nur mit der Stellenzahl des Exponenten."
+    difficulty: 2
+    variants:
+      params:
+        k: int[3,10]
+      defaults:
+        k: 6
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Welchen Rest lässt $5^{100}$ beim Teilen durch 7? Die Reste von 5, 25, 125, … wiederholen sich alle 6 Schritte.
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: ignore-leftover
+        text: 100 ist kein Vielfaches von 6. Es bleiben 4 Schritte übrig.
+    hints:
+      - 100 = 6 · 16 + 4.
+      - $5^4 = 625$. Rest bei 7?
+    explanation: $5^{100} \equiv 5^4 = 625 = 89 \cdot 7 + 2$. Rest 2.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -79,6 +123,85 @@ steps:
     hints:
       - Vorhin wiederholten sich die Reste modulo 7 alle 6 Schritte.
     explanation: Für p = 7 ist p − 1 = 6. Dieser Satz ist das Herz von RSA und von schnellen Primzahltests.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Warum gilt Fermat? Multipliziere 1, 2, …, p − 1 mit a. Modulo p kommen dieselben Zahlen heraus, nur vertauscht. Also ist $a^{p-1} \cdot (p-1)! \equiv (p-1)!$, und Kürzen ergibt $a^{p-1} \equiv 1$. Das ist der **kleine Satz von Fermat**.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: 101 ist eine Primzahl. Welchen Rest lässt $3^{100}$ beim Teilen durch 101?
+    answer:
+      value: 1
+    hints:
+      - Hier ist p = 101, also p − 1 = 100.
+      - "Fermat: $a^{p-1} \\equiv 1 \\pmod p$."
+    explanation: $3^{100} \equiv 1 \pmod{101}$ – ohne eine einzige Multiplikation.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Es gilt $2^{340} \equiv 1 \pmod{341}$. Ist 341 also eine Primzahl?
+    params:
+      options:
+        - label: Nein – 341 = 11 · 31 täuscht den Test.
+          correct: true
+        - label: Ja – Fermat beweist es.
+          feedback: "Fermat gilt nur in eine Richtung: Prim ⇒ Rest 1. Umgekehrt nicht."
+        - label: Das kann man nicht wissen.
+          feedback: Probiere kleine Teiler wie 11.
+    hints:
+      - "Fermat sagt: Wenn p prim ist, dann … Gilt das auch rückwärts?"
+      - "Teste 341 : 11."
+    explanation: 341 ist die kleinste Fermat-Pseudoprimzahl zur Basis 2. Echte Primtests wie Miller-Rabin prüfen darum mehr als nur Fermat.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: numeric
+    prompt: "Mini-RSA mit n = 33 = 3 · 11 und dem öffentlichen Exponenten 3. Verschlüssle die Nachricht 4: Welchen Rest lässt $4^3$ bei 33?"
+    answer:
+      value: 31
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: not-reduced
+        text: 64 ist größer als 33. Nimm den Rest.
+    hints:
+      - $4^3 = 64$.
+      - 64 − 33 = 31.
+    explanation: Geheimtext 31. Entschlüsseln geht mit d = 7, denn 3 · 7 = 21 ≡ 1 (mod 20), und $31^7 \equiv 4 \pmod{33}$. Wer d berechnen will, muss 33 in 3 · 11 zerlegen.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x5
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum $a^{p-1}$ modulo einer Primzahl p immer den Rest 1 lässt.
+    params:
+      keywords:
+        - - vertauscht
+          - gemischt
+          - dieselben
+          - shuffled
+          - same
+          - permut
+        - - produkt
+          - multipliz
+          - product
+          - multiply
+        - - kürzen
+          - teilen
+          - cancel
+          - divide
+      sample: Multipliziere ich alle Zahlen 1 bis p − 1 mit a, erhalte ich modulo p dieselben Zahlen, nur vertauscht. Die Produkte sind also gleich, nur steht links noch a hoch p − 1. Kürzen ergibt a hoch p − 1 ≡ 1.
+    explanation: Mal a vertauscht die Reste nur. Darum ist das Produkt gleich, und $a^{p-1}$ muss 1 sein.
     difficulty: 3
 
 srs:

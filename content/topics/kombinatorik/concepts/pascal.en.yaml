@@ -5,7 +5,7 @@ summary: Each number is the sum of the two above it.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: naechste
@@ -63,6 +63,50 @@ steps:
     explanation: "This is the **binomial theorem**: the rows give the coefficients of (a + b)ⁿ."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Expand $(a + b)^n$: from each of the n brackets you take a or b. For $a^{n-k} b^k$ you pick k brackets for b – there are $\\binom{n}{k}$ ways. This is the **binomial theorem**."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: What is the coefficient of $x^2$ in $(1 + x)^{ {{n}} }$?
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: first-order
+        text: That is the coefficient of x. For x² you pick two brackets.
+    hints:
+      - How many ways are there to pick 2 of {{n}} brackets for x?
+      - $\binom{n}{2} = n(n-1)/2$.
+    explanation: $\binom{ {{n}} }{2}$ = {{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: What is the coefficient of $x^2$ in $(2 + x)^4$?
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-power
+        text: That is just $\binom{4}{2}$. The two remaining brackets each contribute a 2.
+    hints:
+      - Two brackets give x, the other two give 2.
+      - $\binom{4}{2} \cdot 2^2$.
+    explanation: $\binom{4}{2} \cdot 2^2 = 6 \cdot 4 = 24$.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -79,6 +123,64 @@ steps:
     hints:
       - Rows 2, 4, 8 … consist only of even numbers inside.
     explanation: A simple counting pattern creates a fractal – self-similarity at every scale.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "Add a diagonal of the triangle: 1 + 3 + 6 + 10 + 15. The result sits just below, offset. What is it?"
+    answer:
+      value: 35
+    hints:
+      - Just add it up – then look for the number in row 7.
+      - 1 + 3 + 6 + 10 + 15.
+    explanation: "35 = $\\binom{7}{3}$. The **hockey-stick rule**: $\\sum_{i=2}^{6} \\binom{i}{2} = \\binom{7}{3}$. It follows because every number is the sum of the two above."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Plug x = −1 into $(1 + x)^n = \sum \binom{n}{k} x^k$, with n ≥ 1. What follows?
+    params:
+      options:
+        - label: The alternating sum of every row is 0.
+          correct: true
+        - label: That follows from x = +1.
+          feedback: Das folgt aus x = +1.
+        - label: True, but it does not follow from x = −1.
+          feedback: Stimmt, folgt aber nicht aus x = −1.
+    hints:
+      - The left side becomes $0^n$.
+      - "The signs alternate on the right: 1 − n + …"
+    explanation: $0 = 1 - \binom{n}{1} + \binom{n}{2} - \dots$ So there are as many even-sized subsets as odd-sized ones.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is every number in Pascal's triangle the sum of the two above it? Think of paths."
+    params:
+      keywords:
+        - - weg
+          - wege
+          - path
+          - route
+        - - links
+          - rechts
+          - oben
+          - left
+          - right
+          - above
+        - - summe
+          - addier
+          - plus
+          - sum
+          - add
+      sample: The number counts the paths from the top down to it. Every path arrives either from the upper left or the upper right. So you add the paths to those two cells.
+    explanation: Every path has a last step – from the left or the right. That is why $\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$.
     difficulty: 3
 
 srs:

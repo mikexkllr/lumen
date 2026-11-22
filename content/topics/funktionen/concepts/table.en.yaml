@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [fn.table]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: taxi
@@ -108,6 +108,62 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: buckets
+    prompt: Function or not? A function gives every input exactly one output.
+    params:
+      buckets:
+        - id: b1
+          label: Function
+        - id: b2
+          label: Not a function
+      items:
+        - label: person → their birthday
+          bucket: b1
+        - label: number x → x²
+          bucket: b1
+        - label: time → temperature in Rome
+          bucket: b1
+        - label: date → who has a birthday that day
+          bucket: b2
+        - label: number → its divisors
+          bucket: b2
+        - label: x → y with x² + y² = 25
+          bucket: b2
+    hints:
+      - "For each input ask: can there be two outputs?"
+      - For x = 3 both y = 4 and y = −4 satisfy x² + y² = 25.
+    explanation: Many people share a birthday, 12 has several divisors, a circle has two y-values for one x. The others give exactly one result.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: For $f(x) = {{m}}x + {{b}}$ we have $f(x) = {{m * x + b}}$. What is x?
+    answer:
+      value: "{{x}}"
+    feedback:
+      - when: numval(state.input) == m * (m * x + b) + b
+        misconception: forward-not-back
+        text: You applied f again. You need to go backwards.
+    hints:
+      - "Backwards: first subtract {{b}}, then divide by {{m}}."
+      - ({{m * x + b}} − {{b}}) / {{m}}.
+    explanation: "({{m * x + b}} − {{b}}) / {{m}} = {{x}}. That is the inverse function: $f^{-1}(y) = (y - {{b}}) / {{m}}$."
+    difficulty: 2
+    variants:
+      params:
+        m: int[2,6]
+        b: int[1,9]
+        x: int[2,9]
+      defaults:
+        m: 2
+        b: 3
+        x: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -117,6 +173,75 @@ steps:
     hints:
       - "Inside first: f(3) = 7."
     explanation: g(7) = 49. But f(g(3)) = 19 – in **composition** the order matters.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The **inverse function** undoes f. Its graph is f mirrored in the line y = x. It exists only if no y occurs twice. That is why x² is only inverted for x ≥ 0 – giving √x.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "With $f(x) = 2x + 1$ and $g(x) = x^2$: what is $f(g(3))$?"
+    answer:
+      value: 19
+    feedback:
+      - when: numval(state.input) == 49
+        misconception: order-of-composition
+        text: That is g(f(3)). In f(g(3)) you apply g first.
+    hints:
+      - "Inside first: g(3) = 9."
+      - Then f(9).
+    explanation: "g(3) = 9, f(9) = 19. The other way gives 49: composition is not commutative."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Which function can be inverted on all real numbers?
+    params:
+      options:
+        - label: $f(x) = x^3$
+          correct: true
+        - label: 2 and −2 have the same square. Going back would be ambiguous.
+          feedback: 2 und −2 haben dasselbe Quadrat. Zurück ginge es nicht eindeutig.
+        - label: "|3| = |−3|. Two inputs, one output."
+          feedback: "|3| = |−3|. Zwei Eingänge, ein Ausgang."
+        - label: The sine repeats – each value occurs infinitely often.
+          feedback: Der Sinus wiederholt sich – jeder Wert kommt unendlich oft vor.
+    hints:
+      - "Invertible means: no y-value occurs twice."
+      - A function that rises everywhere hits each value only once.
+    explanation: x³ is strictly increasing everywhere. So every y has exactly one preimage, the cube root.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: what makes a rule a function?"
+    params:
+      keywords:
+        - - jedem
+          - jede
+          - each
+          - every
+        - - genau
+          - eindeutig
+          - exactly
+          - unique
+          - nur
+        - - eingang
+          - x-wert
+          - input
+          - ausgang
+          - output
+          - y-wert
+      sample: A function assigns each input exactly one output. Two inputs may share a result, but one input may never have two different ones.
+    explanation: The key is »exactly one« per input. Backwards it may be ambiguous.
     difficulty: 3
 
 srs:

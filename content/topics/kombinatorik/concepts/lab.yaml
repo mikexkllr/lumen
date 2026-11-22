@@ -5,7 +5,7 @@ summary: Kürzeste Wege zählen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: weg
@@ -80,6 +80,45 @@ steps:
     explanation: 24, 32, 120, 1000 – Fakultäten wachsen schnell, Zehnerpotenzen noch schneller.
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: In einem Gitter gehst du {{r}} Schritte nach rechts und 2 nach oben. Wie viele kürzeste Wege gibt es?
+    answer:
+      value: "{{(r + 2) * (r + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == r * 2
+        misconception: multiply-steps
+        text: "Nicht malnehmen: Du wählst, an welchen 2 der {{r + 2}} Schritte es nach oben geht."
+    hints:
+      - Jeder Weg hat {{r + 2}} Schritte, 2 davon nach oben.
+      - $\binom{r+2}{2}$.
+    explanation: "$\\binom{ {{r + 2}} }{2}$ = {{r + 2}} · {{r + 1}} : 2 = {{(r + 2) * (r + 1) / 2}}."
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,9]
+      defaults:
+        r: 4
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Du gehst 3 nach rechts und 3 nach oben, darfst aber nie über die Diagonale steigen – also nie mehr Schritte nach oben als nach rechts gemacht haben. Wie viele Wege bleiben?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: all-paths
+        text: Das sind alle Wege. Viele davon steigen über die Diagonale.
+    hints:
+      - Schreib Wege als Folgen aus R und O, etwa RROROO.
+      - In jedem Anfangsstück müssen mindestens so viele R wie O stehen.
+    explanation: "Es sind genau 5: RRROOO, RROROO, RROORO, RORROO, RORORO. Ohne die Regel wären es $\\binom{6}{3} = 20$."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -89,6 +128,53 @@ steps:
     hints:
       - Wähle aus 7 Schritten die 3 aus, die nach oben gehen.
     explanation: "7 · 6 · 5 : 6 = 35. Wege zählen ist Auswählen."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "1, 2, 5, 14, 42 … sind die **Catalan-Zahlen**. Sie zählen Wege unter der Diagonale, korrekte Klammerungen und Zerlegungen eines Vielecks in Dreiecke. Formel: $C_n = \\frac{1}{n+1}\\binom{2n}{n}$."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele korrekte Klammerfolgen aus 4 öffnenden und 4 schließenden Klammern gibt es, etwa (()())()?
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: no-restriction
+        text: 70 ist $\binom{8}{4}$ – alle Folgen, auch falsche wie ))((.
+    hints:
+      - Öffnen = Schritt nach rechts, Schließen = Schritt nach oben.
+      - $C_4 = \frac{1}{5}\binom{8}{4}$.
+    explanation: $\frac{1}{5} \cdot 70 = 14$. Klammerfolgen sind dieselben Wege wie im Gitter – nur anders geschrieben.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum gibt es bei 4 nach rechts und 3 nach oben genau $\\binom{7}{3} = 35$ kürzeste Wege?"
+    params:
+      keywords:
+        - - sieben
+          - seven
+          - schritte
+          - steps
+        - - wählen
+          - auswählen
+          - choose
+          - pick
+          - welche
+          - which
+        - - oben
+          - up
+          - rechts
+          - right
+      sample: Jeder kürzeste Weg hat 7 Schritte, davon 3 nach oben. Ein Weg ist festgelegt, sobald ich wähle, welche 3 der 7 Schritte nach oben gehen. Dafür gibt es 7 über 3 = 35 Möglichkeiten.
+    explanation: "Ein Weg ist eine Auswahl: welche Schritte nach oben gehen. Darum zählt $\\binom{7}{3}$ die Wege."
     difficulty: 3
 
 srs:

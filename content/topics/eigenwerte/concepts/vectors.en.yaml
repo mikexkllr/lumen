@@ -1,0 +1,204 @@
+id: math.eigen.vectors
+type: concept
+title: "Eigenvectors"
+summary: "Directions a matrix only stretches – and how to find them."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A rubber sheet is pulled to the right until it is twice as wide. Which arrows still point in their old direction afterwards?
+    params:
+      options:
+        - label: The horizontal and the vertical ones
+          correct: true
+        - label: A slanted arrow gets flatter.
+          feedback: Ein schräger Pfeil wird flacher.
+        - label: The horizontal ones just get longer.
+          feedback: Die waagerechten werden nur länger.
+    hints:
+      - What happens to (1, 1)?
+      - (1, 1) becomes (2, 1) – flatter.
+    explanation: Horizontal arrows are doubled, vertical ones stay the same. Both keep their direction – these are the eigendirections.
+
+  - kind: explain
+    id: c1
+    body: "An **eigenvector** v of a matrix A is only stretched: $A v = \\lambda v$. The number λ is called the eigenvalue. If λ = 2, v becomes twice as long. If λ is negative, it flips over."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: The matrix is ({{a}} 0 | 0 {{b}}). What eigenvalue does the arrow (0, 1) have?
+    answer:
+      value: "{{b}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: wrong-axis
+        text: "{{a}} belongs to (1, 0). (0, 1) reads the second column."
+    hints:
+      - Compute A · (0, 1).
+      - The result is (0, {{b}}).
+    explanation: (0, 1) becomes (0, {{b}}) = {{b}} · (0, 1). For diagonal matrices the axes are eigendirections.
+    variants:
+      params:
+        a: int[-4,6]
+        b: int[-4,6]
+      constraints:
+        - a != b
+        - b != 0
+        - a != 0
+      defaults:
+        a: 3
+        b: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A = (2 1 | 1 2) and v = (1, 1). Compute A · v. By what factor λ is v stretched?
+    answer:
+      value: 3
+    hints:
+      - A · (1, 1) = (2 + 1, 1 + 2).
+      - (3, 3) = λ · (1, 1).
+    explanation: λ = 3. The diagonal is an eigendirection of this matrix.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: And w = (1, −1)? What is A · w for A = (2 1 | 1 2)?
+    params:
+      options:
+        - label: (1, −1) – so eigenvalue 1
+          correct: true
+        - label: "Check: 2 · 1 + 1 · (−1) = 1."
+          feedback: "Rechne nach: 2 · 1 + 1 · (−1) = 1."
+        - label: The second component is 1 · 1 + 2 · (−1) = −1.
+          feedback: Die zweite Komponente ist 1 · 1 + 2 · (−1) = −1.
+    hints:
+      - "Top: 2 · 1 + 1 · (−1)."
+      - "Bottom: 1 · 1 + 2 · (−1)."
+    explanation: A · w = w, eigenvalue 1. The two eigendirections are perpendicular – typical for symmetric matrices.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: How do you find eigenvalues? $Av = \lambda v$ means $(A - \lambda I)v = 0$ with v ≠ 0. That only works if $\det(A - \lambda I) = 0$. For 2 × 2 this gives the **characteristic polynomial** $\lambda^2 - (a + d)\lambda + (ad - bc) = 0$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: For A = (4 1 | 2 3) the characteristic polynomial is $\lambda^2 - 7\lambda + 10$. What is the larger eigenvalue?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: smaller
+        text: That is the smaller one.
+    hints:
+      - Two numbers with sum 7 and product 10.
+      - (λ − 5)(λ − 2) = 0.
+    explanation: "λ = 5 and λ = 2. Check: A · (1, 1) = (5, 5)."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The sum of the eigenvalues is the **trace** a + d. A matrix is ({{a}} 7 | 3 {{d}}). What is the sum of its eigenvalues?
+    answer:
+      value: "{{a + d}}"
+    feedback:
+      - when: numval(state.input) == a * d - 21
+        misconception: det-not-trace
+        text: That is the determinant, the product of the eigenvalues.
+    hints:
+      - Trace = sum of the diagonal.
+      - "{{a}} + {{d}}."
+    explanation: "{{a + d}}. And the product of the eigenvalues is the determinant {{a * d - 21}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[-5,9]
+        d: int[-5,9]
+      defaults:
+        a: 4
+        d: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: A turn by 90° keeps no real arrow on its line. Its polynomial $\lambda^2 + 1$ has the **complex eigenvalues** ±i. For symmetric matrices, though, all eigenvalues are real and the eigen-directions are at right angles – the spectral theorem.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: What eigenvalues does the rotation by 60° have?
+    params:
+      options:
+        - label: $\cos 60° \pm i \sin 60°$, i.e. $e^{\pm i\pi/3}$
+          correct: true
+        - label: Then every arrow would stay the same – but it rotates.
+          feedback: Dann bliebe jeder Pfeil gleich – aber er dreht sich.
+        - label: Eigenvalues are stretch factors, not angles.
+          feedback: Eigenwerte sind Streckfaktoren, keine Winkel.
+    hints:
+      - Trace = 2 cos 60° = 1, determinant = 1.
+      - λ² − λ + 1 = 0.
+    explanation: The eigenvalues lie on the unit circle, at the angle of the rotation. Complex numbers are the natural language of rotations.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: A matrix has the eigenvalues {{p}} and −{{q}}. What is its determinant?
+    answer:
+      value: "{{-p * q}}"
+    feedback:
+      - when: numval(state.input) == p - q
+        misconception: sum-not-product
+        text: The sum is the trace. The determinant is the product.
+    hints:
+      - Along the eigendirections it stretches once by {{p}} and once by −{{q}}.
+      - Area factor = product.
+    explanation: "{{p}} · (−{{q}}) = {{-p * q}}. Negative: the matrix mirrors."
+    difficulty: 3
+    variants:
+      params:
+        p: int[2,6]
+        q: int[2,6]
+      defaults:
+        p: 3
+        q: 2
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what an eigenvector is.
+    params:
+      keywords:
+        - - richtung
+          - direction
+        - - strecken
+          - gestreckt
+          - länger
+          - stretch
+          - longer
+          - faktor
+          - factor
+        - - eigenwert
+          - lambda
+          - eigenvalue
+      sample: An eigenvector is an arrow that the matrix does not turn out of its direction. It only stretches or shrinks it, and the stretch factor is the eigenvalue.
+    explanation: Eigenvectors are the »natural axes« of a matrix. Along them it is as simple as a diagonal matrix.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

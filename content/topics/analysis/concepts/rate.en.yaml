@@ -5,7 +5,7 @@ summary: The average rate of change.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -83,6 +83,60 @@ steps:
     explanation: (9 − 1) ÷ 2 = 4. This is the slope of the secant.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: The slope between x and x + h is the **difference quotient** $\frac{f(x + h) - f(x)}{h}$. For $f(x) = x^2$ at x = 2 it is $\frac{(2 + h)^2 - 4}{h} = 4 + h$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: For $f(x) = x^2$ the difference quotient at x = {{a}} is {{2 * a}} + h. What is it for h = {{h}}?
+    answer:
+      value: "{{2 * a + h}}"
+      tolerance: 0.0001
+    feedback:
+      - when: numval(state.input) == 2 * a
+        misconception: limit-too-early
+        text: That is the limit as h → 0. Here h is still {{h}}.
+    hints:
+      - Put h = {{h}} into {{2 * a}} + h.
+      - "{{2 * a}} + {{h}}."
+    explanation: "{{2 * a}} + {{h}} = {{2 * a + h}}. The smaller h, the closer to {{2 * a}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        h: choice[0.1,0.01,0.5]
+      defaults:
+        a: 2
+        h: 0.1
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: Stay at x = 1. Set h so that the secant has slope exactly 2.1.
+    params:
+      scene: tangent
+      expr: x^2
+      controls:
+        x:
+          value: 1
+          fixed: true
+        h:
+          value: 1
+      show:
+        - secant
+        - slope
+    answer:
+      secant:
+        - 2.095
+        - 2.105
+    explanation: "h = 0.1: the secant slope is 2 + h. As h gets tiny, 2 remains – the slope of the tangent."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -93,6 +147,54 @@ steps:
     hints:
       - Put in smaller and smaller numbers for h.
     explanation: The **limit** is 2 – the slope exactly at x = 1.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "The derivative is the **limit** of the difference quotient. For x²: $(x + h)^2 - x^2 = 2xh + h^2$. Divided by h, 2x + h remains. Let h go to 0 and exactly 2x is left."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: For $f(x) = x^3$, $\frac{(2 + h)^3 - 8}{h} = 12 + 6h + h^2$. What value does it approach as h → 0?
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: value-not-slope
+        text: That is f(2), the function value. The slope is wanted.
+    hints:
+      - What happens to 6h and h² when h gets tiny?
+      - Both vanish.
+    explanation: 12 = 3 · 2². That confirms the power rule $(x^3)' = 3x^2$.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the derivative of x² is exactly 2x.
+    params:
+      keywords:
+        - - winzig
+          - "null"
+          - tiny
+          - zero
+          - gegen 0
+        - - 2xh
+          - ausmultipl
+          - expand
+          - binom
+        - - sekante
+          - differenzenquotient
+          - secant
+          - difference quotient
+          - steigung
+          - slope
+      sample: I take the secant from x to x + h. Expanded, (x + h)² − x² = 2xh + h². Divided by h the slope is 2x + h. When h gets tiny, 2x remains.
+    explanation: "Secant → tangent: the leftover h vanishes in the limit."
     difficulty: 3
 
 srs:

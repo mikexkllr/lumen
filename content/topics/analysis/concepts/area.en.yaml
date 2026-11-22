@@ -5,7 +5,7 @@ summary: From speed to distance.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: konstant
@@ -73,6 +73,53 @@ steps:
     explanation: "From about 27 rectangles. More strips, smaller error – the limit is the **integral**: 8/3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: If the curve lies below the x-axis, the area counts **negatively**. For speed that means driving backwards. The integral then gives the displacement, not the distance driven.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Approximate the area under $y = x^3$ from 0 to 2 with rectangles. The exact area is 4. Make the error smaller than 0.3.
+    params:
+      scene: riemann
+      expr: x^3
+      interval:
+        - 0
+        - 2
+    answer:
+      error:
+        - 0
+        - 0.3
+    explanation: Left rectangles underestimate a rising curve. With 40 rectangles only about 0.2 is missing.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A cart speeds up with $v(t) = 2t$ m/s. How far does it go in the first {{t}} seconds?
+    params:
+      unit: m
+    answer:
+      value: "{{t * t}}"
+    feedback:
+      - when: numval(state.input) == 2 * t * t
+        misconception: no-half
+        text: "The area is a triangle: ½ · base · height."
+    hints:
+      - Under v(t) = 2t lies a triangle.
+      - ½ · {{t}} · {{2 * t}}.
+    explanation: ½ · {{t}} · {{2 * t}} = {{t * t}} m.
+    difficulty: 2
+    variants:
+      params:
+        t: int[2,10]
+      defaults:
+        t: 5
+
   - kind: problem
     id: x1
     depth: 3
@@ -85,6 +132,54 @@ steps:
     hints:
       - The area under the line is a triangle.
     explanation: ½ · 4 · 12 = 24 m. Differentiating turns distance into speed – integrating turns speed into distance.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Let A(x) be the area under f from 0 to x. If x moves a tiny dx further, a strip of area f(x) · dx is added. So A′(x) = f(x). The **area function** is an antiderivative – that is the fundamental theorem.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: The area function of $f(x) = x^2$ is $A(x) = \frac{x^3}{3}$. What is the area from 0 to 3?
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 27
+        misconception: no-third
+        text: Do not forget to divide by 3.
+      - when: numval(state.input) == 6
+        misconception: derivative
+        text: That is the derivative 2x at 3, not an area.
+    hints:
+      - A(3) = 27 / 3.
+      - A(0) = 0.
+    explanation: 9. No rectangles, no limit – differentiating backwards is enough.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the area under a speed curve is the distance travelled.
+    params:
+      keywords:
+        - - streifen
+          - rechteck
+          - strip
+          - rectangle
+        - - tempo mal zeit
+          - mal zeit
+          - speed times time
+          - times time
+        - - addier
+          - summe
+          - add
+          - sum
+      sample: In a short slice of time the speed is almost constant. The distance in it is speed times time – exactly the area of a thin rectangle. Adding all strips gives the whole distance.
+    explanation: Distance = speed · time holds in every thin strip. The sum of all strips is the area.
     difficulty: 3
 
 srs:

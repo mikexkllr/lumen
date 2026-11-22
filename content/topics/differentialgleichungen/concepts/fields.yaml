@@ -1,0 +1,207 @@
+id: math.diffeq.fields
+type: concept
+title: "Richtungsfelder und Räuber-Beute"
+summary: "Pfeile zeigen den Weg der Lösung – bei Füchsen und Hasen sogar im Kreis."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Gibt es viele Füchse, werden die Hasen bald weniger. Was passiert danach mit den Füchsen?
+    params:
+      options:
+        - label: Sie werden weniger – und dann erholen sich die Hasen wieder.
+          correct: true
+        - label: Sie werden immer mehr.
+          feedback: Ohne Beute fehlt ihnen das Futter.
+        - label: Beide sterben aus.
+          feedback: Meist schaukeln sich die Bestände nur hin und her.
+    hints:
+      - Wovon leben die Füchse?
+      - Weniger Futter heißt weniger Junge.
+    explanation: "Ein Kreislauf: Viele Hasen → viele Füchse → wenige Hasen → wenige Füchse → viele Hasen. Zwei verknüpfte Differentialgleichungen beschreiben das."
+
+  - kind: explain
+    id: c1
+    body: Zeichne an jeden Punkt (t | y) einen kurzen Pfeil mit der Steigung, die die Gleichung vorschreibt. Das ist ein **Richtungsfeld**. Jede Lösung ist eine Kurve, die überall den Pfeilen folgt.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Im Richtungsfeld von $y' = t - y$: Welche Steigung hat der Pfeil im Punkt ({{t}} | {{y}})?"
+    answer:
+      value: "{{t - y}}"
+    feedback:
+      - when: numval(state.input) == y - t
+        misconception: swapped
+        text: "Andersherum: t minus y."
+    hints:
+      - Setz t = {{t}} und y = {{y}} ein.
+      - "{{t}} − ({{y}})."
+    explanation: "{{t}} − ({{y}}) = {{t - y}}. Ohne die Gleichung zu lösen, sieht man so, wohin jede Lösung läuft."
+    variants:
+      params:
+        t: int[-3,4]
+        y: int[-3,4]
+      constraints:
+        - t != y
+      defaults:
+        t: 2
+        y: 1
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: "Im Richtungsfeld von $y' = -y$: Wo sind alle Pfeile waagerecht?"
+    params:
+      options:
+        - label: Auf der Linie y = 0
+          correct: true
+        - label: Auf der Linie t = 0
+          feedback: Die Steigung hängt hier nur von y ab, nicht von t.
+        - label: Nirgends
+          feedback: Bei y = 0 ist −y = 0.
+    hints:
+      - Waagerecht heißt Steigung 0.
+      - −y = 0.
+    explanation: Bei y = 0. Oberhalb zeigen die Pfeile nach unten, unterhalb nach oben – alle Lösungen laufen auf die 0 zu.
+
+  - kind: problem
+    id: c4
+    widget: sim
+    prompt: "Räuber und Beute: Der Jagderfolg ist 20 ‰. Stell die Vermehrung der Beute so ein, dass im Mittel etwa 30 Räuber leben."
+    params:
+      scene: predator
+      controls:
+        hunt:
+          value: 20
+          fixed: true
+        birth:
+          value: 30
+      show:
+        - preymean
+        - predmean
+        - preymax
+        - predmax
+    answer:
+      predmean:
+        - 27
+        - 33
+    explanation: "Bei 60 %/a. Der Mittelwert der Räuber ist Vermehrung durch Jagderfolg, hier 0,6 : 0,02 = 30. Die Beute pendelt immer um 40."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Das **Lotka-Volterra-Modell**: Beute x′ = ax − bxy, Räuber y′ = dxy − cy. Im Gleichgewicht sind beide Änderungen null: $x^* = \\frac cd$ und $y^* = \\frac ab$. Die Bestände kreisen um diesen Punkt."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Im Labor ist c = 0,4 (Sterberate der Räuber) und d = 0,01. Um welchen Wert pendelt die Beute?
+    answer:
+      value: 40
+    feedback:
+      - when: numval(state.input) == 0.025
+        misconception: inverted
+        text: "Andersherum: c durch d."
+    hints:
+      - "Räuber-Gleichung null setzen: dxy = cy."
+      - "x = c : d."
+    explanation: "0,4 : 0,01 = 40. Erstaunlich: Die Beutezahl im Gleichgewicht hängt nur von den Räubern ab."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Im Ersten Weltkrieg wurde in der Adria kaum gefischt. Danach gab es anteilig mehr Raubfische. Was erklärt Volterras Modell?
+    params:
+      options:
+        - label: Fischen senkt die Räuber im Mittel und hebt die Beute – ohne Fischen kippt es zu den Räubern.
+          correct: true
+        - label: Raubfische vermehren sich im Krieg schneller.
+          feedback: Das Modell braucht keine neue Biologie.
+        - label: Es ist reiner Zufall.
+          feedback: Volterra konnte den Effekt genau aus den Gleichungen ablesen.
+    hints:
+      - Fischen wirkt wie eine höhere Sterberate für beide Arten.
+      - Was passiert dann mit c/d und a/b?
+    explanation: "Mehr Sterben erhöht c und senkt a: Die Beute x* = c/d steigt, die Räuber y* = a/b sinken. Ohne Fischen ist es umgekehrt."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Mit drei verknüpften Gleichungen kann **Chaos** entstehen. Lorenz fand 1963 in einem einfachen Wettermodell: Winzige Unterschiede am Anfang wachsen exponentiell. In der Ebene geht das nicht – dort enden Bahnen in Ruhepunkten oder Kreisläufen."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Messfehler von 0,1 °C verdoppelt sich in einem Wettermodell alle 2 Tage. Wie groß ist er nach 10 Tagen in °C?
+    params:
+      unit: °C
+    answer:
+      value: 3.2
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: linear
+        text: Das wäre linear. Fünfmal verdoppeln heißt mal 32.
+    hints:
+      - 10 Tage sind 5 Verdopplungen.
+      - 0,1 · 2⁵.
+    explanation: 0,1 · 32 = 3,2 °C – so groß wie der Unterschied zwischen zwei Tagen. Darum enden Wetterprognosen nach etwa zehn Tagen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Lorenz rundete einen Startwert von 0,506127 auf 0,506. Was passierte mit seiner Simulation?
+    params:
+      options:
+        - label: Nach einiger Zeit sah das Wetter völlig anders aus.
+          correct: true
+        - label: Sie lief genau gleich weiter.
+          feedback: Bei chaotischen Systemen wachsen auch winzige Fehler.
+        - label: Sie brach mit einem Fehler ab.
+          feedback: Die Rechnung lief normal – nur mit anderem Ergebnis.
+    hints:
+      - Ein Unterschied von 0,000127 ist winzig.
+      - Was macht exponentielles Wachstum mit winzigen Werten?
+    explanation: "Das ist der **Schmetterlingseffekt**: Das System ist deterministisch und trotzdem auf lange Sicht unvorhersagbar."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man aus einem Richtungsfeld eine Lösung abliest, ohne zu rechnen.
+    params:
+      keywords:
+        - - pfeil
+          - pfeile
+          - arrow
+          - arrows
+        - - folgen
+          - folge
+          - entlang
+          - follow
+          - along
+        - - start
+          - anfangs
+          - punkt
+          - start
+          - point
+      sample: Ich setze den Stift an den Startpunkt und folge immer den kleinen Pfeilen, wie ein Boot der Strömung. Die Kurve, die ich so zeichne, ist die Lösung mit diesem Anfangswert.
+    explanation: Jeder Pfeil ist die vorgeschriebene Steigung. Eine Kurve, die überall mit den Pfeilen geht, erfüllt die Gleichung.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2"]

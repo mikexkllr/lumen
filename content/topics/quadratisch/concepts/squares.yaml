@@ -5,7 +5,7 @@ summary: Warum x² = 49 auch −7 hat.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: wie-viele
@@ -96,6 +96,59 @@ steps:
     explanation: x = 7 oder x = −1.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Die Wurzel ist nie negativ. Darum gilt $\sqrt{x^2} = |x|$, der **Betrag** von x. Aus $x^2 = 49$ folgt also |x| = 7 – und damit x = 7 oder x = −7.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Löse $(x - {{a}})^2 = {{b * b}}$. Gib die kleinere Lösung an.
+    answer:
+      value: "{{a - b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: larger-root
+        text: Das ist die größere Lösung. Die Klammer kann auch −{{b}} sein.
+      - when: numval(state.input) == b - a
+        misconception: sign-error
+        text: "Vorzeichen prüfen: x − {{a}} = −{{b}} heißt x = {{a}} − {{b}}."
+    hints:
+      - Die Klammer ist {{b}} oder −{{b}}.
+      - x − {{a}} = −{{b}}.
+    explanation: x = {{a}} + {{b}} = {{a + b}} oder x = {{a}} − {{b}} = {{a - b}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,6]
+        b: int[2,9]
+      constraints:
+        - a != b
+      defaults:
+        a: 2
+        b: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: choice
+    prompt: Für welches c hat $x^2 + c = 0$ genau eine Lösung?
+    params:
+      options:
+        - label: c = 0
+          correct: true
+        - label: c = 1
+          feedback: x² = −1 hat keine reelle Lösung.
+        - label: c = −1
+          feedback: x² = 1 hat zwei Lösungen, 1 und −1.
+    hints:
+      - Wann fallen x und −x zusammen?
+      - Nur bei x = 0.
+    explanation: x² = 0 hat nur x = 0. Die Parabel berührt die x-Achse dann genau im Scheitel.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -106,6 +159,71 @@ steps:
     hints:
       - Erst x² allein stellen.
     explanation: x² = 25, also x = ±5.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Ist √2 ein Bruch? Angenommen $\sqrt2 = \frac{p}{q}$, vollständig gekürzt. Dann ist $p^2 = 2q^2$, also p gerade. Dann ist auch q gerade – Widerspruch zum Kürzen. √2 ist **irrational**.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: order
+    prompt: Bring den Beweis, dass √2 kein Bruch ist, in die richtige Reihenfolge.
+    params:
+      items:
+        - label: "Annahme: √2 = p/q, gekürzt."
+        - label: "Quadrieren: p² = 2q²."
+        - label: "Also ist p² gerade und damit p gerade: p = 2k."
+        - label: "Einsetzen: 4k² = 2q², also q² = 2k²."
+        - label: Also ist auch q gerade – p/q war nicht gekürzt. Widerspruch!
+    hints:
+      - Ein Widerspruchsbeweis beginnt mit der Annahme des Gegenteils.
+      - Der Widerspruch steht am Ende.
+    explanation: Die Annahme führt zu einem Widerspruch, also ist sie falsch. Die Babylonier kannten √2 trotzdem auf sechs Stellen genau.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: "Das **Heron-Verfahren** nähert √2: Starte mit x = 1 und rechne immer $x \\to \\frac12 \\left(x + \\frac{2}{x}\\right)$. Was erhältst du nach zwei Schritten? Auf drei Stellen."
+    answer:
+      value: 1.417
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: one-step
+        text: Das ist nach einem Schritt. Setz 1,5 noch einmal ein.
+    hints:
+      - "Schritt 1: ½ · (1 + 2) = 1,5."
+      - "Schritt 2: ½ · (1,5 + 2/1,5)."
+    explanation: ½ · (1,5 + 1,333) ≈ 1,4167. Der wahre Wert ist 1,41421. Jeder Schritt verdoppelt etwa die Zahl der richtigen Stellen – das ist das Newton-Verfahren.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum hat x² = 49 zwei Lösungen, x² = 0 eine und x² = −4 keine?"
+    params:
+      keywords:
+        - - minus
+          - negativ
+          - negative
+          - −7
+        - - quadrat
+          - square
+          - mal sich
+          - times itself
+        - - nie negativ
+          - nicht negativ
+          - never negative
+          - positiv
+          - positive
+      sample: Ein Quadrat ist nie negativ, also hat x² = −4 keine Lösung. Bei 49 passen 7 und −7, weil minus mal minus plus ergibt. Bei 0 fallen beide zusammen.
+    explanation: x und −x haben dasselbe Quadrat. Nur bei 0 sind sie gleich, und negative Quadrate gibt es bei reellen Zahlen nicht.
     difficulty: 3
 
 srs:

@@ -1,0 +1,195 @@
+id: math.eigen.pagerank
+type: concept
+title: "PageRank"
+summary: "Wie Google 1998 das Netz ordnete: ein Zufallssurfer und ein Eigenvektor."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Seiten haben je 10 eingehende Links. Welche ist vermutlich wichtiger?
+    params:
+      options:
+        - label: Die, auf die selbst wichtige Seiten verlinken
+          correct: true
+        - label: Beide gleich – Links sind Links
+          feedback: Ein Link von einer großen Zeitung zählt mehr als einer von einer leeren Seite.
+        - label: Die mit mehr Text
+          feedback: PageRank schaut nur auf Links, nicht auf Text.
+    hints:
+      - Wichtigkeit soll sich weitervererben.
+      - Ein Link ist eine Empfehlung. Wer empfiehlt, zählt.
+    explanation: Wichtig ist, wer von Wichtigen verlinkt wird. Das klingt nach einem Zirkel – und genau den löst ein Eigenvektor.
+
+  - kind: explain
+    id: c1
+    body: Ein Zufallssurfer klickt immer einen zufälligen Link auf der aktuellen Seite. Der **PageRank** einer Seite ist der Anteil der Zeit, den er auf Dauer dort verbringt – die stationäre Verteilung dieser Markov-Kette.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Drei Seiten: A verlinkt auf B und C, B nur auf C, C nur auf A. Im Gleichgewicht ist A = C und B = ½ · A. Welchen Anteil hat C in Prozent?"
+    params:
+      unit: "%"
+    answer:
+      value: 40
+    feedback:
+      - when: abs(numval(state.input) - 33.3) < 0.2
+        misconception: uniform
+        text: Ein Drittel wäre bei gleich wichtigen Seiten. Hier bekommt B nur halb so viel.
+    hints:
+      - "A : B : C = 2 : 1 : 2."
+      - "C = 2 : 5."
+    explanation: A = 40 %, B = 20 %, C = 40 %. C bekommt Besuch von A und B, gibt aber alles an A weiter.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Und welchen Anteil hat B in Prozent?
+    params:
+      unit: "%"
+    answer:
+      value: 20
+    hints:
+      - B bekommt nur die halbe Aufmerksamkeit von A.
+      - B = ½ · 40 %.
+    explanation: 20 %. Nur ein halber Link, und der von einer Seite, die ihre Kraft teilt.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Eine Seite hat 1000 Links, aber alle von leeren Seiten, auf die niemand verlinkt. Was passiert mit ihrem PageRank?
+    params:
+      options:
+        - label: Er bleibt klein – die leeren Seiten haben selbst kaum Rang zu vererben.
+          correct: true
+        - label: Er wird riesig.
+          feedback: Viele Links von Nichts ergeben wenig.
+        - label: Er wird null.
+          feedback: Durch Zufallssprünge bekommt jede Seite etwas.
+    hints:
+      - Ein Link gibt einen Teil des eigenen Rangs weiter.
+      - Wie viel Rang hat eine Seite ohne eingehende Links?
+    explanation: Linkfarmen bringen wenig. Genau das machte PageRank so robust gegen Tricks.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Mit 85 % folgt der Surfer einem Link, mit 15 % springt er auf eine ganz zufällige Seite. Dieser **Dämpfungsfaktor** 0,85 verhindert Sackgassen und Endlosschleifen. PageRank ist der Eigenvektor zum Eigenwert 1 der neuen Matrix.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "Mit Dämpfung 0,85 und {{n}} Seiten bekommt jede Seite mindestens den Anteil 0,15 : {{n}}. Wie viel Prozent sind das?"
+    params:
+      unit: "%"
+    answer:
+      value: "{{15 / n}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 85 / n) < 0.01
+        misconception: wrong-part
+        text: 0,85 ist die Link-Chance. Der Sockel kommt aus den 15 % Zufallssprüngen.
+    hints:
+      - Zufallssprünge verteilen 15 % gleichmäßig.
+      - "15 % : {{n}}."
+    explanation: "{{15 / n}} %. Kein Rang ist null – auch eine Seite ohne Links wird manchmal zufällig besucht."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[3,5,10,15,30]
+      defaults:
+        n: 3
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Im Beispiel A → B, C; B → C; C → A starten alle mit ⅓. Nach einem Klick ohne Dämpfung: Welchen Anteil hat C in Prozent?"
+    params:
+      unit: "%"
+    answer:
+      value: 50
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 40) < 0.1
+        misconception: limit-too-early
+        text: 40 % ist der Endwert. Nach einem Schritt ist man noch nicht dort.
+    hints:
+      - C bekommt die Hälfte von A und alles von B.
+      - ½ · ⅓ + ⅓.
+    explanation: ⅙ + ⅓ = ½ = 50 %. Weitere Klicks pendeln sich auf 40 % ein. Diese **Potenzmethode** rechnet Google mit Milliarden Seiten.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Die Potenzmethode multipliziert immer wieder mit der Matrix. Fehler schrumpfen pro Schritt etwa mit dem zweiten Eigenwert, bei PageRank höchstens 0,85. Darum reichen rund 50 Durchläufe – auch für **Milliarden** Seiten.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Fehler schrumpft pro Durchlauf mal 0,85. Nach wie vielen Durchläufen ist er unter 1 % gefallen? (ln 0,01 ≈ −4,605, ln 0,85 ≈ −0,1625)
+    answer:
+      value: 29
+    feedback:
+      - when: numval(state.input) == 28
+        misconception: rounding
+        text: 0,85²⁸ ≈ 1,05 % – knapp drüber. Ein Durchlauf mehr.
+    hints:
+      - "0,85ⁿ < 0,01, also n > ln 0,01 : ln 0,85."
+      - "4,605 : 0,1625 ≈ 28,3."
+    explanation: Ab 29 Durchläufen. Der Rechenaufwand hängt kaum von der Größe des Netzes ab, nur von der Zahl der Links.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Eine Seite hat gar keine ausgehenden Links. Was ist das Problem für die Matrix?
+    params:
+      options:
+        - label: Ihre Spalte ist null – die Spaltensumme ist nicht mehr 1, und Rang versickert.
+          correct: true
+        - label: Gar keins
+          feedback: Der Surfer säße fest, und die Summe aller Anteile schrumpfte.
+        - label: Die Seite bekommt automatisch Rang 1.
+          feedback: Ohne Korrektur verliert das System Rang, statt welchen zu erzeugen.
+    hints:
+      - Wohin klickt der Surfer auf so einer Seite?
+      - Die Spalte enthält die Klickchancen.
+    explanation: Man behandelt solche Sackgassen, als verlinkten sie auf alle Seiten. Zusammen mit der Dämpfung wird die Matrix positiv – und Perron-Frobenius garantiert einen eindeutigen Rang.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Google mit einem Zufallssurfer die Wichtigkeit von Webseiten misst.
+    params:
+      keywords:
+        - - zufall
+          - zufällig
+          - random
+        - - link
+          - links
+          - klick
+          - click
+        - - zeit
+          - anteil
+          - häufig
+          - time
+          - share
+          - often
+      sample: Ein gedachter Surfer klickt zufällig von Link zu Link und springt manchmal auf eine beliebige Seite. Wie oft er auf Dauer auf einer Seite landet, ist ihr Rang. Seiten, auf die viele wichtige Seiten verlinken, besucht er häufiger.
+    explanation: PageRank = Aufenthaltsanteil des Zufallssurfers = Eigenvektor zum Eigenwert 1.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

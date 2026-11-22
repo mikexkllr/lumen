@@ -1,0 +1,206 @@
+id: math.diffeq.logistic
+type: concept
+title: "Wachstum mit Grenze und Epidemien"
+summary: "Hasen auf einer Insel, Viren in einer Stadt – und warum Impfen alle schützt."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Auf einer Insel ist Platz für 500 Hasen. Es starten 10, jede Generation kommen 30 % dazu – solange Platz ist. Wie viele sind es nach 40 Generationen?"
+    params:
+      min: 0
+      max: 1000
+    answer:
+      value: 500
+      within: 10
+    explanation: Fast genau 500. Ohne Grenze wären es über 360 000. Der Platz bremst das Wachstum.
+
+  - kind: explain
+    id: c1
+    body: Die **logistische Gleichung** $y' = r\,y\left(1 - \frac yK\right)$ ist Wachstum mit Bremse. K ist die Kapazität. Bei kleinem y wächst es fast exponentiell, nahe K fast gar nicht mehr.
+
+  - kind: problem
+    id: c2
+    widget: sim
+    prompt: Stell 40 Generationen und die Kapazität 800 ein. Wo pendelt sich der Bestand ein?
+    params:
+      scene: population
+      controls:
+        rate:
+          value: 30
+          fixed: true
+      show:
+        - size
+        - unlimited
+        - share
+    answer:
+      gens: 40
+      capacity: 800
+      size:
+        - 780
+        - 800
+    explanation: Bei fast 800. Wie schnell es geht, bestimmt r – wo es endet, bestimmt K.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Für welche zwei Bestände ändert sich nichts mehr, also y′ = 0? Gib den größeren an, wenn K = {{K}} ist.
+    answer:
+      value: "{{K}}"
+    feedback:
+      - when: numval(state.input) == K / 2
+        misconception: max-growth
+        text: Bei K/2 ist das Wachstum am größten, nicht null.
+    hints:
+      - Das Produkt y · (1 − y/K) ist null, wenn ein Faktor null ist.
+      - y = 0 oder y = K.
+    explanation: y = 0 und y = {{K}}. Das sind die **Gleichgewichte**. Bei {{K}} bleibt der Bestand stehen.
+    variants:
+      params:
+        K: step[200,2000,100]
+      defaults:
+        K: 800
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Mit r = 0,4 und K = 800: Wie schnell wächst der Bestand bei y = 600?"
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 240
+        misconception: no-brake
+        text: "Die Bremse fehlt: (1 − 600/800) = ¼."
+    hints:
+      - 0,4 · 600 · (1 − 600/800).
+      - 240 · 0,25.
+    explanation: 0,4 · 600 · 0,25 = 60 pro Generation. Bei y = 400 wären es 80 – dort ist das Maximum.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Das SIR-Modell teilt Menschen in Gesunde S, Infizierte I und Genesene R: $S' = -\\beta S I$, $I' = \\beta S I - \\gamma I$. Die **Basisreproduktionszahl** $R_0 = \\frac\\beta\\gamma$ sagt, wie viele ein Kranker anfangs ansteckt."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: sim
+    prompt: "Bei R₀ = 3: Stell die Impfquote so ein, dass R zu Beginn unter 1 liegt."
+    params:
+      scene: epidemic
+      controls:
+        r0:
+          value: 3
+          fixed: true
+      show:
+        - peak
+        - total
+        - reff
+    answer:
+      reff:
+        - 0
+        - 0.99
+    explanation: Ab 70 % ist R = 3 · 0,3 = 0,9 < 1. Dann kann sich keine Welle aufbauen – auch Ungeimpfte sind geschützt.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Ab welcher Impfquote in Prozent gibt es Herdenschutz, wenn R₀ = {{R}} ist? Es gilt $1 - \frac{1}{R_0}$.
+    params:
+      unit: "%"
+    answer:
+      value: "{{100 * (1 - 1 / R)}}"
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 100 / R) < 0.1
+        misconception: complement
+        text: Das ist der Anteil, der ungeschützt bleiben darf. Gesucht ist der Rest.
+    hints:
+      - "1 : {{R}} = {{1 / R}}."
+      - 1 − {{1 / R}}.
+    explanation: "{{100 * (1 - 1 / R)}} %. Masern haben R₀ um 15 – darum braucht es dort über 90 %."
+    difficulty: 2
+    variants:
+      params:
+        R: choice[4,5,8,10]
+      defaults:
+        R: 4
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Die logistische Gleichung lässt sich exakt lösen: $y(t) = \\frac{K}{1 + A\\,e^{-rt}}$. Diese **Sigmoid-Kurve** ist dieselbe Funktion, mit der neuronale Netze Signale zwischen 0 und 1 quetschen."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Mit K = 1000 und Startwert y(0) = 10: Wie groß ist A in $y = \\frac{K}{1 + A\\,e^{-rt}}$?"
+    answer:
+      value: 99
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: forgot-one
+        text: Bei t = 0 steht im Nenner 1 + A. Es muss 1 + A = 100 sein.
+    hints:
+      - "Bei t = 0 ist $e^0 = 1$, also y(0) = 1000 : (1 + A)."
+      - "1000 : (1 + A) = 10."
+    explanation: "1 + A = 100, also A = 99. Allgemein ist A = K : y(0) − 1."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Warum ist das Gleichgewicht y = 0 instabil, y = K aber stabil?
+    params:
+      options:
+        - label: Ein paar Tiere bei y = 0 vermehren sich weg; über K schrumpft, unter K wächst es zurück.
+          correct: true
+        - label: Weil 0 kleiner als K ist.
+          feedback: Stabilität hängt am Verhalten in der Nähe, nicht an der Größe.
+        - label: Beide sind gleich stabil.
+          feedback: Bei y = 0 genügt ein einziges Paar, um wegzulaufen.
+    hints:
+      - Was passiert bei y = 1? Und bei y = K + 50?
+      - Schau auf das Vorzeichen von y′.
+    explanation: "Stabil heißt: Kleine Störungen werden zurückgedrängt. Das erkennt man am Vorzeichen von y′ links und rechts des Gleichgewichts."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Impfen auch Menschen schützt, die nicht geimpft sind.
+    params:
+      keywords:
+        - - unter 1
+          - weniger als einen
+          - below 1
+          - less than one
+          - r < 1
+        - - ansteck
+          - steckt
+          - infiz
+          - infect
+          - weitergeb
+          - pass on
+        - - welle
+          - ausbreit
+          - wave
+          - spread
+          - herde
+          - herd
+      sample: Wenn genug Menschen geimpft sind, steckt jeder Kranke im Schnitt weniger als einen Menschen an. Dann wird die Kette immer kürzer und es entsteht keine Welle. So treffen die Viren auch Ungeimpfte kaum.
+    explanation: "Herdenschutz: Bei R < 1 schrumpft jede Infektionskette von selbst."
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3"]

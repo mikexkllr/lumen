@@ -5,7 +5,7 @@ summary: Handschläge, Teams und Lotto.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: haende
@@ -103,6 +103,53 @@ steps:
     explanation: "336 : 6 = 56."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "k aus n auswählen: erst geordnet n · (n − 1) · … ziehen, dann durch k! teilen. Kurz: der **Binomialkoeffizient** $\\binom{n}{k} = \\frac{n!}{k!\\,(n-k)!}$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Aus {{n}} Leuten wird ein Team aus 3 gewählt. Wie viele Teams sind möglich?
+    answer:
+      value: "{{n * (n - 1) * (n - 2) / 6}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1) * (n - 2)
+        misconception: ordered-count
+        text: Das zählt jedes Team 6-mal – einmal pro Reihenfolge. Teile durch 3! = 6.
+    hints:
+      - "Geordnet: {{n}} · {{n - 1}} · {{n - 2}}."
+      - Jedes Team kommt in 3! = 6 Reihenfolgen vor.
+    explanation: "{{n}} · {{n - 1}} · {{n - 2}} : 6 = {{n * (n - 1) * (n - 2) / 6}}."
+    difficulty: 2
+    variants:
+      params:
+        n: int[5,12]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Verein mit 10 Mitgliedern wählt einen Vorsitz und zwei gleichberechtigte Beisitzer. Wie viele Möglichkeiten gibt es?
+    answer:
+      value: 360
+    feedback:
+      - when: numval(state.input) == 720
+        misconception: ordered-deputies
+        text: Die zwei Beisitzer sind gleichberechtigt – ihre Reihenfolge zählt nicht.
+      - when: numval(state.input) == 120
+        misconception: all-unordered
+        text: Der Vorsitz ist ein besonderes Amt. Wer es hat, macht einen Unterschied.
+    hints:
+      - "Erst den Vorsitz: 10 Möglichkeiten."
+      - Dann 2 aus den übrigen 9 ohne Reihenfolge.
+    explanation: 10 · $\binom{9}{2}$ = 10 · 36 = 360. Geordnete und ungeordnete Teile darf man mischen – die Produktregel hält alles zusammen.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -119,6 +166,77 @@ steps:
     hints:
       - Denk an die Leute, die **nicht** gewählt werden.
     explanation: Jede 3er-Auswahl gehört zu genau einem 7er-Rest. Solche Paarungen heißen **Bijektion**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Wie viele Zahlen bis 100 sind durch 2 **oder** 3 teilbar? 50 plus 33 zählt die Sechser doppelt. Also zieht man sie einmal ab. Das ist **Inklusion-Exklusion**: |A ∪ B| = |A| + |B| − |A ∩ B|."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Zahlen von 1 bis {{N}} sind durch 2 oder durch 3 teilbar?
+    answer:
+      value: "{{N / 2 + N / 3 - N / 6}}"
+    feedback:
+      - when: numval(state.input) == N / 2 + N / 3
+        misconception: double-count
+        text: Die Vielfachen von 6 hast du doppelt gezählt.
+    hints:
+      - "Durch 2: {{N / 2}}, durch 3: {{N / 3}}."
+      - Beides – also durch 6 – zieh einmal ab.
+    explanation: "{{N / 2}} + {{N / 3}} − {{N / 6}} = {{N / 2 + N / 3 - N / 6}}."
+    difficulty: 3
+    variants:
+      params:
+        N: step[60,600,60]
+      defaults:
+        N: 120
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Zahlen von 1 bis 1000 sind durch 2, 3 oder 5 teilbar?
+    answer:
+      value: 734
+    feedback:
+      - when: numval(state.input) == 1033
+        misconception: no-exclusion
+        text: Du hast nur addiert. Die Überschneidungen sind mehrfach gezählt.
+      - when: numval(state.input) == 701
+        misconception: forgot-triple
+        text: Die Zahlen, die durch 30 teilbar sind, hast du ganz herausgeworfen. Füge sie einmal wieder dazu.
+    hints:
+      - 500 + 333 + 200, dann die Paare 6, 10, 15 abziehen.
+      - "Die Vielfachen von 30 kommen am Ende wieder dazu: + 33."
+    explanation: 500 + 333 + 200 − 166 − 100 − 66 + 33 = 734. Plus, minus, plus – so wird jede Zahl genau einmal gezählt.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum zieht man bei »A oder B« die Schnittmenge ab?"
+    params:
+      keywords:
+        - - doppelt
+          - zweimal
+          - twice
+          - double
+        - - beide
+          - schnitt
+          - both
+          - overlap
+          - intersection
+        - - einmal
+          - once
+          - genau
+          - exactly
+      sample: Wer in A und B zugleich ist, wird beim Addieren von A und B doppelt gezählt. Zieht man die Schnittmenge einmal ab, zählt jeder genau einmal.
+    explanation: Addieren zählt die Überschneidung doppelt, Abziehen korrigiert das. Bei drei Mengen muss man die Dreifach-Überschneidung wieder addieren.
     difficulty: 3
 
 srs:

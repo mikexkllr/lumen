@@ -5,7 +5,7 @@ summary: Geometrische Folgen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: weiter
@@ -97,6 +97,57 @@ steps:
     explanation: 3⁶ = 729, mal 2 sind 1458.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Summe $S = 1 + q + q^2 + \\dots + q^{n-1}$. Mal q verschiebt alles um eins: $qS = q + \\dots + q^n$. Zieh ab, fast alles fällt weg: $qS - S = q^n - 1$. Das ist der **Verschiebungstrick**."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Berechne 3 + 6 + 12 + … mit {{n}} Gliedern – jedes doppelt so groß wie das davor.
+    answer:
+      value: "{{3 * (2 ** n - 1)}}"
+    feedback:
+      - when: numval(state.input) == 3 * 2 ** n
+        misconception: off-by-one
+        text: "Fast: Die Summe ist eins weniger als die nächste Zweierpotenz – mal 3."
+    hints:
+      - "Hol die 3 heraus: 3 · (1 + 2 + 4 + …)."
+      - 1 + 2 + … + 2^(n−1) = 2ⁿ − 1.
+    explanation: 3 · (2^{{n}} − 1) = {{3 * (2 ** n - 1)}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Eine geometrische Folge hat das erste Glied {{a}} und das vierte Glied {{a * q ** 3}}. Wie groß ist der Faktor q?
+    answer:
+      value: "{{q}}"
+    feedback:
+      - when: numval(state.input) == q ** 3
+        misconception: cube-not-root
+        text: Das ist q³ – vom ersten zum vierten Glied sind es drei Schritte.
+    hints:
+      - Vom 1. zum 4. Glied wird dreimal mit q multipliziert.
+      - "q³ = {{a * q ** 3}} : {{a}} = {{q ** 3}}. Zieh die dritte Wurzel."
+    explanation: q³ = {{q ** 3}}, also q = {{q}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,5]
+        q: int[2,5]
+      defaults:
+        a: 5
+        q: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +158,72 @@ steps:
     hints:
       - Die Summe ist immer um 1 kleiner als das nächste Glied.
     explanation: "$2^{11} - 1 = 2047$. Allgemein: $\\frac{q^{n+1} - 1}{q - 1}$."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Ball fällt aus 2 m Höhe. Nach jedem Aufprall springt er auf ¾ der vorigen Höhe. Welchen Gesamtweg in Metern legt er zurück – rauf und runter, unendlich oft?
+    params:
+      unit: m
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: down-only
+        text: Das ist nur der Weg nach unten. Nach jedem Aufprall geht es auch wieder hoch.
+    hints:
+      - "Runter: 2 + 1,5 + 1,125 + … = 2 : (1 − ¾) = 8."
+      - "Rauf: dasselbe ohne die ersten 2 m, also 6."
+    explanation: 8 m runter plus 6 m rauf = 14 m. Unendlich viele Sprünge, aber ein endlicher Weg – und wegen der kürzer werdenden Flugzeiten auch eine endliche Zeit.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Ist 1, −2, 4, −8, 16, … eine geometrische Folge?
+    params:
+      options:
+        - label: Ja, mit q = −2
+          correct: true
+        - label: Nein, die Vorzeichen springen.
+          feedback: Ein negativer Faktor lässt die Vorzeichen springen – erlaubt ist er trotzdem.
+        - label: Ja, mit q = 2
+          feedback: Dann blieben alle Glieder positiv.
+    hints:
+      - Teile jedes Glied durch das vorige.
+      - "−2 : 1, 4 : (−2), …"
+    explanation: Der Quotient ist immer −2. Für |q| > 1 wächst der Betrag, für |q| < 1 schrumpft er – das Vorzeichen spielt dafür keine Rolle.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Verschiebungstrick für 1 + 2 + 4 + … + 2⁹.
+    params:
+      keywords:
+        - - mal
+          - doppel
+          - verdopp
+          - times
+          - double
+          - multipl
+        - - ziehe
+          - abziehen
+          - minus
+          - subtract
+          - differenz
+          - difference
+        - - wegfallen
+          - heben
+          - cancel
+          - bleibt
+          - left
+      sample: "Ich nenne die Summe S und verdopple sie: 2S = 2 + 4 + … + 2¹⁰. Ziehe ich S ab, heben sich alle mittleren Glieder weg. Es bleibt S = 2¹⁰ − 1 = 1023."
+    explanation: Mal q und abziehen lässt alle Glieder außer dem ersten und letzten verschwinden.
     difficulty: 3
 
 srs:

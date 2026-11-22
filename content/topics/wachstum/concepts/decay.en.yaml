@@ -5,7 +5,7 @@ summary: When the factor is less than 1.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: medikament
@@ -99,6 +99,54 @@ steps:
     explanation: After 17 hours 9.5% is left. That takes a good 3.3 half-lives – because 2^3.3 ≈ 10.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Decay can be written with 2 or with e: $N(t) = N_0 \\cdot 2^{-t/T} = N_0 \\cdot e^{-\\lambda t}$. The **decay constant** is $\\lambda = \\frac{\\ln 2}{T}$. A large constant means a short half-life."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Time is fixed at 12 hours. Set the half-life so that exactly 12.5 % is left.
+    params:
+      scene: decay
+      controls:
+        time:
+          value: 12
+          fixed: true
+        halflife:
+          value: 2
+      show:
+        - left
+        - halvings
+    answer:
+      left: 12.5
+    explanation: 12.5 % = ⅛ = three halvings. 12 h / 3 = 4 h half-life.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: You take 100 mg of a drug every 8 hours. Its half-life is 8 hours. In the long run, how many mg are in the body right after a dose?
+    params:
+      unit: mg
+    answer:
+      value: 200
+    feedback:
+      - when: numval(state.input) == 150
+        misconception: partial-sum
+        text: That is after two doses. The leftovers of earlier doses keep adding up.
+      - when: numval(state.input) == 100
+        misconception: no-accumulation
+        text: Some of every earlier dose is still there.
+    hints:
+      - New dose 100, from the one before 50, before that 25, …
+      - 100 + 50 + 25 + … is a geometric series with q = ½.
+    explanation: 100 / (1 − ½) = 200 mg. The level settles between 100 and 200 mg. That is how doctors plan dosing.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -137,6 +185,45 @@ steps:
           - again
           - same
       sample: The half-life is the time after which only half is left. It is always the same length – no matter how much is there.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Wood has only 10 % of its C-14 left. Half-life 5730 years. How old is it? Use $t = 5730 \cdot \log_2 10$ and $\log_2 10 \approx 3.32$. To the nearest hundred years.
+    params:
+      unit: years
+    answer:
+      value: 19000
+      tolerance: 100
+    feedback:
+      - when: abs(numval(state.input) - 51570) < 200
+        misconception: linear-decay
+        text: That would be 9 half-lives. Down to 10 % takes only just over 3.
+    hints:
+      - How many halvings to 10 %? 2^3.32 ≈ 10.
+      - 5730 · 3.32.
+    explanation: 5730 · 3.32 ≈ 19,000 years. The formula $t = T \log_2 \frac{N_0}{N}$ turns any ratio into an age.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Why can't dinosaur bones be dated with C-14?
+    params:
+      options:
+        - label: After 66 million years practically no C-14 is left.
+          correct: true
+        - label: Living things are largely made of carbon.
+          feedback: Lebewesen bestehen zu einem großen Teil aus Kohlenstoff.
+        - label: Radioactive decay does not depend on temperature.
+          feedback: Radioaktiver Zerfall hängt nicht von der Temperatur ab.
+    hints:
+      - How many half-lives are 66 million years?
+      - About 11,500 halvings.
+    explanation: After only 50,000 years less than 1 % is left and measurement gets unreliable. For dinosaurs one dates volcanic ash above and below the bones – with uranium or potassium, whose half-lives are billions of years.
     difficulty: 3
 
 srs:

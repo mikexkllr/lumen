@@ -5,7 +5,7 @@ summary: Die Stammfunktion.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -93,6 +93,61 @@ steps:
     explanation: "6x³/3 + 4x²/2 = 2x³ + 2x². Probe: ableiten."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Zu jeder Funktion gibt es unendlich viele Stammfunktionen: F(x) + C. Ob eine stimmt, zeigt die **Probe durch Ableiten**. Die Konstante C legt man mit einem bekannten Wert fest, etwa dem Startpunkt."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Es gilt F′(x) = 2x und F(0) = {{c}}. Wie groß ist F({{a}})?
+    answer:
+      value: "{{a * a + c}}"
+    feedback:
+      - when: numval(state.input) == a * a
+        misconception: forgot-constant
+        text: Der Startwert F(0) = {{c}} kommt noch dazu.
+      - when: numval(state.input) == 2 * a
+        misconception: derivative
+        text: Das ist F′({{a}}), nicht F({{a}}).
+    hints:
+      - F(x) = x² + C.
+      - F(0) = C = {{c}}.
+    explanation: F(x) = x² + {{c}}, also F({{a}}) = {{a * a + c}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,9]
+        c: int[1,9]
+      defaults:
+        a: 2
+        c: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: match
+    prompt: Verbinde jede Funktion mit einer Stammfunktion.
+    params:
+      pairs:
+        - left: cos x
+          right: sin x
+        - left: sin x
+          right: −cos x
+        - left: eˣ
+          right: eˣ
+        - left: 1/x (x > 0)
+          right: ln x
+      leftTitle: Funktion
+      rightTitle: Stammfunktion
+    hints:
+      - Leite die rechte Seite ab und vergleiche.
+      - (−cos x)′ = sin x.
+    explanation: Jede Ableitungsregel rückwärts gelesen ist eine Integrationsregel. Das Minus bei −cos ist die häufigste Falle.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -109,6 +164,73 @@ steps:
     hints:
       - Aus $x^{-1}$ würde $x^0 / 0$.
     explanation: Genau in dieser Lücke sitzt der natürliche Logarithmus – eine völlig neue Funktion.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Die **Substitution** ist die Kettenregel rückwärts. In $2x\,(x^2 + 1)^3$ steckt die innere Funktion $u = x^2 + 1$ mit $u' = 2x$. Also ist $\frac{(x^2 + 1)^4}{4}$ eine Stammfunktion.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Berechne $\int_0^1 2x\,(x^2 + 1)^3\,dx$.
+    answer:
+      value: 3.75
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: lower-limit
+        text: "Die untere Grenze liefert (0 + 1)⁴ : 4 = 0,25. Zieh das ab."
+    hints:
+      - "F(x) = (x² + 1)⁴ : 4."
+      - F(1) − F(0) = 16/4 − 1/4.
+    explanation: 4 − 0,25 = 3,75.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Hat $e^{x^2}$ eine Stammfunktion, die man mit den üblichen Funktionen hinschreiben kann?
+    params:
+      options:
+        - label: Nein – das wurde bewiesen. Man braucht eine neue Funktion.
+          correct: true
+        - label: "Ja: $\\frac{e^{x^2}}{2x}$"
+          feedback: "Leite ab: Die Quotientenregel liefert etwas anderes."
+        - label: "Ja: $e^{x^2}$ selbst"
+          feedback: Die Ableitung von $e^{x^2}$ ist $2x\,e^{x^2}$.
+    hints:
+      - Prüfe jeden Vorschlag durch Ableiten.
+      - Es fehlt ein Faktor 2x für die Substitution.
+    explanation: "Liouville bewies im 19. Jahrhundert: Manche einfachen Funktionen haben keine elementare Stammfunktion. Für die Glockenkurve $e^{-x^2}$ führte man darum die Fehlerfunktion erf ein."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum zu einer Funktion viele Stammfunktionen gehören. Was darf man addieren?
+    params:
+      keywords:
+        - - konstante
+          - constant
+          - plus c
+          - + c
+        - - ableiten
+          - ableitung
+          - "null"
+          - derivative
+          - zero
+          - differentiat
+        - - verschieb
+          - nach oben
+          - shift
+          - up
+      sample: Eine Konstante hat die Ableitung null. Darum kann ich zu einer Stammfunktion jede Konstante addieren, und die Ableitung bleibt gleich. Im Bild ist das dieselbe Kurve, nur nach oben verschoben.
+    explanation: Ableiten vergisst die Höhe, nur die Steigung bleibt. Darum braucht man einen Startwert, um C festzulegen.
     difficulty: 3
 
 srs:

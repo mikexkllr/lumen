@@ -5,7 +5,7 @@ summary: Length times k, volume times k³.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 12
 steps:
   - kind: problem
     id: verdoppeln
@@ -102,6 +102,55 @@ steps:
     explanation: 2 kg · 1000 = 2000 kg.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: A bone carries load with its cross-section, which grows like k². The weight grows like k³. So the load per cm² grows like k. This is the **square–cube law** – Galileo already knew it.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A giant is {{k}} times as tall as a human and built the same way. By what factor does the load on each cm² of his bones rise?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k * k * k
+        misconception: weight-only
+        text: That is the weight. But it spreads over k² times the area.
+      - when: numval(state.input) == k * k
+        misconception: area-only
+        text: That is the cross-section. Divide the weight by it.
+    hints:
+      - Weight times k³, carrying area times k².
+      - Load per area = k³ / k².
+    explanation: k³ / k² = k. A human ten times as tall would have bones under ten times the stress – they would break.
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 10
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A cube has {{a}} cm edges. How many cm² of surface are there per cm³ of volume?
+    answer:
+      value: "{{6 / a}}"
+      tolerance: 0.01
+    hints:
+      - Surface 6 · a², volume a³.
+      - "Divide: 6a² / a³ = 6 / a."
+    explanation: 6 · {{a}}² / {{a}}³ = 6 / {{a}} = {{6 / a}}. The bigger the body, the less skin per volume – that is why mice get cold faster than elephants.
+    difficulty: 2
+    variants:
+      params:
+        a: choice[1,2,3,4,5,6]
+      defaults:
+        a: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -118,6 +167,59 @@ steps:
     hints:
       - Heat is produced in the volume and escapes through the surface.
     explanation: Surface/volume falls as 1/k. That is why a mouse must eat constantly.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Scale a square by 2 and it consists of 4 = 2² copies. A cube of 8 = 2³. The exponent is the **dimension**: N = k to the power D. Some fractals have a fractional dimension."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: The Sierpinski triangle, scaled by 2, consists of exactly 3 copies of itself. What is its dimension D, i.e. $2^D = 3$? To two decimals.
+    answer:
+      value: 1.58
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: rough
+        text: Close – but 2 to the 1.5 is 2.83, not 3.
+    hints:
+      - D lies between 1 (line) and 2 (area).
+      - D = log 3 / log 2.
+    explanation: D = log 3 / log 2 ≈ 0.477 / 0.301 ≈ 1.58. More than a line, less than an area.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does an elephant need such thick legs?"
+    params:
+      keywords:
+        - - gewicht
+          - masse
+          - volumen
+          - weight
+          - mass
+          - volume
+          - k³
+        - - querschnitt
+          - fläche
+          - dicke
+          - cross
+          - area
+          - k²
+        - - schneller
+          - stärker
+          - wächst
+          - faster
+          - grows
+          - more
+      sample: When an animal gets bigger, its weight grows like k³ but the cross-section of its legs only like k². To keep the load per area bearable, the legs must get disproportionately thick.
+    explanation: Weight grows like k³, strength like k². That is why big animals look stocky and small ones look delicate.
     difficulty: 3
 
 srs:

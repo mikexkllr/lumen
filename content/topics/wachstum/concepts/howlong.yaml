@@ -5,7 +5,7 @@ summary: Die Frage hinter dem Logarithmus.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: tausend
@@ -92,6 +92,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: Jemand denkt sich eine Zahl von 1 bis {{2 ** k}}. Du darfst nur Ja-Nein-Fragen stellen. Wie viele brauchst du höchstens, wenn du klug fragst?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k / 2
+        misconception: linear-search
+        text: So viele bräuchte man fast, wenn man einzeln rät. Halbiere lieber jedes Mal.
+    hints:
+      - "Frage: »Ist sie größer als die Mitte?« Das halbiert die Möglichkeiten."
+      - Wie oft halbieren bis 1?
+    explanation: $\log_2 {{2 ** k}} = {{k}}$ Fragen. Für eine Million Zahlen reichen 20. So sucht ein Computer in sortierten Listen – die **binäre Suche**.
+    difficulty: 2
+    variants:
+      params:
+        k: int[4,20]
+      defaults:
+        k: 10
+
+  - kind: explain
+    id: mb-d2
+    depth: 2
+    body: "Der Logarithmus ist die **Umkehrung** des Potenzierens: Aus $2^n = z$ folgt $n = \\log_2 z$. Weil $2^{10} = 1024$ ist, gilt $\\log_2 1000 \\approx 9{,}97$ – knapp unter 10."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -102,6 +129,70 @@ steps:
     hints:
       - 3,32 Verdopplungen mal 14,2 Jahre.
     explanation: ≈ 47,2 Jahre, also im 48. Jahr. Der Logarithmus rechnet Faktoren in Zeit um.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: order
+    prompt: Ordne nach dem Wachstum für sehr große n, das langsamste zuerst.
+    params:
+      items:
+        - label: log₂ n
+        - label: √n
+        - label: n
+        - label: n · log₂ n
+        - label: n²
+        - label: 2ⁿ
+        - label: n!
+    hints:
+      - Setze n = 1024 ein und vergleiche.
+      - 2ⁿ schlägt jede Potenz, n! schlägt sogar 2ⁿ.
+    explanation: "Bei n = 1024: 10, 32, 1024, 10 240, gut eine Million, eine Zahl mit 309 Stellen – und n! ist noch viel größer. Diese **Wachstumsordnungen** entscheiden, ob ein Programm Sekunden oder Jahrtausende läuft."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "Ein Sortierverfahren braucht n² Schritte, ein anderes n · log₂ n. Für n = 1024: Wie viel mal schneller ist das zweite?"
+    answer:
+      value: 102.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: log-only
+        text: Das ist log₂ 1024. Teile n² durch n · log₂ n.
+    hints:
+      - "n² : (n · log₂ n) = n : log₂ n."
+      - log₂ 1024 = 10.
+    explanation: "1024 : 10 = 102,4-mal schneller. Bei einer Million Daten wären es schon rund 50 000-mal."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum die binäre Suche in einer Million Namen nur 20 Schritte braucht.
+    params:
+      keywords:
+        - - halb
+          - hälfte
+          - halbier
+          - half
+          - halv
+        - - 2 hoch 20
+          - 2^20
+          - million
+          - "1024"
+          - tausend
+        - - logarithmus
+          - log
+          - verdopp
+          - logarithm
+          - doubl
+      sample: Jeder Vergleich mit der Mitte halbiert die Liste. Nach 10 Schritten bleibt ein Tausendstel, nach 20 ein Millionstel. Weil 2 hoch 20 etwa eine Million ist, reicht der Logarithmus zur Basis 2 von einer Million, also 20.
+    explanation: Halbieren ist Verdoppeln rückwärts. Darum zählt der Logarithmus die Schritte.
     difficulty: 3
 
 srs:

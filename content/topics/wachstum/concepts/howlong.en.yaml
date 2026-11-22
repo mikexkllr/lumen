@@ -5,7 +5,7 @@ summary: The question behind the logarithm.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: tausend
@@ -92,6 +92,33 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: Someone thinks of a number from 1 to {{2 ** k}}. You may only ask yes–no questions. How many do you need at most if you ask cleverly?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == 2 ** k / 2
+        misconception: linear-search
+        text: That is roughly what guessing one by one costs. Halve every time instead.
+    hints:
+      - "Ask: »Is it bigger than the middle?« That halves the options."
+      - How many halvings down to 1?
+    explanation: $\log_2 {{2 ** k}} = {{k}}$ questions. For a million numbers 20 are enough. This is how a computer searches sorted lists – **binary search**.
+    difficulty: 2
+    variants:
+      params:
+        k: int[4,20]
+      defaults:
+        k: 10
+
+  - kind: explain
+    id: mb-d2
+    depth: 2
+    body: "The logarithm is the **inverse** of raising to a power: from $2^n = z$ it follows that $n = \\log_2 z$. Since $2^{10} = 1024$, $\\log_2 1000 \\approx 9.97$ – just under 10."
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -102,6 +129,70 @@ steps:
     hints:
       - 3.32 doublings times 14.2 years.
     explanation: ≈ 47.2 years, so in year 48. The logarithm converts factors into time.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: order
+    prompt: Order by growth for very large n, slowest first.
+    params:
+      items:
+        - label: log₂ n
+        - label: √n
+        - label: n
+        - label: n · log₂ n
+        - label: n²
+        - label: 2ⁿ
+        - label: n!
+    hints:
+      - Put n = 1024 in and compare.
+      - 2ⁿ beats every power, n! beats even 2ⁿ.
+    explanation: "At n = 1024: 10, 32, 1024, 10,240, just over a million, a number with 309 digits – and n! is far bigger. These **orders of growth** decide whether a program runs for seconds or millennia."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: "One sorting method needs n² steps, another n · log₂ n. For n = 1024: how many times faster is the second one?"
+    answer:
+      value: 102.4
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: log-only
+        text: That is log₂ 1024. Divide n² by n · log₂ n.
+    hints:
+      - n² / (n · log₂ n) = n / log₂ n.
+      - log₂ 1024 = 10.
+    explanation: 1024 / 10 = 102.4 times faster. With a million items it would be about 50,000 times.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why binary search in a million names needs only 20 steps.
+    params:
+      keywords:
+        - - halb
+          - hälfte
+          - halbier
+          - half
+          - halv
+        - - 2 hoch 20
+          - 2^20
+          - million
+          - "1024"
+          - tausend
+        - - logarithmus
+          - log
+          - verdopp
+          - logarithm
+          - doubl
+      sample: Each comparison with the middle halves the list. After 10 steps a thousandth is left, after 20 a millionth. Since 2 to the 20 is about a million, the base-2 logarithm of a million, 20, is enough.
+    explanation: Halving is doubling backwards. That is why the logarithm counts the steps.
     difficulty: 3
 
 srs:

@@ -1,0 +1,222 @@
+id: math.eigen.maps
+type: concept
+title: "Matrices as maps"
+summary: "What a matrix does to the whole plane – and which points vanish along the way."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: A matrix makes everything twice as wide; the height stays. What happens to a circle around the origin?
+    params:
+      options:
+        - label: An ellipse, twice as wide as it is tall
+          correct: true
+        - label: For that the height would have to grow too.
+          feedback: Dafür müsste auch die Höhe wachsen.
+        - label: Straight lines stay straight, curved ones stay curved.
+          feedback: Gerade Linien bleiben gerade, krumme bleiben krumm.
+    hints:
+      - The point (1 | 0) goes to (2 | 0), the point (0 | 1) stays.
+      - A squashed or stretched circle is called an ellipse.
+    explanation: An ellipse. Every linear map turns circles into ellipses – and their axes reveal a lot about the matrix.
+
+  - kind: explain
+    id: c1
+    body: A **linear map** keeps the origin fixed. Lines stay lines, and parallel lines stay parallel and evenly spaced. Every 2 × 2 matrix is such a map.
+
+  - kind: problem
+    id: c2
+    widget: graph
+    prompt: The matrix (1 1 | 0 2) acts on P = (1 | 2). Drag Q to the image.
+    params:
+      x:
+        - -1
+        - 5
+      y:
+        - -1
+        - 5
+      points:
+        - id: O
+          x: 0
+          y: 0
+          draggable: false
+        - id: P
+          x: 1
+          y: 2
+          draggable: false
+        - id: Q
+          x: 1
+          y: 0
+      segments:
+        - - O
+          - P
+        - - O
+          - Q
+    answer:
+      points:
+        Q:
+          x: 3
+          y: 4
+    hints:
+      - "Top: 1 · 1 + 1 · 2."
+      - "Bottom: 0 · 1 + 2 · 2."
+    explanation: Q = (3 | 4). The matrix shears to the right and stretches upwards.
+
+  - kind: problem
+    id: c3
+    widget: buckets
+    prompt: Is the map linear?
+    params:
+      buckets:
+        - id: b1
+          label: Linear
+        - id: b2
+          label: Not linear
+      items:
+        - label: rotation about the origin
+          bucket: b1
+        - label: reflection in the y-axis
+          bucket: b1
+        - label: shear
+          bucket: b1
+        - label: shift by (1, 0)
+          bucket: b2
+        - label: (x, y) → (x², y)
+          bucket: b2
+        - label: (x, y) → (x + y, 1)
+          bucket: b2
+    hints:
+      - Does the origin stay where it is?
+      - Do equal spacings stay equal?
+    explanation: "A shift moves the origin, x² distorts the spacing. Linear means: A(u + v) = Au + Av and A(c · u) = c · Au."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A matrix sends (1, 0) to (2, 1) and (0, 1) to ({{a}}, 3). Which entry is top right?
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: rows-not-columns
+        text: The image of (1, 0) is the first column, not the first row.
+    hints:
+      - The images of the unit arrows are the columns.
+      - "Second column: ({{a}}, 3)."
+    explanation: The matrix is (2 {{a}} | 1 3). Top right is {{a}}.
+    variants:
+      params:
+        a: int[-5,5]
+      constraints:
+        - a != 2
+        - a != 1
+        - a != 3
+      defaults:
+        a: -1
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Some matrices send whole lines to the origin. These vectors form the **kernel**. If the kernel is more than just the origin, the matrix squashes the plane – and the determinant is 0.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: The matrix (1 2 | 2 4) sends the vector (2, y) to (0, 0). What is y?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: sign
+        text: Then the top would be 1 · 2 + 2 · 1 = 4, not 0.
+    hints:
+      - "Top: 1 · 2 + 2 · y = 0."
+      - 2y = −2.
+    explanation: "y = −1. The bottom works too: 4 − 4 = 0. The whole line through (2, −1) lands at the origin."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: The matrix (1 0 | 0 0) drops every point straight onto the x-axis. What is its determinant?
+    answer:
+      value: 0
+    hints:
+      - ad − bc = 1 · 0 − 0 · 0.
+      - An area becomes a line.
+    explanation: "Determinant 0: areas get flattened. The kernel is the y-axis – everything on it lands at the origin."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The **rank** counts how many dimensions the image has. It holds: rank + dimension of the kernel = dimension of the space. Whatever dimensions are missing from the image vanish into the kernel."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A 3 × 3 matrix squashes all of space onto a plane. What is the dimension of its kernel?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: rank-not-kernel
+        text: That is the dimension of the image, the rank.
+    hints:
+      - "The image is a plane: rank 2."
+      - 3 − 2.
+    explanation: "3 − 2 = 1: a whole line lands at the origin."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Games shift objects with (x, y) → (x + 5, y). That is not linear. How do graphics cards still turn it into a matrix?
+    params:
+      options:
+        - label: They append a 1 as a third coordinate and use a 3 × 3 matrix.
+          correct: true
+        - label: That would work, but with the trick everything fits into one matrix product.
+          feedback: Das ginge, aber mit dem Trick passt alles in ein Matrixprodukt.
+        - label: That stretches instead of shifting.
+          feedback: Das streckt, statt zu verschieben.
+    hints:
+      - In a higher dimension a shear can act like a shift.
+      - (x, y, 1) → (x + 5 · 1, y, 1).
+    explanation: These **homogeneous coordinates** turn rotating, scaling and shifting into one single matrix – the basis of all 3D graphics.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what it means when a matrix sends an arrow to the origin.
+    params:
+      keywords:
+        - - kern
+          - kernel
+        - - determinante
+          - "null"
+          - determinant
+          - zero
+        - - platt
+          - zusammen
+          - quetsch
+          - flat
+          - squash
+          - collapse
+      sample: Then the arrow lies in the kernel of the matrix. The matrix squashes the plane flat in that direction, so the determinant is zero. The map can then no longer be undone.
+    explanation: Kernel ≠ {0} ⇔ det = 0 ⇔ no inverse. Three statements, one idea.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

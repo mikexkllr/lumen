@@ -1,0 +1,201 @@
+id: math.series.taylor
+type: concept
+title: "Taylor-Polynome"
+summary: "Wie ein Taschenrechner Sinus und e berechnet – mit Polynomen, die sich anschmiegen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Wie berechnet ein Taschenrechner sin(0,5)?
+    params:
+      options:
+        - label: Mit einem Polynom, das den Sinus nahe 0 sehr genau nachbildet
+          correct: true
+        - label: Er zeichnet ein Dreieck und misst.
+          feedback: Ein Chip kann nicht messen – er kann nur addieren und multiplizieren.
+        - label: Er hat alle Werte gespeichert.
+          feedback: Es gibt unendlich viele Winkel. Gespeichert wird höchstens eine kleine Tabelle.
+    hints:
+      - Was kann ein Rechenchip überhaupt?
+      - Plus und mal – also Polynome.
+    explanation: Polynome brauchen nur Plus und Mal. Taylor-Polynome bauen jede glatte Funktion damit nach.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Taylor-Polynom** stimmt an einer Stelle in Wert, Steigung, Krümmung und weiteren Ableitungen mit der Funktion überein. Für den Sinus bei 0: $\\sin x \\approx x - \\frac{x^3}{6}$."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Schätze sin(0,5) mit $x - \frac{x^3}{6}$. Auf drei Stellen.
+    answer:
+      value: 0.479
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: first-term
+        text: Das ist nur das erste Glied. Zieh x³/6 noch ab.
+    hints:
+      - 0,5³ = 0,125.
+      - "0,5 − 0,125 : 6."
+    explanation: 0,5 − 0,0208 = 0,4792. Der echte Wert ist 0,4794 – zwei Glieder, vier richtige Stellen.
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: Die gestrichelte Kurve ist $e^x$. Stell a so ein, dass $1 + x + a x^2$ sich bei x = 0 am besten anschmiegt.
+    params:
+      expr: 1 + x + a*x^2
+      x:
+        - -2
+        - 2
+      y:
+        - -1
+        - 6
+      sliders:
+        - id: a
+          label: a
+          min: -1
+          max: 1.5
+          step: 0.25
+          initial: -0.5
+      target:
+        expr: exp(x)
+    answer:
+      values:
+        a: 0.5
+    hints:
+      - Die zweite Ableitung von e^x bei 0 ist 1.
+      - Die zweite Ableitung von a x² ist 2a.
+    explanation: a = ½, denn 2a = 1. Das Taylor-Polynom ist $1 + x + \frac{x^2}{2}$.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Schätze $e^{0{,}1}$ mit $1 + x + \frac{x^2}{2}$. Auf drei Stellen.
+    answer:
+      value: 1.105
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.1
+        misconception: linear-only
+        text: "Das Quadratglied 0,01 : 2 fehlt noch."
+    hints:
+      - "1 + 0,1 + 0,01 : 2."
+      - 1 + 0,1 + 0,005.
+    explanation: "1,105 – echt: 1,10517. Nahe der Stelle 0 reichen wenige Glieder."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Woher kommen die **Koeffizienten**? Leitet man $x^n$ n-mal ab, bleibt n! übrig. Damit die n-te Ableitung passt, braucht man den Koeffizienten $\frac{f^{(n)}(0)}{n!}$. Bei $e^x$ sind alle Ableitungen 1 – also $\frac{1}{n!}$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Welcher Koeffizient steht im Taylor-Polynom von $e^x$ vor $x^3$? Als Bruch.
+    answer:
+      value: 1/6
+    feedback:
+      - when: numval(state.input) == 1 / 3
+        misconception: not-factorial
+        text: 3 ist nicht 3!. Es gilt 3! = 3 · 2 · 1 = 6.
+    hints:
+      - "Koeffizient = f‴(0) : 3!."
+      - f‴(0) = 1, 3! = 6.
+    explanation: 1/3! = 1/6. Also $e^x = 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \dots$
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Für den Kosinus gilt $\cos x \approx 1 - \frac{x^2}{2}$. Wie groß ist das für x = {{x}}?
+    answer:
+      value: "{{1 - x * x / 2}}"
+      tolerance: 0.0001
+    hints:
+      - x² = {{x * x}}.
+      - "1 − {{x * x}} : 2."
+    explanation: 1 − {{x * x / 2}} = {{1 - x * x / 2}}. Diese Näherung nutzen Physiker beim Pendel und in der Optik.
+    difficulty: 2
+    variants:
+      params:
+        x: choice[0.1,0.2,0.3,0.4]
+      defaults:
+        x: 0.2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Nicht jede Taylor-Reihe gilt überall. $\frac{1}{1 - x} = 1 + x + x^2 + \dots$ stimmt nur für |x| < 1 – das ist ihr **Konvergenzradius**. Die Reihe für $\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \dots$ gilt für −1 < x ≤ 1.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Schätze ln(1,1) mit drei Gliedern: $x - \\frac{x^2}{2} + \\frac{x^3}{3}$ für x = 0,1. Auf vier Stellen."
+    answer:
+      value: 0.0953
+      tolerance: 0.0002
+    feedback:
+      - when: abs(numval(state.input) - 0.095) < 0.0001
+        misconception: two-terms
+        text: "Das dritte Glied 0,001 : 3 fehlt noch."
+    hints:
+      - 0,1 − 0,005 + 0,000333.
+      - "Achte auf die Vorzeichen: minus, dann plus."
+    explanation: ≈ 0,09533 – echt 0,09531. So berechneten schon Newton und Mercator Logarithmen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Bei x = 2 setzt man in $1 + x + x^2 + \dots$ ein und erhält 1 + 2 + 4 + 8 + … Was ist mit $\frac{1}{1 - 2} = -1$?
+    params:
+      options:
+        - label: Die Reihe gilt dort nicht – x = 2 liegt außerhalb des Konvergenzradius.
+          correct: true
+        - label: Also ist 1 + 2 + 4 + … = −1.
+          feedback: Positive Zahlen können sich nicht zu −1 summieren.
+        - label: Die Formel 1/(1 − x) ist bei x = 2 falsch.
+          feedback: "Die Funktion ist dort sauber definiert: −1. Nur die Reihe versagt."
+    hints:
+      - Für welche x konvergiert die geometrische Reihe?
+      - Nur für |x| < 1.
+    explanation: Eine Taylor-Reihe stellt die Funktion nur innerhalb des Konvergenzradius dar. Hier ist er 1 – so weit ist es von 0 bis zur Polstelle bei x = 1.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein Taylor-Polynom ist.
+    params:
+      keywords:
+        - - polynom
+          - polynomial
+        - - ableitung
+          - steigung
+          - krümmung
+          - derivative
+          - slope
+          - curvature
+        - - stelle
+          - nahe
+          - punkt
+          - point
+          - near
+      sample: Ein Taylor-Polynom ist ein Polynom, das an einer Stelle denselben Wert, dieselbe Steigung, dieselbe Krümmung und noch mehr Ableitungen hat wie die Funktion. Nahe dieser Stelle ist es deshalb eine sehr gute Näherung.
+    explanation: Je mehr Ableitungen übereinstimmen, desto länger bleibt das Polynom an der Kurve.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

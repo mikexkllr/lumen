@@ -1,0 +1,197 @@
+id: math.groups.axioms
+type: concept
+title: "What is a group?"
+summary: "Four simple rules that connect numbers, clocks, rotations and the Rubik's cube."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: What do clock times, rotations of a square and the whole numbers have in common?
+    params:
+      options:
+        - label: You can combine any two and undo every step.
+          correct: true
+        - label: There are infinitely many whole numbers.
+          feedback: Es gibt unendlich viele ganze Zahlen.
+        - label: The same structure is behind all three.
+          feedback: Hinter allen dreien steckt dieselbe Struktur.
+    hints:
+      - Clock times are added, rotations done in a row.
+      - Is there always a »back«?
+    explanation: That is exactly what a group is. Prove a rule for groups and you have proved it for all the examples at once.
+
+  - kind: explain
+    id: c1
+    body: "A **group** is a set with an operation such that: the result stays in the set. Brackets do not matter. There is a neutral element that changes nothing. And every element has an inverse that undoes it."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Group or not?
+    params:
+      buckets:
+        - id: b1
+          label: Group
+        - id: b2
+          label: Not a group
+      items:
+        - label: whole numbers with +
+          bucket: b1
+        - label: fractions without 0 with ·
+          bucket: b1
+        - label: rotations of the square
+          bucket: b1
+        - label: hours on the clock with +
+          bucket: b1
+        - label: natural numbers 0, 1, 2, … with +
+          bucket: b2
+        - label: whole numbers with ·
+          bucket: b2
+    hints:
+      - "Check above all: does every element have an inverse?"
+      - What is the inverse of 3 under + in 0, 1, 2, …? And of 2 under · in the whole numbers?
+    explanation: Without negative numbers the inverse of 3 is missing. Under ·, the whole numbers lack the inverse ½. Fractions have it – but 0 must go.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Which element is neutral for multiplying fractions?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: zero
+        text: Times 0 turns everything into 0 – it changes a lot.
+    hints:
+      - "Neutral means: x · e = x for all x."
+      - Multiplying by which number changes nothing?
+    explanation: The 1. For addition it is 0, for symmetries doing nothing.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: What is the inverse of {{k}} in the whole numbers with +?
+    answer:
+      value: "{{-k}}"
+    feedback:
+      - when: numval(state.input) == 1 / k
+        misconception: multiplicative
+        text: That would be the inverse for multiplication. Here we add.
+    hints:
+      - "{{k}} + ? = 0."
+      - The opposite number.
+    explanation: "{{k}} + ({{-k}}) = 0, the neutral element."
+    variants:
+      params:
+        k: nonzero[-9,9]
+      defaults:
+        k: 5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The bracket rule is the **associative law**: (a ∘ b) ∘ c = a ∘ (b ∘ c). It holds for plus and times, not for minus: (8 − 4) − 2 = 2, but 8 − (4 − 2) = 6. So »minus« is no group operation."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Compute 2 to the (3 to the 2) and (2 to the 3) to the 2. Give the larger result.
+    answer:
+      value: 512
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: smaller
+        text: That is (2³)² = 8². The other bracketing is larger.
+    hints:
+      - 3² = 9, so 2⁹.
+      - (2³)² = 8² = 64.
+    explanation: "2⁹ = 512 versus 64: raising to powers is not associative. Multiplying is."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: In which of these groups does the order never matter, i.e. a ∘ b = b ∘ a?
+    params:
+      options:
+        - label: Whole numbers with +
+          correct: true
+        - label: Rotating and flipping cannot be swapped freely.
+          feedback: Drehen und Spiegeln vertauscht man nicht ungestraft.
+        - label: Right then top is not the same as top then right.
+          feedback: Erst rechts, dann oben ist etwas anderes als umgekehrt.
+    hints:
+      - Is 3 + 5 = 5 + 3?
+      - Try rotating and flipping the square.
+    explanation: Such groups are called **abelian**, after Niels Henrik Abel. Many important groups are not.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "In a group a ∘ x = b always has exactly one solution: x = a⁻¹ ∘ b. Because of this **cancellation law**, in every row of the operation table each element appears exactly once – like in a sudoku."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A group has 4 elements. How often does each element appear in one row of its operation table?
+    answer:
+      value: 1
+    hints:
+      - The row for a lists a ∘ x for all x.
+      - Two equal entries would mean a ∘ x = a ∘ y with x ≠ y.
+    explanation: Exactly once. From a ∘ x = a ∘ y, cancelling with a⁻¹ gives x = y.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: How many different groups with exactly 4 elements are there – looking only at the table, not the names?
+    params:
+      options:
+        - label: "Two: the 4-hour clock and the »Klein four-group«"
+          correct: true
+        - label: In the Klein four-group every element is its own inverse – not on the 4-hour clock.
+          feedback: In der Kleinschen Vierergruppe ist jedes Element sein eigenes Inverses – bei der 4er-Uhr nicht.
+        - label: Many tables are just renamed and so the same group.
+          feedback: Viele Tafeln sind nur umbenannt und damit dieselbe Gruppe.
+    hints:
+      - Is there an element you need four times to get back?
+      - Or is every element neutral when done twice?
+    explanation: "Two types: cyclic like ℤ₄ or like the symmetries of a rectangle. Sorting all groups up to some size is a big research field."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux the four rules that make a group.
+    params:
+      keywords:
+        - - neutral
+          - nichts ändert
+          - changes nothing
+          - identity
+        - - invers
+          - rückgängig
+          - undo
+          - inverse
+        - - klammer
+          - assoziativ
+          - bracket
+          - associative
+      sample: Combining two elements keeps you in the set. Brackets do not matter, that is associative. There is a neutral element that changes nothing. And every element has an inverse that undoes it.
+    explanation: Closed, associative, neutral element, inverses. A group need not be commutative.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2"]

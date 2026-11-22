@@ -1,0 +1,207 @@
+id: math.diffeq.fields
+type: concept
+title: "Slope fields and predator–prey"
+summary: "Arrows show the path of the solution – for foxes and rabbits even in circles."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: When there are many foxes, the rabbits soon get fewer. What happens to the foxes next?
+    params:
+      options:
+        - label: They decline – and then the rabbits recover.
+          correct: true
+        - label: Without prey they lack food.
+          feedback: Ohne Beute fehlt ihnen das Futter.
+        - label: Usually the populations just swing back and forth.
+          feedback: Meist schaukeln sich die Bestände nur hin und her.
+    hints:
+      - What do foxes live on?
+      - Less food means fewer young.
+    explanation: "A cycle: many rabbits → many foxes → few rabbits → few foxes → many rabbits. Two linked differential equations describe it."
+
+  - kind: explain
+    id: c1
+    body: At every point (t | y) draw a short arrow with the slope the equation prescribes. That is a **slope field**. Every solution is a curve that follows the arrows everywhere.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "In the slope field of $y' = t - y$: what slope does the arrow at the point ({{t}} | {{y}}) have?"
+    answer:
+      value: "{{t - y}}"
+    feedback:
+      - when: numval(state.input) == y - t
+        misconception: swapped
+        text: "The other way round: t minus y."
+    hints:
+      - Put t = {{t}} and y = {{y}}.
+      - "{{t}} − ({{y}})."
+    explanation: "{{t}} − ({{y}}) = {{t - y}}. Without solving the equation you can see where each solution goes."
+    variants:
+      params:
+        t: int[-3,4]
+        y: int[-3,4]
+      constraints:
+        - t != y
+      defaults:
+        t: 2
+        y: 1
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: "In the slope field of $y' = -y$: where are all arrows horizontal?"
+    params:
+      options:
+        - label: On the line y = 0
+          correct: true
+        - label: Here the slope depends only on y, not on t.
+          feedback: Die Steigung hängt hier nur von y ab, nicht von t.
+        - label: At y = 0, −y = 0.
+          feedback: Bei y = 0 ist −y = 0.
+    hints:
+      - Horizontal means slope 0.
+      - −y = 0.
+    explanation: At y = 0. Above it the arrows point down, below it up – all solutions run towards 0.
+
+  - kind: problem
+    id: c4
+    widget: sim
+    prompt: "Predator and prey: hunting success is 20 ‰. Set the prey growth so that about 30 predators live on average."
+    params:
+      scene: predator
+      controls:
+        hunt:
+          value: 20
+          fixed: true
+        birth:
+          value: 30
+      show:
+        - preymean
+        - predmean
+        - preymax
+        - predmax
+    answer:
+      predmean:
+        - 27
+        - 33
+    explanation: At 60 %/yr. The average number of predators is prey growth over hunting success, here 0.6 / 0.02 = 30. The prey always swings around 40.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "The **Lotka–Volterra model**: prey x′ = ax − bxy, predators y′ = dxy − cy. At equilibrium both changes are zero: $x^* = \\frac cd$ and $y^* = \\frac ab$. The populations circle around this point."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: In the lab c = 0.4 (predator death rate) and d = 0.01. Around what value does the prey swing?
+    answer:
+      value: 40
+    feedback:
+      - when: numval(state.input) == 0.025
+        misconception: inverted
+        text: "The other way round: c over d."
+    hints:
+      - "Set the predator equation to zero: dxy = cy."
+      - x = c / d.
+    explanation: 0.4 / 0.01 = 40. Surprisingly, the prey number at equilibrium depends only on the predators.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: During World War I there was hardly any fishing in the Adriatic. Afterwards the share of predatory fish was higher. What does Volterra's model explain?
+    params:
+      options:
+        - label: Fishing lowers the predators on average and raises the prey – without fishing it shifts to the predators.
+          correct: true
+        - label: The model needs no new biology.
+          feedback: Das Modell braucht keine neue Biologie.
+        - label: Volterra could read the effect straight off the equations.
+          feedback: Volterra konnte den Effekt genau aus den Gleichungen ablesen.
+    hints:
+      - Fishing acts like a higher death rate for both species.
+      - What happens then to c/d and a/b?
+    explanation: "More dying raises c and lowers a: the prey x* = c/d rises, the predators y* = a/b fall. Without fishing it is the other way round."
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "With three linked equations **chaos** can arise. Lorenz found in 1963 in a simple weather model: tiny differences at the start grow exponentially. In the plane this is impossible – there paths end in rest points or cycles."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: A measurement error of 0.1 °C doubles every 2 days in a weather model. How large is it after 10 days, in °C?
+    params:
+      unit: °C
+    answer:
+      value: 3.2
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: linear
+        text: That would be linear. Doubling five times means times 32.
+    hints:
+      - 10 days are 5 doublings.
+      - 0.1 · 2⁵.
+    explanation: 0.1 · 32 = 3.2 °C – as big as the difference between two days. That is why weather forecasts end after about ten days.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Lorenz cut a start value from 0.506127 to 0.506. What then happened in his model?
+    params:
+      options:
+        - label: After a while the weather looked completely different.
+          correct: true
+        - label: In chaotic systems even tiny errors grow.
+          feedback: Bei chaotischen Systemen wachsen auch winzige Fehler.
+        - label: The calculation ran normally – just with a different result.
+          feedback: Die Rechnung lief normal – nur mit anderem Ergebnis.
+    hints:
+      - A difference of 0.000127 is tiny.
+      - What does exponential growth do with tiny values?
+    explanation: "This is the **butterfly effect**: the system is deterministic and still unpredictable in the long run."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how to read a solution from a slope field without calculating.
+    params:
+      keywords:
+        - - pfeil
+          - pfeile
+          - arrow
+          - arrows
+        - - folgen
+          - folge
+          - entlang
+          - follow
+          - along
+        - - start
+          - anfangs
+          - punkt
+          - start
+          - point
+      sample: I put my pen at the starting point and always follow the small arrows, like a boat drifting with the current. The curve I draw this way is the solution with that starting value.
+    explanation: Each arrow is the prescribed slope. A curve that moves with the arrows everywhere satisfies the equation.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2"]

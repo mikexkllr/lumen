@@ -5,7 +5,7 @@ summary: Matrix times matrix.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -92,6 +92,28 @@ steps:
     explanation: The eighth power of the rotation matrix is the identity matrix.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "The **inverse** of a 2 × 2 matrix: swap a and d, flip the signs of b and c and divide by the determinant: $\\frac{1}{ad - bc}\\begin{pmatrix} d & -b \\\\ -c & a \\end{pmatrix}$. If the determinant is 0, there is none."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Find the inverse of (2 1 | 1 1). Which entry is top right?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-sign-flip
+        text: The signs of b and c flip.
+    hints:
+      - "Determinant: 2 · 1 − 1 · 1 = 1."
+      - "Inverse: (1 −1 | −1 2)."
+    explanation: "The top right entry is −1. Check: (2 1 | 1 1) · (1 −1 | −1 2) = (1 0 | 0 1)."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +130,57 @@ steps:
     hints:
       - First socks, then shoes. How do you take them off?
     explanation: You undo things in reverse order.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Rotating by β and then by α is a rotation by α + β. Multiply the two rotation matrices and the top left shows $\cos\alpha\cos\beta - \sin\alpha\sin\beta$. That must be cos(α + β) – this proves the **addition formulas**.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: The shear S = (1 1 | 0 1) is applied {{n}} times in a row. Which entry is top right in $S^{ {{n}} }$?
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-growth
+        text: "Compute S²: (1 2 | 0 1). The entry grows."
+      - when: numval(state.input) == 2 ** n
+        misconception: exponential
+        text: It does not double – 1 is added each time.
+    hints:
+      - S² = (1 2 | 0 1), S³ = (1 3 | 0 1).
+      - Each shear shifts by one more unit.
+    explanation: $S^{ {{n}} }$ = (1 {{n}} | 0 1). Shears add up – like small shifts.
+    difficulty: 3
+    variants:
+      params:
+        n: int[2,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why (A · B)⁻¹ = B⁻¹ · A⁻¹ – using socks and shoes.
+    params:
+      keywords:
+        - - socken
+          - socks
+        - - schuhe
+          - shoes
+        - - umgekehrt
+          - rückwärts
+          - reverse
+          - backwards
+          - zuerst
+          - first
+      sample: "In the morning I put on socks first, then shoes. In the evening I undo it in reverse order: shoes off first, then socks. A · B is undone the same way, in reverse: B⁻¹ · A⁻¹."
+    explanation: What was done last is undone first.
     difficulty: 3
 
 srs:

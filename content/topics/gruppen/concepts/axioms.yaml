@@ -1,0 +1,197 @@
+id: math.groups.axioms
+type: concept
+title: "Was ist eine Gruppe?"
+summary: "Vier einfache Regeln, die Zahlen, Uhren, Drehungen und den Zauberwürfel verbinden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Was haben Uhrzeiten, Drehungen eines Quadrats und die ganzen Zahlen gemeinsam?
+    params:
+      options:
+        - label: Man kann je zwei verknüpfen und jeden Schritt rückgängig machen.
+          correct: true
+        - label: Sie sind alle endlich.
+          feedback: Es gibt unendlich viele ganze Zahlen.
+        - label: Nichts.
+          feedback: Hinter allen dreien steckt dieselbe Struktur.
+    hints:
+      - Uhrzeiten addiert man, Drehungen führt man nacheinander aus.
+      - Gibt es jeweils ein »Zurück«?
+    explanation: Genau das macht eine Gruppe aus. Wer eine Regel für Gruppen beweist, hat sie für alle Beispiele auf einmal bewiesen.
+
+  - kind: explain
+    id: c1
+    body: "Eine **Gruppe** ist eine Menge mit einer Verknüpfung, für die gilt: Das Ergebnis bleibt in der Menge. Klammern sind egal. Es gibt ein neutrales Element, das nichts ändert. Und jedes Element hat ein Inverses, das es rückgängig macht."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Gruppe oder nicht?
+    params:
+      buckets:
+        - id: b1
+          label: Gruppe
+        - id: b2
+          label: Keine Gruppe
+      items:
+        - label: ganze Zahlen mit +
+          bucket: b1
+        - label: Brüche ohne 0 mit ·
+          bucket: b1
+        - label: Drehungen des Quadrats
+          bucket: b1
+        - label: Stunden auf der Uhr mit +
+          bucket: b1
+        - label: natürliche Zahlen 0, 1, 2, … mit +
+          bucket: b2
+        - label: ganze Zahlen mit ·
+          bucket: b2
+    hints:
+      - "Prüfe vor allem: Hat jedes Element ein Inverses?"
+      - Was ist das Inverse von 3 bei + in 0, 1, 2, …? Und von 2 bei · in den ganzen Zahlen?
+    explanation: Ohne negative Zahlen fehlt das Inverse zu 3. Bei · fehlt in den ganzen Zahlen das Inverse ½. Brüche haben es – die 0 muss aber raus.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Welches Element ist neutral bei der Multiplikation von Brüchen?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: zero
+        text: Mal 0 macht alles zu 0 – es ändert sehr viel.
+    hints:
+      - "Neutral heißt: x · e = x für alle x."
+      - Mit welcher Zahl ändert Malnehmen nichts?
+    explanation: Die 1. Bei der Addition ist es die 0, bei Symmetrien das Nichtstun.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Wie heißt das Inverse von {{k}} in den ganzen Zahlen mit +?
+    answer:
+      value: "{{-k}}"
+    feedback:
+      - when: numval(state.input) == 1 / k
+        misconception: multiplicative
+        text: Das wäre das Inverse beim Malnehmen. Hier wird addiert.
+    hints:
+      - "{{k}} + ? = 0."
+      - Die Gegenzahl.
+    explanation: "{{k}} + ({{-k}}) = 0, das neutrale Element."
+    variants:
+      params:
+        k: nonzero[-9,9]
+      defaults:
+        k: 5
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die Klammerregel heißt **Assoziativgesetz**: (a ∘ b) ∘ c = a ∘ (b ∘ c). Bei Plus und Mal gilt es, bei Minus nicht: (8 − 4) − 2 = 2, aber 8 − (4 − 2) = 6. Darum ist »Minus« keine Gruppenverknüpfung."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Rechne 2 hoch (3 hoch 2) und (2 hoch 3) hoch 2. Gib das größere Ergebnis an.
+    answer:
+      value: 512
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: smaller
+        text: Das ist (2³)² = 8². Die andere Klammerung ist größer.
+    hints:
+      - 3² = 9, also 2⁹.
+      - (2³)² = 8² = 64.
+    explanation: "2⁹ = 512 gegen 64: Potenzieren ist nicht assoziativ. Malnehmen schon."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: In welcher dieser Gruppen ist die Reihenfolge immer egal, also a ∘ b = b ∘ a?
+    params:
+      options:
+        - label: Ganze Zahlen mit +
+          correct: true
+        - label: Alle Symmetrien des Quadrats
+          feedback: Drehen und Spiegeln vertauscht man nicht ungestraft.
+        - label: Alle Bewegungen eines Zauberwürfels
+          feedback: Erst rechts, dann oben ist etwas anderes als umgekehrt.
+    hints:
+      - Ist 3 + 5 = 5 + 3?
+      - Probier Drehen und Spiegeln beim Quadrat.
+    explanation: Solche Gruppen heißen **abelsch**, nach Niels Henrik Abel. Viele wichtige Gruppen sind es nicht.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "In einer Gruppe hat a ∘ x = b immer genau eine Lösung: x = a⁻¹ ∘ b. Wegen dieser **Kürzungsregel** steht in jeder Zeile der Verknüpfungstafel jedes Element genau einmal – wie bei einem Sudoku."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: Eine Gruppe hat 4 Elemente. Wie oft kommt jedes Element in einer Zeile ihrer Verknüpfungstafel vor?
+    answer:
+      value: 1
+    hints:
+      - Die Zeile zu a listet a ∘ x für alle x.
+      - Zwei gleiche Einträge hießen a ∘ x = a ∘ y mit x ≠ y.
+    explanation: "Genau einmal. Aus a ∘ x = a ∘ y folgt durch Kürzen mit a⁻¹: x = y."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Wie viele verschiedene Gruppen mit genau 4 Elementen gibt es – wenn man nur die Tafel und nicht die Namen ansieht?
+    params:
+      options:
+        - label: "Zwei: die Uhr mit 4 Stunden und die »Kleinsche Vierergruppe«"
+          correct: true
+        - label: Eine
+          feedback: In der Kleinschen Vierergruppe ist jedes Element sein eigenes Inverses – bei der 4er-Uhr nicht.
+        - label: "24"
+          feedback: Viele Tafeln sind nur umbenannt und damit dieselbe Gruppe.
+    hints:
+      - Gibt es ein Element, das man viermal braucht, um zurückzukommen?
+      - Oder ist jedes Element zweimal ausgeführt schon neutral?
+    explanation: "Zwei Typen: zyklisch wie ℤ₄ oder wie die Symmetrien eines Rechtecks. Alle Gruppen bis zu einer Größe zu sortieren, ist ein großes Forschungsgebiet."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux die vier Regeln, die eine Gruppe ausmachen.
+    params:
+      keywords:
+        - - neutral
+          - nichts ändert
+          - changes nothing
+          - identity
+        - - invers
+          - rückgängig
+          - undo
+          - inverse
+        - - klammer
+          - assoziativ
+          - bracket
+          - associative
+      sample: Verknüpft man zwei Elemente, bleibt man in der Menge. Klammern sind egal, das heißt assoziativ. Es gibt ein neutrales Element, das nichts ändert. Und jedes Element hat ein Inverses, das es rückgängig macht.
+    explanation: Abgeschlossen, assoziativ, neutrales Element, Inverse. Kommutativ muss eine Gruppe nicht sein.
+    difficulty: 3
+
+srs:
+  cards_from: ["c4", "d2"]

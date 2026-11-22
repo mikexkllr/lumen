@@ -1,0 +1,182 @@
+id: math.groups.crypto
+type: concept
+title: "Groups in cryptography"
+summary: "A shared key over an open line – thanks to a calculation that is easy in one direction only."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two people have never met. They want to agree on a secret key over a line everyone can listen to. Is that possible?
+    params:
+      options:
+        - label: Yes – with a group in which computing backwards is hard.
+          correct: true
+        - label: He hears everything – but cannot compute the key from it.
+          feedback: Er hört alles – kann daraus aber den Schlüssel nicht berechnen.
+        - label: Mathematics makes that unnecessary.
+          feedback: Genau das macht die Mathematik überflüssig.
+    hints:
+      - "Think of paint: mixing is easy, unmixing is hard."
+      - Each one mixes in a secret ingredient.
+    explanation: That is the Diffie–Hellman key exchange of 1976. Every secure website uses a form of it.
+
+  - kind: explain
+    id: c1
+    body: In the **Diffie–Hellman** exchange a prime p and a generator g are public. Alice secretly picks a and sends $g^a \bmod p$. Bob secretly picks b and sends $g^b \bmod p$. Both can then compute $g^{ab} \bmod p$.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: "Public: p = 23, g = 5. Alice picks a = 6. What does she send, i.e. $5^6 \\bmod 23$? (5⁶ = 15,625)"
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 15625
+        misconception: not-reduced
+        text: Still take the remainder after dividing by 23.
+    hints:
+      - 23 · 679 = 15,617.
+      - 15,625 − 15,617.
+    explanation: A = 8. Anyone who only sees 8 does not know that a was 6.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Bob picks b = 15 and sends $B = 5^{15} \bmod 23 = 19$. Alice computes $B^a = 19^6 \bmod 23$. What is the shared key? (19 ≡ −4, and 4⁶ = 4096)
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 4096
+        misconception: not-reduced
+        text: That is 4⁶ – still take the remainder for 23.
+    hints:
+      - (−4)⁶ = 4⁶ = 4096.
+      - 23 · 178 = 4094.
+    explanation: Key 2. Bob computes $A^b = 8^{15} \bmod 23$ – and also gets 2.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why do Alice and Bob get the same key?
+    params:
+      options:
+        - label: $(g^b)^a = g^{ba} = g^{ab} = (g^a)^b$
+          correct: true
+        - label: They only exchanged public numbers.
+          feedback: Sie haben nur öffentliche Zahlen ausgetauscht.
+        - label: It works for every choice of a and b.
+          feedback: Es klappt bei jeder Wahl von a und b.
+    hints:
+      - "Power rule: $(x^m)^n = x^{mn}$."
+      - a · b = b · a.
+    explanation: The exponents multiply, and multiplication is commutative. That holds modulo p too.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "An eavesdropper knows p, g, $g^a$ and $g^b$. To find a he would have to solve the **discrete logarithm**: which exponent gives $g^a$? For primes with more than 600 digits nobody knows a fast method."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: "A mini logarithm: for which x from 1 to 4 does $2^x \\equiv 3 \\pmod 5$ hold?"
+    answer:
+      value: 3
+    hints:
+      - Compute 2, 4, 8, 16 modulo 5.
+      - 8 = 5 + 3.
+    explanation: x = 3. With 5 you try it quickly – with a 600-digit prime even all the world's computers would need longer than the age of the universe.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Why should g generate the whole group or at least a very large subgroup?
+    params:
+      options:
+        - label: Otherwise there are only a few possible values of $g^a$ – one could try them all.
+          correct: true
+        - label: The speed barely depends on it.
+          feedback: Das Tempo hängt kaum davon ab.
+        - label: A g of order 2 would give only two possible keys.
+          feedback: Ein g mit Ordnung 2 ergäbe nur zwei mögliche Schlüssel.
+    hints:
+      - The powers of g form a subgroup.
+      - How big is it if g has order 3?
+    explanation: The number of possible keys is the order of g. That is why you need primitive roots or subgroups of huge prime order.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Today one often computes with points on **elliptic curves**. They form a group too, and the logarithm there is even harder. A 256-bit key there is about as secure as RSA with 3072 bits.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: RSA uses the group of remainders coprime to n. For n = p · q it has (p − 1)(q − 1) elements. How many are there for n = 77 = 7 · 11?
+    answer:
+      value: 60
+    feedback:
+      - when: numval(state.input) == 76
+        misconception: all-nonzero
+        text: That would be all numbers 1 to 76. Multiples of 7 and 11 drop out.
+    hints:
+      - (7 − 1) · (11 − 1).
+      - 6 · 10.
+    explanation: 60. Whoever knows the factors 7 and 11 knows the group size – and can compute the secret exponent. That is why n must be hard to factor.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: What threatens Diffie–Hellman and RSA from large quantum computers?
+    params:
+      options:
+        - label: Shor's algorithm finds orders in groups quickly – and so breaks both.
+          correct: true
+        - label: Shor uses quantum effects to find periods – a completely new approach.
+          feedback: Shor nutzt Quanteneffekte, um Perioden zu finden – das ist ein ganz neuer Weg.
+        - label: Against symmetric ciphers a longer key is enough; against group-based ones it is not.
+          feedback: Gegen symmetrische Verfahren hilft schon ein längerer Schlüssel; gegen Gruppenverfahren nicht.
+    hints:
+      - Diffie–Hellman and RSA rely on orders and logarithms being hard to find.
+      - Shor finds periods – that is, orders.
+    explanation: That is why »post-quantum cryptography« is being developed, for instance with lattices instead of groups. The first standards for it were published in 2024.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux the Diffie–Hellman key exchange using paint.
+    params:
+      keywords:
+        - - farbe
+          - mischen
+          - paint
+          - mix
+        - - geheim
+          - secret
+          - private
+        - - öffentlich
+          - alle sehen
+          - public
+          - everyone sees
+          - gleich
+          - same
+      sample: Both take the same public base colour and mix in their secret colour. They swap these mixes openly. Then each mixes their secret colour into the other's mix – both end up with the same colour, but an eavesdropper cannot unmix the mixes.
+    explanation: Mixing is raising to a power, unmixing would be the discrete logarithm. The order of mixing does not matter – just as $g^{ab} = g^{ba}$.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2"]

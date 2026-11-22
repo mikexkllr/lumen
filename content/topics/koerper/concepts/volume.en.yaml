@@ -5,7 +5,7 @@ summary: How many cubes fit inside?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 50000
       within: 50
     explanation: 50 m³, and every cubic metre holds 1000 litres.
-
 
   - kind: problem
     id: quader
@@ -111,6 +110,55 @@ steps:
     explanation: 500 m³ · 1000 = 500,000 litres.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Every straight solid with the same cross-section all the way up is a **prism**: a triangle, hexagon or circle at the bottom, stacked straight up. For all of them: volume = base area · height."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A tent is a prism. Its cross-section is a right triangle with legs {{a}} m and {{b}} m. It is {{h}} m long. How many m³ of air are inside?
+    params:
+      unit: m³
+    answer:
+      value: "{{a * b * h / 2}}"
+    feedback:
+      - when: numval(state.input) == a * b * h
+        misconception: triangle-half
+        text: That would be a box. The triangle is only half the rectangle {{a}} · {{b}}.
+    hints:
+      - "Start with the base: triangle = leg times leg over 2."
+      - Then multiply by the length {{h}} m.
+    explanation: Base {{a}} · {{b}} / 2 = {{a * b / 2}} m², times {{h}} m gives {{a * b * h / 2}} m³.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: step[2,6,2]
+        h: int[2,9]
+      defaults:
+        a: 3
+        b: 4
+        h: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how much does the air in a cube with 1 m edges weigh?"
+    params:
+      min: 0
+      max: 10
+      step: 0.1
+      unit: kg
+    answer:
+      value: 1.2
+      tolerance: 0.4
+    explanation: About 1.2 kg at 20 °C at sea level. A room of 50 m³ holds about 60 kg of air – as much as a person.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -121,6 +169,77 @@ steps:
     hints:
       - 100 cm in each of the three directions.
     explanation: 100³ = 1,000,000. For volume the conversion factor is **cubed**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Push a stack of coins sideways. Every slice stays the same size, so the volume stays the same. This is **Cavalieri's principle**: equal cross-sections at every height mean equal volume."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: A straight and a slanted cylinder have the same base and the same vertical height. What about their volumes?
+    params:
+      options:
+        - label: Equal
+          correct: true
+        - label: The slanted side is longer, but every horizontal slice is the same size.
+          feedback: Die schräge Seite ist länger, aber jede waagerechte Scheibe ist gleich groß.
+        - label: Sliding takes nothing away from any slice.
+          feedback: Verschieben nimmt keiner Scheibe etwas weg.
+    hints:
+      - Cut both cylinders into thin horizontal slices.
+      - Compare two slices at the same height.
+    explanation: "Every slice is the same circle, just shifted. By Cavalieri the volumes are equal: base area times vertical height."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: You cut a cube with 1 m edges into 1 cm cubes and stack them into a single tower. How many km tall is it?
+    params:
+      unit: km
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: linear-scale
+        text: A m³ holds not 100 but 100 · 100 · 100 small cubes.
+      - when: numval(state.input) == 0.1
+        misconception: area-scale
+        text: You counted 10,000 cubes – there are 1,000,000.
+    hints:
+      - How many 1 cm cubes fit into 1 m³?
+      - How many km are 1,000,000 cm?
+    explanation: "100³ = 1,000,000 cubes, each 1 cm tall: 1,000,000 cm = 10,000 m = 10 km – taller than Mount Everest."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does a tilted stack of books have the same volume as a straight one?"
+    params:
+      keywords:
+        - - scheibe
+          - schicht
+          - buch
+          - slice
+          - layer
+          - book
+        - - gleich
+          - dasselbe
+          - same
+          - equal
+        - - höhe
+          - querschnitt
+          - height
+          - cross
+      sample: The stack is made of the same books. At every height there is a layer of the same size, only shifted. Equal layers at equal heights give the same volume.
+    explanation: "The key is Cavalieri: equal cross-sections at every height give equal volume – however slanted the stack."
     difficulty: 3
 
 srs:

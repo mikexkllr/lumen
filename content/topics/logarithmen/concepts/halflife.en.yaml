@@ -5,7 +5,7 @@ summary: Halving again and again.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: achtel
@@ -64,6 +64,32 @@ steps:
     explanation: "Three halvings: 12 hours. log₂ 8 = 3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "How long until the share N/N₀ is left? The logarithm to base 2 counts the **halvings**: $t = T \\cdot \\log_2 \\frac{N_0}{N}$. Down to one hundredth it takes $\\log_2 100 \\approx 6.64$ half-lives."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: "Half-life 3 hours: find the earliest whole hour at which the display shows at most 1 %."
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 3
+          fixed: true
+      show:
+        - left
+        - halvings
+    answer:
+      left:
+        - 0.9
+        - 1
+    explanation: 3 · 6.64 ≈ 19.9 h. After 20 h 0.98 % is left, after 19 h still 1.24 %.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -75,6 +101,54 @@ steps:
     hints:
       - It takes log₂ 100 half-lives.
     explanation: 6.64 · 8 ≈ 53 days.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "If you plot the **logarithm** of the amount against time, every decay curve becomes a straight line: $\\ln N = \\ln N_0 - \\lambda t$. Its slope is −λ. That is how labs get half-lives from noisy measurements."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A counter measures 800 counts per minute, 12 days later only 50. What is the half-life in days?
+    params:
+      unit: days
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 0.75
+        misconception: inverted
+        text: That would be days per factor 16. Count the halvings first.
+      - when: numval(state.input) == 6
+        misconception: miscount
+        text: 800 to 50 is not two halvings. 800 / 50 = 16.
+    hints:
+      - 800 / 50 = 16 = 2⁴.
+      - 4 halvings in 12 days.
+    explanation: 12 / 4 = 3 days.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how to estimate without a calculator when only a thousandth is left.
+    params:
+      keywords:
+        - - "1024"
+          - zehn
+          - ten
+        - - halbier
+          - halbwertszeit
+          - halv
+          - half-life
+        - - mal
+          - times
+          - multipl
+      sample: Halving ten times gives 1 over 1024, almost a thousandth. I simply multiply the half-life by ten.
+    explanation: "$2^{10} \\approx 10^3$: ten half-lives for a thousandth, twenty for a millionth."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Base price plus price per unit.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: taxi
@@ -73,6 +73,62 @@ steps:
     explanation: 15 = 0.15 x, so x = 100.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Some tariffs change their rule above a limit. Such a **piecewise** function is made of several straight pieces with a kink. Example: 10 € with 100 free minutes, then 0.20 € per minute."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: The plan costs 10 € with 100 free minutes, then 0.20 € per minute. What do {{m}} minutes cost?
+    params:
+      unit: €
+    answer:
+      value: "{{10 + 0.2 * (m - 100)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - (10 + 0.2 * m)) < 0.01
+        misconception: no-free-minutes
+        text: The first 100 minutes are free. Only the rest costs extra.
+    hints:
+      - How many minutes are above 100?
+      - 10 € + ({{m}} − 100) · 0.20 €.
+    explanation: 10 + {{m - 100}} · 0.2 = {{10 + 0.2 * (m - 100)}} €.
+    difficulty: 2
+    variants:
+      params:
+        m: step[120,300,10]
+      defaults:
+        m: 180
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A company has fixed costs of {{F}} €. Each piece costs {{c}} € to make and sells for {{c + d}} €. From how many pieces does it stop making a loss?
+    answer:
+      value: "{{F / d}}"
+    feedback:
+      - when: numval(state.input) == F / (c + d)
+        misconception: price-not-margin
+        text: First subtract the production cost from the price. Only the rest covers the fixed costs.
+    hints:
+      - Each piece leaves {{d}} €.
+      - How often do {{d}} € fit into {{F}} €?
+    explanation: "Cost {{F}} + {{c}}x, revenue {{c + d}}x. Set equal: {{d}}x = {{F}}, x = {{F / d}}. That is the break-even point."
+    difficulty: 2
+    variants:
+      params:
+        F: step[1000,5000,500]
+        c: int[2,6]
+        d: choice[2,4,5,10]
+      defaults:
+        F: 2000
+        c: 3
+        d: 5
+
   - kind: problem
     id: x1
     depth: 3
@@ -89,6 +145,70 @@ steps:
     hints:
       - What does a 1.2 km ride cost – and a 1.9 km one?
     explanation: "A **step function**: piecewise constant, with jumps. Postage and parking fees work the same way."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: Fixed costs 2000 €, 3 € per piece. What is the average cost per piece when 500 pieces are made?
+    params:
+      unit: €
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: ignore-fixed
+        text: The fixed costs are spread over the pieces too.
+    hints:
+      - "Total cost: 2000 + 3 · 500."
+      - Divide by 500.
+    explanation: 3500 € / 500 = 7 €. The cost per piece is $\frac{2000}{x} + 3$ – a hyperbola.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: What happens to the cost per piece $\frac{2000}{x} + 3$ as x grows without bound?
+    params:
+      options:
+        - label: They approach 3 € but never reach it.
+          correct: true
+        - label: Every piece always costs at least 3 € in material.
+          feedback: Jedes Stück kostet immer mindestens 3 € Material.
+        - label: The fraction 2000/x only gets smaller.
+          feedback: Der Bruch 2000/x wird nur kleiner.
+    hints:
+      - What does 2000/x do for x = 1,000,000?
+      - The fraction tends to 0.
+    explanation: The line y = 3 is a horizontal **asymptote**. That is why mass production pays – but nothing gets cheaper than the material.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what m and b mean in a tariff y = m · x + b.
+    params:
+      keywords:
+        - - grundpreis
+          - grundgebühr
+          - fest
+          - base
+          - fixed
+        - - einheit
+          - pro
+          - kilometer
+          - minute
+          - per
+          - unit
+        - - steigung
+          - steil
+          - slope
+          - steep
+      sample: b is the fixed base price you always pay, even with zero use. m is the price per unit, say per minute. In the graph b is the start on the y-axis and m is the slope.
+    explanation: b shifts the line up, m makes it steeper. Heavy users should watch m; light users b.
     difficulty: 3
 
 srs:

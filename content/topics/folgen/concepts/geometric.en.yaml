@@ -5,7 +5,7 @@ summary: Geometric sequences.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: weiter
@@ -97,6 +97,57 @@ steps:
     explanation: 3⁶ = 729, times 2 is 1458.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Sum $S = 1 + q + q^2 + \\dots + q^{n-1}$. Times q shifts everything by one: $qS = q + \\dots + q^n$. Subtract and almost everything cancels: $qS - S = q^n - 1$. This is the **shift trick**."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Compute 3 + 6 + 12 + … with {{n}} terms – each twice the one before.
+    answer:
+      value: "{{3 * (2 ** n - 1)}}"
+    feedback:
+      - when: numval(state.input) == 3 * 2 ** n
+        misconception: off-by-one
+        text: "Almost: the sum is one less than the next power of two – times 3."
+    hints:
+      - "Factor out 3: 3 · (1 + 2 + 4 + …)."
+      - 1 + 2 + … + 2^(n−1) = 2ⁿ − 1.
+    explanation: 3 · (2^{{n}} − 1) = {{3 * (2 ** n - 1)}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A geometric sequence has first term {{a}} and fourth term {{a * q ** 3}}. What is the factor q?
+    answer:
+      value: "{{q}}"
+    feedback:
+      - when: numval(state.input) == q ** 3
+        misconception: cube-not-root
+        text: That is q³ – from the first to the fourth term are three steps.
+    hints:
+      - From the 1st to the 4th term you multiply by q three times.
+      - q³ = {{a * q ** 3}} / {{a}} = {{q ** 3}}. Take the cube root.
+    explanation: q³ = {{q ** 3}}, so q = {{q}}.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,5]
+        q: int[2,5]
+      defaults:
+        a: 5
+        q: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +158,72 @@ steps:
     hints:
       - The sum is always 1 less than the next term.
     explanation: "$2^{11} - 1 = 2047$. In general: $\\frac{q^{n+1} - 1}{q - 1}$."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: A ball drops from 2 m. After each bounce it rises to ¾ of the previous height. What total distance in metres does it travel – up and down, forever?
+    params:
+      unit: m
+    answer:
+      value: 14
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: down-only
+        text: That is only the way down. After every bounce it also goes up again.
+    hints:
+      - "Down: 2 + 1.5 + 1.125 + … = 2 / (1 − ¾) = 8."
+      - "Up: the same without the first 2 m, so 6."
+    explanation: 8 m down plus 6 m up = 14 m. Infinitely many bounces but a finite distance – and, as flights get shorter, a finite time too.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Is 1, −2, 4, −8, 16, … a geometric sequence?
+    params:
+      options:
+        - label: Yes, with q = −2
+          correct: true
+        - label: A negative factor flips the signs – it is still allowed.
+          feedback: Ein negativer Faktor lässt die Vorzeichen springen – erlaubt ist er trotzdem.
+        - label: Then all terms would stay positive.
+          feedback: Dann blieben alle Glieder positiv.
+    hints:
+      - Divide each term by the one before.
+      - −2 / 1, 4 / (−2), …
+    explanation: The ratio is always −2. For |q| > 1 the size grows, for |q| < 1 it shrinks – the sign plays no role.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux the shift trick for 1 + 2 + 4 + … + 2⁹.
+    params:
+      keywords:
+        - - mal
+          - doppel
+          - verdopp
+          - times
+          - double
+          - multipl
+        - - ziehe
+          - abziehen
+          - minus
+          - subtract
+          - differenz
+          - difference
+        - - wegfallen
+          - heben
+          - cancel
+          - bleibt
+          - left
+      sample: "I call the sum S and double it: 2S = 2 + 4 + … + 2¹⁰. Subtracting S cancels all the middle terms. What is left is S = 2¹⁰ − 1 = 1023."
+    explanation: Multiplying by q and subtracting makes every term except the first and last vanish.
     difficulty: 3
 
 srs:

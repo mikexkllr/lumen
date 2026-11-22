@@ -5,7 +5,7 @@ summary: The idea of the integral.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,46 @@ steps:
     explanation: 8 – here even exact. This is the **trapezoid rule**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Instead of rectangles you can use **trapezoids**: join the curve points with straight lines. With the trapezoid rule the error shrinks like 1/n², with rectangles only like 1/n. So twice the strips means four times as accurate."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Approximate the area under $y = x^2$ from 0 to 2 with 2 trapezoids of width 1. The curve values are 0, 1 and 4.
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: rectangle
+        text: Those are left rectangles. A trapezoid takes the average of both edges.
+    hints:
+      - Trapezoid = width · (left + right height) / 2.
+      - (0 + 1) / 2 + (1 + 4) / 2.
+    explanation: 0.5 + 2.5 = 3. The exact value is 8/3 ≈ 2.67 – close with only two trapezoids.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: "Area under $y = x^2$ from 1 to 2: take enough rectangles to push the error below 0.05."
+    params:
+      scene: riemann
+      expr: x^2
+      interval:
+        - 1
+        - 2
+    answer:
+      error:
+        - 0
+        - 0.05
+    explanation: The error is about 1.5 / n, so you need around 30 rectangles. The exact area is 7/3.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +147,53 @@ steps:
     hints:
       - The area always lies between two computable sums.
     explanation: If both sums come arbitrarily close, the function is called **Riemann integrable**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: For a rising curve each left rectangle misses roughly a triangle. Altogether the error is about $\frac{(f(b) - f(a))\,(b - a)}{2n}$. That lets you work out in advance how many strips a given **accuracy** needs.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: For f(x) = x from 0 to 4 the error of the left sum is exactly $\frac{8}{n}$. What is the smallest number of strips for an error of at most 0.01?
+    answer:
+      value: 800
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: factor-ten
+        text: Then the error would be 0.1. Ten times more.
+    hints:
+      - 8 / n ≤ 0.01.
+      - n ≥ 8 / 0.01.
+    explanation: n = 800. With trapezoids the error for a straight line would be zero at once – they are exact there.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why more and narrower strips hit the area more accurately.
+    params:
+      keywords:
+        - - schmal
+          - schmaler
+          - narrow
+          - thin
+        - - ecke
+          - dreieck
+          - lücke
+          - corner
+          - triangle
+          - gap
+        - - fehler
+          - kleiner
+          - error
+          - smaller
+      sample: Each rectangle does not quite fit under the curve; a small triangle is left as a gap on top. The narrower the strips, the smaller these triangles get. The error shrinks until the sum hits the area.
+    explanation: Many small errors shrink faster than their number grows – that is why the sum has a limit.
     difficulty: 3
 
 srs:

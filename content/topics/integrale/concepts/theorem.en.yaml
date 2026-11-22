@@ -5,7 +5,7 @@ summary: Area equals a difference of the antiderivative.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -93,6 +93,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: numeric
+    prompt: Compute $\int_0^\pi \sin x\,dx$. An antiderivative is −cos x.
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: sign-error
+        text: "Check signs: −cos π = +1 and −cos 0 = −1."
+      - when: numval(state.input) == -2
+        misconception: reversed
+        text: "Upper minus lower: F(π) − F(0)."
+    hints:
+      - F(π) = −cos π = 1.
+      - F(0) = −cos 0 = −1.
+    explanation: 1 − (−1) = 2. One arch of the sine has area exactly 2 – a surprisingly round number.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Compute $\int_1^e \frac1x\,dx$.
+    answer:
+      value: 1
+    hints:
+      - An antiderivative of 1/x is ln x.
+      - ln e − ln 1.
+    explanation: "1 − 0 = 1. You can even take this as the definition of e: the area under 1/x from 1 to e is exactly 1."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -129,6 +162,50 @@ steps:
           - subtract
       min: 3
       sample: Integrating and differentiating are inverses of each other. The area under f is the difference of the antiderivative at the two bounds.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Proof idea: let $A(x) = \\int_a^x f(t)\\,dt$ be the **integral function**. Then A(x + h) − A(x) is a thin strip, about f(x) · h. So A′(x) = f(x). A is an antiderivative with A(a) = 0 – that gives F(b) − F(a)."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: What is the derivative of $A(x) = \int_0^x t^2\,dt$ at x = {{a}}?
+    answer:
+      value: "{{a * a}}"
+    feedback:
+      - when: numval(state.input) == a * a * a / 3
+        misconception: area-not-rate
+        text: That is A({{a}}), the area. Its rate of change is wanted.
+    hints:
+      - "The fundamental theorem says: A′(x) = f(x)."
+      - f({{a}}) = {{a}}².
+    explanation: A′({{a}}) = {{a}}² = {{a * a}}. How fast the area grows is the height of the curve at the edge.
+    difficulty: 3
+    variants:
+      params:
+        a: int[4,9]
+      defaults:
+        a: 4
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Compute $\int_{-1}^{2} x^2\,dx$.
+    answer:
+      value: 3
+    feedback:
+      - when: abs(numval(state.input) - 7 / 3) < 0.01
+        misconception: sign-error
+        text: F(−1) = −1/3. Minus a minus gives plus.
+    hints:
+      - F(x) = x³ / 3.
+      - 8/3 − (−1/3).
+    explanation: 8/3 + 1/3 = 3. The parabola lies entirely above the axis, so everything counts positively.
     difficulty: 3
 
 srs:

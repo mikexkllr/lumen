@@ -5,7 +5,7 @@ summary: Wie viele Würfel passen hinein?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 50000
       within: 50
     explanation: 50 m³, und jeder Kubikmeter fasst 1000 Liter.
-
 
   - kind: problem
     id: quader
@@ -111,6 +110,55 @@ steps:
     explanation: 500 m³ · 1000 = 500 000 Liter.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Jeder gerade Körper mit gleichem Querschnitt ist ein **Prisma**: Dreieck, Sechseck oder Kreis unten, darüber senkrecht gestapelt. Für alle gilt: Volumen = Grundfläche · Höhe."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Zelt ist ein Prisma. Sein Querschnitt ist ein rechtwinkliges Dreieck mit den Katheten {{a}} m und {{b}} m. Es ist {{h}} m lang. Wie viel m³ Luft sind drin?
+    params:
+      unit: m³
+    answer:
+      value: "{{a * b * h / 2}}"
+    feedback:
+      - when: numval(state.input) == a * b * h
+        misconception: triangle-half
+        text: Das wäre ein Quader. Das Dreieck ist nur halb so groß wie das Rechteck {{a}} · {{b}}.
+    hints:
+      - "Erst die Grundfläche: Dreieck = Kathete mal Kathete durch 2."
+      - Dann mal die Länge {{h}} m.
+    explanation: "Grundfläche {{a}} · {{b}} : 2 = {{a * b / 2}} m², mal {{h}} m ergibt {{a * b * h / 2}} m³."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,6]
+        b: step[2,6,2]
+        h: int[2,9]
+      defaults:
+        a: 3
+        b: 4
+        h: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viel wiegt die Luft in einem Würfel von 1 m Kantenlänge?"
+    params:
+      min: 0
+      max: 10
+      step: 0.1
+      unit: kg
+    answer:
+      value: 1.2
+      tolerance: 0.4
+    explanation: Rund 1,2 kg bei 20 °C auf Meereshöhe. Ein Zimmer mit 50 m³ enthält also etwa 60 kg Luft – so viel wie ein Mensch.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -121,6 +169,77 @@ steps:
     hints:
       - 100 cm in jeder der drei Richtungen.
     explanation: 100³ = 1 000 000. Beim Volumen wird der Umrechnungsfaktor **hoch drei** genommen.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Schieb einen Stapel Münzen schräg. Jede Scheibe bleibt gleich groß, also bleibt das Volumen gleich. Das ist das **Prinzip von Cavalieri**: Gleiche Querschnitte in jeder Höhe heißt gleiches Volumen."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: choice
+    prompt: Ein gerader und ein schiefer Zylinder haben dieselbe Grundfläche und dieselbe senkrechte Höhe. Was gilt für ihr Volumen?
+    params:
+      options:
+        - label: Gleich groß
+          correct: true
+        - label: Der schiefe hat mehr – seine Seite ist länger
+          feedback: Die schräge Seite ist länger, aber jede waagerechte Scheibe ist gleich groß.
+        - label: Der schiefe hat weniger
+          feedback: Verschieben nimmt keiner Scheibe etwas weg.
+    hints:
+      - Schneide beide Zylinder in dünne waagerechte Scheiben.
+      - Vergleiche je zwei Scheiben auf gleicher Höhe.
+    explanation: "Jede Scheibe ist derselbe Kreis, nur seitlich versetzt. Nach Cavalieri sind die Volumen gleich: Grundfläche mal senkrechte Höhe."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Du zerlegst einen Würfel von 1 m Kante in Würfel von 1 cm Kante und stapelst sie zu einem einzigen Turm. Wie viele km hoch wird er?
+    params:
+      unit: km
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: linear-scale
+        text: Ein m³ hat nicht 100, sondern 100 · 100 · 100 kleine Würfel.
+      - when: numval(state.input) == 0.1
+        misconception: area-scale
+        text: Du hast 10 000 Würfel gezählt – es sind 1 000 000.
+    hints:
+      - Wie viele 1-cm-Würfel passen in 1 m³?
+      - 1 000 000 cm sind wie viele km?
+    explanation: "100³ = 1 000 000 Würfel, je 1 cm hoch: 1 000 000 cm = 10 000 m = 10 km – höher als der Mount Everest."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum hat ein schief gekippter Bücherstapel dasselbe Volumen wie ein gerader?"
+    params:
+      keywords:
+        - - scheibe
+          - schicht
+          - buch
+          - slice
+          - layer
+          - book
+        - - gleich
+          - dasselbe
+          - same
+          - equal
+        - - höhe
+          - querschnitt
+          - height
+          - cross
+      sample: Der Stapel besteht aus denselben Büchern. In jeder Höhe liegt eine gleich große Schicht, nur verschoben. Gleiche Schichten auf gleicher Höhe ergeben dasselbe Volumen.
+    explanation: "Der Kern ist Cavalieri: gleiche Querschnitte in jeder Höhe ergeben gleiches Volumen – egal, wie schief der Stapel steht."
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Wenn eine unendliche Summe endlich bleibt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: schritte
@@ -73,6 +73,47 @@ steps:
     explanation: "1 : (2/3) = 3/2. Das gilt für jedes q zwischen −1 und 1."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Die endliche Summe ist $a \frac{1 - q^n}{1 - q}$. Für |q| < 1 schrumpft $q^n$ gegen null. Der **Grenzwert** der unendlichen Reihe ist also $\frac{a}{1 - q}$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Schreib 0,{{d}}{{d}}{{d}}… mit unendlich vielen {{d}}en als Bruch.
+    answer:
+      value: "{{d}}/9"
+    feedback:
+      - when: numval(state.input) == d / 10
+        misconception: first-term-only
+        text: Das ist nur die erste Stelle. Es kommen unendlich viele dazu.
+    hints:
+      - 0,{{d}}{{d}}… = {{d}}/10 + {{d}}/100 + … – eine geometrische Reihe mit q = 1/10.
+      - "a : (1 − q) = ({{d}}/10) : (9/10)."
+    explanation: "({{d}}/10) : (9/10) = {{d}}/9. Mit d = 9 käme 9/9 = 1 heraus – darum ist 0,999… = 1."
+    difficulty: 2
+    variants:
+      params:
+        d: int[1,8]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Schreib 0,121212… als Bruch. Kürze vollständig.
+    answer:
+      value: 4/33
+      form: simplified
+    hints:
+      - Die Periode ist 12, also q = 1/100.
+      - "12/100 : (99/100) = 12/99. Jetzt kürzen."
+    explanation: 12/99 = 4/33. Jede periodische Dezimalzahl ist ein Bruch – und jeder Bruch hat eine periodische Dezimalzahl.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -117,6 +158,45 @@ steps:
           - beyond
           - darüber
       sample: Die Zahlen werden immer kleiner, zum Beispiel jedes Mal halb so groß. Die Summe nähert sich dann einer Grenze, die sie nie überschreitet.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Warum wächst $1 + \\frac12 + \\frac13 + \\dots$ über jede Grenze? Fasse zusammen: $\\frac13 + \\frac14 > \\frac12$, $\\frac15 + \\dots + \\frac18 > \\frac12$ und so weiter. Unendlich viele Hälften sind **unendlich**. Das zeigte Oresme schon um 1350."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Glieder der harmonischen Reihe braucht man, bis die Summe 10 übersteigt?"
+    params:
+      min: 10
+      max: 1000000
+      scale: log
+    answer:
+      value: 12367
+      within: 40
+    explanation: Genau 12 367. Die Summe wächst wie ln n + 0,577. Für eine Summe von 100 bräuchte man rund 10⁴³ Glieder.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Das Glied 1/n geht gegen 0, und trotzdem divergiert die Reihe. Was folgt daraus?
+    params:
+      options:
+        - label: Glieder gegen 0 reichen nicht – sie müssen schnell genug schrumpfen.
+          correct: true
+        - label: Jede Reihe mit Gliedern gegen 0 divergiert.
+          feedback: "Nein: ½ + ¼ + ⅛ + … konvergiert."
+        - label: Die harmonische Reihe konvergiert doch, nur sehr langsam.
+          feedback: "Die Gruppen aus Hälften zeigen: Sie übersteigt jede Zahl."
+    hints:
+      - Vergleiche 1/n mit 1/2ⁿ.
+      - Beide gehen gegen 0 – aber nur eine Summe bleibt endlich.
+    explanation: "Glieder gegen 0 sind nötig, aber nicht hinreichend. 1/n schrumpft zu langsam, 1/n² schon schnell genug: Diese Reihe konvergiert gegen π²/6."
     difficulty: 3
 
 srs:

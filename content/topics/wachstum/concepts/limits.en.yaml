@@ -5,7 +5,7 @@ summary: Why nothing grows exponentially forever.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: platz
@@ -92,6 +92,55 @@ steps:
     explanation: Exponential growth leaves hardly any time to react once you notice it.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: In the **logistic** model a population N grows by $r \cdot N \cdot (1 - \frac{N}{K})$. When N is small, the bracket is almost 1 – nearly exponential. Near the capacity K it is almost 0 – growth stops.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: Capacity 500, 15 generations. Set the growth rate so that the population reaches at least 90 % of capacity.
+    params:
+      scene: population
+      controls:
+        capacity:
+          value: 500
+          fixed: true
+        gens:
+          value: 15
+          fixed: true
+        rate:
+          value: 20
+      show:
+        - size
+        - unlimited
+        - share
+    answer:
+      share:
+        - 90
+        - 100
+    explanation: "From about 45 % per generation it works. Compare with »unlimited«: there it would be tens of thousands already."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A population grows logistically with r = 0.4 and K = 1000. What is the largest possible growth per generation?
+    answer:
+      value: 100
+    feedback:
+      - when: numval(state.input) == 400
+        misconception: no-brake
+        text: That would be at N = K without the brake. At K/2 the brake is already half on.
+    hints:
+      - Growth is fastest at N = K/2 = 500.
+      - 0.4 · 500 · (1 − ½).
+    explanation: 0.4 · 500 · 0.5 = 100. In general the largest growth is r · K/4 – in the middle of the S-curve.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +157,78 @@ steps:
     hints:
       - Growth needs many individuals **and** much free space.
     explanation: The rate is proportional to N · (K − N) – a parabola peaking at K/2, the inflection point of the S-curve.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: The **logistic map** $x \to r\,x\,(1 - x)$ counts generations one by one. Up to r = 3 it settles on one value. Beyond that it jumps between 2, 4, 8 values, and from about r = 3.57 it becomes chaotic.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: For which x does the logistic map with r = 2.5 stand still, i.e. $x = 2.5 \cdot x\,(1 - x)$ with x > 0?
+    answer:
+      value: 0.6
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.4
+        misconception: swapped
+        text: "Check: 2.5 · 0.4 · 0.6 = 0.6 – not 0.4."
+    hints:
+      - "Divide by x: 1 = 2.5 · (1 − x)."
+      - 1 − x = 0.4.
+    explanation: "x = 1 − 1/r = 0.6. Check: 2.5 · 0.6 · 0.4 = 0.6. This fixed point is stable as long as 1 < r < 3."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: What happens in the long run at r = 3.2?
+    params:
+      options:
+        - label: The population keeps jumping between two values.
+          correct: true
+        - label: That only holds up to r = 3.
+          feedback: Das gilt nur bis r = 3.
+        - label: The brake (1 − x) prevents that.
+          feedback: Die Bremse (1 − x) verhindert das.
+        - label: Chaos only begins at about 3.57.
+          feedback: Chaos beginnt erst bei etwa 3,57.
+    hints:
+      - At r = 3 the behaviour forks for the first time.
+      - First two values, then four, then chaos.
+    explanation: A 2-cycle. Robert May showed in 1976 that even this simple formula can produce chaos. That made ecologists careful with long-term forecasts.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why is an S-curve steepest in the middle?"
+    params:
+      keywords:
+        - - viele
+          - groß
+          - many
+          - large
+          - bestand
+          - population
+        - - platz
+          - bremse
+          - kapazität
+          - room
+          - brake
+          - capacity
+          - space
+        - - hälfte
+          - mitte
+          - half
+          - middle
+      sample: "Growth needs two things: many individuals that reproduce and free room. At the start there are few, at the end hardly any room. In the middle, at half the capacity, the product of both is largest."
+    explanation: N · (K − N) is a parabola peaking at N = K/2. There growth is at its maximum.
     difficulty: 3
 
 srs:

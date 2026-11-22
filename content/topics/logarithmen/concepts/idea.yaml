@@ -5,7 +5,7 @@ summary: Der Logarithmus fragt nach dem Exponenten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -95,6 +95,53 @@ steps:
     explanation: (2²)^x = 2³ heißt 2x = 3. Auch Bruch-Exponenten sind erlaubt.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Taschenrechner kennen oft nur log₁₀ und ln. Mit dem **Basiswechsel** geht jede Basis: $\\log_b x = \\frac{\\log x}{\\log b}$. Beispiel: $\\log_2 8 = \\frac{0{,}903}{0{,}301} = 3$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Berechne $\log_2 1000$ mit dem Basiswechsel. (log₁₀ 2 ≈ 0,301) Auf zwei Stellen.
+    answer:
+      value: 9.97
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: rounded
+        text: "Fast: 2¹⁰ = 1024 ist etwas mehr als 1000, also liegt der Wert knapp unter 10."
+    hints:
+      - log₁₀ 1000 = 3.
+      - "3 : 0,301."
+    explanation: "3 : 0,301 ≈ 9,97."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Was ist $\log_{ {{b}} } {{b ** k}}$?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == b ** k / b
+        misconception: divide
+        text: Der Logarithmus zählt die Faktoren, er teilt nicht.
+    hints:
+      - Wie oft musst du {{b}} mit sich malnehmen?
+      - "{{b}} hoch wie viel ergibt {{b ** k}}?"
+    explanation: ${{b}}^{ {{k}} } = {{b ** k}}$, also {{k}}.
+    difficulty: 2
+    variants:
+      params:
+        b: choice[3,5,7]
+        k: int[2,5]
+      defaults:
+        b: 5
+        k: 3
+
   - kind: problem
     id: x1
     depth: 3
@@ -111,6 +158,70 @@ steps:
     hints:
       - Was ist 2 hoch −3?
     explanation: Negative Exponenten machen klein, nicht negativ. Erst mit komplexen Zahlen bekommt log(−8) einen Sinn.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Der **natürliche Logarithmus** ln hat die Basis e ≈ 2,718. Geometrisch ist ln x die Fläche unter der Kurve 1/t von 1 bis x. Darum ist seine Ableitung 1/x – und darum taucht er in der Analysis überall auf.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Wie viele Stellen hat $3^{50}$? (log₁₀ 3 ≈ 0,4771)
+    answer:
+      value: 24
+    feedback:
+      - when: numval(state.input) == 23
+        misconception: floor-not-plus-one
+        text: "log₁₀ ≈ 23,86 heißt: zwischen 10²³ und 10²⁴ – das sind 24 Stellen."
+    hints:
+      - log₁₀ 3⁵⁰ = 50 · 0,4771.
+      - Eine Zahl mit log₁₀ zwischen 23 und 24 hat 24 Stellen.
+    explanation: "50 · 0,4771 = 23,86. Die Stellenzahl ist der abgerundete Logarithmus plus 1: 24."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: "Was wächst für sehr große x schneller: ln x oder √x?"
+    params:
+      options:
+        - label: √x – jede Wurzel schlägt den Logarithmus irgendwann.
+          correct: true
+        - label: ln x
+          feedback: Bei x = 10¹⁰⁰ ist ln x ≈ 230, √x = 10⁵⁰.
+        - label: Beide gleich schnell
+          feedback: Der Abstand wird riesig.
+    hints:
+      - Setz x = 10¹⁰⁰ ein.
+      - ln 10¹⁰⁰ = 100 · ln 10 ≈ 230.
+    explanation: Der Logarithmus wächst langsamer als jede noch so kleine Potenz $x^\varepsilon$. Darum ist ein Algorithmus mit log n Schritten so gut.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum log₁₀ 1000 = 3 ist.
+    params:
+      keywords:
+        - - hoch
+          - exponent
+          - power
+        - - zehn
+          - ten
+          - basis
+          - base
+        - - nullen
+          - mal
+          - zeros
+          - times
+          - three
+      sample: "Der Logarithmus fragt: Zehn hoch wie viel ergibt 1000? Zehn mal zehn mal zehn ist 1000, also ist der Exponent drei. Man zählt im Grunde die Nullen."
+    explanation: Logarithmus = gesuchter Exponent. $10^3 = 1000 \Leftrightarrow \log_{10} 1000 = 3$.
     difficulty: 3
 
 srs:

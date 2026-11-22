@@ -1,0 +1,204 @@
+id: math.eigen.vectors
+type: concept
+title: "Eigenvektoren"
+summary: "Richtungen, die eine Matrix nur streckt – und wie man sie findet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Ein Gummituch wird nach rechts gezogen, bis es doppelt so breit ist. Welche Pfeile zeigen danach noch in ihre alte Richtung?
+    params:
+      options:
+        - label: Die waagerechten und die senkrechten
+          correct: true
+        - label: Alle
+          feedback: Ein schräger Pfeil wird flacher.
+        - label: Keine
+          feedback: Die waagerechten werden nur länger.
+    hints:
+      - Was passiert mit (1, 1)?
+      - (1, 1) wird (2, 1) – flacher.
+    explanation: Waagerechte Pfeile werden verdoppelt, senkrechte bleiben gleich. Beide behalten ihre Richtung – das sind die Eigenrichtungen.
+
+  - kind: explain
+    id: c1
+    body: "Ein **Eigenvektor** v einer Matrix A wird nur gestreckt: $A v = \\lambda v$. Die Zahl λ heißt Eigenwert. Ist λ = 2, wird v doppelt so lang. Ist λ negativ, klappt er um."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Die Matrix ist ({{a}} 0 | 0 {{b}}). Welchen Eigenwert hat der Pfeil (0, 1)?
+    answer:
+      value: "{{b}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: wrong-axis
+        text: "{{a}} gehört zu (1, 0). (0, 1) liest die zweite Spalte."
+    hints:
+      - Rechne A · (0, 1).
+      - Das Ergebnis ist (0, {{b}}).
+    explanation: (0, 1) wird zu (0, {{b}}) = {{b}} · (0, 1). Bei Diagonalmatrizen sind die Achsen Eigenrichtungen.
+    variants:
+      params:
+        a: int[-4,6]
+        b: int[-4,6]
+      constraints:
+        - a != b
+        - b != 0
+        - a != 0
+      defaults:
+        a: 3
+        b: 2
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A = (2 1 | 1 2) und v = (1, 1). Rechne A · v. Um welchen Faktor λ wird v gestreckt?
+    answer:
+      value: 3
+    hints:
+      - A · (1, 1) = (2 + 1, 1 + 2).
+      - (3, 3) = λ · (1, 1).
+    explanation: λ = 3. Die Diagonale ist eine Eigenrichtung dieser Matrix.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Und w = (1, −1)? Was ist A · w für A = (2 1 | 1 2)?
+    params:
+      options:
+        - label: (1, −1) – also Eigenwert 1
+          correct: true
+        - label: (3, −3) – Eigenwert 3
+          feedback: "Rechne nach: 2 · 1 + 1 · (−1) = 1."
+        - label: (1, 1) – kein Eigenvektor
+          feedback: Die zweite Komponente ist 1 · 1 + 2 · (−1) = −1.
+    hints:
+      - "Oben: 2 · 1 + 1 · (−1)."
+      - "Unten: 1 · 1 + 2 · (−1)."
+    explanation: A · w = w, Eigenwert 1. Die zwei Eigenrichtungen stehen senkrecht aufeinander – typisch für symmetrische Matrizen.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Wie findet man Eigenwerte? $Av = \lambda v$ heißt $(A - \lambda E)v = 0$ mit v ≠ 0. Das geht nur, wenn $\det(A - \lambda E) = 0$. Für 2 × 2 ergibt das das **charakteristische Polynom** $\lambda^2 - (a + d)\lambda + (ad - bc) = 0$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Für A = (4 1 | 2 3) ist das charakteristische Polynom $\lambda^2 - 7\lambda + 10$. Wie heißt der größere Eigenwert?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: smaller
+        text: Das ist der kleinere.
+    hints:
+      - Zwei Zahlen mit Summe 7 und Produkt 10.
+      - (λ − 5)(λ − 2) = 0.
+    explanation: "λ = 5 und λ = 2. Probe: A · (1, 1) = (5, 5)."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Die Summe der Eigenwerte ist die **Spur** a + d. Eine Matrix ist ({{a}} 7 | 3 {{d}}). Wie groß ist die Summe ihrer Eigenwerte?
+    answer:
+      value: "{{a + d}}"
+    feedback:
+      - when: numval(state.input) == a * d - 21
+        misconception: det-not-trace
+        text: Das ist die Determinante, das Produkt der Eigenwerte.
+    hints:
+      - Spur = Summe der Diagonale.
+      - "{{a}} + {{d}}."
+    explanation: "{{a + d}}. Und das Produkt der Eigenwerte ist die Determinante {{a * d - 21}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[-5,9]
+        d: int[-5,9]
+      defaults:
+        a: 4
+        d: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Eine Drehung um 90° lässt keinen reellen Pfeil in seiner Richtung. Ihr charakteristisches Polynom $\lambda^2 + 1$ hat die **komplexen Eigenwerte** ±i. Bei symmetrischen Matrizen dagegen sind alle Eigenwerte reell und die Eigenrichtungen senkrecht – der Spektralsatz.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Welche Eigenwerte hat die Drehung um 60°?
+    params:
+      options:
+        - label: $\cos 60° \pm i \sin 60°$, also $e^{\pm i\pi/3}$
+          correct: true
+        - label: 1 und 1
+          feedback: Dann bliebe jeder Pfeil gleich – aber er dreht sich.
+        - label: 60 und −60
+          feedback: Eigenwerte sind Streckfaktoren, keine Winkel.
+    hints:
+      - Spur = 2 cos 60° = 1, Determinante = 1.
+      - λ² − λ + 1 = 0.
+    explanation: Die Eigenwerte liegen auf dem Einheitskreis, im Winkel der Drehung. Komplexe Zahlen sind die natürliche Sprache für Drehungen.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: numeric
+    prompt: Eine Matrix hat die Eigenwerte {{p}} und −{{q}}. Wie groß ist ihre Determinante?
+    answer:
+      value: "{{-p * q}}"
+    feedback:
+      - when: numval(state.input) == p - q
+        misconception: sum-not-product
+        text: Die Summe ist die Spur. Die Determinante ist das Produkt.
+    hints:
+      - In Eigenrichtungen wird einmal mit {{p}} und einmal mit −{{q}} gestreckt.
+      - Flächenfaktor = Produkt.
+    explanation: "{{p}} · (−{{q}}) = {{-p * q}}. Negativ: Die Matrix spiegelt."
+    difficulty: 3
+    variants:
+      params:
+        p: int[2,6]
+        q: int[2,6]
+      defaults:
+        p: 3
+        q: 2
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein Eigenvektor ist.
+    params:
+      keywords:
+        - - richtung
+          - direction
+        - - strecken
+          - gestreckt
+          - länger
+          - stretch
+          - longer
+          - faktor
+          - factor
+        - - eigenwert
+          - lambda
+          - eigenvalue
+      sample: Ein Eigenvektor ist ein Pfeil, den die Matrix nicht aus seiner Richtung dreht. Sie streckt oder staucht ihn nur, und der Streckfaktor ist der Eigenwert.
+    explanation: Eigenvektoren sind die »natürlichen Achsen« einer Matrix. In ihnen ist sie so einfach wie eine Diagonalmatrix.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3"]

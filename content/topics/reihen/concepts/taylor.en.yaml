@@ -1,0 +1,201 @@
+id: math.series.taylor
+type: concept
+title: "Taylor polynomials"
+summary: "How a calculator computes sine and e – with polynomials that hug the curve."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: How does a calculator compute sin(0.5)?
+    params:
+      options:
+        - label: With a polynomial that imitates the sine very accurately near 0
+          correct: true
+        - label: A chip cannot measure – it can only add and multiply.
+          feedback: Ein Chip kann nicht messen – er kann nur addieren und multiplizieren.
+        - label: There are infinitely many angles. At most a small table is stored.
+          feedback: Es gibt unendlich viele Winkel. Gespeichert wird höchstens eine kleine Tabelle.
+    hints:
+      - What can a computing chip actually do?
+      - Plus and times – that is polynomials.
+    explanation: Polynomials only need plus and times. Taylor polynomials rebuild any smooth function with them.
+
+  - kind: explain
+    id: c1
+    body: "A **Taylor polynomial** matches a function at one point in value, slope, curvature and further derivatives. For the sine at 0: $\\sin x \\approx x - \\frac{x^3}{6}$."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Estimate sin(0.5) with $x - \frac{x^3}{6}$. To three decimals.
+    answer:
+      value: 0.479
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.5
+        misconception: first-term
+        text: That is only the first term. Subtract x³/6.
+    hints:
+      - 0.5³ = 0.125.
+      - 0.5 − 0.125 / 6.
+    explanation: 0.5 − 0.0208 = 0.4792. The true value is 0.4794 – two terms, four correct digits.
+
+  - kind: problem
+    id: c3
+    widget: slider
+    prompt: The dashed curve is $e^x$. Set a so that $1 + x + a x^2$ hugs it best at x = 0.
+    params:
+      expr: 1 + x + a*x^2
+      x:
+        - -2
+        - 2
+      y:
+        - -1
+        - 6
+      sliders:
+        - id: a
+          label: a
+          min: -1
+          max: 1.5
+          step: 0.25
+          initial: -0.5
+      target:
+        expr: exp(x)
+    answer:
+      values:
+        a: 0.5
+    hints:
+      - The second derivative of e^x at 0 is 1.
+      - The second derivative of a x² is 2a.
+    explanation: a = ½, because 2a = 1. The Taylor polynomial is $1 + x + \frac{x^2}{2}$.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Estimate $e^{0.1}$ with $1 + x + \frac{x^2}{2}$. To three decimals.
+    answer:
+      value: 1.105
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.1
+        misconception: linear-only
+        text: The square term 0.01 / 2 is missing.
+    hints:
+      - 1 + 0.1 + 0.01 / 2.
+      - 1 + 0.1 + 0.005.
+    explanation: "1.105 – true value: 1.10517. Near 0 a few terms suffice."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: Where do the **coefficients** come from? Differentiating $x^n$ n times leaves n!. For the n-th derivative to match you need the coefficient $\frac{f^{(n)}(0)}{n!}$. For $e^x$ all derivatives are 1 – so $\frac{1}{n!}$.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: What is the coefficient of $x^3$ in the Taylor polynomial of $e^x$? As a fraction.
+    answer:
+      value: 1/6
+    feedback:
+      - when: numval(state.input) == 1 / 3
+        misconception: not-factorial
+        text: 3 is not 3!. We have 3! = 3 · 2 · 1 = 6.
+    hints:
+      - Coefficient = f‴(0) / 3!.
+      - f‴(0) = 1, 3! = 6.
+    explanation: 1/3! = 1/6. So $e^x = 1 + x + \frac{x^2}{2} + \frac{x^3}{6} + \dots$
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: For the cosine, $\cos x \approx 1 - \frac{x^2}{2}$. What is that for x = {{x}}?
+    answer:
+      value: "{{1 - x * x / 2}}"
+      tolerance: 0.0001
+    hints:
+      - x² = {{x * x}}.
+      - 1 − {{x * x}} / 2.
+    explanation: 1 − {{x * x / 2}} = {{1 - x * x / 2}}. Physicists use this approximation for pendulums and in optics.
+    difficulty: 2
+    variants:
+      params:
+        x: choice[0.1,0.2,0.3,0.4]
+      defaults:
+        x: 0.2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: Not every Taylor series holds everywhere. $\frac{1}{1 - x} = 1 + x + x^2 + \dots$ is only valid for |x| < 1 – its **radius of convergence**. The series for $\ln(1 + x) = x - \frac{x^2}{2} + \frac{x^3}{3} - \dots$ holds for −1 < x ≤ 1.
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: "Estimate ln(1.1) with three terms: $x - \\frac{x^2}{2} + \\frac{x^3}{3}$ for x = 0.1. To four decimals."
+    answer:
+      value: 0.0953
+      tolerance: 0.0002
+    feedback:
+      - when: abs(numval(state.input) - 0.095) < 0.0001
+        misconception: two-terms
+        text: The third term 0.001 / 3 is still missing.
+    hints:
+      - 0.1 − 0.005 + 0.000333.
+      - "Watch the signs: minus, then plus."
+    explanation: ≈ 0.09533 – true value 0.09531. This is how Newton and Mercator already computed logarithms.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: At x = 2 you plug into $1 + x + x^2 + \dots$ and get 1 + 2 + 4 + 8 + … What about $\frac{1}{1 - 2} = -1$?
+    params:
+      options:
+        - label: The series does not hold there – x = 2 is outside the radius of convergence.
+          correct: true
+        - label: Positive numbers cannot add up to −1.
+          feedback: Positive Zahlen können sich nicht zu −1 summieren.
+        - label: "The function is perfectly defined there: −1. Only the series fails."
+          feedback: "Die Funktion ist dort sauber definiert: −1. Nur die Reihe versagt."
+    hints:
+      - For which x does the geometric series converge?
+      - Only for |x| < 1.
+    explanation: A Taylor series represents the function only within its radius of convergence. Here it is 1 – the distance from 0 to the pole at x = 1.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux what a Taylor polynomial is.
+    params:
+      keywords:
+        - - polynom
+          - polynomial
+        - - ableitung
+          - steigung
+          - krümmung
+          - derivative
+          - slope
+          - curvature
+        - - stelle
+          - nahe
+          - punkt
+          - point
+          - near
+      sample: A Taylor polynomial is a polynomial that has the same value, slope, curvature and further derivatives as the function at one point. Near that point it is therefore a very good approximation.
+    explanation: The more derivatives match, the longer the polynomial stays on the curve.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d3"]

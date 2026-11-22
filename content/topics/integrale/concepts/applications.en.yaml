@@ -5,7 +5,7 @@ summary: Amounts, work, probabilities.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 10
 steps:
   - kind: problem
     id: wasser
@@ -77,6 +77,48 @@ steps:
     explanation: 25 m – a triangle with width 5 and height 10.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: Spinning a curve y = f(x) about the x-axis gives a **solid of revolution**. Each thin slice is a cylinder of volume $\pi f(x)^2\,dx$. So $V = \pi \int_a^b f(x)^2\,dx$.
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A semicircle $y = \sqrt{1 - x^2}$ spins into a ball. $V = \pi \int_{-1}^{1} (1 - x^2)\,dx$. What number multiplies π? To three decimals.
+    answer:
+      value: 1.333
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: partial
+        text: That is only ∫1 dx. The −x² part is missing.
+    hints:
+      - "Antiderivative: x − x³/3."
+      - (1 − 1/3) − (−1 + 1/3).
+    explanation: 4/3 ≈ 1.333. So V = 4/3 π – exactly the ball formula for r = 1.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A pipe carries $r(t) = 3t^2$ litres per minute. How many litres flow in the first 2 minutes?
+    params:
+      unit: L
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 12
+        misconception: rate-not-amount
+        text: That is the rate at t = 2. The amount – the integral – is wanted.
+    hints:
+      - An antiderivative of 3t² is t³.
+      - 2³ − 0³.
+    explanation: 8 litres. A rate integrated gives an amount – just as speed integrated gives distance.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -87,6 +129,77 @@ steps:
     hints:
       - Antiderivative x³/3 at 3.
     explanation: 27/3 = 9, so 9π. Matches the cone formula ⅓ π r² h with r = h = 3.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Lifetimes often follow the **exponential distribution** with density $\lambda e^{-\lambda t}$. The total area under it is 1. The chance of lasting longer than t is $\int_t^\infty \lambda e^{-\lambda s}\,ds = e^{-\lambda t}$.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A part lasts 1000 hours on average, exponentially distributed with λ = 1/1000. How likely does it last longer than 1000 hours? In percent, to one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 36.8
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: median-mean
+        text: In a skewed distribution the mean is not the middle. Most fail earlier.
+    hints:
+      - $e^{-\lambda t}$ with λt = 1.
+      - $e^{-1} \approx 0.368$.
+    explanation: Only 36.8 % outlast the mean. The median is ln 2 · 1000 ≈ 693 hours.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: "Spin $y = \\frac1x$ for x ≥ 1 about the x-axis: »Gabriel's horn«. What is true?"
+    params:
+      options:
+        - label: It has finite volume π but infinite surface area.
+          correct: true
+        - label: $\pi \int_1^\infty \frac{1}{x^2}\,dx = \pi$ – the volume is finite.
+          feedback: $\pi \int_1^\infty \frac{1}{x^2}\,dx = \pi$ – das Volumen ist endlich.
+        - label: The surface grows at least like $\int \frac1x$, i.e. like ln x – without bound.
+          feedback: Die Oberfläche wächst mindestens wie $\int \frac1x$, also wie ln x – ohne Grenze.
+    hints:
+      - "Volume: $\\pi \\int_1^\\infty \\frac{1}{x^2}\\,dx$."
+      - The surface is bigger than $2\pi \int_1^\infty \frac1x\,dx$.
+    explanation: You could fill the horn with paint but never paint its inside – a famous paradox. It dissolves because a layer of paint has a thickness.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux how to compute the volume of a solid of revolution with slices.
+    params:
+      keywords:
+        - - scheibe
+          - zylinder
+          - slice
+          - disc
+          - disk
+          - cylinder
+        - - πr²
+          - pi
+          - kreis
+          - circle
+          - f(x)²
+        - - addier
+          - integral
+          - summe
+          - add
+          - sum
+      sample: I cut the solid into thin slices. Each is a flat cylinder with radius f(x), so area π f(x)² times thickness dx. The integral adds all slices up to the volume.
+    explanation: "As with Cavalieri: cross-section times thickness, summed up. Here the cross-section is a circle."
     difficulty: 3
 
 srs:

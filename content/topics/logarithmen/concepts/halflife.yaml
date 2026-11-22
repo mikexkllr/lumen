@@ -5,7 +5,7 @@ summary: Immer wieder halbieren.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 9
 steps:
   - kind: problem
     id: achtel
@@ -64,6 +64,32 @@ steps:
     explanation: "Drei Halbierungen: 12 Stunden. log₂ 8 = 3."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Wie lange dauert es bis zum Anteil N/N₀? Die **Halbierungen** zählt der Logarithmus zur Basis 2: $t = T \\cdot \\log_2 \\frac{N_0}{N}$. Bis zu einem Hundertstel sind es $\\log_2 100 \\approx 6{,}64$ Halbwertszeiten."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: sim
+    prompt: "Halbwertszeit 3 Stunden: Finde den frühesten vollen Zeitpunkt, an dem die Anzeige höchstens 1 % zeigt."
+    params:
+      scene: decay
+      controls:
+        halflife:
+          value: 3
+          fixed: true
+      show:
+        - left
+        - halvings
+    answer:
+      left:
+        - 0.9
+        - 1
+    explanation: 3 · 6,64 ≈ 19,9 h. Nach 20 h sind 0,98 % übrig, nach 19 h noch 1,24 %.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -75,6 +101,54 @@ steps:
     hints:
       - Es braucht log₂ 100 Halbwertszeiten.
     explanation: 6,64 · 8 ≈ 53 Tage.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Trägt man den **Logarithmus** der Menge über der Zeit auf, wird jede Zerfallskurve zur Geraden: $\\ln N = \\ln N_0 - \\lambda t$. Ihre Steigung ist −λ. So bestimmen Labore Halbwertszeiten aus verrauschten Messwerten."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Zähler misst 800 Impulse pro Minute, 12 Tage später nur noch 50. Wie groß ist die Halbwertszeit in Tagen?
+    params:
+      unit: Tage
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 0.75
+        misconception: inverted
+        text: Das wären Tage pro Faktor 16. Zähl erst die Halbierungen.
+      - when: numval(state.input) == 6
+        misconception: miscount
+        text: "Von 800 auf 50 ist nicht zweimal halbieren. 800 : 50 = 16."
+    hints:
+      - "800 : 50 = 16 = 2⁴."
+      - 4 Halbierungen in 12 Tagen.
+    explanation: "12 : 4 = 3 Tage."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man ohne Taschenrechner schätzt, wann nur noch ein Tausendstel übrig ist.
+    params:
+      keywords:
+        - - "1024"
+          - zehn
+          - ten
+        - - halbier
+          - halbwertszeit
+          - halv
+          - half-life
+        - - mal
+          - times
+          - multipl
+      sample: Zehnmal halbieren ergibt 1 durch 1024, also fast ein Tausendstel. Ich nehme die Halbwertszeit einfach mal zehn.
+    explanation: "$2^{10} \\approx 10^3$: zehn Halbwertszeiten für ein Tausendstel, zwanzig für ein Millionstel."
     difficulty: 3
 
 srs:

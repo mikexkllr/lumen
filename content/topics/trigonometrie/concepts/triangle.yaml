@@ -5,7 +5,7 @@ summary: Sinus, Kosinus und Tangens im Dreieck.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 13
 steps:
   - kind: problem
     id: hook
@@ -122,6 +122,50 @@ steps:
     explanation: 2000 · 0,5 = 1000 m.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "In jedem Dreieck gilt der **Sinussatz**: $\\frac{a}{\\sin\\alpha} = \\frac{b}{\\sin\\beta} = \\frac{c}{\\sin\\gamma}$. Große Seiten liegen großen Winkeln gegenüber. Damit rechnet man auch in Dreiecken ohne rechten Winkel."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: In einem Dreieck ist a = 10 cm, α = 30° und β = 45°. Wie lang ist b? Auf zwei Stellen. (sin 45° ≈ 0,7071)
+    params:
+      unit: cm
+    answer:
+      value: 14.14
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 7.07) < 0.01
+        misconception: swapped-ratio
+        text: Du hast durch sin 45° statt durch sin 30° geteilt.
+    hints:
+      - "b = a · sin β : sin α."
+      - "10 · 0,7071 : 0,5."
+    explanation: "b = 10 · 0,7071 : 0,5 ≈ 14,14 cm. Der größere Winkel β liegt der längeren Seite gegenüber."
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein Dreieck hat die Seiten 3, 5 und 7. Wie groß ist der Winkel gegenüber der Seite 7, in Grad?
+    params:
+      unit: °
+    answer:
+      value: 120
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: sign-cos
+        text: cos γ ist negativ, also ist γ stumpf.
+    hints:
+      - "Kosinussatz umgestellt: cos γ = (a² + b² − c²) : (2ab)."
+      - "(9 + 25 − 49) : 30 = −0,5."
+    explanation: cos γ = −0,5, also γ = 120°. Ein stumpfer Winkel – 7² ist größer als 3² + 5².
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -132,6 +176,60 @@ steps:
     hints:
       - "Kosinussatz: c² = a² + b² − 2ab · cos γ."
     explanation: 25 + 64 − 40 = 49, also c = 7. Der Kosinussatz ist Pythagoras für beliebige Dreiecke.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "Der **Kosinussatz** $c^2 = a^2 + b^2 - 2ab\\cos\\gamma$ ist Pythagoras mit Korrektur. Beweis mit Vektoren: $|\\vec a - \\vec b|^2 = |\\vec a|^2 + |\\vec b|^2 - 2\\,\\vec a \\cdot \\vec b$. Bei γ = 90° ist das Skalarprodukt null."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Zwei Seiten eines Dreiecks sind {{a}} cm und {{b}} cm lang und schließen 30° ein. Wie groß ist die Fläche $\frac12 ab \sin\gamma$ in cm²?
+    params:
+      unit: cm²
+    answer:
+      value: "{{a * b / 4}}"
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == a * b / 2
+        misconception: right-angle
+        text: Das wäre bei 90°. Bei 30° ist die Höhe nur halb so groß.
+    hints:
+      - "Die Höhe auf a ist b · sin 30° = b : 2."
+      - ½ · {{a}} · {{b}} · 0,5.
+    explanation: ½ · {{a}} · {{b}} · ½ = {{a * b / 4}} cm².
+    difficulty: 3
+    variants:
+      params:
+        a: int[3,12]
+        b: step[4,16,2]
+      defaults:
+        a: 6
+        b: 8
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Warum steckt Pythagoras im Kosinussatz?"
+    params:
+      keywords:
+        - - "90"
+          - rechter winkel
+          - right angle
+        - - "null"
+          - zero
+          - cos 90
+        - - korrektur
+          - abzug
+          - minus
+          - correction
+          - subtract
+      sample: Der Kosinussatz lautet c² = a² + b² − 2ab cos γ. Bei einem rechten Winkel von 90° ist cos γ null, und der Abzug verschwindet. Dann bleibt genau Pythagoras.
+    explanation: "Der Zusatzterm misst, wie weit γ von 90° abweicht: spitz macht c kürzer, stumpf länger."
     difficulty: 3
 
 srs:

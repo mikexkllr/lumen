@@ -1,0 +1,204 @@
+id: math.diffeq.oscillation
+type: concept
+title: "Schwingungen"
+summary: "Federn, Pendel und Schwingkreise – eine einzige Gleichung mit zwei Ableitungen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: sim
+    prompt: Stell das Federpendel so ein, dass eine Schwingung genau eine Sekunde dauert.
+    params:
+      scene: spring
+    answer:
+      period:
+        - 0.98
+        - 1.02
+    explanation: Zum Beispiel 0,5 kg an einer Feder mit 20 N/m. Schwere Massen schwingen langsamer, harte Federn schneller.
+
+  - kind: explain
+    id: c1
+    body: "Die Feder zieht mit F = −D · x zurück, und Newton sagt F = m · x″. Zusammen: $x'' = -\\frac Dm\\,x$. Die Beschleunigung zeigt immer zur Mitte. Das ist die **harmonische Schwingung**."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Welche Funktion erfüllt $x'' = -x$?
+    params:
+      options:
+        - label: $x = \cos t$
+          correct: true
+        - label: $x = e^t$
+          feedback: Zweimal abgeleitet bleibt $e^t$ – das Minus fehlt.
+        - label: $x = t^2$
+          feedback: Die zweite Ableitung ist 2, nicht −t².
+    hints:
+      - Leite zweimal ab.
+      - cos → −sin → −cos.
+    explanation: (cos t)″ = −cos t. Auch sin t und jede Mischung $a\cos t + b\sin t$ passen.
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Für $x'' = -\omega^2 x$ ist ω die Kreisfrequenz, und $\omega = \sqrt{D/m}$. Wie groß ist ω für D = {{D}} N/m und m = {{m}} kg?
+    params:
+      unit: 1/s
+    answer:
+      value: "{{w}}"
+    feedback:
+      - when: numval(state.input) == D / m
+        misconception: no-root
+        text: Die Wurzel fehlt noch.
+    hints:
+      - "D : m = {{D / m}}."
+      - Zieh die Wurzel.
+    explanation: "ω = √{{D / m}} = {{w}}. Die Periode ist 2π : ω ≈ {{round(628.32 / w) / 100}} s."
+    variants:
+      params:
+        m: choice[1,4]
+        w: int[2,8]
+      derive:
+        D: w * w * m
+      defaults:
+        m: 4
+        w: 5
+
+  - kind: problem
+    id: c4
+    widget: sim
+    prompt: Die Feder hat D = 10 N/m. Bei 1 kg dauert eine Schwingung 1,99 s. Stell die Masse so ein, dass sie doppelt so lange dauert.
+    params:
+      scene: spring
+      controls:
+        stiffness:
+          value: 10
+          fixed: true
+      show:
+        - period
+        - frequency
+    answer:
+      period:
+        - 3.95
+        - 4
+    explanation: "4 kg. Die Periode wächst mit der Wurzel der Masse: Doppelte Zeit braucht vierfache Masse."
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "In der Schwingung wandert Energie hin und her: $\\frac12 m v^2 + \\frac12 D x^2$ bleibt konstant. Ganz außen steckt alles in der Feder, in der Mitte alles in der Bewegung. Das ist **Energieerhaltung**."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Eine Feder mit D = 10 N/m wird 0,1 m ausgelenkt. Wie viel Energie in Joule steckt in der Schwingung?
+    params:
+      unit: J
+    answer:
+      value: 0.05
+      tolerance: 0.0001
+    feedback:
+      - when: numval(state.input) == 0.1
+        misconception: no-half
+        text: Der Faktor ½ fehlt.
+      - when: numval(state.input) == 0.5
+        misconception: no-square
+        text: "Die Auslenkung wird quadriert: 0,1² = 0,01."
+    hints:
+      - E = ½ · D · x².
+      - ½ · 10 · 0,01.
+    explanation: "0,05 J. In der Mitte ist das alles Bewegung: Mit 1 kg ist v = √0,1 ≈ 0,32 m/s."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: Die Lösung ist $x = A\cos(\omega t)$. Die größte Geschwindigkeit ist A · ω. Wie groß ist sie für A = 0,1 m und ω = {{w}} pro Sekunde?
+    params:
+      unit: m/s
+    answer:
+      value: "{{0.1 * w}}"
+      tolerance: 0.001
+    hints:
+      - "Leite ab: $x' = -A\\omega\\sin(\\omega t)$."
+      - Der Sinus ist höchstens 1.
+    explanation: 0,1 · {{w}} = {{0.1 * w}} m/s, erreicht in der Mitte.
+    difficulty: 2
+    variants:
+      params:
+        w: int[2,9]
+      defaults:
+        w: 3
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "Ein Schwingkreis gehorcht derselben Gleichung: $L\\,q'' = -\\frac{q}{C}$. Also ist $\\omega = \\frac{1}{\\sqrt{LC}}$. Regt man ihn mit genau dieser Frequenz an, schaukelt er sich auf – **Resonanz**. So wählt ein Radio einen Sender aus."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: sim
+    prompt: Stell den Schwingkreis auf die Netzfrequenz von 50 Hz ein (49 bis 52 Hz).
+    params:
+      scene: resonance
+    answer:
+      f0:
+        - 49
+        - 52
+    explanation: "Zum Beispiel L = 100 mH und C = 100 µF: $f = \\frac{1}{2\\pi\\sqrt{LC}} \\approx 50{,}3$ Hz. Feder und Schwingkreis sind mathematisch dasselbe."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: Warum sollen Soldaten auf Brücken nicht im Gleichschritt marschieren?
+    params:
+      options:
+        - label: Der Takt könnte die Eigenfrequenz der Brücke treffen und sie aufschaukeln.
+          correct: true
+        - label: Weil sie zusammen schwerer sind.
+          feedback: Das Gewicht ist mit und ohne Gleichschritt dasselbe.
+        - label: Weil es lauter ist.
+          feedback: Lärm ist hier nicht das Problem.
+    hints:
+      - Gleichschritt ist ein regelmäßiger Antrieb.
+      - Was passiert, wenn man im Takt der Eigenfrequenz anregt?
+    explanation: "Resonanz: Kleine Stöße im richtigen Takt summieren sich. 1831 stürzte in England die Broughton-Brücke unter marschierenden Soldaten ein."
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine Masse an einer Feder hin und her schwingt, statt einfach in der Mitte stehen zu bleiben.
+    params:
+      keywords:
+        - - schwung
+          - tempo
+          - geschwindigkeit
+          - momentum
+          - speed
+          - velocity
+        - - mitte
+          - middle
+          - centre
+          - center
+        - - zurück
+          - zieht
+          - rückstell
+          - back
+          - pulls
+          - restor
+      sample: Die Feder zieht die Masse immer zur Mitte zurück. Dort ist die Kraft null, aber die Masse hat ihren größten Schwung und schießt darüber hinaus. Auf der anderen Seite bremst die Feder sie ab und zieht sie wieder zurück.
+    explanation: Kraft und Schwung sind gegeneinander verschoben – das ist die Viertelperiode zwischen cos und sin.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "d3"]

@@ -5,7 +5,7 @@ summary: One factor must be zero.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: null-mal
@@ -88,6 +88,57 @@ steps:
     explanation: x(x − 5) = 0. Dividing by x loses the solution 0!
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "If $x^2 + px + q = 0$ has solutions $x_1$ and $x_2$, then $x^2 + px + q = (x - x_1)(x - x_2)$. Expanding shows **Vieta's formulas**: $x_1 + x_2 = -p$ and $x_1 \\cdot x_2 = q$."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: The equation $x^2 + px + q = 0$ has the solutions {{r}} and −{{s}}. What is q?
+    answer:
+      value: "{{-r * s}}"
+    feedback:
+      - when: numval(state.input) == r * s
+        misconception: sign-error
+        text: "Sign: one solution is negative, so the product is too."
+      - when: numval(state.input) == s - r
+        misconception: sum-not-product
+        text: That is p, the negative sum. q is the product.
+    hints:
+      - q is the product of the solutions.
+      - "{{r}} · (−{{s}})."
+    explanation: q = {{r}} · (−{{s}}) = {{-r * s}}, and p = −({{r}} − {{s}}) = {{s - r}}.
+    difficulty: 2
+    variants:
+      params:
+        r: int[2,9]
+        s: int[2,9]
+      constraints:
+        - r != s
+      defaults:
+        r: 3
+        s: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: Factor $x^2 + x - 12$ into two brackets. Which negative number solves $x^2 + x - 12 = 0$?
+    answer:
+      value: -4
+    feedback:
+      - when: numval(state.input) == -3
+        misconception: sign-swap
+        text: Then the other root would be 4 and the sum 1 – but p = +1 needs the sum −1.
+    hints:
+      - "Wanted: two numbers with product −12 and sum −1."
+      - 3 and −4.
+    explanation: (x − 3)(x + 4) = 0, so x = 3 or x = −4.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -98,6 +149,49 @@ steps:
     hints:
       - "Wanted: two numbers with product −15 and sum 2."
     explanation: (x + 5)(x − 3) = 0. This is **Vieta’s theorem**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: "The zero product works because real numbers have no **zero divisors**: ab = 0 only if a = 0 or b = 0. Modulo 6 it is different: 2 · 3 = 6 ≡ 0. There a quadratic equation can have more than two solutions."
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: How many x in {0, 1, 2, 3, 4, 5} satisfy $x(x - 1) \equiv 0 \pmod 6$?
+    answer:
+      value: 4
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: real-intuition
+        text: 0 and 1 work – but test 3 and 4 too.
+    hints:
+      - Compute x · (x − 1) for every x and divide by 6.
+      - 3 · 2 = 6 and 4 · 3 = 12.
+    explanation: "x = 0, 1, 3 and 4: four solutions. Modulo a prime there are no zero divisors – there it stays at most two."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does (x − 3)(x + 5) = 0 mean x = 3 or x = −5?"
+    params:
+      keywords:
+        - - faktor
+          - klammer
+          - factor
+          - bracket
+        - - "null"
+          - zero
+        - - mindestens einer
+          - einer davon
+          - at least one
+          - one of
+      sample: A product is zero only if at least one factor is zero. So x − 3 = 0 or x + 5 = 0. That gives x = 3 or x = −5.
+    explanation: Two nonzero numbers never multiply to zero. So one bracket must be zero.
     difficulty: 3
 
 srs:

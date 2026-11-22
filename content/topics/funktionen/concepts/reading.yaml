@@ -5,7 +5,7 @@ summary: Hoch, tief, null – auf einen Blick.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: maximum
@@ -98,6 +98,59 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: mb-d1
+    depth: 2
+    widget: graph
+    prompt: Setz P auf den höchsten Punkt des Graphen von $y = -(x - 2)^2 + 3$.
+    params:
+      x:
+        - -2
+        - 6
+      y:
+        - -4
+        - 5
+      functions:
+        - expr: -(x-2)^2+3
+      points:
+        - id: P
+          x: 0
+          y: 0
+    answer:
+      points:
+        P:
+          x: 2
+          y: 3
+    hints:
+      - Wann ist $-(x - 2)^2$ am größten?
+      - Bei x = 2 ist der Abzug null.
+    explanation: Das Maximum liegt bei (2 | 3). Links davon steigt der Graph, rechts fällt er.
+    difficulty: 2
+
+  - kind: explain
+    id: mb-d2
+    depth: 2
+    body: Die Steigung der Geraden durch zwei Punkte des Graphen ist die **mittlere Änderungsrate**. Bei einem Weg-Zeit-Graphen ist das die Durchschnittsgeschwindigkeit zwischen zwei Zeitpunkten.
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: choice
+    prompt: Ein Tempo-Zeit-Graph verläuft eine Weile waagerecht auf 50 km/h. Was heißt das?
+    params:
+      options:
+        - label: Das Auto fährt in dieser Zeit gleichmäßig 50 km/h.
+          correct: true
+        - label: Das Auto steht.
+          feedback: Stehen hieße Tempo 0 – die Linie läge auf der Achse.
+        - label: Das Auto fährt bergauf.
+          feedback: Der Graph zeigt das Tempo, nicht die Landschaft.
+    hints:
+      - Auf der y-Achse steht das Tempo.
+      - "Waagerecht heißt: Der Wert ändert sich nicht."
+    explanation: Waagerecht heißt konstant. Im Weg-Zeit-Graphen wäre dasselbe eine schräge Gerade mit Steigung 50.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -109,6 +162,79 @@ steps:
     hints:
       - Steigung = Höhenunterschied durch Breitenunterschied.
     explanation: "150 km : 2 h = 75 km/h. Die Steigung einer Kurve an einer Stelle ist die Momentangeschwindigkeit – die Ableitung."
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: match
+    prompt: Was verrät die Ableitung f′ über den Graphen von f?
+    params:
+      pairs:
+        - left: f′(x) > 0
+          right: f steigt
+        - left: f′(x) < 0
+          right: f fällt
+        - left: f′ wechselt von + zu −
+          right: Hochpunkt
+        - left: f′ wechselt von − zu +
+          right: Tiefpunkt
+      leftTitle: Ableitung
+      rightTitle: Graph von f
+    hints:
+      - Die Ableitung ist die Steigung.
+      - Am Gipfel kippt die Steigung von bergauf zu bergab.
+    explanation: Das Vorzeichen von f′ sagt »bergauf« oder »bergab«. Ein Vorzeichenwechsel markiert einen Hoch- oder Tiefpunkt.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Ein Stein fällt. Sein Weg in Metern ist $s(t) = 5t^2$. Die Steigung des Graphen ist $10t$. Wie schnell ist er bei t = {{t}} s in m/s?
+    params:
+      unit: m/s
+    answer:
+      value: "{{10 * t}}"
+    feedback:
+      - when: numval(state.input) == 5 * t * t
+        misconception: value-not-slope
+        text: Das ist der Weg, nicht das Tempo.
+      - when: numval(state.input) == 5 * t
+        misconception: average-vs-instant
+        text: Das ist das Durchschnittstempo seit dem Start. Gefragt ist das Tempo im Moment.
+    hints:
+      - Das Tempo ist die Steigung des Weg-Zeit-Graphen.
+      - Setz t = {{t}} in 10t ein.
+    explanation: "10 · {{t}} = {{10 * t}} m/s. Das Durchschnittstempo seit dem Start wäre nur halb so groß: {{5 * t}} m/s."
+    difficulty: 3
+    variants:
+      params:
+        t: int[3,8]
+      defaults:
+        t: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: "Erklär Lux: Woran siehst du in einem Graphen, wo die Größe am schnellsten wächst?"
+    params:
+      keywords:
+        - - steil
+          - steilste
+          - steep
+          - steepest
+        - - steigung
+          - anstieg
+          - slope
+          - gradient
+        - - tangente
+          - berühr
+          - tangent
+          - touch
+      sample: Am schnellsten wächst sie dort, wo der Graph am steilsten bergauf geht. Die Steigung der Tangente an dieser Stelle ist am größten.
+    explanation: Schnelles Wachstum heißt große Steigung. Die steilste Stelle einer S-Kurve ist ihr Wendepunkt.
     difficulty: 3
 
 srs:

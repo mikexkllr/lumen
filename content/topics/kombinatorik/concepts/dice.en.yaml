@@ -5,7 +5,7 @@ summary: Favorable over possible – counted correctly.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: sieben
@@ -67,6 +67,47 @@ steps:
     explanation: 1 − (5/6)² = 11/36. Not 12/36 – the double six would be counted twice.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "»At least one« is tedious to count. Much easier is the **complement** »none«: P(at least one 6) = 1 − P(no 6)."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: In the 17th century the Chevalier de Méré bet that 4 throws give at least one 6. What is his chance in percent? To one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 51.8
+      tolerance: 0.15
+    feedback:
+      - when: abs(numval(state.input) - 66.7) < 0.2
+        misconception: add-probabilities
+        text: 4 · ⅙ would be right only if the cases did not overlap. Better use »no 6«.
+    hints:
+      - "No 6 in one throw: 5/6. In four throws: (5/6)⁴."
+      - 1 − 625/1296.
+    explanation: 1 − (5/6)⁴ = 1 − 625/1296 ≈ 0.518. Just over 51.8 % – the bet paid off in the long run.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: "His second bet: 24 throws of two dice give at least one double six. What is the chance in percent? To one decimal."
+    params:
+      unit: "%"
+    answer:
+      value: 49.1
+      tolerance: 0.15
+    hints:
+      - "No double six in one throw: 35/36."
+      - 1 − (35/36)²⁴.
+    explanation: 1 − (35/36)²⁴ ≈ 0.491 – just under 50 %. De Méré lost and asked Pascal. Their letters with Fermat in 1654 founded probability theory.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -108,6 +149,52 @@ steps:
           - single
           - only
       sample: There are six combinations for 7, from 1 + 6 to 6 + 1. The 12 arises in only one single way, namely 6 + 6.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: "Why does the birthday problem work with only 23 people? Count the pairs: how many pairs do {{n}} people form?"
+    answer:
+      value: "{{n * (n - 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n - 1)
+        misconception: ordered-pairs
+        text: That counts every pair twice – A with B and B with A.
+    hints:
+      - Just like the handshakes.
+      - n · (n − 1) / 2.
+    explanation: "{{n}} · {{n - 1}} / 2 = {{n * (n - 1) / 2}} pairs. With 23 people there are 253 pairs – each with a 1/365 chance. That is why a match is so likely."
+    difficulty: 3
+    variants:
+      params:
+        n: int[10,40]
+      defaults:
+        n: 23
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: The chance that all differ is $\frac{365}{365} \cdot \frac{364}{365} \cdots \frac{343}{365} \approx 0.493$. Since $1 - x \approx e^{-x}$, this is about $e^{-n^2/730}$. The same **approximation** rules the birthday attack on codes.
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: A file hash has 64 bits, so $2^{64}$ values. Roughly how many files make a duplicate hash likely?
+    params:
+      options:
+        - label: About $2^{32}$, around 4 billion
+          correct: true
+        - label: That would hold without the pair effect. But pairs grow quadratically.
+          feedback: Das wäre richtig ohne Paar-Effekt. Paare wachsen aber quadratisch.
+        - label: Far too few – $2^{64}$ is huge.
+          feedback: Viel zu wenig – $2^{64}$ ist riesig.
+    hints:
+      - "Birthdays: 365 values, matches from about √365 ≈ 19 to 23."
+      - The square root of $2^{64}$ is $2^{32}$.
+    explanation: Collisions become likely around the square root of the number of values. That is why secure cryptography needs 256-bit hashes.
     difficulty: 3
 
 srs:

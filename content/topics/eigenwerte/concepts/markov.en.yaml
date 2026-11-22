@@ -1,0 +1,188 @@
+id: math.eigen.markov
+type: concept
+title: "Markov chains"
+summary: "Sun or rain tomorrow? Chance with a one-day memory – and where it leads in the long run."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a sunny day is followed by sun 80 % of the time. A rainy day is followed by rain 50 % of the time. What percentage of days are sunny in the long run?"
+    params:
+      min: 0
+      max: 100
+      unit: "%"
+    answer:
+      value: 71
+      tolerance: 6
+    explanation: About 71 % – exactly 5/7. We will compute it shortly with an eigenvector.
+
+  - kind: explain
+    id: c1
+    body: "A **transition matrix** holds the chances for the next step. The »sun« column is (0.8, 0.2), the »rain« column is (0.5, 0.5). Every column adds up to 1. Multiplying by the matrix means: one day on."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Today is sunny. How likely is sun the day after tomorrow? In percent.
+    params:
+      unit: "%"
+    answer:
+      value: 74
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 64
+        misconception: one-path
+        text: That is only two sunny days in a row. Rain → sun counts too.
+    hints:
+      - "Two paths: sun → sun → sun and sun → rain → sun."
+      - 0.8 · 0.8 + 0.2 · 0.5.
+    explanation: 0.64 + 0.10 = 0.74. That is exactly what the matrix times itself computes.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: What must every column of a transition matrix add up to?
+    params:
+      options:
+        - label: Exactly 1
+          correct: true
+        - label: Probabilities are never negative, so 0 only if all are 0.
+          feedback: Wahrscheinlichkeiten sind nie negativ, also kann nur 0 herauskommen, wenn alle 0 sind.
+        - label: From every state it must go somewhere – with 100 %.
+          feedback: Von jedem Zustand aus muss es irgendwohin weitergehen – zu 100 %.
+    hints:
+      - A column lists all possible next states.
+      - One of them happens for sure.
+    explanation: The column sum is 1 because something surely happens next. It follows that 1 is always an eigenvalue.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Two places: every year 10 % of city people move to the country and 5 % of country people move to the city. What share lives in the city in the long run? In percent, to one decimal."
+    params:
+      unit: "%"
+    answer:
+      value: 33.3
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 66.7) < 0.1
+        misconception: swapped
+        text: That is the share in the country.
+    hints:
+      - "In equilibrium as many move one way as the other: 0.1 · C = 0.05 · R."
+      - So R = 2C, and C + R = 1.
+    explanation: C = 1/3 ≈ 33.3 %. However it starts – the distribution tends to one third.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "In the long run the distribution stops changing: $P\\pi = \\pi$. So the **stationary distribution** π is an eigenvector with eigenvalue 1. For the weather: 0.2 · sun = 0.5 · rain."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Solve 0.2 · s = 0.5 · r with s + r = 1. What is the sunny share s in percent? To one decimal.
+    params:
+      unit: "%"
+    answer:
+      value: 71.4
+      tolerance: 0.1
+    feedback:
+      - when: abs(numval(state.input) - 28.6) < 0.1
+        misconception: swapped
+        text: That is the rainy share.
+    hints:
+      - s = 2.5 r.
+      - 2.5 r + r = 1, so r = 2/7.
+    explanation: s = 5/7 ≈ 71.4 %. The guess from the start, now proved.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: sim
+    prompt: "The same idea is behind the Hardy–Weinberg law of genetics: genotype shares stay the same from generation to generation. Set p so that exactly 9 % have genotype aa."
+    params:
+      scene: hardy
+    answer:
+      aa:
+        - 8.9
+        - 9.1
+    explanation: q² = 0.09 means q = 0.3 and p = 0.7. Without selection this distribution is stationary – an equilibrium as with Markov.
+    difficulty: 2
+
+  - kind: explain
+    id: x1
+    depth: 3
+    body: "The **Perron–Frobenius** theorem: if all transitions are positive, there is exactly one stationary distribution, and every starting distribution tends to it. How fast is told by the second eigenvalue: deviations shrink by that factor per step."
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: For a 2 × 2 transition matrix the second eigenvalue is trace − 1. What is it for the weather with 0.8 and 0.5 on the diagonal?
+    answer:
+      value: 0.3
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.3
+        misconception: trace
+        text: That is the trace. Subtract the first eigenvalue 1.
+    hints:
+      - Trace = 0.8 + 0.5.
+      - The eigenvalues add up to the trace, one of them is 1.
+    explanation: 0.3. After three days a deviation has shrunk to 0.3³ ≈ 3 % – the weather »forgets« quickly.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: choice
+    prompt: A chain always jumps A → B → A → B. What happens to the distribution if you start in A for sure?
+    params:
+      options:
+        - label: It swings forever between (1, 0) and (0, 1) – no limit.
+          correct: true
+        - label: (½, ½) is stationary, but it is never reached from (1, 0).
+          feedback: (½, ½) ist zwar stationär, wird aber von (1, 0) aus nie erreicht.
+        - label: After one step you are in B for sure.
+          feedback: Nach einem Schritt ist man sicher in B.
+    hints:
+      - The matrix is (0 1 | 1 0). Its eigenvalues are 1 and −1.
+      - An eigenvalue −1 shrinks nothing, it just flips.
+    explanation: Perron–Frobenius needs positive transitions. Here the second eigenvalue is −1, and |−1| = 1 does not shrink.
+    difficulty: 3
+
+  - kind: problem
+    id: x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the long-run distribution of a Markov chain is an eigenvector.
+    params:
+      keywords:
+        - - gleich
+          - dieselbe
+          - nicht mehr
+          - unchanged
+          - same
+          - stays
+          - no longer
+        - - matrix
+          - schritt
+          - step
+        - - eigenwert 1
+          - eigenwert eins
+          - eigenvalue 1
+          - eigenvalue one
+      sample: In the long run one more step no longer changes the distribution. So multiplying by the matrix gives the same distribution again. That is exactly what it means to be an eigenvector with eigenvalue 1.
+    explanation: Equilibrium = fixed point of the matrix = eigenvector with eigenvalue 1.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c4", "d2"]

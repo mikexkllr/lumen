@@ -5,7 +5,7 @@ summary: Strecken, drehen, spiegeln.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -98,6 +98,51 @@ steps:
     explanation: "12 − 2 = 10: Jede Fläche wird zehnmal so groß."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Die **Spalten** einer Matrix verraten alles: Die erste ist das Bild von (1, 0), die zweite das Bild von (0, 1). Wohin das Gitter geht, bestimmt, wohin jeder Punkt geht."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: graph
+    prompt: Die Scherung (2 1 | 0 1) wirkt auf P = (1 | 1). Zieh Q an das Bild.
+    params:
+      x:
+        - -1
+        - 5
+      y:
+        - -1
+        - 4
+      points:
+        - id: O
+          x: 0
+          y: 0
+          draggable: false
+        - id: P
+          x: 1
+          y: 1
+          draggable: false
+        - id: Q
+          x: 0
+          y: 2
+      segments:
+        - - O
+          - P
+        - - O
+          - Q
+    answer:
+      points:
+        Q:
+          x: 3
+          y: 1
+    hints:
+      - "Oben: 2 · 1 + 1 · 1."
+      - "Unten: 0 · 1 + 1 · 1."
+    explanation: Q = (3 | 1). Die Höhe bleibt, x wird gestreckt und um y verschoben.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -114,6 +159,71 @@ steps:
     hints:
       - "Flächenfaktor null: Wie groß ist ein Bild ohne Fläche?"
     explanation: Information geht verloren. Solche Matrizen haben keine Inverse – das zugehörige Gleichungssystem ist nicht eindeutig lösbar.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Die **Drehmatrix** um den Winkel θ hat die Spalten (cos θ, sin θ) und (−sin θ, cos θ) – die gedrehten Achsen. Für θ = 90° ergibt das genau (0 −1 | 1 0).
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Drehe (2, 0) um 30°. Welche y-Koordinate hat das Ergebnis?
+    answer:
+      value: 1
+      tolerance: 0.001
+    feedback:
+      - when: abs(numval(state.input) - 1.732) < 0.01
+        misconception: swapped
+        text: Das ist die x-Koordinate 2 · cos 30°.
+    hints:
+      - (2, 0) wird zu (2 cos 30°, 2 sin 30°).
+      - 2 · 0,5.
+    explanation: 2 · sin 30° = 1. Das Bild ist (√3, 1).
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: numeric
+    prompt: Wie groß ist die Determinante jeder Drehmatrix (cos θ −sin θ | sin θ cos θ)?
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 0
+        misconception: sign-error
+        text: "Rechne ad − bc: cos² θ − (−sin² θ)."
+    hints:
+      - ad − bc = cos θ · cos θ − (−sin θ) · sin θ.
+      - cos² + sin² = ?
+    explanation: cos² θ + sin² θ = 1. Drehen ändert keine Flächen und spiegelt nicht.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man an den Spalten einer Matrix sieht, was sie mit der Ebene macht.
+    params:
+      keywords:
+        - - spalte
+          - column
+        - - pfeil
+          - arrow
+          - einheit
+          - basis
+          - unit
+          - achse
+          - axis
+        - - bild
+          - landet
+          - image
+          - lands
+          - goes
+      sample: Die erste Spalte zeigt, wo der Pfeil (1, 0) landet, die zweite, wo (0, 1) landet. Jeder andere Punkt ist eine Kombination dieser zwei Pfeile, also landet er an derselben Kombination der Spalten.
+    explanation: "Lineare Abbildungen erhalten Kombinationen: A(x, y) = x · Spalte 1 + y · Spalte 2."
     difficulty: 3
 
 srs:

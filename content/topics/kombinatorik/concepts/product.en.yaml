@@ -5,7 +5,7 @@ summary: Possibilities get multiplied.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 10000
       within: 30
     explanation: 10 · 10 · 10 · 10 = 10,000. Each digit multiplies the options.
-
 
   - kind: problem
     id: outfits
@@ -88,6 +87,56 @@ steps:
     explanation: 9 · 9 · 8 = 648.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "A **tree diagram** shows why you multiply: every branch of the first choice splits into the same number of branches for the second. 3 branches with 4 twigs each make 3 · 4 = 12 ends."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: A pizza place offers {{n}} toppings. Each topping is on or off. How many different pizzas are there – counting the plain one?
+    answer:
+      value: "{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: add-not-multiply
+        text: "Not plus: each topping doubles all the options so far."
+      - when: numval(state.input) == 2 ** n - 1
+        misconception: forgot-empty
+        text: The plain pizza counts too.
+    hints:
+      - Each topping has 2 options.
+      - Multiply 2 by itself {{n}} times.
+    explanation: 2 · 2 · … · 2 = 2^{{n}} = {{2 ** n}}. A set with {{n}} elements has {{2 ** n}} subsets.
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,10]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: numeric
+    prompt: A plate has 2 letters (A–Z) and then 1 to 4 digits, the first digit not 0. How many digit parts are there?
+    answer:
+      value: 9999
+    feedback:
+      - when: numval(state.input) == 10000
+        misconception: with-zero
+        text: "Almost: 0 alone does not exist – the first digit is never 0."
+      - when: numval(state.input) == 9000
+        misconception: only-four
+        text: Those are only the four-digit ones. Add the shorter ones.
+    hints:
+      - "Count separately: 1, 2, 3 and 4 digits."
+      - 9 + 90 + 900 + 9000.
+    explanation: 9 + 90 + 900 + 9000 = 9999 – exactly the numbers 1 to 9999. Counting separately and adding is the **sum rule**.
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -98,6 +147,77 @@ steps:
     hints:
       - 26⁸ ≈ 2 · 10¹¹.
     explanation: About 209 billion – 12 digits. Every extra character makes it 26 times harder.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Put 13 letters into 12 slots and some slot holds at least two. The **pigeonhole principle** sounds trivial but proves surprising things – without looking into a single slot.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: A city has 1,000,000 people. Nobody has more than 99,999 hairs on their head. At least how many people are guaranteed to have exactly the same number of hairs?
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: too-weak
+        text: Two is certainly true – but you can prove more. How full must the fullest slot be?
+    hints:
+      - The slots are hair counts 0 to 99,999 – that is 100,000 slots.
+      - Spread 1,000,000 people as evenly as possible.
+    explanation: 1,000,000 / 100,000 = 10. With at most 9 per slot there would be only 900,000 people. So at least 10 share a hair count.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: Pick 5 points in a square with side 2. What follows for sure?
+    params:
+      options:
+        - label: Two are at most √2 apart.
+          correct: true
+        - label: No exact distance follows – only an upper bound.
+          feedback: Ein genauer Abstand folgt nicht – nur eine obere Grenze.
+        - label: Split the square into four small squares.
+          feedback: Teile das Quadrat in vier kleine Quadrate.
+    hints:
+      - Split the square into 4 squares with side 1.
+      - "5 points, 4 slots: two land in the same small square."
+    explanation: Two points in the same unit square are at most the diagonal √2 apart.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: "Tell Lux: why does a set with n elements have exactly 2ⁿ subsets?"
+    params:
+      keywords:
+        - - drin
+          - nicht
+          - ja
+          - nein
+          - in
+          - out
+          - yes
+          - no
+        - - jedes
+          - element
+          - each
+          - every
+        - - mal
+          - multipl
+          - verdopp
+          - doubl
+          - times
+          - produkt
+          - product
+      sample: "For each element you decide: in or out. That is 2 options per element, and by the product rule you multiply: 2 · 2 · … · 2 = 2ⁿ."
+    explanation: Each element is a yes–no question. n questions with 2 answers each give 2ⁿ subsets.
     difficulty: 3
 
 srs:

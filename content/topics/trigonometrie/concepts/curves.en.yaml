@@ -5,7 +5,7 @@ summary: A circle, unrolled.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 12
 steps:
   - kind: problem
     id: hook
@@ -102,6 +102,72 @@ steps:
     explanation: "At 270° the point is at the very bottom: sine −1."
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "The general sine curve is $y = a \\sin(b x) + d$. a is the **amplitude**, d the midline. The period gets shorter with b: it is 360° / b, in radians 2π / b."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: How long is the period of $y = \sin({{b}}x)$ in degrees?
+    params:
+      unit: °
+    answer:
+      value: "{{360 / b}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 360 * b
+        misconception: inverse-period
+        text: A bigger b makes it oscillate faster – the period shorter.
+    hints:
+      - One full wave when {{b}}x = 360°.
+      - x = 360° / {{b}}.
+    explanation: 360° / {{b}} = {{360 / b}}°.
+    difficulty: 2
+    variants:
+      params:
+        b: choice[2,3,4,5,6,8]
+      defaults:
+        b: 3
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: slider
+    prompt: Set a and b so that $y = a \sin(b x)$ lies exactly on the dashed curve.
+    params:
+      expr: a*sin(b*x)
+      x:
+        - -4
+        - 4
+      y:
+        - -3
+        - 3
+      sliders:
+        - id: a
+          label: a
+          min: -3
+          max: 3
+          step: 0.5
+          initial: 1
+        - id: b
+          label: b
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 1
+      target:
+        expr: 2*sin(2*x)
+    answer:
+      matchTarget: true
+    hints:
+      - How high does the target curve swing? That is a.
+      - "Count the waves: it oscillates twice as fast."
+    explanation: "a = 2 (height) and b = 2 (double speed, half the period: π)."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -118,6 +184,77 @@ steps:
     hints:
       - Think of a chord made of several notes.
     explanation: MP3, JPEG and noise cancelling break signals into frequencies this way.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x1
+    depth: 3
+    widget: numeric
+    prompt: A Ferris wheel is 50 m across. Its axle is 30 m high, one turn takes 20 minutes. You board at the bottom. How high are you after 5 minutes?
+    params:
+      unit: m
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 55
+        misconception: half-turn
+        text: You reach the top only after half a turn, at 10 minutes.
+      - when: abs(numval(state.input) - 17.5) < 0.1
+        misconception: linear-height
+        text: The height does not grow evenly – after a quarter turn you are at axle height.
+    hints:
+      - The height is $30 - 25\cos(\frac{360°}{20} \cdot t)$.
+      - "After 5 minutes: 90°, and cos 90° = 0."
+    explanation: "h(5) = 30 − 25 · cos 90° = 30 m: a quarter turn, exactly at axle height."
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x2
+    depth: 3
+    body: "Fourier showed: every periodic curve is a sum of sine waves. A **square wave** is $\\frac4\\pi\\left(\\sin x + \\frac13 \\sin 3x + \\frac15 \\sin 5x + \\dots\\right)$. MP3, JPEG and the spectra of physics are built on this."
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: choice
+    prompt: A flute and a violin play the same note, the same base frequency. Why do they sound different?
+    params:
+      options:
+        - label: They add overtones – multiples of the base frequency – in different strengths.
+          correct: true
+        - label: The same note means the same period.
+          feedback: Gleicher Ton heißt gleiche Periode.
+        - label: Loudness changes the amplitude, not the timbre.
+          feedback: Lautstärke ändert die Amplitude, nicht die Klangfarbe.
+    hints:
+      - "Think of Fourier: which sine waves are inside the sound?"
+      - Besides the base tone, waves 2, 3, 4 times as fast vibrate along.
+    explanation: The mix of overtones is the **timbre**. A flute sounds almost like a pure sine, a violin has many strong overtones.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x4
+    depth: 3
+    widget: teach
+    prompt: Tell Lux why the sine curve is an unrolled circle.
+    params:
+      keywords:
+        - - höhe
+          - height
+        - - kreis
+          - drehen
+          - dreht
+          - circle
+          - rotat
+          - turn
+        - - winkel
+          - zeit
+          - angle
+          - time
+          - abrollen
+          - unroll
+      sample: A point turns on the unit circle. I plot its height against the angle. Because the rotation repeats after 360 degrees, the curve repeats too – that is the sine curve.
+    explanation: Sine is the height while turning. So everything that rotates or oscillates evenly produces sine curves.
     difficulty: 3
 
 srs:

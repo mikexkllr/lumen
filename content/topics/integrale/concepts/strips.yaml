@@ -5,7 +5,7 @@ summary: Die Idee des Integrals.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 11
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,46 @@ steps:
     explanation: 8 – hier sogar exakt. Das ist die **Trapezregel**.
     difficulty: 2
 
+  - kind: explain
+    id: mb-d1
+    depth: 2
+    body: "Statt Rechtecke kann man **Trapeze** nehmen: Man verbindet die Kurvenpunkte mit geraden Strichen. Bei der Trapezregel schrumpft der Fehler mit 1/n², bei Rechtecken nur mit 1/n. Doppelt so viele Streifen heißt also viermal genauer."
+
+  - kind: problem
+    id: mb-d2
+    depth: 2
+    widget: numeric
+    prompt: Nähere die Fläche unter $y = x^2$ von 0 bis 2 mit 2 Trapezen der Breite 1. Die Kurvenwerte sind 0, 1 und 4.
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: rectangle
+        text: Das sind linke Rechtecke. Ein Trapez nimmt den Mittelwert beider Ränder.
+    hints:
+      - "Trapez = Breite · (linke + rechte Höhe) : 2."
+      - "(0 + 1) : 2 + (1 + 4) : 2."
+    explanation: 0,5 + 2,5 = 3. Exakt sind es 8/3 ≈ 2,67 – schon mit zwei Trapezen nah dran.
+    difficulty: 2
+
+  - kind: problem
+    id: mb-d3
+    depth: 2
+    widget: sim
+    prompt: "Fläche unter $y = x^2$ von 1 bis 2: Nimm so viele Rechtecke, dass der Fehler unter 0,05 liegt."
+    params:
+      scene: riemann
+      expr: x^2
+      interval:
+        - 1
+        - 2
+    answer:
+      error:
+        - 0
+        - 0.05
+    explanation: "Der Fehler ist etwa 1,5 : n, also braucht man rund 30 Rechtecke. Die exakte Fläche ist 7/3."
+    difficulty: 2
+
   - kind: problem
     id: x1
     depth: 3
@@ -107,6 +147,53 @@ steps:
     hints:
       - Die Fläche liegt immer zwischen zwei berechenbaren Summen.
     explanation: Rücken beide Summen beliebig nah zusammen, heißt die Funktion **Riemann-integrierbar**.
+    difficulty: 3
+
+  - kind: explain
+    id: mb-x1
+    depth: 3
+    body: Bei einer steigenden Kurve fehlt jedem linken Rechteck ungefähr ein Dreieck. Zusammen ist der Fehler etwa $\frac{(f(b) - f(a))\,(b - a)}{2n}$. So kann man vorher ausrechnen, wie viele Streifen eine gewünschte **Genauigkeit** braucht.
+
+  - kind: problem
+    id: mb-x2
+    depth: 3
+    widget: numeric
+    prompt: Für f(x) = x von 0 bis 4 ist der Fehler der linken Summe genau $\frac{8}{n}$. Wie viele Streifen braucht man mindestens für einen Fehler von höchstens 0,01?
+    answer:
+      value: 800
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: factor-ten
+        text: Dann wäre der Fehler 0,1. Noch zehnmal mehr.
+    hints:
+      - "8 : n ≤ 0,01."
+      - "n ≥ 8 : 0,01."
+    explanation: n = 800. Mit Trapezen wäre der Fehler bei einer Geraden sofort null – sie sind dort exakt.
+    difficulty: 3
+
+  - kind: problem
+    id: mb-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum mehr und schmalere Streifen die Fläche genauer treffen.
+    params:
+      keywords:
+        - - schmal
+          - schmaler
+          - narrow
+          - thin
+        - - ecke
+          - dreieck
+          - lücke
+          - corner
+          - triangle
+          - gap
+        - - fehler
+          - kleiner
+          - error
+          - smaller
+      sample: Jedes Rechteck passt nicht ganz unter die Kurve, oben bleibt ein kleines Dreieck als Lücke. Je schmaler die Streifen, desto kleiner werden diese Dreiecke. Der Fehler schrumpft, bis die Summe die Fläche trifft.
+    explanation: Viele kleine Fehler schrumpfen schneller, als ihre Anzahl wächst – darum hat die Summe einen Grenzwert.
     difficulty: 3
 
 srs:
