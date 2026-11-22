@@ -2,7 +2,7 @@
 
 🌐 **English** · [Deutsch](README.de.md)
 
-**Lumen is a free alternative to Brilliant.org: learn math, science, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
+**Lumen is a free alternative to Brilliant.org: learn math, physics, chemistry, biology, electrical engineering, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
 
 Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
 
@@ -12,7 +12,7 @@ Lumen is a free, open-source learning app with short interactive problems and in
 
 - **Free forever** – no subscription, no paywall, no ads.
 - **Learn by doing** – 26 interactive problem types instead of videos: drag, build, simulate, play.
-- **Zero to hero** – 7 subjects, each with one learning path through five stages.
+- **Zero to hero** – 9 subjects, each with one learning path through five stages.
 - **Lux, an AI tutor in every lesson** – asks how you got your answer and never gives the solution away.
 - **Private by design** – no account, no tracking; progress stays on your device.
 - **Open** – code under MIT/AGPL, content under CC BY-SA 4.0. Self-host it at your school.
@@ -31,7 +31,7 @@ Lumen is a free, open-source learning app with short interactive problems and in
 | Accessibility | keyboard and screen-reader support (`describe()` of every widget as a live region), every manipulative usable without dragging, right/wrong shown with icon and text, not colour alone, dark mode, high contrast, reduced motion, font size, Atkinson Hyperlegible |
 | Sync server (`@lumen/server`, AGPL) | optional; Fastify + SQLite (`node:sqlite`); sync code instead of email/password; idempotent merge; export and delete; tutor endpoint for Lux |
 | Lux – tutor and mascot | in every lesson: before answering ("What is this about?", hint), after mistakes ("Go through it with Lux": Lux first asks how you got your answer and builds on your reasoning; up to four tries), at the end of every lesson and course as a mistakes review (every wrong problem with the answer you gave), after the solution ("Why is this right?") and on explain screens; talks to any OpenAI-compatible model (Ollama locally, e.g. OpenRouter in production); a deterministic leak guard discards replies that give the solution away; without a model or offline, a rule tutor answers from the lesson's hints; under-16s get the rule tutor only |
-| Content (CC BY-SA 4.0) | 7 subjects, each with one learning path from zero to hero in five stages (Starter, Foundations, Intermediate, Advanced, Expert): 98 courses, 525 lessons in three depth stages (core, deeper, expert), 4078 steps, 3482 problems (with variant generators), many courses with their own hands-on lab lesson, in English and German – **Mathematics** (28 courses: mental arithmetic and fractions up to calculus, integrals, matrices, complex numbers), **Physics** (13: the universe up to optics, nuclear physics, relativity, entropy and the quantum world), **Chemistry** (10: mixtures up to climate, redox and equilibrium), **Computer science** (13: code and bits up to databases, IT security and complexity), **Data science** (13: data and charts up to time series, Bayes, regression and hypothesis tests), **AI** (10: machine learning, responsibility, generative AI up to transformers and agents), **Logic & reasoning** (11: puzzles and fallacies up to quantifiers, proofs and Gödel) |
+| Content (CC BY-SA 4.0) | 9 subjects, each with one learning path from zero to hero in five stages (Starter, Foundations, Intermediate, Advanced, Expert): 150 courses, 772 lessons in three depth stages (core, deeper, expert), 9558 steps, 8071 problems (with variant generators), 29 hands-on lab scenes, in English and German – **Mathematics** (33 courses: mental arithmetic, fractions and units up to calculus, series, differential equations, groups, eigenvalues and complex numbers), **Physics** (17: the universe up to momentum, oscillations, optics, stars and cosmos, relativity, the quantum world and solid-state physics), **Chemistry** (14: mixtures up to kitchen chemistry, reaction rates, redox, batteries and the molecules of life), **Biology** (14: what life is and the human body up to genetics, evolution, the immune system, DNA, biotechnology and systems biology), **Electrical engineering** (13: electricity at home up to capacitors, AC, diodes, transistors, op-amps, signals and filters, power systems and control), **Computer science** (17: code and bits up to how a CPU works, operating systems, distributed systems, compilers and complexity), **Data science** (17: data and charts up to experiments and causality, distributions, Bayes, hypothesis tests, information theory and clustering), **AI** (12: machine learning, search and planning, embeddings, generative AI up to transformers and agents), **Logic & reasoning** (13: puzzles and fallacies up to proofs, induction, modal logic and Gödel) |
 
 Not done yet (later on the roadmap): leagues (M5), Capacitor apps and push notifications (M2), Python editor (M4).
 
