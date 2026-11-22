@@ -347,6 +347,26 @@ export const SIM_SCENES: Record<string, SimScene> = {
       return { circular: r(vc, 1), escape: r(vc * Math.SQRT2, 1), ecc: r(ecc, 2), kind, period: r(period, 2) };
     },
   },
+  arrhenius: {
+    title: { de: 'Reaktionstempo', en: 'Reaction rate' },
+    controls: [
+      { id: 'temperature', label: { de: 'Temperatur', en: 'Temperature' }, unit: '°C', min: 0, max: 200, step: 5, value: 25 },
+      { id: 'ea', label: { de: 'Aktivierungsenergie Eₐ', en: 'Activation energy Eₐ' }, unit: 'kJ/mol', min: 10, max: 150, step: 5, value: 50 },
+      { id: 'catalyst', label: { de: 'Katalysator senkt Eₐ um', en: 'Catalyst lowers Eₐ by' }, unit: 'kJ/mol', min: 0, max: 60, step: 5, value: 0, fixed: true },
+    ],
+    outputs: [
+      { id: 'factor', label: { de: 'Tempo im Vergleich zu 25 °C', en: 'Rate compared with 25 °C' }, unit: '×', digits: 1 },
+      { id: 'eaeff', label: { de: 'Wirksame Eₐ', en: 'Effective Eₐ' }, unit: 'kJ/mol', digits: 0 },
+    ],
+    // Arrhenius: k ∝ exp(−Eₐ/RT); compared with the uncatalysed reaction at 25 °C
+    compute: (v) => {
+      const R = 8.314e-3;
+      const T = v.temperature + 273.15;
+      const eaeff = Math.max(1, v.ea - v.catalyst);
+      const factor = Math.exp(-eaeff / (R * T) + v.ea / (R * 298.15));
+      return { factor: r(Math.min(factor, 1e12), 1), eaeff: r(eaeff, 0) };
+    },
+  },
   // ---------- Biologie ----------
   population: {
     title: { de: 'Population', en: 'Population' },

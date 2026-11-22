@@ -472,6 +472,33 @@ const Label = ({ x, y, children, color = 'var(--ink-3)', anchor = 'start' }: { x
   <text x={x} y={y} fontSize="10" textAnchor={anchor} fill={color}>{children}</text>
 );
 
+function Arrhenius({ v, o }: SceneProps) {
+  // top: energy profile (reactants → transition state → products); bottom: energy distribution of the molecules
+  const sx = (x: number) => 24 + x * (W - 40);
+  // reactants at y = 92, products 14 px lower in energy (exothermic); the hump rises with Eₐ
+  const smooth = (x: number) => 1 / (1 + Math.exp(-(x - 0.5) * 18));
+  const hump = (ea: number) => (x: number) => 92 + 14 * smooth(x) - (ea / 150) * 76 * Math.exp(-(((x - 0.5) / 0.12) ** 2));
+  // illustrative distribution: exaggerated thermal energy so the tail beyond Eₐ is visible
+  const kT = 10 + (v.temperature / 200) * 25;
+  const f = (e: number) => (Math.sqrt(e) * Math.exp(-e / kT)) / Math.sqrt(kT ** 3);
+  const ex = (e: number) => 24 + (e / 150) * (W - 40);
+  // square-root height (peak of the coldest curve = 1) so the thin tail beyond Eₐ stays visible
+  const ey = (y: number) => 168 - Math.sqrt(Math.max(0, y) / (0.429 / 10)) * 52;
+  return (
+    <>
+      {v.catalyst > 0 && <path d={plot(hump(v.ea), 0, 1, sx, (y) => y, 100)} fill="none" stroke="var(--ink-3)" strokeWidth="1.5" strokeDasharray="4 3" />}
+      <path d={plot(hump(o.eaeff), 0, 1, sx, (y) => y, 100)} fill="none" stroke="var(--accent)" strokeWidth="2.5" />
+      <Label x={sx(0.02)} y="86">A + B</Label>
+      <Label x={sx(0.98)} y="100" anchor="end">C</Label>
+      <line x1="24" y1="168" x2={W - 10} y2="168" stroke="var(--axis)" />
+      <path d={`${plot(f, Math.min(150, o.eaeff), 150, ex, ey, 60)} L${ex(150)} 168 L${ex(Math.min(150, o.eaeff))} 168 Z`} fill="color-mix(in srgb, var(--bad) 35%, transparent)" />
+      <path d={plot(f, 0.01, 150, ex, ey, 150)} fill="none" stroke="var(--amber-deep)" strokeWidth="2" />
+      <line x1={ex(o.eaeff)} y1="112" x2={ex(o.eaeff)} y2="168" stroke="var(--bad)" strokeDasharray="4 3" />
+      <Label x={ex(o.eaeff) + 3} y="122" color="var(--bad)">Eₐ</Label>
+    </>
+  );
+}
+
 function Population({ v, o }: SceneProps) {
   const series = logisticSeries(v.rate, v.capacity, v.start, 40);
   const top = 1100;
@@ -735,7 +762,7 @@ function Spring({ v, o, t }: SceneProps) {
 const SCENES: Record<string, (p: SceneProps) => ReactNode> = {
   projectile: Projectile, pendulum: Pendulum, wave: Wave, circuit: Circuit, gas: Gas, lever: Lever, tangent: Tangent, riemann: Riemann,
   unitcircle: UnitCircle, neuron: Neuron, descent: Descent, normal: Normal, decay: Decay, growth: Growth, lens: Lens, orbit: Orbit,
-  population: Population, epidemic: Epidemic, hardy: Hardy, enzyme: Enzyme, predator: Predator,
+  arrhenius: Arrhenius, population: Population, epidemic: Epidemic, hardy: Hardy, enzyme: Enzyme, predator: Predator,
   rc: Rc, divider: Divider, lowpass: Lowpass, resonance: Resonance, transformer: Transformer, sampling: Sampling, spring: Spring,
 };
 const ANIMATED = new Set(['projectile', 'pendulum', 'wave', 'circuit', 'gas', 'orbit', 'lowpass', 'resonance', 'spring']);
