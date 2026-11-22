@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -60,6 +60,43 @@ steps:
       - Ein NOR gibt 0, sobald ein Eingang 1 ist.
       - Lässt man beide gleichzeitig los, gewinnt das schnellere Gatter.
     explanation: Darum gilt S = R = 1 als verbotener Zustand. Getaktete Flipflops vermeiden das Problem.
+
+  - kind: problem
+    id: ff-c1
+    widget: gates
+    prompt: Zwei NOR-Gatter halten sich gegenseitig. Speichere eine **1** in Q – und lass danach beide Taster wieder los.
+    params:
+      inputs:
+        - id: S
+          label: S
+          value: 0
+        - id: R
+          label: R
+          value: 0
+      gates:
+        - id: nq
+          type: NOR
+          in:
+            - S
+            - q
+        - id: q
+          type: NOR
+          in:
+            - R
+            - nq
+      outputs:
+        - id: Q
+          from: q
+          label: Q
+        - id: NQ
+          from: nq
+          label: Q̄
+    check:
+      predicate: Q == 1 && inputs.S == 0 && inputs.R == 0
+    hints:
+      - S heißt »Setzen«. Was passiert mit Q, wenn du S kurz einschaltest?
+      - S an, dann S wieder aus. Q bleibt 1, weil Q̄ = 0 das untere Gatter festhält.
+    explanation: Nach dem Setzen ist Q̄ = 0. Das NOR-Gatter für Q bekommt dann 0 und 0 und liefert weiter 1 – die Schaltung **merkt** sich das Bit, obwohl kein Taster mehr gedrückt ist.
 
   - kind: explain
     id: d1
@@ -126,6 +163,45 @@ steps:
       left: Vergisst
       right: Speichert
     explanation: Speichern braucht Rückkopplung. Gatter ohne Rückkopplung hängen nur von den aktuellen Eingängen ab.
+    difficulty: 2
+
+  - kind: problem
+    id: ff-d1
+    depth: 2
+    widget: gates
+    prompt: "In Chips baut man das Flipflop oft aus NAND-Gattern. Die Taster sind dann **aktiv-low**: Gedrückt heißt 0, losgelassen 1. Speichere eine **1** in Q und lass beide Taster wieder los (beide auf 1)."
+    params:
+      inputs:
+        - id: S
+          label: S̄
+          value: 1
+        - id: R
+          label: R̄
+          value: 1
+      gates:
+        - id: nq
+          type: NAND
+          in:
+            - R
+            - q
+        - id: q
+          type: NAND
+          in:
+            - S
+            - nq
+      outputs:
+        - id: Q
+          from: q
+          label: Q
+        - id: NQ
+          from: nq
+          label: Q̄
+    check:
+      predicate: Q == 1 && inputs.S == 1 && inputs.R == 1
+    hints:
+      - "Aktiv-low: Um zu setzen, schaltest du S̄ auf 0."
+      - S̄ auf 0, dann zurück auf 1. Ein NAND mit einer 0 am Eingang liefert immer 1.
+    explanation: S̄ = 0 zwingt das obere NAND auf Q = 1. Dann ist Q̄ = NAND(1, 1) = 0, und dieses 0 hält Q auf 1, auch wenn S̄ wieder 1 ist. Sind beide Taster gedrückt (0), werden Q und Q̄ beide 1 – der **verbotene** Zustand.
     difficulty: 2
 
   - kind: problem

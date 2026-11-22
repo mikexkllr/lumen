@@ -140,6 +140,20 @@ export function circuitDepths(p: GatesParams): Record<string, number> {
     return (depth[id] = v);
   };
   for (const g of p.gates) d(g.id);
+  // gates that feed each other (a latch) share one column, like the textbook drawing
+  const reach = (from: string, to: string): boolean => {
+    const seen = new Set<string>();
+    const stack = [from];
+    while (stack.length) {
+      const id = stack.pop()!;
+      for (const x of gateById.get(id)?.in ?? []) {
+        if (x === to) return true;
+        if (gateById.has(x) && !seen.has(x)) seen.add(x), stack.push(x);
+      }
+    }
+    return false;
+  };
+  for (const a of p.gates) for (const b of p.gates) if (a.id !== b.id && reach(a.id, b.id) && reach(b.id, a.id)) depth[a.id] = depth[b.id] = Math.min(depth[a.id], depth[b.id]);
   const maxD = Math.max(0, ...Object.values(depth));
   for (const o of p.outputs) depth[o.id] = maxD + 1;
   return depth;

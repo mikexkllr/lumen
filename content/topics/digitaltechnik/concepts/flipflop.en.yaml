@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -60,6 +60,43 @@ steps:
       - A NOR outputs 0 as soon as one input is 1.
       - Release both at once and the faster gate wins.
     explanation: That is why S = R = 1 counts as forbidden. Clocked flip-flops avoid the problem.
+
+  - kind: problem
+    id: ff-c1
+    widget: gates
+    prompt: Two NOR gates hold each other. Store a **1** in Q – then release both buttons again.
+    params:
+      inputs:
+        - id: S
+          label: S
+          value: 0
+        - id: R
+          label: R
+          value: 0
+      gates:
+        - id: nq
+          type: NOR
+          in:
+            - S
+            - q
+        - id: q
+          type: NOR
+          in:
+            - R
+            - nq
+      outputs:
+        - id: Q
+          from: q
+          label: Q
+        - id: NQ
+          from: nq
+          label: Q̄
+    check:
+      predicate: Q == 1 && inputs.S == 0 && inputs.R == 0
+    hints:
+      - S means "set". What happens to Q when you switch S on briefly?
+      - S on, then S off again. Q stays 1 because Q̄ = 0 holds the lower gate.
+    explanation: After setting, Q̄ = 0. The NOR gate for Q then gets 0 and 0 and keeps delivering 1 – the circuit **remembers** the bit although no button is pressed any more.
 
   - kind: explain
     id: d1
@@ -126,6 +163,45 @@ steps:
       left: Forgets
       right: Stores
     explanation: Storing needs feedback. Gates without feedback depend only on their present inputs.
+    difficulty: 2
+
+  - kind: problem
+    id: ff-d1
+    depth: 2
+    widget: gates
+    prompt: "In chips the flip-flop is often built from NAND gates. The buttons are then **active-low**: pressed means 0, released 1. Store a **1** in Q and release both buttons again (both at 1)."
+    params:
+      inputs:
+        - id: S
+          label: S̄
+          value: 1
+        - id: R
+          label: R̄
+          value: 1
+      gates:
+        - id: nq
+          type: NAND
+          in:
+            - R
+            - q
+        - id: q
+          type: NAND
+          in:
+            - S
+            - nq
+      outputs:
+        - id: Q
+          from: q
+          label: Q
+        - id: NQ
+          from: nq
+          label: Q̄
+    check:
+      predicate: Q == 1 && inputs.S == 1 && inputs.R == 1
+    hints:
+      - "Active-low: to set, you switch S̄ to 0."
+      - S̄ to 0, then back to 1. A NAND with a 0 at its input always delivers 1.
+    explanation: S̄ = 0 forces the upper NAND to Q = 1. Then Q̄ = NAND(1, 1) = 0, and this 0 holds Q at 1 even when S̄ is back at 1. If both buttons are pressed (0), Q and Q̄ both become 1 – the **forbidden** state.
     difficulty: 2
 
   - kind: problem

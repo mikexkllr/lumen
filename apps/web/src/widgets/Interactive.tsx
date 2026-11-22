@@ -310,7 +310,16 @@ export function GatesView({ params, state, dispatch, readOnly, locale }: WidgetV
   const rowsMax = Math.max(...byCol.map((c) => c.length));
   const H = Math.max(140, rowsMax * 78 + 20);
   const pos: Record<string, { x: number; y: number }> = {};
-  byCol.forEach((ids, c) => ids.forEach((id, k) => (pos[id] = { x: 40 + c * ((W - 80) / Math.max(1, cols - 1)), y: (H / (ids.length + 1)) * (k + 1) })));
+  // place column by column; within a column, order by the mean height of the sources already placed (fewer crossings)
+  const sources = (id: string) => params.gates.find((g) => g.id === id)?.in ?? params.outputs.filter((o) => o.id === id).map((o) => o.from);
+  byCol.forEach((ids, c) => {
+    const key = (id: string, k: number) => {
+      const ys = sources(id).filter((s) => pos[s]).map((s) => pos[s].y);
+      return ys.length ? ys.reduce((a, b) => a + b, 0) / ys.length : k * 1000;
+    };
+    const sorted = c === 0 ? ids : ids.map((id, k) => ({ id, y: key(id, k) })).sort((a, b) => a.y - b.y).map((e) => e.id);
+    sorted.forEach((id, k) => (pos[id] = { x: 40 + c * ((W - 80) / Math.max(1, cols - 1)), y: (H / (ids.length + 1)) * (k + 1) }));
+  });
   const gateW = 66;
   const gateH = 44;
   const outPort = (id: string) => {
@@ -324,7 +333,12 @@ export function GatesView({ params, state, dispatch, readOnly, locale }: WidgetV
     return { x: p.x - gateW / 2, y: p.y - gateH / 2 + (gateH / (n + 1)) * (k + 1) };
   };
   const wire = (a: { x: number; y: number }, b: { x: number; y: number }) => {
-    // feedback runs back to the left: route it in a loop below both ends
+    // cross-coupled gates in one column (a latch): run through the gap between them, two wires side by side
+    if (Math.abs(b.x + gateW - a.x) < 4 && Math.abs(a.y - b.y) > 8) {
+      const mid = (a.y + b.y) / 2 + (a.y < b.y ? -5 : 5);
+      return `M${a.x},${a.y} H${a.x + 12} V${mid} H${b.x - 12} V${b.y} H${b.x}`;
+    }
+    // other feedback runs back to the left: route it in a loop below both ends
     if (b.x <= a.x + 8) {
       const low = Math.min(H - 8, Math.max(a.y, b.y) + gateH * 0.75);
       return `M${a.x},${a.y} C${a.x + 26},${a.y} ${a.x + 26},${low} ${a.x},${low} L${b.x},${low} C${b.x - 26},${low} ${b.x - 26},${b.y} ${b.x},${b.y}`;
