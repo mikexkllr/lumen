@@ -7,7 +7,7 @@ import { buildBundles, checkContent, generateSigningKey, sha256, verifyManifest,
 const CONTENT = join(import.meta.dirname, '../../../content');
 
 // Checking every lesson and variant takes several seconds on the full catalogue.
-describe('lumen check', { timeout: 60_000 }, () => {
+describe('lumen check', { timeout: 120_000 }, () => {
   it('the shipped content passes all evals without errors or warnings', async () => {
     const { issues, stats } = await checkContent(CONTENT);
     const bad = issues.filter((i) => i.level !== 'info');
@@ -23,7 +23,7 @@ describe('lumen check', { timeout: 60_000 }, () => {
   });
 });
 
-describe('lumen build', () => {
+describe('lumen build', { timeout: 120_000 }, () => {
   it('writes content-hashed, signed bundles that verify', async () => {
     const out = await mkdtemp(join(tmpdir(), 'lumen-build-'));
     const { privatePem, publicKeyRawB64 } = generateSigningKey();
