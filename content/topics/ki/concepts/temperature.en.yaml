@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.temperature]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: kalt
@@ -91,6 +91,57 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: distribution
+    prompt: Make the model so bold that the most popular word drops **below 40 %**.
+    params:
+      mode: tokens
+      context: For breakfast I drink
+      items:
+        - label: tea
+          logit: 2
+        - label: coffee
+          logit: 1.5
+        - label: juice
+          logit: 0.5
+        - label: water
+          logit: 0
+      temperature:
+        min: 0.2
+        max: 3
+        step: 0.2
+        initial: 1
+      sample:
+        - 1
+        - 10
+    check:
+      predicate: temperature >= 1.75
+    hints:
+      - At T = 1, "tea" has about 51 %. Which way must you turn?
+      - High temperature flattens the distribution.
+    explanation: From about T = 1.8, "tea" is below 40 %. The logits are divided by T – a large T shrinks the gaps.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Two tokens have logits 2 and 0, temperature 1. With softmax: p = e² / (e² + e⁰). What percentage does the first token get? Rounded."
+    answer:
+      value: 88
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: exp-zero
+        text: e⁰ = 1, not 0 – the second token gets a share too.
+    hints:
+      - e² ≈ 7.39 and e⁰ = 1.
+      - 7.39 / 8.39 = ?
+    explanation: "7.39 / 8.39 ≈ 0.88. Softmax turns any numbers into probabilities: positive and summing to 1. A logit gap of 2 means about 7 times as likely."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -100,4 +151,44 @@ steps:
     hints:
       - 2 ÷ 0.5 and 0 ÷ 0.5.
     explanation: "2 becomes 4: low temperature widens gaps, the favourite dominates. High temperature levels them."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: With top-p sampling at p = 0.9, the model keeps the most likely tokens until together they have at least 90 %. The tokens have 50 %, 30 %, 15 % and 5 %. How many remain?
+    answer:
+      value: 3
+    hints:
+      - "Add from the top: 50, 80, 95 …"
+      - When does the sum first reach at least 90 %?
+    explanation: "50 + 30 = 80 is not enough, 50 + 30 + 15 = 95 is. Unlike top-k, top-p adapts: when the model is sure, few tokens remain, otherwise many."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what the temperature changes in a language model.
+    params:
+      keywords:
+        - - niedrig
+          - klein
+          - low
+        - - hoch
+          - hoh
+          - groß
+          - high
+        - - wahrscheinlich
+          - selten
+          - likely
+          - rare
+        - - kreativ
+          - vorhersehbar
+          - zufällig
+          - creative
+          - predictable
+          - random
+      sample: At low temperature the model nearly always picks the most likely word, so answers are predictable. At high temperature rare words get chosen too – more creative, but more error-prone.
     difficulty: 3

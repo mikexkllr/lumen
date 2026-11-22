@@ -5,7 +5,7 @@ summary: Plan so that nobody gets eaten.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zuerst
@@ -77,6 +77,96 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: network
+    prompt: 'Each node shows who is still on the left: F farmer, W wolf, G goat, C cabbage. Lines are allowed crossings. Find the shortest route from "all left" to "all right".'
+    params:
+      start: n1
+      end: n10
+      aspect: 0.5
+      nodes:
+        - id: n1
+          x: 4
+          y: 50
+          label: FWGC
+        - id: n2
+          x: 16
+          y: 50
+          label: WC
+        - id: n3
+          x: 29
+          y: 50
+          label: FWC
+        - id: n4
+          x: 43
+          y: 12
+          label: C
+        - id: n5
+          x: 43
+          y: 88
+          label: W
+        - id: n6
+          x: 58
+          y: 12
+          label: FGC
+        - id: n7
+          x: 58
+          y: 88
+          label: FWG
+        - id: n8
+          x: 71
+          y: 50
+          label: G
+        - id: n9
+          x: 84
+          y: 50
+          label: FG
+        - id: n10
+          x: 96
+          y: 50
+          label: –
+      edges:
+        - a: n1
+          b: n2
+        - a: n2
+          b: n3
+        - a: n3
+          b: n4
+        - a: n3
+          b: n5
+        - a: n4
+          b: n6
+        - a: n5
+          b: n7
+        - a: n6
+          b: n8
+        - a: n7
+          b: n8
+        - a: n8
+          b: n9
+        - a: n9
+          b: n10
+    hints:
+      - "From the start there is only one allowed crossing: the goat goes across."
+      - In the middle the route splits – both branches are equally long.
+    explanation: "Seven crossings, and there are exactly two shortest solutions: wolf first or cabbage first. The puzzle is a search in the state graph."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Three monks and three robbers want to cross a river. The boat holds two. Robbers may never outnumber monks on a bank where monks are present. How many crossings are needed at least?
+    answer:
+      value: 11
+    hints:
+      - Each direction counts as one crossing. The boat always has to come back.
+      - A breadth-first search over all allowed states finds the answer for sure.
+    explanation: The shortest solution has 11 crossings. You find it by searching all allowed states, just as with the wolf–goat–cabbage puzzle.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -92,6 +182,51 @@ steps:
     hints:
       - What you reach first is nearest.
     explanation: "**Breadth-first search** spreads like a wave. The app checks in exactly this way whether its puzzles are solvable."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: You have a 4-litre and a 6-litre bucket and a tap. Can you measure exactly 3 litres?
+    params:
+      options:
+        - label: No – every amount you can reach is even.
+          correct: true
+        - label: Yes, with enough pouring.
+          feedback: "Try it: you only ever get 0, 2, 4 or 6 litres."
+        - label: Yes, by filling the 6-litre bucket halfway.
+          feedback: Halving by eye is not exact – only filling, emptying and pouring are allowed.
+    hints:
+      - Which amounts appear when you fill, empty and pour?
+      - All amounts are sums and differences of 4 and 6. What do they have in common?
+    explanation: "This is an invariant: every amount is a multiple of gcd(4, 6) = 2. With 3 and 5 litres the gcd is 1, which is why every whole number of litres works there."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer reliably solves a river puzzle with the fewest crossings.
+    params:
+      keywords:
+        - - zustand
+          - zustände
+          - state
+        - - fahrt
+          - zug
+          - übergang
+          - schritt
+          - crossing
+          - move
+          - step
+        - - kürzest
+          - wenigst
+          - breit
+          - shortest
+          - fewest
+          - breadth
+      sample: It lists every state, meaning who is on which bank. Then it tries all crossings one step away, then two, and so on. Breadth-first search finds the shortest route first.
     difficulty: 3
 
 srs:

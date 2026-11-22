@@ -5,7 +5,7 @@ summary: Wenn ein Modell nur die Übungsdaten kann.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 7
 steps:
   - kind: problem
     id: klausur
@@ -72,6 +72,47 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Durch {{n}} Punkte mit verschiedenen x-Werten passt immer ein Polynom vom Grad … ?
+    answer:
+      value: "{{n - 1}}"
+    feedback:
+      - when: numval(state.input) == n
+        misconception: off-by-one
+        text: Für 2 Punkte reicht eine Gerade, also Grad 1. Der Grad ist eins kleiner.
+    hints:
+      - "2 Punkte: Gerade (Grad 1). 3 Punkte: Parabel (Grad 2)."
+      - Bei {{n}} Punkten also?
+    explanation: "Grad {{n - 1}} trifft jeden Punkt exakt – auch das Rauschen. Zwischen den Punkten schlägt die Kurve oft wild aus. Perfekt im Training heißt nicht gut: Das ist **Überanpassung**."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Beim Training zählt man eine Strafe für große Gewichte zum Fehler dazu (»Weight Decay«). Wozu?
+    params:
+      options:
+        - label: Kleine Gewichte ergeben glattere Funktionen, die Rauschen weniger nachzeichnen.
+          correct: true
+        - label: Damit das Modell schneller rechnet.
+          feedback: Die Rechenzeit bleibt gleich – nur die Werte werden kleiner.
+        - label: Damit der Trainingsfehler sinkt.
+          feedback: Er steigt meist leicht – dafür sinkt der Fehler auf neuen Daten.
+    hints:
+      - Wilde Kurven brauchen große Gewichte.
+      - "Was ist wichtiger: Trainings- oder Testfehler?"
+    explanation: Diese **Regularisierung** tauscht etwas Trainingsgenauigkeit gegen Verallgemeinerung. Ähnlich wirken mehr Daten, Dropout und frühes Stoppen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -98,6 +139,25 @@ steps:
           - step
       min: 3
       sample: Das Netz macht für ein Beispiel eine Vorhersage und misst den Fehler. Dann verändert es jedes Gewicht ein kleines Stück in die Richtung, die den Fehler verkleinert – Millionen Mal mit vielen Beispielen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Sehr große Netze können ihre Trainingsdaten auswendig lernen – und verallgemeinern trotzdem oft gut. Was beobachtet man dabei?
+    params:
+      options:
+        - label: Der Testfehler kann nach einem Anstieg mit noch mehr Parametern wieder sinken.
+          correct: true
+        - label: Größere Netze überanpassen immer stärker.
+          feedback: Klassisch erwartet – aber in der Praxis oft nicht der Fall.
+        - label: Große Netze machen nie Fehler.
+          feedback: Sie machen Fehler, nur oft weniger als erwartet.
+    hints:
+      - Klassisch steigt der Testfehler mit der Modellgröße irgendwann an.
+      - Was passiert, wenn man noch viel größer wird?
+    explanation: Dieser **doppelte Abstieg** ist in vielen Versuchen gemessen. Warum große Netze so gut verallgemeinern, ist noch nicht vollständig verstanden – ein aktives Forschungsfeld.
     difficulty: 3
 
 srs:

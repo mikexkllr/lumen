@@ -5,7 +5,7 @@ summary: Gewichten, addieren, entscheiden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: summe
@@ -90,6 +90,55 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Ein Neuron mit ReLU: Eingaben {{x}} und {{y}}, Gewichte {{a}} und −1, Bias {{b}}. Ausgabe = max(0, Summe). Was gibt es aus?"
+    answer:
+      value: "{{max(0, x * a - y + b)}}"
+    feedback:
+      - when: x * a - y + b < 0 && numval(state.input) == x * a - y + b
+        misconception: relu-negative
+        text: Die Summe ist negativ – ReLU macht daraus 0.
+    hints:
+      - "Summe: {{x}} · {{a}} + {{y}} · (−1) + {{b}}."
+      - Die Summe ist {{x * a - y + b}}. Ist sie negativ, kommt 0 heraus.
+    explanation: Summe {{x * a - y + b}}, Ausgabe {{max(0, x * a - y + b)}}. **ReLU** lässt Positives durch und schneidet Negatives ab – einfach und schnell.
+    difficulty: 2
+    variants:
+      params:
+        x: int[1,5]
+        y: int[1,9]
+        a: int[1,3]
+        b: int[-3,3]
+      constraints:
+        - x * a - y + b != 0
+      defaults:
+        x: 3
+        y: 4
+        a: 2
+        b: 1
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Zwei Eingaben (0 oder 1), beide mit Gewicht 1. Ab welcher Schwelle wirkt das Neuron wie ein ODER?
+    params:
+      options:
+        - label: Es feuert ab einer Summe über 0,5.
+          correct: true
+        - label: Es feuert ab einer Summe über 1,5.
+          feedback: Dann feuert es nur, wenn beide an sind – das ist UND.
+        - label: Es feuert ab einer Summe über 2,5.
+          feedback: Die Summe ist höchstens 2 – es feuert nie.
+    hints:
+      - ODER soll feuern, sobald mindestens ein Eingang 1 ist.
+      - Dann ist die Summe mindestens 1.
+    explanation: "Schwelle 0,5: Summe 0 bleibt still, Summe 1 oder 2 feuert. Dieselben Gewichte ergeben je nach **Schwelle** ODER oder UND."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,6 +154,48 @@ steps:
     hints:
       - Eine Gerade in eine Gerade eingesetzt ergibt wieder eine Gerade.
     explanation: Erst der »Knick« der Aktivierung erlaubt gekrümmte Grenzen. Tiefe ohne Nichtlinearität ist nutzlos.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Die Sigmoid-Funktion σ(z) = 1 / (1 + e⁻ᶻ) ist für große |z| fast flach. Welches Problem macht das beim Lernen?
+    params:
+      options:
+        - label: Die Steigung ist fast 0 – das Neuron bekommt kaum noch Lernsignal.
+          correct: true
+        - label: Die Ausgabe wird unendlich groß.
+          feedback: Sigmoid bleibt immer zwischen 0 und 1.
+        - label: Gar keins – flach ist stabil.
+          feedback: Stabil schon, aber das Gewicht ändert sich dann kaum.
+    hints:
+      - Gewichte ändern sich proportional zur Steigung.
+      - Wie steil ist eine fast waagrechte Kurve?
+    explanation: Die Steigung von Sigmoid ist höchstens 0,25 und weit draußen fast 0. Über viele Schichten **verschwindet** das Signal. ReLU hat für positive Werte die Steigung 1 – ein Grund, warum es sich durchgesetzt hat.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was ein künstliches Neuron rechnet.
+    params:
+      keywords:
+        - - gewicht
+          - weight
+        - - summe
+          - addier
+          - sum
+          - add
+        - - schwelle
+          - aktivier
+          - feuer
+          - bias
+          - threshold
+          - activat
+          - fire
+      sample: Ein Neuron multipliziert jede Eingabe mit einem Gewicht und bildet die Summe, dazu kommt ein Bias. Eine Aktivierung entscheidet dann, was herauskommt – etwa ob es feuert.
     difficulty: 3
 
 srs:

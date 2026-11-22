@@ -1,0 +1,173 @@
+id: logic.induction.strong
+type: concept
+title: "Starke Induktion"
+summary: "Manchmal braucht der Schritt nicht nur n, sondern alle kleineren Fälle."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: Du hast nur 3-Cent- und 5-Cent-Briefmarken. Welcher ist der **größte** Betrag, den du nicht genau kleben kannst?
+    answer:
+      value: 7
+    hints:
+      - "Probiere: 1, 2, 4, 7 gehen nicht. Was ist mit 8, 9, 10?"
+      - 8 = 3 + 5, 9 = 3 + 3 + 3, 10 = 5 + 5. Und danach?
+    explanation: "7 geht nicht, ab 8 geht alles: Hat man 8, 9, 10, erhält man 11, 12, 13 durch eine weitere 3-Cent-Marke – und so fort."
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Warum braucht der Briefmarken-Beweis **drei** Anfangsfälle (8, 9, 10)?
+    params:
+      options:
+        - label: Der Schritt greift auf n − 3 zurück, nicht auf n − 1.
+          correct: true
+        - label: Weil drei eine Glückszahl ist.
+          feedback: Es liegt an der 3-Cent-Marke, nicht an Glück.
+        - label: Einer würde reichen.
+          feedback: Aus 8 allein folgen nur 11, 14, 17 … – 9 und 10 fehlen.
+    hints:
+      - Aus welchem kleineren Betrag baust du n?
+      - n = (n − 3) + 3.
+    explanation: Der Schritt springt um 3 zurück. Darum braucht man drei Startsteine nebeneinander – sonst bleiben Lücken in der **Kette**.
+
+  - kind: explain
+    id: c3
+    body: "Bei der **starken Induktion** darf der Schritt alle kleineren Fälle benutzen, nicht nur n. Das ist genauso sicher: Sind alle Steine bis n gefallen, darf man sich auf jeden davon stützen."
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Jede Zahl ab 2 ist ein Produkt von Primzahlen. Wie hilft starke Induktion beim Beweis?
+    params:
+      options:
+        - label: Ist n nicht prim, ist n = a · b mit kleineren a, b – und die sind schon Produkte von Primzahlen.
+          correct: true
+        - label: Man prüft n − 1.
+          feedback: n − 1 hat mit der Zerlegung von n nichts zu tun.
+        - label: Primzahlen braucht man dafür nicht.
+          feedback: Gerade um Primzahlen geht es.
+    hints:
+      - Ist n prim, ist man sofort fertig. Und sonst?
+      - Die Faktoren a und b sind kleiner als n, aber nicht unbedingt n − 1.
+    explanation: Die Faktoren können **irgendwo** unter n liegen. Gewöhnliche Induktion kennt nur n − 1 – starke Induktion kennt alle.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Eine Schokolade hat {{n}} Stücke. Du brichst immer ein Stück in zwei Teile. Wie oft brichst du, bis alle Stücke einzeln sind?
+    answer:
+      value: "{{n - 1}}"
+    hints:
+      - Jeder Bruch macht aus einem Teil zwei.
+      - Die Zahl der Teile steigt pro Bruch um genau 1.
+    explanation: "{{n - 1}}. Per starker Induktion: Ein Bruch teilt in a und b Stücke, die brauchen a − 1 und b − 1 Brüche. Zusammen 1 + (a − 1) + (b − 1) = n − 1 – egal, wie man bricht."
+    variants:
+      params:
+        n: int[6,40]
+      defaults:
+        n: 12
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Bei starker Induktion darf der Schritt [[alle kleineren]] Fälle benutzen. Beim Briefmarken-Beweis braucht man darum [[drei]] Anfangsfälle.
+      distractors:
+        - nur den nächsten
+        - zwei
+    hints:
+      - Der Schritt baut n aus n − 3.
+    explanation: Weil der Schritt drei zurückgreift, müssen drei Startsteine nebeneinander stehen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Es gibt nur Briefmarken zu {{a}} und {{b}} Cent. Welcher ist der größte Betrag, den man nicht genau kleben kann? (Formel: a · b − a − b)"
+    answer:
+      value: "{{a * b - a - b}}"
+    hints:
+      - "Setze ein: {{a}} · {{b}} − {{a}} − {{b}}."
+      - Prüfe zur Sicherheit, dass die nächsten {{a}} Beträge alle gehen.
+    explanation: "{{a * b - a - b}}. Die Formel gilt, wenn a und b **teilerfremd** sind. Ab da reichen {{a}} aufeinanderfolgende Beträge als Anfang – der Rest folgt per starker Induktion."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[3,4,5]
+        b: choice[7,8,9,11]
+      constraints:
+        - gcd(a, b) == 1
+      defaults:
+        a: 4
+        b: 7
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Gibt es mit 4- und 6-Cent-Marken einen größten unmöglichen Betrag?
+    params:
+      options:
+        - label: Nein – alle ungeraden Beträge bleiben für immer unmöglich.
+          correct: true
+        - label: Ja, 4 · 6 − 4 − 6 = 14.
+          feedback: Die Formel gilt nur für teilerfremde Werte – 4 und 6 haben den Teiler 2.
+        - label: Ja, 2.
+          feedback: Auch 15 oder 101 sind unmöglich – jede ungerade Zahl.
+    hints:
+      - Was haben alle Summen aus 4 und 6 gemeinsam?
+      - Kann eine Summe gerader Zahlen ungerade sein?
+    explanation: Jede Summe ist gerade – eine **Invariante**. Erst wenn ggT(a, b) = 1, gehen ab einem Punkt alle Beträge.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ist starke Induktion wirklich stärker als gewöhnliche Induktion?
+    params:
+      options:
+        - label: "Nein – man kann sie in gewöhnliche Induktion übersetzen: Man beweist »es gilt für alle bis n«."
+          correct: true
+        - label: Ja, sie beweist mehr Sätze.
+          feedback: Beide beweisen genau dieselben Sätze über natürliche Zahlen.
+        - label: Sie ist schwächer, weil sie mehr annimmt.
+          feedback: Mehr Annahmen im Schritt machen das Beweisen leichter, nicht schwächer.
+    hints:
+      - "Betrachte die Aussage Q(n): »P gilt für 1, 2, …, n«."
+      - Gewöhnliche Induktion über Q liefert dasselbe.
+    explanation: Beide Formen sind **gleichwertig** – »stark« beschreibt nur die bequemere Annahme. Logiker zeigen genauso, dass beide aus dem Prinzip des kleinsten Elements folgen.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wann man starke Induktion braucht – am Beispiel der Briefmarken.
+    params:
+      keywords:
+        - - alle kleineren
+          - frühere
+          - kleiner
+          - all smaller
+          - earlier
+          - smaller
+        - - n − 3
+          - n-3
+          - drei zurück
+          - three back
+        - - anf
+          - start
+          - base
+      sample: "Bei den 3- und 5-Cent-Marken baue ich n aus n − 3 plus einer 3-Cent-Marke. Ich brauche also einen früheren, nicht nur den direkt vorigen Fall. Darum starte ich mit drei Anfängen: 8, 9 und 10."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

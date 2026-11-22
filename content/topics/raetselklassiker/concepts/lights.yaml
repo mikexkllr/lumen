@@ -5,7 +5,7 @@ summary: Jeder Tipp schaltet auch die Nachbarn um.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: plus
@@ -72,6 +72,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: pixels
+    prompt: Fast alles brennt. Mach alle Lichter aus – drei Tipps genügen.
+    params:
+      cells:
+        - "###"
+        - .##
+        - "###"
+      rule: lightsout
+    answer:
+      pattern:
+        - ...
+        - ...
+        - ...
+    hints:
+      - Die Ecke oben links schaltet auch das dunkle Feld darunter um.
+      - Drücke oben links, unten links und das Feld rechts in der Mitte.
+    explanation: Oben links und unten links schalten das dunkle Feld je einmal – zusammen bleibt es aus. Rechts in der Mitte löscht den Rest.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Das Feld ist ganz dunkel. Du drückst jedes der 9 Felder genau einmal. Wie viele Lichter brennen danach?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 9
+        misconception: ignore-parity
+        text: "Manche Felder werden mehrmals umgeschaltet – eine gerade Zahl von Malen heißt: wieder aus."
+    hints:
+      - "Zähle für jedes Feld: Wie oft wird es umgeschaltet? Ein Tipp auf es selbst plus einer je Nachbar."
+      - "Ecke: 1 + 2 = 3-mal. Rand: 1 + 3 = 4-mal. Mitte: 1 + 4 = 5-mal."
+    explanation: "Nur die **Parität** zählt: ungerade oft heißt an. Die 4 Ecken (3-mal) und die Mitte (5-mal) brennen, die 4 Randfelder (4-mal) nicht. Das sind 5."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +126,49 @@ steps:
     hints:
       - An + an = aus. Wie bei 1 + 1 = 0 modulo 2.
     explanation: Ein Rätsel wird zu **linearer Algebra über zwei Zahlen**. Dieselbe Mathematik steckt in fehlerkorrigierenden Codes.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: "Auf dem 3 × 3-Feld: Wie viele verschiedene Mengen von Tipps lösen ein bestimmtes Startbild?"
+    params:
+      options:
+        - label: Genau eine – jedes Startbild hat genau eine Lösung.
+          correct: true
+        - label: Meistens mehrere.
+          feedback: Es gibt 512 Tipp-Mengen und 512 Startbilder. Jede Menge erzeugt ein anderes Bild.
+        - label: Bei manchen keine.
+          feedback: Beim 5 × 5-Feld gibt es unlösbare Bilder, beim 3 × 3-Feld nicht.
+    hints:
+      - Wie viele Tipp-Mengen gibt es, wie viele Startbilder?
+      - Erzeugen zwei verschiedene Tipp-Mengen nie dasselbe Bild, ist die Zuordnung eins zu eins.
+    explanation: Als Gleichungssystem modulo 2 ist die 3 × 3-Matrix umkehrbar. Darum gehört zu jedem der 512 Bilder genau eine der 512 Tipp-Mengen. Beim 5 × 5-Feld hat die Matrix nicht vollen Rang. Nur jedes vierte Bild ist dort lösbar.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum bei »Lichter aus« die Reihenfolge egal ist und zweimal Drücken nichts bringt.
+    params:
+      keywords:
+        - - reihenfolge
+          - egal
+          - order
+          - does not matter
+        - - zweimal
+          - doppelt
+          - aufheb
+          - twice
+          - cancel
+          - undo
+        - - schalt
+          - toggle
+          - flip
+          - switch
+      sample: Jeder Tipp schaltet bestimmte Felder um. Am Ende zählt nur, wie oft ein Feld umgeschaltet wurde. Darum ist die Reihenfolge egal. Zweimal derselbe Tipp hebt sich auf.
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.sequences]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: plus-drei
@@ -97,6 +97,49 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie geht es weiter? 1, 3, 7, 13, 21, …
+    answer:
+      value: 31
+    feedback:
+      - when: numval(state.input) == 29
+        misconception: constant-gap
+        text: Die Abstände wachsen – sie bleiben nicht bei 8.
+    hints:
+      - Schreib die Abstände zwischen den Zahlen auf.
+      - Die Abstände sind 2, 4, 6, 8 – welcher kommt als Nächstes?
+    explanation: "Die **Differenzen** 2, 4, 6, 8, 10 bilden selbst eine einfache Folge. 21 + 10 = 31. Sind die zweiten Differenzen gleich, steckt eine quadratische Regel dahinter: hier n² − n + 1."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Die Folge beginnt mit {{a}} und wächst immer um {{d}}: {{a}}, {{a + d}}, {{a + 2 * d}}, … Welche Zahl steht an Stelle {{n}}?"
+    answer:
+      value: "{{a + (n - 1) * d}}"
+    feedback:
+      - when: numval(state.input) == a + n * d
+        misconception: off-by-one
+        text: "Einmal zu viel addiert: Stelle 1 ist {{a}} – da wurde noch nichts addiert."
+    hints:
+      - Wie oft wurde {{d}} bis zur Stelle 3 addiert? Und bis zur Stelle {{n}}?
+      - Bis zur Stelle {{n}} wird ({{n}} − 1)-mal addiert.
+    explanation: "{{a}} + ({{n}} − 1) · {{d}} = {{a + (n - 1) * d}}. Die Formel a + (n − 1) · d spart das Abzählen."
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,9]
+        d: int[2,9]
+        n: int[10,30]
+      defaults:
+        a: 4
+        d: 3
+        n: 20
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +155,44 @@ steps:
     hints:
       - "Verbinde Punkte auf einem Kreis und zähle die Gebiete: 1, 2, 4, 8, 16, 31."
     explanation: Endlich viele Zahlen legen nie eine Regel fest. Ein Muster ist eine Vermutung – erst ein Beweis macht es sicher.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Die Folge beschreibt sich selbst: 1, 11, 21, 1211, 111221, … Welche Zahl kommt als Nächstes?"
+    answer:
+      value: 312211
+    hints:
+      - "Lies 1211 laut: »eine Eins, eine Zwei, zwei Einsen«. Das ergibt 111221."
+      - "Lies jetzt 111221: drei Einsen, zwei Zweien, eine Eins."
+    explanation: "Drei Einsen, zwei Zweien, eine Eins: 312211. Die Regel ist keine Rechnung, sondern eine Beschreibung. Folgen können also Regeln jeder Art haben."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man aus den ersten Gliedern einer Folge nie sicher auf die Regel schließen kann.
+    params:
+      keywords:
+        - - regel
+          - regeln
+          - rule
+          - rules
+        - - mehrere
+          - viele
+          - verschiedene
+          - several
+          - many
+          - different
+        - - passen
+          - passt
+          - fit
+          - fits
+          - match
+      sample: Zu endlich vielen Zahlen passen immer mehrere Regeln. Die nächste Zahl kann bei jeder Regel anders sein. Erst wer die Regel nennt, legt die Folge fest.
     difficulty: 3
 
 srs:

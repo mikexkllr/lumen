@@ -5,7 +5,7 @@ summary: '"All" becomes "at least one is not".'
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 12
 steps:
   - kind: problem
     id: schwaene
@@ -139,6 +139,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: gates
+    prompt: Build "not (A and B)" from two NOT gates and one gate of your choice.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: na
+          type: NOT
+          in:
+            - A
+        - id: nb
+          type: NOT
+          in:
+            - B
+        - id: g
+          type: "?"
+          in:
+            - na
+            - nb
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: not (A and B)
+    check:
+      predicate: table('Q') == [1, 1, 1, 0]
+    feedback:
+      - when: table('Q') == [1, 0, 0, 0]
+        misconception: demorgan-keep-and
+        text: That is "neither A nor B". Negating turns AND into OR.
+    hints:
+      - '"Not both" is already true when one is missing.'
+      - Not A OR not B.
+    explanation: ¬(A ∧ B) = ¬A ∨ ¬B – De Morgan as a circuit.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: What is the opposite of "All doors are shut and the light is off"?
+    params:
+      options:
+        - label: At least one door is open or the light is on.
+          correct: true
+        - label: All doors are open and the light is on.
+          feedback: That is far too strong. One open door is already enough.
+        - label: At least one door is open and the light is on.
+          feedback: The AND must become OR when negated.
+    hints:
+      - 'Two rules at once: "all" becomes "at least one not", "and" becomes "or".'
+      - Negate both parts and swap the connective.
+    explanation: ¬(∀ shut ∧ off) = (∃ open) ∨ on. Quantifiers and connectives are both flipped when negating.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -154,6 +215,45 @@ steps:
     hints:
       - When is the promise broken?
     explanation: "The negation of an implication is an **and**: A holds but B does not."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: For whole numbers x from 0 to 10, consider "x > 3 and x < 7". For how many of these numbers does its **negation** hold?
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: not-negated
+        text: "Those are the numbers for which the statement itself holds: 4, 5, 6."
+    hints:
+      - "Negation: x ≤ 3 **or** x ≥ 7."
+      - Count 0 to 3 and 7 to 10.
+    explanation: "The statement holds for 4, 5, 6 – 3 of the 11 numbers. The negation holds for the other 8. Negating always means: exactly the rest."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain De Morgan's laws to Lux with an everyday example.
+    params:
+      keywords:
+        - - und
+          - and
+        - - oder
+          - or
+        - - nicht
+          - not
+        - - tausch
+          - wird zu
+          - umgedreht
+          - swap
+          - becomes
+          - flip
+      sample: "Not (rain and cold) means: not rain or not cold. When negating, and becomes or, and or becomes and. You negate each part and swap the connective."
     difficulty: 3
 
 srs:

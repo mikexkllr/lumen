@@ -1,0 +1,176 @@
+id: ai.search.minimax
+type: concept
+title: "Minimax – denken wie der Gegner"
+summary: "In Spielen sucht man nicht allein: Der Gegner wählt immer das Schlechteste für dich."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele verschiedene vollständige Partien Tic-Tac-Toe gibt es?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 255168
+      within: 50
+    explanation: "255 168 Partien. Ein Computer schaut sie alle in Sekundenbruchteilen an – und weiß dann: Bei klugem Spiel endet es unentschieden."
+
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Du hast zwei Züge. Nach Zug A kann der Gegner dir 3 oder 5 Punkte lassen. Nach Zug B lässt er dir 2 oder 9. Welchen Zug wählst du, wenn er immer das Schlechteste für dich wählt?
+    params:
+      options:
+        - label: A – dann bekommst du sicher 3.
+          correct: true
+        - label: B – dort lockt die 9.
+          feedback: "Die 9 bekommst du nie: Der Gegner wählt die 2."
+        - label: Egal.
+          feedback: A sichert 3 Punkte, B nur 2.
+    hints:
+      - Was wählt der Gegner nach A? Und nach B?
+      - Vergleiche 3 und 2.
+    explanation: "Nach A bleibt min(3, 5) = 3, nach B min(2, 9) = 2. Du nimmst das Maximum davon: 3."
+
+  - kind: explain
+    id: c2
+    body: "Das ist **Minimax**: Auf deinen Zügen nimmst du das Maximum, auf den Zügen des Gegners das Minimum. Man rechnet vom Spielende her rückwärts bis zum aktuellen Zug."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Du hast drei Züge. Danach wählt der Gegner aus: nach Zug 1 aus 3, 12, 8; nach Zug 2 aus 2, 4, 6; nach Zug 3 aus 14, 5, 2. Welchen Wert hat die Stellung für dich?"
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: max-max
+        text: Die 14 bekommst du nie – der Gegner wählt dort die 2.
+    hints:
+      - "Der Gegner nimmt jeweils das Minimum: 3, 2 und 2."
+      - Du nimmst das Maximum davon.
+    explanation: "max(3, 2, 2) = 3, also Zug 1. Minimax ist **vorsichtig**: Es rechnet mit dem besten Gegner, nicht mit dem freundlichsten."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Ordne, wie Minimax einen Spielbaum auswertet.
+    params:
+      items:
+        - label: Bewerte die Endstellungen ganz unten.
+        - label: Ist der Gegner dran, nimm das Minimum seiner Möglichkeiten.
+        - label: Bist du dran, nimm das Maximum deiner Möglichkeiten.
+        - label: Wiederhole Ebene für Ebene bis zur Wurzel.
+        - label: Spiele den Zug mit dem besten Wert.
+    hints:
+      - Minimax arbeitet von unten nach oben.
+      - Min und Max wechseln sich ab.
+    explanation: "Von den Blättern zur Wurzel: Jede Ebene übernimmt das Beste für den, der dort zieht."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ein Spiel hat in jeder Stellung etwa {{b}} Züge. Wie viele Stellungen muss Minimax ansehen, um {{d}} Halbzüge vorauszuschauen?
+    answer:
+      value: "{{b ** d}}"
+    hints:
+      - Jeder Halbzug multipliziert mit {{b}}.
+      - "{{b}}^{{d}}."
+    explanation: "{{b ** d}} Stellungen ganz unten. Für Schach reicht das nicht weit. Darum bricht man früh ab und **bewertet** Stellungen mit einer Schätzfunktion."
+    variants:
+      params:
+        b: choice[5,10,20]
+        d: int[2,4]
+      defaults:
+        b: 10
+        d: 3
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Baum von eben: 3, 12, 8 | 2, 4, 6 | 14, 5, 2. Du schaust von links nach rechts. Nach Zug 1 hast du sicher 3. Wie viele Blätter kannst du insgesamt überspringen?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: prune-third
+        text: Bei Zug 3 kommt die 2 erst ganz am Ende – dort lässt sich nichts überspringen.
+    hints:
+      - "Nach der 2 bei Zug 2 weißt du: Dieser Zug bringt höchstens 2 – schlechter als 3."
+      - "Die 4 und die 6 musst du also nicht mehr ansehen. Bei Zug 3: 14, 5 – erst die 2 zeigt, dass er schlecht ist."
+    explanation: "Zwei Blätter fallen weg. Das ist **Alpha-Beta-Beschneidung**: Ein Ast wird abgebrochen, sobald klar ist, dass er das Ergebnis nicht mehr ändern kann. Das Ergebnis bleibt exakt dasselbe."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Wovon hängt ab, wie viel Alpha-Beta abschneiden kann?
+    params:
+      options:
+        - label: "Von der Reihenfolge: Werden gute Züge zuerst angeschaut, fällt viel weg."
+          correct: true
+        - label: Von der Größe der Zahlen.
+          feedback: Nur ihre Reihenfolge im Vergleich zählt.
+        - label: Von nichts – es schneidet immer gleich viel.
+          feedback: In schlechter Reihenfolge schneidet es gar nichts ab.
+    hints:
+      - Bei Zug 3 kam die 2 ganz hinten – da half nichts.
+      - Was, wenn die 2 dort vorne gestanden hätte?
+    explanation: Gute **Zugsortierung** ist entscheidend. Programme probieren darum erst Schlagzüge oder Züge, die früher gut waren.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Bei bester Zugsortierung muss Alpha-Beta nur etwa b^(d/2) statt b^d Stellungen ansehen. Was heißt das praktisch?
+    params:
+      options:
+        - label: Mit demselben Aufwand kann man etwa doppelt so tief vorausschauen.
+          correct: true
+        - label: Es ist genau doppelt so schnell.
+          feedback: "Es ist viel mehr: Die Wurzel aus b^d ist bei großen Bäumen eine gewaltige Ersparnis."
+        - label: Das Ergebnis wird ungenauer.
+          feedback: Alpha-Beta liefert genau dasselbe Ergebnis wie Minimax.
+    hints:
+      - b^(d/2) bei Tiefe 2d ist b^d.
+      - Gleicher Aufwand, welche Tiefe?
+    explanation: Tiefe 2d kostet mit Alpha-Beta so viel wie Tiefe d ohne. Bei Schach ist das der Unterschied zwischen schwach und **meisterhaft**.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie Minimax in einem Spiel den besten Zug findet.
+    params:
+      keywords:
+        - - gegner
+          - opponent
+        - - minimum
+          - schlechteste
+          - minimum
+          - worst
+        - - maximum
+          - beste
+          - maximum
+          - best
+        - - rückwärts
+          - ende
+          - unten
+          - backward
+          - end
+          - bottom
+      sample: Minimax rechnet vom Spielende rückwärts. Ist der Gegner dran, nimmt man an, er wählt das Schlechteste für mich, also das Minimum. Bin ich dran, nehme ich das Maximum. So findet man den Zug, der am meisten sicher bringt.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d1"]

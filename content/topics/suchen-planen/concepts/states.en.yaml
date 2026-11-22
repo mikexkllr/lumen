@@ -1,0 +1,210 @@
+id: ai.search.states
+type: concept
+title: "States and moves"
+summary: "Every puzzle becomes a map: states are places, moves are roads."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different positions can you reach in the sliding puzzle with 8 tiles (3 × 3)?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 181440
+      within: 40
+    explanation: "There are 9! = 362,880 arrangements, and exactly half are reachable: 181,440. A computer can search them all."
+
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: A robot is in a room with three lamps, each on or off. What describes its situation completely?
+    params:
+      options:
+        - label: Which lamps are on right now
+          correct: true
+        - label: How often it has switched so far
+          feedback: That is history. For the future only what is on now matters.
+        - label: The colour of the lamps
+          feedback: The colour never changes – it is not part of the state.
+    hints:
+      - What do you need to know to plan the next moves?
+      - Anything that never changes can be left out.
+    explanation: "A state sums up everything that matters for the future. Here: three lamps, each on or off."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: How many different states are there for {{n}} lamps that can each be on or off?
+    answer:
+      value: "{{2 ** n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: added
+        text: "The options multiply: 2 · 2 · 2 …"
+    hints:
+      - Each lamp doubles the options.
+      - Compute 2^{{n}}.
+    explanation: 2^{{n}} = {{2 ** n}}. State spaces grow exponentially – that is the basic problem of every search.
+    variants:
+      params:
+        n: int[3,10]
+      defaults:
+        n: 3
+
+  - kind: explain
+    id: c3
+    body: Draw each state as a dot and each allowed move as a line, and you get a graph – the state space. Solving a puzzle then means finding a path from start to goal.
+
+  - kind: problem
+    id: c4
+    widget: network
+    prompt: Each dot is a state, each line a move. Find the shortest path from S to Z.
+    params:
+      start: S
+      end: Z
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: A
+          x: 30
+          y: 15
+        - id: B
+          x: 30
+          y: 85
+        - id: C
+          x: 60
+          y: 15
+        - id: D
+          x: 60
+          y: 85
+        - id: Z
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: A
+        - a: S
+          b: B
+        - a: A
+          b: C
+        - a: C
+          b: Z
+        - a: B
+          b: D
+        - a: D
+          b: C
+        - a: A
+          b: B
+    hints:
+      - Every move counts the same. Count the lines.
+      - Via A and C it is three moves.
+    explanation: "S → A → C → Z: three moves. Via B and D it would be four. With equal costs, shortest path means fewest moves."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: From every state there are {{b}} moves. How many move sequences of length {{d}} are there?
+    answer:
+      value: "{{b ** d}}"
+    feedback:
+      - when: numval(state.input) == b * d
+        misconception: added
+        text: The options multiply with every move.
+    hints:
+      - "First move: {{b}} options. For each of them {{b}} again."
+      - Compute {{b}}^{{d}}.
+    explanation: "{{b}}^{{d}} = {{b ** d}}. b is called the branching factor and d the depth. Even small numbers produce huge search trees."
+    variants:
+      params:
+        b: int[2,4]
+        d: int[3,6]
+      defaults:
+        b: 3
+        d: 4
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: The 15-puzzle (4 × 4) has 16! arrangements, and exactly half are reachable. How many trillion positions is that? Rounded. (16! ≈ 20.9 trillion)
+    answer:
+      value: 10
+      tolerance: 0.5
+    hints:
+      - Divide 20.9 trillion by 2.
+      - That is about 10.5 trillion.
+    explanation: Around 10 trillion – too many to look at comfortably. This calls for clever search that visits only a small part.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In the wolf–goat–cabbage puzzle the state is "who is on the left". Why must the farmer be included?
+    params:
+      options:
+        - label: Without him you do not know which side the boat is on – so which moves are possible.
+          correct: true
+        - label: Because he can be eaten.
+          feedback: Nobody eats the farmer. But he determines what can happen next.
+        - label: He need not be included.
+          feedback: Two situations with the same animals but the farmer left or right allow completely different moves.
+    hints:
+      - A good state determines which moves are possible next.
+      - Who rows the boat?
+    explanation: A state must contain enough information to determine the moves – but no more. The choice of representation often decides how big the search is.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Chess has more positions than there are atoms in the universe. How can a program still search in it?
+    params:
+      options:
+        - label: It only creates neighbouring states when it needs them – the graph never exists fully in memory.
+          correct: true
+        - label: It stores all positions on a big hard drive.
+          feedback: No storage in the world is big enough.
+        - label: Not at all.
+          feedback: Chess programs certainly search – just never the whole space.
+    hints:
+      - What do you need to get from one position to the next ones?
+      - The rules are enough to compute neighbours.
+    explanation: "The space is described implicitly: by a start, move rules and a goal test. The search unfolds only the part it is visiting."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to turn a puzzle into a search problem.
+    params:
+      keywords:
+        - - zustand
+          - state
+        - - zug
+          - züge
+          - aktion
+          - move
+          - action
+        - - start
+          - ziel
+          - goal
+        - - weg
+          - pfad
+          - path
+          - route
+      sample: You decide what a state is and which moves are allowed, plus a start and a goal. Then you search for a path from start to goal through the state space.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c5", "d1"]

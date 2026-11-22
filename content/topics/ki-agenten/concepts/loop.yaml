@@ -5,7 +5,7 @@ summary: Denken, handeln, beobachten – und wieder von vorn.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - Ein Versuch reicht selten.
     explanation: Handeln, Ergebnis ansehen, neu planen. So arbeitet auch ein KI-Agent.
-
 
   - kind: explain
     id: s1
@@ -97,6 +96,26 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Jede Runde der Agenten-Schleife fügt dem Kontext etwa {{t}} Tokens hinzu: Gedanke, Aufruf, Ergebnis. Wie viele Tokens sind es nach {{r}} Runden?"
+    answer:
+      value: "{{t * r}}"
+    hints:
+      - Jede Runde kommt dazu – nichts fällt weg.
+      - "{{t}} · {{r}} = ?"
+    explanation: "{{t * r}} Tokens. Lange Aufgaben füllen das **Kontextfenster** schnell. Gute Agenten fassen darum alte Schritte zusammen oder speichern Notizen außerhalb."
+    difficulty: 2
+    variants:
+      params:
+        t: step[500,3000,500]
+        r: int[5,30]
+      defaults:
+        t: 2000
+        r: 10
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -112,6 +131,50 @@ steps:
     hints:
       - Ein anderer erster Schritt führt zu einem ganz anderen Weg.
     explanation: Darum braucht man Tests über viele Durchläufe, Protokolle und klare Grenzen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: "Viele Agenten wechseln ab: kurz überlegen, eine Aktion ausführen, das Ergebnis lesen, wieder überlegen. Was ist der Vorteil gegenüber »erst alles planen, dann alles ausführen«?"
+    params:
+      options:
+        - label: Jede Beobachtung kann den nächsten Schritt korrigieren.
+          correct: true
+        - label: Es ist immer schneller.
+          feedback: Es braucht oft mehr Runden – dafür passt es sich an.
+        - label: Der Agent muss nie nachdenken.
+          feedback: Er denkt laufend nach – nur in kleinen Portionen.
+    hints:
+      - Was weiß ein Agent vor dem ersten Schritt noch nicht?
+      - Was passiert mit einem festen Plan, wenn Schritt 2 scheitert?
+    explanation: Dieses Muster aus Denken und Handeln heißt oft **ReAct**. Ergebnisse aus der echten Welt fließen sofort in die nächste Entscheidung ein – wie bei einem Menschen, der beim Suchen nachdenkt.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen einem Chatbot und einem Agenten.
+    params:
+      keywords:
+        - - antwort
+          - text
+          - answer
+        - - handl
+          - aktion
+          - werkzeug
+          - act
+          - action
+          - tool
+        - - ergebnis
+          - beobacht
+          - schleife
+          - result
+          - observ
+          - loop
+      sample: "Ein Chatbot gibt nur eine Antwort als Text. Ein Agent handelt: Er ruft Werkzeuge auf, schaut sich das Ergebnis an und entscheidet in einer Schleife, was als Nächstes kommt."
     difficulty: 3
 
 srs:

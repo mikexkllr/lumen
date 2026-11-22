@@ -1,0 +1,181 @@
+id: logic.modal.muddy
+type: concept
+title: "The muddy children"
+summary: "An announcement everyone already knew – and still it changes everything."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: 'Some children have mud on their foreheads. Each sees the others, not itself. Their father says: "At least one of you is muddy." Only one child is muddy. What happens?'
+    params:
+      options:
+        - label: The muddy child knows at once – it sees no other mud.
+          correct: true
+        - label: Nobody knows anything.
+          feedback: The muddy child sees only clean foreheads, so it must be the one.
+        - label: All children know they are clean.
+          feedback: The clean ones see one muddy child and know nothing yet about themselves.
+    hints:
+      - What does the muddy child see?
+      - Who else could "at least one" be?
+    explanation: With k = 1 the muddy child speaks up right in the first round. That is the base case of an induction.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: 'Now two children are muddy, A and B. The father asks: "Who knows whether they are muddy?" In round 1 nobody answers. What does A conclude?'
+    params:
+      options:
+        - label: If I were clean, B would have answered in round 1. So I am muddy.
+          correct: true
+        - label: I am clean.
+          feedback: Then B would have seen no mud and answered at once.
+        - label: Nothing.
+          feedback: The silence is itself information.
+    hints:
+      - "Put yourself in B's place: what would B do if A were clean?"
+      - B stayed silent.
+    explanation: "In round 2, A and B answer together. Silence is information here too: it strikes out worlds."
+
+  - kind: explain
+    id: c3
+    body: "In general: if k children are muddy, all the muddy ones answer in round k. The proof is an induction on k: each silent round rules out one more possibility."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ten children, {{k}} of them muddy. In which round do the muddy children first answer?
+    answer:
+      value: "{{k}}"
+    feedback:
+      - when: numval(state.input) == k - 1
+        misconception: off-by-one
+        text: In round {{k - 1}} nobody can be sure yet – only its silence brings certainty.
+    hints:
+      - A muddy child sees {{k - 1}} other muddy ones.
+      - It waits to see whether they answer in round {{k - 1}}.
+    explanation: 'Round {{k}}. Each muddy child thinks: "If it were only the {{k - 1}} I see, they would have answered in round {{k - 1}}."'
+    variants:
+      params:
+        k: int[2,9]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ten children, {{k}} are muddy. The muddy ones answer in round {{k}}. In which round do the clean children know they are clean?
+    answer:
+      value: "{{k + 1}}"
+    hints:
+      - A clean child sees {{k}} muddy ones. It expects them in round {{k}} – or in round {{k + 1}} if it were muddy itself.
+      - If they answer in round {{k}}, it cannot be muddy itself.
+    explanation: After round {{k}} every clean child knows and answers in round {{k + 1}}. Here too time – waiting – carries information.
+    variants:
+      params:
+        k: int[2,8]
+      defaults:
+        k: 3
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "With two muddy children, **every** child already sees mud. So everyone knew: \"At least one is muddy.\" Why is the father's announcement still necessary?"
+    params:
+      options:
+        - label: A did not know that B knows it – only the announcement makes it common knowledge.
+          correct: true
+        - label: It is not necessary.
+          feedback: Without it nobody ever answers. A's inference in round 2 needs B to have known it too.
+        - label: So the children listen.
+          feedback: It is about knowledge of knowledge, not attention.
+    hints:
+      - 'A thinks: "If I were clean, B would see no mud." Would B then know that someone is muddy?'
+      - Not without the announcement.
+    explanation: "The public announcement creates common knowledge: everyone knows it, everyone knows that everyone knows it, and so on. The induction needs exactly these levels."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Five children, three of them muddy. How many children answer in round 3?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: all
+        text: The clean ones only know one round later.
+    hints:
+      - In round 3 exactly the muddy ones know.
+      - The two clean ones answer in round 4.
+    explanation: Three answer in round 3, the other two in round 4. The children must reason perfectly and trust each other to do so.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: swipe
+    prompt: Is this true in the muddy children puzzle?
+    params:
+      cards:
+        - text: Silence in a round is information.
+          right: true
+        - text: It works just as well without the father's announcement.
+          right: false
+          why: Without it, with two or more muddy children, nobody ever answers.
+        - text: The muddy children all answer at the same time.
+          right: true
+        - text: A clean child knows before the muddy ones.
+          right: false
+          why: It knows one round later.
+    explanation: The announcement makes the fact common knowledge, and each round of silence strikes out worlds. Together they carry the induction.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: 'With k muddy children: how many levels of "A knows that B knows that …" would be needed for the children to manage without the announcement?'
+    params:
+      options:
+        - label: k levels – without the announcement they do not all exist. Only the announcement supplies all levels at once.
+          correct: true
+        - label: One level is always enough.
+          feedback: With k = 2 everyone has one level – and still nothing happens without the announcement.
+        - label: Infinitely many for every k.
+          feedback: The induction needs only as many levels as there are muddy children.
+    hints:
+      - With k = 1 the muddy child needs the fact itself. With k = 2 it needs the other to know it.
+      - Each extra child adds a level.
+    explanation: Without the announcement the children have k − 1 levels, but the reasoning needs k. The announcement supplies all levels at a stroke. That is the power of public information.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how the muddy children find out they are muddy.
+    params:
+      keywords:
+        - - runde
+          - round
+        - - schweig
+          - niemand meldet
+          - silent
+          - nobody answers
+        - - schmutzig
+          - sehe
+          - muddy
+          - see
+      sample: A muddy child sees k − 1 other muddy ones. If it were only them, they would have answered in round k − 1. If they stay silent, it must be muddy itself – so it answers in round k.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

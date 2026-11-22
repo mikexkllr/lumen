@@ -5,7 +5,7 @@ summary: Wölfe, Schnee und gute Trainingsbilder.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: woelfe
@@ -79,6 +79,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: Ein Modell kennt nur »Katze« und »Hund«. Du zeigst ihm einen Toaster. Was passiert?
+    params:
+      options:
+        - label: Es sagt trotzdem Katze oder Hund – womöglich sogar sehr »sicher«.
+          correct: true
+        - label: Es meldet »weiß ich nicht«.
+          feedback: Dafür bräuchte es eine eigene Antwort »nichts davon«. Die hat es nicht gelernt.
+        - label: Es erkennt den Toaster.
+          feedback: Es kennt nur die zwei Klassen aus dem Training.
+    hints:
+      - Die Ausgabe ist eine Verteilung über genau zwei Klassen.
+      - Die Werte ergeben immer zusammen 100 %.
+    explanation: Softmax verteilt immer 100 % auf die bekannten Klassen. Eine hohe Zahl ist darum keine echte **Sicherheit**. Gute Systeme erkennen zusätzlich, wenn ein Bild ganz anders ist als die Trainingsdaten.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +113,64 @@ steps:
     hints:
       - Wann legt ein Arzt ein Lineal neben einen Fleck?
     explanation: "**Abkürzungslernen**: Netze nehmen das einfachste Muster, das funktioniert. Man muss prüfen, **worauf** ein Modell schaut."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Katzen-Erkenner hat Genauigkeit 0,75 (so viele Alarme stimmen) und Trefferrate 0,9 (so viele Katzen findet er). Der F1-Wert ist 2 · G · T / (G + T). Wie groß ist er? Auf zwei Stellen.
+    answer:
+      value: 0.82
+      tolerance: 0.01
+    hints:
+      - "Zähler: 2 · 0,75 · 0,9 = 1,35."
+      - "Nenner: 0,75 + 0,9 = 1,65."
+    explanation: 1,35 / 1,65 ≈ 0,82. Der **F1-Wert** ist nur hoch, wenn beide Werte hoch sind. Ein Modell, das immer »Katze« sagt, hat Trefferrate 1 – aber eine miese Genauigkeit.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Wie hätte man beim Wolf-Erkenner früh bemerkt, dass er auf Schnee achtet?
+    params:
+      options:
+        - label: Mit Bildern testen, auf denen Wölfe ohne Schnee und Hunde im Schnee sind.
+          correct: true
+        - label: Mit noch mehr Wolf-Bildern im Schnee.
+          feedback: Die bestätigen nur den Fehler.
+        - label: Am Gesamtwert der Trefferquote.
+          feedback: Die war ja hoch – der Fehler versteckt sich darin.
+    hints:
+      - Trenne die zwei Merkmale, die im Training immer zusammen kamen.
+      - Was sagt das Modell, wenn nur eins davon da ist?
+    explanation: Gezielte **Gegenproben** decken Abkürzungen auf. Dazu kommen Wärmebilder, die zeigen, welche Pixel die Entscheidung tragen. Leuchtet dort der Schnee, ist der Fall klar.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum eine hohe Trefferquote im Test nicht heißt, dass ein Bildmodell das Richtige gelernt hat.
+    params:
+      keywords:
+        - - muster
+          - abkürzung
+          - schnee
+          - pattern
+          - shortcut
+          - snow
+        - - test
+          - prüf
+          - check
+        - - neu
+          - ander
+          - unbekannt
+          - new
+          - different
+          - unseen
+      sample: Das Modell kann ein zufälliges Muster gelernt haben, etwa Schnee statt Wolf. Hat der Test dieselbe Verzerrung, fällt das nicht auf. Erst neue, andere Bilder zeigen den Fehler.
     difficulty: 3
 
 srs:

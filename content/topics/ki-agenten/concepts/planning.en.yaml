@@ -5,7 +5,7 @@ summary: A plan made of small steps.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: reise
@@ -67,6 +67,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Each step succeeds 95 % of the time. The agent checks every step and retries once if it fails. How likely does a 20-step task then succeed? In percent, rounded.
+    answer:
+      value: 95
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: no-retry
+        text: That is the value without checking and retrying.
+    hints:
+      - "A step fails only if both tries fail: 0.05 · 0.05."
+      - So 0.9975 per step. Then 0.9975²⁰.
+    explanation: 0.9975²⁰ ≈ 0.95 instead of 0.36. Checking and retrying turn a shaky chain into a stable one – provided errors are actually detected.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: network
+    prompt: An agent works through subtasks. The numbers are minutes. Find the fastest route from start S to the finished report B.
+    params:
+      start: S
+      end: B
+      unit: min
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: Q
+          x: 34
+          y: 12
+          label: sources
+        - id: D
+          x: 34
+          y: 88
+          label: data
+        - id: A
+          x: 66
+          y: 50
+          label: analysis
+        - id: B
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: Q
+          w: 4
+        - a: S
+          b: D
+          w: 2
+        - a: Q
+          b: A
+          w: 3
+        - a: D
+          b: A
+          w: 6
+        - a: Q
+          b: D
+          w: 1
+        - a: A
+          b: B
+          w: 2
+        - a: D
+          b: B
+          w: 10
+    hints:
+      - Going from D to the analysis is expensive. Is there a detour via Q?
+      - S → D → Q costs 3 minutes.
+    explanation: S → D → Q → A → B = 2 + 1 + 3 + 2 = 8 minutes. Planning means seeing the plan as a graph and searching for the cheapest route.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +156,48 @@ steps:
     hints:
       - An error that is caught is no longer an error.
     explanation: Self-checking turns a chain that breaks at its weakest link into a system that catches errors.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: An agent has to make a large software change. What is often a good structure?
+    params:
+      options:
+        - label: A plan with subtasks that are done and tested one at a time.
+          correct: true
+        - label: Write everything in one long step.
+          feedback: Errors pile up and are hard to find.
+        - label: Change files at random until the tests pass.
+          feedback: That creates chaos – and it might change the tests.
+    hints:
+      - How do experienced people work on big tasks?
+      - After each part you know whether things still work.
+    explanation: Decomposition with checkpoints makes errors visible early. Some systems hand subtasks to their own sub-agents with a fresh context.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why long tasks are so hard for agents – and what helps.
+    params:
+      keywords:
+        - - schritt
+          - step
+        - - fehler
+          - häuf
+          - multiplizier
+          - error
+          - pile
+          - multipl
+        - - prüf
+          - test
+          - kontroll
+          - check
+          - verify
+      sample: "Every step can fail, and the errors pile up: with many steps the whole task rarely succeeds. Checking intermediate results and fixing errors early helps."
     difficulty: 3
 
 srs:

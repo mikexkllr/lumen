@@ -1,0 +1,188 @@
+id: logic.induction.wellorder
+type: concept
+title: "The smallest counterexample"
+summary: "Every non-empty set of natural numbers has a smallest element – a powerful proof tool."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Which set has **no** smallest element?
+    params:
+      options:
+        - label: The positive fractions
+          correct: true
+        - label: The even numbers from 2 on
+          feedback: Their smallest element is 2.
+        - label: The primes
+          feedback: Their smallest element is 2.
+    hints:
+      - Is there a smallest positive fraction?
+      - Every fraction has a half.
+    explanation: For every positive fraction its half is smaller. For natural numbers, by contrast, every non-empty set has a smallest element.
+
+  - kind: explain
+    id: c2
+    body: "This well-ordering principle holds for the natural numbers. It allows a proof trick: suppose there are counterexamples. Then there is a smallest one. Show that an even smaller one would exist, and you have a contradiction."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: Put the steps of a smallest-counterexample proof in order.
+    params:
+      items:
+        - label: Suppose the statement is false for some n.
+        - label: Then there is a smallest such n.
+        - label: From it you build an even smaller counterexample.
+        - label: That contradicts "smallest".
+        - label: So there is no counterexample at all.
+    hints:
+      - Like every proof by contradiction, it begins with the opposite.
+      - The "smallest" is the lever for the contradiction.
+    explanation: "At heart this is the same power as induction – just from the other side: instead of building up, you look for the first failure."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: "Euclid's algorithm: gcd(a, b) = gcd(b, remainder of a divided by b), until the remainder is 0. What is gcd({{a}}, {{b}})?"
+    answer:
+      value: "{{gcd(a, b)}}"
+    hints:
+      - Divide {{a}} by {{b}} and take the remainder.
+      - Repeat with the smaller pair until the remainder is 0.
+    explanation: "gcd = {{gcd(a, b)}}. The algorithm always ends: the remainders get smaller but stay natural numbers – and those cannot fall forever."
+    variants:
+      params:
+        g: choice[4,6,12]
+        x: int[3,9]
+        y: int[2,7]
+      derive:
+        a: g * x
+        b: g * y
+      constraints:
+        - gcd(x, y) == 1
+        - x > y
+      defaults:
+        g: 12
+        x: 7
+        y: 3
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Why does Euclid's algorithm always terminate?
+    params:
+      options:
+        - label: The remainders keep shrinking and stay ≥ 0 – there is no infinite falling sequence of natural numbers.
+          correct: true
+        - label: Because computers are fast.
+          feedback: "This is about maths: it ends on paper too."
+        - label: Because the numbers are small at the start.
+          feedback: It ends for arbitrarily large numbers.
+    hints:
+      - Compare each remainder with the previous one.
+      - How often can a natural number get smaller?
+    explanation: Every loop whose counter is a natural number that keeps falling must end. This descent argument is how you prove programs terminate.
+
+  - kind: problem
+    id: c6
+    widget: swipe
+    prompt: Does this set have a smallest element?
+    params:
+      cards:
+        - text: the primes
+          right: true
+        - text: all negative integers
+          right: false
+          why: Each has a smaller one.
+        - text: the positive fractions
+          right: false
+          why: The half is always smaller.
+        - text: the multiples of 7 from 1000 on
+          right: true
+          why: The smallest is 1001.
+      left: no
+      right: yes
+    explanation: Every non-empty set of natural numbers has a smallest element. With fractions or negative numbers it can be missing.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: 'Fermat proved theorems by "infinite descent": from one solution he built a smaller one. What follows?'
+    params:
+      options:
+        - label: There is no solution in natural numbers at all.
+          correct: true
+        - label: There are infinitely many solutions.
+          feedback: An infinite falling chain of natural numbers is impossible.
+        - label: The smallest solution is 0.
+          feedback: The descent never stops – not at 0 either.
+    hints:
+      - "Repeat the trick: solution, smaller solution, even smaller …"
+      - Can that go on forever with natural numbers?
+    explanation: An infinite descent is impossible, so even the first solution was impossible. The proof that √2 is not a fraction can be done this way too.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Does every set of whole numbers, negatives too, have a smallest one?
+    params:
+      options:
+        - label: No – the set of all negative numbers has no smallest element.
+          correct: true
+        - label: Yes, the smallest integer is −1.
+          feedback: −2, −3, −4 … are even smaller.
+        - label: Yes, the smallest is 0.
+          feedback: Negative numbers are smaller than 0.
+    hints:
+      - Name a number smaller than −100.
+      - Is there a lower bound?
+    explanation: Well-ordering needs a floor. For integers with a lower bound, such as "all from −5 on", it holds again.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: How do you prove that a program loop really terminates?
+    params:
+      options:
+        - label: You find a natural number that decreases on every pass – such as the length of the remaining list.
+          correct: true
+        - label: You run the program once.
+          feedback: One run only shows it ends this time.
+        - label: That is impossible.
+          feedback: In general for all programs yes – for a particular loop it often works.
+    hints:
+      - What does Euclid's algorithm do to the remainder at each step?
+      - Such a number is called a loop variant.
+    explanation: A loop variant is a natural number that decreases every time. Since there is no infinite descent, the loop ends. Proof-checking programs demand exactly this kind of argument.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a "smallest counterexample" proof works.
+    params:
+      keywords:
+        - - gegenbeispiel
+          - counterexample
+        - - kleinst
+          - smallest
+        - - kleiner
+          - widerspruch
+          - smaller
+          - contradiction
+      sample: I assume there are counterexamples. Then there is a smallest one. If I show an even smaller one follows from it, that is a contradiction. So there is no counterexample.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

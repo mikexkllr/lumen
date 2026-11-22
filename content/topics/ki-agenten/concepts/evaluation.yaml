@@ -5,7 +5,7 @@ summary: Wie man misst, ob ein Agent taugt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 8
 steps:
   - kind: problem
     id: quote
@@ -64,6 +64,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Agent löst eine Aufgabe in 60 % der Versuche. Wie wahrscheinlich gelingt sie **dreimal hintereinander**? In Prozent, auf eine Stelle.
+    answer:
+      value: 21.6
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == 93.6
+        misconception: at-least-one
+        text: Das ist »mindestens einmal in drei Versuchen«. Hier müssen alle drei klappen.
+    hints:
+      - "Alle drei müssen gelingen: multipliziere."
+      - 0,6³ = ?
+    explanation: 0,6³ = 0,216. »Klappt irgendwann« und »klappt **zuverlässig**« sind sehr verschiedene Maße. Für den Alltag zählt meist das zweite.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Agent glänzt auf einem bekannten Test. Bei neuen, ähnlichen Aufgaben schneidet er viel schlechter ab. Was ist ein wahrscheinlicher Grund?
+    params:
+      options:
+        - label: Die Testaufgaben oder ihre Lösungen standen in den Trainingsdaten.
+          correct: true
+        - label: Neue Aufgaben sind immer unfair.
+          feedback: Neue Aufgaben zeigen gerade, was er wirklich kann.
+        - label: Der Agent wird müde.
+          feedback: Programme werden nicht müde.
+    hints:
+      - Woher könnte das Modell die Testaufgaben kennen?
+      - Bekannte Tests stehen oft im Internet.
+    explanation: Das heißt **Kontamination**. Gute Bewertungen nutzen darum neue oder geheim gehaltene Aufgaben und prüfen, ob Teile davon im Netz kursieren.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -100,6 +137,39 @@ steps:
           - approv
       min: 3
       sample: Ein Agent handelt selbst und kann sich dabei irren oder von fremden Texten getäuscht werden. Manche Aktionen wie Löschen oder Bezahlen lassen sich nicht rückgängig machen – darum sollte er vorher um Erlaubnis fragen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Agent löst 30 von 50 Testaufgaben. Der Standardfehler ist √(p · (1 − p) / n). Wie groß ist er in Prozentpunkten? Auf eine Stelle.
+    answer:
+      value: 6.9
+      tolerance: 0.2
+    hints:
+      - p = 0,6. Also √(0,6 · 0,4 / 50).
+      - √0,0048 ≈ 0,069.
+    explanation: Rund ±7 Punkte. Ein anderer Agent mit 64 % ist also nicht klar besser. Kleine Tests brauchen **Fehlerbalken**, bevor man Sieger kürt.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Sprachmodell bewertet die Antworten zweier Agenten. Worauf sollte man dabei achten?
+    params:
+      options:
+        - label: Es kann Vorlieben haben – etwa für längere Antworten oder die zuerst gezeigte.
+          correct: true
+        - label: Auf nichts, Modelle sind neutral.
+          feedback: Auch Bewerter-Modelle haben messbare Verzerrungen.
+        - label: Dass es zu streng ist.
+          feedback: Häufiger ist es zu großzügig mit langen, selbstsicheren Texten.
+    hints:
+      - Vertausche die Reihenfolge der Antworten. Ändert sich das Urteil?
+      - Lange Texte wirken gründlich – sind sie es?
+    explanation: Man prüft **Bewerter-Modelle** mit Menschen, vertauscht die Reihenfolge und nutzt klare Kriterien. Wo möglich, ersetzt man Urteile durch prüfbare Ergebnisse.
     difficulty: 3
 
 srs:

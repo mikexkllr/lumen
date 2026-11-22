@@ -1,0 +1,176 @@
+id: ai.search.minimax
+type: concept
+title: "Minimax – thinking like your opponent"
+summary: "In games you do not search alone: your opponent always picks what is worst for you."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many different complete games of tic-tac-toe are there?"
+    params:
+      min: 100
+      max: 10000000
+      scale: log
+    answer:
+      value: 255168
+      within: 50
+    explanation: "255,168 games. A computer looks at them all in a fraction of a second – and then knows: with perfect play it ends in a draw."
+
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: You have two moves. After move A your opponent can leave you 3 or 5 points. After move B he leaves you 2 or 9. Which move do you choose if he always picks what is worst for you?
+    params:
+      options:
+        - label: A – then you surely get 3.
+          correct: true
+        - label: B – the 9 is tempting there.
+          feedback: "You never get the 9: your opponent picks the 2."
+        - label: It does not matter.
+          feedback: A guarantees 3 points, B only 2.
+    hints:
+      - What does your opponent pick after A? And after B?
+      - Compare 3 and 2.
+    explanation: "After A you keep min(3, 5) = 3, after B min(2, 9) = 2. You take the maximum of these: 3."
+
+  - kind: explain
+    id: c2
+    body: "That is minimax: on your moves you take the maximum, on your opponent's moves the minimum. You compute backwards from the end of the game to the current move."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "You have three moves. Then your opponent chooses: after move 1 from 3, 12, 8; after move 2 from 2, 4, 6; after move 3 from 14, 5, 2. What is the position worth to you?"
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: max-max
+        text: You never get the 14 – your opponent picks the 2 there.
+    hints:
+      - "Your opponent takes the minimum each time: 3, 2 and 2."
+      - You take the maximum of those.
+    explanation: "max(3, 2, 2) = 3, so move 1. Minimax is cautious: it assumes the best opponent, not the friendliest."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: Put in order how minimax evaluates a game tree.
+    params:
+      items:
+        - label: Score the final positions at the bottom.
+        - label: If it is the opponent's turn, take the minimum of his options.
+        - label: If it is your turn, take the maximum of your options.
+        - label: Repeat level by level up to the root.
+        - label: Play the move with the best value.
+    hints:
+      - Minimax works from the bottom up.
+      - Min and max alternate.
+    explanation: "From the leaves to the root: each level takes the best for whoever moves there."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A game has about {{b}} moves in every position. How many positions must minimax look at to see {{d}} half-moves ahead?
+    answer:
+      value: "{{b ** d}}"
+    hints:
+      - Each half-move multiplies by {{b}}.
+      - "{{b}}^{{d}}."
+    explanation: "{{b ** d}} positions at the bottom. For chess that does not reach far. So the search stops early and scores positions with an evaluation function."
+    variants:
+      params:
+        b: choice[5,10,20]
+        d: int[2,4]
+      defaults:
+        b: 10
+        d: 3
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "The tree from before: 3, 12, 8 | 2, 4, 6 | 14, 5, 2. You look from left to right. After move 1 you surely have 3. How many leaves can you skip in total?"
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: prune-third
+        text: At move 3 the 2 comes only at the very end – nothing can be skipped there.
+    hints:
+      - "After the 2 at move 2 you know: this move gives at most 2 – worse than 3."
+      - "So you need not look at the 4 and 6. At move 3: 14, 5 – only the 2 shows it is bad."
+    explanation: "Two leaves drop out. This is alpha–beta pruning: a branch is cut as soon as it is clear it can no longer change the result. The result stays exactly the same."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: What determines how much alpha–beta can prune?
+    params:
+      options:
+        - label: "The order: if good moves are looked at first, a lot drops out."
+          correct: true
+        - label: The size of the numbers.
+          feedback: Only how they compare matters.
+        - label: Nothing – it always prunes the same amount.
+          feedback: In a bad order it prunes nothing at all.
+    hints:
+      - At move 3 the 2 came last – nothing helped there.
+      - What if the 2 had come first there?
+    explanation: Good move ordering is crucial. Programs therefore try captures or moves that were good earlier first.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: With perfect move ordering, alpha–beta only needs about b^(d/2) instead of b^d positions. What does that mean in practice?
+    params:
+      options:
+        - label: With the same effort you can look about twice as deep.
+          correct: true
+        - label: It is exactly twice as fast.
+          feedback: "It is much more: the square root of b^d is a huge saving for big trees."
+        - label: The result becomes less accurate.
+          feedback: Alpha–beta gives exactly the same result as minimax.
+    hints:
+      - b^(d/2) at depth 2d is b^d.
+      - Same effort, which depth?
+    explanation: Depth 2d with alpha–beta costs as much as depth d without it. In chess that is the difference between weak and masterly.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how minimax finds the best move in a game.
+    params:
+      keywords:
+        - - gegner
+          - opponent
+        - - minimum
+          - schlechteste
+          - minimum
+          - worst
+        - - maximum
+          - beste
+          - maximum
+          - best
+        - - rückwärts
+          - ende
+          - unten
+          - backward
+          - end
+          - bottom
+      sample: Minimax works backwards from the end of the game. When the opponent moves, I assume he picks the worst for me, the minimum. When I move, I take the maximum. That finds the move that guarantees the most.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d1"]

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.temperature]
-estimated_minutes: 7
+estimated_minutes: 9
 steps:
   - kind: problem
     id: kalt
@@ -91,6 +91,57 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: distribution
+    prompt: Mach das Modell so mutig, dass das beliebteste Wort **unter 40 %** fällt.
+    params:
+      mode: tokens
+      context: Zum Frühstück trinke ich
+      items:
+        - label: Tee
+          logit: 2
+        - label: Kaffee
+          logit: 1.5
+        - label: Saft
+          logit: 0.5
+        - label: Wasser
+          logit: 0
+      temperature:
+        min: 0.2
+        max: 3
+        step: 0.2
+        initial: 1
+      sample:
+        - 1
+        - 10
+    check:
+      predicate: temperature >= 1.75
+    hints:
+      - Bei T = 1 hat »Tee« etwa 51 %. In welche Richtung musst du drehen?
+      - Hohe Temperatur macht die Verteilung flacher.
+    explanation: Ab etwa T = 1,8 liegt »Tee« unter 40 %. Die Logits werden durch T geteilt – große T schrumpfen die Abstände.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: "Zwei Tokens haben die Logits 2 und 0, die Temperatur ist 1. Mit Softmax: p = e² / (e² + e⁰). Wie viel Prozent bekommt das erste Token? Gerundet."
+    answer:
+      value: 88
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 100
+        misconception: exp-zero
+        text: e⁰ = 1, nicht 0 – auch das zweite Token bekommt etwas ab.
+    hints:
+      - e² ≈ 7,39 und e⁰ = 1.
+      - 7,39 / 8,39 = ?
+    explanation: "7,39 / 8,39 ≈ 0,88. **Softmax** macht aus beliebigen Zahlen Wahrscheinlichkeiten: positiv und mit Summe 1. Ein Logit-Abstand von 2 heißt etwa 7-mal so wahrscheinlich."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -100,4 +151,44 @@ steps:
     hints:
       - "2 : 0,5 und 0 : 0,5."
     explanation: "Aus 2 wird 4: Niedrige Temperatur vergrößert Abstände, der Favorit dominiert. Hohe Temperatur ebnet sie ein."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Beim **Top-p-Sampling** mit p = 0,9 behält das Modell die wahrscheinlichsten Tokens, bis sie zusammen mindestens 90 % haben. Die Tokens haben 50 %, 30 %, 15 % und 5 %. Wie viele bleiben?
+    answer:
+      value: 3
+    hints:
+      - "Addiere von oben: 50, 80, 95 …"
+      - Wann ist die Summe erstmals mindestens 90 %?
+    explanation: "50 + 30 = 80 reicht nicht, 50 + 30 + 15 = 95 schon. Anders als Top-k passt sich Top-p an: Ist das Modell sicher, bleiben wenige Tokens, sonst viele."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Temperatur bei einem Sprachmodell verändert.
+    params:
+      keywords:
+        - - niedrig
+          - klein
+          - low
+        - - hoch
+          - hoh
+          - groß
+          - high
+        - - wahrscheinlich
+          - selten
+          - likely
+          - rare
+        - - kreativ
+          - vorhersehbar
+          - zufällig
+          - creative
+          - predictable
+          - random
+      sample: Bei niedriger Temperatur nimmt das Modell fast immer das wahrscheinlichste Wort, die Antwort ist vorhersehbar. Bei hoher Temperatur kommen auch seltene Wörter dran – das ist kreativer, aber fehleranfälliger.
     difficulty: 3

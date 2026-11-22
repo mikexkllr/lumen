@@ -5,7 +5,7 @@ summary: Empfehlen aus dem Verhalten anderer.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: empfehlen
@@ -113,6 +113,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Drei Nutzer mit ähnlichem Geschmack gaben einem Film {{a}}, {{b}} und {{c}} Sterne. Welche Bewertung sagt das System für dich voraus?
+    answer:
+      value: "{{(a + b + c) / 3}}"
+      tolerance: 0.01
+    hints:
+      - Nimm den Durchschnitt der Nachbarn.
+      - ({{a}} + {{b}} + {{c}}) / 3.
+    explanation: ({{a}} + {{b}} + {{c}}) / 3 = {{(a + b + c) / 3}}. Das ist **kollaboratives Filtern** in seiner einfachsten Form.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,5]
+        b: int[1,5]
+        c: int[1,5]
+      constraints:
+        - (a + b + c) % 3 == 0
+        - a != b
+      defaults:
+        a: 4
+        b: 5
+        c: 3
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein sehr ähnlicher Nutzer (Ähnlichkeit 0,9) gab 5 Sterne, ein wenig ähnlicher (0,3) gab 2. Wie lautet der gewichtete Durchschnitt?
+    answer:
+      value: 4.25
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 3.5
+        misconception: unweighted
+        text: Das ist der einfache Durchschnitt. Der ähnlichere Nutzer soll mehr zählen.
+    hints:
+      - Rechne (0,9 · 5 + 0,3 · 2) und teile durch die Summe der Gewichte.
+      - (4,5 + 0,6) / 1,2 = ?
+    explanation: 5,1 / 1,2 = 4,25. Ähnliche Nutzer bekommen mehr **Gewicht** – ihre Meinung sagt mehr über deinen Geschmack.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -128,6 +172,43 @@ steps:
     hints:
       - Vielleicht genügen 50 Zahlen, um einen Geschmack zu beschreiben.
     explanation: "**Matrixfaktorisierung**: Die Merkmale lernt das System selbst – etwa »wie viel Action«, »wie ernst«."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein System beschreibt dich mit dem Vektor (2, 1) – etwa »mag Action«, »mag Humor«. Ein Film hat den Vektor (1,5; 1). Die Vorhersage ist das Skalarprodukt. Wie lautet sie?
+    answer:
+      value: 4
+    hints:
+      - "Skalarprodukt: Paare multiplizieren, dann addieren."
+      - 2 · 1,5 + 1 · 1 = ?
+    explanation: 3 + 1 = 4 Sterne. Bei der **Matrixfaktorisierung** lernt das System solche Vektoren für alle Nutzer und Filme aus den bekannten Bewertungen. Die Achsen haben meist keine eindeutige Bedeutung.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie »Leute wie du mochten auch …« funktioniert.
+    params:
+      keywords:
+        - - ähnlich
+          - gleich
+          - similar
+          - like you
+        - - bewert
+          - mochten
+          - gefallen
+          - rated
+          - liked
+        - - vorher
+          - empfehl
+          - empfiehl
+          - predict
+          - recommend
+      sample: Das System sucht Menschen, die bisher ähnlich bewertet haben wie du. Filme, die diese mochten und du noch nicht kennst, empfiehlt es dir.
     difficulty: 3
 
 srs:

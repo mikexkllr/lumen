@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.next]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -20,7 +20,6 @@ steps:
       value: 100000
       within: 70
     explanation: Etwa 100 000. Für jedes einzelne berechnet es eine Wahrscheinlichkeit – bei jedem Wort neu.
-
 
   - kind: problem
     id: lueckensatz
@@ -108,6 +107,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Ein Modell schätzt: »Der« 50 %, dann »Hund« 20 %, dann »bellt« 60 %. Wie wahrscheinlich ist der ganze Satz »Der Hund bellt«? In Prozent."
+    answer:
+      value: 6
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 130
+        misconception: added
+        text: Wahrscheinlichkeiten hintereinander werden multipliziert, nicht addiert.
+    hints:
+      - Jedes Wort hängt an den vorigen – multipliziere.
+      - 0,5 · 0,2 · 0,6 = ?
+    explanation: 0,5 · 0,2 · 0,6 = 0,06. Ein Sprachmodell zerlegt jeden Text so in eine **Kette** von Wahrscheinlichkeiten – Token für Token.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Modell nimmt **immer** das wahrscheinlichste nächste Wort. Was passiert bei langen Texten oft?
+    params:
+      options:
+        - label: Der Text wird eintönig und wiederholt sich.
+          correct: true
+        - label: Der Text wird perfekt.
+          feedback: Das wahrscheinlichste Wort ist nicht immer das beste – Ketten davon geraten leicht in Schleifen.
+        - label: Das Modell erfindet mehr.
+          feedback: "Eher im Gegenteil: Ohne Zufall wird es vorhersehbar."
+    hints:
+      - Was passiert, wenn ein häufiger Satz immer weiter fortgesetzt wird?
+      - Ein wenig Zufall sorgt für Abwechslung.
+    explanation: Immer das Beste zu nehmen heißt **gierige Suche**. Sie führt oft zu Wiederholungen. Darum zieht man meist mit etwas Zufall – gesteuert durch die Temperatur.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -124,3 +160,23 @@ steps:
       - Wie sagt man das Ende eines Krimis vorher, ohne die Handlung zu verstehen?
     explanation: Ein einfaches Ziel, in riesigem Maßstab verfolgt, erzwingt erstaunlich viel Struktur. Wie tief dieses »Verstehen« reicht, wird noch erforscht.
     difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Im Training gab das Modell dem richtigen nächsten Token die Wahrscheinlichkeit {{p}}. Der Fehler ist −log₂({{p}}) Bit. Wie groß ist er?
+    answer:
+      value: "{{k}}"
+    hints:
+      - Wie oft musst du 1 halbieren, um {{p}} zu bekommen?
+      - "{{p}} = 1 / 2^{{k}}."
+    explanation: "{{k}} Bit. Das ist die **Kreuzentropie**: Je weniger Wahrscheinlichkeit das Modell der Wahrheit gab, desto größer der Fehler. Training heißt, diesen Fehler über Billionen Tokens zu senken."
+    difficulty: 3
+    variants:
+      params:
+        k: int[1,5]
+      derive:
+        p: 1 / 2 ** k
+      defaults:
+        k: 2

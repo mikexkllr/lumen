@@ -1,0 +1,183 @@
+id: logic.modal.worlds
+type: concept
+title: "Mögliche Welten"
+summary: "Notwendig heißt: in allen Welten wahr. Möglich heißt: in mindestens einer."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: buckets
+    prompt: Notwendig, möglich oder unmöglich?
+    params:
+      buckets:
+        - id: b1
+          label: notwendig
+        - id: b2
+          label: möglich, aber nicht notwendig
+        - id: b3
+          label: unmöglich
+      items:
+        - label: 2 + 2 = 4
+          bucket: b1
+        - label: Morgen regnet es.
+          bucket: b2
+        - label: Ein Kreis hat vier Ecken.
+          bucket: b3
+        - label: Jeder Junggeselle ist unverheiratet.
+          bucket: b1
+        - label: Ich habe eine Schwester.
+          bucket: b2
+    hints:
+      - Kann man sich eine Welt vorstellen, in der es anders ist?
+      - Rechnen und Begriffe hängen nicht vom Wetter ab.
+    explanation: Was in jeder denkbaren Welt gilt, ist **notwendig**. Was in manchen gilt, ist möglich. Was in keiner gilt, ist unmöglich.
+
+  - kind: explain
+    id: c2
+    body: "Die Modallogik schreibt □p für »notwendig p« und ◇p für »möglich p«. In der Sprache der **möglichen Welten**: □p heißt, p gilt in allen erreichbaren Welten. ◇p heißt, p gilt in mindestens einer."
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Es gibt vier erreichbare Welten. In dreien gilt p, in einer nicht. Was stimmt?
+    params:
+      options:
+        - label: ◇p ist wahr, □p ist falsch.
+          correct: true
+        - label: □p ist wahr.
+          feedback: "Notwendig hieße: in **allen** vier Welten."
+        - label: Beides falsch.
+          feedback: In drei Welten gilt p – also ist es möglich.
+    hints:
+      - Für □ brauchst du alle Welten, für ◇ eine.
+      - Eine Welt ohne p reicht, um □p zu kippen.
+    explanation: □ ist wie »für alle Welten«, ◇ wie »es gibt eine Welt«. Modallogik ist **Quantorenlogik** über Welten.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Welche Aussage bedeutet dasselbe wie »p ist möglich« (◇p)?
+    params:
+      options:
+        - label: "»Nicht p« ist nicht notwendig: ¬□¬p."
+          correct: true
+        - label: "»p ist notwendig«: □p."
+          feedback: Notwendig ist viel stärker als möglich.
+        - label: "»p ist nicht notwendig«: ¬□p."
+          feedback: Das heißt »¬p ist möglich« – etwas anderes.
+    hints:
+      - "Denk an die Quantoren: »es gibt« ist »nicht für alle nicht«."
+      - "Übersetze: ◇ = »in einer Welt«, □ = »in allen Welten«."
+    explanation: ◇p ≡ ¬□¬p, genau wie ∃x P ≡ ¬∀x ¬P. Möglich und notwendig sind **dual** zueinander.
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: In 6 erreichbaren Welten gilt p in {{k}} davon. Wie viele Welten müsste man mindestens noch ändern, damit □p wahr wird?
+    answer:
+      value: "{{6 - k}}"
+    hints:
+      - □p verlangt p in allen 6 Welten.
+      - In wie vielen fehlt p noch?
+    explanation: "{{6 - k}} Welten. Schon **eine** Welt ohne p macht □p falsch – wie ein einziges Gegenbeispiel bei »für alle«."
+    variants:
+      params:
+        k: int[1,5]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: "□p heißt: p gilt in [[allen]] erreichbaren Welten. ◇p heißt: p gilt in [[mindestens einer]] Welt."
+      distractors:
+        - keiner
+        - genau zwei
+    hints:
+      - □ ist wie »für alle«, ◇ wie »es gibt«.
+    explanation: Notwendig und möglich sind Quantoren über Welten.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: "Für Wissen soll gelten: □p → p (»was ich weiß, ist wahr«). Welche Bedingung an die Welten sorgt dafür?"
+    params:
+      options:
+        - label: Jede Welt hält sich selbst für möglich – die wirkliche Welt ist immer dabei.
+          correct: true
+        - label: Es gibt nur eine Welt.
+          feedback: Das wäre viel zu stark – dann gäbe es nichts Unbekanntes.
+        - label: Keine Welt sieht sich selbst.
+          feedback: Dann könnte man Falsches »wissen«.
+    hints:
+      - Gilt p in allen erreichbaren Welten – gilt es dann auch hier?
+      - Nur wenn »hier« selbst erreichbar ist.
+    explanation: Ist jede Welt von sich aus erreichbar (**reflexiv**), folgt aus □p sofort p. So entsprechen Eigenschaften der Erreichbarkeit genau den Regeln der Logik.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Kind kennt nur die Hüte der anderen. Bei 4 Kindern mit rot oder blau – wie viele Welten hält jedes Kind für möglich, bevor jemand etwas sagt?
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: total
+        text: Es gibt 16 Welten insgesamt. Das Kind sieht aber drei Hüte.
+    hints:
+      - Drei Hüte sieht das Kind.
+      - Offen bleibt nur sein eigener.
+    explanation: Zwei. Die erreichbaren Welten eines Kindes sind alle Welten, die sich nur im **eigenen** Hut unterscheiden. Das macht die Erreichbarkeit zu einer Gleichheits-Beziehung.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Ist die Erreichbarkeit eine Äquivalenzrelation (reflexiv, symmetrisch, transitiv), heißt die Logik S5. Welche Regel gilt dann zusätzlich?
+    params:
+      options:
+        - label: Weiß ich p nicht, dann weiß ich, dass ich p nicht weiß.
+          correct: true
+        - label: Ich weiß alles.
+          feedback: S5 sagt nichts darüber, wie viel man weiß – nur, wie Wissen sich verhält.
+        - label: Was möglich ist, ist wahr.
+          feedback: Möglich heißt nicht wirklich – eine andere Welt könnte gemeint sein.
+    hints:
+      - In S5 überblickt man seine eigenen Möglichkeiten perfekt.
+      - Das betrifft auch das eigene Nichtwissen.
+    explanation: "Diese **negative Introspektion** passt zu Hut-Rätseln mit perfekten Logikern. Für echtes menschliches Wissen ist sie fragwürdig: Oft weiß man nicht einmal, was man nicht weiß."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »notwendig« und »möglich« in der Sprache der möglichen Welten bedeuten.
+    params:
+      keywords:
+        - - alle
+          - jede
+          - all
+          - every
+        - - mindestens eine
+          - eine welt
+          - at least one
+          - some world
+        - - welt
+          - welten
+          - world
+      sample: Notwendig heißt, die Aussage gilt in allen Welten, die man betrachtet. Möglich heißt, sie gilt in mindestens einer Welt. Das ist wie »für alle« und »es gibt«, nur über Welten statt über Zahlen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

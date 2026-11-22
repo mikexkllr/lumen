@@ -5,7 +5,7 @@ summary: Wolves, snow and good training images.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: woelfe
@@ -79,6 +79,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: A model only knows "cat" and "dog". You show it a toaster. What happens?
+    params:
+      options:
+        - label: It still says cat or dog – possibly even very "confidently".
+          correct: true
+        - label: It reports "I do not know".
+          feedback: For that it would need its own answer "none of these". It never learned one.
+        - label: It recognises the toaster.
+          feedback: It only knows the two classes from training.
+    hints:
+      - The output is a distribution over exactly two classes.
+      - The values always add up to 100 %.
+    explanation: Softmax always spreads 100 % over the known classes. A high number is therefore not real certainty. Good systems also detect when an image is unlike the training data.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,6 +113,64 @@ steps:
     hints:
       - When does a doctor place a ruler next to a spot?
     explanation: "**Shortcut learning**: networks take the simplest pattern that works. You must check **what** a model looks at."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A cat detector has precision 0.75 (share of alarms that are right) and recall 0.9 (share of cats it finds). The F1 score is 2 · P · R / (P + R). What is it? To two decimals.
+    answer:
+      value: 0.82
+      tolerance: 0.01
+    hints:
+      - "Numerator: 2 · 0.75 · 0.9 = 1.35."
+      - "Denominator: 0.75 + 0.9 = 1.65."
+    explanation: 1.35 / 1.65 ≈ 0.82. The F1 score is only high when both values are high. A model that always says "cat" has recall 1 – but terrible precision.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: How could one have noticed early that the wolf detector looks at snow?
+    params:
+      options:
+        - label: Test with pictures of wolves without snow and dogs in snow.
+          correct: true
+        - label: With even more wolf pictures in snow.
+          feedback: They only confirm the mistake.
+        - label: From the overall accuracy.
+          feedback: That was high – the mistake hides inside it.
+    hints:
+      - Separate the two features that always came together in training.
+      - What does the model say when only one of them is present?
+    explanation: Targeted counter-tests expose shortcuts. Heatmaps that show which pixels drive the decision help too. If the snow lights up there, the case is clear.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why high test accuracy does not mean an image model learned the right thing.
+    params:
+      keywords:
+        - - muster
+          - abkürzung
+          - schnee
+          - pattern
+          - shortcut
+          - snow
+        - - test
+          - prüf
+          - check
+        - - neu
+          - ander
+          - unbekannt
+          - new
+          - different
+          - unseen
+      sample: The model may have learned an accidental pattern, such as snow instead of wolf. If the test has the same bias, nobody notices. Only new, different pictures reveal the mistake.
     difficulty: 3
 
 srs:

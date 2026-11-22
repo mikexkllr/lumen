@@ -5,7 +5,7 @@ summary: Who lives next to whom?
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 8
 steps:
   - kind: problem
     id: strasse
@@ -90,6 +90,92 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Four houses in a row. Who lives where, and who has which pet?
+    params:
+      categories:
+        - name: Person
+          items:
+            - Ali
+            - Bo
+            - Cara
+            - Dev
+        - name: House
+          items:
+            - house 1
+            - house 2
+            - house 3
+            - house 4
+        - name: Pet
+          items:
+            - dog
+            - cat
+            - mouse
+            - bird
+      ordered: 1
+      clues:
+        - text: Ali lives in house 1.
+          rule:
+            is:
+              - Ali
+              - house 1
+        - text: Bo lives two houses to the right of Ali.
+          rule:
+            offset:
+              - Ali
+              - Bo
+              - 2
+        - text: Bo has the bird.
+          rule:
+            is:
+              - Bo
+              - bird
+        - text: Dev lives to the left of Cara.
+          rule:
+            less:
+              - Dev
+              - Cara
+        - text: The dog and the cat live right next to each other.
+          rule:
+            adjacent:
+              - dog
+              - cat
+        - text: Ali does not have the dog.
+          rule:
+            not:
+              - Ali
+              - dog
+    hints:
+      - "Houses first: Ali 1, Bo 3. Houses 2 and 4 are left for Dev and Cara."
+      - Dog and cat need two neighbouring houses – but house 3 already has the bird.
+    explanation: Ali 1 with the cat, Dev 2 with the dog, Bo 3 with the bird, Cara 4 with the mouse. Only houses 1 and 2 remain as a neighbouring pair for dog and cat.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: In how many ways can A and B sit next to each other in a row of {{n}} seats? A may be on the left or the right.
+    answer:
+      value: "{{2 * (n - 1)}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: one-direction
+        text: Those are the neighbouring pairs. Each pair can still be filled in two ways.
+    hints:
+      - How many pairs of adjacent seats does a row of {{n}} seats have?
+      - There are {{n - 1}} pairs – and A can sit left or right.
+    explanation: "{{n - 1}} adjacent pairs times 2 directions = {{2 * (n - 1)}}. Around a circle there would be {{n}} pairs, because the last seat is next to the first."
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 6
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -105,6 +191,53 @@ steps:
     hints:
       - Deducing is cheap, guessing is expensive.
     explanation: "**Constraint programming**: deduce, branch, backtrack. Timetables and shift plans are made this way too."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "{{n}} people sit at a round table. Two seatings count as the same if everyone has the same neighbours on the left and right. How many different ones are there?"
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * f
+        misconception: rotations
+        text: That counts every rotation separately. At a round table a rotation is the same seating.
+    hints:
+      - Fix one person to one seat. Then rotations no longer count twice.
+      - The other {{n - 1}} people can be arranged in any order.
+    explanation: ({{n - 1}})! = {{f}}. Of the {{n}}! orders in a row, groups of {{n}} are just rotations of each other. Dividing out symmetries gives the right count.
+    difficulty: 3
+    variants:
+      params:
+        n: int[4,7]
+      derive:
+        f: "n == 4 ? 6 : n == 5 ? 24 : n == 6 ? 120 : 720"
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why the clue "right next to each other" is especially strong for houses at the edge.
+    params:
+      keywords:
+        - - rand
+          - außen
+          - ende
+          - edge
+          - end
+        - - nachbar
+          - neben
+          - neighbour
+          - next
+        - - ein
+          - nur
+          - one
+          - only
+      sample: A house at the edge has only one neighbour. If one of the pair lives there, the other must live in exactly that neighbouring house, so hardly any options remain.
     difficulty: 3
 
 srs:

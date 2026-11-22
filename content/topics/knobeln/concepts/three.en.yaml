@@ -5,7 +5,7 @@ summary: Chaining clues.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 8
 steps:
   - kind: problem
     id: hook
@@ -91,6 +91,71 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Who drinks what, and who likes which colour?
+    params:
+      categories:
+        - name: Person
+          items:
+            - Ana
+            - Ben
+            - Cleo
+            - Dan
+        - name: Drink
+          items:
+            - coffee
+            - tea
+            - juice
+            - water
+        - name: Colour
+          items:
+            - red
+            - blue
+            - green
+            - yellow
+      clues:
+        - text: The coffee drinker likes blue.
+          rule:
+            is:
+              - coffee
+              - blue
+        - text: Ana drinks tea.
+          rule:
+            is:
+              - Ana
+              - tea
+        - text: Ben does not like blue and does not drink juice.
+          rules:
+            - not:
+                - Ben
+                - blue
+            - not:
+                - Ben
+                - juice
+        - text: The juice drinker likes green.
+          rule:
+            is:
+              - juice
+              - green
+        - text: Cleo does not like green.
+          rule:
+            not:
+              - Cleo
+              - green
+        - text: Ana does not like red.
+          rule:
+            not:
+              - Ana
+              - red
+    hints:
+      - Ben drinks no juice, no tea – and no coffee, since coffee means blue.
+      - Juice means green, and Cleo does not like green. So what does Cleo drink?
+    explanation: "Ana: tea, yellow. Ben: water, red. Cleo: coffee, blue. Dan: juice, green. Every tick between two categories carries over into the third."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -100,6 +165,45 @@ steps:
     hints:
       - 120⁵ ≈ 2.5 · 10¹⁰.
     explanation: About 25 billion – and 15 clues suffice to pin down exactly one.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: The grid shows Ana – tea ✓ and tea – red ✗. What may you enter right away?
+    params:
+      options:
+        - label: Ana – red ✗
+          correct: true
+        - label: Ana – red ✓
+          feedback: Ana drinks tea, and the tea drinker does not like red.
+        - label: Nothing – those are different sub-grids.
+          feedback: 'A tick links the sub-grids: Ana and "tea" are the same row of the solution.'
+    hints:
+      - Ana and the tea belong to the same person.
+      - So whatever holds for the tea also holds for Ana.
+    explanation: "A ✓ makes two values equivalent: all ✓ and ✗ of one carry over to the other. That is the most important trick with three categories."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a clue like "the coffee drinker likes blue" helps with three categories.
+    params:
+      keywords:
+        - - kaffee
+          - coffee
+        - - blau
+          - blue
+        - - übertrag
+          - gilt auch
+          - ebenso
+          - carry
+          - also
+          - same
+      sample: Coffee and blue belong to the same person. Once I know who drinks coffee, I also know their colour. Every cross for coffee also holds for blue – it carries over.
     difficulty: 3
 
 srs:

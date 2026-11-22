@@ -5,7 +5,7 @@ summary: Auctions and the winner's curse.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: zweitpreis
@@ -80,6 +80,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Three bidders value a painting at 50, 80 and 120 €. The price rises in small steps until only one bidder is left. At about which price does the auction end?
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 120
+        misconception: own-value
+        text: The top bidder only has to keep going until the second drops out.
+    hints:
+      - Who drops out first, and who second?
+      - Once the price goes above 80 €, only one is left.
+    explanation: The rising auction ends at the second-highest value. That is why its outcome matches the second-price auction.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: With an oil field, many bidders estimate the same unknown value. What should you do when **more** bidders join?
+    params:
+      options:
+        - label: Bid even more cautiously – the winner is then more likely to have overestimated badly.
+          correct: true
+        - label: Bid higher to win for sure.
+          feedback: That is exactly when the winner's curse hits you.
+        - label: Change nothing.
+          feedback: The more bidders, the larger the highest mistake.
+    hints:
+      - Among many estimates – how far above the true value is the highest usually?
+      - Whoever wins gave the highest estimate.
+    explanation: The more estimates, the more extreme the highest. Smart bidders account for what winning reveals about their own estimate.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -110,6 +146,26 @@ steps:
           - better
       min: 3
       sample: For each one alone, to betray is always the better choice. But if both do it, they end up worse off than if both had kept quiet. So working together needs trust, rules or many rounds.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Two bidders whose values are uniformly random between 0 and 100 €. In a second-price auction the winner pays the lower value. How much does the seller earn on average?
+    params:
+      unit: €
+    answer:
+      value: 33.3
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: mean-not-min
+        text: That is the average of one value. The minimum of two values is lower.
+    hints:
+      - Two random points split the range 0–100 into three equal parts on average.
+      - So the lower value is 100 / 3 on average.
+    explanation: 33.3 € on average. In a first-price auction everyone bids half their value in equilibrium; the expected winner's bid is ½ · 66.7 € – also 33.3 €. This is the revenue equivalence theorem.
     difficulty: 3
 
 srs:

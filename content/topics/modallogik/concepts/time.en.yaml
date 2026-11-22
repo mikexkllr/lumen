@@ -1,0 +1,175 @@
+id: logic.modal.time
+type: concept
+title: "Always and eventually"
+summary: "Logic over time: how to check that a program never crashes and answers every request."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: buckets
+    prompt: A traffic-light system should be safe. Is this "never something bad" or "eventually something good"?
+    params:
+      buckets:
+        - id: b1
+          label: never something bad
+        - id: b2
+          label: eventually something good
+      items:
+        - label: Never are both directions green.
+          bucket: b1
+        - label: Every car eventually gets green.
+          bucket: b2
+        - label: Never are red and green lit at once.
+          bucket: b1
+        - label: A button press brings green at last.
+          bucket: b2
+    hints:
+      - Does the rule forbid something – or promise something?
+      - '"Never" forbids, "eventually" promises.'
+    explanation: Computer scientists call these safety (never anything bad) and liveness (eventually something good). You need both – a light that is always red is safe but useless.
+
+  - kind: explain
+    id: c2
+    body: 'Temporal logic has symbols for time: G p means "p holds from now on, always", F p means "p holds at some point". The possible worlds here are the moments of a run.'
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A run has 10 moments. The lights are never both green at moments 1 to 9, but they are at moment 10. How many moments break the rule "G (not both green)"?
+    answer:
+      value: 1
+    hints:
+      - Count the moments when both are green.
+      - Just one.
+    explanation: A single moment is enough for G to be false – like a counterexample for "for all". Nine good moments save nothing.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Which statement means the same as "F p" ("eventually p")?
+    params:
+      options:
+        - label: '"It is not always not p": ¬G¬p.'
+          correct: true
+        - label: '"Always p": G p.'
+          feedback: Always is much stronger than eventually.
+        - label: '"Never p": G¬p.'
+          feedback: That is exactly the opposite.
+    hints:
+      - "Eventually p means: p is not missing at every moment."
+      - As with ◇ and □.
+    explanation: F p ≡ ¬G¬p. F and G are dual, just like ◇ and □ or "there is" and "for all".
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: A server should eventually answer every request. How do you write that?
+    params:
+      options:
+        - label: G (request → F answer)
+          correct: true
+        - label: F (request → G answer)
+          feedback: 'That says: at some point "if request, then answer forever" – something quite different.'
+        - label: request ∧ answer
+          feedback: That holds only at one moment and demands both at once.
+    hints:
+      - '"Every request" – at every moment. That is G.'
+      - '"Eventually answered" – then F.'
+    explanation: "G (a → F b) is the basic pattern of liveness: whenever a happens, b eventually follows."
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: G p means p holds from now on [[always]]. F p means p holds [[eventually]].
+      distractors:
+        - never
+        - yesterday
+    hints:
+      - G stands for "globally", F for "finally".
+    explanation: "G and F are the quantifiers of time: for all future moments and for at least one."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: What is the difference between "G F p" and "F G p"?
+    params:
+      options:
+        - label: "G F p: p keeps coming back. F G p: from some point on p holds forever."
+          correct: true
+        - label: No difference.
+          feedback: A light that blinks forever satisfies G F on, but not F G on.
+        - label: G F p is stronger.
+          feedback: "The other way round: holding forever from some point means coming back again and again."
+    hints:
+      - Think of a blinking light.
+      - Does "at some point on forever" hold? Does "on again and again" hold?
+    explanation: As with quantifiers, the order matters. F G p implies G F p, but not the other way round – the blinking light is the counterexample.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: A program has 3 switches, each on or off, and a counter from 0 to 9. A checking program examines all states. How many are there?
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: counter
+        text: The counter has 10 values, not 2.
+    hints:
+      - "Switches: 2³ = 8 options."
+      - Times 10 counter values.
+    explanation: 8 · 10 = 80. A model checker tests a formula like G (not both green) in every reachable state. For real hardware that is often an astronomical number – which is why clever methods are needed.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: A short run can refute a rule "never X". It cannot refute a rule "eventually Y". Why?
+    params:
+      options:
+        - label: A violation of "never" is one finite moment. With "eventually", Y might still come later.
+          correct: true
+        - label: Because liveness matters less.
+          feedback: Both matter – they are just checked differently.
+        - label: They can, both the same.
+          feedback: Seeing no Y after 1000 steps does not tell you whether it comes at step 1001.
+    hints:
+      - What does a run prove in which X occurs once?
+      - What does a run prove in which Y has not occurred yet?
+    explanation: Safety violations have finite witnesses; liveness violations need infinite runs, such as loops. That is why model checkers look for cycles in the state graph in which Y never occurs.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what "always" and "eventually" mean in temporal logic – with an example.
+    params:
+      keywords:
+        - - immer
+          - jeder zeitpunkt
+          - always
+          - every moment
+        - - irgendwann
+          - eventually
+          - some point
+        - - ampel
+          - server
+          - programm
+          - light
+          - program
+      sample: "Always p means p holds at every moment, for example: the light is never green both ways. Eventually p means p holds at some later moment, for example: every car eventually gets green."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

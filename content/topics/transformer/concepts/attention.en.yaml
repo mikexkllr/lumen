@@ -5,7 +5,7 @@ summary: Which word looks at which.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: sie
@@ -71,6 +71,37 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "A token spreads its attention: 0.7 on a word with value 10, 0.2 on one with value 0 and 0.1 on one with value 5. What is the weighted mix?"
+    answer:
+      value: 7.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: unweighted
+        text: That is the plain mean. The weights should count.
+    hints:
+      - Multiply each value by its weight.
+      - 7 + 0 + 0.5 = ?
+    explanation: "7.5. Attention is at heart a weighted average: the weights say how relevant each token is right now. In real models the values are long vectors."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Query and key have dot product 8. The vectors have 16 numbers each. Before the softmax you divide by √16. Which number goes into the softmax?
+    answer:
+      value: 2
+    hints:
+      - √16 = 4.
+      - 8 / 4 = ?
+    explanation: Without this scaling, dot products of long vectors would get huge. Softmax would then put almost everything on a single token, and learning would stall.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -86,6 +117,43 @@ steps:
     hints:
       - Every token asks a question and offers an answer.
     explanation: Because everything is differentiable, the model itself learns which questions and keys are useful.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Three tokens have scores 2, 0 and 0. Their values are 10, 0 and 0. Compute the output with softmax weights (e² ≈ 7.39). To two decimals.
+    answer:
+      value: 7.87
+      tolerance: 0.03
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: hard-max
+        text: Softmax does not give everything to the top one – the others get some too.
+    hints:
+      - "Weights: 7.39 / (7.39 + 1 + 1) ≈ 0.787 for the first token."
+      - Output = 0.787 · 10 + 0 + 0.
+    explanation: "≈ 7.87. Softmax is a soft selection: the most relevant token dominates and the others contribute a little. That keeps everything differentiable and so learnable."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: When training a language model, a token may only attend to earlier tokens, never later ones. Why?
+    params:
+      options:
+        - label: Otherwise it could simply copy the next word instead of predicting it.
+          correct: true
+        - label: Because later tokens do not matter.
+          feedback: For understanding they often matter a lot – only for predicting would they be cheating.
+        - label: To save memory.
+          feedback: The mask barely saves memory – it stops the model from seeing the answer.
+    hints:
+      - What should the model learn at each position?
+      - If you can see the next word, you do not have to predict it.
+    explanation: This causal mask sets scores to later tokens to −∞, so their softmax weight becomes 0. That lets all positions of a text be trained at once without cheating.
     difficulty: 3
 
 srs:

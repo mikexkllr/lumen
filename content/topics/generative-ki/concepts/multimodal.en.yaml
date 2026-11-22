@@ -5,7 +5,7 @@ summary: Models that connect several senses.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -86,6 +86,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: An image of 224 × 224 pixels is cut into tiles of 16 × 16 pixels. Each tile becomes a token. How many tokens is that?
+    answer:
+      value: 196
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: one-row
+        text: That is one row. There are 14 rows of 14 tiles each.
+    hints:
+      - 224 / 16 = 14 tiles per row.
+      - 14 · 14 = ?
+    explanation: "14 · 14 = 196 tokens. That is how a vision transformer handles images: as a sequence of tiles, just like text as a sequence of word pieces."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: When training CLIP you compare {{n}} images with {{n}} texts – each with each. Only the true pairs should be similar. How many comparisons are **wrong** pairs?
+    answer:
+      value: "{{n * n - n}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: all
+        text: That is all comparisons. The {{n}} true pairs do not count.
+    hints:
+      - "All comparisons: {{n}} · {{n}}."
+      - "{{n}} of them are true pairs."
+    explanation: "{{n * n}} − {{n}} = {{n * n - n}}. Training pulls the {{n}} true pairs together and pushes the others apart. This contrastive learning needs no further labels."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -96,6 +135,49 @@ steps:
     hints:
       - 120 frames times 786,432 values.
     explanation: About 94 million – and all must fit together, or the video flickers.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: How can CLIP assign a photo to a class it was never trained on as a class?
+    params:
+      options:
+        - label: You compare the image with texts such as "a photo of a dog" and pick the most similar one.
+          correct: true
+        - label: Not at all – it only knows fixed classes.
+          feedback: CLIP has no fixed classes, only image and text vectors.
+        - label: It looks it up on the internet.
+          feedback: It works only with its learned vectors.
+    hints:
+      - Images and texts live in the same space.
+      - Write a short text for each class.
+    explanation: "This is called zero-shot classification: the classes are just texts. A new class costs only a new sentence – no new training."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a photo app finds pictures of "the beach" without anyone labelling them.
+    params:
+      keywords:
+        - - vektor
+          - zahlen
+          - vector
+          - number
+        - - gemeinsam
+          - gleich
+          - raum
+          - shared
+          - same
+          - space
+        - - nah
+          - ähnlich
+          - close
+          - similar
+      sample: A model turns images and words into vectors in the same space. Beach photos lie close to the word "beach" there. The app looks for the images most similar to the word.
     difficulty: 3
 
 srs:

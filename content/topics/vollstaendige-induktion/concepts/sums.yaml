@@ -1,0 +1,176 @@
+id: logic.induction.sums
+type: concept
+title: "Summenformeln"
+summary: "Erst das Muster raten, dann per Induktion beweisen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Was ist 1 + 2 + 3 + … + 100?"
+    params:
+      min: 100
+      max: 100000
+      scale: log
+    answer:
+      value: 5050
+      within: 15
+    explanation: "5050. Der Trick: 1 + 100, 2 + 99, 3 + 98 … sind 50 Paare zu je 101."
+
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: Was ist 1 + 2 + … + {{n}}?
+    answer:
+      value: "{{n * (n + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n + 1)
+        misconception: no-half
+        text: Du hast jede Zahl doppelt gezählt – teile noch durch 2.
+    hints:
+      - Schreib die Summe einmal vorwärts und einmal rückwärts darunter.
+      - Jede Spalte ergibt {{n + 1}}, und es gibt {{n}} Spalten. Teile durch 2.
+    explanation: "{{n}} · {{n + 1}} / 2 = {{n * (n + 1) / 2}}. Allgemein gilt 1 + … + n = n(n + 1)/2."
+    variants:
+      params:
+        n: int[10,60]
+      defaults:
+        n: 20
+
+  - kind: explain
+    id: c2
+    body: Die **Gaußsche Summenformel** lautet 1 + 2 + … + n = n(n + 1)/2. Man findet sie mit dem Paar-Trick. Per Induktion beweist man, dass sie für jedes n gilt.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Im Induktionsschritt gilt die Formel für n. Was muss man zur Summe addieren, um zu n + 1 zu kommen?
+    params:
+      options:
+        - label: Die Zahl n + 1
+          correct: true
+        - label: Die Zahl n
+          feedback: n ist schon in der Summe enthalten.
+        - label: Die Zahl 1
+          feedback: Die Summe wächst um den neuen Summanden, nicht um 1.
+    hints:
+      - Die Summe bis n + 1 ist die Summe bis n plus der nächste Summand.
+      - Welcher Summand kommt neu dazu?
+    explanation: n(n + 1)/2 + (n + 1) = (n + 1)(n + 2)/2 – genau die Formel für n + 1. Der Schritt ist **eine Zeile** Algebra.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Die Summe der Quadratzahlen ist 1² + 2² + … + n² = n(n + 1)(2n + 1)/6. Was ergibt sie für n = {{n}}?
+    answer:
+      value: "{{n * (n + 1) * (2 * n + 1) / 6}}"
+    hints:
+      - "Setze ein: {{n}} · {{n + 1}} · {{2 * n + 1}} / 6."
+      - Zur Probe kannst du die Quadrate auch direkt addieren.
+    explanation: "{{n * (n + 1) * (2 * n + 1) / 6}}. Solche Formeln rät man oft aus Beispielen – und **beweist** sie dann per Induktion."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Beweise 1 + 2 + … + n = n(n + 1)/2 per Induktion. Ordne.
+    params:
+      items:
+        - label: "Anfang: 1 = 1 · 2 / 2."
+        - label: "Annahme: Die Formel gilt für n."
+        - label: Addiere n + 1 auf beiden Seiten.
+        - label: "Rechne um: n(n + 1)/2 + (n + 1) = (n + 1)(n + 2)/2."
+        - label: Das ist die Formel für n + 1.
+    hints:
+      - Anfang, Annahme, Schritt.
+      - Im Schritt klammerst du (n + 1) aus.
+    explanation: "Jeder Induktionsbeweis einer Summe folgt diesem **Muster**: alte Summe plus neuer Summand, dann umformen."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Was ist 1 + 2 + 4 + 8 + … + 2^{{n}}?
+    answer:
+      value: "{{2 ** (n + 1) - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: last-term
+        text: Das ist nur der letzte Summand.
+    hints:
+      - "Kleine Fälle: 1, 3, 7, 15 …"
+      - Jedes Mal eins weniger als die nächste Zweierpotenz.
+    explanation: "2^{{n + 1}} − 1 = {{2 ** (n + 1) - 1}}. Im Schritt: (2ⁿ⁺¹ − 1) + 2ⁿ⁺¹ = 2ⁿ⁺² − 1. Das ist dieselbe Zahl wie die **Züge** beim Turm von Hanoi."
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Woher kommt in der Praxis die Formel, die man dann per Induktion beweist?
+    params:
+      options:
+        - label: Man rät sie aus kleinen Beispielen – Induktion prüft nur, ob die Vermutung stimmt.
+          correct: true
+        - label: Die Induktion erzeugt sie automatisch.
+          feedback: Induktion braucht eine fertige Behauptung – sie erfindet keine.
+        - label: Aus einem Lexikon.
+          feedback: Irgendwer musste sie zuerst finden.
+    hints:
+      - Was braucht man, bevor man »für n« annehmen kann?
+      - Muster finden ist Kreativität, Beweisen ist Kontrolle.
+    explanation: Induktion ist ein Werkzeug zum **Prüfen**, nicht zum Entdecken. Mathematiker raten, rechnen Beispiele – und beweisen erst dann.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Berechne 1³ + 2³ + 3³ + 4³.
+    answer:
+      value: 100
+    hints:
+      - 1 + 8 + 27 + 64.
+      - Vergleiche mit (1 + 2 + 3 + 4)².
+    explanation: 100 = 10² = (1 + 2 + 3 + 4)². Allgemein gilt 1³ + … + n³ = (n(n + 1)/2)². Diese überraschende Gleichung beweist man ebenfalls per **Induktion**.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man die Summe 1 + 2 + … + 100 schnell ausrechnet – und wie man die Formel beweist.
+    params:
+      keywords:
+        - - paar
+          - "101"
+          - pair
+        - - "50"
+          - hälfte
+          - half
+          - n(n + 1)/2
+          - n(n+1)/2
+        - - induktion
+          - anfang
+          - schritt
+          - induction
+          - base
+          - step
+      sample: "Ich bilde Paare: 1 und 100, 2 und 99 und so weiter, jedes Paar ergibt 101. Es gibt 50 Paare, also 5050. Allgemein ist die Summe n(n + 1)/2, und per Induktion mit Anfang und Schritt beweist man das für alle n."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c5", "d1"]

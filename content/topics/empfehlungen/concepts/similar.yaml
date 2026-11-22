@@ -5,7 +5,7 @@ summary: Wie nah liegen zwei Geschmäcker?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -19,7 +19,6 @@ steps:
       value: 75
       tolerance: 12
     explanation: Rund 70 bis 80 %. Die meisten Entscheidungen trifft der Algorithmus vor – nicht die Suche.
-
 
   - kind: problem
     id: abstand
@@ -80,6 +79,56 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Anna bewertet drei Filme mit ({{a1}}, {{a2}}, {{a3}}), Ben mit ({{b1}}, {{b2}}, {{b3}}). Wie groß ist der Abstand, wenn du die Unterschiede ohne Vorzeichen addierst?
+    answer:
+      value: "{{abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)}}"
+    hints:
+      - "Rechne Film für Film: Wie weit liegen die Sterne auseinander?"
+      - Addiere die drei Abstände.
+    explanation: "{{abs(a1 - b1)}} + {{abs(a2 - b2)}} + {{abs(a3 - b3)}} = {{abs(a1 - b1) + abs(a2 - b2) + abs(a3 - b3)}}. Dieses Maß heißt **Manhattan-Abstand** – wie Laufen durch ein Straßengitter."
+    difficulty: 2
+    variants:
+      params:
+        a1: int[1,5]
+        a2: int[1,5]
+        a3: int[1,5]
+        b1: int[1,5]
+        b2: int[1,5]
+        b3: int[1,5]
+      constraints:
+        - a1 != b1
+        - a2 != b2
+      defaults:
+        a1: 5
+        a2: 2
+        a3: 4
+        b1: 3
+        b2: 3
+        b3: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Lea vergibt fast immer 4 oder 5 Sterne, Tom fast nur 1 oder 2. Wie macht ein System ihre Bewertungen vergleichbar?
+    params:
+      options:
+        - label: Von jeder Bewertung den eigenen Durchschnitt abziehen.
+          correct: true
+        - label: Toms Bewertungen löschen.
+          feedback: Dann fehlen wertvolle Daten – Tom ist nur strenger.
+        - label: Alle Bewertungen auf 3 setzen.
+          feedback: Dann ist jede Information weg.
+    hints:
+      - Für Lea ist eine 4 eher schwach, für Tom wäre sie ein Lob.
+      - Wichtig ist, wie ein Film im Vergleich zum eigenen Schnitt abschneidet.
+    explanation: "Nach dem **Zentrieren** heißt +1: »besser als mein Schnitt«. So passen strenge und großzügige Bewerter zusammen."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +144,47 @@ steps:
     hints:
       - Es kommt auf die Richtung an, nicht auf die Länge.
     explanation: Die **Kosinus-Ähnlichkeit** vergleicht Muster statt Größen. Sie steckt in fast jeder Suche und jedem Sprachmodell.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Lea gibt drei Filmen 5, 4 und 3 Sterne. Wie lautet ihre zentrierte Bewertung für den dritten Film?
+    answer:
+      value: -1
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: raw
+        text: Das ist die rohe Bewertung. Zieh ihren Durchschnitt ab.
+    hints:
+      - Ihr Durchschnitt ist (5 + 4 + 3) / 3.
+      - Rechne 3 − 4.
+    explanation: 3 − 4 = −1. Berechnet man auf zentrierten Bewertungen den Kosinus der Winkel, erhält man die **Pearson-Korrelation** – ein Standardmaß für Geschmacksähnlichkeit.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Empfehlungssystem misst, ob zwei Menschen einen ähnlichen Geschmack haben.
+    params:
+      keywords:
+        - - bewert
+          - sterne
+          - rating
+          - stars
+        - - abstand
+          - unterschied
+          - distance
+          - difference
+        - - klein
+          - nah
+          - ähnlich
+          - small
+          - close
+          - similar
+      sample: Es vergleicht ihre Bewertungen Film für Film und rechnet einen Abstand aus. Je kleiner der Abstand, desto ähnlicher ist ihr Geschmack. Oft zieht man vorher den eigenen Durchschnitt ab.
     difficulty: 3
 
 srs:

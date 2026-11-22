@@ -1,0 +1,187 @@
+id: ai.embeddings.cosine
+type: concept
+title: "Similarity as an angle"
+summary: "Not length but direction counts: cosine similarity."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: "Dot product: multiply pairs, then add. What is ({{a}}, {{b}}) · ({{c}}, {{d}})?"
+    answer:
+      value: "{{a * c + b * d}}"
+    feedback:
+      - when: numval(state.input) == (a + b) * (c + d)
+        misconception: order
+        text: Multiply the pairs first, then add – not the other way round.
+    hints:
+      - "{{a}} · {{c}} and {{b}} · {{d}}."
+      - Add the two products.
+    explanation: "{{a * c}} + {{b * d}} = {{a * c + b * d}}. The dot product is large when two vectors point in a similar direction."
+    variants:
+      params:
+        a: int[1,6]
+        b: int[1,6]
+        c: int[1,6]
+        d: int[1,6]
+      defaults:
+        a: 1
+        b: 2
+        c: 3
+        d: 4
+
+  - kind: explain
+    id: c2
+    body: "Long texts often have longer vectors. So you divide the dot product by both lengths. What comes out is the cosine similarity: 1 means same direction, 0 means perpendicular, −1 means opposite."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How long is the vector ({{3 * k}}, {{4 * k}})?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: sum
+        text: The length is not the sum but the root of the sum of squares.
+    hints:
+      - Length = √(x² + y²).
+      - √({{9 * k * k}} + {{16 * k * k}}) = ?
+    explanation: √{{25 * k * k}} = {{5 * k}}. The length of a vector follows from Pythagoras – even in 1000 dimensions.
+    variants:
+      params:
+        k: int[1,5]
+      defaults:
+        k: 1
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: The vectors (3, 4) and (6, 8) – what is their cosine similarity?
+    params:
+      options:
+        - label: 1 – they point in exactly the same direction.
+          correct: true
+        - label: 2 – the second is twice as long.
+          feedback: Length is divided out. The cosine is at most 1.
+        - label: 0.5 – they have different lengths.
+          feedback: "Different length, same direction: the cosine is 1."
+    hints:
+      - (6, 8) is 2 · (3, 4).
+      - Dot product 50, lengths 5 and 10.
+    explanation: 50 / (5 · 10) = 1. The cosine measures only direction. A short and a long text on the same topic come out equally similar.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Two vectors are perpendicular, such as (1, 0) and (0, 1). What is their cosine similarity?
+    params:
+      options:
+        - label: "0"
+          correct: true
+        - label: "1"
+          feedback: 1 would mean the same direction.
+        - label: −1
+          feedback: −1 would mean exactly opposite, such as (1, 0) and (−1, 0).
+    hints:
+      - "Compute the dot product: 1 · 0 + 0 · 1."
+      - If the dot product is 0, the cosine is 0 too.
+    explanation: "A cosine of 0 means: nothing in common. In high dimensions random vectors are almost always nearly perpendicular."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: What is the cosine similarity of (1, 0) and (1, 1)? To two decimals.
+    answer:
+      value: 0.71
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: no-normalise
+        text: The dot product is 1 – but you still have to divide by the lengths 1 and √2.
+    hints:
+      - "Dot product: 1. Lengths: 1 and √2."
+      - 1 / √2 ≈ ?
+    explanation: 1 / √2 ≈ 0.71 – that is cos 45°. The cosine turns the angle between two vectors into a number.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: What is the cosine similarity of (1, 2, 2) and (2, 1, 2)? To two decimals.
+    answer:
+      value: 0.89
+      tolerance: 0.01
+    hints:
+      - "Dot product: 2 + 2 + 4 = 8."
+      - Both lengths are √9 = 3. Compute 8 / 9.
+    explanation: 8 / 9 ≈ 0.89 – very similar. In three dimensions you compute exactly as in two – and in a thousand just the same.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Many systems store only vectors of length 1. What becomes simpler?
+    params:
+      options:
+        - label: The cosine is then simply the dot product.
+          correct: true
+        - label: You no longer need numbers.
+          feedback: The vectors keep all their numbers – only their length is 1.
+        - label: All vectors become equal.
+          feedback: Equal length does not mean equal direction.
+    hints:
+      - Cosine = dot product / (length · length).
+      - What happens if both lengths are 1?
+    explanation: Normalising saves a lot of time over billions of comparisons. A dot product is one of the fastest operations on graphics chips.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Two vectors of length 1 have cosine similarity 0.5. How large is their distance? Hint: |a − b|² = 2 − 2 · cos."
+    answer:
+      value: 1
+      tolerance: 0.001
+    hints:
+      - "|a − b|² = 2 − 2 · 0.5 = 1."
+      - The root of 1 is 1.
+    explanation: "Distance 1. For unit vectors distance and cosine are tied together: a large cosine means a small distance. So both measures then give the same ranking."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why similarity is often measured by angle rather than by distance.
+    params:
+      keywords:
+        - - winkel
+          - richtung
+          - kosinus
+          - angle
+          - direction
+          - cosine
+        - - länge
+          - lang
+          - kurz
+          - length
+          - long
+          - short
+        - - gleich
+          - ähnlich
+          - same
+          - similar
+      sample: A long and a short text on the same topic point in the same direction but have different lengths. The cosine measures only the angle, so the length drops out, and they count as similar.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c3", "d1"]

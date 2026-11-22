@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.tokens]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: zerlegen
@@ -79,6 +79,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: order
+    prompt: This is how a tokenizer learns its word pieces (byte-pair encoding). Put in order.
+    params:
+      items:
+        - label: Start with single characters as tokens.
+        - label: Count which pair of neighbouring tokens is most frequent.
+        - label: Merge that pair into a new token.
+        - label: Repeat until the vocabulary is large enough.
+    hints:
+      - At the start the tokenizer only knows letters.
+      - Frequent pairs like "e" + "n" are merged first.
+    explanation: That way tokens appear for common syllables and words. Rare words stay split into pieces.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: The same sentence often needs more tokens in German than in English. What is the usual reason?
+    params:
+      options:
+        - label: Many tokenizers learned mostly from English text – German words break into more pieces.
+          correct: true
+        - label: German has more letters in the alphabet.
+          feedback: The few umlauts hardly make a difference.
+        - label: The model does not understand German.
+          feedback: It often understands it well – it just needs more pieces.
+    hints:
+      - Which word pieces become frequent in tokenizer training?
+      - Long compound words add to this.
+    explanation: What is frequent in the training data gets its own tokens. More tokens mean higher cost and less room in the context – a real disadvantage for many languages.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -94,4 +130,41 @@ steps:
     hints:
       - How many different words exist – including all names and typos?
     explanation: "The method is called **byte-pair encoding**: frequent character sequences are merged step by step into tokens."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A model knows 50,000 tokens. Each token has a vector of 4096 numbers. How many million numbers does this table hold?
+    answer:
+      value: 204.8
+      tolerance: 0.1
+    hints:
+      - Compute 50,000 · 4096.
+      - That is 204,800,000. In millions?
+    explanation: Around 205 million weights just for the embedding table. A bigger vocabulary saves tokens per text but costs memory – a trade-off.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a language model sometimes miscounts how many "r"s are in a word.
+    params:
+      keywords:
+        - - token
+          - stück
+          - piece
+        - - buchstab
+          - letter
+          - zeichen
+          - character
+        - - nummer
+          - zahl
+          - sieht nicht
+          - number
+          - cannot see
+          - does not see
+      sample: The model does not see letters but tokens – word pieces that arrive as numbers. The single letters are hidden inside, so it has to guess instead of count.
     difficulty: 3

@@ -5,7 +5,7 @@ summary: Modelle, die mehrere Sinne verbinden.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: hook
@@ -86,6 +86,45 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Bild mit 224 × 224 Pixeln wird in Kacheln von 16 × 16 Pixeln zerlegt. Jede Kachel wird ein Token. Wie viele Tokens sind das?
+    answer:
+      value: 196
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: one-row
+        text: Das ist eine Reihe. Es gibt 14 Reihen mit je 14 Kacheln.
+    hints:
+      - 224 / 16 = 14 Kacheln pro Reihe.
+      - 14 · 14 = ?
+    explanation: "14 · 14 = 196 Tokens. So verarbeitet ein **Vision Transformer** Bilder: als Folge von Kacheln, genau wie Text als Folge von Wortstücken."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Beim Training von CLIP vergleicht man {{n}} Bilder mit {{n}} Texten – jedes mit jedem. Nur die echten Paare sollen ähnlich sein. Wie viele Vergleiche sind **falsche** Paare?
+    answer:
+      value: "{{n * n - n}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: all
+        text: Das sind alle Vergleiche. Die {{n}} echten Paare gehören nicht dazu.
+    hints:
+      - "Alle Vergleiche: {{n}} · {{n}}."
+      - Davon sind {{n}} echte Paare.
+    explanation: "{{n * n}} − {{n}} = {{n * n - n}}. Das Training zieht die {{n}} echten Paare zusammen und drückt die anderen auseinander. Dieses **kontrastive Lernen** braucht keine weiteren Beschriftungen."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -96,6 +135,49 @@ steps:
     hints:
       - 120 Bilder mal 786 432 Werte.
     explanation: Rund 94 Millionen – und alle müssen zueinander passen, sonst flackert das Video.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Wie kann CLIP ein Foto einer Klasse zuordnen, die es nie als Klasse trainiert hat?
+    params:
+      options:
+        - label: Man vergleicht das Bild mit Texten wie »ein Foto von einem Hund« und wählt den ähnlichsten.
+          correct: true
+        - label: Gar nicht – es kennt nur feste Klassen.
+          feedback: CLIP hat keine festen Klassen, nur Bild- und Textvektoren.
+        - label: Es fragt im Internet nach.
+          feedback: Es arbeitet nur mit seinen gelernten Vektoren.
+    hints:
+      - Bild und Text liegen im selben Raum.
+      - Schreibe für jede Klasse einen kurzen Text.
+    explanation: "Das heißt **Zero-Shot-Klassifikation**: Die Klassen sind einfach Texte. Neue Klassen kosten nur einen neuen Satz – kein neues Training."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie eine Foto-App Bilder vom »Strand« findet, ohne dass sie jemand beschriftet hat.
+    params:
+      keywords:
+        - - vektor
+          - zahlen
+          - vector
+          - number
+        - - gemeinsam
+          - gleich
+          - raum
+          - shared
+          - same
+          - space
+        - - nah
+          - ähnlich
+          - close
+          - similar
+      sample: Ein Modell übersetzt Bilder und Wörter in Vektoren im gleichen Raum. Strandfotos liegen dort nah beim Wort »Strand«. Die App sucht die Bilder, die dem Wort am ähnlichsten sind.
     difficulty: 3
 
 srs:

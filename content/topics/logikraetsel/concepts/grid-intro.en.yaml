@@ -7,7 +7,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.elimination]
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
   - kind: problem
     id: ada
@@ -127,6 +127,93 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Four children, four snacks. Who eats what?
+    params:
+      categories:
+        - name: Child
+          items:
+            - Ada
+            - Ben
+            - Cleo
+            - Dani
+        - name: Snack
+          items:
+            - apple
+            - pretzel
+            - cookie
+            - nuts
+      clues:
+        - text: Ben eats the pretzel.
+          rule:
+            is:
+              - Ben
+              - pretzel
+        - text: Ada eats neither the apple nor the cookie.
+          rules:
+            - not:
+                - Ada
+                - apple
+            - not:
+                - Ada
+                - cookie
+        - text: Dani does not eat the apple.
+          rule:
+            not:
+              - Dani
+              - apple
+    hints:
+      - Place the sure tick for Ben first. What is left for Ada?
+      - Ada has the nuts. Only two snacks remain for Dani, and one is ruled out.
+    explanation: Ben – pretzel, Ada – nuts, Dani – cookie, Cleo – apple. Every tick creates new crosses in its row and column.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: For Ole and Pia only the cat and the dog are still open – the same two for both. What follows for Quinn?
+    params:
+      options:
+        - label: Quinn has neither the cat nor the dog.
+          correct: true
+        - label: Quinn has the cat.
+          feedback: The cat goes to Ole or Pia – it is not left for Quinn.
+        - label: Nothing follows.
+          feedback: "It does: two people share two pets, so both pets are taken."
+    hints:
+      - Ole and Pia together need exactly two pets.
+      - Which pets do the two of them get for sure?
+    explanation: "This is the pair trick: two people with the same two options use up both values – even if it is still open who gets which."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: How many matchings are there without clues for {{n}} children and {{n}} pets?
+    answer:
+      value: "{{f}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: cells-vs-matchings
+        text: That is the number of cells in the grid, not the number of matchings.
+    hints:
+      - The first child has {{n}} options. How many are left for the second?
+      - Multiply {{n}} · ({{n}} − 1) · … · 1.
+    explanation: That is {{n}}! (factorial) = {{f}}. With 10 children it would be over 3.6 million – that is why systematic elimination pays off.
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,6]
+      derive:
+        f: "n == 3 ? 6 : n == 4 ? 24 : n == 5 ? 120 : 720"
+      defaults:
+        n: 4
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -142,4 +229,50 @@ steps:
     hints:
       - Each yes/no clue can at most halve the possibilities.
     explanation: log₂ 120 ≈ 6.9. Information is measured in bits – each bit halves the uncertainty.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "A puzzle has three categories with 4 values each: person, pet and colour. How many solutions are possible without clues?"
+    answer:
+      value: 576
+    feedback:
+      - when: numval(state.input) == 24
+        misconception: one-category
+        text: That only counts person – pet. The colours come on top.
+      - when: numval(state.input) == 64
+        misconception: with-repetition
+        text: Each value may occur only once. These are orderings, not free choices.
+    hints:
+      - "Person – pet: 4! = 24 options. And independently person – colour?"
+      - Multiply the two numbers.
+    explanation: 24 · 24 = 576. Each extra category multiplies by 4! – that is why such puzzles grow so fast.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: "Explain to Lux: why does a single tick in the grid give you several crosses at once?"
+    params:
+      keywords:
+        - - genau
+          - eins
+          - einmal
+          - exactly
+          - one
+          - once
+        - - zeile
+          - spalte
+          - row
+          - column
+        - - kreuz
+          - streich
+          - ausschließ
+          - cross
+          - rule out
+          - eliminat
+      sample: Each person has exactly one pet and each pet belongs to exactly one person. So a tick crosses out every other cell in its row and column.
     difficulty: 3

@@ -5,7 +5,7 @@ summary: Auktionen und der Fluch des Gewinners.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: zweitpreis
@@ -80,6 +80,42 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Drei Bieter schätzen ein Bild auf 50, 80 und 120 €. Der Preis steigt in kleinen Schritten, bis nur noch einer bietet. Bei etwa welchem Preis endet die Auktion?
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 120
+        misconception: own-value
+        text: Der Höchstbietende muss nur so lange mitgehen, bis der Zweite aussteigt.
+    hints:
+      - Wer steigt zuerst aus, wer als Zweiter?
+      - Sobald der Preis über 80 € steigt, ist nur noch einer übrig.
+    explanation: Die steigende Auktion endet beim **zweithöchsten** Wert. Darum entspricht sie im Ergebnis der Zweitpreis-Auktion.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Beim Ölfeld schätzen viele Bieter denselben unbekannten Wert. Was sollst du tun, wenn **mehr** Bieter mitmachen?
+    params:
+      options:
+        - label: Noch vorsichtiger bieten – wer gewinnt, hat dann eher stark überschätzt.
+          correct: true
+        - label: Höher bieten, um sicher zu gewinnen.
+          feedback: Gerade dann trifft dich der Fluch des Gewinners.
+        - label: Nichts ändern.
+          feedback: Mit der Zahl der Bieter wächst die höchste Fehlschätzung.
+    hints:
+      - Unter vielen Schätzungen – wie weit liegt die höchste meist über dem echten Wert?
+      - Wer gewinnt, hat die höchste Schätzung abgegeben.
+    explanation: Je mehr Schätzungen, desto extremer die höchste. Kluge Bieter rechnen ein, was ein Sieg über die eigene Schätzung **verrät**.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -110,6 +146,26 @@ steps:
           - better
       min: 3
       sample: Für jeden einzeln ist Verraten immer die bessere Wahl. Tun es aber beide, stehen sie schlechter da, als wenn beide geschwiegen hätten. Zusammenarbeit braucht darum Vertrauen, Regeln oder Wiederholung.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Zwei Bieter, deren Werte zufällig gleichverteilt zwischen 0 und 100 € liegen. In der Zweitpreis-Auktion zahlt der Sieger den kleineren Wert. Wie viel nimmt der Verkäufer im Schnitt ein?
+    params:
+      unit: €
+    answer:
+      value: 33.3
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 50
+        misconception: mean-not-min
+        text: Das ist der Durchschnitt eines Werts. Das Minimum von zwei Werten liegt tiefer.
+    hints:
+      - Zwei zufällige Punkte teilen die Strecke 0–100 im Schnitt in drei gleiche Teile.
+      - Der kleinere Wert liegt also im Schnitt bei 100 / 3.
+    explanation: Im Schnitt 33,3 €. In der Erstpreis-Auktion bietet jeder im Gleichgewicht die Hälfte seines Werts. Erwartet sind das ½ · 66,7 € – ebenfalls 33,3 €. Das ist das **Erlösäquivalenz-Theorem**.
     difficulty: 3
 
 srs:

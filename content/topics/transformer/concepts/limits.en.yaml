@@ -5,7 +5,7 @@ summary: Cost, context, and open questions.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 5
+estimated_minutes: 6
 steps:
   - kind: problem
     id: quadrat
@@ -75,6 +75,25 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: choice
+    prompt: A language model writes token by token. It makes a mistake at the start of a calculation. What typically happens?
+    params:
+      options:
+        - label: The mistake stays, and everything after builds on it.
+          correct: true
+        - label: It deletes the mistake at once.
+          feedback: Written tokens stay – at most it can notice and fix the mistake later.
+        - label: The mistake has no consequences.
+          feedback: Every new token depends on all earlier ones.
+    hints:
+      - Can the model change a token it already wrote?
+      - What does it look at for the next token?
+    explanation: "Generation is autoregressive: every token becomes part of the input. That is why it helps when models check intermediate steps or use tools."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -101,6 +120,25 @@ steps:
           - refer
       min: 3
       sample: Attention lets every word check which other words in the text are important for it. It distributes weights over them and mixes in their information – that is how the model understands words in context.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: How do people try to reduce the quadratic cost of attention for very long texts?
+    params:
+      options:
+        - label: Each token looks only at some of the others, such as a nearby window.
+          correct: true
+        - label: You drop attention entirely.
+          feedback: Without attention the tokens cannot exchange information.
+        - label: You use faster computers – then it is no longer quadratic.
+          feedback: Faster hardware does not change the maths, only the speed.
+    hints:
+      - "Quadratic means: every token with every other."
+      - What if you no longer compare every pair?
+    explanation: "Windows, sparse patterns or approximations save compute. The price: distant connections get lost more easily. Many models therefore combine several tricks."
     difficulty: 3
 
 srs:

@@ -82,6 +82,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Netz hat {{a}} Eingänge, {{h}} versteckte Neuronen und {{o}} Ausgänge, voll verbunden. Jedes Neuron hat einen Bias. Wie viele Parameter sind das?
+    answer:
+      value: "{{a * h + h + h * o + o}}"
+    feedback:
+      - when: numval(state.input) == a * h + h * o
+        misconception: no-bias
+        text: "Die Biase fehlen: einer pro verstecktem und pro Ausgangs-Neuron."
+    hints:
+      - "Gewichte: {{a}} · {{h}} + {{h}} · {{o}}."
+      - "Biase: {{h}} + {{o}}."
+    explanation: "{{a * h + h * o}} Gewichte + {{h + o}} Biase = {{a * h + h + h * o + o}}. Große Modelle haben so Milliarden **Parameter** – alle werden beim Training angepasst."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,8]
+        h: int[3,10]
+        o: int[1,4]
+      defaults:
+        a: 4
+        h: 5
+        o: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Netz aus ReLU-Neuronen zeichnet eine Kurve. Wie sieht sie aus der Nähe aus?
+    params:
+      options:
+        - label: Wie viele gerade Stücke mit Knicken – mehr Neuronen, mehr Knicke.
+          correct: true
+        - label: Vollkommen glatt.
+          feedback: ReLU hat selbst einen Knick bei 0. Summen davon sind stückweise gerade.
+        - label: Wie eine einzige Gerade.
+          feedback: Das wäre ohne Aktivierung so – mit ReLU entstehen Knicke.
+    hints:
+      - ReLU ist links 0 und rechts eine Gerade.
+      - Was entsteht, wenn man viele verschobene ReLUs addiert?
+    explanation: Jedes ReLU-Neuron fügt einen Knick hinzu. Mit genug Knicken lässt sich jede vernünftige Kurve **annähern** – wie ein Polygon einen Kreis.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +142,27 @@ steps:
     hints:
       - "Kanten → Formen → Objekte: Stufen bauen aufeinander auf."
     explanation: Tiefe erlaubt Wiederverwendung von Zwischenergebnissen – wie Funktionen beim Programmieren.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum ein Netz versteckte Schichten braucht, um XOR zu lernen.
+    params:
+      keywords:
+        - - gerade
+          - linie
+          - line
+        - - xor
+          - entweder
+        - - schicht
+          - versteckt
+          - kombinier
+          - layer
+          - hidden
+          - combin
+      sample: Ein einzelnes Neuron zieht nur eine Gerade, und keine Gerade trennt die XOR-Punkte. In einer versteckten Schicht ziehen zwei Neuronen je eine Gerade, und ein drittes kombiniert sie.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Training, Fehler und Auswendiglernen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: anpassen
@@ -117,6 +117,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: sim
+    prompt: Der Fehler ist x², der Ball startet bei x = 4. Finde die Lernrate, mit der er **in einem einzigen Schritt** genau im Tal landet.
+    params:
+      scene: descent
+    answer:
+      steps: 1
+      loss:
+        - 0
+        - 0.001
+    hints:
+      - Stell die Schritte auf 1. Ein Schritt rechnet x − Lernrate · 2x.
+      - Für x − r · 2x = 0 muss 2r = 1 sein.
+    explanation: Bei r = 0,5 springt der Ball genau auf 0. Bei x² ist das die perfekte Lernrate – bei echten Netzen kennt man sie nicht und muss sie **ausprobieren**.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: sim
+    prompt: "Finde eine Lernrate, bei der der Ball ewig hin und her springt: Nach mindestens 5 Schritten soll der Fehler immer noch 16 sein."
+    params:
+      scene: descent
+    answer:
+      steps:
+        - 5
+        - 20
+      loss:
+        - 15.9
+        - 16.1
+    hints:
+      - "16 ist der Startfehler: x = 4 oder x = −4."
+      - Bei welcher Rate wird aus 4 genau −4?
+    explanation: "Bei r = 1 wird x ← x − 2x = −x: Der Ball pendelt zwischen 4 und −4. Darunter schrumpft der Fehler, darüber **explodiert** er."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -132,6 +170,51 @@ steps:
     hints:
       - Der Fehler hängt über viele verkettete Funktionen von jedem Gewicht ab.
     explanation: "**Backpropagation**: Ein einziger Rückwärtsdurchlauf liefert die Steigung für alle Gewichte auf einmal."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Gradientenabstieg auf f(x) = x²: Die Steigung ist 2x. Du stehst bei x = {{x}}, die Lernrate ist 0,1. Wo stehst du nach einem Schritt?"
+    answer:
+      value: "{{0.8 * x}}"
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.2 * x
+        misconception: wrong-direction
+        text: Du bist bergauf gegangen. Man geht **gegen** die Steigung.
+    hints:
+      - "Steigung bei {{x}}: 2 · {{x}} = {{2 * x}}."
+      - Neues x = {{x}} − 0,1 · {{2 * x}}.
+    explanation: "{{x}} − {{0.2 * x}} = {{0.8 * x}}. Jeder Schritt multipliziert x hier mit 1 − 2 · 0,1 = 0,8. Ist dieser Faktor im Betrag größer als 1, schaukelt sich der Fehler auf."
+    difficulty: 3
+    variants:
+      params:
+        x: int[2,9]
+      defaults:
+        x: 4
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was die Lernrate beim Training bewirkt.
+    params:
+      keywords:
+        - - schritt
+          - step
+        - - klein
+          - langsam
+          - small
+          - slow
+        - - groß
+          - spring
+          - explod
+          - large
+          - jump
+          - explode
+      sample: Die Lernrate bestimmt, wie groß jeder Schritt bergab ist. Zu klein, und das Lernen dauert ewig. Zu groß, und man springt über das Tal hinaus – der Fehler kann explodieren.
     difficulty: 3
 
 srs:

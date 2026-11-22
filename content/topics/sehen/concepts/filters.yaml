@@ -5,7 +5,7 @@ summary: Ein kleines Fenster rechnet über das Bild.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: differenz
@@ -82,6 +82,82 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: pixels
+    prompt: Ein Filter rechnet »Feld unten minus Feld oben«. Markiere die Zeile, in der er stark anschlägt – jeweils das untere Feld.
+    params:
+      labels:
+        - - 20
+          - 20
+          - 20
+          - 20
+          - 20
+        - - 20
+          - 20
+          - 20
+          - 20
+          - 20
+        - - 200
+          - 200
+          - 200
+          - 200
+          - 200
+        - - 200
+          - 200
+          - 200
+          - 200
+          - 200
+    answer:
+      pattern:
+        - .....
+        - .....
+        - "#####"
+        - .....
+    hints:
+      - Wo springt die Helligkeit von oben nach unten?
+      - "Zwischen Zeile 2 und 3: 200 − 20 = 180."
+    explanation: Nur beim Übergang von 20 auf 200 ist der Unterschied groß. Ein senkrecht gedrehter Filter findet so **waagrechte** Kanten.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Ein 3 × 3-Weichzeichner gibt den Mittelwert aller 9 Felder aus. Im Fenster ist nur die Mitte 9, alle anderen Felder sind 0. Was gibt er aus?
+    answer:
+      value: 1
+    hints:
+      - Summe aller Felder geteilt durch 9.
+      - 9 / 9 = ?
+    explanation: "Der helle Punkt wird auf seine Umgebung **verteilt** – das Bild wird weicher. Kantenfilter und Weichzeichner sind dieselbe Rechnung, nur mit anderen Gewichten: eine Faltung."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: Ein {{k}} × {{k}}-Filter gleitet über ein {{n}} × {{n}}-Bild, ohne über den Rand zu ragen. Wie viele Ausgabewerte entstehen?
+    answer:
+      value: "{{(n - k + 1) * (n - k + 1)}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: same-size
+        text: Am Rand passt das Fenster nicht ganz aufs Bild – das Ergebnis wird kleiner.
+    hints:
+      - In einer Zeile passt der Filter an {{n}} − {{k}} + 1 Stellen.
+      - Dasselbe gilt für die Spalten. Multipliziere.
+    explanation: ({{n}} − {{k}} + 1)² = {{(n - k + 1) * (n - k + 1)}}. Will man die Größe behalten, füllt man den Rand mit Nullen auf (**Padding**).
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,12]
+        k: choice[3,5]
+      defaults:
+        n: 8
+        k: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +173,44 @@ steps:
     hints:
       - Eine Katze links oben ist dieselbe Katze wie rechts unten.
     explanation: "**Gewichtsteilung**: Neun Zahlen statt Millionen. Die Idee stammt aus dem Aufbau der Sehrinde im Gehirn."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Eine Faltungsschicht hat 64 Filter der Größe 3 × 3. Das Eingabebild hat 3 Farbkanäle. Wie viele Gewichte hat die Schicht – ohne Bias?
+    answer:
+      value: 1728
+    feedback:
+      - when: numval(state.input) == 576
+        misconception: forgot-channels
+        text: Jeder Filter sieht alle 3 Farbkanäle – er hat 3 · 3 · 3 Gewichte.
+    hints:
+      - "Ein Filter: 3 · 3 Felder in jedem der 3 Kanäle."
+      - 27 · 64 = ?
+    explanation: 27 · 64 = 1728 – egal, wie groß das Bild ist. Eine voll verbundene Schicht für ein 224 × 224-Bild bräuchte pro Neuron über 150 000. **Gewichte teilen** macht Faltungsnetze sparsam.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Filter in einem Bild Kanten findet.
+    params:
+      keywords:
+        - - fenster
+          - filter
+          - window
+        - - unterschied
+          - differenz
+          - minus
+          - difference
+        - - nachbar
+          - benachbart
+          - neighbour
+          - next
+      sample: Ein kleines Fenster gleitet über das Bild und rechnet mit den Zahlen darin, etwa rechts minus links. Wo sich Nachbarpixel stark unterscheiden, kommt eine große Zahl heraus – dort ist eine Kante.
     difficulty: 3
 
 srs:

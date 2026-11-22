@@ -5,7 +5,7 @@ summary: If you count twice, you are off.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: mindestens-eins
@@ -92,6 +92,67 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: In a class, {{a}} children like maths and {{b}} like art. {{u}} children like at least one of them. How many like both?
+    answer:
+      value: "{{a + b - u}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: no-subtract
+        text: That is the sum of both groups. Subtract the {{u}} from it.
+    hints:
+      - Rearrange the formula |A ∪ B| = |A| + |B| − |A ∩ B|.
+      - "|A ∩ B| = |A| + |B| − |A ∪ B|."
+    explanation: "{{a}} + {{b}} = {{a + b}} counts those who like both twice. The excess over {{u}} is exactly the intersection: {{a + b - u}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[10,20]
+        b: int[8,18]
+        s: int[2,7]
+      derive:
+        u: a + b - s
+      constraints:
+        - u > a
+        - u > b
+      defaults:
+        a: 12
+        b: 9
+        s: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: In a group of {{n}} people, {{k}} have a cat and {{h}} have a dog. How many have **at least** both?
+    answer:
+      value: "{{k + h - n}}"
+    feedback:
+      - when: numval(state.input) == min(k, h)
+        misconception: max-vs-min
+        text: That is the most who can have both. We want the minimum.
+    hints:
+      - How many places are there in the group at all?
+      - "{{k}} + {{h}} = {{k + h}} – more than {{n}} people. The excess must be counted twice."
+    explanation: At least {{k + h - n}} have both, because {{k + h}} pet owners do not fit into {{n}} people. At most it is {{min(k, h)}}.
+    difficulty: 2
+    variants:
+      params:
+        n: int[20,40]
+        k: int[12,30]
+        h: int[12,30]
+      constraints:
+        - k < n
+        - h < n
+        - k + h > n
+      defaults:
+        n: 30
+        k: 20
+        h: 16
+
+  - kind: problem
     id: x1
     depth: 3
     widget: numeric
@@ -101,6 +162,50 @@ steps:
     hints:
       - Add singles, subtract pairs, add the triple back.
     explanation: "30 − 12 + 2 = 20. The **inclusion–exclusion principle**: alternately plus and minus."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: How many numbers from 1 to 100 are divisible by 2, 3 **or** 5?
+    answer:
+      value: 74
+    feedback:
+      - when: numval(state.input) == 103
+        misconception: no-overlap
+        text: You only added. Numbers like 6 or 10 got counted twice.
+      - when: numval(state.input) == 71
+        misconception: forgot-triple
+        text: Almost! Add the multiples of 30 back at the end.
+    hints:
+      - "Singly: 50 + 33 + 20. Pairs: divisible by 6, 10, 15 – subtract 16 + 10 + 6."
+      - 3 numbers are divisible by all three (that is 30) – add them back.
+    explanation: "50 + 33 + 20 − 16 − 10 − 6 + 3 = 74. This is the principle of inclusion–exclusion: alternately add and subtract."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you subtract the intersection when computing |A ∪ B|.
+    params:
+      keywords:
+        - - doppelt
+          - zweimal
+          - twice
+          - double
+        - - schnitt
+          - beides
+          - beide
+          - intersection
+          - both
+        - - abzieh
+          - zieht
+          - minus
+          - subtrah
+          - subtract
+      sample: Anyone in both sets is counted twice when you add |A| and |B|. So you subtract the intersection once.
     difficulty: 3
 
 srs:

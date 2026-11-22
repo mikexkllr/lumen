@@ -5,7 +5,7 @@ summary: The basic idea of image generators.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: start
@@ -85,6 +85,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A noisy training image is a · image + b · noise with a² + b² = 1. At one step a = 0.8. What is b?
+    answer:
+      value: 0.6
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 0.2
+        misconception: linear
+        text: a and b do not add up to 1 – their **squares** do.
+    hints:
+      - b² = 1 − a² = 1 − 0.64.
+      - √0.36 = ?
+    explanation: b = 0.6. Over many steps a falls towards 0 and b rises towards 1 – in the end only pure noise is left. The square rule keeps the total signal strength constant.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Before diffusion models, GANs were common. How does a GAN learn?
+    params:
+      options:
+        - label: One network fakes images, a second tries to spot the fakes – both get better.
+          correct: true
+        - label: It removes noise in many small steps.
+          feedback: That is the idea of diffusion.
+        - label: It copies images from a database.
+          feedback: It creates new images – it does not store a library.
+    hints:
+      - GAN stands for "generative adversarial network" – adversarial means opposing.
+      - Who are the two opponents?
+    explanation: "Forger against checker: a GAN generates in a single step and is fast, but its training is often unstable. Diffusion is slower but better behaved and more versatile."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -100,6 +137,49 @@ steps:
     hints:
       - A million pixels or a few thousand numbers – which is faster?
     explanation: "**Latent diffusion**: an autoencoder compresses the image about 50-fold. Only that made generators possible on ordinary computers."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: The model only predicts the noise in an image. Why is that enough to estimate a clean image?
+    params:
+      options:
+        - label: If you know the mix and the noise, you can subtract the noise and solve back.
+          correct: true
+        - label: It is not enough – you need a second model.
+          feedback: "One model suffices: image = (mix − b · noise) / a."
+        - label: Because noise and image are the same.
+          feedback: They differ – that is exactly why they can be separated.
+    hints:
+      - Mix = a · image + b · noise, with a and b known.
+      - Solve for the image.
+    explanation: Image ≈ (mix − b · estimated noise) / a. The estimate is rough at first, so you take only a small step towards it and then estimate again.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a diffusion model is trained.
+    params:
+      keywords:
+        - - rausch
+          - noise
+        - - echt
+          - foto
+          - bild
+          - real
+          - photo
+          - image
+        - - vorhersag
+          - rat
+          - schätz
+          - predict
+          - guess
+          - estimate
+      sample: You take real images and add noise. The model must predict which noise was added. If it is off, its weights are corrected – millions of times.
     difficulty: 3
 
 srs:

@@ -5,7 +5,7 @@ summary: Training, error, and memorizing.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: anpassen
@@ -117,6 +117,44 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: sim
+    prompt: The loss is x², the ball starts at x = 4. Find the learning rate that lands it exactly in the valley **in a single step**.
+    params:
+      scene: descent
+    answer:
+      steps: 1
+      loss:
+        - 0
+        - 0.001
+    hints:
+      - Set the steps to 1. One step computes x − rate · 2x.
+      - For x − r · 2x = 0 you need 2r = 1.
+    explanation: At r = 0.5 the ball jumps exactly to 0. For x² that is the perfect rate – for real networks nobody knows it, so it has to be tuned by trial.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: sim
+    prompt: "Find a learning rate at which the ball bounces back and forth forever: after at least 5 steps the loss should still be 16."
+    params:
+      scene: descent
+    answer:
+      steps:
+        - 5
+        - 20
+      loss:
+        - 15.9
+        - 16.1
+    hints:
+      - "16 is the starting loss: x = 4 or x = −4."
+      - At which rate does 4 turn into exactly −4?
+    explanation: "At r = 1, x ← x − 2x = −x: the ball swings between 4 and −4. Below that the loss shrinks; above it, it explodes."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -132,6 +170,51 @@ steps:
     hints:
       - The error depends on each weight through many chained functions.
     explanation: "**Backpropagation**: a single backward pass yields the slope for all weights at once."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Gradient descent on f(x) = x²: the slope is 2x. You are at x = {{x}}, the learning rate is 0.1. Where are you after one step?"
+    answer:
+      value: "{{0.8 * x}}"
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 1.2 * x
+        misconception: wrong-direction
+        text: You went uphill. You step **against** the slope.
+    hints:
+      - "Slope at {{x}}: 2 · {{x}} = {{2 * x}}."
+      - New x = {{x}} − 0.1 · {{2 * x}}.
+    explanation: "{{x}} − {{0.2 * x}} = {{0.8 * x}}. Each step multiplies x by 1 − 2 · 0.1 = 0.8 here. If this factor exceeds 1 in size, the loss blows up."
+    difficulty: 3
+    variants:
+      params:
+        x: int[2,9]
+      defaults:
+        x: 4
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux what the learning rate does in training.
+    params:
+      keywords:
+        - - schritt
+          - step
+        - - klein
+          - langsam
+          - small
+          - slow
+        - - groß
+          - spring
+          - explod
+          - large
+          - jump
+          - explode
+      sample: The learning rate sets how big each downhill step is. Too small and learning takes forever. Too large and you jump over the valley – the loss can explode.
     difficulty: 3
 
 srs:

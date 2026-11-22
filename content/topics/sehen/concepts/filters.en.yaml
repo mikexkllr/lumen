@@ -5,7 +5,7 @@ summary: A small window computes across the image.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: differenz
@@ -82,6 +82,82 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: pixels
+    prompt: A filter computes "cell below minus cell above". Mark the row where it fires strongly – the lower cell each time.
+    params:
+      labels:
+        - - 20
+          - 20
+          - 20
+          - 20
+          - 20
+        - - 20
+          - 20
+          - 20
+          - 20
+          - 20
+        - - 200
+          - 200
+          - 200
+          - 200
+          - 200
+        - - 200
+          - 200
+          - 200
+          - 200
+          - 200
+    answer:
+      pattern:
+        - .....
+        - .....
+        - "#####"
+        - .....
+    hints:
+      - Where does the brightness jump from top to bottom?
+      - "Between rows 2 and 3: 200 − 20 = 180."
+    explanation: Only at the step from 20 to 200 is the difference large. A filter turned upright like this finds horizontal edges.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: A 3 × 3 blur filter outputs the mean of all 9 cells. In the window only the centre is 9, all other cells are 0. What does it output?
+    answer:
+      value: 1
+    hints:
+      - The sum of all cells divided by 9.
+      - 9 / 9 = ?
+    explanation: "The bright dot is spread over its surroundings – the image gets softer. Edge filters and blur filters are the same computation with different weights: a convolution."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: numeric
+    prompt: A {{k}} × {{k}} filter slides over an {{n}} × {{n}} image without sticking out over the edge. How many output values are produced?
+    answer:
+      value: "{{(n - k + 1) * (n - k + 1)}}"
+    feedback:
+      - when: numval(state.input) == n * n
+        misconception: same-size
+        text: At the edge the window does not fit on the image – the result shrinks.
+    hints:
+      - In one row the filter fits at {{n}} − {{k}} + 1 positions.
+      - The same holds for columns. Multiply.
+    explanation: ({{n}} − {{k}} + 1)² = {{(n - k + 1) * (n - k + 1)}}. To keep the size, you fill the border with zeros (padding).
+    difficulty: 2
+    variants:
+      params:
+        n: int[6,12]
+        k: choice[3,5]
+      defaults:
+        n: 8
+        k: 3
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +173,44 @@ steps:
     hints:
       - A cat at the top left is the same cat as at the bottom right.
     explanation: "**Weight sharing**: nine numbers instead of millions. The idea comes from the structure of the visual cortex."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A convolution layer has 64 filters of size 3 × 3. The input image has 3 colour channels. How many weights does the layer have – without bias?
+    answer:
+      value: 1728
+    feedback:
+      - when: numval(state.input) == 576
+        misconception: forgot-channels
+        text: Each filter sees all 3 colour channels – it has 3 · 3 · 3 weights.
+    hints:
+      - "One filter: 3 · 3 cells in each of the 3 channels."
+      - 27 · 64 = ?
+    explanation: 27 · 64 = 1728 – however large the image. A fully connected layer for a 224 × 224 image would need over 150,000 per neuron. Sharing weights makes convolutional nets lean.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a filter finds edges in an image.
+    params:
+      keywords:
+        - - fenster
+          - filter
+          - window
+        - - unterschied
+          - differenz
+          - minus
+          - difference
+        - - nachbar
+          - benachbart
+          - neighbour
+          - next
+      sample: A small window slides over the image and computes with the numbers inside, such as right minus left. Where neighbouring pixels differ a lot, a big number comes out – that is an edge.
     difficulty: 3
 
 srs:

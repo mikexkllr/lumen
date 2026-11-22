@@ -8,6 +8,19 @@ authors: ["Lumen-Team"]
 estimated_minutes: 8
 steps:
   - kind: problem
+    id: la-hook
+    widget: estimate
+    prompt: "Take a guess: four talks, four time slots, four topics. How many matchings are possible without clues?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 576
+      within: 30
+    explanation: "Person – time: 4! = 24. Person – topic: another 24. Together 24 · 24 = 576 – the clues must strike out 575 of them."
+
+  - kind: problem
     id: konferenz
     widget: logic-grid
     prompt: Four talks, four times, four topics. Match them all up.
@@ -66,6 +79,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Four morning talks. Who speaks when, and about what?
+    params:
+      categories:
+        - name: Speaker
+          items:
+            - Eva
+            - Finn
+            - Gil
+            - Hana
+        - name: Time
+          items:
+            - 9:00
+            - 10:00
+            - 11:00
+            - 12:00
+        - name: Topic
+          items:
+            - Mars
+            - whales
+            - volcanoes
+            - robots
+      ordered: 1
+      clues:
+        - text: Right after Eva, someone talks about Mars.
+          rule:
+            offset:
+              - Eva
+              - Mars
+              - 1
+        - text: Finn talks about robots at 10:00.
+          rules:
+            - is:
+                - Finn
+                - robots
+            - is:
+                - Finn
+                - 10:00
+        - text: The talk on whales comes after the one on robots.
+          rule:
+            less:
+              - robots
+              - whales
+        - text: Gil does not talk about volcanoes.
+          rule:
+            not:
+              - Gil
+              - volcanoes
+    hints:
+      - Can Eva speak at 9:00? Then Mars would be at 10:00 – but that is Finn on robots.
+      - Eva speaks at 11:00 and Mars comes at 12:00. Where do whales and volcanoes go?
+    explanation: Hana 9:00 volcanoes, Finn 10:00 robots, Eva 11:00 whales, Gil 12:00 Mars. The key was the assumption "Eva at 9:00" – it led straight to a contradiction.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -97,6 +167,25 @@ steps:
           - case
       min: 3
       sample: First I enter all direct clues and cross out what they rule out. Then I combine clues to deduce new things. If I get stuck, I make an assumption and check whether it leads to a contradiction.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Logic grids, sudoku and timetables are constraint puzzles. What is known about them as they grow arbitrarily large?
+    params:
+      options:
+        - label: No method is known that solves every large puzzle quickly.
+          correct: true
+        - label: A computer solves each one in seconds.
+          feedback: Many, yes – but in the worst case the effort probably grows exponentially.
+        - label: They are all unsolvable.
+          feedback: They can be solved – the question is only how fast.
+    hints:
+      - How many matchings are there for 10 people and 3 categories?
+      - Generalised sudoku is one of the "NP-complete" problems.
+    explanation: Generalised sudoku is NP-complete. A fast method for it would give one for thousands of other problems. In practice, deduction plus clever guessing with backtracking helps.
     difficulty: 3
 
 srs:

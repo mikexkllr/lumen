@@ -8,6 +8,19 @@ authors: ["Lumen-Team"]
 estimated_minutes: 8
 steps:
   - kind: problem
+    id: la-hook
+    widget: estimate
+    prompt: "Schätz mal: Vier Vorträge, vier Uhrzeiten, vier Themen. Wie viele Zuordnungen sind ohne Hinweise denkbar?"
+    params:
+      min: 10
+      max: 10000
+      scale: log
+    answer:
+      value: 576
+      within: 30
+    explanation: "Person – Zeit: 4! = 24. Person – Thema: noch einmal 24. Zusammen 24 · 24 = 576 – die Hinweise müssen 575 davon streichen."
+
+  - kind: problem
     id: konferenz
     widget: logic-grid
     prompt: Vier Vorträge, vier Uhrzeiten, vier Themen. Ordne alles zu.
@@ -66,6 +79,63 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Vier Vorträge am Morgen. Wer spricht wann, und worüber?
+    params:
+      categories:
+        - name: Person
+          items:
+            - Eva
+            - Finn
+            - Gil
+            - Hana
+        - name: Uhrzeit
+          items:
+            - 9 Uhr
+            - 10 Uhr
+            - 11 Uhr
+            - 12 Uhr
+        - name: Thema
+          items:
+            - Mars
+            - Wale
+            - Vulkane
+            - Roboter
+      ordered: 1
+      clues:
+        - text: Direkt nach Eva spricht jemand über den Mars.
+          rule:
+            offset:
+              - Eva
+              - Mars
+              - 1
+        - text: Finn spricht um 10 Uhr über Roboter.
+          rules:
+            - is:
+                - Finn
+                - Roboter
+            - is:
+                - Finn
+                - 10 Uhr
+        - text: Der Vortrag über Wale kommt nach dem über Roboter.
+          rule:
+            less:
+              - Roboter
+              - Wale
+        - text: Gil spricht nicht über Vulkane.
+          rule:
+            not:
+              - Gil
+              - Vulkane
+    hints:
+      - Kann Eva um 9 Uhr sprechen? Dann käme der Mars um 10 – aber da spricht Finn über Roboter.
+      - Eva spricht um 11, der Mars kommt um 12. Wo bleiben Wale und Vulkane?
+    explanation: Hana 9 Uhr Vulkane, Finn 10 Uhr Roboter, Eva 11 Uhr Wale, Gil 12 Uhr Mars. Der Schlüssel war die Annahme »Eva um 9« – sie führte sofort zum Widerspruch.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -97,6 +167,25 @@ steps:
           - case
       min: 3
       sample: Ich trage zuerst alle direkten Hinweise ein und streiche, was dadurch ausgeschlossen ist. Dann kombiniere ich Hinweise zu neuen Folgerungen. Komme ich nicht weiter, treffe ich eine Annahme und prüfe, ob sie zum Widerspruch führt.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Logikgitter, Sudoku und Stundenpläne sind Bedingungsrätsel. Was weiß man über sie, wenn sie beliebig groß werden?
+    params:
+      options:
+        - label: Man kennt kein Verfahren, das jedes große Rätsel schnell löst.
+          correct: true
+        - label: Ein Computer löst jedes in Sekunden.
+          feedback: Viele schon – aber im schlimmsten Fall wächst der Aufwand vermutlich exponentiell.
+        - label: Sie sind alle unlösbar.
+          feedback: Lösbar sind sie – die Frage ist nur, wie schnell.
+    hints:
+      - Wie viele Zuordnungen gibt es bei 10 Personen und 3 Kategorien?
+      - Verallgemeinertes Sudoku gehört zu den »NP-vollständigen« Problemen.
+    explanation: Verallgemeinertes Sudoku ist **NP-vollständig**. Gäbe es dafür ein schnelles Verfahren, gäbe es eins für Tausende andere Probleme. In der Praxis helfen Folgern plus geschicktes Raten mit Zurücknehmen.
     difficulty: 3
 
 srs:

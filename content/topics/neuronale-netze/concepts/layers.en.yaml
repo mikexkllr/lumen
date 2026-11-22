@@ -82,6 +82,51 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A network has {{a}} inputs, {{h}} hidden neurons and {{o}} outputs, fully connected. Every neuron has a bias. How many parameters is that?
+    answer:
+      value: "{{a * h + h + h * o + o}}"
+    feedback:
+      - when: numval(state.input) == a * h + h * o
+        misconception: no-bias
+        text: "The biases are missing: one per hidden and per output neuron."
+    hints:
+      - "Weights: {{a}} · {{h}} + {{h}} · {{o}}."
+      - "Biases: {{h}} + {{o}}."
+    explanation: "{{a * h + h * o}} weights + {{h + o}} biases = {{a * h + h + h * o + o}}. Large models have billions of parameters like this – all adjusted in training."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,8]
+        h: int[3,10]
+        o: int[1,4]
+      defaults:
+        a: 4
+        h: 5
+        o: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: A network of ReLU neurons draws a curve. What does it look like close up?
+    params:
+      options:
+        - label: Like many straight pieces with kinks – more neurons, more kinks.
+          correct: true
+        - label: Perfectly smooth.
+          feedback: ReLU itself has a kink at 0. Sums of it are piecewise straight.
+        - label: Like one single line.
+          feedback: That would be without activation – ReLU creates kinks.
+    hints:
+      - ReLU is 0 on the left and a straight line on the right.
+      - What do you get when adding many shifted ReLUs?
+    explanation: Each ReLU neuron adds a kink. With enough kinks any reasonable curve can be approximated – like a polygon approximates a circle.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -97,6 +142,27 @@ steps:
     hints:
       - "Edges → shapes → objects: levels build on each other."
     explanation: Depth allows reuse of intermediate results – like functions in programming.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why a network needs hidden layers to learn XOR.
+    params:
+      keywords:
+        - - gerade
+          - linie
+          - line
+        - - xor
+          - entweder
+        - - schicht
+          - versteckt
+          - kombinier
+          - layer
+          - hidden
+          - combin
+      sample: A single neuron draws only one line, and no line separates the XOR points. In a hidden layer two neurons each draw a line, and a third combines them.
     difficulty: 3
 
 srs:

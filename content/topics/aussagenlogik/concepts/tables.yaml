@@ -5,7 +5,7 @@ summary: Alle Fälle auf einen Blick.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -80,6 +80,43 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: In wie vielen der 8 Zeilen ist (A → B) ∧ (B → C) wahr?
+    answer:
+      value: 4
+    hints:
+      - Falsch wird es, wenn A wahr und B falsch ist – oder B wahr und C falsch.
+      - "Die wahren Zeilen sind »Treppen«: ist einer wahr, sind auch alle späteren wahr."
+    explanation: "Wahr sind FFF, FFW, FWW und WWW: 4 Zeilen. Eine Kette von Implikationen erlaubt nur solche Treppen."
+    difficulty: 2
+
+  - kind: explain
+    id: la-d2
+    depth: 2
+    body: Aus jeder Wahrheitstafel kann man eine Formel ablesen. Jede wahre Zeile wird ein Und-Block, etwa A ∧ ¬B. Alle Blöcke verbindet man mit Oder. Das ist die **disjunktive Normalform**.
+
+  - kind: problem
+    id: la-d3
+    depth: 2
+    widget: choice
+    prompt: XOR ist nur in den Zeilen »A wahr, B falsch« und »A falsch, B wahr« wahr. Wie lautet seine disjunktive Normalform?
+    params:
+      options:
+        - label: (A ∧ ¬B) ∨ (¬A ∧ B)
+          correct: true
+        - label: (A ∨ B) ∧ (¬A ∨ ¬B)
+          feedback: "Das stimmt zwar auch – ist aber die konjunktive Form: Oder-Blöcke mit Und verbunden."
+        - label: (A ∧ B) ∨ (¬A ∧ ¬B)
+          feedback: Das sind genau die anderen beiden Zeilen – also »genau dann, wenn«.
+    hints:
+      - Schreibe für jede wahre Zeile einen Und-Block.
+      - "Zeile 1: A ∧ ¬B. Zeile 2: ¬A ∧ B. Dann mit Oder verbinden."
+    explanation: Jede wahre Zeile liefert einen Block, das Oder sammelt sie. Darum lässt sich **jede** Wahrheitstafel als Formel aus ∧, ∨ und ¬ schreiben.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -95,6 +132,69 @@ steps:
     hints:
       - Es regnet – oder es regnet nicht.
     explanation: "Der »Satz vom ausgeschlossenen Dritten«. Logische Gesetze sind Tautologien: wahr allein durch ihre Form."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Welche Belegung erfüllt (A ∨ B) ∧ (¬A ∨ B) ∧ (¬B ∨ C)?
+    params:
+      options:
+        - label: B und C wahr – A egal.
+          correct: true
+        - label: A wahr, B falsch, C wahr
+          feedback: Dann ist ¬A ∨ B falsch.
+        - label: Keine – die Formel ist unerfüllbar.
+          feedback: "Probier B = wahr: Die ersten zwei Klauseln sind dann erfüllt."
+    hints:
+      - Die ersten beiden Klauseln zusammen erzwingen etwas über B.
+      - B muss wahr sein. Was verlangt dann die dritte Klausel?
+    explanation: Aus (A ∨ B) und (¬A ∨ B) folgt B. Dann verlangt (¬B ∨ C), dass C wahr ist. Formeln in dieser **konjunktiven Normalform** prüfen SAT-Löser – Programme, die Chips und Pläne testen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Eine Formel hat 60 Variablen. Warum prüft man sie nicht einfach mit einer Wahrheitstafel?
+    params:
+      options:
+        - label: Sie hätte 2⁶⁰ – über eine Trillion – Zeilen.
+          correct: true
+        - label: Wahrheitstafeln gehen nur bis drei Variablen.
+          feedback: Sie gehen immer – sie werden nur schnell riesig.
+        - label: Weil man dann nicht weiß, welche Zeile wahr ist.
+          feedback: Jede Zeile lässt sich leicht ausrechnen. Das Problem ist ihre Anzahl.
+    hints:
+      - Jede neue Variable verdoppelt die Zeilen.
+      - 2¹⁰ ≈ 1000. Was ist dann 2⁶⁰?
+    explanation: 2⁶⁰ ≈ 10¹⁸. Ob es für Erfüllbarkeit (SAT) grundsätzlich schnelle Verfahren gibt, ist die offene Frage **P gegen NP**. Gute Löser schaffen trotzdem oft Millionen Variablen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit einer Wahrheitstafel prüft, ob zwei Formeln gleichwertig sind.
+    params:
+      keywords:
+        - - zeile
+          - fall
+          - fälle
+          - row
+          - case
+        - - jede
+          - alle
+          - every
+          - all
+        - - gleich
+          - dasselbe
+          - überein
+          - same
+          - agree
+          - equal
+      sample: Ich schreibe alle Zeilen auf, also jede Belegung der Variablen. Für jede Zeile rechne ich beide Formeln aus. Sind sie in jeder Zeile gleich, sind die Formeln gleichwertig.
     difficulty: 3
 
 srs:

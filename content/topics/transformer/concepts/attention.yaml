@@ -5,7 +5,7 @@ summary: Welches Wort auf welches schaut.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 9
 steps:
   - kind: problem
     id: sie
@@ -71,6 +71,37 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Ein Token verteilt seine Aufmerksamkeit: 0,7 auf ein Wort mit Wert 10, 0,2 auf eins mit Wert 0 und 0,1 auf eins mit Wert 5. Was ist die gewichtete Mischung?"
+    answer:
+      value: 7.5
+      tolerance: 0.001
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: unweighted
+        text: Das ist der einfache Mittelwert. Die Gewichte sollen zählen.
+    hints:
+      - Multipliziere jeden Wert mit seinem Gewicht.
+      - 7 + 0 + 0,5 = ?
+    explanation: "7,5. **Attention** ist im Kern ein gewichteter Mittelwert: Die Gewichte sagen, wie wichtig jedes Token gerade ist. In echten Modellen sind die Werte lange Vektoren."
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Query und Key haben das Skalarprodukt 8. Die Vektoren haben je 16 Zahlen. Vor dem Softmax teilt man durch √16. Welche Zahl geht in den Softmax?
+    answer:
+      value: 2
+    hints:
+      - √16 = 4.
+      - 8 / 4 = ?
+    explanation: Ohne diese **Skalierung** würden Skalarprodukte bei langen Vektoren riesig. Softmax würde dann fast alles auf ein einziges Token setzen, und das Lernen stockt.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -86,6 +117,43 @@ steps:
     hints:
       - Jedes Token stellt eine Frage und bietet eine Antwort an.
     explanation: Weil alles differenzierbar ist, lernt das Modell selbst, welche Fragen und Schlüssel nützlich sind.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Drei Tokens haben die Scores 2, 0 und 0. Ihre Werte sind 10, 0 und 0. Berechne die Ausgabe mit Softmax-Gewichten (e² ≈ 7,39). Auf zwei Stellen.
+    answer:
+      value: 7.87
+      tolerance: 0.03
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: hard-max
+        text: Softmax gibt nicht alles dem Besten – die anderen bekommen auch etwas.
+    hints:
+      - "Gewichte: 7,39 / (7,39 + 1 + 1) ≈ 0,787 für das erste Token."
+      - Ausgabe = 0,787 · 10 + 0 + 0.
+    explanation: "≈ 7,87. Softmax ist eine **weiche** Auswahl: das wichtigste Token dominiert, die anderen tragen etwas bei. So bleibt alles ableitbar und damit lernbar."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Beim Training eines Sprachmodells darf ein Token nur auf frühere Tokens schauen, nie auf spätere. Warum?
+    params:
+      options:
+        - label: Sonst könnte es das nächste Wort einfach abschreiben, statt es vorherzusagen.
+          correct: true
+        - label: Weil spätere Tokens unwichtig sind.
+          feedback: Beim Verstehen sind sie oft sehr wichtig – nur beim Vorhersagen wären sie Schummeln.
+        - label: Um Speicher zu sparen.
+          feedback: Die Maske spart kaum Speicher – sie verhindert, dass das Modell die Antwort sieht.
+    hints:
+      - Was soll das Modell an jeder Stelle lernen?
+      - Wer das nächste Wort sehen kann, muss es nicht vorhersagen.
+    explanation: Diese **kausale Maske** setzt die Scores zu späteren Tokens auf −∞, ihr Softmax-Gewicht wird 0. So kann man alle Positionen eines Textes gleichzeitig trainieren, ohne zu schummeln.
     difficulty: 3
 
 srs:

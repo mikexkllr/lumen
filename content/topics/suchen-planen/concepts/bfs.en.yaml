@@ -1,0 +1,209 @@
+id: ai.search.bfs
+type: concept
+title: "Breadth or depth?"
+summary: "Two ways to walk a search tree – and what they cost."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: You are looking for your key in a house. Which strategy surely finds it in a room near the door, if it is there?
+    params:
+      options:
+        - label: First look in all rooms near the door, then the ones further away.
+          correct: true
+        - label: Run along the first corridor all the way to the end.
+          feedback: Then you are far away before you check the room next to the door.
+        - label: Open rooms at random.
+          feedback: Chance finds the key eventually – but not reliably near first.
+    hints:
+      - Which rooms can be reached in the fewest steps?
+      - Go outward layer by layer.
+    explanation: "First the near rooms, then the far ones: that finds the closest thing first. That is exactly what breadth-first search does."
+
+  - kind: explain
+    id: c2
+    body: "Breadth-first search visits all states 1 move away, then all 2 moves away, and so on. It keeps the waiting ones in a queue: first come, first visited."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: "A tree: A has children B and C. B has children D and E, C has F and G. In which order does breadth-first search visit the nodes?"
+    params:
+      items:
+        - label: A
+        - label: B
+        - label: C
+        - label: D
+        - label: E
+        - label: F
+        - label: G
+      direction: horizontal
+    hints:
+      - First the root, then its children, then the grandchildren.
+      - Within a level, from left to right.
+    explanation: "Level by level: A, then B, C, then D, E, F, G."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: "The same tree. Now **depth-first search**: it always goes as deep as possible first, left first. Order the visits."
+    params:
+      items:
+        - label: A
+        - label: B
+        - label: D
+        - label: E
+        - label: C
+        - label: F
+        - label: G
+      direction: horizontal
+    hints:
+      - From A it goes to B and straight on to D.
+      - Only when everything under B is visited does C get its turn.
+    explanation: "A, B, D, E, C, F, G. Depth-first search uses a stack: the most recently found node is visited next."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: A tree in which every node has 2 children is searched completely down to depth {{d}}. How many nodes is that – counting the root?
+    answer:
+      value: "{{2 ** (d + 1) - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** d
+        misconception: last-level
+        text: That is just the bottom level. The levels above add to it.
+    hints:
+      - "Levels: 1, 2, 4, 8, … up to 2^{{d}}."
+      - The sum 1 + 2 + … + 2^{{d}} is 2^{{d + 1}} − 1.
+    explanation: "{{2 ** (d + 1) - 1}} nodes. The bottom level alone is already about half – the last level dominates the work."
+    variants:
+      params:
+        d: int[3,10]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: c6
+    widget: buckets
+    prompt: Breadth-first or depth-first?
+    params:
+      buckets:
+        - id: b1
+          label: breadth-first
+        - id: b2
+          label: depth-first
+      items:
+        - label: finds the path with fewest moves
+          bucket: b1
+        - label: needs very little memory
+          bucket: b2
+        - label: works with a queue
+          bucket: b1
+        - label: gets lost in endless branches
+          bucket: b2
+    hints:
+      - Breadth-first keeps a whole level in memory.
+      - Depth-first only remembers its current path.
+    explanation: Breadth is thorough but memory-hungry. Depth is frugal but guarantees no shortest path.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Branching factor 10, the goal is at depth 6. At the end breadth-first search holds roughly the whole last level in memory. How many million nodes is that?
+    answer:
+      value: 1
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: dfs
+        text: "That is roughly what depth-first needs: depth times branching."
+    hints:
+      - The last level has 10⁶ nodes.
+      - 10⁶ is one million.
+    explanation: A million against about 60 for depth-first. Memory, not time, is usually breadth-first's bottleneck.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: A search space has an infinitely long branch on the far left. The goal is on the right at depth 3. What happens?
+    params:
+      options:
+        - label: Depth-first runs down the left branch forever; breadth-first finds the goal.
+          correct: true
+        - label: Both find the goal equally fast.
+          feedback: Depth-first never comes back from the infinite branch.
+        - label: Neither finds the goal.
+          feedback: Breadth-first reaches depth 3 after finitely many steps.
+    hints:
+      - Where does depth-first go first – and does it come back?
+      - Breadth-first looks at everything at depth 1, 2, 3 first.
+    explanation: "Breadth-first search is complete: if a solution exists at finite depth, it finds it. Depth-first needs a depth limit for that."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "Iterative deepening runs depth-first search with limit 1, 2, 3 … – repeating the upper levels. With branching 10: about how many times as many nodes does it create as breadth-first? To two decimals."
+    answer:
+      value: 1.11
+      tolerance: 0.02
+    hints:
+      - The last level is ten times as big as all the levels above it together.
+      - The overhead is about b / (b − 1) = 10 / 9.
+    explanation: Only about 11 % more – with memory like depth-first. Because the last level dominates, the repetitions are cheap.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Moves have different costs, such as kilometres. Does breadth-first search still find the cheapest path?
+    params:
+      options:
+        - label: No – it finds the fewest moves. You have to order by total cost (Dijkstra).
+          correct: true
+        - label: Yes, always.
+          feedback: Two short moves can cost more than one long move – or less.
+        - label: Only depth-first can do that.
+          feedback: Depth-first pays even less attention to costs.
+    hints:
+      - Fewest moves and lowest cost are the same only when all costs are equal.
+      - Instead of by move count, you order the queue by cost so far.
+    explanation: Dijkstra's algorithm always takes the node with the lowest cost so far. With equal costs that is exactly breadth-first search.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between breadth-first and depth-first search.
+    params:
+      keywords:
+        - - ebene
+          - schicht
+          - level
+          - layer
+        - - tief
+          - ast
+          - deep
+          - branch
+        - - speicher
+          - memory
+        - - kürzest
+          - wenigst
+          - shortest
+          - fewest
+      sample: Breadth-first goes level by level and finds the shortest path, but needs a lot of memory. Depth-first follows one branch deep down first. It saves memory but does not necessarily find the shortest path.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d1"]

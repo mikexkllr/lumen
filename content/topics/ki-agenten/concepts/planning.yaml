@@ -5,7 +5,7 @@ summary: Ein Plan aus kleinen Schritten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: reise
@@ -67,6 +67,80 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Jeder Schritt gelingt zu 95 %. Der Agent prüft jeden Schritt und wiederholt ihn einmal, wenn er scheitert. Wie wahrscheinlich gelingt dann eine Aufgabe mit 20 Schritten? In Prozent, gerundet.
+    answer:
+      value: 95
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 36
+        misconception: no-retry
+        text: Das ist der Wert ohne Prüfen und Wiederholen.
+    hints:
+      - "Ein Schritt scheitert nur, wenn beide Versuche scheitern: 0,05 · 0,05."
+      - Pro Schritt also 0,9975. Dann 0,9975²⁰.
+    explanation: 0,9975²⁰ ≈ 0,95 statt 0,36. **Prüfen** und Wiederholen verwandeln eine wackelige Kette in eine stabile – vorausgesetzt, Fehler werden auch erkannt.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: network
+    prompt: Ein Agent erledigt Teilaufgaben. Die Zahlen sind Minuten. Finde den schnellsten Weg vom Start S zum fertigen Bericht B.
+    params:
+      start: S
+      end: B
+      unit: min
+      nodes:
+        - id: S
+          x: 4
+          y: 50
+        - id: Q
+          x: 34
+          y: 12
+          label: Quellen
+        - id: D
+          x: 34
+          y: 88
+          label: Daten
+        - id: A
+          x: 66
+          y: 50
+          label: Analyse
+        - id: B
+          x: 96
+          y: 50
+      edges:
+        - a: S
+          b: Q
+          w: 4
+        - a: S
+          b: D
+          w: 2
+        - a: Q
+          b: A
+          w: 3
+        - a: D
+          b: A
+          w: 6
+        - a: Q
+          b: D
+          w: 1
+        - a: A
+          b: B
+          w: 2
+        - a: D
+          b: B
+          w: 10
+    hints:
+      - Über D zur Analyse ist teuer. Gibt es einen Umweg über Q?
+      - S → D → Q kostet 3 Minuten.
+    explanation: S → D → Q → A → B = 2 + 1 + 3 + 2 = 8 Minuten. Planen heißt, den **Plan** als Graph zu sehen und den günstigsten Weg zu suchen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -82,6 +156,48 @@ steps:
     hints:
       - Ein erkannter Fehler ist kein Fehler mehr.
     explanation: Selbstprüfung macht aus einer Kette, die am schwächsten Glied reißt, ein System, das Fehler abfängt.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Agent soll eine große Software-Änderung machen. Was ist oft eine gute Struktur?
+    params:
+      options:
+        - label: Ein Plan mit Teilaufgaben, die einzeln erledigt und getestet werden.
+          correct: true
+        - label: Alles in einem einzigen langen Schritt schreiben.
+          feedback: Fehler häufen sich und sind schwer zu finden.
+        - label: Zufällig Dateien ändern, bis die Tests grün sind.
+          feedback: So entsteht Chaos – und vielleicht ändert er die Tests.
+    hints:
+      - Wie arbeiten erfahrene Menschen an großen Aufgaben?
+      - Nach jedem Teil weißt du, ob es noch stimmt.
+    explanation: "**Zerlegen** mit Zwischenprüfungen macht Fehler früh sichtbar. Manche Systeme geben Teilaufgaben an eigene Unter-Agenten mit frischem Kontext."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum lange Aufgaben für Agenten so schwer sind – und was hilft.
+    params:
+      keywords:
+        - - schritt
+          - step
+        - - fehler
+          - häuf
+          - multiplizier
+          - error
+          - pile
+          - multipl
+        - - prüf
+          - test
+          - kontroll
+          - check
+          - verify
+      sample: "Jeder Schritt kann scheitern, und die Fehler häufen sich: Bei vielen Schritten gelingt die ganze Aufgabe selten. Es hilft, Zwischenergebnisse zu prüfen und Fehler früh zu korrigieren."
     difficulty: 3
 
 srs:

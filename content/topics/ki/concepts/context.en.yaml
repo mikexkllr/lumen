@@ -5,7 +5,7 @@ summary: Training, context window and knowledge gaps.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: hook
@@ -22,7 +22,6 @@ steps:
     hints:
       - What can the AI read right now?
     explanation: It sees what is in the chat. The rest it knows only from training.
-
 
   - kind: explain
     id: s1
@@ -88,6 +87,39 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: A context window holds 200,000 tokens. A token is about ¾ of a word, and a book page has about 300 words. Roughly how many pages fit in?
+    answer:
+      value: 500
+      tolerance: 10
+    hints:
+      - "First convert to words: 200,000 · ¾."
+      - 150,000 words divided by 300.
+    explanation: About 500 pages – a thick book. Still, anything not in the window is invisible to the model.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: A chatbot "remembers" your name in a new conversation. How does that usually work?
+    params:
+      options:
+        - label: The app saved notes and inserts them into the context.
+          correct: true
+        - label: The model learned anew from your chat.
+          feedback: The weights do not change while chatting.
+        - label: It guessed your name.
+          feedback: Guessing would be luck – there is stored information behind it.
+    hints:
+      - Does the model itself change while you talk to it?
+      - What it sees is in the context. Who can put something there?
+    explanation: '"Memory" is usually storage outside the model. The app puts relevant notes into the context next time. The model itself stays the same.'
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -112,6 +144,25 @@ steps:
           - append
       min: 3
       sample: It computes a probability for every possible next word and draws one of them. It appends that to the text and repeats the step – word by word until the answer is finished.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: A company chatbot retrieves text passages and answers from them. The search finds an outdated price list. What will probably happen?
+    params:
+      options:
+        - label: It states the old prices – confidently and with a citation.
+          correct: true
+        - label: It notices that the list is outdated.
+          feedback: Only if something in the context hints at it, such as a date.
+        - label: It does not answer at all.
+          feedback: It did find text that matches.
+    hints:
+      - Where does the model take its answer from?
+      - Can it know what is not in the context?
+    explanation: "With RAG the answer depends on the search: wrong hits lead to wrong but well-cited answers. That is why the documents are maintained and dates and sources are shown."
     difficulty: 3
 
 srs:

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [ai.verify]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: zugspitze
@@ -123,6 +123,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Ein Modell beantwortet solche Fragen in 80 % der Fälle richtig. Du stellst 3 unabhängige Fragen. Wie wahrscheinlich sind **alle** Antworten richtig? In Prozent.
+    answer:
+      value: 51.2
+      tolerance: 0.5
+    feedback:
+      - when: numval(state.input) == 80
+        misconception: single
+        text: Das gilt für eine Frage. Alle drei müssen stimmen.
+    hints:
+      - Multipliziere die Wahrscheinlichkeiten.
+      - 0,8 · 0,8 · 0,8 = ?
+    explanation: 0,8³ = 0,512. Schon bei drei Fakten ist fast jede zweite Antwort irgendwo falsch. Lange Texte brauchen darum besonders **sorgfältige** Prüfung.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: buckets
+    prompt: Wie prüfst du das am besten?
+    params:
+      buckets:
+        - id: b1
+          label: selbst nachrechnen oder testen
+        - id: b2
+          label: in einer Quelle nachschlagen
+      items:
+        - label: das Ergebnis von 17 · 23
+          bucket: b1
+        - label: das Jahr eines Ereignisses
+          bucket: b2
+        - label: ob eine Code-Funktion läuft
+          bucket: b1
+        - label: ein Zitat einer Person
+          bucket: b2
+    hints:
+      - Rechnungen und Code kannst du selbst ausführen.
+      - Fakten über die Welt brauchen eine Quelle.
+    explanation: Was man ausrechnen oder ausprobieren kann, prüft man **selbst**. Fakten, Zitate und Zahlen über die Welt prüft man in verlässlichen Quellen.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -138,4 +182,51 @@ steps:
     hints:
       - Ein Modell hat kein eingebautes »Das weiß ich nicht«.
     explanation: "Es gibt keine getrennte Wissensdatenbank – nur Muster in Gewichten. Abhilfe: dem Modell Quellen mitgeben und Belege verlangen."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: Ein Chatbot sucht erst passende Dokumente und antwortet dann mit Quellenangabe. Was gilt?
+    params:
+      options:
+        - label: Das senkt erfundene Antworten oft deutlich – verhindert sie aber nicht ganz.
+          correct: true
+        - label: Dann kann es nicht mehr halluzinieren.
+          feedback: Es kann Quellen falsch zusammenfassen oder die falschen finden.
+        - label: Quellen machen es unzuverlässiger.
+          feedback: Im Gegenteil – man kann die Antwort jetzt viel leichter prüfen.
+    hints:
+      - Was kann bei der Suche schiefgehen? Und beim Zusammenfassen?
+      - "Ein großer Vorteil: Du kannst die Quelle selbst öffnen."
+    explanation: "Mit Quellen wird eine Antwort **überprüfbar**. Fehler bleiben möglich: falsche Treffer, veraltete Seiten oder ein verzerrtes Zitat. Ein kurzer Blick in die Quelle lohnt sich."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man KI-Antworten prüfen sollte, auch wenn sie sehr überzeugend klingen.
+    params:
+      keywords:
+        - - wahrscheinlich
+          - klingt
+          - plausibel
+          - likely
+          - sounds
+          - plausible
+        - - erfind
+          - halluzin
+          - falsch
+          - invent
+          - hallucinat
+          - wrong
+        - - quelle
+          - prüf
+          - nachrechn
+          - source
+          - check
+          - verify
+      sample: Ein Sprachmodell schreibt, was wahrscheinlich klingt, und prüft keine Fakten. Darum kann es Dinge erfinden, die überzeugend wirken. Wichtiges prüfe ich mit einer Quelle oder rechne es nach.
     difficulty: 3

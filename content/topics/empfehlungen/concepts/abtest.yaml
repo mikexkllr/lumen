@@ -5,7 +5,7 @@ summary: Wie Apps herausfinden, was wirkt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: rate
@@ -83,6 +83,54 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: "Version A: {{n}} Besucher, {{a}} Käufe. Version B: {{n}} Besucher, {{b}} Käufe. Um wie viel Prozent kauft man bei B mehr?"
+    answer:
+      value: "{{100 * (b - a) / a}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == b - a
+        misconception: absolute
+        text: Das sind zusätzliche Käufe, kein Prozentwert.
+    hints:
+      - Der Unterschied ist {{b - a}} Käufe.
+      - "Teile ihn durch A: {{b - a}} / {{a}}."
+    explanation: "{{b - a}} / {{a}} = {{(b - a) / a}}, also {{100 * (b - a) / a}} % mehr. Das ist der **relative** Unterschied – der absolute wären {{100 * (b - a) / n}} Prozentpunkte."
+    difficulty: 2
+    variants:
+      params:
+        n: choice[1000,2000,5000]
+        a: step[40,80,20]
+        k: choice[10,20,25,50]
+      derive:
+        b: a + a * k / 100
+      defaults:
+        n: 2000
+        a: 80
+        k: 25
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: Ein Team schaut jeden Tag auf den Test und stoppt ihn, sobald B »signifikant« vorn liegt. Was ist das Problem?
+    params:
+      options:
+        - label: Bei so vielen Blicken kommt ein Zufallsvorsprung fast sicher irgendwann vor.
+          correct: true
+        - label: Gar keins – früher Erfolg ist Erfolg.
+          feedback: Man stoppt genau dann, wenn der Zufall gerade günstig war.
+        - label: Der Test ist dann zu lang.
+          feedback: Er wird eher zu früh beendet.
+    hints:
+      - Jeder Blick ist wie ein eigener Test.
+      - Viele Tests bedeuten viele Chancen auf einen Fehlalarm.
+    explanation: Dieses **Zwischengucken** erhöht die Fehlerrate stark. Seriös legt man Laufzeit und Stichprobengröße vorher fest – oder nutzt Verfahren, die für viele Blicke gebaut sind.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: teach
@@ -111,6 +159,27 @@ steps:
           - bewusst
           - deliberate
       sample: Das System zeigt mir mehr von dem, was ich anklicke. So sehe ich immer Ähnliches und werde in meiner Sicht bestätigt. Dagegen hilft, bewusst auch andere Quellen und Themen zu suchen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Ein Team testet 20 Varianten, keine wirkt wirklich. Jeder Test meldet mit 5 % einen Zufallstreffer. Wie wahrscheinlich ist mindestens ein Fehlalarm? In Prozent, gerundet.
+    answer:
+      value: 64
+      tolerance: 1
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: single-test
+        text: Das gilt für einen Test. Bei 20 Tests summiert sich das Risiko.
+      - when: numval(state.input) == 100
+        misconception: additive
+        text: Einfach 20 · 5 % zu rechnen geht nicht – die Fälle überlappen.
+    hints:
+      - "Rechne erst die Chance für »kein einziger Fehlalarm«: 0,95²⁰."
+      - 0,95²⁰ ≈ 0,36. Der Rest ist »mindestens einer«.
+    explanation: "1 − 0,95²⁰ ≈ 0,64. Darum korrigiert man bei **vielen Vergleichen**, etwa mit der Bonferroni-Regel: Jeder Test braucht dann 5 % / 20 = 0,25 %."
     difficulty: 3
 
 srs:

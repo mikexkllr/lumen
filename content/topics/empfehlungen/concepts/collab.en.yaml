@@ -5,7 +5,7 @@ summary: Recommending from the behavior of others.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: empfehlen
@@ -113,6 +113,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Three users with similar taste gave a film {{a}}, {{b}} and {{c}} stars. Which rating does the system predict for you?
+    answer:
+      value: "{{(a + b + c) / 3}}"
+      tolerance: 0.01
+    hints:
+      - Take the neighbours' average.
+      - ({{a}} + {{b}} + {{c}}) / 3.
+    explanation: ({{a}} + {{b}} + {{c}}) / 3 = {{(a + b + c) / 3}}. That is collaborative filtering in its simplest form.
+    difficulty: 2
+    variants:
+      params:
+        a: int[1,5]
+        b: int[1,5]
+        c: int[1,5]
+      constraints:
+        - (a + b + c) % 3 == 0
+        - a != b
+      defaults:
+        a: 4
+        b: 5
+        c: 3
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: A very similar user (similarity 0.9) gave 5 stars, a less similar one (0.3) gave 2. What is the weighted average?
+    answer:
+      value: 4.25
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 3.5
+        misconception: unweighted
+        text: That is the plain average. The more similar user should count more.
+    hints:
+      - Compute (0.9 · 5 + 0.3 · 2) and divide by the sum of the weights.
+      - (4.5 + 0.6) / 1.2 = ?
+    explanation: 5.1 / 1.2 = 4.25. Similar users get more weight – their opinion says more about your taste.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -128,6 +172,43 @@ steps:
     hints:
       - Perhaps 50 numbers suffice to describe a taste.
     explanation: "**Matrix factorisation**: the system learns the features itself – such as “how much action”, “how serious”."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: A system describes you with the vector (2, 1) – say "likes action", "likes humour". A film has the vector (1.5, 1). The prediction is the dot product. What is it?
+    answer:
+      value: 4
+    hints:
+      - "Dot product: multiply pairs, then add."
+      - 2 · 1.5 + 1 · 1 = ?
+    explanation: 3 + 1 = 4 stars. In matrix factorisation the system learns such vectors for all users and films from the known ratings. The axes usually have no clear meaning.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how "people like you also liked …" works.
+    params:
+      keywords:
+        - - ähnlich
+          - gleich
+          - similar
+          - like you
+        - - bewert
+          - mochten
+          - gefallen
+          - rated
+          - liked
+        - - vorher
+          - empfehl
+          - empfiehl
+          - predict
+          - recommend
+      sample: The system looks for people who have rated things similarly to you. Films they liked that you have not seen yet get recommended to you.
     difficulty: 3
 
 srs:

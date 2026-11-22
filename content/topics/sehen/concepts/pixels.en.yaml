@@ -5,7 +5,7 @@ summary: Grids, grayscale and megapixels.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: plus
@@ -72,6 +72,24 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Each colour channel (red, green, blue) has 8 bits, so 256 levels. How many million colours does that give? Rounded to one decimal.
+    answer:
+      value: 16.8
+      tolerance: 0.05
+    feedback:
+      - when: numval(state.input) == 768
+        misconception: added
+        text: "The channels combine, they do not add: 256 · 256 · 256."
+    hints:
+      - Every red level goes with every green and every blue level.
+      - 256³ = 2²⁴ ≈ 16,777,216.
+    explanation: 256³ ≈ 16.8 million colours – more than a human can tell apart. To a network each pixel is simply a triple of numbers.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -87,6 +105,49 @@ steps:
     hints:
       - Mixing paint (light is absorbed) is the opposite of mixing light.
     explanation: "**Additive** colour mixing: red + green gives yellow, all three white. Colour is ultimately a property of our visual system."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: An AI program enlarges a blurry photo fourfold and it looks sharp. What has happened?
+    params:
+      options:
+        - label: It invented plausible details – the real details were never stored.
+          correct: true
+        - label: It recovered the hidden original details.
+          feedback: What was not captured when the photo was taken is not in the pixels.
+        - label: It only made the pixels bigger.
+          feedback: Then the picture would look blocky, not sharp.
+    hints:
+      - How many numbers does the small image have, and the large one?
+      - Where do the extra numbers come from?
+    explanation: The program fills the gaps with what was typical in similar training images. It looks real but is an estimate. Such an image is no good as evidence.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a computer stores a colour photo.
+    params:
+      keywords:
+        - - pixel
+          - raster
+          - grid
+        - - zahl
+          - wert
+          - number
+          - value
+        - - rot
+          - grün
+          - blau
+          - red
+          - green
+          - blue
+          - rgb
+      sample: A photo is a grid of pixels. Each pixel consists of three numbers for red, green and blue, usually from 0 to 255.
     difficulty: 3
 
 srs:

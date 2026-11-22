@@ -5,7 +5,7 @@ summary: The nearest-neighbor method.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
   - kind: problem
     id: hook
@@ -140,6 +140,32 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: How far apart are the points ({{x}} | {{y}}) and ({{x + 3 * k}} | {{y + 4 * k}})?
+    answer:
+      value: "{{5 * k}}"
+    feedback:
+      - when: numval(state.input) == 7 * k
+        misconception: manhattan
+        text: That is the path along the axes. We want the straight line.
+    hints:
+      - The differences are {{3 * k}} and {{4 * k}}.
+      - "Pythagoras: √({{3 * k}}² + {{4 * k}}²)."
+    explanation: √({{9 * k * k}} + {{16 * k * k}}) = {{5 * k}}. This Euclidean distance is the standard measure in nearest neighbours.
+    difficulty: 2
+    variants:
+      params:
+        x: int[0,5]
+        y: int[0,5]
+        k: int[1,4]
+      defaults:
+        x: 1
+        y: 2
+        k: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -155,6 +181,48 @@ steps:
     hints:
       - With every dimension the space grows exponentially – the data become sparse.
     explanation: The notion of “nearest neighbour” loses its meaning. That is why data are first compressed into a few meaningful dimensions.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: In a cube of side 1 in {{d}} dimensions sits an inner cube of side 0.9. What percentage of the volume lies inside? Rounded.
+    answer:
+      value: "{{100 * 0.9 ** d}}"
+      tolerance: 1
+    hints:
+      - Volume is side to the power of the dimension.
+      - Compute 0.9^{{d}}.
+    explanation: 0.9^{{d}} ≈ {{round(100 * 0.9 ** d)}} %. In high dimensions nearly everything lies near the edge, and all points are about equally far apart. That is why "nearest neighbours" become less meaningful there.
+    difficulty: 3
+    variants:
+      params:
+        d: choice[2,10,20,50]
+      defaults:
+        d: 10
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how nearest neighbours classifies a new example.
+    params:
+      keywords:
+        - - nächst
+          - nah
+          - nearest
+          - close
+        - - abstand
+          - entfern
+          - distance
+        - - mehrheit
+          - meisten
+          - abstimm
+          - majority
+          - most
+          - vote
+      sample: It measures the distance from the new example to all known ones. Then it looks at the k nearest and takes the label most of them have – a majority vote.
     difficulty: 3
 
 srs:

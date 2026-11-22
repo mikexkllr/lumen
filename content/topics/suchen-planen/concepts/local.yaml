@@ -1,0 +1,179 @@
+id: ai.search.local
+type: concept
+title: "Bergsteigen im Nebel"
+summary: "Wenn der Raum zu groß ist: schrittweise verbessern, Sackgassen erkennen, mutig springen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Du stehst im dichten Nebel auf einem Berg und willst zum Gipfel. Du siehst nur einen Meter weit. Was tust du?
+    params:
+      options:
+        - label: Immer einen Schritt dorthin, wo es am steilsten bergauf geht.
+          correct: true
+        - label: Erst den ganzen Berg vermessen.
+          feedback: Im Nebel geht das nicht – genau das ist das Problem großer Suchräume.
+        - label: Stehen bleiben.
+          feedback: Dann kommst du nie an.
+    hints:
+      - Du kennst nur deine direkte Umgebung.
+      - Welche Richtung verspricht am meisten?
+    explanation: "Das ist **Bergsteigen** (Hill Climbing): Man verbessert eine Lösung Schritt für Schritt, ohne den ganzen Raum zu kennen."
+
+  - kind: explain
+    id: c2
+    body: Bei **lokaler Suche** merkt man sich keinen Baum, sondern nur eine aktuelle Lösung. Man probiert kleine Änderungen und behält bessere. Das braucht kaum Speicher und funktioniert auch bei riesigen Räumen.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Beim Bergsteigen kommst du auf einen kleinen Hügel. Jeder Schritt führt bergab. Der echte Gipfel ist woanders. Wie heißt das?
+    params:
+      options:
+        - label: Ein lokales Maximum
+          correct: true
+        - label: Das globale Maximum
+          feedback: Das globale wäre der höchste Gipfel – der ist ja woanders.
+        - label: Ein Fehler im Programm
+          feedback: Das Programm tut genau, was es soll. Die Methode hat diese Schwäche.
+    hints:
+      - "Lokal heißt: nur in der Nähe am höchsten."
+      - Von dort aus sieht jeder kleine Schritt schlechter aus.
+    explanation: "Lokale Maxima sind die Falle der lokalen Suche. Einfache Abhilfe: oft **neu starten**, an zufälligen Orten, und das Beste behalten."
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Bergsteiger-Verfahren findet von einem zufälligen Start mit {{p}} % Wahrscheinlichkeit den Gipfel. Wie wahrscheinlich gelingt es mit 10 unabhängigen Neustarts mindestens einmal? In Prozent, gerundet.
+    answer:
+      value: "{{100 * (1 - (1 - p / 100) ** 10)}}"
+      tolerance: 1
+    hints:
+      - "Wahrscheinlichkeit, dass alle 10 scheitern: (1 − {{p / 100}})^10."
+      - Der Rest ist »mindestens einmal«.
+    explanation: Etwa {{round(100 * (1 - (1 - p / 100) ** 10))}} %. **Neustarts** machen aus einer unzuverlässigen Methode eine zuverlässige – und kosten nur Zeit, keinen Speicher.
+    variants:
+      params:
+        p: choice[10,20,30]
+      defaults:
+        p: 20
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Passt eher Baumsuche wie A* oder lokale Suche?
+    params:
+      buckets:
+        - id: b1
+          label: Baumsuche (Weg gesucht)
+        - id: b2
+          label: lokale Suche (gute Lösung gesucht)
+      items:
+        - label: kürzeste Route durch die Stadt
+          bucket: b1
+        - label: Stundenplan für eine ganze Schule
+          bucket: b2
+        - label: Zugfolge für ein Schiebepuzzle
+          bucket: b1
+        - label: Anordnung von Bauteilen auf einem Chip
+          bucket: b2
+    hints:
+      - Zählt der Weg selbst – oder nur das Endergebnis?
+      - Beim Stundenplan interessiert nur der fertige Plan.
+    explanation: Ist der **Weg** die Lösung, sucht man im Baum. Ist nur der Endzustand wichtig, reicht oft lokale Suche – auch ohne Garantie auf das Optimum.
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: Bergsteigen behält nur [[Verbesserungen]]. Darum bleibt es auf einem [[lokalen Maximum]] stecken, wenn jeder Nachbar schlechter ist.
+      distractors:
+        - Umwege
+        - Zufall
+    hints:
+      - Bergsteigen geht nie bergab.
+    explanation: Wer nur Verbesserungen annimmt, kann einen kleinen Hügel nicht verlassen. Neustarts oder gelegentliche schlechtere Schritte helfen.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: "Beim **simulierten Abkühlen** nimmt man auch schlechtere Schritte an: mit Wahrscheinlichkeit e^(−Δ/T). Ein Schritt ist um Δ = 2 schlechter, die Temperatur ist T = 1. Wie wahrscheinlich wird er angenommen? In Prozent, auf eine Stelle."
+    answer:
+      value: 13.5
+      tolerance: 0.2
+    hints:
+      - e^(−2) ≈ 0,135.
+      - Mal 100 für Prozent.
+    explanation: Etwa 13,5 %. Ab und zu bergab zu gehen hilft, ein lokales Maximum zu **verlassen**. Mit sinkender Temperatur wird das immer seltener.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Was passiert beim simulierten Abkühlen, wenn T sehr groß ist?
+    params:
+      options:
+        - label: Fast jeder Schritt wird angenommen – die Suche irrt fast zufällig umher.
+          correct: true
+        - label: Kein schlechter Schritt wird angenommen.
+          feedback: Das gilt für sehr kleine T.
+        - label: Die Suche hört auf.
+          feedback: Sie läuft weiter – nur sehr unruhig.
+    hints:
+      - Bei großem T ist Δ/T fast 0.
+      - e⁰ = 1.
+    explanation: Großes T heißt viel **Erkundung**, kleines T heißt reines Bergsteigen. Man beginnt heiß und kühlt langsam ab – wie beim Härten von Metall.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Gradientenabstieg beim Training neuronaler Netze ist mit welcher Suche verwandt?
+    params:
+      options:
+        - label: Mit lokaler Suche – Bergsteigen bergab im Raum der Gewichte.
+          correct: true
+        - label: Mit Breitensuche.
+          feedback: Kein Netz probiert alle Gewichte Ebene für Ebene durch.
+        - label: Mit Minimax.
+          feedback: Beim Training gibt es keinen Gegner.
+    hints:
+      - Es gibt Milliarden Gewichte – einen Baum kann man da nicht aufbauen.
+      - Jeder Schritt verbessert die aktuelle Lösung ein wenig.
+    explanation: Gradientenabstieg ist **lokale Suche** mit Richtungsinformation. Dass er in riesigen Netzen trotzdem gute Lösungen findet, ist ein Glücksfall, den man noch nicht vollständig versteht.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Bergsteigen in einer Sackgasse landen kann und was dagegen hilft.
+    params:
+      keywords:
+        - - lokal
+          - hügel
+          - local
+          - hill
+        - - bergab
+          - schlechter
+          - downhill
+          - worse
+        - - neustart
+          - neu zu starten
+          - zufall
+          - restart
+          - random
+      sample: Bergsteigen geht nur bergauf. Auf einem kleinen Hügel, einem lokalen Maximum, führt jeder Schritt bergab, also bleibt es stehen. Es hilft, oft neu zu starten oder manchmal auch einen schlechteren Schritt zu erlauben.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c4", "d1"]

@@ -1,0 +1,176 @@
+id: logic.induction.sums
+type: concept
+title: "Sum formulas"
+summary: "First guess the pattern, then prove it by induction."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: what is 1 + 2 + 3 + … + 100?"
+    params:
+      min: 100
+      max: 100000
+      scale: log
+    answer:
+      value: 5050
+      within: 15
+    explanation: "5050. The trick: 1 + 100, 2 + 99, 3 + 98 … are 50 pairs of 101 each."
+
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: What is 1 + 2 + … + {{n}}?
+    answer:
+      value: "{{n * (n + 1) / 2}}"
+    feedback:
+      - when: numval(state.input) == n * (n + 1)
+        misconception: no-half
+        text: You counted each number twice – divide by 2.
+    hints:
+      - Write the sum forwards and once backwards beneath it.
+      - Each column gives {{n + 1}}, and there are {{n}} columns. Divide by 2.
+    explanation: "{{n}} · {{n + 1}} / 2 = {{n * (n + 1) / 2}}. In general 1 + … + n = n(n + 1)/2."
+    variants:
+      params:
+        n: int[10,60]
+      defaults:
+        n: 20
+
+  - kind: explain
+    id: c2
+    body: Gauss's sum formula reads 1 + 2 + … + n = n(n + 1)/2. You find it with the pairing trick. Induction proves it holds for every n.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: In the induction step the formula holds for n. What do you add to the sum to get to n + 1?
+    params:
+      options:
+        - label: The number n + 1
+          correct: true
+        - label: The number n
+          feedback: n is already in the sum.
+        - label: The number 1
+          feedback: The sum grows by the new term, not by 1.
+    hints:
+      - The sum up to n + 1 is the sum up to n plus the next term.
+      - Which term is new?
+    explanation: n(n + 1)/2 + (n + 1) = (n + 1)(n + 2)/2 – exactly the formula for n + 1. The step is one line of algebra.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: The sum of squares is 1² + 2² + … + n² = n(n + 1)(2n + 1)/6. What is it for n = {{n}}?
+    answer:
+      value: "{{n * (n + 1) * (2 * n + 1) / 6}}"
+    hints:
+      - "Plug in: {{n}} · {{n + 1}} · {{2 * n + 1}} / 6."
+      - To check, you can also add the squares directly.
+    explanation: "{{n * (n + 1) * (2 * n + 1) / 6}}. Such formulas are often guessed from examples – and then proven by induction."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c5
+    widget: order
+    prompt: Prove 1 + 2 + … + n = n(n + 1)/2 by induction. Put in order.
+    params:
+      items:
+        - label: "Base: 1 = 1 · 2 / 2."
+        - label: "Assumption: the formula holds for n."
+        - label: Add n + 1 to both sides.
+        - label: "Rewrite: n(n + 1)/2 + (n + 1) = (n + 1)(n + 2)/2."
+        - label: That is the formula for n + 1.
+    hints:
+      - Base, assumption, step.
+      - In the step you factor out (n + 1).
+    explanation: "Every induction proof of a sum follows this pattern: old sum plus new term, then rewrite."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: What is 1 + 2 + 4 + 8 + … + 2^{{n}}?
+    answer:
+      value: "{{2 ** (n + 1) - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** n
+        misconception: last-term
+        text: That is just the last term.
+    hints:
+      - "Small cases: 1, 3, 7, 15 …"
+      - Each time one less than the next power of two.
+    explanation: "2^{{n + 1}} − 1 = {{2 ** (n + 1) - 1}}. In the step: (2ⁿ⁺¹ − 1) + 2ⁿ⁺¹ = 2ⁿ⁺² − 1. It is the same number as the moves in the Tower of Hanoi."
+    difficulty: 2
+    variants:
+      params:
+        n: int[4,12]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: In practice, where does the formula you then prove by induction come from?
+    params:
+      options:
+        - label: You guess it from small examples – induction only checks whether the guess is right.
+          correct: true
+        - label: Induction produces it automatically.
+          feedback: Induction needs a finished claim – it invents none.
+        - label: From an encyclopaedia.
+          feedback: Someone had to find it first.
+    hints:
+      - What do you need before you can assume "for n"?
+      - Finding patterns is creativity, proving is control.
+    explanation: Induction is a tool for checking, not discovering. Mathematicians guess, compute examples – and only then prove.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Compute 1³ + 2³ + 3³ + 4³.
+    answer:
+      value: 100
+    hints:
+      - 1 + 8 + 27 + 64.
+      - Compare with (1 + 2 + 3 + 4)².
+    explanation: 100 = 10² = (1 + 2 + 3 + 4)². In general 1³ + … + n³ = (n(n + 1)/2)². This surprising identity is also proven by induction.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how to compute 1 + 2 + … + 100 quickly – and how to prove the formula.
+    params:
+      keywords:
+        - - paar
+          - "101"
+          - pair
+        - - "50"
+          - hälfte
+          - half
+          - n(n + 1)/2
+          - n(n+1)/2
+        - - induktion
+          - anfang
+          - schritt
+          - induction
+          - base
+          - step
+      sample: "I make pairs: 1 and 100, 2 and 99 and so on, each pair gives 101. There are 50 pairs, so 5050. In general the sum is n(n + 1)/2, and induction with base and step proves it for all n."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c5", "d1"]

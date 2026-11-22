@@ -7,7 +7,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [logic.ordering]
-estimated_minutes: 8
+estimated_minutes: 11
 steps:
   - kind: problem
     id: schnecken
@@ -128,6 +128,69 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: logic-grid
+    prompt: Wer belegt welchen Platz beim Wettlauf?
+    params:
+      categories:
+        - name: Läufer
+          items:
+            - Ali
+            - Bea
+            - Cem
+            - Dora
+        - name: Platz
+          items:
+            - 1. Platz
+            - 2. Platz
+            - 3. Platz
+            - 4. Platz
+      ordered: 1
+      clues:
+        - text: Bea kam direkt vor Cem ins Ziel.
+          rule:
+            offset:
+              - Bea
+              - Cem
+              - 1
+        - text: Ali kam irgendwann vor Dora ins Ziel.
+          rule:
+            less:
+              - Ali
+              - Dora
+        - text: Dora wurde nicht Letzte.
+          rule:
+            not:
+              - Dora
+              - 4. Platz
+    hints:
+      - Dora ist nicht Erste (Ali ist vor ihr) und nicht Letzte. Welche Plätze bleiben?
+      - Bea und Cem brauchen zwei Plätze direkt nacheinander. Probiere Dora auf Platz 2 und auf Platz 3.
+    explanation: Ali 1., Dora 2., Bea 3., Cem 4. Mit Dora auf Platz 3 fände das Paar Bea–Cem keine zwei Nachbarplätze.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: order
+    prompt: Ute ist größer als Tom. Tom ist größer als Lia. Max ist kleiner als Lia, aber größer als Ben. Ordne von groß nach klein.
+    params:
+      items:
+        - label: Ute
+        - label: Tom
+        - label: Lia
+        - label: Max
+        - label: Ben
+      startLabel: größte
+      endLabel: kleinste
+    hints:
+      - Wer wird nie als kleiner genannt?
+      - "Hänge die Paare zu einer Kette: Ute > Tom > Lia > …"
+    explanation: "Weil »größer als« **transitiv** ist, ergeben vier Paare eine einzige Kette: Ute > Tom > Lia > Max > Ben."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -143,4 +206,70 @@ steps:
     hints:
       - Versuch, die drei in eine Reihenfolge zu bringen.
     explanation: Eine Reihenfolge braucht **Transitivität**. Auch Mehrheitswahlen können im Kreis laufen – das Condorcet-Paradox.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: "Drei Hinweise: A ist schneller als B. B ist schneller als C. C ist schneller als A. Was folgt?"
+    params:
+      options:
+        - label: Mindestens ein Hinweis ist falsch.
+          correct: true
+        - label: Alle drei sind gleich schnell.
+          feedback: »Schneller als« schließt Gleichstand aus – sonst wäre schon der erste Hinweis falsch.
+        - label: A gewinnt das Rennen.
+          feedback: Aus den ersten beiden Hinweisen folgt A > C – der dritte sagt aber C > A.
+    hints:
+      - Was folgt aus den ersten beiden Hinweisen über A und C?
+      - Kann A zugleich schneller und langsamer als C sein?
+    explanation: Eine echte Reihenfolge hat nie einen Kreis. Aus A > B > C folgt A > C. Dazu passt C > A nicht. Bei Schere, Stein, Papier ist das anders – dort geht es nicht um eine Reihenfolge.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: numeric
+    prompt: Vier Läufer sollen nur durch Zweier-Rennen in eine Rangfolge gebracht werden. Wie viele Rennen braucht man im schlimmsten Fall mindestens?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: all-pairs
+        text: Sechs reichen, aber es geht mit einem Rennen weniger.
+      - when: numval(state.input) == 3
+        misconception: too-few
+        text: Mit drei Rennen gibt es nur 2³ = 8 mögliche Ausgänge – aber 24 Rangfolgen.
+    hints:
+      - Wie viele Rangfolgen von 4 Läufern gibt es? Jedes Rennen hat 2 Ausgänge.
+      - 2⁴ = 16 ist kleiner als 24. Also reichen 4 Rennen nicht.
+    explanation: Es gibt 4! = 24 Rangfolgen. k Rennen unterscheiden höchstens 2ᵏ Fälle, also braucht man k ≥ 5. Und 5 reichen tatsächlich. Diese Grenze gilt für jedes Sortierverfahren mit Vergleichen.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »transitiv« heißt – und warum man damit aus wenigen Hinweisen eine ganze Reihenfolge bekommt.
+    params:
+      keywords:
+        - - transitiv
+          - weiter
+          - überträgt
+          - transitive
+          - carries
+          - also holds
+        - - vor
+          - schneller
+          - größer
+          - ahead
+          - faster
+          - taller
+          - before
+        - - kette
+          - reihenfolge
+          - chain
+          - order
+      sample: Ist A vor B und B vor C, dann ist A auch vor C. Diese Eigenschaft heißt transitiv. So hängt man Paare zu einer Kette zusammen und erhält die ganze Reihenfolge.
     difficulty: 3

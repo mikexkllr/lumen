@@ -1,0 +1,185 @@
+id: ai.embeddings.analogies
+type: concept
+title: "Analogien und Richtungen"
+summary: "Berlin verhält sich zu Deutschland wie Paris zu … – Rechnen mit Bedeutung."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: "Spielzeug-Vektoren: Berlin (2, 5), Deutschland (2, 1), Frankreich (6, 1). Rechne Berlin − Deutschland + Frankreich. Wie lautet die **erste** Zahl?"
+    answer:
+      value: 6
+    hints:
+      - "Erste Stelle: 2 − 2 + 6."
+      - Die zweite Stelle wäre 5 − 1 + 1 = 5.
+    explanation: Ergebnis (6, 5). Berlin − Deutschland ist die Richtung »Hauptstadt von«. Auf Frankreich addiert, landet man dort, wo Paris liegen sollte.
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: Welches Wort liegt am nächsten bei Berlin − Deutschland + Frankreich?
+    params:
+      options:
+        - label: Paris
+          correct: true
+        - label: Frankreich
+          feedback: Das Startwort selbst schließt man aus. Gesucht ist das Wort an der verschobenen Stelle.
+        - label: München
+          feedback: München liegt nah bei Berlin, aber nicht in Frankreich.
+    hints:
+      - Die Rechnung überträgt die Beziehung »Hauptstadt von«.
+      - Was ist die Hauptstadt von Frankreich?
+    explanation: Paris. Dass so eine Rechnung klappt, war eine der überraschendsten Entdeckungen über **Wortvektoren**.
+
+  - kind: explain
+    id: c3
+    body: "Eine **Analogie** wird im Vektorraum zu einer Verschiebung: Paare mit derselben Beziehung liegen versetzt um ungefähr denselben Pfeil. König → Königin und Mann → Frau zeigen ähnlich."
+
+  - kind: problem
+    id: c4
+    widget: buckets
+    prompt: Welche Beziehung steckt im Paar?
+    params:
+      buckets:
+        - id: b1
+          label: Hauptstadt von
+        - id: b2
+          label: Mehrzahl von
+      items:
+        - label: Rom – Italien
+          bucket: b1
+        - label: Hunde – Hund
+          bucket: b2
+        - label: Madrid – Spanien
+          bucket: b1
+        - label: Bäume – Baum
+          bucket: b2
+    hints:
+      - Geht es um Länder oder um Grammatik?
+      - Jede Beziehung ist ein eigener Pfeil im Raum.
+    explanation: "Auch Grammatik wird zur **Richtung**: Mehrzahl, Vergangenheit, Steigerung. Modelle lernen sie, ohne dass jemand sie erklärt."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: "Spielzeug-Vektoren: König (5, 1), Mann (4, 0), Frau ({{a}}, {{b}}). Wie lautet die **zweite** Zahl von König − Mann + Frau?"
+    answer:
+      value: "{{1 + b}}"
+    hints:
+      - "Zweite Stelle: 1 − 0 + {{b}}."
+      - Rechne jede Stelle einzeln.
+    explanation: 1 − 0 + {{b}} = {{1 + b}}. Die Rechnung läuft für jede Achse **getrennt** – genau wie bei Pfeilen in der Physik.
+    variants:
+      params:
+        a: int[2,6]
+        b: int[1,5]
+      defaults:
+        a: 4
+        b: 2
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Wie gut klappt so eine Rechnung in echten Modellen?
+    params:
+      options:
+        - label: Bei häufigen, klaren Beziehungen oft gut, sonst eher ungenau.
+          correct: true
+        - label: Immer exakt.
+          feedback: Das Ergebnis landet fast nie genau auf einem Wort – man nimmt den nächsten Nachbarn.
+        - label: Sie funktionieren nie.
+          feedback: Für viele Beziehungen klappen sie überraschend gut.
+    hints:
+      - Landet die Rechnung genau auf »Paris«?
+      - Seltene Wörter haben ungenauere Vektoren.
+    explanation: Die Pfeile sind nur **ungefähr** parallel. Analogien sind eine schöne Veranschaulichung, aber kein genaues Werkzeug.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Wortvektoren aus alten Texten lieferten für »Arzt − Mann + Frau« oft »Krankenschwester«. Was zeigt das?
+    params:
+      options:
+        - label: Die Vektoren übernehmen Rollenbilder aus den Texten, aus denen sie gelernt wurden.
+          correct: true
+        - label: Dass Frauen keine Ärztinnen sein können.
+          feedback: Natürlich können sie das – das Modell spiegelt nur alte Sprachgewohnheiten.
+        - label: Dass die Rechnung falsch war.
+          feedback: Die Rechnung war korrekt – die Daten waren verzerrt.
+    hints:
+      - Woher kommen die Zahlen in den Vektoren?
+      - Was stand in den Texten häufiger zusammen?
+    explanation: Vektoren speichern **Verzerrungen** der Daten mit. Man misst sie mit genau solchen Rechnungen und versucht, sie zu verringern – ganz beseitigen lassen sie sich schwer.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Wie lernt ein Programm wie word2vec seine Vektoren, ganz ohne Wörterbuch?
+    params:
+      options:
+        - label: Es sagt aus einem Wort die Nachbarwörter im Text vorher – Wörter mit ähnlichen Nachbarn bekommen ähnliche Vektoren.
+          correct: true
+        - label: Menschen tragen die Bedeutung jedes Worts von Hand ein.
+          feedback: Das wäre viel zu aufwendig. Die Vektoren entstehen aus dem Text selbst.
+        - label: Es zählt die Buchstaben eines Worts.
+          feedback: »Hund« und »Bund« teilen Buchstaben, aber kaum Bedeutung.
+    hints:
+      - »Ein Wort erkennt man an seiner Gesellschaft.«
+      - Welche Wörter stehen oft neben »Hund«?
+    explanation: "Das ist die **Verteilungshypothese**: Ähnliche Wörter stehen in ähnlichen Umgebungen. Diese Idee trägt bis heute – auch die Embeddings großer Sprachmodelle entstehen so aus Vorhersage."
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: numeric
+    prompt: word2vec schaut auf ein Fenster von {{k}} Wörtern links und {{k}} Wörtern rechts des Mittelworts. Wie viele Nachbarwörter soll es für ein Wort mitten im Satz vorhersagen?
+    answer:
+      value: "{{2 * k}}"
+    hints:
+      - Links {{k}}, rechts {{k}}.
+      - Das Mittelwort selbst zählt nicht.
+    explanation: "{{2 * k}} Nachbarn. Ein größeres **Fenster** fängt eher Themen ein, ein kleines eher Grammatik und enge Synonyme."
+    difficulty: 3
+    variants:
+      params:
+        k: int[2,5]
+      defaults:
+        k: 2
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie man mit Vektoren »Berlin verhält sich zu Deutschland wie Paris zu Frankreich« ausdrücken kann.
+    params:
+      keywords:
+        - - pfeil
+          - richtung
+          - differenz
+          - minus
+          - arrow
+          - direction
+          - difference
+        - - hauptstadt
+          - capital
+        - - addier
+          - plus
+          - verschieb
+          - add
+          - shift
+      sample: Berlin minus Deutschland ergibt einen Pfeil, der ungefähr »Hauptstadt von« bedeutet. Addiere ich diesen Pfeil zu Frankreich, lande ich nah bei Paris. Gleiche Beziehungen sind ähnliche Richtungen.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

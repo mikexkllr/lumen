@@ -1,0 +1,176 @@
+id: logic.induction.dominoes
+type: concept
+title: "Base and step"
+summary: "If the first domino falls and each one knocks over the next, they all fall."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: numeric
+    prompt: "Add the first {{n}} odd numbers: 1 + 3 + 5 + … What do you get?"
+    answer:
+      value: "{{n * n}}"
+    hints:
+      - "Try small: 1, then 1 + 3, then 1 + 3 + 5."
+      - 1, 4, 9 … these are square numbers.
+    explanation: "{{n}}² = {{n * n}}. The pattern holds for the first cases. But does it always hold? That needs a proof."
+    variants:
+      params:
+        n: int[3,9]
+      defaults:
+        n: 4
+
+  - kind: problem
+    id: c2
+    widget: choice
+    prompt: A long row of dominoes. What do you need to know to be sure that **all** of them fall?
+    params:
+      options:
+        - label: The first one falls, and every falling domino knocks over the next.
+          correct: true
+        - label: The first ten fall.
+          feedback: Maybe domino 11 stands too far away.
+        - label: Every domino can fall over.
+          feedback: Being able to is not enough – something has to push it.
+    hints:
+      - "Two things: how does it start – and how does it continue?"
+      - Without a start nothing falls; without passing it on, it stops.
+    explanation: A start plus passing it on – that is the whole idea of proof by induction.
+
+  - kind: explain
+    id: c3
+    body: "A proof by induction has two parts. The base case shows the statement for n = 1. The induction step shows: if it holds for n, it also holds for n + 1. Then it holds for all n."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: "Prove: 1 + 3 + … + (2n − 1) = n². Put the steps in order."
+    params:
+      items:
+        - label: "Base: for n = 1 the sum is 1 = 1²."
+        - label: "Assumption: the formula holds for some n."
+        - label: The next odd number is 2n + 1.
+        - label: So the new sum is n² + 2n + 1 = (n + 1)².
+        - label: So the formula holds for all n.
+    hints:
+      - First the base, then the assumption for n.
+      - In the step you add the next odd number.
+    explanation: 'The step uses the assumption for n and builds n + 1 from it. That is not circular: what is proven is only "n implies n + 1".'
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: 'Someone shows: "If n = n + 1, then n + 1 = n + 2." Does this prove that every number equals its successor?'
+    params:
+      options:
+        - label: No – the step is right, but there is no base case.
+          correct: true
+        - label: Yes, the step is correct.
+          feedback: Without a first true case, not a single domino falls.
+        - label: No, the step is wrong.
+          feedback: "The step is actually right: you add 1 to both sides."
+    hints:
+      - "Check the base: is 1 = 2?"
+      - A step alone only passes on truth that already exists.
+    explanation: The step only passes on truth – but there is none here. The base case is therefore not a formality but essential.
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fill in the gaps.
+    params:
+      text: In induction you first show the [[base case]] for n = 1. Then you show in the [[step]] that n always implies n + 1.
+      distractors:
+        - proof
+        - example
+    hints:
+      - "Think of the dominoes: first domino, then passing on."
+    explanation: The base case and the step together prove infinitely many cases.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: order
+    prompt: "Prove: 2ⁿ ≥ n + 1 for all n ≥ 1. Put in order."
+    params:
+      items:
+        - label: "Base: 2¹ = 2 ≥ 2."
+        - label: "Assumption: 2ⁿ ≥ n + 1."
+        - label: Then 2ⁿ⁺¹ = 2 · 2ⁿ ≥ 2n + 2.
+        - label: And 2n + 2 ≥ n + 2, since n ≥ 0.
+        - label: So 2ⁿ⁺¹ ≥ (n + 1) + 1.
+    hints:
+      - In the step the left side doubles.
+      - Then you just have to estimate that this is enough.
+    explanation: "With inequalities the step often needs an estimate: you show that doubling is more than enough."
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Can induction prove something for all **real** numbers between 0 and 1?
+    params:
+      options:
+        - label: Not that simply – there is no "next" real number to reach.
+          correct: true
+        - label: Yes, you go from 0 to 1 in small steps.
+          feedback: However small the steps – infinitely many numbers in between are never reached.
+        - label: Yes, just like for natural numbers.
+          feedback: Induction needs every number to be reachable from the start in finitely many steps.
+    hints:
+      - What is the next number after 0.5?
+      - Natural numbers always have exactly one successor.
+    explanation: Induction works because each natural number is the successor of the one before. The real numbers do not have this structure.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: '"Every number is small: 1 is small, and if n is small, so is n + 1." Where is the problem?'
+    params:
+      options:
+        - label: '"Small" is vague – the step sounds plausible but is not a valid inference.'
+          correct: true
+        - label: The base is false.
+          feedback: 1 is surely small – the base is not the problem.
+        - label: None – every number is small.
+          feedback: A trillion is not small. The chain must break somewhere.
+    hints:
+      - Is there an exact boundary where a number stops being small?
+      - Induction needs statements that are clearly true or false.
+    explanation: 'This is the sorites (heap) paradox: small steps add up. Induction only works with sharp concepts – "n² is even" yes, "n is small" no.'
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux with the dominoes why a proof by induction holds for all numbers.
+    params:
+      keywords:
+        - - erste
+          - anfang
+          - start
+          - first
+          - base
+        - - nächste
+          - schritt
+          - n + 1
+          - n+1
+          - next
+          - step
+        - - alle
+          - jede
+          - all
+          - every
+      sample: The base case shows the first domino falls. The step shows each falling domino knocks over the next. Together all dominoes fall – so the statement holds for every number.
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

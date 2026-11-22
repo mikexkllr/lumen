@@ -5,7 +5,7 @@ summary: Das Steine-Spiel und seine Gewinnformel.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: fuenf
@@ -99,6 +99,48 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: nim
+    prompt: Ein Haufen mit 13 Steinen. Jeder nimmt 1 bis 4. Wer den letzten nimmt, gewinnt. Schlag den Computer!
+    params:
+      piles:
+        - 13
+      maxTake: 4
+    hints:
+      - Welche Zahlen sind jetzt die Verliererstellungen? Größter Zug plus 1 …
+      - Lass immer ein Vielfaches von 5 liegen – also nimm zuerst 3.
+    explanation: 13 = 2 · 5 + 3. Nimm 3, dann ergänzt du jeden Zug des Computers zu 5.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: Man darf 1 bis {{m}} Steine nehmen, wer den letzten nimmt, gewinnt. Es liegen {{n}} da, du bist dran. Wie viele nimmst du?
+    answer:
+      value: "{{mod(n, m + 1)}}"
+    feedback:
+      - when: numval(state.input) == mod(n, m)
+        misconception: cycle-m
+        text: "Der Takt ist nicht {{m}}, sondern {{m + 1}}: dein Zug plus der des Gegners."
+    hints:
+      - Welche Stellungen verliert man? Die Vielfachen von {{m + 1}}.
+      - Teile {{n}} durch {{m + 1}} und schau auf den Rest.
+    explanation: "{{n}} geteilt durch {{m + 1}} lässt den Rest {{mod(n, m + 1)}}. Nimm ihn weg, dann bleibt ein Vielfaches von {{m + 1}} – und du ergänzt jeden Zug zu {{m + 1}}."
+    difficulty: 2
+    variants:
+      params:
+        m: int[2,6]
+        n: int[15,40]
+      constraints:
+        - mod(n, m + 1) != 0
+        - mod(n, m) != mod(n, m + 1)
+      defaults:
+        m: 3
+        n: 22
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -114,6 +156,38 @@ steps:
     hints:
       - Wer vor genau 1 Stein steht, verliert. Rechne von dort rückwärts.
     explanation: "Die Methode bleibt gleich: vom Ende her denken. Nur die Verlustpositionen verschieben sich um 1."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: "Neue Regel: Man darf 1, 3 oder 4 Steine nehmen – aber nie 2. Wer den letzten nimmt, gewinnt. Welche Zahl zwischen 5 und 8 ist eine Verliererstellung für den, der am Zug ist?"
+    answer:
+      value: 7
+    hints:
+      - "Rechne von unten: 0 verliert. 1, 3, 4 gewinnen, denn man kann auf 0 ziehen. Was ist mit 2?"
+      - Eine Stellung verliert, wenn **jeder** Zug in eine Gewinnstellung führt. Prüfe 5, 6, 7, 8.
+    explanation: Verlierer sind 0, 2, 7, 9, 14, 16 … Von 7 kommt man nur nach 6, 4 oder 3 – lauter Gewinnstellungen für den Gegner. Ohne Formel hilft nur systematisches **Rückwärtsrechnen**.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: choice
+    prompt: Ein Spiel ist endlich, ohne Zufall, ohne Geheimnisse und ohne Unentschieden. Was gilt dann immer?
+    params:
+      options:
+        - label: Einer der beiden Spieler hat eine sichere Gewinnstrategie.
+          correct: true
+        - label: Wer anfängt, gewinnt.
+          feedback: Bei 12 Steinen und 1 bis 3 pro Zug gewinnt der Zweite.
+        - label: Wer gewinnt, hängt vom Glück ab.
+          feedback: Ohne Zufall entscheidet allein, wer klug spielt.
+    hints:
+      - "Denk an das Rückwärtsrechnen: Jede Endstellung ist gewonnen oder verloren."
+      - Dann ist jede Stellung davor ebenso eindeutig bestimmt – bis zum Start.
+    explanation: "Das ist der **Satz von Zermelo**. Man rechnet vom Ende her jede Stellung als gewonnen oder verloren aus. Für Schach mit Remis heißt das: Weiß gewinnt, Schwarz gewinnt oder beide erzwingen ein Remis. Welcher Fall gilt, weiß niemand – der Baum ist zu groß."
     difficulty: 3
 
 srs:

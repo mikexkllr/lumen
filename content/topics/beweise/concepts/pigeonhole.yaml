@@ -5,7 +5,7 @@ summary: Mehr Tauben als Schläge.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
   - kind: problem
     id: socken
@@ -69,6 +69,50 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: Wie viele Menschen braucht man mindestens, damit sicher {{k}} im selben Monat Geburtstag haben?
+    answer:
+      value: "{{12 * (k - 1) + 1}}"
+    feedback:
+      - when: numval(state.input) == 12 * k
+        misconception: k-per-month
+        text: Mit {{12 * k}} könnten es noch je {{k}} sein – aber es geht schon mit weniger.
+      - when: numval(state.input) == 12 * (k - 1)
+        misconception: off-by-one
+        text: Dann können noch alle Monate genau {{k - 1}} haben. Einer mehr!
+    hints:
+      - Wie viele Menschen passen hinein, ohne dass ein Monat {{k}} hat?
+      - Das sind 12 · {{k - 1}}. Der Nächste macht den Unterschied.
+    explanation: "12 · {{k - 1}} + 1 = {{12 * (k - 1) + 1}}. Allgemein: Bei n Fächern und mehr als n · (k − 1) Dingen hat ein Fach mindestens k."
+    difficulty: 2
+    variants:
+      params:
+        k: int[2,6]
+      defaults:
+        k: 4
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: choice
+    prompt: In jeder Gruppe von mindestens zwei Menschen gibt es zwei, die gleich viele Bekannte in der Gruppe haben. Warum?
+    params:
+      options:
+        - label: Bei n Menschen gibt es nur n − 1 mögliche Anzahlen – »0« und »alle anderen« schließen sich aus.
+          correct: true
+        - label: Weil Freundschaften immer gegenseitig sind.
+          feedback: Das stimmt, erklärt aber nicht, warum zwei gleich viele haben.
+        - label: Das gilt nur in großen Gruppen.
+          feedback: Es gilt schon bei zwei Menschen.
+    hints:
+      - Welche Anzahlen sind bei n Menschen möglich? Von 0 bis n − 1.
+      - Kann jemand niemanden kennen, während ein anderer alle kennt?
+    explanation: Es gibt n Menschen, aber höchstens n − 1 verschiedene Anzahlen. Nach dem **Schubfachprinzip** teilen sich zwei eine Anzahl.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -117,6 +161,23 @@ steps:
           - row
       min: 3
       sample: "Man zeigt erst, dass die Aussage für den Anfang gilt. Dann zeigt man den Schritt: Gilt sie für eine Zahl, dann auch für die nächste. Wie bei Dominosteinen fallen damit alle."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: numeric
+    prompt: Man legt Punkte in ein Quadrat mit Seitenlänge 1. Wie viele braucht man mindestens, damit sicher zwei höchstens 0,71 voneinander entfernt sind?
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: corners
+        text: Vier Punkte in die vier Ecken liegen 1 auseinander.
+    hints:
+      - Teile das Quadrat in vier kleine Quadrate mit Seite ½.
+      - Die Diagonale eines kleinen Quadrats ist √2 / 2 ≈ 0,71.
+    explanation: "Fünf Punkte, vier kleine Quadrate: Zwei landen im selben und sind höchstens √2/2 ≈ 0,71 entfernt. Die **Fächer** muss man oft erst geschickt erfinden."
     difficulty: 3
 
 srs:

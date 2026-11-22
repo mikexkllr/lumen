@@ -1,0 +1,175 @@
+id: logic.modal.time
+type: concept
+title: "Immer und irgendwann"
+summary: "Logik über Zeit: Wie man prüft, dass ein Programm nie abstürzt und jede Anfrage beantwortet."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 8
+steps:
+  - kind: problem
+    id: c1
+    widget: buckets
+    prompt: Eine Ampelanlage soll sicher sein. Ist das »nie etwas Schlimmes« oder »irgendwann etwas Gutes«?
+    params:
+      buckets:
+        - id: b1
+          label: nie etwas Schlimmes
+        - id: b2
+          label: irgendwann etwas Gutes
+      items:
+        - label: Nie sind beide Richtungen grün.
+          bucket: b1
+        - label: Jedes Auto bekommt irgendwann Grün.
+          bucket: b2
+        - label: Nie leuchten Rot und Grün zugleich.
+          bucket: b1
+        - label: Ein Knopfdruck bringt irgendwann Grün.
+          bucket: b2
+    hints:
+      - Verbietet die Regel etwas – oder verspricht sie etwas?
+      - »Nie« verbietet, »irgendwann« verspricht.
+    explanation: Informatiker nennen das **Sicherheit** (nie etwas Schlimmes) und Lebendigkeit (irgendwann etwas Gutes). Beides braucht man – eine Ampel, die immer rot ist, ist sicher, aber nutzlos.
+
+  - kind: explain
+    id: c2
+    body: "Die **Temporallogik** hat Zeichen für die Zeit: G p heißt »p gilt ab jetzt immer«, F p heißt »p gilt irgendwann«. Die möglichen Welten sind hier die Zeitpunkte eines Ablaufs."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Ablauf hat 10 Zeitpunkte. Die Ampel ist zu den Zeitpunkten 1 bis 9 nie doppelt grün, aber zum Zeitpunkt 10 schon. Wie viele Zeitpunkte verletzen die Regel »G (nicht beide grün)«?
+    answer:
+      value: 1
+    hints:
+      - Zähle die Zeitpunkte, an denen beide grün sind.
+      - Nur einer.
+    explanation: Ein einziger Zeitpunkt reicht, und G ist **falsch** – wie ein Gegenbeispiel bei »für alle«. Neun gute Zeitpunkte retten nichts.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Welche Aussage bedeutet dasselbe wie »F p« (»irgendwann p«)?
+    params:
+      options:
+        - label: "»Es gilt nicht immer nicht p«: ¬G¬p."
+          correct: true
+        - label: "»Immer p«: G p."
+          feedback: Immer ist viel stärker als irgendwann.
+        - label: "»Nie p«: G¬p."
+          feedback: Das ist genau das Gegenteil.
+    hints:
+      - "Irgendwann p heißt: Nicht zu jedem Zeitpunkt fehlt p."
+      - Wie bei ◇ und □.
+    explanation: F p ≡ ¬G¬p. F und G sind **dual**, genau wie ◇ und □ oder »es gibt« und »für alle«.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: Ein Server soll jede Anfrage irgendwann beantworten. Wie schreibt man das?
+    params:
+      options:
+        - label: G (Anfrage → F Antwort)
+          correct: true
+        - label: F (Anfrage → G Antwort)
+          feedback: "Das sagt: irgendwann gilt »wenn Anfrage, dann für immer Antwort« – etwas ganz anderes."
+        - label: Anfrage ∧ Antwort
+          feedback: Das gilt nur für einen Zeitpunkt und verlangt beides gleichzeitig.
+    hints:
+      - »Jede Anfrage« – zu jedem Zeitpunkt. Das ist G.
+      - »Irgendwann beantwortet« – danach F.
+    explanation: "G (a → F b) ist das Grundmuster der **Lebendigkeit**: Immer, wenn a passiert, folgt irgendwann b."
+
+  - kind: problem
+    id: c6
+    widget: cloze
+    prompt: Fülle die Lücken.
+    params:
+      text: "G p heißt: p gilt ab jetzt [[immer]]. F p heißt: p gilt [[irgendwann]]."
+      distractors:
+        - nie
+        - gestern
+    hints:
+      - G kommt von »globally«, F von »finally«.
+    explanation: "G und F sind die Quantoren der Zeit: für alle künftigen Zeitpunkte und für mindestens einen."
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: choice
+    prompt: Was ist der Unterschied zwischen »G F p« und »F G p«?
+    params:
+      options:
+        - label: "G F p: p kommt immer wieder. F G p: ab einem Punkt gilt p für immer."
+          correct: true
+        - label: Kein Unterschied.
+          feedback: Ein Licht, das ewig blinkt, erfüllt G F an, aber nicht F G an.
+        - label: G F p ist stärker.
+          feedback: "Umgekehrt: Wer ab einem Punkt immer gilt, kommt auch immer wieder."
+    hints:
+      - Denk an ein blinkendes Licht.
+      - Gilt »irgendwann für immer an«? Gilt »immer wieder an«?
+    explanation: Wie bei den Quantoren zählt die **Reihenfolge**. F G p folgt G F p, aber nicht umgekehrt – das blinkende Licht ist das Gegenbeispiel.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Ein Programm hat 3 Schalter, jeder an oder aus, und einen Zähler von 0 bis 9. Ein Prüfprogramm untersucht alle Zustände. Wie viele sind das?
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 16
+        misconception: counter
+        text: Der Zähler hat 10 Werte, nicht 2.
+    hints:
+      - "Schalter: 2³ = 8 Möglichkeiten."
+      - Mal 10 Zählerstände.
+    explanation: 8 · 10 = 80. Ein **Model Checker** prüft eine Formel wie G (nicht beide grün) in jedem erreichbaren Zustand. Bei echter Hardware sind das oft astronomisch viele – darum braucht man schlaue Verfahren.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Eine Regel »nie X« kann ein kurzer Ablauf widerlegen. Eine Regel »irgendwann Y« nicht. Warum?
+    params:
+      options:
+        - label: Ein Verstoß gegen »nie« ist ein endlicher Moment. Bei »irgendwann« könnte Y noch später kommen.
+          correct: true
+        - label: Weil Lebendigkeit unwichtiger ist.
+          feedback: Beide sind wichtig – sie lassen sich nur anders prüfen.
+        - label: Doch, beide gleich.
+          feedback: Wer nach 1000 Schritten kein Y sieht, weiß nicht, ob es in Schritt 1001 kommt.
+    hints:
+      - Was beweist ein Ablauf, in dem X einmal vorkommt?
+      - Was beweist ein Ablauf, in dem Y noch nicht vorkam?
+    explanation: Sicherheitsverstöße haben endliche **Zeugen**, Lebendigkeitsverstöße brauchen unendliche Abläufe, etwa Schleifen. Model Checker suchen darum nach Kreisen im Zustandsgraphen, in denen Y nie vorkommt.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, was »immer« und »irgendwann« in der Temporallogik bedeuten – mit einem Beispiel.
+    params:
+      keywords:
+        - - immer
+          - jeder zeitpunkt
+          - always
+          - every moment
+        - - irgendwann
+          - eventually
+          - some point
+        - - ampel
+          - server
+          - programm
+          - light
+          - program
+      sample: "Immer p heißt, p gilt zu jedem Zeitpunkt, etwa: Die Ampel ist nie in beide Richtungen grün. Irgendwann p heißt, p gilt zu mindestens einem späteren Zeitpunkt, etwa: Jedes Auto bekommt irgendwann Grün."
+    difficulty: 3
+
+srs:
+  cards_from: ["c1", "c4", "d1"]

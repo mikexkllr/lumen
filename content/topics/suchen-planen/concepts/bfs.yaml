@@ -1,0 +1,209 @@
+id: ai.search.bfs
+type: concept
+title: "Breite oder Tiefe?"
+summary: "Zwei Arten, einen Suchbaum abzulaufen – und was sie kosten."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: c1
+    widget: choice
+    prompt: Du suchst deinen Schlüssel in einem Haus. Welche Strategie findet ihn sicher in einem Raum nahe der Tür, falls er dort liegt?
+    params:
+      options:
+        - label: Erst alle Räume nahe der Tür ansehen, dann die weiter entfernten.
+          correct: true
+        - label: Den ersten Flur bis ganz hinten durchlaufen.
+          feedback: Dann bist du schon weit weg, bevor du den Raum neben der Tür ansiehst.
+        - label: Zufällig Räume öffnen.
+          feedback: Zufall findet den Schlüssel irgendwann – aber nicht planbar zuerst in der Nähe.
+    hints:
+      - Welche Räume sind mit den wenigsten Schritten erreichbar?
+      - Geh Schicht für Schicht nach außen.
+    explanation: "Erst die nahen, dann die fernen Räume: So findet man das Nächstliegende zuerst. Genau das macht die Breitensuche."
+
+  - kind: explain
+    id: c2
+    body: "Die **Breitensuche** besucht erst alle Zustände nach 1 Zug, dann alle nach 2 Zügen und so weiter. Sie merkt sich die Wartenden in einer Schlange: Wer zuerst kommt, wird zuerst besucht."
+
+  - kind: problem
+    id: c3
+    widget: order
+    prompt: "Ein Baum: A hat die Kinder B und C. B hat die Kinder D und E, C hat F und G. In welcher Reihenfolge besucht die Breitensuche die Knoten?"
+    params:
+      items:
+        - label: A
+        - label: B
+        - label: C
+        - label: D
+        - label: E
+        - label: F
+        - label: G
+      direction: horizontal
+    hints:
+      - Erst die Wurzel, dann ihre Kinder, dann die Enkel.
+      - Innerhalb einer Ebene von links nach rechts.
+    explanation: "Ebene für Ebene: A, dann B, C, dann D, E, F, G."
+
+  - kind: problem
+    id: c4
+    widget: order
+    prompt: "Derselbe Baum. Jetzt die **Tiefensuche**: Sie geht immer erst so tief wie möglich, links zuerst. Ordne die Besuche."
+    params:
+      items:
+        - label: A
+        - label: B
+        - label: D
+        - label: E
+        - label: C
+        - label: F
+        - label: G
+      direction: horizontal
+    hints:
+      - Von A geht es zu B und gleich weiter zu D.
+      - Erst wenn unter B alles besucht ist, kommt C dran.
+    explanation: "A, B, D, E, C, F, G. Die Tiefensuche nutzt einen **Stapel**: Der zuletzt gefundene Knoten wird als Nächstes besucht."
+
+  - kind: problem
+    id: c5
+    widget: numeric
+    prompt: Ein Baum, in dem jeder Knoten 2 Kinder hat, wird bis zur Tiefe {{d}} vollständig durchsucht. Wie viele Knoten sind das – die Wurzel mitgezählt?
+    answer:
+      value: "{{2 ** (d + 1) - 1}}"
+    feedback:
+      - when: numval(state.input) == 2 ** d
+        misconception: last-level
+        text: Das ist nur die unterste Ebene. Die Ebenen darüber kommen dazu.
+    hints:
+      - "Ebenen: 1, 2, 4, 8, … bis 2^{{d}}."
+      - Die Summe 1 + 2 + … + 2^{{d}} ist 2^{{d + 1}} − 1.
+    explanation: "{{2 ** (d + 1) - 1}} Knoten. Die unterste Ebene allein ist schon gut die Hälfte – die **letzte Ebene** dominiert die Arbeit."
+    variants:
+      params:
+        d: int[3,10]
+      defaults:
+        d: 4
+
+  - kind: problem
+    id: c6
+    widget: buckets
+    prompt: Breitensuche oder Tiefensuche?
+    params:
+      buckets:
+        - id: b1
+          label: Breitensuche
+        - id: b2
+          label: Tiefensuche
+      items:
+        - label: findet den Weg mit den wenigsten Zügen
+          bucket: b1
+        - label: braucht sehr wenig Speicher
+          bucket: b2
+        - label: arbeitet mit einer Schlange
+          bucket: b1
+        - label: verirrt sich in endlosen Ästen
+          bucket: b2
+    hints:
+      - Die Breitensuche hält eine ganze Ebene im Speicher.
+      - Die Tiefensuche merkt sich nur ihren aktuellen Pfad.
+    explanation: Breite ist gründlich, aber speicherhungrig. Tiefe ist sparsam, garantiert aber keinen **kürzesten** Weg.
+
+  - kind: problem
+    id: d1
+    depth: 2
+    widget: numeric
+    prompt: Verzweigungsgrad 10, das Ziel liegt in Tiefe 6. Die Breitensuche hält am Ende etwa die ganze letzte Ebene im Speicher. Wie viele Millionen Knoten sind das?
+    answer:
+      value: 1
+      tolerance: 0.01
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: dfs
+        text: "So viel braucht ungefähr die Tiefensuche: Tiefe mal Verzweigung."
+    hints:
+      - Die letzte Ebene hat 10⁶ Knoten.
+      - 10⁶ sind eine Million.
+    explanation: Eine Million gegen rund 60 bei der Tiefensuche. **Speicher** ist bei der Breitensuche meist der Engpass, nicht die Zeit.
+    difficulty: 2
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: choice
+    prompt: Ein Suchraum hat einen unendlich langen Ast ganz links. Das Ziel liegt rechts in Tiefe 3. Was passiert?
+    params:
+      options:
+        - label: Die Tiefensuche läuft für immer den linken Ast hinab, die Breitensuche findet das Ziel.
+          correct: true
+        - label: Beide finden das Ziel gleich schnell.
+          feedback: Die Tiefensuche kommt nie zurück aus dem unendlichen Ast.
+        - label: Keine findet das Ziel.
+          feedback: Die Breitensuche erreicht Tiefe 3 nach endlich vielen Schritten.
+    hints:
+      - Wohin geht die Tiefensuche zuerst – und kommt sie zurück?
+      - Die Breitensuche schaut erst alles in Tiefe 1, 2, 3 an.
+    explanation: "Die Breitensuche ist **vollständig**: Gibt es eine Lösung in endlicher Tiefe, findet sie sie. Die Tiefensuche braucht dafür eine Tiefengrenze."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: "**Iterative Vertiefung** macht Tiefensuche mit Grenze 1, 2, 3 … – und wiederholt dabei die oberen Ebenen. Bei Verzweigung 10: Wievielmal so viele Knoten erzeugt sie etwa wie die Breitensuche? Auf zwei Stellen."
+    answer:
+      value: 1.11
+      tolerance: 0.02
+    hints:
+      - Die letzte Ebene ist zehnmal so groß wie alle darüber zusammen.
+      - Der Mehraufwand ist etwa b / (b − 1) = 10 / 9.
+    explanation: Nur etwa 11 % mehr – bei Speicher wie die Tiefensuche. Weil die letzte Ebene alles dominiert, sind die **Wiederholungen** billig.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: choice
+    prompt: Die Züge haben verschiedene Kosten, etwa Kilometer. Findet die Breitensuche dann noch den günstigsten Weg?
+    params:
+      options:
+        - label: Nein – sie findet die wenigsten Züge. Man muss nach Gesamtkosten sortieren (Dijkstra).
+          correct: true
+        - label: Ja, immer.
+          feedback: Zwei kurze Züge können teurer sein als ein langer – oder billiger.
+        - label: Nur die Tiefensuche schafft das.
+          feedback: Die Tiefensuche achtet noch weniger auf Kosten.
+    hints:
+      - Wenigste Züge und geringste Kosten sind nur bei gleichen Kosten dasselbe.
+      - Statt nach Zugzahl sortiert man die Warteschlange nach bisherigen Kosten.
+    explanation: Der **Dijkstra-Algorithmus** nimmt immer den Knoten mit den kleinsten bisherigen Kosten. Bei gleichen Kosten ist das genau die Breitensuche.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux den Unterschied zwischen Breiten- und Tiefensuche.
+    params:
+      keywords:
+        - - ebene
+          - schicht
+          - level
+          - layer
+        - - tief
+          - ast
+          - deep
+          - branch
+        - - speicher
+          - memory
+        - - kürzest
+          - wenigst
+          - shortest
+          - fewest
+      sample: Die Breitensuche geht Ebene für Ebene vor und findet so den kürzesten Weg, braucht aber viel Speicher. Die Tiefensuche folgt erst einem Ast ganz in die Tiefe. Sie spart Speicher, findet aber nicht unbedingt den kürzesten Weg.
+    difficulty: 3
+
+srs:
+  cards_from: ["c3", "c5", "d1"]

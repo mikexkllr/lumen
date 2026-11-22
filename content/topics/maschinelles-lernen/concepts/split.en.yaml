@@ -5,7 +5,7 @@ summary: Training and test data.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 10
 steps:
   - kind: problem
     id: gleiche
@@ -92,6 +92,37 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: numeric
+    prompt: You split {{n}} examples into 70 % training, 15 % validation and 15 % test. How many end up in validation?
+    answer:
+      value: "{{n * 15 / 100}}"
+    hints:
+      - 15 % of {{n}}.
+      - Compute {{n}} · 0.15.
+    explanation: "{{n * 15 / 100}} examples. The validation set is used to choose settings. The test set stays untouched until the very end."
+    difficulty: 2
+    variants:
+      params:
+        n: step[1000,5000,1000]
+      defaults:
+        n: 2000
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: In 5-fold cross-validation you split the data into 5 parts. Each part serves once as the test part. How many times is the model trained?
+    answer:
+      value: 5
+    hints:
+      - Each test part needs its own training run.
+      - How many parts are there?
+    explanation: Five times, each with 4/5 of the data. The average of the five results varies less than a single test. That helps especially with small datasets.
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -107,6 +138,50 @@ steps:
     hints:
       - What information does the bank have **before** granting the loan?
     explanation: "A **data leak**: knowledge from the future gets into training. In deployment the model is then worthless."
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: A dataset has several X-rays per patient. All images are shuffled and split at random. The model looks excellent. What is fishy?
+    params:
+      options:
+        - label: Images of the same person are in both training and test – the model recognises the person again.
+          correct: true
+        - label: Nothing – random splits are always right.
+          feedback: Only if the examples are independent. Here they are not.
+        - label: The test set is too small.
+          feedback: Size is not the problem – the overlap is.
+    hints:
+      - What do two images of the same person share?
+      - You should split by patient, not by image.
+    explanation: This is data leakage. The test then measures recognition instead of generalisation. You split by patient, place or time – the way the model will be used later.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why test data is held back until the very end.
+    params:
+      keywords:
+        - - neu
+          - ungesehen
+          - nie gesehen
+          - new
+          - unseen
+          - never seen
+        - - auswendig
+          - merken
+          - memoris
+          - memoriz
+        - - klausur
+          - ehrlich
+          - fair
+          - exam
+          - honest
+      sample: Test data is like an exam with new questions. If the model has never seen it, the test shows whether it generalises or only memorised. Peeking beforehand makes the test unfair.
     difficulty: 3
 
 srs:

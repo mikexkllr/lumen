@@ -5,7 +5,7 @@ summary: Logical "or" includes "both".
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 7
+estimated_minutes: 10
 steps:
   - kind: problem
     id: und
@@ -110,6 +110,79 @@ steps:
     difficulty: 2
 
   - kind: problem
+    id: la-d1
+    depth: 2
+    widget: gates
+    prompt: The lamp should light up when **at least two** of the three switches are on. Choose the gates.
+    params:
+      inputs:
+        - id: A
+        - id: B
+        - id: C
+      gates:
+        - id: ab
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: ac
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: bc
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - ab
+            - ac
+            - bc
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: majority
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - '"At least two on" means: A and B, or A and C, or B and C.'
+      - Three AND gates inside, one OR outside.
+    explanation: (A ∧ B) ∨ (A ∧ C) ∨ (B ∧ C) is the majority function. (A ∨ B) ∧ (A ∨ C) ∧ (B ∨ C) works too – the same function in another form.
+    difficulty: 2
+
+  - kind: problem
+    id: la-d2
+    depth: 2
+    widget: numeric
+    prompt: For how many of the 8 assignments of A, B, C is (A ∨ B) ∧ ¬C true?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: forgot-not-c
+        text: That holds for A ∨ B alone. ¬C halves it once more.
+    hints:
+      - A ∨ B is false only when A and B are both false.
+      - Of the 4 cases for A, B, 3 are true. On top of that C must be false.
+    explanation: "3 of 4 cases for A ∨ B, each only with C false: 3 rows. You can often count truth tables instead of writing them out."
+    difficulty: 2
+
+  - kind: problem
     id: x1
     depth: 3
     widget: choice
@@ -125,6 +198,47 @@ steps:
     hints:
       - What does “A NAND A” give?
     explanation: A NAND A is ¬A. Everything else is built from that – which is why a single gate type suffices for chips.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x1
+    depth: 3
+    widget: choice
+    prompt: How do you build "not A" from NAND gates only?
+    params:
+      options:
+        - label: A NAND A
+          correct: true
+        - label: A NAND 0
+          feedback: NAND with 0 is always 1, whatever A is.
+        - label: It cannot be done.
+          feedback: NAND can do everything – including "not".
+    hints:
+      - NAND means "not both". What is "not (A and A)"?
+      - A and A is just A.
+    explanation: A NAND A = ¬(A ∧ A) = ¬A. From "not" and "not both" you then build AND and OR. That is why a processor is at heart made of many identical gates. NOR works just as well.
+    difficulty: 3
+
+  - kind: problem
+    id: la-x2
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux the difference between the logical or and "either … or".
+    params:
+      keywords:
+        - - beide
+          - beides
+          - both
+        - - eins
+          - einer
+          - nur eins
+          - one
+          - only one
+        - - wahr
+          - "true"
+          - gilt
+          - holds
+      sample: The logical or is true when both hold, too. "Either … or" is true only when exactly one holds, not both.
     difficulty: 3
 
 srs:
