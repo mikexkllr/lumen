@@ -1,0 +1,221 @@
+id: cs.distributed.caching
+type: concept
+title: "Caching"
+summary: "Keep copies close – and know when they are stale."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: You keep needing the same three books from the city library. What do you do?
+    params:
+      options:
+        - label: You put them on your shelf at home
+          correct: true
+        - label: You go there every time
+          feedback: That costs the whole trip each time.
+        - label: You buy the whole library
+          feedback: Your shelf is far too small.
+    hints:
+      - "What is nearer: shelf or library?"
+      - Only the most important things fit on the shelf.
+    explanation: "That is exactly a cache: a few often-used copies very close by."
+
+  - kind: explain
+    id: c1
+    body: "A cache keeps copies of frequently used data close at hand. What matters is the **hit rate**: the share of requests the cache can answer itself without asking the original."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A cache hit takes 1 ms, a miss 100 ms. The hit rate is {{p}} %. How many ms does a request take on average?
+    params:
+      unit: ms
+    answer:
+      value: "{{p / 100 + (100 - p)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 50.5) < 0.01
+        misconception: unweighted
+        text: That is the plain average. But hits are far more common.
+    hints:
+      - "{{p}} % of requests cost 1 ms, {{100 - p}} % cost 100 ms."
+      - "{{p / 100}} · 1 + {{(100 - p) / 100}} · 100."
+    explanation: "{{p / 100}} + {{100 - p}} = {{p / 100 + (100 - p)}} ms. Every extra percent of hit rate saves almost 1 ms."
+    variants:
+      params:
+        p: choice[80,90,95,99]
+      defaults:
+        p: 90
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "A cache holds 3 entries. When full, the least recently used is evicted. Requests: A, B, C, A, D, B. How many hits are there?"
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: missed-eviction
+        text: "Check the last B: who was evicted at D?"
+    hints:
+      - A, B, C fill the cache. The second A hits.
+      - At D, B is evicted – it was unused the longest.
+    explanation: Only the second A hits. The last B had just been evicted – bad luck with the order.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: What is the basic problem of every cache?
+    params:
+      options:
+        - label: Stale data – when the original changes, the cache still shows the old version
+          correct: true
+        - label: It is too fast
+          feedback: Being fast is its whole point.
+        - label: It needs no memory
+          feedback: It does need memory – but that is not the basic problem.
+    hints:
+      - A copy does not know by itself that the original has changed.
+      - Think of an old city map.
+    explanation: "A well-known saying: the two hardest problems in computer science are naming things and keeping caches up to date."
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Good for a cache – or better always fresh?
+    params:
+      buckets:
+        - id: b1
+          label: cache it
+        - id: b2
+          label: always fresh
+      items:
+        - label: The website logo
+          bucket: b1
+        - label: Profile picture
+          bucket: b1
+        - label: Result of an expensive, rare search
+          bucket: b1
+        - label: Balance during a transfer
+          bucket: b2
+        - label: One-time login code
+          bucket: b2
+        - label: Seats left while booking a flight
+          bucket: b2
+    hints:
+      - Does it change rarely?
+      - Would a stale value be dangerous?
+    explanation: Caching pays for data that is read often and changed rarely – and where a briefly stale value harms nobody.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Caches stay up to date in two ways: with a lifetime after which they ask again, or with **invalidation**: the original reports every change and the cache throws the entry away."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: 20 % of the products get 80 % of the views. The cache holds exactly these 20 %. What is the hit rate in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: items-vs-requests
+        text: The share of views is asked for, not of products.
+    hints:
+      - How many views concern the cached products?
+      - Exactly the popular 80 %.
+    explanation: 80 % hits with only 20 % of the space. Because popularity is so unevenly spread, small caches are so effective.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: A write-back cache accepts changes at once and writes them to the original later. What is the risk?
+    params:
+      options:
+        - label: If the cache crashes first, the changes are lost
+          correct: true
+        - label: Reading gets slower
+          feedback: Reading stays fast.
+        - label: None at all
+          feedback: Between acceptance and write-back the data lives in only one place.
+    hints:
+      - Where do the changes live before they are written back?
+      - Only in the cache.
+    explanation: Write-through writes straight away – safer but slower. Write-back is fast but needs protection such as batteries or copies.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: The database handles 1000 requests per second, but 20,000 arrive. At least how high must the cache hit rate be, in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 95
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: miss-vs-hit
+        text: That is the maximum allowed share of misses.
+    hints:
+      - At most 1000 of 20,000 may reach the database.
+      - 1000 / 20,000 = 5 % misses.
+    explanation: At least 95 %. If the cache fails, the database collapses at once – the cache here is not a luxury but load-bearing.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: A very popular entry expires and 10,000 requests hit the database at once. What helps?
+    params:
+      options:
+        - label: Only one request reloads, the others briefly wait for its result
+          correct: true
+        - label: Never let the entry expire
+          feedback: Then it goes stale forever.
+        - label: Buy a bigger database
+          feedback: The rush is brief – that would be costly waste.
+    hints:
+      - Everyone wants the same thing – is asking once enough?
+      - You bundle the identical requests.
+    explanation: This »cache stampede« keeps taking big services down. Bundling and slightly randomised expiry prevent it.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how a cache works and where its catch is.
+    params:
+      keywords:
+        - - kopie
+          - copy
+          - nah
+          - near
+        - - treffer
+          - hit
+          - schnell
+          - fast
+        - - veraltet
+          - stale
+          - alt
+          - old
+          - aktuell
+          - up to date
+      sample: "A cache keeps copies of often-used data close by. On a hit it is fast, without asking the original. The catch: if the original changes, the copy is stale – you need rules for when to fetch it again."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x1"]

@@ -1,0 +1,174 @@
+id: cs.distributed.replication
+type: concept
+title: "Replication and failures"
+summary: "Copies on many machines – and the maths behind them."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: a data centre has 100,000 hard drives. Each fails with 2 % probability per year. How many failures happen per day?"
+    params:
+      min: 0.1
+      max: 1000
+      scale: log
+    answer:
+      value: 5.5
+      within: 30
+    explanation: 2000 failures a year, so just over 5 a day. At this scale a failure is not an emergency but routine.
+
+  - kind: explain
+    id: c1
+    body: "**Replication** means data is stored as copies on several machines. If one fails, another steps in. Users notice nothing."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A service promises 99.9 % availability. How many hours of downtime per year does that allow? A year has 8760 hours. Round to two decimals.
+    params:
+      unit: h
+    answer:
+      value: 8.76
+      tolerance: 0.01
+    hints:
+      - It may be down 0.1 % of the time.
+      - 8760 · 0.001.
+    explanation: "Almost 9 hours a year. Each extra nine divides that by 10: 99.99 % allows just 53 minutes."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: A server is available 99 % of the time. Two servers fail independently. What percentage of the time are both down at once?
+    params:
+      unit: "%"
+    answer:
+      value: 0.01
+      tolerance: 0.0001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: add-vs-multiply
+        text: "Adding gives the chance that either is down. Both at once: multiply."
+    hints:
+      - Each is down 1 % of the time.
+      - 0.01 · 0.01 = 0.0001.
+    explanation: 0.01 % – so the pair is reachable 99.99 % of the time. Two cheap servers beat one expensive one.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why are the copies not all put in the same room?
+    params:
+      options:
+        - label: A fire or power cut would hit all of them at once – the failures would not be independent
+          correct: true
+        - label: Because one room is too small
+          feedback: Space is not the problem.
+        - label: Because the copies would disturb each other
+          feedback: Copies do not disturb each other by being close.
+    hints:
+      - The neat calculation just now assumes something.
+      - "Independent means: whatever hits one does not hit the other."
+    explanation: That is why cloud providers spread copies across separate zones and regions – with their own power, cooling and network.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "With N copies you write to W and read from R copies. If R + W > N, reading and writing always overlap: at least one copy read is up to date. This is called a **quorum**."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: N = 5 copies, you write to W = 3. From how many must you read at least so that R + W > N?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: equal-not-greater
+        text: 2 + 3 = 5 is not greater than 5. An overlap is needed.
+    hints:
+      - R + 3 > 5.
+      - R must be greater than 2.
+    explanation: "R = 3: any 3 of 5 always share at least one copy."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: N = 3, W = 1, R = 1. What can happen?
+    params:
+      options:
+        - label: You read a copy that does not yet know about the last write
+          correct: true
+        - label: Nothing, all copies are always the same
+          feedback: The write went to just one.
+        - label: Writing always fails
+          feedback: Writing to one copy works at once.
+    hints:
+      - Does R + W > N hold here?
+      - 1 + 1 = 2, not greater than 3.
+    explanation: Fast, but possibly stale. Many systems let you make this choice per request.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: N = 5 and W = R = 3. At most how many copies may fail so that reading and writing still work?
+    answer:
+      value: 2
+    hints:
+      - 3 copies must still be reachable.
+      - 5 − 3.
+    explanation: The system tolerates 2 failures. More safety costs more copies – or more waiting per request.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Asynchronous replication confirms a change at once and copies it only afterwards. What is the risk?
+    params:
+      options:
+        - label: If the main machine fails right after confirming, the latest changes are lost
+          correct: true
+        - label: Nothing at all
+          feedback: In that brief moment the change exists only once.
+        - label: Reading becomes impossible
+          feedback: Reading continues.
+    hints:
+      - Where is the change right after the OK?
+      - The copy only comes later.
+    explanation: Synchronous is safe but slow – you wait for the remote copy. Asynchronous is fast but loses seconds of data in an emergency.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why copies make a system fault-tolerant – and when they do not.
+    params:
+      keywords:
+        - - kopie
+          - copy
+          - copies
+          - replik
+        - - ausfall
+          - fällt aus
+          - fail
+          - crash
+          - down
+        - - unabhängig
+          - getrennt
+          - independent
+          - separate
+      sample: If the data sits as copies on several machines, another takes over when one fails. But that only works if the failures are independent – so the copies must be separate, with their own power and network.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x1"]

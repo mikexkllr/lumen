@@ -1,0 +1,174 @@
+id: cs.distributed.replication
+type: concept
+title: "Replikation und Ausfälle"
+summary: "Kopien auf vielen Rechnern – und die Rechnung dahinter."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Ein Rechenzentrum hat 100 000 Festplatten. Jede fällt pro Jahr mit 2 % Wahrscheinlichkeit aus. Wie viele Ausfälle gibt es pro Tag?"
+    params:
+      min: 0.1
+      max: 1000
+      scale: log
+    answer:
+      value: 5.5
+      within: 30
+    explanation: 2000 Ausfälle im Jahr, also gut 5 pro Tag. Bei dieser Größe ist ein Ausfall kein Notfall, sondern Alltag.
+
+  - kind: explain
+    id: c1
+    body: "**Replikation** heißt: Daten liegen als Kopie auf mehreren Rechnern. Fällt einer aus, springt ein anderer ein. Nutzer merken davon nichts."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Dienst verspricht 99,9 % Verfügbarkeit. Wie viele Stunden Ausfall im Jahr sind damit erlaubt? Ein Jahr hat 8760 Stunden. Runde auf zwei Stellen.
+    params:
+      unit: h
+    answer:
+      value: 8.76
+      tolerance: 0.01
+    hints:
+      - 0,1 % der Zeit darf er weg sein.
+      - 8760 · 0,001.
+    explanation: "Knapp 9 Stunden im Jahr. Jede weitere Neun teilt das durch 10: 99,99 % erlauben nur noch 53 Minuten."
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: Ein Server ist zu 99 % verfügbar. Zwei Server fallen unabhängig voneinander aus. Wie viel Prozent der Zeit sind beide gleichzeitig weg?
+    params:
+      unit: "%"
+    answer:
+      value: 0.01
+      tolerance: 0.0001
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: add-vs-multiply
+        text: "Addiert ergibt das, dass irgendeiner fehlt. Beide zugleich: multiplizieren."
+    hints:
+      - Jeder ist 1 % der Zeit weg.
+      - 0,01 · 0,01 = 0,0001.
+    explanation: 0,01 % – das Paar ist also zu 99,99 % erreichbar. Zwei billige Server schlagen einen teuren.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Warum stellt man Kopien nicht alle in denselben Raum?
+    params:
+      options:
+        - label: Ein Brand oder Stromausfall träfe alle zugleich – die Ausfälle wären nicht unabhängig
+          correct: true
+        - label: Weil ein Raum zu klein ist
+          feedback: Platz ist nicht das Problem.
+        - label: Weil die Kopien sich sonst stören
+          feedback: Kopien stören sich nicht durch Nähe.
+    hints:
+      - Die schöne Rechnung von eben setzt etwas voraus.
+      - "Unabhängig heißt: Was den einen trifft, trifft nicht den anderen."
+    explanation: Darum verteilen Cloud-Anbieter Kopien auf getrennte Zonen und Regionen – mit eigenem Strom, Kühlung und Netz.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Bei N Kopien schreibt man auf W und liest von R Kopien. Gilt R + W > N, überlappen sich Lesen und Schreiben immer: Mindestens eine gelesene Kopie ist aktuell. Das heißt **Quorum**."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: N = 5 Kopien, man schreibt auf W = 3. Von wie vielen muss man mindestens lesen, damit R + W > N gilt?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: equal-not-greater
+        text: 2 + 3 = 5 ist nicht größer als 5. Es braucht eine Überlappung.
+    hints:
+      - R + 3 > 5.
+      - R muss größer als 2 sein.
+    explanation: "R = 3: Je 3 von 5 haben immer mindestens eine Kopie gemeinsam."
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: N = 3, W = 1, R = 1. Was kann passieren?
+    params:
+      options:
+        - label: Man liest eine Kopie, die das letzte Schreiben noch nicht kennt
+          correct: true
+        - label: Nichts, alle Kopien sind immer gleich
+          feedback: Geschrieben wurde nur auf eine.
+        - label: Schreiben schlägt immer fehl
+          feedback: Schreiben auf eine Kopie klappt sofort.
+    hints:
+      - Gilt hier R + W > N?
+      - 1 + 1 = 2, nicht größer als 3.
+    explanation: Schnell, aber möglicherweise veraltet. Viele Systeme lassen einen diese Wahl pro Anfrage treffen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: N = 5 und W = R = 3. Wie viele Kopien dürfen höchstens ausfallen, damit Lesen und Schreiben noch klappen?
+    answer:
+      value: 2
+    hints:
+      - Es müssen noch 3 Kopien erreichbar sein.
+      - 5 − 3.
+    explanation: 2 Ausfälle verkraftet das System. Mehr Sicherheit kostet mehr Kopien – oder mehr Wartezeit pro Anfrage.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Asynchrone Replikation bestätigt eine Änderung sofort und kopiert sie erst danach. Was riskiert man?
+    params:
+      options:
+        - label: Fällt der Hauptrechner kurz nach der Bestätigung aus, sind die letzten Änderungen weg
+          correct: true
+        - label: Gar nichts
+          feedback: In dem kurzen Moment existiert die Änderung nur einmal.
+        - label: Lesen wird unmöglich
+          feedback: Lesen geht weiter.
+    hints:
+      - Wo liegt die Änderung direkt nach dem OK?
+      - Erst später kommt die Kopie dazu.
+    explanation: Synchron ist sicher, aber langsam – man wartet auf die entfernte Kopie. Asynchron ist schnell, aber verliert im Ernstfall Sekunden an Daten.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum Kopien ein System ausfallsicher machen – und wann nicht.
+    params:
+      keywords:
+        - - kopie
+          - copy
+          - copies
+          - replik
+        - - ausfall
+          - fällt aus
+          - fail
+          - crash
+          - down
+        - - unabhängig
+          - getrennt
+          - independent
+          - separate
+      sample: Liegen die Daten als Kopie auf mehreren Rechnern, übernimmt beim Ausfall eines Rechners ein anderer. Das funktioniert aber nur, wenn die Ausfälle unabhängig sind – also wenn die Kopien getrennt stehen, mit eigenem Strom und Netz.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x1"]

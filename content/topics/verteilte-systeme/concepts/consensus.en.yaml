@@ -1,0 +1,192 @@
+id: cs.distributed.consensus
+type: concept
+title: "Agreement without a boss"
+summary: "Majorities, leaders and machines that lie."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Two armies only want to attack together. Their messengers can be captured. Can they ever be completely sure that both will attack?
+    params:
+      options:
+        - label: No – the last acknowledgement could always be lost
+          correct: true
+        - label: Yes, with enough messengers
+          feedback: The last messenger can be captured too.
+        - label: Yes, with an acknowledgement of the acknowledgement
+          feedback: Then that one needs acknowledging.
+    hints:
+      - Who sends the very last message?
+      - Does the sender know it arrived?
+    explanation: The two generals problem is unsolvable. Real systems therefore live with probabilities, timeouts and majorities.
+
+  - kind: explain
+    id: c1
+    body: "**Consensus** means several machines agree on one value although messages get lost and machines fail. The trick of many methods: a majority decides."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A cluster has {{n}} machines. At least how many form a majority?
+    answer:
+      value: "{{floor(n / 2) + 1}}"
+    feedback:
+      - when: numval(state.input) == n / 2
+        misconception: half
+        text: Half is not enough – two halves could contradict each other.
+    hints:
+      - More than half.
+      - Half of {{n}}, rounded down, plus one.
+    explanation: "{{floor(n / 2) + 1}} of {{n}}. Two majorities always share at least one machine – so they cannot contradict each other."
+    variants:
+      params:
+        n: int[3,11]
+      defaults:
+        n: 5
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: How many of 5 machines may fail so that the rest still form a majority?
+    answer:
+      value: 2
+    hints:
+      - The majority of 5 is 3.
+      - 5 − 3.
+    explanation: 2 failures can be tolerated. In general, 2f + 1 machines survive f failures.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Why do people usually use 3 or 5 machines, but rarely 4?
+    params:
+      options:
+        - label: With 4 the majority needs 3 – only one may fail, just as with 3
+          correct: true
+        - label: Because 4 is unlucky
+          feedback: It is pure arithmetic.
+        - label: Because 4 machines cannot be connected
+          feedback: They connect without trouble.
+    hints:
+      - How many failures do 3 machines survive? And 4?
+      - Just one in both cases.
+    explanation: The fourth machine costs money but adds no safety. Hence odd numbers.
+
+  - kind: problem
+    id: c5
+    widget: choice
+    prompt: The network splits. Without a majority rule each half elects its own boss. What is this called?
+    params:
+      options:
+        - label: Split brain – two bosses, contradictory data
+          correct: true
+        - label: Deadlock
+          feedback: Nobody waits here – both carry on happily.
+        - label: Cache stampede
+          feedback: That is a different problem.
+    hints:
+      - Both halves believe they are the system.
+      - A brain that splits in two.
+    explanation: With a majority rule at most one half can carry on – the one with the majority. The other waits until the network heals.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: In the **Raft** method there is an elected leader. It sends every change to the others. Only once a majority has stored it does it count as committed. If the leader fails, the rest elect a new one.
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: order
+    prompt: This is how Raft writes a change. Put the steps in the right order.
+    params:
+      items:
+        - label: A client sends the change to the leader
+        - label: The leader adds it to its log
+        - label: It sends it to the others
+        - label: A majority confirms
+        - label: The change is committed and the client gets its OK
+    hints:
+      - The OK comes at the very end.
+      - No OK without a majority.
+    explanation: Because every committed change sits with a majority, every future leader knows it – after all, it needs a majority of votes itself.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: numeric
+    prompt: A cluster of 7 machines holds an election. A gets 3 votes, B 3, C 1. At least how many more votes does A need to win?
+    answer:
+      value: 1
+    hints:
+      - The majority of 7 is 4.
+      - 4 − 3.
+    explanation: Nobody has 4 votes – the election fails. Raft then waits a random time and votes again so that the tie breaks.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Machines that lie or behave arbitrarily wrong are called Byzantine. You need 3f + 1 machines to tolerate f of them. How many machines are needed for 2 liars?
+    answer:
+      value: 7
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: crash-vs-byzantine
+        text: That is enough for 2 crashes – liars are more dangerous.
+    hints:
+      - Plug in f = 2.
+      - 3 · 2 + 1.
+    explanation: 7 machines. Blockchains and flight controls must reckon with such liars – data centres usually only with crashes.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: "Fischer, Lynch and Paterson proved in 1985: in a network without any timing guarantee, a single failure can already …"
+    params:
+      options:
+        - label: … prevent agreement forever – no method is guaranteed to reach it in finite time
+          correct: true
+        - label: … delete all data
+          feedback: It is about agreement, not data loss.
+        - label: … do nothing
+          feedback: A single failure is exactly enough for the impossibility.
+    hints:
+      - "Without timing guarantees: is a machine dead or just slow?"
+      - You can never know for sure.
+    explanation: The FLP result. Raft and Paxos are therefore always correct but only make progress when the network is timely for a while.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how machines agree without a fixed boss.
+    params:
+      keywords:
+        - - mehrheit
+          - majority
+        - - anführer
+          - wahl
+          - gewählt
+          - leader
+          - elect
+          - vote
+        - - ausfall
+          - fällt aus
+          - fail
+          - crash
+      sample: The machines elect a leader – whoever gets the majority of votes. The leader distributes every change, which only counts once a majority has stored it. If it fails, the others elect a new one. Because two majorities always overlap, nothing gets lost.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d3", "x1"]

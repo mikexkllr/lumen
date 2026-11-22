@@ -1,0 +1,221 @@
+id: cs.distributed.caching
+type: concept
+title: "Caching"
+summary: "Kopien nah bereithalten – und wissen, wann sie veraltet sind."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Du brauchst ständig dieselben drei Bücher aus der Stadtbibliothek. Was tust du?
+    params:
+      options:
+        - label: Du stellst sie zu Hause ins Regal
+          correct: true
+        - label: Du gehst jedes Mal neu hin
+          feedback: Das kostet jedes Mal den ganzen Weg.
+        - label: Du kaufst die ganze Bibliothek
+          feedback: Dein Regal ist dafür viel zu klein.
+    hints:
+      - "Was ist näher: Regal oder Bibliothek?"
+      - Nur das Wichtigste passt ins Regal.
+    explanation: "Genau das ist ein Cache: wenige, oft gebrauchte Kopien ganz nah."
+
+  - kind: explain
+    id: c1
+    body: "Ein Cache hält Kopien häufig gebrauchter Daten nah bereit. Entscheidend ist die **Trefferquote**: der Anteil der Anfragen, die der Cache selbst beantworten kann, ohne beim Original nachzufragen."
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Treffer im Cache dauert 1 ms, ein Fehlgriff 100 ms. Die Trefferquote ist {{p}} %. Wie viele ms dauert eine Anfrage im Schnitt?
+    params:
+      unit: ms
+    answer:
+      value: "{{p / 100 + (100 - p)}}"
+      tolerance: 0.01
+    feedback:
+      - when: abs(numval(state.input) - 50.5) < 0.01
+        misconception: unweighted
+        text: Das ist der einfache Mittelwert. Treffer sind aber viel häufiger.
+    hints:
+      - "{{p}} % der Anfragen kosten 1 ms, {{100 - p}} % kosten 100 ms."
+      - "{{p / 100}} · 1 + {{(100 - p) / 100}} · 100."
+    explanation: "{{p / 100}} + {{100 - p}} = {{p / 100 + (100 - p)}} ms. Jedes Prozent Trefferquote mehr spart fast 1 ms."
+    variants:
+      params:
+        p: choice[80,90,95,99]
+      defaults:
+        p: 90
+
+  - kind: problem
+    id: c3
+    widget: numeric
+    prompt: "Ein Cache fasst 3 Einträge. Ist er voll, fliegt der am längsten unbenutzte heraus. Anfragen: A, B, C, A, D, B. Wie viele Treffer gibt es?"
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 2
+        misconception: missed-eviction
+        text: "Prüf das letzte B: Wer wurde bei D herausgeworfen?"
+    hints:
+      - A, B, C füllen den Cache. Das zweite A trifft.
+      - Bei D fliegt B raus – es war am längsten unbenutzt.
+    explanation: Nur das zweite A trifft. Das letzte B ist gerade verdrängt worden – Pech mit der Reihenfolge.
+
+  - kind: problem
+    id: c4
+    widget: choice
+    prompt: Was ist das Grundproblem jedes Caches?
+    params:
+      options:
+        - label: Veraltete Daten – ändert sich das Original, zeigt der Cache noch das Alte
+          correct: true
+        - label: Er ist zu schnell
+          feedback: Schnell ist gerade sein Zweck.
+        - label: Er braucht keinen Speicher
+          feedback: Er braucht durchaus Speicher – das ist aber nicht das Grundproblem.
+    hints:
+      - Eine Kopie weiß nicht von selbst, dass sich das Original geändert hat.
+      - Denk an einen alten Stadtplan.
+    explanation: "Ein bekannter Spruch: Die zwei schwersten Probleme der Informatik sind Namen vergeben und Caches aktuell halten."
+
+  - kind: problem
+    id: c5
+    widget: buckets
+    prompt: Gut für einen Cache – oder lieber immer frisch?
+    params:
+      buckets:
+        - id: b1
+          label: gut cachebar
+        - id: b2
+          label: immer frisch
+      items:
+        - label: Logo der Webseite
+          bucket: b1
+        - label: Profilbild
+          bucket: b1
+        - label: Ergebnis einer teuren, seltenen Suche
+          bucket: b1
+        - label: Kontostand während einer Überweisung
+          bucket: b2
+        - label: Einmal-Code für die Anmeldung
+          bucket: b2
+        - label: Restplätze im Flug beim Buchen
+          bucket: b2
+    hints:
+      - Ändert es sich selten?
+      - Wäre ein veralteter Wert gefährlich?
+    explanation: Cachen lohnt sich bei Daten, die oft gelesen und selten geändert werden – und bei denen ein kurz veralteter Stand niemandem schadet.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Caches bleiben auf zwei Wegen aktuell: mit einer Gültigkeitsdauer, nach der neu gefragt wird, oder mit **Invalidierung**: Das Original meldet jede Änderung, und der Cache wirft den Eintrag weg."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: 20 % der Produkte bekommen 80 % der Aufrufe. Der Cache hält genau diese 20 %. Wie hoch ist die Trefferquote in Prozent?
+    params:
+      unit: "%"
+    answer:
+      value: 80
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: items-vs-requests
+        text: Gefragt ist der Anteil der Aufrufe, nicht der Produkte.
+    hints:
+      - Wie viele Aufrufe betreffen die gecachten Produkte?
+      - Genau die beliebten 80 %.
+    explanation: 80 % Treffer mit nur 20 % des Platzes. Weil Beliebtheit so ungleich verteilt ist, sind kleine Caches so wirksam.
+    difficulty: 2
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: Ein Write-back-Cache nimmt Änderungen sofort an und schreibt sie erst später ins Original. Was ist das Risiko?
+    params:
+      options:
+        - label: Stürzt der Cache vorher ab, sind die Änderungen verloren
+          correct: true
+        - label: Lesen wird langsamer
+          feedback: Lesen bleibt schnell.
+        - label: Gar keins
+          feedback: Zwischen Annahme und Zurückschreiben liegen die Daten nur an einer Stelle.
+    hints:
+      - Wo stehen die Änderungen, bevor sie zurückgeschrieben werden?
+      - Nur im Cache.
+    explanation: Write-through schreibt sofort durch – sicherer, aber langsamer. Write-back ist schnell, braucht aber Schutz wie Batterien oder Kopien.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: Die Datenbank schafft 1000 Anfragen pro Sekunde, es kommen aber 20 000. Wie hoch muss die Trefferquote des Caches mindestens sein, in Prozent?
+    params:
+      unit: "%"
+    answer:
+      value: 95
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: miss-vs-hit
+        text: Das ist der höchstens erlaubte Anteil der Fehlgriffe.
+    hints:
+      - Höchstens 1000 von 20 000 dürfen zur Datenbank.
+      - 1000 / 20 000 = 5 % Fehlgriffe.
+    explanation: Mindestens 95 %. Fällt der Cache aus, bricht die Datenbank sofort zusammen – der Cache ist hier kein Luxus, sondern tragend.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Ein sehr beliebter Eintrag läuft ab, und 10 000 Anfragen fragen gleichzeitig die Datenbank. Was hilft?
+    params:
+      options:
+        - label: Nur eine Anfrage lädt neu, die anderen warten kurz auf ihr Ergebnis
+          correct: true
+        - label: Den Eintrag nie ablaufen lassen
+          feedback: Dann veraltet er für immer.
+        - label: Eine größere Datenbank kaufen
+          feedback: Der Ansturm ist nur kurz – das wäre teure Verschwendung.
+    hints:
+      - Alle wollen dasselbe – reicht es, einmal zu fragen?
+      - Man bündelt die gleichen Anfragen.
+    explanation: Dieser »Cache-Ansturm« legt immer wieder große Dienste lahm. Bündeln und leicht zufällige Ablaufzeiten verhindern ihn.
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie ein Cache funktioniert und wo sein Haken liegt.
+    params:
+      keywords:
+        - - kopie
+          - copy
+          - nah
+          - near
+        - - treffer
+          - hit
+          - schnell
+          - fast
+        - - veraltet
+          - stale
+          - alt
+          - old
+          - aktuell
+          - up to date
+      sample: "Ein Cache hält Kopien oft gebrauchter Daten nah bereit. Bei einem Treffer geht es schnell, ohne das Original zu fragen. Der Haken: Ändert sich das Original, ist die Kopie veraltet – man braucht Regeln, wann sie neu geholt wird."
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "c3", "d2", "x1"]

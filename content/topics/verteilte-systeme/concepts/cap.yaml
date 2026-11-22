@@ -1,0 +1,214 @@
+id: cs.distributed.cap
+type: concept
+title: "Das CAP-Theorem"
+summary: "Konsistent oder erreichbar – wenn das Netz reißt, muss man wählen."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: problem
+    id: hook
+    widget: choice
+    prompt: Zwei Filialen einer Bank verlieren die Verbindung. In beiden will jemand den letzten Euro desselben Kontos abheben. Was kann das System tun?
+    params:
+      options:
+        - label: Entweder lehnt eine Filiale ab, oder beide zahlen aus und das Konto rutscht ins Minus
+          correct: true
+        - label: Beide zahlen, und alles bleibt korrekt
+          feedback: Ohne Verbindung weiß keine Filiale von der anderen.
+        - label: Die Verbindung sofort reparieren
+          feedback: Das wäre schön – aber jetzt muss entschieden werden.
+    hints:
+      - Kann eine Filiale wissen, was die andere gerade tut?
+      - Sicher oder hilfsbereit – beides geht nicht.
+    explanation: Genau dieses Dilemma beschreibt das CAP-Theorem. Banken entscheiden sich oft für »sicher«, Webshops eher für »hilfsbereit«.
+
+  - kind: explain
+    id: c1
+    body: "Das **CAP-Theorem**: Reißt das Netz zwischen Rechnern, muss ein System wählen – entweder immer den neuesten Stand liefern oder immer antworten. Beides zugleich geht während der Störung nicht."
+
+  - kind: problem
+    id: c2
+    widget: buckets
+    prompt: Was ist hier wichtiger, wenn das Netz reißt?
+    params:
+      buckets:
+        - id: b1
+          label: neuester Stand
+        - id: b2
+          label: immer antworten
+      items:
+        - label: Kontostand bei der Bank
+          bucket: b1
+        - label: Like-Zähler eines Videos
+          bucket: b2
+        - label: Warenkorb im Webshop
+          bucket: b2
+        - label: Sitzplatz im Flugzeug buchen
+          bucket: b1
+        - label: Zahl der Seitenaufrufe
+          bucket: b2
+        - label: Zugang zu einem Tresor
+          bucket: b1
+    hints:
+      - Wäre ein veralteter Wert gefährlich oder nur unschön?
+      - Ein Like mehr oder weniger schadet niemandem.
+    explanation: Wo Fehler teuer sind, wartet man lieber. Wo Erreichbarkeit zählt, nimmt man kurzzeitig ungenaue Daten in Kauf.
+
+  - kind: problem
+    id: c3
+    widget: choice
+    prompt: Kann ein verteiltes System nicht einfach auf Netzstörungen verzichten?
+    params:
+      options:
+        - label: Nein – Netze fallen in der Praxis immer mal aus; wählbar ist nur das Verhalten währenddessen
+          correct: true
+        - label: Ja, mit besseren Kabeln
+          feedback: Auch die besten Netze haben Störungen.
+        - label: Ja, mit nur einem Rechenzentrum
+          feedback: Auch darin reißen Verbindungen.
+    hints:
+      - Gibt es Kabel, Router und Software ohne Fehler?
+      - Störungen sind Alltag, nicht Ausnahme.
+    explanation: "Darum ist die Faustregel »zwei von drei aussuchen« irreführend. Die echte Frage lautet: Was tun wir, wenn das Netz reißt?"
+
+  - kind: explain
+    id: c4
+    body: "Viele große Systeme wählen **eventuelle Konsistenz**: Jede Kopie antwortet sofort, notfalls mit leicht veralteten Daten. Nach der Störung gleichen sich die Kopien ab, bis alle wieder dasselbe zeigen."
+
+  - kind: problem
+    id: c5
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: Bei eventueller Konsistenz sehen kurz nicht alle dasselbe.
+          right: true
+          why: Genau das ist der Preis für ständige Erreichbarkeit.
+        - text: "CAP heißt: Man sucht sich immer zwei von drei Eigenschaften frei aus."
+          right: false
+          why: Die Wahl stellt sich nur während einer Netzstörung.
+        - text: Ein einzelner Rechner hat kein CAP-Problem.
+          right: true
+          why: Ohne Netz zwischen Kopien kann nichts reißen.
+        - text: "Konsistent heißt hier: Jeder liest den neuesten Wert."
+          right: true
+          why: So, als gäbe es nur eine einzige Kopie.
+
+  - kind: explain
+    id: d1
+    depth: 2
+    body: "Die Uhren verschiedener Rechner gehen nie genau gleich. Eine **logische Uhr** zählt stattdessen Ereignisse: Jeder erhöht seinen Zähler und schickt ihn mit. Wer eine Nachricht bekommt, springt auf das Maximum plus eins."
+
+  - kind: problem
+    id: d2
+    depth: 2
+    widget: numeric
+    prompt: Die logische Uhr von Rechner A steht bei {{a}}. Er bekommt eine Nachricht mit dem Zeitstempel {{b}}. Welchen Wert hat seine Uhr danach?
+    answer:
+      value: "{{max(a, b) + 1}}"
+    feedback:
+      - when: numval(state.input) == a + 1
+        misconception: ignore-message
+        text: Die Nachricht stammt aus seiner »Zukunft« – er muss auf ihren Stempel springen.
+      - when: numval(state.input) == max(a, b)
+        misconception: forgot-increment
+        text: Das Empfangen ist selbst ein Ereignis – plus eins.
+    hints:
+      - Nimm das Größere von {{a}} und {{b}}.
+      - Dann eins dazu.
+    explanation: max({{a}}, {{b}}) + 1 = {{max(a, b) + 1}}. So liegt jede Antwort zeitlich garantiert hinter ihrer Ursache.
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,20]
+        b: int[2,20]
+      constraints:
+        - b > a
+      defaults:
+        a: 5
+        b: 9
+
+  - kind: problem
+    id: d3
+    depth: 2
+    widget: choice
+    prompt: "Zwei Kopien wurden während einer Störung verschieden geändert. Regel: »Der letzte Schreiber gewinnt.« Was ist der Haken?"
+    params:
+      options:
+        - label: Eine Änderung geht still verloren – und »zuletzt« ist bei ungleichen Uhren unklar
+          correct: true
+        - label: Gar keiner
+          feedback: Die verlierende Änderung verschwindet ohne Warnung.
+        - label: Beide Änderungen bleiben erhalten
+          feedback: Genau das tut die Regel nicht.
+    hints:
+      - Was passiert mit der Änderung, die verliert?
+      - Wessen Uhr bestimmt, was »zuletzt« war?
+    explanation: Die Regel ist einfach, aber verlustbehaftet. Für Zähler oder Listen gibt es bessere Wege, die Änderungen zusammenführen.
+    difficulty: 2
+
+  - kind: problem
+    id: x1
+    depth: 3
+    widget: numeric
+    prompt: "Ein Like-Zähler speichert für jede Kopie ihre eigenen Likes. Kopie 1 kennt (A: 12, B: 5, C: 30), Kopie 2 kennt (A: 10, B: 7, C: 30). Beim Abgleich zählt je Eintrag das Maximum. Wie viele Likes sind es?"
+    answer:
+      value: 49
+    feedback:
+      - when: numval(state.input) == 94
+        misconception: double-count
+        text: Nicht beide Stände addieren – C würde doppelt zählen.
+    hints:
+      - "Je Eintrag das Maximum: A 12, B 7, C 30."
+      - 12 + 7 + 30.
+    explanation: 49 Likes. Weil Maximum und Summe nicht von der Reihenfolge abhängen, lassen sich solche Zähler beliebig abgleichen – ganz ohne Konflikt. Solche Strukturen heißen CRDTs.
+    difficulty: 3
+
+  - kind: problem
+    id: x2
+    depth: 3
+    widget: choice
+    prompt: Auch ohne Netzstörung gibt es bei Kopien einen Zielkonflikt. Welchen?
+    params:
+      options:
+        - label: Schnelle Antwort gegen Konsistenz – der Abgleich mit anderen Kopien kostet Zeit
+          correct: true
+        - label: Speicher gegen Strom
+          feedback: Darum geht es hier nicht.
+        - label: Keinen, ohne Störung ist alles perfekt
+          feedback: Auch ohne Störung brauchen Nachrichten Zeit.
+    hints:
+      - Wie erfährt eine Kopie vom neuesten Stand der anderen?
+      - Nur durch Nachrichten – und die haben Latenz.
+    explanation: "Diese Erweiterung heißt PACELC: Bei Partition wähle A oder C, sonst (Else) wähle Latenz oder Konsistenz."
+    difficulty: 3
+
+  - kind: problem
+    id: x3
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux das CAP-Theorem mit einem Beispiel.
+    params:
+      keywords:
+        - - netz
+          - partition
+          - verbindung
+          - network
+          - connection
+        - - konsistent
+          - neueste
+          - consistent
+          - latest
+        - - antwort
+          - erreichbar
+          - verfügbar
+          - available
+          - answer
+      sample: Reißt die Verbindung im Netz zwischen zwei Kopien, muss das System wählen. Entweder bleibt es konsistent und liefert nur den neuesten Stand – dann muss eine Kopie warten. Oder es bleibt erreichbar und gibt immer eine Antwort, notfalls mit alten Daten. Bei einer Bank wartet man lieber, bei Likes nicht.
+    difficulty: 3
+
+srs:
+  cards_from: ["c2", "d2", "d3", "x1"]
