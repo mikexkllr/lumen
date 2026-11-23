@@ -84,9 +84,12 @@ The web app (`npm run dev -w @lumen/web`) proxies `/api` to the server. In produ
 | `LUMEN_TUTOR_URL` | base URL, e.g. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
 | `LUMEN_TUTOR_MODEL` | model name | `qwen3:1.7b` (local) |
 | `LUMEN_TUTOR_API_KEY` | API key, server only | – |
+| `LUMEN_TUTOR_PROVIDER` | provider name in the consent dialog, e.g. `OpenRouter` | API host |
 | `LUMEN_TUTOR_REASONING` | `reasoning_effort`, locally `none` | – |
 | `LUMEN_TUTOR_RATE_LIMIT` | requests per minute and IP | 30 |
 | `LUMEN_TUTOR=off` | rule tutor only | – |
+
+Before the model answers for the first time, Lux asks for consent and names model and provider; declining leaves the rule tutor. Every model reply can be reported in the chat (`GET /v1/admin/tutor-reports` for moderators).
 
 Privacy: Lux sends the problem, the answer and the messages to the Lumen server and its model; the server only logs the reason for a fallback, never content. The model can be switched off in settings.
 

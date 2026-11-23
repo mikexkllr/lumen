@@ -115,6 +115,7 @@ a sync server on another origin in their profile, that origin must be in `connec
 | `LUMEN_TUTOR_URL` | OpenAI-compatible base URL, e.g. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
 | `LUMEN_TUTOR_MODEL` | model name | `qwen3:1.7b` (local), `qwen/qwen3-30b-a3b` (remote) |
 | `LUMEN_TUTOR_API_KEY` | API key for the model provider | – |
+| `LUMEN_TUTOR_PROVIDER` | provider name shown in the app's consent dialog, e.g. `OpenRouter` | API host |
 | `LUMEN_TUTOR_REASONING` | `reasoning_effort` sent to the model | `none` locally |
 | `LUMEN_TUTOR_MAX_TOKENS`, `LUMEN_TUTOR_TEMPERATURE`, `LUMEN_TUTOR_TIMEOUT_MS` | model tuning | `220`, `0.3`, `20000` |
 | `LUMEN_TUTOR_RATE_LIMIT` | tutor requests per minute and IP | `30` |

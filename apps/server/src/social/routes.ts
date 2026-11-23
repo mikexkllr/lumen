@@ -8,10 +8,10 @@
  * nothing extra is collected: on every sync the server recomputes per-day XP
  * and streak days for accounts that have a social profile.
  */
-import { timingSafeEqual } from 'node:crypto';
 import { addDays, deriveProgress, isActiveDay, levelInfo, weekKey, type LumenEvent } from '@lumen/engine';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import type { EventStore } from '../store.ts';
+import { adminOk } from '../admin.ts';
 import {
   clientToday, COHORT_SIZE, coveredDays, FRIEND_STREAK_MILESTONES, friendStreak, LEVEL_MILESTONE_EVERY, milestoneReached, nextTier, rankStandings,
   STREAK_MILESTONES, TIERS, userStreak, weekXp, zoneOf, zones, type DayRow,
@@ -124,13 +124,6 @@ export function socialService(deps: SocialDeps) {
 
 export type SocialService = ReturnType<typeof socialService>;
 
-function adminOk(req: FastifyRequest, token: string | null | undefined): boolean {
-  if (!token || token.length < 16) return false;
-  const h = /^Bearer (.+)$/.exec(req.headers.authorization ?? '')?.[1] ?? '';
-  const a = Buffer.from(h);
-  const b = Buffer.from(token);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 
 export function registerSocialRoutes(app: FastifyInstance, deps: SocialDeps, service: SocialService): void {
   const { social } = deps;

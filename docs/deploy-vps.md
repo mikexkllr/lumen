@@ -205,7 +205,15 @@ curl -X POST -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/jso
 # anstößigen Namen zurücksetzen, Meldung als erledigt markieren
 curl -X POST -H "Authorization: Bearer $TOKEN" $API/v1/admin/users/<userId>/reset-name
 curl -X POST -H "Authorization: Bearer $TOKEN" $API/v1/admin/reports/<id>/resolve
+
+# gemeldete Lux-Antworten (KI-Inhalte; Pflicht für die App-Stores) und erledigen
+curl -H "Authorization: Bearer $TOKEN" $API/v1/admin/tutor-reports
+curl -X POST -H "Authorization: Bearer $TOKEN" $API/v1/admin/tutor-reports/<id>/resolve
 ```
+
+Gemeldete Lux-Antworten enthalten Antwort, Frage und Aufgabe, aber keinen Sync-Code; sie werden
+nach 180 Tagen automatisch gelöscht. Häufen sich Meldungen zu einem Modell, ein anderes Modell
+wählen (`LUMEN_TUTOR_MODEL`).
 
 Meldungen regelmäßig (für die App-Stores: zeitnah, mindestens täglich) prüfen. Wer keine
 Moderation leisten kann, schaltet Social ab: `LUMEN_SOCIAL=off` in `.env`, dann

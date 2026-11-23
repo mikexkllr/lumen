@@ -11,6 +11,7 @@ import { Streak } from './screens/Streak.tsx';
 import { Legal } from './screens/Legal.tsx';
 import { useSocial } from './lib/socialContext.tsx';
 import { isKid } from './lib/settings.ts';
+import { useReminders } from './lib/reminders.ts';
 import { lazy, Suspense, useEffect } from 'react';
 
 const Player = lazy(() => import('./screens/Player.tsx').then((m) => ({ default: m.Player })));
@@ -85,6 +86,7 @@ export function App() {
   const app = useApp();
   const { lib, contentError, t, settings, loaded, online } = app;
   const [head, a, b] = route;
+  useReminders({ time: settings.reminder, today: app.today, streak: app.progress.streak.current, todayDone: app.progress.streak.todayDone, hasFriends: !!settings.social, locale: settings.locale, loaded });
 
   useEffect(() => {
     if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal'].includes(head ?? '')) navigate('welcome', true);

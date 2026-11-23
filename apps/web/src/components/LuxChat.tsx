@@ -6,12 +6,37 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { reasoningQuestion, type TutorContext, type TutorIntent, type TutorStatus } from '@lumen/engine';
-import { askLux, tutorStatus, userTextFor, type LuxMessage, type TutorStatusInfo } from '../lib/tutor.ts';
+import { askLux, reportLux, tutorStatus, userTextFor, type LuxMessage, type LuxReportReason, type TutorStatusInfo } from '../lib/tutor.ts';
 import { useApp } from '../lib/store.tsx';
 import { isKid } from '../lib/settings.ts';
 import { Markdown } from '../lib/markdown.tsx';
 import { Icon } from './ui.tsx';
 import { Lux, type LuxMood } from './Lux.tsx';
+import { href } from '../lib/router.ts';
+
+const REPORT_REASONS: LuxReportReason[] = ['wrong', 'solution', 'inappropriate', 'other'];
+
+/** Inline form to flag a Lux reply (stores require reporting AI content without leaving the app). */
+function ReportForm({ onSend, onCancel }: { onSend(reason: LuxReportReason): Promise<void>; onCancel(): void }) {
+  const { t } = useApp();
+  const [reason, setReason] = useState<LuxReportReason | null>(null);
+  const [err, setErr] = useState(false);
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="lux-report" role="group" aria-label={t('lux.report.title')}>
+      <span className="small">{t('lux.report.title')}</span>
+      <div className="row wrap" style={{ gap: 6 }}>
+        {REPORT_REASONS.map((r) => <button key={r} type="button" className="lux-chip" aria-pressed={reason === r} onClick={() => setReason(r)}>{t(`lux.report.${r}` as 'lux.report.wrong')}</button>)}
+      </div>
+      <span className="tiny faint">{t('lux.report.note')}</span>
+      {err && <span className="small" role="alert">{t('lux.report.error')}</span>}
+      <div className="row" style={{ gap: 6 }}>
+        <button type="button" className="btn primary small" disabled={!reason || busy} onClick={async () => { setBusy(true); setErr(false); try { await onSend(reason!); } catch { setErr(true); } finally { setBusy(false); } }}>{t('lux.report.send')}</button>
+        <button type="button" className="btn quiet small" onClick={onCancel}>{t('lux.report.cancel')}</button>
+      </div>
+    </div>
+  );
+}
 
 export interface LuxState {
   messages: LuxMessage[];
@@ -25,6 +50,11 @@ export interface LuxState {
   send(intent: TutorIntent, message?: string): Promise<void>;
   /** Lux opens by asking how the learner got to their (wrong) answer. */
   askReasoning(): Promise<void>;
+  /** Waiting for the learner to allow (or decline) the language model before the first answer. */
+  consent: TutorStatusInfo | null;
+  decideConsent(allow: boolean): void;
+  /** Flags the assistant reply at `index` for the moderators. */
+  report(index: number, reason: LuxReportReason): Promise<void>;
 }
 
 /** What Lux does when the panel opens: a quick action, or first ask for the learner's reasoning. */
@@ -32,8 +62,9 @@ export type LuxOpener = TutorIntent | 'ask-reasoning';
 
 /** Conversation state for one step. `getContext` is read at send time so Lux always sees the current answer. */
 export function useLux(getContext: () => TutorContext, opts: { revisit?: boolean } = {}): LuxState {
-  const { settings } = useApp();
+  const { settings, updateSettings } = useApp();
   const [messages, setMessages] = useState<LuxMessage[]>([]);
+  const [consent, setConsent] = useState<{ info: TutorStatusInfo; intent: TutorIntent; message?: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [lastSource, setLastSource] = useState<'llm' | 'rules' | null>(null);
   const [offline, setOffline] = useState(false);
@@ -42,18 +73,28 @@ export function useLux(getContext: () => TutorContext, opts: { revisit?: boolean
   const msgsRef = useRef(messages);
   msgsRef.current = messages;
   const send = useCallback(
-    async (intent: TutorIntent, message?: string) => {
+    async (intent: TutorIntent, message?: string, decided?: boolean) => {
+      const allowed = settings.tutor !== false && !isKid(settings);
+      const granted = decided ?? settings.tutorConsent === true;
+      // Before the first answer from the language model, ask (Apple 5.1.2: sharing data with an AI service).
+      if (allowed && !granted && decided === undefined) {
+        const info = await tutorStatus();
+        if (info?.model) {
+          setConsent({ info, intent, message });
+          return;
+        }
+      }
       const ctx = ctxRef.current();
       const history = msgsRef.current;
       const userMsg: LuxMessage = { role: 'user', content: userTextFor(intent, ctx.locale, message) };
       setMessages((m) => [...m, userMsg]);
       setBusy(true);
       const started = Date.now();
-      const ans = await askLux(ctx, history, intent, message, settings.tutor !== false && !isKid(settings));
+      const ans = await askLux(ctx, history, intent, message, allowed && granted);
       // a short beat so even instant rule answers feel like Lux thought about it
       const wait = Math.max(0, 550 - (Date.now() - started));
       if (wait) await new Promise((r) => setTimeout(r, wait));
-      setMessages((m) => [...m, { role: 'assistant', content: ans.reply, source: ans.source }]);
+      setMessages((m) => [...m, { role: 'assistant', content: ans.reply, source: ans.source, model: ans.model }]);
       setLastSource(ans.source);
       setOffline(ans.source === 'rules' && ['offline', 'unavailable', 'disabled'].includes(ans.fallback ?? ''));
       setBusy(false);
@@ -68,8 +109,25 @@ export function useLux(getContext: () => TutorContext, opts: { revisit?: boolean
     setMessages((m) => [...m, { role: 'assistant', content: question, source: 'rules', ask: true }]);
     setBusy(false);
   }, [revisit]);
+  const decideConsent = useCallback(
+    (allow: boolean) => {
+      const pending = consent;
+      setConsent(null);
+      updateSettings(allow ? { tutorConsent: true } : { tutor: false, tutorConsent: false });
+      if (pending) void send(pending.intent, pending.message, allow);
+    },
+    [consent, send, updateSettings],
+  );
+  const report = useCallback(async (index: number, reason: LuxReportReason) => {
+    const m = msgsRef.current[index];
+    if (!m || m.role !== 'assistant') return;
+    const ctx = ctxRef.current();
+    const question = [...msgsRef.current.slice(0, index)].reverse().find((x) => x.role === 'user')?.content;
+    await reportLux({ reason, reply: m.content, question, task: ctx.task, kind: ctx.kind, locale: ctx.locale, model: m.model });
+    setMessages((list) => list.map((x, i) => (i === index ? { ...x, reported: true } : x)));
+  }, []);
   const last = messages[messages.length - 1];
-  return { messages, busy, used: messages.length > 0, lastSource, offline, awaiting: !!last?.ask, send, askReasoning };
+  return { messages, busy, used: messages.length > 0, lastSource, offline, awaiting: !!last?.ask, send, askReasoning, consent: consent?.info ?? null, decideConsent, report };
 }
 
 const CHIPS: Record<TutorStatus, TutorIntent[]> = {
@@ -119,6 +177,7 @@ export function LuxChat({
 }) {
   const { t, settings } = useApp();
   const [draft, setDraft] = useState('');
+  const [reporting, setReporting] = useState<number | null>(null);
   const [info, setInfo] = useState<TutorStatusInfo | null | undefined>(undefined);
   const logRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -216,8 +275,26 @@ export function LuxChat({
                   <div className={`lux-msg ${m.role === 'user' ? 'me' : 'lux'}`}>
                     {m.role === 'assistant' ? <Typed text={m.content} instant={reduce || i < fresh || i !== lastIdx} onTick={scroll} /> : <p>{m.content}</p>}
                   </div>
+                  {m.role === 'assistant' && m.source === 'llm' && info?.reports && (
+                    m.reported ? <span className="lux-reported">{t('lux.report.thanks')}</span>
+                    : reporting === i ? <ReportForm onCancel={() => setReporting(null)} onSend={(reason) => lux.report(i, reason).then(() => setReporting(null))} />
+                    : <button type="button" className="lux-flag" onClick={() => setReporting(i)}><Icon name="flag" size={12} /> {t('lux.report')}</button>
+                  )}
                 </motion.div>
               ))}
+              {lux.consent && (
+                <div className="lux-row">
+                  <div className="lux-msg lux lux-consent" role="group" aria-labelledby="lux-consent-h">
+                    <strong id="lux-consent-h">{t('lux.consent.title')}</strong>
+                    <p>{lux.consent.local || !lux.consent.provider ? t('lux.consent.bodyLocal', { model: lux.consent.model ?? '' }) : t('lux.consent.body', { model: lux.consent.model ?? '', provider: lux.consent.provider })}</p>
+                    <p className="small faint">{t('lux.consent.note')} <a href={href('legal/privacy')}>{t('legal.privacy')}</a></p>
+                    <div className="row wrap" style={{ gap: 8 }}>
+                      <button type="button" className="btn primary small" onClick={() => lux.decideConsent(true)}>{t('lux.consent.allow')}</button>
+                      <button type="button" className="btn ghost small" onClick={() => lux.decideConsent(false)}>{t('lux.consent.decline')}</button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {lux.busy && (
                 <div className="lux-row">
                   <div className="lux-msg lux lux-typing" aria-label={t('lux.thinking')}>
@@ -240,7 +317,7 @@ export function LuxChat({
                 </button>
               )}
               {CHIPS[status].filter((intent) => !awaiting || intent !== 'rephrase').map((intent) => (
-                <button key={intent} type="button" className="lux-chip" disabled={lux.busy} onClick={() => void lux.send(intent)}>
+                <button key={intent} type="button" className="lux-chip" disabled={lux.busy || !!lux.consent} onClick={() => void lux.send(intent)}>
                   {t(`lux.chip.${intent}` as 'lux.chip.hint')}
                 </button>
               ))}
@@ -253,7 +330,7 @@ export function LuxChat({
               }}
             >
               <input ref={inputRef} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t(awaiting ? 'lux.placeholder.reason' : 'lux.placeholder')} aria-label={t(awaiting ? 'lux.placeholder.reason' : 'lux.placeholder')} maxLength={500} enterKeyHint="send" />
-              <button type="submit" className="lux-send" disabled={!draft.trim() || lux.busy} aria-label={t('lux.send')}>
+              <button type="submit" className="lux-send" disabled={!draft.trim() || lux.busy || !!lux.consent} aria-label={t('lux.send')}>
                 <Icon name="send" size={18} />
               </button>
             </form>

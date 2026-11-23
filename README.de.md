@@ -74,9 +74,12 @@ Die Web-App (`npm run dev -w @lumen/web`) leitet `/api` an den Server weiter. In
 | `LUMEN_TUTOR_URL` | Basis-URL, z. B. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
 | `LUMEN_TUTOR_MODEL` | Modellname | `qwen3:1.7b` (lokal) |
 | `LUMEN_TUTOR_API_KEY` | API-Schlüssel, nur auf dem Server | – |
+| `LUMEN_TUTOR_PROVIDER` | Anbietername im Einwilligungs-Dialog, z. B. `OpenRouter` | API-Host |
 | `LUMEN_TUTOR_REASONING` | `reasoning_effort`, lokal `none` | – |
 | `LUMEN_TUTOR_RATE_LIMIT` | Anfragen pro Minute und IP | 30 |
 | `LUMEN_TUTOR=off` | nur Regel-Tutor | – |
+
+Vor der ersten Antwort des Modells fragt Lux nach der Einwilligung und nennt Modell und Anbieter; wer ablehnt, bekommt den Regel-Tutor. Jede Modell-Antwort lässt sich im Chat melden (`GET /v1/admin/tutor-reports` für die Moderation).
 
 Datenschutz: Lux schickt Aufgabe, Antwort und Nachrichten an den Lumen-Server und dessen Modell; der Server loggt nur den Grund eines Rückfalls, nie Inhalte. In den Einstellungen lässt sich das Modell abschalten.
 
