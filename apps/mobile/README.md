@@ -93,11 +93,20 @@ contains the content of that moment. Raise the version (`versionCode`/`versionNa
 | `@capacitor/app` | back button and app state (Android) |
 | `@capacitor/splash-screen` | launch screen in the brand colour |
 | `@capacitor/status-bar` | status bar style for light/dark mode |
-| `@capacitor/local-notifications` | prepared for daily streak reminders on the device (no server, no push service) |
+| `@capacitor/local-notifications` | daily streak reminders, scheduled on the device (no server, no push service) |
 
-The plugins are installed and configured; the web app has to call them (e.g. schedule a
-local reminder only after the user opts in). Until that is wired up, the apps behave
-exactly like the PWA.
+Streak reminders are wired up in `apps/web/src/lib/reminders.ts`: when a learner picks a
+time under *Profile → Reminder*, the app asks for notification permission and schedules
+the next 14 days locally; today's reminder is dropped as soon as the streak is safe, and
+everything is rescheduled whenever the app opens. In the browser the setting is shown but
+disabled.
+
+Android: the plugin declares the notification permission (Android 13+). Reminders use
+inexact alarms, so a reminder may arrive a few minutes late – fine for a daily nudge. Only
+add `SCHEDULE_EXACT_ALARM` to `AndroidManifest.xml` if you need exact times; Google Play
+restricts that permission to alarm and calendar apps. Optionally add a monochrome
+`ic_stat_lumen` small icon under `android/app/src/main/res/drawable` and set
+`LocalNotifications.smallIcon` in `capacitor.config.ts`.
 
 ## Notes
 

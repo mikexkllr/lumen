@@ -13,6 +13,8 @@ export interface TutorConfig {
   /** Base URL of an OpenAI-compatible API, e.g. http://localhost:11434/v1 or https://openrouter.ai/api/v1 */
   url: string;
   model: string;
+  /** Provider name shown in the app's consent dialog, e.g. "OpenRouter" (default: the API host). */
+  provider?: string;
   apiKey?: string;
   /** Sent as reasoning_effort when set (e.g. "none" for small local reasoning models). */
   reasoning?: string;
@@ -28,6 +30,7 @@ export function tutorConfigFromEnv(env: NodeJS.ProcessEnv = process.env): TutorC
   return {
     url: url.replace(/\/$/, ''),
     model: env.LUMEN_TUTOR_MODEL || (local ? 'qwen3:1.7b' : 'qwen/qwen3-30b-a3b'),
+    provider: env.LUMEN_TUTOR_PROVIDER || undefined,
     apiKey: env.LUMEN_TUTOR_API_KEY || undefined,
     reasoning: env.LUMEN_TUTOR_REASONING || (local ? 'none' : undefined),
     maxTokens: Number(env.LUMEN_TUTOR_MAX_TOKENS || 220),

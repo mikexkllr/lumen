@@ -13,6 +13,8 @@ import { parseTutorRequest, tutorReply, type TutorConfig } from './tutor.ts';
 import { clientToday } from './social/logic.ts';
 import { registerSocialRoutes, socialService } from './social/routes.ts';
 import type { SocialStore } from './social/store.ts';
+import { adminOk } from './admin.ts';
+import { parseTutorReport, type TutorReportStore } from './reports.ts';
 
 const EVENT_TYPES = new Set(['attempt', 'concept_completed', 'review', 'review_session_completed', 'placement_completed']);
 const MAX_EVENTS_PER_REQUEST = 1000;
@@ -33,6 +35,8 @@ export interface ServerOptions {
   fetchImpl?: typeof fetch;
   /** Social features (profiles, friends, leagues, feed); null or absent disables them. */
   social?: SocialStore | null;
+  /** Reports of Lux replies; null or absent disables reporting. */
+  reports?: TutorReportStore | null;
   /** Secret for the moderation endpoints under /v1/admin. */
   adminToken?: string | null;
   now?: () => number;
@@ -101,7 +105,34 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   const tutor = opts.tutor ?? null;
   const tutorLimit = opts.tutorRateLimit ?? 30;
   const tutorBuckets = new Map<string, { count: number; reset: number }>();
-  app.get('/v1/tutor', async () => ({ enabled: true, model: tutor ? tutor.model : null, local: tutor ? /localhost|127\.0\.0\.1/.test(tutor.url) : false }));
+  app.get('/v1/tutor', async () => {
+    const local = tutor ? /localhost|127\.0\.0\.1|host\.docker\.internal|ollama/.test(tutor.url) : false;
+    // Shown in the app's consent dialog before Lux first uses the model.
+    let provider: string | null = null;
+    if (tutor && !local) provider = tutor.provider || (() => { try { return new URL(tutor.url).hostname; } catch { return null; } })();
+    return { enabled: true, model: tutor ? tutor.model : null, local, provider, reports: !!opts.reports };
+  });
+
+  const reportBuckets = new Map<string, { count: number; reset: number }>();
+  app.post('/v1/tutor/reports', async (req, reply) => {
+    if (!opts.reports) return reply.code(404).send({ error: 'not_found' });
+    const t = Date.now();
+    const b = reportBuckets.get(req.ip);
+    if (!b || b.reset < t) reportBuckets.set(req.ip, { count: 1, reset: t + 3_600_000 });
+    else if (++b.count > 20) return reply.code(429).send({ error: 'rate_limited' });
+    const parsed = parseTutorReport(req.body);
+    if (typeof parsed === 'string') return reply.code(400).send({ error: 'invalid_report', detail: parsed });
+    return { id: opts.reports.add(parsed) };
+  });
+  app.get('/v1/admin/tutor-reports', async (req, reply) => {
+    if (!opts.reports || !adminOk(req, opts.adminToken)) return reply.code(opts.adminToken ? 401 : 404).send({ error: opts.adminToken ? 'unauthorized' : 'not_found' });
+    const resolved = (req.query as Record<string, unknown>)?.resolved === '1';
+    return { reports: opts.reports.list(resolved).map((r) => ({ ...r, createdAt: new Date(r.createdAt).toISOString() })) };
+  });
+  app.post('/v1/admin/tutor-reports/:id/resolve', async (req, reply) => {
+    if (!opts.reports || !adminOk(req, opts.adminToken)) return reply.code(opts.adminToken ? 401 : 404).send({ error: opts.adminToken ? 'unauthorized' : 'not_found' });
+    return { resolved: opts.reports.resolve(Number((req.params as { id: string }).id)) };
+  });
   app.post('/v1/tutor', async (req, reply) => {
     const now = Date.now();
     const b = tutorBuckets.get(req.ip);

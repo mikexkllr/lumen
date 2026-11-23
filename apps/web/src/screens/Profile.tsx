@@ -7,6 +7,7 @@ import { useApp } from '../lib/store.tsx';
 import { deleteServerData, generateSyncCode, normalizeCode, syncNow } from '../lib/sync.ts';
 import { TIER_COLORS, useGamification } from '../lib/gamify.ts';
 import { DEFAULT_SYNC_URL } from '../lib/api.ts';
+import { isNativeApp, requestReminderPermission } from '../lib/reminders.ts';
 import { social, type PublicUser } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { Avatar, errorText } from '../components/social.tsx';
@@ -91,14 +92,11 @@ export function Profile() {
         <div className="list" style={{ marginTop: 10 }}>
           <Switch label={t('settings.sound')} checked={settings.sound} onChange={(v) => updateSettings({ sound: v })} />
           <Switch label={t('settings.haptics')} checked={settings.haptics} onChange={(v) => updateSettings({ haptics: v })} />
-          {!isKid(settings) && <Switch label={t('settings.tutor')} hint={t('settings.tutorHint')} checked={settings.tutor !== false} onChange={(v) => updateSettings({ tutor: v })} />}
+          {!isKid(settings) && <Switch label={t('settings.tutor')} hint={`${t('settings.tutorHint')}${settings.tutor !== false && !settings.tutorConsent ? ` ${t('tutor.consentOff')}` : ''}`} checked={settings.tutor !== false} onChange={(v) => updateSettings(v ? { tutor: true } : { tutor: false, tutorConsent: false })} />}
           <Switch label={t('settings.motion')} checked={settings.reduceMotion === 'reduce'} onChange={(v) => updateSettings({ reduceMotion: v ? 'reduce' : 'system' })} />
           <Switch label={t('settings.contrast')} checked={settings.highContrast} onChange={(v) => updateSettings({ highContrast: v })} />
           <Switch label={t('settings.font')} checked={settings.hyperlegible} onChange={(v) => updateSettings({ hyperlegible: v })} />
-          <label className="switch-row">
-            <span><span className="lbl" style={{ fontWeight: 550 }}>{t('settings.reminder')}</span><span className="small faint" style={{ display: 'block' }}>{t('settings.reminderNote')}</span></span>
-            <input className="input" type="time" value={settings.reminder ?? ''} onChange={(e) => updateSettings({ reminder: e.target.value || null })} style={{ width: 120 }} />
-          </label>
+          <ReminderRow />
         </div>
       </section>
 
@@ -117,6 +115,26 @@ export function Profile() {
         </div>
       </section>
     </main>
+  );
+}
+
+function ReminderRow() {
+  const { t, settings, updateSettings } = useApp();
+  const [denied, setDenied] = useState(false);
+  const native = isNativeApp();
+  const set = async (value: string) => {
+    updateSettings({ reminder: value || null });
+    setDenied(value ? native && !(await requestReminderPermission()) : false);
+  };
+  const note = !native ? t('reminder.webOnly') : denied ? t('reminder.denied') : settings.reminder ? t('reminder.on', { time: settings.reminder }) : t('settings.reminderNote');
+  return (
+    <label className="switch-row">
+      <span><span className="lbl" style={{ fontWeight: 550 }}>{t('settings.reminder')}</span><span className="small faint" style={{ display: 'block' }} role={denied ? 'alert' : undefined}>{note}</span></span>
+      <span className="row" style={{ gap: 4 }}>
+        <input className="input" type="time" value={settings.reminder ?? ''} onChange={(e) => void set(e.target.value)} style={{ width: 120 }} disabled={!native && !settings.reminder} />
+        {settings.reminder && <button type="button" className="icon-btn" aria-label={t('onb.reminder.none')} onClick={() => void set('')}><Icon name="close" size={16} /></button>}
+      </span>
+    </label>
   );
 }
 

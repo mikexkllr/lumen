@@ -42,14 +42,17 @@ Einstellungen zurücksetzen.
       Profil/Streak, Liga); Apple: 6,9″-iPhone (1320 × 2868), bei iPad-Unterstützung auch
       13″-iPad (sonst in Xcode nur iPhone als Gerät wählen); Google: mind. 2 Telefon-Screenshots
       und eine Feature-Grafik 1024 × 500
-- [ ] **Streak-Erinnerungen** über `@capacitor/local-notifications` in der Web-App anbinden
-      (Opt-in, Uhrzeit wählbar). Stand jetzt ist das Plugin nur vorbereitet; ohne native
-      Funktion steigt das Risiko einer Ablehnung nach Apple 4.2 (siehe unten)
-- [ ] **Melden-Funktion für Lux-Antworten** einbauen, falls noch nicht vorhanden (Google-Play-
-      Richtlinie für KI-generierte Inhalte, siehe Abschnitt 5)
-- [ ] **Einwilligung vor der ersten Lux-Nutzung mit Sprachmodell** (Hinweis auf den
-      Modellanbieter, ausdrückliche Zustimmung; Apple 5.1.2(i) verlangt das für die Weitergabe
-      personenbezogener Daten an KI-Dienste Dritter)
+- [x] **Streak-Erinnerungen** über `@capacitor/local-notifications` (Profil → Erinnerung:
+      Uhrzeit wählen, die App fragt nach der Berechtigung). Lokal geplant für 14 Tage, entfällt
+      für heute, sobald die Serie sicher ist. Auf echten Geräten testen (Android 13+: Berechtigung,
+      iOS: Fokus-Modi)
+- [x] **Melden-Funktion für Lux-Antworten:** »Antwort melden« unter jeder Antwort des
+      Sprachmodells (Grund wählen, ohne die App zu verlassen); Moderation über
+      `GET /api/v1/admin/tutor-reports` und `POST /api/v1/admin/tutor-reports/:id/resolve`
+- [x] **Einwilligung vor der ersten Lux-Nutzung mit Sprachmodell:** Lux fragt vor der ersten
+      Modell-Antwort, nennt Modell und Anbieter (`LUMEN_TUTOR_PROVIDER`, z. B. `OpenRouter`;
+      sonst der API-Host) und bietet »Nur Hinweise aus der Lektion« an; widerrufbar im Profil
+      (Apple 5.1.2(i))
 - [ ] Testen auf echten Geräten: offline starten (Flugmodus), Sync, Social an/aus, Kindermodus,
       Konto löschen, helles/dunkles Design, große Schrift, Screenreader (VoiceOver/TalkBack)
 
@@ -107,7 +110,7 @@ Kategorie **Bildung**.
 - **4.2 Mindestfunktionalität** – keine reine Website-Verpackung: alle Lektionen und
   Content-Bundles sind in der App enthalten und funktionieren offline; 31 interaktive
   Aufgabentypen, Wiederholung mit FSRS, Lux. Native Ergänzung: lokale Streak-Erinnerungen
-  (siehe Abschnitt 2 – vor der Einreichung umsetzen)
+  per Benachrichtigung (Profil → Erinnerung); in den Review-Notizen erwähnen
 - **5.1.1(v) Kontolöschung** – wer ein Konto anlegen kann, muss es in der App löschen können:
   **Profil → Serverdaten löschen** löscht Lernereignisse und Social-Profil. In den Review-Notizen
   den Weg beschreiben
@@ -165,9 +168,9 @@ Modellanbieter vertraglich nichts speichert.
       unzulässige Inhalte, die vor der Nutzung akzeptiert werden; Melden und Blockieren in der
       App; laufende Moderation (Admin-Endpunkte). Lumen erfüllt das mit Namensfilter, Melden,
       Blockieren, Sperren und der Bestätigung der Community-Regeln beim Anlegen des Profils
-- [ ] **KI-generierte Inhalte:** Apps mit generativer KI müssen das Melden anstößiger
-      KI-Antworten in der App ermöglichen, ohne die App zu verlassen – für Lux eine
-      „Antwort melden“-Funktion vorsehen (siehe Abschnitt 2)
+- [x] **KI-generierte Inhalte:** Apps mit generativer KI müssen das Melden anstößiger
+      KI-Antworten in der App ermöglichen, ohne die App zu verlassen – Lux hat dafür
+      »Antwort melden« (siehe Abschnitt 2)
 - [ ] **App-Zugriff:** keine Anmeldung nötig; **Werbung:** nein
 - [ ] Kontolöschung ist in der App möglich (Profil → Serverdaten löschen)
 
