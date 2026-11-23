@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { addDays, dayKey, type LumenEvent } from '@lumen/engine';
 import { Icon, Segmented, Switch } from '../components/ui.tsx';
 import { href } from '../lib/router.ts';
@@ -6,7 +6,9 @@ import { isKid } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
 import { deleteServerData, generateSyncCode, normalizeCode, syncNow } from '../lib/sync.ts';
 import { TIER_COLORS, useGamification } from '../lib/gamify.ts';
-import { DEFAULT_SYNC_URL } from '../lib/api.ts';
+import { apiBase, defaultSyncUrl, isValidServerUrl, normalizeServerUrl, probeServer } from '../lib/api.ts';
+import { BYOK_PROVIDERS, isValidByok, providerLabel, testByok } from '../lib/byok.ts';
+import { tutorStatus, type TutorStatusInfo } from '../lib/tutor.ts';
 import { isNativeApp, requestReminderPermission } from '../lib/reminders.ts';
 import { social, type PublicUser } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
@@ -100,7 +102,9 @@ export function Profile() {
         </div>
       </section>
 
+      {!isKid(settings) && <LuxModelSection />}
       {!isKid(settings) && <CommunitySection />}
+      <ServerSection />
       <SyncSection />
       <DataSection />
 
@@ -115,6 +119,112 @@ export function Profile() {
         </div>
       </section>
     </main>
+  );
+}
+
+function ServerSection() {
+  const { t, settings, updateSettings } = useApp();
+  const [url, setUrl] = useState(settings.serverUrl ?? '');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const apply = async (next: string | null) => {
+    setMsg(null);
+    if (next !== null && !isValidServerUrl(next)) return setMsg(t('server.invalid'));
+    setBusy(true);
+    try {
+      const target = next === null ? null : normalizeServerUrl(next);
+      if (target && !(await probeServer(target))) return setMsg(t('server.unreachable'));
+      const switching = target !== settings.serverUrl;
+      if (switching && settings.sync && !confirm(t('server.switchConfirm', { code: settings.sync.token }))) return;
+      updateSettings({ serverUrl: target, ...(switching && settings.sync ? { sync: null, social: null } : {}) });
+      if (!target) setUrl('');
+      setMsg(target ? t('server.connected', { url: target }) : t('server.resetDone'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="settings-group" aria-labelledby="srv-h">
+      <h2 id="srv-h">{t('server.title')}</h2>
+      <div className="list">
+        <div className="list-pad small muted">{t('server.intro')}</div>
+        <div className="list-row"><span className="lbl">{t('server.current')}</span><span className="small" style={{ textAlign: 'right', wordBreak: 'break-all' }}>{apiBase()} · {settings.serverUrl ? t('server.custom') : t('server.default')}</span></div>
+        <div className="list-pad stack">
+          <div className="field">
+            <label htmlFor="srv-url">{t('server.url')}</label>
+            <input id="srv-url" className="input" type="url" inputMode="url" autoCapitalize="none" spellCheck={false} placeholder="https://lumen.example.org/api" value={url} onChange={(e) => setUrl(e.target.value)} />
+          </div>
+          <div className="row wrap" style={{ gap: 8 }}>
+            <button className="btn primary small" disabled={busy || !url.trim()} onClick={() => void apply(url)}>{t('server.connect')}</button>
+            {settings.serverUrl && <button className="btn ghost small" disabled={busy} onClick={() => void apply(null)}>{t('server.reset')}</button>}
+          </div>
+        </div>
+        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+      </div>
+    </section>
+  );
+}
+
+function LuxModelSection() {
+  const { t, settings, updateSettings } = useApp();
+  const b = settings.tutorByok;
+  const [info, setInfo] = useState<TutorStatusInfo | null | undefined>(undefined);
+  const [mode, setMode] = useState<'server' | 'own'>(b ? 'own' : 'server');
+  const [provider, setProvider] = useState<string>(b ? (BYOK_PROVIDERS.find((p) => p.url && p.url === b.url)?.id ?? 'custom') : 'openrouter');
+  const [url, setUrl] = useState(b?.url ?? '');
+  const [model, setModel] = useState(b?.model ?? '');
+  const [key, setKey] = useState(b?.key ?? '');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    void tutorStatus().then(setInfo);
+  }, [settings.serverUrl]);
+  const cfg = { url: provider === 'custom' ? url.trim() : BYOK_PROVIDERS.find((p) => p.id === provider)!.url, model: model.trim(), key: key.trim() };
+  const save = async () => {
+    setMsg(null);
+    if (!isValidByok(cfg)) return setMsg(t('byok.invalid'));
+    setBusy(true);
+    const status = await testByok(cfg);
+    setBusy(false);
+    if (status === null) {
+      updateSettings({ tutorByok: cfg, tutorConsent: true });
+      setMsg(t('byok.saved', { model: cfg.model }));
+    } else setMsg(status === 0 ? t('byok.failedNet') : status === 401 || status === 403 ? t('byok.failedKey', { status }) : status === 404 || status === 400 ? t('byok.failedModel', { status }) : t('byok.failed', { status }));
+  };
+  const remove = () => {
+    updateSettings({ tutorByok: null });
+    setKey('');
+    setMsg(t('byok.removed'));
+  };
+  return (
+    <section className="settings-group" aria-labelledby="byok-h">
+      <h2 id="byok-h">{t('byok.title')}</h2>
+      <div className="list">
+        <div className="list-row">
+          <Segmented label={t('byok.title')} value={mode} options={[{ value: 'server', label: t('byok.server') }, { value: 'own', label: t('byok.own') }]} onChange={(v) => { setMode(v); if (v === 'server' && b) remove(); }} />
+        </div>
+        {settings.tutor === false && <div className="list-pad small faint">{t('byok.tutorOff')}</div>}
+        {mode === 'server' ? (
+          <div className="list-pad small muted">{info === undefined ? t('loading') : info?.model ? t('byok.serverModel', { model: info.model }) : t('byok.serverNone')}</div>
+        ) : (
+          <div className="list-pad stack">
+            <span className="small muted">{t('byok.intro')}</span>
+            <Segmented label={t('byok.provider')} value={provider} options={BYOK_PROVIDERS.map((p) => ({ value: p.id as string, label: p.label || t('byok.other') }))} onChange={(v) => setProvider(String(v))} />
+            {provider === 'custom' && (
+              <div className="field"><label htmlFor="byok-url">{t('byok.url')}</label><input id="byok-url" className="input" type="url" autoCapitalize="none" spellCheck={false} placeholder="https://…/v1" value={url} onChange={(e) => setUrl(e.target.value)} /></div>
+            )}
+            <div className="field"><label htmlFor="byok-model">{t('byok.model')}</label><input id="byok-model" className="input" autoCapitalize="none" spellCheck={false} value={model} onChange={(e) => setModel(e.target.value)} /><span className="small faint">{t('byok.modelHint')}</span></div>
+            <div className="field"><label htmlFor="byok-key">{t('byok.key')}</label><input id="byok-key" className="input" type="password" autoComplete="off" spellCheck={false} value={key} onChange={(e) => setKey(e.target.value)} /></div>
+            <p className="small faint" style={{ margin: 0 }}>{t('byok.note', { provider: cfg.url ? providerLabel(cfg.url) : t('byok.provider') })}</p>
+            <div className="row wrap" style={{ gap: 8 }}>
+              <button className="btn primary small" disabled={busy} onClick={() => void save()}>{busy ? t('loading') : t('byok.save')}</button>
+              {b && <button className="btn ghost small" onClick={remove}>{t('byok.remove')}</button>}
+            </div>
+          </div>
+        )}
+        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+      </div>
+    </section>
   );
 }
 
@@ -198,7 +308,11 @@ function CommunitySection() {
 function SyncSection() {
   const { t, settings, updateSettings, reloadEvents } = useApp();
   const [code, setCode] = useState('');
-  const [server, setServer] = useState(settings.sync?.serverUrl ?? DEFAULT_SYNC_URL);
+  const [server, setServer] = useState(settings.sync?.serverUrl ?? defaultSyncUrl());
+  // Follow the server chosen above while no sync code is connected.
+  useEffect(() => {
+    if (!settings.sync) setServer(defaultSyncUrl());
+  }, [settings.serverUrl, settings.sync]);
   const [msg, setMsg] = useState<string | null>(null);
   const [consent, setConsent] = useState(settings.sync?.consent ?? false);
   const kid = isKid(settings) || settings.age === null;

@@ -6,6 +6,7 @@ import { clearEvents, loadEvents, newEventId, putEvents, type StoredEvent } from
 import { translate, type TKey } from './i18n.ts';
 import { applyDocumentSettings, loadSettings, saveSettings, type Settings } from './settings.ts';
 import { syncNow } from './sync.ts';
+import { setServerOverride } from './api.ts';
 
 type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
 export type NewEvent = DistributiveOmit<LumenEvent, 'id' | 'ts' | 'day'>;
@@ -48,6 +49,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState(() => navigator.onLine);
   const [contentNonce, setContentNonce] = useState(0);
   const [syncNonce, setSyncNonce] = useState(0);
+  // Every API call reads the server from here; set it before children render.
+  setServerOverride(settings.serverUrl);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
   const syncing = useRef(false);
