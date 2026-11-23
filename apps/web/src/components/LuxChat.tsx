@@ -75,7 +75,9 @@ export function useLux(getContext: () => TutorContext, opts: { revisit?: boolean
   const send = useCallback(
     async (intent: TutorIntent, message?: string, decided?: boolean) => {
       const allowed = settings.tutor !== false && !isKid(settings);
-      const granted = decided ?? settings.tutorConsent === true;
+      // An own API key is set up explicitly (with the same notice), so it counts as consent.
+      const byok = allowed && settings.tutorByok ? settings.tutorByok : null;
+      const granted = decided ?? (settings.tutorConsent === true || !!byok);
       // Before the first answer from the language model, ask (Apple 5.1.2: sharing data with an AI service).
       if (allowed && !granted && decided === undefined) {
         const info = await tutorStatus();
@@ -90,7 +92,7 @@ export function useLux(getContext: () => TutorContext, opts: { revisit?: boolean
       setMessages((m) => [...m, userMsg]);
       setBusy(true);
       const started = Date.now();
-      const ans = await askLux(ctx, history, intent, message, allowed && granted);
+      const ans = await askLux(ctx, history, intent, message, allowed && granted, byok);
       // a short beat so even instant rule answers feel like Lux thought about it
       const wait = Math.max(0, 550 - (Date.now() - started));
       if (wait) await new Promise((r) => setTimeout(r, wait));
@@ -223,6 +225,8 @@ export function LuxChat({
   const online = settings.tutor !== false && !isKid(settings) && info;
   const sub = lux.busy
     ? t('lux.thinking')
+    : settings.tutorByok && settings.tutor !== false && !isKid(settings) && !lux.offline
+      ? t('lux.byok', { model: settings.tutorByok.model })
     : online && !lux.offline
       ? info.local
         ? t('lux.local', { model: info.model ?? '' })

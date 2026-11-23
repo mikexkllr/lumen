@@ -72,6 +72,15 @@ docker compose -f docker-compose.prod.yml up -d --build
 Health check: `GET /api/healthz` returns `{"ok":true}`. Back up the database with
 [deploy/backup.sh](../deploy/backup.sh) (`deploy/backup.sh restore <file>` restores).
 
+## Default server, own servers and own AI keys
+
+The build decides the default server: the website uses `/api` on its own origin, the store
+apps use `VITE_LUMEN_API_URL` (your server). Learners can point the app to another Lumen
+instance under *Profile → Server*; that instance must allow the app origins in
+`LUMEN_CORS_ORIGINS`. Lux uses the server's model by default (`LUMEN_TUTOR_*`, the key stays
+on the server); learners can bring their own key under *Profile → AI model for Lux*, and
+then the device talks to their provider directly.
+
 ## Configuration reference
 
 ### Web app (build time)
@@ -95,7 +104,7 @@ Health check: `GET /api/healthz` returns `{"ok":true}`. Back up the database wit
 |---|---|---|
 | `LUMEN_API_UPSTREAM` | where nginx proxies `/api/` | `http://sync:8787` (prod: `http://server:8787`) |
 | `LUMEN_DNS_RESOLVER` | DNS resolver for the upstream name | `127.0.0.11` (Docker) |
-| `LUMEN_CSP_CONNECT_SRC` | `connect-src` of the Content-Security-Policy; add origins if the app uses an API on another origin | `'self'` |
+| `LUMEN_CSP_CONNECT_SRC` | `connect-src` of the Content-Security-Policy. The default allows any https origin so learners can switch to another Lumen server and use their own AI key; `'self'` disables both on the website | `'self' https:` |
 
 The CSP allows scripts only from the same origin (no inline scripts, no `eval`), inline
 style attributes (needed by KaTeX), and `data:`/`blob:` images and fonts. If a user enters

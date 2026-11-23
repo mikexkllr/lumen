@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { dayKey } from '@lumen/engine';
 import { Avatar, errorText, relTime, Sheet, TierBadge, tierName } from '../components/social.tsx';
 import { Icon, Switch } from '../components/ui.tsx';
-import { DEFAULT_SYNC_URL } from '../lib/api.ts';
+import { defaultSyncUrl } from '../lib/api.ts';
 import { href, navigate } from '../lib/router.ts';
 import { isKid } from '../lib/settings.ts';
 import {
@@ -111,7 +111,7 @@ export function SocialSetup({ edit = false }: { edit?: boolean }) {
       let c: SocialConn | null = conn;
       let sync = settings.sync;
       if (!c || !sync) {
-        sync = { serverUrl: DEFAULT_SYNC_URL, token: generateSyncCode(), lastSync: null, cursor: 0, consent: true };
+        sync = { serverUrl: defaultSyncUrl(), token: generateSyncCode(), lastSync: null, cursor: 0, consent: true };
         c = { serverUrl: sync.serverUrl, token: sync.token };
       }
       if (!(await serverHasSocial(c.serverUrl))) throw new Error(t('social.noServer'));

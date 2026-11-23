@@ -79,7 +79,7 @@ Die Web-App (`npm run dev -w @lumen/web`) leitet `/api` an den Server weiter. In
 | `LUMEN_TUTOR_RATE_LIMIT` | Anfragen pro Minute und IP | 30 |
 | `LUMEN_TUTOR=off` | nur Regel-Tutor | – |
 
-Vor der ersten Antwort des Modells fragt Lux nach der Einwilligung und nennt Modell und Anbieter; wer ablehnt, bekommt den Regel-Tutor. Jede Modell-Antwort lässt sich im Chat melden (`GET /v1/admin/tutor-reports` für die Moderation).
+Standard ist das Modell des Servers (z. B. ein günstiges OpenRouter-Modell, Schlüssel nur auf dem Server); wer mehr will, hinterlegt im Profil einen eigenen API-Schlüssel – er bleibt auf dem Gerät, die Anfragen gehen direkt zum eigenen Anbieter. Vor der ersten Antwort des Modells fragt Lux nach der Einwilligung und nennt Modell und Anbieter; wer ablehnt, bekommt den Regel-Tutor. Jede Modell-Antwort lässt sich im Chat melden (`GET /v1/admin/tutor-reports` für die Moderation).
 
 Datenschutz: Lux schickt Aufgabe, Antwort und Nachrichten an den Lumen-Server und dessen Modell; der Server loggt nur den Grund eines Rückfalls, nie Inhalte. In den Einstellungen lässt sich das Modell abschalten.
 

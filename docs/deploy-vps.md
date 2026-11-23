@@ -108,12 +108,32 @@ Für ein Modell bei OpenRouter:
 
    ```bash
    LUMEN_TUTOR_URL=https://openrouter.ai/api/v1
-   LUMEN_TUTOR_MODEL=qwen/qwen3-30b-a3b
+   LUMEN_TUTOR_MODEL=<günstiges Modell aus der OpenRouter-Liste>
    LUMEN_TUTOR_API_KEY=sk-or-...
+   LUMEN_TUTOR_PROVIDER=OpenRouter
    ```
+
+   Der Schlüssel bleibt auf dem Server; die Apps und die Website bekommen ihn nie zu sehen.
+   Für den Standard reicht ein kleines, günstiges Modell – Lux antwortet in wenigen Sätzen
+   (`LUMEN_TUTOR_MAX_TOKENS`, Standard 220). Ein Ausgabelimit für den Schlüssel bei
+   OpenRouter deckelt die Kosten.
 
 4. Server neu starten: `docker compose -f docker-compose.prod.yml up -d server`
 5. Prüfen: `curl https://lumen.example.org/api/v1/tutor` zeigt den Modellnamen.
+
+**Eigener Schlüssel (Bring your own key):** Wer ein stärkeres Modell möchte, trägt in der App
+unter *Profil → KI-Modell für Lux* einen eigenen API-Schlüssel eines OpenAI-kompatiblen
+Anbieters (OpenRouter, OpenAI oder eine eigene Adresse) und einen Modellnamen ein. Der
+Schlüssel bleibt auf dem Gerät, die Anfragen gehen direkt vom Gerät zum Anbieter – an deinem
+Server und deinen Kosten vorbei. Systemprompt und Leak-Schutz sind dieselben wie auf dem
+Server. Auf der Website braucht das eine CSP, die https-Ziele erlaubt (Standard:
+`LUMEN_CSP_CONNECT_SRC="'self' https:"`); mit `'self'` ist es dort abgeschaltet.
+
+**Server-Adresse:** Die Store-Apps verbinden sich mit dem Server, der beim Build in
+`VITE_LUMEN_API_URL` steht (dein Server). Nutzer:innen können unter *Profil → Server* eine
+andere Lumen-Instanz eintragen, etwa eine selbst gehostete; Sync und Community werden dann
+getrennt, der Lernfortschritt bleibt auf dem Gerät. Eine fremde Instanz muss die App-Origins
+`capacitor://localhost` und `https://localhost` in `LUMEN_CORS_ORIGINS` erlauben.
 
 Weitere Stellschrauben: `LUMEN_TUTOR_MAX_TOKENS`, `LUMEN_TUTOR_TEMPERATURE`,
 `LUMEN_TUTOR_TIMEOUT_MS`, `LUMEN_TUTOR_RATE_LIMIT` (siehe `.env.example`). Unter 16-Jährige

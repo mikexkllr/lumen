@@ -15,7 +15,14 @@ keine Rechtsberatung – siehe [Abschnitt 9](#9-was-anwaltlich-geprüft-werden-m
 | Anzeigename, Handle, Avatar (vorgegebene Auswahl) | nur mit Social (optional, ab 16) | Lumen-Server | zufällige Nutzer-ID |
 | Freundschaften, Reaktionen (feste Emoji-Auswahl), Meldungen, Blockierungen | nur mit Social | Lumen-Server | zufällige Nutzer-ID |
 | Aufgabe, Antwort, Chat-Nachrichten an Lux | nur wenn das Sprachmodell an ist (abschaltbar, unter 16 nie) | Lumen-Server → Modellanbieter; der Lumen-Server speichert sie nicht | nicht mit dem Konto verknüpft (keine Kennung in der Anfrage) |
+| Aufgabe, Antwort, Chat-Nachrichten an Lux mit **eigenem Schlüssel** (optional) | nur wenn Nutzer:innen selbst einen API-Schlüssel hinterlegen | direkt vom Gerät zum selbst gewählten Anbieter; der Schlüssel bleibt auf dem Gerät | nicht mit dem Konto verknüpft |
 | IP-Adresse | jede Server-Anfrage | Lumen-Server: im Arbeitsspeicher für das Rate-Limit, bei Serverfehlern im Fehlerlog (rotiert); keine Zugriffslogs | – |
+
+Nutzer:innen können außerdem einen anderen Lumen-Server eintragen (*Profil → Server*);
+dann gehen die Server-Daten aus der Tabelle an diesen Server statt an deinen. In den
+Review-Notizen erwähnen: Standard ist dein Server, eigener Server und eigener KI-Schlüssel
+sind optionale Einstellungen für Fortgeschrittene. Für Apple 5.1.2(i) gilt die Einrichtung
+des eigenen Schlüssels als Einwilligung (der Hinweis nennt Anbieter und gesendete Daten).
 
 Keine Werbung, kein Tracking, keine Analytics-, Crash- oder Werbe-SDKs, keine
 Drittanbieter-Logins, keine Käufe. Lokale Benachrichtigungen (falls aktiviert) werden auf

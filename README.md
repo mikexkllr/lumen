@@ -89,7 +89,7 @@ The web app (`npm run dev -w @lumen/web`) proxies `/api` to the server. In produ
 | `LUMEN_TUTOR_RATE_LIMIT` | requests per minute and IP | 30 |
 | `LUMEN_TUTOR=off` | rule tutor only | – |
 
-Before the model answers for the first time, Lux asks for consent and names model and provider; declining leaves the rule tutor. Every model reply can be reported in the chat (`GET /v1/admin/tutor-reports` for moderators).
+The server's model (e.g. a cheap OpenRouter model, key only on the server) is the default; learners who want more can bring their own API key in the profile – it stays on the device and requests go straight to their provider. Before the model answers for the first time, Lux asks for consent and names model and provider; declining leaves the rule tutor. Every model reply can be reported in the chat (`GET /v1/admin/tutor-reports` for moderators).
 
 Privacy: Lux sends the problem, the answer and the messages to the Lumen server and its model; the server only logs the reason for a fallback, never content. The model can be switched off in settings.
 

@@ -26,6 +26,10 @@ export interface Settings {
   tutor: boolean;
   /** The learner agreed that Lux may send the task and their messages to the language model (asked before first use). */
   tutorConsent: boolean;
+  /** Another Lumen server instead of the build default (e.g. a self-hosted one); null: default. */
+  serverUrl: string | null;
+  /** Learner's own API key for Lux (stays on the device); null: the server's model. */
+  tutorByok: { url: string; model: string; key: string } | null;
   /** Cached social profile (the server is the source of truth); needs sync. */
   social: { userId: string; handle: string } | null;
 }
@@ -50,6 +54,8 @@ export const DEFAULT_SETTINGS: Settings = {
   sync: null,
   tutor: true,
   tutorConsent: false,
+  serverUrl: null,
+  tutorByok: null,
   social: null,
 };
 
