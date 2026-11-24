@@ -2,6 +2,8 @@
 
 🌐 [English](README.md) · **Deutsch**
 
+**▶ Jetzt ausprobieren: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud/de/)** – ohne Konto, ohne Download ([direkt zur App](https://lumen.mikekeller.cloud/app/)).
+
 **MINT verstehen durch Ausprobieren – kostenlos, werbefrei, offen, datensparsam.**
 
 Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem Feedback. Der Kern ist eine **Engine für deklarative, automatisch prüfbare Aufgaben** und ein **offenes Content-Format**. Jede veröffentlichte Aufgabe muss automatische Evals bestehen: Sie muss lösbar und eindeutig sein und darf keine unmöglichen Zustände erreichen.

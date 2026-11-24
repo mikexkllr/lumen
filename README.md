@@ -2,6 +2,8 @@
 
 🌐 **English** · [Deutsch](README.de.md)
 
+**▶ Try it now: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud)** – no account, no download ([open the app directly](https://lumen.mikekeller.cloud/app/)).
+
 **Lumen is a free alternative to Brilliant.org: learn math, science, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
 
 Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
