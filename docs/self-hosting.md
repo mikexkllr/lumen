@@ -122,6 +122,10 @@ a sync server on another origin in their profile, that origin must be in `connec
 | `LUMEN_RATE_LIMIT` | requests per minute and IP | `120` |
 | `LUMEN_SOCIAL` | `off` disables profiles, friends, leagues and feed | on |
 | `LUMEN_ADMIN_TOKEN` | secret (≥ 16 characters) that enables the moderation endpoints `/v1/admin/*` | – (disabled) |
+| `LUMEN_SMTP_URL`, `LUMEN_MAIL_FROM` | sign-in with emailed codes: `smtps://user:password@mail.example.org:465` (implicit TLS) and the sender, e.g. `Lumen <noreply@example.org>` | – (email sign-in off) |
+| `LUMEN_EMAIL_PEPPER` | secret (≥ 16 characters) for the keyed hash under which email sign-ins are stored; never change it once in use | – (email sign-in off) |
+| `LUMEN_APPLE_CLIENT_IDS` | Sign in with Apple: your iOS bundle id(s), comma-separated | – (Apple sign-in off) |
+| `LUMEN_APPLE_TEAM_ID`, `LUMEN_APPLE_KEY_ID`, `LUMEN_APPLE_PRIVATE_KEY` | key with "Sign in with Apple" (PEM, `\n` for line breaks); revokes Apple sign-ins when an account is deleted (App Store guideline 5.1.1(v)) | – (no revocation) |
 | `LUMEN_TUTOR` | `off`: Lux uses the rule tutor only | – |
 | `LUMEN_TUTOR_URL` | OpenAI-compatible base URL, e.g. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
 | `LUMEN_TUTOR_MODEL` | model name | `qwen3:1.7b` (local), `qwen/qwen3-30b-a3b` (remote) |

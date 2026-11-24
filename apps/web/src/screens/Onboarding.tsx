@@ -1,12 +1,21 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Cover, topicVars } from '../components/art.tsx';
 import { Icon, Logo } from '../components/ui.tsx';
 import { navigate } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
 import { Lux } from '../components/Lux.tsx';
+import { defaultSyncUrl } from '../lib/api.ts';
+import { signInMethods } from '../lib/signIn.ts';
 
 export function Welcome() {
   const { t } = useApp();
+  // Someone coming back on a new device can sign in (Apple in the iOS app, email everywhere).
+  const [canSignIn, setCanSignIn] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void signInMethods(defaultSyncUrl()).then((m) => live && setCanSignIn(m.apple || m.email));
+    return () => { live = false; };
+  }, []);
   const art = [
     { motif: 'function', color: '#0f766e' },
     { motif: 'neural', color: '#6d28d9' },
@@ -34,6 +43,7 @@ export function Welcome() {
           {t('welcome.start')} <Icon name="arrow" size={18} className="arrow" />
         </button>
         <p className="fine">{t('welcome.privacy')}</p>
+        {canSignIn && <button className="btn quiet block" style={{ marginTop: 10 }} onClick={() => navigate('login')}>{t('signin.welcome')}</button>}
       </div>
     </main>
   );

@@ -9,6 +9,7 @@ import { Profile } from './screens/Profile.tsx';
 import { Community, SocialSetup, UserScreen } from './screens/Community.tsx';
 import { Streak } from './screens/Streak.tsx';
 import { Legal } from './screens/Legal.tsx';
+import { Login } from './screens/Login.tsx';
 import { useSocial } from './lib/socialContext.tsx';
 import { isKid } from './lib/settings.ts';
 import { useReminders } from './lib/reminders.ts';
@@ -90,7 +91,7 @@ export function App() {
   useReminders({ time: settings.reminder, today: app.today, streak: app.progress.streak.current, todayDone: app.progress.streak.todayDone, hasFriends: !!settings.social, locale: settings.locale, loaded });
 
   useEffect(() => {
-    if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal'].includes(head ?? '')) navigate('welcome', true);
+    if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal', 'login'].includes(head ?? '')) navigate('welcome', true);
   }, [loaded, settings.onboarded, head]);
 
   useEffect(() => {
@@ -122,6 +123,8 @@ export function App() {
       return <Welcome />;
     case 'onboarding':
       return <Onboarding />;
+    case 'login':
+      return <Login />;
     case 'placement':
       return <Suspense fallback={<Loading />}><Player key="placement" mode={{ kind: 'placement' }} /></Suspense>;
     case 'daily':

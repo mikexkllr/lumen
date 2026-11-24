@@ -21,7 +21,7 @@ export interface Settings {
   pathId: string | null;
   /** Where the placement check suggests to start. */
   startAt: { topic: string; unit?: string } | null;
-  sync: { serverUrl: string; token: string; lastSync: number | null; cursor: number; consent: boolean } | null;
+  sync: { serverUrl: string; token: string; lastSync: number | null; cursor: number; consent: boolean; linked?: { apple: boolean; email: boolean } } | null;
   /** Lux may use the language model on the Lumen server (off: rule tutor only). */
   tutor: boolean;
   /** The learner agreed that Lux may send the task and their messages to the language model (asked before first use). */

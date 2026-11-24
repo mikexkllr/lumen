@@ -13,6 +13,7 @@ import { isNativeApp, requestReminderPermission } from '../lib/reminders.ts';
 import { social, type PublicUser } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { Avatar, errorText } from '../components/social.tsx';
+import { SignInOptions } from '../components/SignIn.tsx';
 
 const WEEKS = 18;
 
@@ -346,7 +347,8 @@ function SyncSection() {
               <input id="sync-server" type="url" value={server} onChange={(e) => setServer(e.target.value)} />
             </div>
             {kid && <label className="row small"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> {t('sync.consentAge')}</label>}
-            <button className="btn primary" disabled={kid && !consent} onClick={() => connect(generateSyncCode())}>{t('sync.create')}</button>
+            <SignInOptions serverUrl={server} disabled={kid && !consent} onSignedIn={(r) => { if (r.token) { connect(r.token); setMsg(t(r.created ? 'signin.created' : 'signin.restored')); } }} />
+            <button className="btn ghost" disabled={kid && !consent} onClick={() => connect(generateSyncCode())}>{t('sync.create')}</button>
             <div className="field">
               <label htmlFor="sync-code">{t('sync.join')}</label>
               <div className="row">
@@ -363,6 +365,10 @@ function SyncSection() {
               <p className="small faint" style={{ marginTop: 6 }}>{t('sync.codeNote')}</p>
             </div>
             <p className="small" style={{ margin: 0 }}>{s.lastSync ? t('sync.last', { when: new Date(s.lastSync).toLocaleString(settings.locale) }) : t('sync.never')} · {s.serverUrl}</p>
+            <div className="stack" style={{ gap: 8 }}>
+              <span className="small faint">{t('signin.linkedTitle')}</span>
+              <SignInOptions serverUrl={s.serverUrl} token={s.token} onLinked={(linked) => { if (JSON.stringify(linked) !== JSON.stringify(settings.sync?.linked)) updateSettings({ sync: { ...s, linked } }); }} />
+            </div>
             <button className="btn primary" onClick={run}><Icon name="sync" size={16} /> {t('sync.now')}</button>
             <div className="row wrap">
               <button className="btn ghost small" onClick={() => updateSettings({ sync: null, social: null })}>{t('sync.disconnect')}</button>

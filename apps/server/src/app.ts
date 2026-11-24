@@ -7,7 +7,7 @@
  * streaks stay deterministic on every device.
  */
 import { createHash } from 'node:crypto';
-import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
+import Fastify, { type FastifyInstance, type FastifyReply, type FastifyRequest } from 'fastify';
 import type { EventStore } from './store.ts';
 import { parseTutorRequest, tutorReply, type TutorConfig } from './tutor.ts';
 import { clientToday } from './social/logic.ts';
@@ -15,6 +15,8 @@ import { registerSocialRoutes, socialService } from './social/routes.ts';
 import type { SocialStore } from './social/store.ts';
 import { adminOk } from './admin.ts';
 import { parseTutorReport, type TutorReportStore } from './reports.ts';
+import { appleRefreshToken, appleSubHash, emailCodeHash, emailIdHash, newDeviceCode, newEmailCode, normalizeEmail, revokeApple, verifyAppleToken, type AppleConfig, type AuthStore, type Provider } from './auth.ts';
+import { loginMail, type SendMail } from './mail.ts';
 
 const EVENT_TYPES = new Set(['attempt', 'concept_completed', 'review', 'review_session_completed', 'placement_completed']);
 const MAX_EVENTS_PER_REQUEST = 1000;
@@ -39,6 +41,12 @@ export interface ServerOptions {
   reports?: TutorReportStore | null;
   /** Secret for the moderation endpoints under /v1/admin. */
   adminToken?: string | null;
+  /** Device codes and Apple links (optional "Sign in with Apple"). */
+  auth?: AuthStore | null;
+  /** Sign in with Apple; null or absent disables it. */
+  apple?: AppleConfig | null;
+  /** Sign-in with emailed one-time codes; null or absent disables it. */
+  email?: { send: SendMail; pepper: string } | null;
   now?: () => number;
 }
 
@@ -97,9 +105,13 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
 
   const social = opts.social ?? null;
   const now = opts.now ?? Date.now;
-  const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t ? accountKey(t) : null; }, adminToken: opts.adminToken, now } : null;
+  const auth = opts.auth ?? null;
+  const apple = auth ? (opts.apple ?? null) : null;
+  // A sync code identifies its account directly; device codes from Apple sign-in point to one.
+  const accountOf = (token: string) => (auth ? auth.resolve(accountKey(token)) : accountKey(token));
+  const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t ? accountOf(t) : null; }, adminToken: opts.adminToken, now } : null;
   const service = deps ? socialService(deps) : null;
-  app.get('/v1/features', async () => ({ sync: true, tutor: true, social: !!social }));
+  app.get('/v1/features', async () => ({ sync: true, tutor: true, social: !!social, apple: !!apple, email: !!(auth && opts.email) }));
   if (deps && service) registerSocialRoutes(app, deps, service);
 
   const tutor = opts.tutor ?? null;
@@ -157,7 +169,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
       const err = validateEvent(e);
       if (err) return reply.code(400).send({ error: 'invalid_event', detail: err });
     }
-    const account = accountKey(token);
+    const account = accountOf(token);
     const inserted = opts.store.insert(account, events as { id: string }[]);
     if (service && social) {
       const today = clientToday(body?.today, now());
@@ -171,17 +183,120 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.get('/v1/export', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
-    const { events } = opts.store.since(accountKey(token), 0, Number.MAX_SAFE_INTEGER);
+    const { events } = opts.store.since(accountOf(token), 0, Number.MAX_SAFE_INTEGER);
     return { format: 'lumen-events', version: 1, events };
   });
 
   app.delete('/v1/account', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
-    const account = accountKey(token);
+    const account = accountOf(token);
     const removed = opts.store.deleteAccount(account);
     social?.deleteAccount(account);
+    const link = auth?.deleteAccount(account);
+    if (link && apple) await revokeApple(link.refreshToken, apple, opts.fetchImpl);
     return { deleted: removed };
+  });
+
+  // Sign-in on top of the sync code, with Apple or an emailed one-time code. With a sync code
+  // (Bearer) it links the identity to that account; without one it signs in: a known identity
+  // gets a new device code for its account, a new one gets a fresh account.
+  const signInBuckets = new Map<string, { count: number; reset: number }>();
+  const limited = (key: string, max: number, windowMs: number) => {
+    const t = Date.now();
+    const b = signInBuckets.get(key);
+    if (!b || b.reset < t) signInBuckets.set(key, { count: 1, reset: t + windowMs });
+    else if (++b.count > max) return true;
+    return false;
+  };
+  const finishSignIn = async (req: FastifyRequest, reply: FastifyReply, provider: Provider, idHash: string, refreshToken: () => Promise<string | null>) => {
+    const linked = auth!.accountFor(provider, idHash);
+    const token = bearer(req);
+    if (token) {
+      const account = accountOf(token);
+      if (linked && linked !== account) return reply.code(409).send({ error: 'linked_elsewhere' });
+      if (!linked && auth!.linkOf(provider, account)) return reply.code(409).send({ error: 'account_has_other_identity' });
+      if (!linked) auth!.link(provider, idHash, account, await refreshToken());
+      return { linked: true };
+    }
+    const device = newDeviceCode();
+    const deviceKey = accountKey(device.replace(/-/g, ''));
+    if (linked) {
+      auth!.addToken(deviceKey, linked);
+      return { linked: true, created: false, token: device };
+    }
+    auth!.link(provider, idHash, deviceKey, await refreshToken());
+    return { linked: true, created: true, token: device };
+  };
+
+  app.post('/v1/auth/apple', async (req, reply) => {
+    if (!auth || !apple) return reply.code(404).send({ error: 'not_found' });
+    if (limited(`apple:${req.ip}`, 20, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    const body = (req.body ?? {}) as { identityToken?: unknown; nonce?: unknown; authorizationCode?: unknown };
+    if (typeof body.identityToken !== 'string' || typeof body.nonce !== 'string' || body.identityToken.length > 8000 || body.nonce.length > 200) {
+      return reply.code(400).send({ error: 'invalid_request' });
+    }
+    let sub: string;
+    try {
+      sub = await verifyAppleToken(body.identityToken, body.nonce, apple, opts.fetchImpl);
+    } catch (e) {
+      req.log.warn({ appleAuth: (e as Error).message }, 'apple sign-in rejected');
+      return reply.code(401).send({ error: 'invalid_apple_token' });
+    }
+    const code = typeof body.authorizationCode === 'string' && body.authorizationCode.length < 2000 ? body.authorizationCode : '';
+    return finishSignIn(req, reply, 'apple', appleSubHash(sub), () => appleRefreshToken(code, apple, opts.fetchImpl));
+  });
+
+  const email = auth && opts.email ? opts.email : null;
+  app.post('/v1/auth/email/start', async (req, reply) => {
+    if (!auth || !email) return reply.code(404).send({ error: 'not_found' });
+    const body = (req.body ?? {}) as { email?: unknown; locale?: unknown };
+    const address = typeof body.email === 'string' ? normalizeEmail(body.email) : null;
+    if (!address) return reply.code(400).send({ error: 'invalid_email' });
+    if (limited(`mail-ip:${req.ip}`, 10, 3_600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    const idHash = emailIdHash(address, email.pepper);
+    if (auth.recentEmailCodes(idHash, Date.now() - 3_600_000) >= 5) return reply.code(429).send({ error: 'rate_limited' });
+    const code = newEmailCode();
+    auth.putEmailCode(idHash, emailCodeHash(idHash, code), Date.now() + 600_000);
+    try {
+      await email.send({ to: address, ...loginMail(code, typeof body.locale === 'string' ? body.locale : 'en') });
+    } catch (e) {
+      req.log.error({ mail: (e as Error).message }, 'login mail failed');
+      return reply.code(502).send({ error: 'mail_failed' });
+    }
+    // Same answer whether or not the address belongs to an account.
+    return { sent: true };
+  });
+
+  app.post('/v1/auth/email/verify', async (req, reply) => {
+    if (!auth || !email) return reply.code(404).send({ error: 'not_found' });
+    if (limited(`verify:${req.ip}`, 30, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    const body = (req.body ?? {}) as { email?: unknown; code?: unknown };
+    const address = typeof body.email === 'string' ? normalizeEmail(body.email) : null;
+    const code = typeof body.code === 'string' ? body.code.replace(/\D/g, '') : '';
+    if (!address || code.length !== 6) return reply.code(400).send({ error: 'invalid_request' });
+    const idHash = emailIdHash(address, email.pepper);
+    const result = auth.checkEmailCode(idHash, emailCodeHash(idHash, code), Date.now());
+    if (result !== 'ok') return reply.code(result === 'wrong' ? 401 : 410).send({ error: `code_${result}` });
+    return finishSignIn(req, reply, 'email', idHash, async () => null);
+  });
+
+  app.get('/v1/auth', async (req, reply) => {
+    if (!auth) return reply.code(404).send({ error: 'not_found' });
+    const token = bearer(req);
+    if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
+    const account = accountOf(token);
+    return { apple: !!auth.linkOf('apple', account), email: !!auth.linkOf('email', account) };
+  });
+
+  app.delete('/v1/auth/:provider', async (req, reply) => {
+    const provider = (req.params as { provider: string }).provider;
+    if (!auth || (provider !== 'apple' && provider !== 'email')) return reply.code(404).send({ error: 'not_found' });
+    const token = bearer(req);
+    if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
+    const link = auth.unlink(provider, accountOf(token));
+    if (link && provider === 'apple' && apple) await revokeApple(link.refreshToken, apple, opts.fetchImpl);
+    return { linked: false };
   });
 
   return app;

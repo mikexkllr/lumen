@@ -174,6 +174,23 @@ Die nativen Ergänzungen in `ios/`: App-Icon randlos aus `apps/mobile/assets/ico
 Splash bleibt stehen, bis die Inhalte geladen sind (`apps/web/src/lib/splash.ts`),
 `PrivacyInfo.xcprivacy`, `ITSAppUsesNonExemptEncryption = NO`, Sprachen en/de.
 
+### Anmeldung (Apple und E-Mail)
+
+Seit 1.0.0 lässt sich das Sync-Konto mit „Mit Apple anmelden“ (nur iOS-App) und mit einem
+6-stelligen E-Mail-Code verknüpfen (überall, auch Web und Android ohne Google-Dienste).
+Der Server speichert nur Hashwerte (Apple-Kennung, E-Mail mit `LUMEN_EMAIL_PEPPER`), keine
+Adresse, keinen Namen. Für die öffentliche Instanz:
+
+- App-ID `cloud.mikekeller.lumen` mit der Fähigkeit *Sign in with Apple*; das Profil
+  „Lumen App Store CI“ enthält sie (nach Änderungen an Fähigkeiten neu erzeugen und das
+  Secret `APPLE_PROFILE_BASE64` ersetzen).
+- Schlüssel „Lumen Sign in with Apple“ (Key-ID PW2KACHDLF) liegt nur in der VPS-`.env`
+  (`LUMEN_APPLE_*`); der Server widerruft damit die Apple-Anmeldung beim Löschen (Richtlinie 5.1.1(v)).
+- Login-Mails gehen über den eigenen Mailserver von `noreply@mikekeller.cloud`
+  (SPF und DKIM für mikekeller.cloud bei IONOS).
+- App Privacy: zusätzlich *Kontaktinformationen → E-Mail-Adresse* (App-Funktionalität,
+  verknüpft, kein Tracking) – gespeichert wird nur ein Hashwert, die Adresse wird aber übertragen.
+
 ## 4. Google Play
 
 ### Konto und Signatur
