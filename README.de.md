@@ -38,11 +38,15 @@ npm run build        # Content-Bundles + PWA nach apps/web/dist
 npm run server       # optionaler Sync-Server auf :8787
 ```
 
-Self-Hosting mit Docker (App auf `:8080`, Sync auf `:8787`):
+Self-Hosting mit Docker (Website auf `:8080`, App auf `:8080/app/`, Sync auf `:8787`):
 
 ```bash
 docker compose up --build
 ```
+
+### Website und Produktiv-Deploy
+
+Die öffentliche Instanz läuft unter **https://lumen.mikekeller.cloud**: die Landingpage (`site/`, auf Englisch und Deutsch erzeugt mit `node scripts/build-site.ts`) unter `/`, die App unter `/app/`, Sync- und Tutor-Server unter `/api/`. `deploy/vps/deploy.sh` baut Website und App lokal, baut die Images auf dem VPS und startet sie hinter Caddy neu; in `deploy/vps/` liegen Compose-Datei, Caddy-Site und eine `env.example` für den Server.
 
 ## Lux, der Tutor
 

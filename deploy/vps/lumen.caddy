@@ -1,0 +1,17 @@
+# /opt/proxy/sites/lumen.caddy
+lumen.mikekeller.cloud {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+	handle_path /api/* {
+		reverse_proxy lumen-sync:8787
+	}
+	handle {
+		reverse_proxy lumen-web:80
+	}
+}

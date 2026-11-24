@@ -4,6 +4,8 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { lumenContent } from './vite-plugin-lumen-content.ts';
 
 export default defineConfig({
+  // Served from a sub-path in production (e.g. LUMEN_BASE=/app/ next to the landing page).
+  base: process.env.LUMEN_BASE ?? '/',
   plugins: [
     react(),
     lumenContent(),

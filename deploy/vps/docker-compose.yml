@@ -1,0 +1,22 @@
+# /opt/sites/lumen/docker-compose.yml on the VPS. Caddy (/opt/proxy) routes
+# lumen.mikekeller.cloud → lumen-web, and /api/* → lumen-sync (see lumen.caddy).
+services:
+  web:
+    image: lumen-web:latest
+    container_name: lumen-web
+    restart: unless-stopped
+    mem_limit: 64m
+    networks: [web]
+  sync:
+    image: lumen-sync:latest
+    container_name: lumen-sync
+    restart: unless-stopped
+    mem_limit: 256m
+    env_file: .env
+    volumes: ["lumen-data:/data"]
+    networks: [web]
+volumes:
+  lumen-data:
+networks:
+  web:
+    external: true
