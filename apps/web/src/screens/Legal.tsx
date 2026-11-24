@@ -15,7 +15,7 @@ export function Legal({ page }: { page?: string }) {
         {PAGES.map((x) => <a key={x} href={href(`legal/${x}`)} aria-current={x === p ? 'page' : undefined}>{t(`legal.${x}`)}</a>)}
       </nav>
       <h1 className="display" style={{ fontSize: '1.75rem' }}>{t(`legal.${p}`)}</h1>
-      <p className="small faint"><Icon name="info" size={14} /> {t('legal.draft')}</p>
+      {p !== 'privacy' && <p className="small faint"><Icon name="info" size={14} /> {t('legal.draft')}</p>}
       {legalText(p, settings.locale).map((s) => (
         <section key={s.h}>
           <h2>{s.h}</h2>
