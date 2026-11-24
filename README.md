@@ -2,6 +2,8 @@
 
 🌐 **English** · [Deutsch](README.de.md)
 
+**▶ Try it now: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud)** – no account, no download ([open the app directly](https://lumen.mikekeller.cloud/app/)).
+
 **Lumen is a free alternative to Brilliant.org: learn math, physics, chemistry, biology, electrical engineering, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
 
 Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
@@ -49,7 +51,7 @@ npm run build        # content bundles + PWA into apps/web/dist
 npm run server       # optional sync server on :8787
 ```
 
-Self-hosting with Docker (app and API on `:8080`, the API under `/api`):
+Self-hosting with Docker (website and app on `:8080`, the app under `/app/`, the API under `/api`):
 
 ```bash
 docker compose up --build
@@ -64,6 +66,10 @@ Server settings for the community:
 | `LUMEN_SOCIAL=off` | turn friends, leagues and feed off | on |
 | `LUMEN_ADMIN_TOKEN` | secret (≥ 16 characters) for the moderation endpoints `/v1/admin/reports`, `/v1/admin/users/:id/ban`, `/v1/admin/users/:id/reset-name` | – (off) |
 | `LUMEN_BLOCKED_WORDS` | extra words for the name filter, comma-separated | – |
+
+### The public instance
+
+Lumen runs at **https://lumen.mikekeller.cloud**: the website (`site/`, generated in English and German by `node scripts/build-site.ts`) at `/`, the app at `/app/`, the Lumen server at `/api/`. That server shares its reverse proxy with other sites, so it uses `deploy/vps/` instead of `docker-compose.prod.yml`: `deploy/vps/deploy.sh` builds the website and the app locally, builds the images on the server and restarts them behind the shared Caddy.
 
 ## Lux, the tutor
 

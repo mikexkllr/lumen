@@ -1,4 +1,5 @@
-# Static PWA: build content bundles + app, serve with nginx (which also proxies /api/).
+# Website at /, the PWA at /app/: build content bundles, app and site, serve with nginx
+# (which also proxies /api/).
 FROM node:26-alpine AS build
 WORKDIR /src
 COPY package.json package-lock.json ./
@@ -6,6 +7,8 @@ COPY packages ./packages
 COPY apps ./apps
 RUN npm ci
 COPY content ./content
+COPY site ./site
+COPY scripts/build-site.ts ./scripts/
 COPY tsconfig.base.json tsconfig.json ./
 # Build-time configuration, baked into the public JavaScript bundle (never put secrets here).
 ARG VITE_LUMEN_API_URL=/api
@@ -17,11 +20,15 @@ ARG VITE_LUMEN_ISSUES_URL=""
 # legacy, superseded by VITE_LUMEN_API_URL
 ARG VITE_LUMEN_SYNC_URL=""
 ARG VITE_LUMEN_TUTOR_URL=""
+# Public origin for canonical links and social previews of the website.
+ARG LUMEN_SITE_ORIGIN=""
+ENV LUMEN_BASE=/app/
 # Empty build args are unset so the app sees "not configured" rather than "".
 RUN for v in VITE_LUMEN_API_URL VITE_LUMEN_PUBLIC_KEY VITE_LUMEN_OPERATOR VITE_LUMEN_OPERATOR_ADDRESS \
       VITE_LUMEN_CONTACT VITE_LUMEN_ISSUES_URL VITE_LUMEN_SYNC_URL VITE_LUMEN_TUTOR_URL; do \
       eval "[ -n \"\${$v}\" ] || unset $v"; done; \
-    npm run build
+    npm run build && \
+    if [ -n "$LUMEN_SITE_ORIGIN" ]; then node scripts/build-site.ts; fi
 
 FROM nginx:1.30-alpine
 # Runtime configuration (see deploy/nginx.conf.template).
@@ -30,6 +37,7 @@ ENV LUMEN_API_UPSTREAM=http://sync:8787 \
     LUMEN_CSP_CONNECT_SRC="'self' https:" \
     NGINX_ENVSUBST_FILTER=^LUMEN_
 COPY deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY --from=build /src/apps/web/dist /usr/share/nginx/html
+COPY --from=build /src/site /usr/share/nginx/html
+COPY --from=build /src/apps/web/dist /usr/share/nginx/html/app
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 CMD wget -q --spider http://127.0.0.1/ || exit 1

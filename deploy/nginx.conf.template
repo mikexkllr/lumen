@@ -1,4 +1,5 @@
-# Lumen web container: serves the static PWA and proxies /api/ to the Lumen server.
+# Lumen web container: serves the website at /, the static PWA at /app/ and proxies /api/
+# to the Lumen server.
 # This is an nginx *template*: at container start the official nginx image runs envsubst
 # on it (only LUMEN_* variables, see NGINX_ENVSUBST_FILTER in deploy/Dockerfile.web).
 #   LUMEN_API_UPSTREAM     Lumen server base URL           default http://sync:8787
@@ -8,10 +9,11 @@
 # Cache policy per request path. add_header with an empty value adds nothing, so
 # API responses keep the server's own Cache-Control: no-store.
 map $request_uri $lumen_cache_control {
-  ~^/api/                    "";
-  ~^/content/manifest\.json  "no-cache";
-  ~^/(assets|content)/       "public, max-age=31536000, immutable";
-  default                    "no-cache";
+  ~^/api/                        "";
+  ~^/app/content/manifest\.json  "no-cache";
+  ~^/app/(assets|content)/       "public, max-age=31536000, immutable";
+  ~^/fonts/                      "public, max-age=31536000, immutable";
+  default                        "no-cache";
 }
 
 server {
@@ -57,10 +59,15 @@ server {
     proxy_hide_header X-Content-Type-Options;
   }
 
-  location = /manifest.webmanifest { default_type application/manifest+json; types { } }
+  location = /app/manifest.webmanifest { default_type application/manifest+json; types { } }
 
-  # hashed bundles and assets: a missing file is a 404, never the app shell
-  location /assets/ { try_files $uri =404; }
-  location /content/ { try_files $uri =404; }
-  location / { try_files $uri /index.html; }
+  # the app (PWA) lives under /app/; hashed bundles and assets: a missing file is a 404,
+  # never the app shell
+  location = /app { return 301 /app/; }
+  location /app/assets/ { try_files $uri =404; }
+  location /app/content/ { try_files $uri =404; }
+  location /app/ { try_files $uri /app/index.html; }
+
+  # the website (site/): static pages, no fallback
+  location / { try_files $uri $uri/ =404; }
 }

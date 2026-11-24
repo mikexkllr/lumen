@@ -1,0 +1,15 @@
+# /opt/proxy/sites/lumen.caddy – shared Caddy on the VPS. CSP and the other browser
+# headers come from the web container (deploy/nginx.conf.template); Caddy adds HSTS.
+lumen.mikekeller.cloud {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	handle_path /api/* {
+		reverse_proxy lumen-sync:8787
+	}
+	handle {
+		reverse_proxy lumen-web:80
+	}
+}

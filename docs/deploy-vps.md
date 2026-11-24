@@ -88,8 +88,9 @@ curl https://lumen.example.org/api/healthz         # {"ok":true}
 ```
 
 Der erste Bau dauert einige Minuten (Abhängigkeiten, Content-Bundles, PWA). Danach ist
-Lumen unter `https://lumen.example.org` erreichbar. Die Rechtstexte liegen unter
-`https://lumen.example.org/#/legal/privacy`, `…/#/legal/terms` und `…/#/legal/imprint` –
+Lumen unter `https://lumen.example.org` erreichbar: die Website unter `/`, die App unter `/app/`.
+Die Rechtstexte liegen unter
+`https://lumen.example.org/app/#/legal/privacy`, `…/app/#/legal/terms` und `…/app/#/legal/imprint` –
 die erste URL dient auch als Datenschutz-URL in den App-Stores.
 
 Tipp: Um sich `-f docker-compose.prod.yml` zu sparen, `COMPOSE_FILE=docker-compose.prod.yml`

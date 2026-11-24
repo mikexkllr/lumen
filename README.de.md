@@ -2,6 +2,8 @@
 
 🌐 [English](README.md) · **Deutsch**
 
+**▶ Jetzt ausprobieren: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud/de/)** – ohne Konto, ohne Download ([direkt zur App](https://lumen.mikekeller.cloud/app/)).
+
 **MINT verstehen durch Ausprobieren – kostenlos, werbefrei, offen, datensparsam.**
 
 Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem Feedback. Der Kern ist eine **Engine für deklarative, automatisch prüfbare Aufgaben** und ein **offenes Content-Format**. Jede veröffentlichte Aufgabe muss automatische Evals bestehen: Sie muss lösbar und eindeutig sein und darf keine unmöglichen Zustände erreichen.
@@ -39,7 +41,7 @@ npm run build        # Content-Bundles + PWA nach apps/web/dist
 npm run server       # optionaler Sync-Server auf :8787
 ```
 
-Self-Hosting mit Docker (App und API auf `:8080`, die API unter `/api`):
+Self-Hosting mit Docker (Website und App auf `:8080`, die App unter `/app/`, die API unter `/api`):
 
 ```bash
 docker compose up --build
@@ -54,6 +56,10 @@ Server-Einstellungen für die Community:
 | `LUMEN_SOCIAL=off` | Freunde, Ligen und Neuigkeiten abschalten | an |
 | `LUMEN_ADMIN_TOKEN` | Geheimnis (≥ 16 Zeichen) für die Moderations-Endpunkte `/v1/admin/reports`, `/v1/admin/users/:id/ban`, `/v1/admin/users/:id/reset-name` | – (aus) |
 | `LUMEN_BLOCKED_WORDS` | zusätzliche Wörter für den Namensfilter, durch Kommas getrennt | – |
+
+### Die öffentliche Instanz
+
+Lumen läuft unter **https://lumen.mikekeller.cloud**: die Website (`site/`, auf Englisch und Deutsch erzeugt mit `node scripts/build-site.ts`) unter `/`, die App unter `/app/`, der Lumen-Server unter `/api/`. Der Server teilt sich den Reverse-Proxy mit anderen Seiten und nutzt deshalb `deploy/vps/` statt `docker-compose.prod.yml`: `deploy/vps/deploy.sh` baut Website und App lokal, baut die Images auf dem Server und startet sie hinter dem gemeinsamen Caddy neu.
 
 ## Lux, der Tutor
 

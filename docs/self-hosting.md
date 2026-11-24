@@ -37,7 +37,7 @@ image on its own: `docker build -f deploy/Dockerfile.web -t lumen-web . && docke
 ## 2. Simple compose (same origin)
 
 ```bash
-docker compose up -d --build     # http://localhost:8080
+docker compose up -d --build     # http://localhost:8080 (website), the app at /app/
 ```
 
 `docker-compose.yml` starts two containers: `web` (nginx with the PWA) proxies `/api/` to

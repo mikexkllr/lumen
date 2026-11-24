@@ -1,0 +1,49 @@
+# /opt/sites/lumen/docker-compose.yml on Mike's VPS. Same images and hardening as
+# docker-compose.prod.yml, but behind the VPS's shared Caddy (/opt/proxy, network "web")
+# instead of an own Caddy: lumen.caddy routes /api/* → lumen-sync, the rest → lumen-web.
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+services:
+  web:
+    image: lumen-web:latest
+    container_name: lumen-web
+    restart: unless-stopped
+    mem_limit: 64m
+    environment:
+      LUMEN_API_UPSTREAM: http://lumen-sync:8787
+      LUMEN_CSP_CONNECT_SRC: ${LUMEN_CSP_CONNECT_SRC:-'self' https:}
+    networks: [web]
+    logging: *logging
+
+  sync:
+    image: lumen-sync:latest
+    container_name: lumen-sync
+    restart: unless-stopped
+    mem_limit: 256m
+    # server settings (LUMEN_TUTOR_*, LUMEN_ADMIN_TOKEN, …) – see deploy/vps/env.example
+    env_file: .env
+    environment:
+      PORT: "8787"
+      HOST: 0.0.0.0
+      LUMEN_DB: /data/lumen.sqlite
+    volumes: ["lumen-data:/data"]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8787/healthz').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks: [web]
+    logging: *logging
+
+volumes:
+  lumen-data:
+networks:
+  web:
+    external: true
