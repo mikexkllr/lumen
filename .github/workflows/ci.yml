@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch: # re-run checks and deploy by hand (Actions → CI → Run workflow)
 
 jobs:
   check:
@@ -48,3 +49,53 @@ jobs:
           docker run --rm lumen-web:ci nginx -t
       - name: Backup script parses
         run: sh -n deploy/backup.sh
+
+  deploy:
+    # Ships both images to https://lumen.mikekeller.cloud after every green run on main.
+    # Same pattern as the other sites on the VPS: the deploy key may only run
+    # /usr/local/bin/deploy-site for "lumen" (docker load from stdin, then docker compose up
+    # in /opt/sites/lumen). No registry needed. Compose file, Caddy site and the server .env
+    # (OpenRouter key, admin token) stay on the server – change those with deploy/vps/deploy.sh.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.repository == 'mikexkllr/lumen'
+    needs: [check, docker]
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://lumen.mikekeller.cloud
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build images
+        env:
+          # public operator details for the in-app imprint (repository variables, not secrets)
+          OPERATOR: ${{ vars.LUMEN_OPERATOR }}
+          OPERATOR_ADDRESS: ${{ vars.LUMEN_OPERATOR_ADDRESS }}
+          CONTACT: ${{ vars.LUMEN_CONTACT }}
+          ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
+        run: |
+          docker build -f deploy/Dockerfile.web -t lumen-web:latest \
+            --build-arg VITE_LUMEN_API_URL=/api \
+            --build-arg VITE_LUMEN_OPERATOR="$OPERATOR" \
+            --build-arg VITE_LUMEN_OPERATOR_ADDRESS="$OPERATOR_ADDRESS" \
+            --build-arg VITE_LUMEN_CONTACT="$CONTACT" \
+            --build-arg VITE_LUMEN_ISSUES_URL="$ISSUES_URL" \
+            --build-arg LUMEN_SITE_ORIGIN=https://lumen.mikekeller.cloud .
+          docker build -f deploy/Dockerfile.server -t lumen-sync:latest .
+      - name: Set up SSH
+        run: |
+          install -m 700 -d ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          echo "${{ secrets.VPS_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+      - name: Deploy to VPS
+        run: |
+          docker save lumen-web:latest lumen-sync:latest | gzip | \
+            ssh -i ~/.ssh/deploy_key ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} lumen
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 20); do curl -fsS https://lumen.mikekeller.cloud/api/healthz && break; sleep 3; done
+          curl -fsS -o /dev/null https://lumen.mikekeller.cloud/
+          curl -fsS https://lumen.mikekeller.cloud/app/ | grep -q 'assets/index-'
+          curl -fsS https://lumen.mikekeller.cloud/api/v1/tutor

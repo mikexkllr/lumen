@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Deploy Lumen to the VPS (ssh host "vps"), behind its shared Caddy.
+# Normal releases go out automatically: GitHub Actions (CI → deploy job) ships the images
+# after every green push to main. Use this script for the first install and for changes
+# the pipeline cannot make: compose file, Caddy site, or deploying from a local checkout.
 #   deploy/vps/deploy.sh                 # build, upload, restart
 #   SKIP_CADDY=1 deploy/vps/deploy.sh    # before DNS points at the VPS (avoids failed certificate requests)
 # The web app is built here (the 1 vCPU / 2 GB VPS has too little memory for the Vite

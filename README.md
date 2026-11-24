@@ -69,7 +69,7 @@ Server settings for the community:
 
 ### The public instance
 
-Lumen runs at **https://lumen.mikekeller.cloud**: the website (`site/`, generated in English and German by `node scripts/build-site.ts`) at `/`, the app at `/app/`, the Lumen server at `/api/`. That server shares its reverse proxy with other sites, so it uses `deploy/vps/` instead of `docker-compose.prod.yml`: `deploy/vps/deploy.sh` builds the website and the app locally, builds the images on the server and restarts them behind the shared Caddy.
+Lumen runs at **https://lumen.mikekeller.cloud**: the website (`site/`, generated in English and German by `node scripts/build-site.ts`) at `/`, the app at `/app/`, the Lumen server at `/api/`. That server shares its reverse proxy with other sites, so it uses `deploy/vps/` instead of `docker-compose.prod.yml`: Every green push to `main` deploys automatically (CI → `deploy` job: builds both images, `docker save | ssh` to the server, no registry). `deploy/vps/deploy.sh` covers the first install and changes to the compose file or the Caddy site; the server configuration (model, keys) lives in `/opt/sites/lumen/.env` on the server.
 
 ## Lux, the tutor
 
