@@ -57,9 +57,9 @@ Einstellungen zurücksetzen.
       Sprachmodells (Grund wählen, ohne die App zu verlassen); Moderation über
       `GET /api/v1/admin/tutor-reports` und `POST /api/v1/admin/tutor-reports/:id/resolve`
 - [x] **Einwilligung vor der ersten Lux-Nutzung mit Sprachmodell:** Lux fragt vor der ersten
-      Modell-Antwort, nennt Modell und Anbieter (`LUMEN_TUTOR_PROVIDER`, z. B. `OpenRouter`;
-      sonst der API-Host) und bietet »Nur Hinweise aus der Lektion« an; widerrufbar im Profil
-      (Apple 5.1.2(i))
+      Modell-Antwort, sagt, dass ein externer KI-Dienst antwortet, und bietet »Nur Hinweise aus der
+      Lektion« an; widerrufbar im Profil (Apple 5.1.2(i)). Modell und Anbieter
+      (`LUMEN_TUTOR_PROVIDER`, sonst der API-Host) nennt die Datenschutzerklärung, live vom Server abgefragt
 - [ ] Testen auf echten Geräten: offline starten (Flugmodus), Sync, Social an/aus, Kindermodus,
       Konto löschen, helles/dunkles Design, große Schrift, Screenreader (VoiceOver/TalkBack)
 

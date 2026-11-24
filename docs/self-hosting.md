@@ -94,6 +94,8 @@ then the device talks to their provider directly.
 | `VITE_LUMEN_OPERATOR` | operator name for the in-app legal pages (`#/legal/privacy`, `#/legal/terms`, `#/legal/imprint`) | – |
 | `VITE_LUMEN_OPERATOR_ADDRESS` | postal address; `\n` marks line breaks | – |
 | `VITE_LUMEN_CONTACT` | contact e-mail | – |
+| `VITE_LUMEN_PHONE` | phone number for the imprint (optional) | – |
+| `VITE_LUMEN_VAT_ID` | VAT identification number for the imprint (optional) | – |
 | `VITE_LUMEN_PUBLIC_KEY` | Ed25519 public key for signed content bundles (see README) | – |
 | `VITE_LUMEN_ISSUES_URL` | issue tracker URL for "report a problem" (otherwise the report is copied) | – |
 | `VITE_LUMEN_SYNC_URL`, `VITE_LUMEN_TUTOR_URL` | legacy, replaced by `VITE_LUMEN_API_URL` | – |
