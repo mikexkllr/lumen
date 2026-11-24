@@ -4,9 +4,9 @@
 
 **▶ Jetzt ausprobieren: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud/de/)** – ohne Konto, ohne Download ([direkt zur App](https://lumen.mikekeller.cloud/app/)).
 
-**MINT verstehen durch Ausprobieren – kostenlos, werbefrei, offen, datensparsam.**
+**Microlearning für Neugierige jeden Alters – von Jugendlichen bis zu Rentner:innen. Ein paar Minuten am Tag, zum Mitmachen: Mathe, Physik, Chemie, Biologie, Elektrotechnik, Informatik, Daten und KI. Kostenlos, werbefrei, offen, datensparsam.**
 
-Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem Feedback. Der Kern ist eine **Engine für deklarative, automatisch prüfbare Aufgaben** und ein **offenes Content-Format**. Jede veröffentlichte Aufgabe muss automatische Evals bestehen: Sie muss lösbar und eindeutig sein und darf keine unmöglichen Zustände erreichen.
+Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem Feedback – im Browser und als iOS-App. Sie ist für alle gemacht, die verstehen wollen, wie Dinge funktionieren: Erwachsene, die nachholen, was in der Schule nie richtig erklärt wurde, Berufstätige, die Daten lesen und KI verstehen wollen, Schüler:innen und Studierende, die Lücken schließen, und alle, die ihren Kopf fit halten wollen. Der Kern ist eine **Engine für deklarative, automatisch prüfbare Aufgaben** und ein **offenes Content-Format**. Jede veröffentlichte Aufgabe muss automatische Evals bestehen: Sie muss lösbar und eindeutig sein und darf keine unmöglichen Zustände erreichen.
 
 > Arbeitstitel aus der Spezifikation. Lumen ist ein eigenständiges Projekt ohne Bezug zu kommerziellen Anbietern; Inhalte, Gestaltung und Namen sind eigene Arbeit.
 
@@ -26,7 +26,7 @@ Lumen ist eine freie Lern-App mit kurzen, interaktiven Aufgaben und sofortigem F
 | Lux – Tutor und Maskottchen | in jeder Lektion: vor der Antwort (»Worum geht es?«, Tipp), nach Fehlern (»Mit Lux durchgehen«: Lux fragt zuerst, wie du auf deine Antwort gekommen bist, und setzt an deiner Begründung an; bis zu vier Versuche), am Ende jeder Lektion und jedes Kurses als Fehler-Rückblick (»Fehler durchgehen«, jede falsche Aufgabe mit deiner damaligen Antwort), nach der Lösung (»Warum richtig?«) und auf Erklär-Screens; spricht über ein beliebiges OpenAI-kompatibles Modell (lokal Ollama, in Produktion z. B. OpenRouter); deterministischer Leak-Schutz verwirft Antworten, die die Lösung verraten; ohne Modell oder offline antwortet ein Regel-Tutor aus den Hinweisen der Lektion; für Unter-16-Jährige nur Regel-Tutor |
 | Inhalte (CC BY-SA 4.0) | 9 Fächer mit je einem Lernpfad von null bis Profi in fünf Stufen (Einstieg, Grundlagen, Aufbau, Fortgeschritten, Experte): 151 Kurse, 776 Lektionen in drei Tiefenstufen (Kern, Tiefer, Experte), 9615 Steps, 8116 Aufgaben (mit Varianten-Generatoren), 29 Labor-Szenen zum Ausprobieren, Deutsch und Englisch – **Mathematik** (34 Kurse: Stellenwerte und große Zahlen, Kopfrechnen, Brüche und Einheiten bis Analysis, Reihen, Differentialgleichungen, Gruppen, Eigenwerte und komplexe Zahlen), **Physik** (17: Universum bis Impuls, Schwingungen, Optik, Sterne und Kosmos, Relativität, Quantenwelt und Festkörper), **Chemie** (14: Gemische bis Küchenchemie, Reaktionstempo, Redox, Batterien und Moleküle des Lebens), **Biologie** (14: Was ist Leben und der menschliche Körper bis Vererbung, Evolution, Immunsystem, DNA, Biotechnologie und Systembiologie), **Elektrotechnik** (13: Strom im Alltag bis Kondensatoren, Wechselstrom, Dioden, Transistoren, Operationsverstärker, Signale und Filter, Energie- und Regelungstechnik), **Informatik** (17: Code und Bits bis Prozessor, Betriebssysteme, verteilte Systeme, Compiler und Komplexität), **Data Science** (17: Daten und Diagramme bis Experimente und Kausalität, Verteilungen, Bayes, Hypothesentests, Informationstheorie und Clustering), **KI** (12: Maschinelles Lernen, Suchen und Planen, Embeddings, generative KI bis Transformer und Agenten), **Logik & Denken** (13: Rätsel und Denkfehler bis Beweise, Induktion, Modallogik und Gödel) |
 
-Vorbereitet, noch nicht veröffentlicht: native Apps mit Capacitor (`apps/mobile`, siehe [docs/store-release.md](docs/store-release.md)). Noch nicht umgesetzt: Push (M2), Python-Editor (M4).
+iOS-App mit Capacitor (`apps/mobile`): als *Lumen – Microlearning* im App Store eingereicht; Android ist vorbereitet, aber noch nicht veröffentlicht (siehe [docs/store-release.md](docs/store-release.md)). Noch nicht umgesetzt: Push (M2), Python-Editor (M4).
 
 ## Schnellstart
 
@@ -60,6 +60,8 @@ Server-Einstellungen für die Community:
 ### Die öffentliche Instanz
 
 Lumen läuft unter **https://lumen.mikekeller.cloud**: die Website (`site/`, auf Englisch und Deutsch erzeugt mit `node scripts/build-site.ts`) unter `/`, die App unter `/app/`, der Lumen-Server unter `/api/`. Der Server teilt sich den Reverse-Proxy mit anderen Seiten und nutzt deshalb `deploy/vps/` statt `docker-compose.prod.yml`: Jeder grüne Push auf `main` wird automatisch deployt (CI → Job `deploy`: baut beide Images, `docker save | ssh` auf den Server, ohne Registry). `deploy/vps/deploy.sh` ist für die Erstinstallation und Änderungen an Compose-Datei oder Caddy-Site; die Server-Konfiguration (Modell, Schlüssel) liegt in `/opt/sites/lumen/.env` auf dem Server.
+
+Die iOS-App kommt aus derselben Pipeline (CI → Job `ios` auf einem macOS-Runner): Jeder grüne Push auf `main` lädt einen Build zu TestFlight hoch; ein Tag `v1.2.3` (passend zur `version` in `apps/mobile/package.json`) reicht zusätzlich Version 1.2.3 zur App-Prüfung ein und veröffentlicht sie nach der Freigabe automatisch. Einrichtung, Secrets und Erneuerung: [docs/store-release.md](docs/store-release.md).
 
 ## Lux, der Tutor
 

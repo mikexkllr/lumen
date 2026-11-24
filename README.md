@@ -1,23 +1,25 @@
-# Lumen – a free alternative to Brilliant.org
+# Lumen – free microlearning for every age
 
 🌐 **English** · [Deutsch](README.de.md)
 
 **▶ Try it now: [lumen.mikekeller.cloud](https://lumen.mikekeller.cloud)** – no account, no download ([open the app directly](https://lumen.mikekeller.cloud/app/)).
 
-**Lumen is a free alternative to Brilliant.org: learn math, physics, chemistry, biology, electrical engineering, computer science, data and AI by doing – free, ad-free, open source and privacy-friendly.**
+**Lumen is microlearning for curious minds of every age – from teenagers to retirees. A few minutes a day, hands-on: math, physics, chemistry, biology, electrical engineering, computer science, data and AI. A free alternative to Brilliant.org – ad-free, open source and privacy-friendly.**
 
-Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
+Lumen is a free, open-source learning app with short interactive problems and instant feedback, available in English and German, on the web and as an iOS app. It is built for anyone who wants to understand how things work: adults refreshing what school never quite explained, professionals who want to read data and understand AI, students closing gaps, and lifelong learners keeping their minds sharp. At its core is an **engine for declarative, automatically checked problems** and an **open content format**. Every published problem must pass automated evals: it has to be solvable and unambiguous, and it must not be able to reach impossible states.
 
 > Lumen is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Brilliant.org or any other commercial provider; "Brilliant" is used here only to describe what Lumen is an alternative to. All content, design and names are original work.
 
 ## Why Lumen?
 
+- **For every age** – no grades, no pressure; start wherever you are, whether you are 14 or 74.
+- **Microlearning** – lessons take a few minutes; a daily puzzle and streaks make it a habit.
 - **Free forever** – no subscription, no paywall, no ads.
 - **Learn by doing** – 26 interactive problem types instead of videos: drag, build, simulate, play.
 - **Zero to hero** – 9 subjects, each with one learning path through five stages.
 - **Lux, an AI tutor in every lesson** – asks how you got your answer and never gives the solution away.
 - **Private by design** – no account, no tracking; progress stays on your device.
-- **Open** – code under MIT/AGPL, content under CC BY-SA 4.0. Self-host it at your school.
+- **Open** – code under MIT/AGPL, content under CC BY-SA 4.0. Self-host it for your team, club or school.
 - **Multilingual** – English and German throughout; more languages are just more YAML files.
 
 ## Status (MVP: milestones M0 and M1)
@@ -36,7 +38,7 @@ Lumen is a free, open-source learning app with short interactive problems and in
 | Lux – tutor and mascot | in every lesson: before answering ("What is this about?", hint), after mistakes ("Go through it with Lux": Lux first asks how you got your answer and builds on your reasoning; up to four tries), at the end of every lesson and course as a mistakes review (every wrong problem with the answer you gave), after the solution ("Why is this right?") and on explain screens; talks to any OpenAI-compatible model (Ollama locally, e.g. OpenRouter in production); a deterministic leak guard discards replies that give the solution away; without a model or offline, a rule tutor answers from the lesson's hints; under-16s get the rule tutor only |
 | Content (CC BY-SA 4.0) | 9 subjects, each with one learning path from zero to hero in five stages (Starter, Foundations, Intermediate, Advanced, Expert): 151 courses, 776 lessons in three depth stages (core, deeper, expert), 9615 steps, 8116 problems (with variant generators), 29 hands-on lab scenes, in English and German – **Mathematics** (34 courses: place value and big numbers, mental arithmetic, fractions and units up to calculus, series, differential equations, groups, eigenvalues and complex numbers), **Physics** (17: the universe up to momentum, oscillations, optics, stars and cosmos, relativity, the quantum world and solid-state physics), **Chemistry** (14: mixtures up to kitchen chemistry, reaction rates, redox, batteries and the molecules of life), **Biology** (14: what life is and the human body up to genetics, evolution, the immune system, DNA, biotechnology and systems biology), **Electrical engineering** (13: electricity at home up to capacitors, AC, diodes, transistors, op-amps, signals and filters, power systems and control), **Computer science** (17: code and bits up to how a CPU works, operating systems, distributed systems, compilers and complexity), **Data science** (17: data and charts up to experiments and causality, distributions, Bayes, hypothesis tests, information theory and clustering), **AI** (12: machine learning, search and planning, embeddings, generative AI up to transformers and agents), **Logic & reasoning** (13: puzzles and fallacies up to proofs, induction, modal logic and Gödel) |
 
-Prepared, not yet published: native apps via Capacitor (`apps/mobile`, see [docs/store-release.md](docs/store-release.md)). Not done yet: push notifications (M2), Python editor (M4).
+iOS app via Capacitor (`apps/mobile`): submitted to the App Store as *Lumen – Microlearning*; Android is prepared but not yet published (see [docs/store-release.md](docs/store-release.md)). Not done yet: push notifications (M2), Python editor (M4).
 
 ## Quick start
 
@@ -70,6 +72,8 @@ Server settings for the community:
 ### The public instance
 
 Lumen runs at **https://lumen.mikekeller.cloud**: the website (`site/`, generated in English and German by `node scripts/build-site.ts`) at `/`, the app at `/app/`, the Lumen server at `/api/`. That server shares its reverse proxy with other sites, so it uses `deploy/vps/` instead of `docker-compose.prod.yml`: Every green push to `main` deploys automatically (CI → `deploy` job: builds both images, `docker save | ssh` to the server, no registry). `deploy/vps/deploy.sh` covers the first install and changes to the compose file or the Caddy site; the server configuration (model, keys) lives in `/opt/sites/lumen/.env` on the server.
+
+The iOS app ships from the same pipeline (CI → `ios` job on a macOS runner): every green push to `main` uploads a build to TestFlight; a tag `v1.2.3` (matching the `version` in `apps/mobile/package.json`) also submits version 1.2.3 for App Store review and releases it automatically once approved. Setup, secrets and renewal: [docs/store-release.md](docs/store-release.md).
 
 ## Lux, the tutor
 

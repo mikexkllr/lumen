@@ -193,6 +193,9 @@ export function LuxChat({
       sentAuto.current = autoKey;
       void (autoIntent === 'ask-reasoning' ? lux.askReasoning() : lux.send(autoIntent));
     }
+    // Only with a mouse/trackpad: on touch screens the keyboard would cover the sheet
+    // (and the consent question) as soon as Lux opens.
+    if (!window.matchMedia?.('(pointer: fine)').matches) return;
     const id = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 250);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps

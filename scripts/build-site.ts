@@ -48,81 +48,96 @@ const fmt = (n: number, l: 'en' | 'de') => n.toLocaleString(l === 'de' ? 'de-DE'
 const t = {
   en: {
     lang: 'en', other: 'de', otherLabel: 'Deutsch', otherHref: '/de/', self: '/',
-    title: 'Lumen – a free alternative to Brilliant.org',
-    desc: 'Lumen is a free alternative to Brilliant.org: learn math, science, computer science, data and AI by doing – with interactive problems, instant feedback and an AI tutor. Free, ad-free, open source.',
-    nav: ['Subjects', 'How it works', 'Lux', 'Open source'],
+    title: 'Lumen – free microlearning for curious minds of every age',
+    desc: 'Lumen is free microlearning for every age – a free alternative to Brilliant.org: learn math, science, tech, data and AI in a few minutes a day, by doing – with interactive problems, instant feedback and an AI tutor. Free, ad-free, open source.',
+    nav: ['For you', 'Subjects', 'How it works', 'Lux', 'Open source'],
     start: 'Start learning', github: 'View on GitHub',
-    eyebrow: 'Free forever · no account needed',
-    h1: 'Learn by <em>doing</em>,<br>not by watching.',
-    lead: 'Lumen is a free alternative to Brilliant.org. Short, hands-on lessons in math, physics, chemistry, biology, electrical engineering, computer science, data and AI – with instant feedback and Lux, a tutor that helps you think instead of handing you the answer.',
+    eyebrow: 'Free microlearning · for every age',
+    h1: 'A few minutes a day.<br>Understand <em>how things work</em>.',
+    lead: 'Lumen is microlearning for curious people of every age – whether you are 14 or 74. Bite-sized, hands-on lessons on the ideas behind everyday life: math, physics, chemistry, biology, electronics, computing, data and AI. Instant feedback, and Lux, a tutor that helps you think instead of handing you the answer.',
     fine: ['No ads, no paywall', 'No tracking', 'Works offline'],
-    demo: { chip: 'Fractions', q: 'Shade <b>three quarters</b> of the bar.', count: (n: number) => `${n} of 8 shaded`, check: 'Check', again: 'Try another', hint: 'Tap the parts to shade them.',
-      ok: '<strong>Right!</strong> 6 of 8 parts = 6/8 = 3/4. Two eighths make one quarter.',
-      three: 'You shaded 3 of 8 – that is 3/8. A quarter is 2 of the 8 parts. How many parts are three quarters?',
-      other: (n: number) => `That is ${n}/8. One quarter of the bar is 2 parts – so three quarters is …?` },
+    demo: { chip: 'Everyday math', q: 'Your phone is at <b>75 %</b>. Fill the battery bar to match.', count: (n: number) => `${n} of 8 filled`, check: 'Check', again: 'Try another', hint: 'Tap the parts to fill them.',
+      ok: '<strong>Right!</strong> Each part is 12.5 %, and 6 × 12.5 % = 75 %. That is three quarters of the bar.',
+      three: 'You filled 3 of 8 – that is only 37.5 %. Each part is 12.5 %. How many parts make 75 %?',
+      other: (n: number) => `That is ${n} of 8 parts. Each part is 12.5 % – how many parts make 75 %?` },
     stats: ['subjects', 'courses', 'lessons', 'problems', 'languages'], langs: 'EN · DE',
     subjK: 'Subjects', subjH: (n: number) => `From zero to hero in ${n} subjects`, subjP: 'Every subject is one learning path through five stages – Starter, Foundations, Intermediate, Advanced and Expert. Pick it up wherever you are.',
     courses: (n: number) => `${n} courses →`,
-    howK: 'How it works', howH: 'Every lesson starts with a problem', howP: '31 kinds of interactive problems – drag, build, simulate, play against the computer – instead of videos and walls of text.',
+    howK: 'How it works', howH: 'Microlearning that sticks', howP: 'Lessons take a few minutes and start with a problem, not a lecture: 31 kinds of interactive problems – drag, build, simulate, play against the computer – instead of videos and walls of text.',
     how: [
-      ['Try it first', 'You get your hands on the idea right away: shade, sort, program a robot, tune a simulation. Explanations come when they help.'],
+      ['Try it first', 'You get your hands on the idea right away: fill, sort, program a robot, tune a simulation. Explanations come when they help – one small step at a time.'],
       ['Instant, targeted feedback', 'Lumen recognises typical mistakes and tells you what went wrong – then gives you a second try. Each lesson goes deeper in three stages: core, deeper, expert.'],
       ['Remember it for good', 'Spaced repetition (FSRS) brings problems back right before you forget them – with new numbers every time. Daily puzzle, streaks and XP keep you going.'],
     ],
     luxK: 'Meet Lux', luxH: 'A tutor that asks before it tells', luxP: 'Lux is in every lesson. Stuck? Lux gives a hint. Wrong? Lux first asks how you got your answer and builds on your reasoning. A built-in guard makes sure Lux never just gives the solution away.',
     luxList: [['Hints, examples and “explain it simpler”', ' on every screen'], ['Mistakes review', ' at the end of every lesson'], ['Explain it to Lux', ' – teaching is the best way to learn']],
-    chat: [['me', 'I shaded 3 parts. Isn’t that three quarters?'], ['lux', 'Good start! How big is one quarter of the bar – how many of the 8 parts is that?'], ['me', 'Oh – 2 parts. So I need 6!'], ['lux', 'Exactly. 6/8 and 3/4 are the same amount. ✨']],
+    chat: [['me', 'I filled 3 parts. Isn’t that 75 %?'], ['lux', 'Good start! The bar has 8 parts. How many percent is one part worth?'], ['me', 'Oh – 12.5 %. So I need 6!'], ['lux', 'Exactly. 6 × 12.5 % = 75 %. ✨']],
     openK: 'Open & private', openH: 'Yours to use, yours to keep', openP: 'Lumen is built in the open. No account, no tracking – your progress lives on your device.',
     pillars: [
       ['Free forever', 'No subscription, no paywall, no ads. Every course is free.', '<path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7Zm0 0h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7Z"/>'],
       ['Private by design', 'Progress stays in your browser. Optional sync uses a random code – no email, no profile.', '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'],
       ['Open source', 'Code under MIT and AGPL, content under CC BY-SA 4.0. Contributions welcome.', '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M18 10.5c0 4-6 3-11 6"/>'],
-      ['Self-host it', 'Run Lumen at your school with one Docker command. Works offline as an installable app.', '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>'],
+      ['Self-host it', 'Run Lumen for your team, club or school with one Docker command. Works offline as an installable app.', '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>'],
     ],
-    finalH: 'Ready to light it up?', finalP: 'Open Lumen in your browser and start your first lesson in seconds – no sign-up, no download.',
+    finalH: 'Ready to light it up?', finalP: 'Open Lumen in your browser and start your first lesson in seconds – no sign-up, no download. Five minutes today is a great start.',
+    audK: 'For you', audH: 'Made for every age', audP: 'No grades, no pressure, no age limit. Lumen meets you where you are – and grows with you.',
+    aud: [
+      ['Curious minds', 'Finally understand how batteries, vaccines, the internet or ChatGPT actually work – in a coffee break.', '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/>'],
+      ['Work and career', 'Read data with confidence, spot a misleading chart, understand AI before your colleagues do.', '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>'],
+      ['School and studies', 'Close gaps, get ahead or prepare for exams – from fractions to calculus, at your own pace.', '<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>'],
+      ['Lifelong learners', 'Keep your mind sharp with a daily puzzle and small steps that add up – no matter how long ago school was.', '<path d="M12 21s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 6c-2.2 4.6-9.2 9-9.2 9Z"/>'],
+    ],
     footer: ['Imprint', 'Privacy', 'GitHub'],
     disclaimer: 'Lumen is an independent open-source project. It is not affiliated with, endorsed by or sponsored by Brilliant.org; “Brilliant” is only used to describe what Lumen is an alternative to.',
   },
   de: {
     lang: 'de', other: 'en', otherLabel: 'English', otherHref: '/', self: '/de/',
-    title: 'Lumen – die kostenlose Alternative zu Brilliant.org',
-    desc: 'Lumen ist eine kostenlose Alternative zu Brilliant.org: Mathe, Naturwissenschaften, Informatik, Data Science und KI lernen durch Ausprobieren – mit interaktiven Aufgaben, sofortigem Feedback und KI-Tutor. Kostenlos, werbefrei, Open Source.',
-    nav: ['Fächer', 'So funktioniert’s', 'Lux', 'Open Source'],
+    title: 'Lumen – kostenloses Microlearning für Neugierige jeden Alters',
+    desc: 'Lumen ist kostenloses Microlearning für jedes Alter – eine freie Alternative zu Brilliant.org: Mathe, Naturwissenschaften, Technik, Daten und KI in wenigen Minuten am Tag verstehen, durch Ausprobieren – mit interaktiven Aufgaben, sofortigem Feedback und KI-Tutor. Kostenlos, werbefrei, Open Source.',
+    nav: ['Für dich', 'Fächer', 'So funktioniert’s', 'Lux', 'Open Source'],
     start: 'Jetzt lernen', github: 'Auf GitHub ansehen',
-    eyebrow: 'Für immer kostenlos · ohne Konto',
-    h1: 'Lernen durch <em>Tun</em>,<br>nicht durch Zuschauen.',
-    lead: 'Lumen ist die kostenlose Alternative zu Brilliant.org. Kurze Lektionen zum Mitmachen in Mathe, Physik, Chemie, Biologie, Elektrotechnik, Informatik, Data Science und KI – mit sofortigem Feedback und Lux, einem Tutor, der dich zum Denken bringt, statt dir die Lösung zu verraten.',
+    eyebrow: 'Kostenloses Microlearning · für jedes Alter',
+    h1: 'Ein paar Minuten am Tag.<br>Verstehen, <em>wie die Welt funktioniert</em>.',
+    lead: 'Lumen ist Microlearning für Neugierige jeden Alters – ob du 14 bist oder 74. Kurze Lektionen zum Mitmachen über die Ideen hinter unserem Alltag: Mathe, Physik, Chemie, Biologie, Elektrotechnik, Informatik, Daten und KI. Mit sofortigem Feedback und Lux, einem Tutor, der dich zum Denken bringt, statt dir die Lösung zu verraten.',
     fine: ['Keine Werbung, keine Paywall', 'Kein Tracking', 'Funktioniert offline'],
-    demo: { chip: 'Brüche', q: 'Färbe <b>drei Viertel</b> des Balkens.', count: (n: number) => `${n} von 8 gefärbt`, check: 'Prüfen', again: 'Nochmal', hint: 'Tippe auf die Teile, um sie zu färben.',
-      ok: '<strong>Richtig!</strong> 6 von 8 Teilen = 6/8 = 3/4. Zwei Achtel ergeben ein Viertel.',
-      three: 'Du hast 3 von 8 gefärbt – das sind 3/8. Ein Viertel sind 2 der 8 Teile. Wie viele Teile sind dann drei Viertel?',
-      other: (n: number) => `Das sind ${n}/8. Ein Viertel des Balkens sind 2 Teile – drei Viertel sind also …?` },
+    demo: { chip: 'Alltagsmathe', q: 'Dein Handy hat noch <b>75 %</b> Akku. Füll den Balken passend.', count: (n: number) => `${n} von 8 gefüllt`, check: 'Prüfen', again: 'Nochmal', hint: 'Tippe auf die Teile, um sie zu füllen.',
+      ok: '<strong>Richtig!</strong> Jedes Teil sind 12,5 %, und 6 × 12,5 % = 75 %. Das sind drei Viertel des Balkens.',
+      three: 'Du hast 3 von 8 gefüllt – das sind erst 37,5 %. Jedes Teil sind 12,5 %. Wie viele Teile ergeben 75 %?',
+      other: (n: number) => `Das sind ${n} von 8 Teilen. Jedes Teil sind 12,5 % – wie viele Teile ergeben 75 %?` },
     stats: ['Fächer', 'Kurse', 'Lektionen', 'Aufgaben', 'Sprachen'], langs: 'DE · EN',
     subjK: 'Fächer', subjH: (n: number) => `Von null auf Profi in ${n} Fächern`, subjP: 'Jedes Fach ist ein Lernpfad durch fünf Stufen – Einstieg, Grundlagen, Aufbau, Fortgeschritten und Experte. Steig dort ein, wo du gerade stehst.',
     courses: (n: number) => `${n} Kurse →`,
-    howK: 'So funktioniert’s', howH: 'Jede Lektion beginnt mit einer Aufgabe', howP: '31 Arten interaktiver Aufgaben – ziehen, bauen, simulieren, gegen den Computer spielen – statt Videos und Textwüsten.',
+    howK: 'So funktioniert’s', howH: 'Microlearning, das hängen bleibt', howP: 'Lektionen dauern ein paar Minuten und beginnen mit einer Aufgabe statt mit einem Vortrag: 31 Arten interaktiver Aufgaben – ziehen, bauen, simulieren, gegen den Computer spielen – statt Videos und Textwüsten.',
     how: [
-      ['Erst ausprobieren', 'Du packst die Idee sofort selbst an: färben, sortieren, einen Roboter programmieren, eine Simulation einstellen. Erklärt wird, wenn es hilft.'],
+      ['Erst ausprobieren', 'Du packst die Idee sofort selbst an: füllen, sortieren, einen Roboter programmieren, eine Simulation einstellen. Erklärt wird, wenn es hilft – in kleinen Schritten.'],
       ['Sofort gezieltes Feedback', 'Lumen erkennt typische Denkfehler, sagt dir, was schiefging, und gibt dir einen zweiten Versuch. Jede Lektion geht in drei Stufen tiefer: Kern, Tiefer, Experte.'],
       ['Dauerhaft behalten', 'Wiederholung mit Abstand (FSRS) holt Aufgaben genau dann zurück, bevor du sie vergisst – jedes Mal mit neuen Zahlen. Tagesrätsel, Streak und XP halten dich dran.'],
     ],
     luxK: 'Das ist Lux', luxH: 'Ein Tutor, der erst fragt und dann erklärt', luxP: 'Lux ist in jeder Lektion dabei. Du hängst fest? Lux gibt einen Tipp. Falsch? Lux fragt zuerst, wie du auf deine Antwort gekommen bist, und baut auf deinem Gedanken auf. Ein eingebauter Schutz sorgt dafür, dass Lux nie einfach die Lösung verrät.',
     luxList: [['Tipps, Beispiele und „einfacher erklären“', ' auf jedem Bildschirm'], ['Fehler-Rückblick', ' am Ende jeder Lektion'], ['Erklär’s Lux', ' – wer erklärt, versteht']],
-    chat: [['me', 'Ich habe 3 Teile gefärbt. Sind das nicht drei Viertel?'], ['lux', 'Guter Anfang! Wie groß ist ein Viertel des Balkens – wie viele der 8 Teile sind das?'], ['me', 'Ah – 2 Teile. Also brauche ich 6!'], ['lux', 'Genau. 6/8 und 3/4 sind gleich viel. ✨']],
+    chat: [['me', 'Ich habe 3 Teile gefüllt. Sind das nicht 75 %?'], ['lux', 'Guter Anfang! Der Balken hat 8 Teile. Wie viel Prozent ist ein Teil wert?'], ['me', 'Ah – 12,5 %. Also brauche ich 6!'], ['lux', 'Genau. 6 × 12,5 % = 75 %. ✨']],
     openK: 'Offen & privat', openH: 'Für dich, ohne Haken', openP: 'Lumen wird offen entwickelt. Kein Konto, kein Tracking – dein Fortschritt bleibt auf deinem Gerät.',
     pillars: [
       ['Für immer kostenlos', 'Kein Abo, keine Paywall, keine Werbung. Jeder Kurs ist frei.', ''],
       ['Datenschutz eingebaut', 'Der Fortschritt bleibt im Browser. Der optionale Sync nutzt einen Zufallscode – keine E-Mail, kein Profil.', ''],
       ['Open Source', 'Code unter MIT und AGPL, Inhalte unter CC BY-SA 4.0. Beiträge sind willkommen.', ''],
-      ['Selbst hosten', 'Betreibe Lumen an deiner Schule mit einem Docker-Befehl. Läuft offline als installierbare App.', ''],
+      ['Selbst hosten', 'Betreibe Lumen für dein Team, deinen Verein oder deine Schule mit einem Docker-Befehl. Läuft offline als installierbare App.', ''],
     ],
-    finalH: 'Bereit, Licht ins Dunkel zu bringen?', finalP: 'Öffne Lumen im Browser und starte deine erste Lektion in Sekunden – ohne Anmeldung, ohne Download.',
+    finalH: 'Bereit, Licht ins Dunkel zu bringen?', finalP: 'Öffne Lumen im Browser und starte deine erste Lektion in Sekunden – ohne Anmeldung, ohne Download. Fünf Minuten heute sind ein guter Anfang.',
+    audK: 'Für dich', audH: 'Gemacht für jedes Alter', audP: 'Keine Noten, kein Druck, keine Altersgrenze. Lumen holt dich dort ab, wo du stehst – und wächst mit dir.',
+    aud: [
+      ['Neugierige', 'Endlich verstehen, wie Akkus, Impfstoffe, das Internet oder ChatGPT wirklich funktionieren – in der Kaffeepause.', ''],
+      ['Beruf und Karriere', 'Daten sicher lesen, irreführende Diagramme erkennen, KI verstehen, bevor es die Kolleg:innen tun.', ''],
+      ['Schule und Studium', 'Lücken schließen, vorauslernen oder für Prüfungen üben – von Brüchen bis Analysis, in deinem Tempo.', ''],
+      ['Lebenslang Lernende', 'Den Kopf fit halten mit Tagesrätsel und kleinen Schritten, die sich summieren – egal, wie lange die Schule her ist.', ''],
+    ],
     footer: ['Impressum', 'Datenschutz', 'GitHub'],
     disclaimer: 'Lumen ist ein unabhängiges Open-Source-Projekt und steht in keiner Verbindung zu Brilliant.org, wird von dort weder unterstützt noch gesponsert; „Brilliant“ dient nur zur Beschreibung, wozu Lumen eine Alternative ist.',
   },
 };
 // German pillars reuse the English icons.
 t.de.pillars.forEach((p, i) => (p[2] = t.en.pillars[i][2]));
+t.de.aud.forEach((p, i) => (p[2] = t.en.aud[i][2]));
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -136,7 +151,7 @@ const gh = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><pat
 function page(l: Locale): string {
   const s = t[l];
   const legal = ['/app/#/legal/imprint', '/app/#/legal/privacy'];
-  const ids = ['subjects', 'how', 'lux', 'open'];
+  const ids = ['for-you', 'subjects', 'how', 'lux', 'open'];
   const jsonLd = {
     '@context': 'https://schema.org', '@type': 'WebApplication', name: 'Lumen', url: `${ORIGIN}${s.self}`, description: s.desc,
     applicationCategory: 'EducationalApplication', operatingSystem: 'Any (web, PWA)', inLanguage: ['en', 'de'], isAccessibleForFree: true,
@@ -208,7 +223,14 @@ function page(l: Locale): string {
 
 <div class="stats"><div class="wrap">${[fmt(totals.subjects, l), fmt(totals.courses, l), fmt(totals.lessons, l), fmt(totals.problems, l), s.langs].map((b, i) => `<div class="stat"><b>${b}</b><span>${esc(s.stats[i])}</span></div>`).join('')}</div></div>
 
-<section id="subjects">
+<section id="for-you">
+  <div class="wrap">
+    <div class="sec-head reveal"><span class="kicker">${esc(s.audK)}</span><h2>${esc(s.audH)}</h2><p>${esc(s.audP)}</p></div>
+    <div class="pillars">${s.aud.map(([h, p, d]) => `<div class="pillar reveal">${icon(d)}<h3>${esc(h)}</h3><p>${esc(p)}</p></div>`).join('')}</div>
+  </div>
+</section>
+
+<section id="subjects" style="padding-top:24px">
   <div class="wrap">
     <div class="sec-head reveal"><span class="kicker">${esc(s.subjK)}</span><h2>${esc(s.subjH(totals.subjects))}</h2><p>${esc(s.subjP)}</p></div>
     <div class="subjects">

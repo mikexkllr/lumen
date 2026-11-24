@@ -12,6 +12,7 @@ import { Legal } from './screens/Legal.tsx';
 import { useSocial } from './lib/socialContext.tsx';
 import { isKid } from './lib/settings.ts';
 import { useReminders } from './lib/reminders.ts';
+import { hideSplash } from './lib/splash.ts';
 import { lazy, Suspense, useEffect } from 'react';
 
 const Player = lazy(() => import('./screens/Player.tsx').then((m) => ({ default: m.Player })));
@@ -91,6 +92,10 @@ export function App() {
   useEffect(() => {
     if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal'].includes(head ?? '')) navigate('welcome', true);
   }, [loaded, settings.onboarded, head]);
+
+  useEffect(() => {
+    if ((lib && loaded) || contentError) hideSplash();
+  }, [lib, loaded, contentError]);
 
   useEffect(() => {
     window.scrollTo(0, 0);

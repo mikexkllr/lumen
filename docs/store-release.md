@@ -128,6 +128,52 @@ Kategorie **Bildung**.
 - **Review-Notizen:** keine Anmeldung nötig; Social über Profil aktivieren (ab 16); wo Melden
   und Blockieren sitzen; Hinweis, dass die App offline funktioniert
 
+### Öffentliche Instanz: App und Pipeline
+
+Die App des öffentlichen Servers heißt **Lumen – Microlearning** (Bundle-ID `cloud.mikekeller.lumen`,
+App-ID 6838845184, Team 9G5PKNZCQF). Hauptsprache Englisch (USA), zusätzlich Deutsch; Kategorie
+Bildung; ausdrücklich für alle Altersgruppen, nicht in der Kategorie „Kinder“.
+
+Gebaut, signiert und hochgeladen wird im Job `ios` von `.github/workflows/ci.yml` (macOS-Runner):
+
+| Auslöser | Ergebnis |
+|---|---|
+| grüner Push auf `main` | Build in TestFlight (Buildnummer = UTC-Zeit `yymmddHHMM`, steigt immer) |
+| Tag `v1.2.3` | zusätzlich Version 1.2.3 zur Prüfung eingereicht, Veröffentlichung automatisch nach Freigabe; der Text der annotierten Tag-Nachricht wird zu „Neuigkeiten“ |
+
+Release: `version` in `apps/mobile/package.json` erhöhen, committen, dann
+`git tag -a v1.2.3 -m "Was neu ist …" && git push origin v1.2.3`. Der Job bricht ab, wenn Tag und
+Version nicht passen. Einreichen, Version anlegen und Build zuordnen erledigt
+`apps/mobile/scripts/asc.ts` über die App Store Connect API (`status` zeigt Versionen und Builds).
+
+Secrets in der GitHub-Umgebung **app-store**:
+
+| Secret | Inhalt |
+|---|---|
+| `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_KEY_P8_BASE64` | API-Schlüssel „Lumen CI“ (Rolle App-Manager) |
+| `APPLE_DIST_P12_BASE64`, `APPLE_DIST_P12_PASSWORD` | eigenes Apple-Distribution-Zertifikat der Pipeline |
+| `APPLE_PROFILE_BASE64` | App-Store-Profil „Lumen App Store CI“ |
+
+Ein App-Manager-Schlüssel darf keine Cloud-Signierung, darum signiert die Pipeline manuell mit
+eigenem Zertifikat und Profil. **Beide laufen am 24. 11. 2027 ab.** Erneuern (ohne Schlüsselbund):
+
+```bash
+openssl genrsa -out dist.key 2048
+openssl req -new -key dist.key -out dist.csr -subj "/CN=Lumen CI/O=9G5PKNZCQF/C=DE"
+export ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_KEY_P8=AuthKey_….p8
+node apps/mobile/scripts/asc.ts create-certificate dist.csr dist.pem      # gibt die Zertifikats-ID aus
+node apps/mobile/scripts/asc.ts create-profile cloud.mikekeller.lumen <Zertifikats-ID> "Lumen App Store CI" lumen.mobileprovision
+openssl pkcs12 -export -legacy -inkey dist.key -in dist.pem -out dist.p12 -name "Lumen CI"
+```
+
+Danach die drei Signatur-Secrets neu setzen (`gh secret set … --env app-store`) und die Dateien löschen.
+Das alte Profil im Developer-Portal entfernen, damit der Name eindeutig bleibt.
+
+Die nativen Ergänzungen in `ios/`: App-Icon randlos aus `apps/mobile/assets/icon-ios.svg`
+(`npm run assets` erzeugt sonst das runde Logo mit hellen Ecken – danach das Icon neu rendern),
+Splash bleibt stehen, bis die Inhalte geladen sind (`apps/web/src/lib/splash.ts`),
+`PrivacyInfo.xcprivacy`, `ITSAppUsesNonExemptEncryption = NO`, Sprachen en/de.
+
 ## 4. Google Play
 
 ### Konto und Signatur

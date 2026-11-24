@@ -1,10 +1,9 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  // TODO(owner): replace with your own reverse-domain id BEFORE the first `cap add`.
-  // It becomes the iOS bundle identifier and the Android applicationId and cannot
-  // be changed after the first store upload.
-  appId: 'org.lumen.app',
+  // iOS bundle identifier and Android applicationId of the public Lumen apps.
+  // Cannot be changed after the first store upload; forks use their own id.
+  appId: 'cloud.mikekeller.lumen',
   appName: 'Lumen',
   // The PWA build (npm run build:web). Content bundles are copied into the app,
   // so lessons work offline from the first start.
@@ -14,8 +13,8 @@ const config: CapacitorConfig = {
   server: { androidScheme: 'https', iosScheme: 'capacitor', hostname: 'localhost' },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 600,
-      launchAutoHide: true,
+      // Hidden by the web app once the content is loaded (apps/web/src/lib/splash.ts).
+      launchAutoHide: false,
       backgroundColor: '#fbf8f2',
       showSpinner: false,
     },
