@@ -44,6 +44,9 @@ export default defineConfig({
     // App Store screenshots (6.9" iPhone 1320×2868, 13" iPad 2064×2752): --project store-iphone --project store-ipad
     { name: 'store-iphone', grep: /@store/, timeout: 180_000, use: { viewport: { width: 440, height: 956 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } },
     { name: 'store-ipad', grep: /@store/, timeout: 180_000, use: { viewport: { width: 1032, height: 1376 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
+    // Google Play (at most 2:1, at least 1080 px a side): phone 1080×2100, 10" tablet 1600×2560
+    { name: 'store-android', grep: /@store/, timeout: 180_000, use: { viewport: { width: 360, height: 700 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } },
+    { name: 'store-android-tablet', grep: /@store/, timeout: 180_000, use: { viewport: { width: 800, height: 1280 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
   ],
   webServer: [
     {

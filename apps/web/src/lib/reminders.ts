@@ -73,7 +73,9 @@ export async function scheduleReminders(plan: ReminderPlan[]): Promise<void> {
   const perm = await ln.checkPermissions();
   if (perm.display !== 'granted') return;
   await ln.schedule({
-    notifications: plan.map((p) => ({ id: p.id, title: p.title, body: p.body, schedule: { at: p.at, allowWhileIdle: true }, extra: { route: '' } })),
+    // Inexact on Android: a reminder may come a few minutes late, but the app needs no
+    // "Alarms & reminders" permission (the plugin would open that settings screen otherwise).
+    notifications: plan.map((p) => ({ id: p.id, title: p.title, body: p.body, schedule: { at: p.at, allowWhileIdle: true }, isExactNotification: false, extra: { route: '' } })),
   });
 }
 

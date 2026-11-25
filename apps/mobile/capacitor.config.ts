@@ -19,7 +19,9 @@ const config: CapacitorConfig = {
       showSpinner: false,
     },
     LocalNotifications: {
-      iconColor: '#f5a524',
+      // Android: Lux as a one-colour status bar icon (drawn by scripts/build-icons.ts)
+      smallIcon: 'ic_stat_lumen',
+      iconColor: '#6c5ce7',
     },
   },
 };

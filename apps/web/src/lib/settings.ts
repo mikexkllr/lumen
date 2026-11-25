@@ -1,4 +1,5 @@
 import { detectLocale, translate, type UiLocale } from './i18n.ts';
+import { syncSystemBars } from './systemBars.ts';
 
 export type AgeBand = 'u13' | '13-15' | '16+';
 
@@ -146,6 +147,7 @@ export function applyDocumentSettings(s: Settings): void {
   if (s.reduceMotion === 'system') root.removeAttribute('data-motion');
   else root.dataset.motion = s.reduceMotion;
   root.style.setProperty('--scale', String(s.fontScale));
+  syncSystemBars(s.theme);
 }
 
 export function prefersReducedMotion(s: Settings): boolean {

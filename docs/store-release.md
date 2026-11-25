@@ -46,9 +46,9 @@ Einstellungen zurücksetzen.
 - [ ] **Rechtstexte** befüllt (`VITE_LUMEN_OPERATOR`, `…_ADDRESS`, `…_CONTACT`) und geprüft.
       Datenschutz-URL für beide Stores: `https://<domain>/#/legal/privacy`
 - [ ] **Support-URL** (Apple Pflicht): z. B. Issue-Tracker oder eine Kontaktseite
-- [ ] **Icons und Splash** mit `npm run assets -w @lumen/mobile` erzeugen (Quelle
-      `apps/mobile/assets/logo.png`); Store-Icons: Apple 1024 × 1024 ohne Transparenz,
-      Google 512 × 512
+- [x] **Icons und Splash** zeichnet `node scripts/build-icons.ts` aus Lux (iOS, Android,
+      Web, Store-Icons: Apple 1024 × 1024 ohne Transparenz, Google 512 × 512 und
+      Feature-Grafik 1024 × 500 in `apps/mobile/store/play/`)
 - [ ] **Screenshots** echter Bildschirme (Lektion mit interaktiver Aufgabe, Lux, Wiederholung,
       Profil/Streak, Liga); Apple: 6,9″-iPhone (1320 × 2868), bei iPad-Unterstützung auch
       13″-iPad (sonst in Xcode nur iPhone als Gerät wählen); Google: mind. 2 Telefon-Screenshots
@@ -202,15 +202,27 @@ Adresse, keinen Namen. Für die öffentliche Instanz:
 
 ## 4. Google Play
 
-### Konto und Signatur
+### Konto, Signatur und Pipeline
 
-- [ ] Play-Console-Konto (einmalig 25 USD), Identitätsprüfung; für Organisationen D-U-N-S-Nummer
-- [ ] Neue **private** Entwicklerkonten müssen vor der Produktionsfreigabe einen geschlossenen
-      Test mit mindestens 12 Testenden über 14 Tage durchführen – früh einplanen
-- [ ] **Play App Signing** aktivieren; Upload-Schlüssel sicher und außerhalb des Repos aufbewahren
-- [ ] Android App Bundle (`.aab`) hochladen; die aktuelle Target-API-Anforderung prüfen
-      (Capacitor 8 setzt ein aktuelles `targetSdkVersion`)
-- [ ] Händlerstatus/Kontaktdaten gemäß DSA im Konto angeben (werden bei Händlern angezeigt)
+- [x] Play-Console-Konto (privat, Mike Keller). Neue Apps privater Konten brauchen vor der
+      Produktionsfreigabe einen **geschlossenen Test mit mindestens 12 Testenden über 14 Tage**
+- [x] **Upload-Schlüssel** (PKCS12, Alias `upload`): lokal in `~/Documents/Lumen Play upload key`,
+      für CI als Secrets `ANDROID_UPLOAD_KEYSTORE_BASE64` und `ANDROID_UPLOAD_KEYSTORE_PASSWORD`
+      in der GitHub-Umgebung `google-play` (nur `main` und Tags `v*`). **Play App Signing**:
+      Google signiert die Store-App mit eigenem Schlüssel; ein verlorener Upload-Schlüssel lässt
+      sich in der Play Console zurücksetzen (*App-Integrität*)
+- [x] Android App Bundle mit `targetSdkVersion` 36 (Capacitor 8), `minSdkVersion` 24
+- [ ] **Play-API ohne Schlüsseldatei:** Google-Cloud-Dienstkonto, das GitHub Actions über
+      Workload Identity Federation (nur dieses Repository) annimmt; Variablen
+      `PLAY_WIF_PROVIDER` und `PLAY_SERVICE_ACCOUNT` in der Umgebung `google-play`. Das
+      Dienstkonto in der Play Console unter *Nutzer und Berechtigungen* für die App einladen
+      (Releases in Test-Tracks, Store-Eintrag bearbeiten)
+- [ ] Erste Version einmal **von Hand** hochladen (interner Test): vorher kennt die API das
+      Paket nicht; solange die App nie veröffentlicht war, legt `play.ts` Releases als Entwurf an
+- Danach: Push auf `main` → interner Test, Tag `v1.2.3` → geschlossener Test (Track `alpha`,
+  Google prüft); Store-Eintrag, Icon, Feature-Grafik und Screenshots über *Actions → Store
+  screenshots* (`apps/mobile/scripts/play.ts listing`)
+- [ ] Händlerstatus/Kontaktdaten gemäß DSA im Konto angeben (Frist laut Play Console: 1. Februar 2027)
 
 ### Datensicherheit („Data safety“)
 
@@ -250,7 +262,9 @@ Modellanbieter vertraglich nichts speichert.
 - [x] **KI-generierte Inhalte:** Apps mit generativer KI müssen das Melden anstößiger
       KI-Antworten in der App ermöglichen, ohne die App zu verlassen – Lux hat dafür
       »Antwort melden« (siehe Abschnitt 2)
-- [ ] **App-Zugriff:** keine Anmeldung nötig; **Werbung:** nein
+- [ ] **App-Zugriff:** die App startet mit der Anmeldung (E-Mail-Code; auf Android kein
+      Apple) – für die Prüfung Zugangsdaten angeben, die ohne Postfach funktionieren;
+      **Werbung:** nein
 - [ ] Kontolöschung ist in der App möglich (Profil → Serverdaten löschen)
 
 ## 5. Kinder und Jugendliche

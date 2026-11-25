@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*'] # v1.2.3 = App Store release of apps/mobile version 1.2.3 (job "ios")
+    tags: ['v*'] # v1.2.3 = store release of apps/mobile version 1.2.3 (jobs "ios" and "android")
   pull_request:
   workflow_dispatch: # re-run checks and deploy by hand (Actions → CI → Run workflow)
 
@@ -257,3 +257,112 @@ jobs:
         run: |
           security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
           rm -f "$RUNNER_TEMP/AuthKey.p8" "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/lumen-app-store.mobileprovision"
+
+  android:
+    # Android app "Lumen – Microlearning" (cloud.mikekeller.lumen) on Google Play:
+    #   push to main  -> build, sign and release to internal testing
+    #   tag v1.2.3    -> the same, released to closed testing (track "alpha"; Google reviews it)
+    # Signed with the upload key; Google re-signs for the store (Play App Signing). The Play API
+    # is reached without a key file, through Workload Identity Federation for this repository.
+    # Secrets and variables live in the "google-play" environment; setup: docs/store-release.md.
+    # This repository is public and so are these logs: never print a secret or a decoded file.
+    if: github.event_name != 'pull_request' && github.repository == 'mikexkllr/lumen' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    needs: [check, e2e]
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment: google-play
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: google-play
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - run: npm ci
+      - name: Version and version code
+        id: version
+        run: |
+          version="$(node -p "require('./apps/mobile/package.json').version")"
+          if [ "${GITHUB_REF_TYPE}" = tag ] && [ "${GITHUB_REF_NAME}" != "v$version" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match apps/mobile/package.json version $version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          # strictly increasing across runs (Google Play allows up to 2100000000)
+          echo "code=$(( GITHUB_RUN_NUMBER * 10 + GITHUB_RUN_ATTEMPT ))" >> "$GITHUB_OUTPUT"
+      - name: Build the web app into the Android project
+        env:
+          VITE_LUMEN_API_URL: https://lumen.mikekeller.cloud/api
+          VITE_LUMEN_OPERATOR: ${{ vars.LUMEN_OPERATOR }}
+          VITE_LUMEN_OPERATOR_ADDRESS: ${{ vars.LUMEN_OPERATOR_ADDRESS }}
+          VITE_LUMEN_CONTACT: ${{ vars.LUMEN_CONTACT }}
+          VITE_LUMEN_PHONE: ${{ vars.LUMEN_PHONE }}
+          VITE_LUMEN_VAT_ID: ${{ vars.LUMEN_VAT_ID }}
+          VITE_LUMEN_ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
+          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
+          # sourcemaps to Sentry (then removed from the app bundle)
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          LUMEN_RELEASE: lumen-android@${{ steps.version.outputs.version }}+${{ steps.version.outputs.code }}
+          LUMEN_DEPLOY_ENV: ${{ github.ref_type == 'tag' && 'play-closed' || 'play-internal' }}
+          LUMEN_DELETE_SOURCEMAPS: '1'
+        run: npm run sync -w @lumen/mobile -- android
+      - name: Build and sign the app bundle
+        working-directory: apps/mobile/android
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          LUMEN_UPLOAD_STORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+        run: |
+          umask 077
+          export LUMEN_UPLOAD_KEYSTORE="$RUNNER_TEMP/upload.jks"
+          base64 --decode <<<"$KEYSTORE_BASE64" > "$LUMEN_UPLOAD_KEYSTORE"
+          ./gradlew --no-daemon -q bundleRelease -PlumenVersionCode=${{ steps.version.outputs.code }}
+          rm -f "$LUMEN_UPLOAD_KEYSTORE"
+          jarsigner -J-Duser.language=en -verify app/build/outputs/bundle/release/app-release.aab | grep -q 'jar verified' \
+            || { echo "::error::the app bundle is not signed"; exit 1; }
+          echo "built ${{ steps.version.outputs.version }} (${{ steps.version.outputs.code }})"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-app-bundle
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14
+      - uses: google-github-actions/auth@v2
+        id: gcp
+        if: vars.PLAY_SERVICE_ACCOUNT != ''
+        with:
+          workload_identity_provider: ${{ vars.PLAY_WIF_PROVIDER }}
+          service_account: ${{ vars.PLAY_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: false
+      - name: Release on Google Play
+        if: vars.PLAY_SERVICE_ACCOUNT != ''
+        env:
+          PLAY_ACCESS_TOKEN: ${{ steps.gcp.outputs.access_token }}
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = tag ]; then
+            track=alpha
+            git fetch --depth=1 origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}" 2>/dev/null || true
+            git tag -l --format='%(contents)' "${GITHUB_REF_NAME}" | sed '/^-----BEGIN/,$d' > "$RUNNER_TEMP/notes.txt"
+          else
+            track=internal
+            git log -1 --format=%s > "$RUNNER_TEMP/notes.txt"
+          fi
+          [ -s "$RUNNER_TEMP/notes.txt" ] || echo "Improvements and new lessons." > "$RUNNER_TEMP/notes.txt"
+          node apps/mobile/scripts/play.ts upload cloud.mikekeller.lumen \
+            apps/mobile/android/app/build/outputs/bundle/release/app-release.aab \
+            --track "$track" --notes-file "$RUNNER_TEMP/notes.txt"
+      - name: Clean up
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.jks"

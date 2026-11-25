@@ -36,19 +36,10 @@ Store checklist (accounts, privacy answers, age rating, review guidelines):
 
    `build:web` refuses relative or `http://` API URLs (set `LUMEN_ALLOW_HTTP=1` only for
    tests on a local network – the stores need HTTPS).
-3. **Generate the native projects once** and commit them:
-
-   ```bash
-   npm run add:android -w @lumen/mobile
-   npm run add:ios -w @lumen/mobile      # on a Mac
-   git add apps/mobile/android apps/mobile/ios
-   ```
-
-   `android/` and `ios/` are not in the repository yet because they depend on the
-   app id and on your signing setup. After `cap add` they are ordinary source code
-   (Info.plist, AndroidManifest.xml, signing, icons) and belong in git. The copied web
-   build inside them (`android/app/src/main/assets/public`, `ios/App/App/public`) is
-   excluded by the `.gitignore` files that Capacitor generates.
+3. **Native projects:** `android/` and `ios/` are in the repository (generated once with
+   `cap add`, then edited like ordinary source code: manifest, Info.plist, signing, icons).
+   The copied web build inside them (`android/app/src/main/assets/public`,
+   `ios/App/App/public`) is excluded by the `.gitignore` files that Capacitor generates.
 4. **iOS additions** (Xcode, target *App*):
    - copy `ios-PrivacyInfo.xcprivacy` to `ios/App/App/PrivacyInfo.xcprivacy` and add it
      to the target; check it against Xcode's privacy report before each submission;
@@ -56,15 +47,10 @@ Store checklist (accounts, privacy answers, age rating, review guidelines):
      and the operating system's standard cryptography);
    - add the `Push Notifications` capability only if you later add remote push – local
      notifications do not need it.
-5. **Icons and splash screens:** `assets/logo.png` (1024 × 1024, rendered from
-   `apps/web/public/icon.svg`) is the source. Generate all sizes with
-
-   ```bash
-   npm run assets -w @lumen/mobile
-   ```
-
-   (downloads `@capacitor/assets` on demand). Commit the generated files in `android/`
-   and `ios/`.
+5. **Icons and splash screens:** all of them are drawn from Lux, the robot, by
+   `node scripts/build-icons.ts` (iOS app icon and splash, Android adaptive/themed/legacy
+   icons, notification icon and splash, the Google Play icon and feature graphics in
+   `store/play/`). Commit the generated files.
 
 ## Everyday workflow
 
@@ -75,14 +61,27 @@ npm run open:ios -w @lumen/mobile      # Xcode: run on a device, Product → Arc
 ```
 
 Run `sync` after every change to the web app or the content; the store build always
-contains the content of that moment. Raise the version (`versionCode`/`versionName` in
-`android/app/build.gradle`, *Version*/*Build* in Xcode) before each upload.
+contains the content of that moment. The version comes from `package.json` (both apps);
+CI sets the build number (iOS) and `versionCode` (Android, `-PlumenVersionCode`).
+
+## Releases (CI)
+
+| | push to `main` | tag `v1.2.3` |
+|---|---|---|
+| iOS (job `ios`) | TestFlight | App Review, released after approval (`scripts/asc.ts`) |
+| Android (job `android`) | Google Play internal testing | closed testing (track `alpha`, reviewed by Google) (`scripts/play.ts`) |
+
+Store screenshots and the Play listing: *Actions → Store screenshots* (`e2e/store.spec.ts`,
+texts in `store/listing.json` and `store/play/listing.json`).
 
 ## Signing
 
-- **Android:** create an upload key (`keytool -genkeypair -v -keystore upload.jks -alias upload -keyalg RSA -keysize 4096 -validity 10000`),
-  keep it outside the repository (`*.jks` is never committed) and use Play App Signing.
-  Build a signed *Android App Bundle* (.aab) in Android Studio.
+- **Android:** upload key (PKCS12, alias `upload`) outside the repository (`*.jks` is never
+  committed), Play App Signing re-signs for the store. `android/app/build.gradle` signs the
+  release with `LUMEN_UPLOAD_KEYSTORE` (path), `LUMEN_UPLOAD_STORE_PASSWORD` (and optionally
+  `LUMEN_UPLOAD_KEY_ALIAS`, `LUMEN_UPLOAD_KEY_PASSWORD`):
+  `./gradlew bundleRelease -PlumenVersionCode=<n>` in `android/` (JDK 21, e.g. Android
+  Studio's `Contents/jbr`). CI gets the key from the `google-play` environment.
 - **iOS:** automatic signing in Xcode with your Apple Developer team; upload via
   *Product → Archive → Distribute App*.
 
@@ -101,12 +100,13 @@ the next 14 days locally; today's reminder is dropped as soon as the streak is s
 everything is rescheduled whenever the app opens. In the browser the setting is shown but
 disabled.
 
-Android: the plugin declares the notification permission (Android 13+). Reminders use
-inexact alarms, so a reminder may arrive a few minutes late – fine for a daily nudge. Only
-add `SCHEDULE_EXACT_ALARM` to `AndroidManifest.xml` if you need exact times; Google Play
-restricts that permission to alarm and calendar apps. Optionally add a monochrome
-`ic_stat_lumen` small icon under `android/app/src/main/res/drawable` and set
-`LocalNotifications.smallIcon` in `capacitor.config.ts`.
+Android: the plugin declares the notification permission (Android 13+). Reminders are
+scheduled as inexact alarms (`isExactNotification: false`), so a reminder may arrive a few
+minutes late – fine for a daily nudge – and the manifest removes `SCHEDULE_EXACT_ALARM`,
+which Google Play reserves for alarm and calendar apps (with exact alarms the plugin would
+open the "Alarms & reminders" settings on every reschedule). The small icon is
+`ic_stat_lumen` (Lux in one colour). Backups are off (`allowBackup="false"`): the WebView
+storage holds the account's sign-in token.
 
 ## Notes
 

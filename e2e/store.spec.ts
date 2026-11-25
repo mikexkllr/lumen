@@ -1,9 +1,11 @@
 /**
- * App Store screenshots: the real app against the e2e server with a believable learner (12-day
- * streak, friends, a league), framed like the device (safe areas emulated, iOS status bar).
- * Writes store-screenshots/<locale>/<displayType>/NN-name.png for `asc.ts screenshots`.
+ * Store screenshots: the real app against the e2e server with a believable learner (12-day
+ * streak, friends, a league), framed like the device (safe areas emulated, status bar drawn).
+ * App Store: store-screenshots/<locale>/<displayType>/NN-name.png for `asc.ts screenshots`.
+ * Google Play: store-screenshots/play/<locale>/<imageType>/NN-name.png for `play.ts listing`.
  *
  *   npm run build:e2e && E2E_TUTOR=fake npm run e2e -- --project store-iphone --project store-ipad --workers 1
+ *   npm run build:e2e && E2E_TUTOR=fake npm run e2e -- --project store-android --project store-android-tablet --workers 1
  */
 import type { APIRequestContext, Page } from '@playwright/test';
 import { createHash } from 'node:crypto';
@@ -12,10 +14,13 @@ import { join, resolve } from 'node:path';
 import { API, apiAccount, auth, createProfile, expect, openSignedIn, solve, test } from './helpers.ts';
 
 const OUT = resolve(import.meta.dirname, '../store-screenshots');
-const DEVICES = {
-  'store-iphone': { type: 'APP_IPHONE_67', insets: { top: 62, bottom: 34 }, bar: 'phone' },
-  'store-ipad': { type: 'APP_IPAD_PRO_3GEN_129', insets: { top: 24, bottom: 20 }, bar: 'pad' },
-} as const;
+type Bar = 'phone' | 'pad' | 'android';
+const DEVICES: Record<string, { dir: string; type: string; insets: { top: number; bottom: number }; bar: Bar; compact: boolean }> = {
+  'store-iphone': { dir: OUT, type: 'APP_IPHONE_67', insets: { top: 62, bottom: 34 }, bar: 'phone', compact: true },
+  'store-ipad': { dir: OUT, type: 'APP_IPAD_PRO_3GEN_129', insets: { top: 24, bottom: 20 }, bar: 'pad', compact: false },
+  'store-android': { dir: join(OUT, 'play'), type: 'phoneScreenshots', insets: { top: 28, bottom: 18 }, bar: 'android', compact: true },
+  'store-android-tablet': { dir: join(OUT, 'play'), type: 'tenInchScreenshots', insets: { top: 28, bottom: 18 }, bar: 'android', compact: false },
+};
 
 const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(18, 0, 0, 0); return d; };
@@ -52,8 +57,8 @@ async function person(request: APIRequestContext, name: string, days: number, to
   return { token, ...p };
 }
 
-/** iOS status bar and home indicator over the emulated safe areas. */
-async function frame(page: Page, bar: 'phone' | 'pad', insets: { top: number; bottom: number }) {
+/** Status bar and home indicator (iOS) or gesture handle (Android) over the emulated safe areas. */
+async function frame(page: Page, bar: Bar, insets: { top: number; bottom: number }) {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setSafeAreaInsetsOverride', { insets: { top: insets.top, bottom: insets.bottom, left: 0, right: 0 } });
   await page.addInitScript(({ bar, insets }) => {
@@ -64,13 +69,16 @@ async function frame(page: Page, bar: 'phone' | 'pad', insets: { top: number; bo
       const icons = `<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
         <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.2c2.4 0 4.6.9 6.2 2.5l1.3-1.3A10.6 10.6 0 0 0 8.5.4 10.6 10.6 0 0 0 1 3.4l1.3 1.3a8.8 8.8 0 0 1 6.2-2.5Zm0 3.6c1.4 0 2.8.6 3.7 1.5l1.3-1.3a7 7 0 0 0-10 0l1.3 1.3c.9-.9 2.3-1.5 3.7-1.5Zm0 3.6c.5 0 .9.2 1.2.5L8.5 11 7.3 9.9c.3-.3.7-.5 1.2-.5Z"/></svg>
         <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2"/><path d="M25 4.5v4a2 2 0 0 0 0-4Z" opacity=".4"/></svg>`;
-      el.innerHTML = `<div class="sf-bar"><span class="sf-time">9:41</span>${bar === 'pad' ? '<span class="sf-date"></span>' : ''}<span class="sf-icons">${icons}</span></div><div class="sf-home"></div>`;
+      const droid = `<svg width="15" height="15" viewBox="0 0 24 24"><path d="M12 21 1 8.5A15.6 15.6 0 0 1 12 4a15.6 15.6 0 0 1 11 4.5Z"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24"><path d="M2 22 22 2v20Z"/></svg>
+        <svg width="9" height="15" viewBox="0 0 12 20"><rect x="3.5" y="0" width="5" height="2" rx="0.6"/><rect x="0" y="1.5" width="12" height="18.5" rx="2"/></svg>`;
+      el.innerHTML = `<div class="sf-bar"><span class="sf-time">${bar === 'android' ? '12:30' : '9:41'}</span>${bar === 'pad' ? '<span class="sf-date"></span>' : ''}<span class="sf-icons">${bar === 'android' ? droid : icons}</span></div><div class="sf-home"></div>`;
       const style = document.createElement('style');
-      style.textContent = `#store-frame .sf-bar { position: fixed; top: 0; left: 0; right: 0; height: ${insets.top}px; z-index: 99999; display: flex; align-items: ${bar === 'phone' ? 'center' : 'center'}; justify-content: space-between; padding: ${bar === 'phone' ? '10px 34px 0 52px' : '0 22px'}; font: 600 ${bar === 'phone' ? 17 : 14}px -apple-system, 'SF Pro Text', Inter, system-ui; color: var(--ink, #111); pointer-events: none; }
+      style.textContent = `#store-frame .sf-bar { position: fixed; top: 0; left: 0; right: 0; height: ${insets.top}px; z-index: 99999; display: flex; align-items: ${bar === 'phone' ? 'center' : 'center'}; justify-content: space-between; padding: ${bar === 'phone' ? '10px 34px 0 52px' : bar === 'android' ? '0 18px' : '0 22px'}; font: ${bar === 'android' ? "500 14px Roboto, 'Google Sans', Inter, system-ui" : `600 ${bar === 'phone' ? 17 : 14}px -apple-system, 'SF Pro Text', Inter, system-ui`}; color: var(--ink, #111); pointer-events: none; }
         /* headless Chromium draws no backdrop blur; on the device the tab bar is frosted, here opaque */
         .tabbar, .onb-foot, .foot { background: var(--bg) !important; }
         #store-frame .sf-icons { display: flex; gap: 6px; align-items: center; fill: currentColor; }
-        #store-frame .sf-home { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); width: ${bar === 'phone' ? 140 : 320}px; height: 5px; border-radius: 3px; background: var(--ink, #111); z-index: 99999; pointer-events: none; }`;
+        #store-frame .sf-home { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); width: ${bar === 'phone' ? 140 : bar === 'android' ? 108 : 320}px; height: ${bar === 'android' ? 4 : 5}px; border-radius: 3px; background: var(--ink, #111); z-index: 99999; pointer-events: none; }`;
       document.documentElement.append(style, el);
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', add);
@@ -85,8 +93,8 @@ for (const locale of ['en-US', 'de-DE'] as const) {
     test.use({ locale, colorScheme: 'light', timezoneId: 'Europe/Berlin' });
 
     test(`all screens (${locale})`, async ({ page, request }, info) => {
-      const device = DEVICES[info.project.name as keyof typeof DEVICES];
-      const dir = join(OUT, locale, device.type);
+      const device = DEVICES[info.project.name];
+      const dir = join(device.dir, locale, device.type);
       mkdirSync(dir, { recursive: true });
       const shot = async (name: string) => {
         await page.waitForTimeout(600);
@@ -141,7 +149,7 @@ for (const locale of ['en-US', 'de-DE'] as const) {
       }
       await shot('03-lesson');
 
-      const phone = device.bar === 'phone';
+      const phone = device.compact;
       if (phone) {
         // 4. Lux helps without giving the answer away
         await page.goto('/#/learn/cs.code.sequence');
@@ -160,7 +168,7 @@ for (const locale of ['en-US', 'de-DE'] as const) {
         await page.getByRole('button', { name: de ? 'Prüfen' : 'Check' }).click();
         await shot('05-correct');
       } else {
-        // 4. all subjects (the wide layout shines on the iPad)
+        // 4. all subjects (the wide layout shines on tablets)
         await page.goto('/#/discover');
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
         await page.evaluate(() => document.fonts.ready);

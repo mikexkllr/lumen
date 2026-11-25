@@ -1,19 +1,30 @@
 name: Store screenshots
-# Takes the App Store screenshots (iPhone 6.9", iPad 13"; English and German) from the real app
-# against the e2e server (e2e/store.spec.ts) and replaces the ones in App Store Connect.
-# Screenshots can only change while the version is editable: with "resubmit" the job takes the
-# version out of App Review first and submits it again with its build afterwards.
+# Takes the store screenshots (English and German) from the real app against the e2e server
+# (e2e/store.spec.ts) and replaces them in the stores:
+#   App Store (iPhone 6.9", iPad 13"): screenshots can only change while the version is
+#     editable; with "resubmit" the job takes the version out of App Review first and submits
+#     it again with its build afterwards.
+#   Google Play (phone, 10" tablet): together with the listing texts, icon and feature graphic
+#     from apps/mobile/store/play (apps/mobile/scripts/play.ts listing).
 on:
   workflow_dispatch:
     inputs:
+      app_store:
+        description: App Store
+        type: boolean
+        default: true
       resubmit:
-        description: Take the version out of App Review for the upload and submit it again
+        description: App Store – take the version out of App Review for the upload and submit it again
+        type: boolean
+        default: true
+      google_play:
+        description: Google Play (screenshots and store listing)
         type: boolean
         default: true
 
 jobs:
   screenshots:
-    if: github.repository == 'mikexkllr/lumen'
+    if: github.repository == 'mikexkllr/lumen' && inputs.app_store
     runs-on: macos-26
     timeout-minutes: 60
     environment: app-store
@@ -50,3 +61,49 @@ jobs:
           if [ "$RESUBMIT" = true ]; then node apps/mobile/scripts/asc.ts unsubmit cloud.mikekeller.lumen; fi
           node apps/mobile/scripts/asc.ts screenshots cloud.mikekeller.lumen store-screenshots
           if [ "$RESUBMIT" = true ]; then node apps/mobile/scripts/asc.ts resubmit cloud.mikekeller.lumen; fi
+
+  play:
+    if: github.repository == 'mikexkllr/lumen' && inputs.google_play
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: google-play
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: google-play
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Build the app for the tests
+        run: npm run build:e2e
+      - name: Take the screenshots
+        env:
+          E2E_TUTOR: fake
+        run: npm run e2e -- --project store-android --project store-android-tablet --workers 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: play-screenshots
+          path: store-screenshots/play
+      - uses: google-github-actions/auth@v2
+        id: gcp
+        with:
+          workload_identity_provider: ${{ vars.PLAY_WIF_PROVIDER }}
+          service_account: ${{ vars.PLAY_SERVICE_ACCOUNT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+          create_credentials_file: false
+      - name: Replace the store listing on Google Play
+        env:
+          PLAY_ACCESS_TOKEN: ${{ steps.gcp.outputs.access_token }}
+          LUMEN_CONTACT: ${{ vars.LUMEN_CONTACT }}
+        run: node apps/mobile/scripts/play.ts listing cloud.mikekeller.lumen apps/mobile/store/play/listing.json store-screenshots/play

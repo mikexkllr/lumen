@@ -9,8 +9,9 @@ const native: Record<string, (...a: unknown[]) => Promise<unknown>> = {
   checkPermissions: async () => ({ display }),
   requestPermissions: async () => ({ display: (display = 'granted') }),
   cancel: async () => undefined,
-  schedule: async () => undefined,
+  schedule: async (opts) => { scheduled.push(...(opts as { notifications: Record<string, unknown>[] }).notifications); },
 };
+const scheduled: Record<string, unknown>[] = [];
 vi.mock('@capacitor/local-notifications', () => ({
   LocalNotifications: new Proxy({}, {
     get: (_, prop: string) => (...args: unknown[]) => {
@@ -48,7 +49,7 @@ describe('streak reminders', () => {
 
 describe('streak reminders on the phone', () => {
   const g = globalThis as { Capacitor?: unknown };
-  afterEach(() => { delete g.Capacitor; calls.length = 0; display = 'prompt'; });
+  afterEach(() => { delete g.Capacitor; calls.length = 0; scheduled.length = 0; display = 'prompt'; });
   const onPhone = () => { g.Capacitor = { isNativePlatform: () => true }; };
   const settle = <T>(p: Promise<T>) => Promise.race([p, new Promise<never>((_, no) => setTimeout(() => no(new Error('never settled')), 500))]);
 
@@ -69,6 +70,9 @@ describe('streak reminders on the phone', () => {
     display = 'granted';
     await settle(scheduleReminders(planReminders({ ...base, time: '18:30', now: new Date(2026, 10, 23, 9, 0), todayDone: false })));
     expect(calls).toEqual(['cancel', 'checkPermissions', 'schedule']);
+    expect(scheduled).toHaveLength(14);
+    // no exact alarms: on Android that would need the "Alarms & reminders" permission
+    expect(scheduled.every((n) => n.isExactNotification === false)).toBe(true);
   });
 
   it('only cancel while notifications are not allowed', async () => {
