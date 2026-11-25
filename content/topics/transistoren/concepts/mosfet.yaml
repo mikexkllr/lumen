@@ -6,8 +6,31 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Vier Transistoren, ein Gatter
+    body: "Jeder Prozessor ist aus Gattern gebaut, und jedes Gatter aus Transistoren. Vier davon bilden dieses **NAND-Gatter**. Schalte A und B um: Bei welcher Kombination geht die Lampe aus?"
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: A
+          - id: B
+        gates:
+          - id: g
+            type: NAND
+            in:
+              - A
+              - B
+        outputs:
+          - id: Q
+            from: g
+            label: Lampe
+
   - kind: problem
     id: hook
     widget: choice
@@ -84,6 +107,40 @@ steps:
       - Beide Eingänge des Gatters hängen an A.
       - UND und ODER von A mit A ergeben wieder A.
     explanation: NAND(A, A) = NICHT A. In CMOS braucht ein NAND nur vier Transistoren, darum baut man gern alles daraus.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: Mit NAND-Gattern lässt sich alles bauen. Das erste Gatter ist ein NAND. Wähle das zweite so, dass die Lampe nur leuchtet, wenn A und B beide an sind.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: n
+          type: NAND
+          in:
+            - A
+            - B
+        - id: g
+          type: "?"
+          in:
+            - n
+            - n
+          options:
+            - AND
+            - OR
+            - NAND
+      outputs:
+        - id: Q
+          from: g
+          label: Lampe
+    check:
+      predicate: table('Q') == [0, 0, 0, 1]
+    hints:
+      - Das erste NAND liefert genau das Gegenteil von UND.
+      - Du brauchst also einen Inverter. Welches Gatter kehrt mit zwei gleichen Eingängen um?
+    explanation: Ein NAND mit zwei gleichen Eingängen ist ein NICHT. Und NICHT von NAND ist UND. So entstehen aus einem Gattertyp alle anderen.
 
   - kind: explain
     id: d1

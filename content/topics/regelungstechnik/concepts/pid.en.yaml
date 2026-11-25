@@ -6,8 +6,32 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Three knobs for everything
+    body: "Drones, espresso machines and 3D printers have something in common: a **PID controller**. Turn over the cards and find out what it keeps steady in each."
+    visual:
+      widget: flip
+      interactive: true
+      params:
+        layout: grid
+        cards:
+          - icon: 🚁
+            front: The drone
+            back: Hundreds of times a second, a PID controller corrects every motor. That is how it hovers calmly.
+          - icon: ☕
+            front: The espresso machine
+            back: Good machines use PID to hold the water to within about one degree.
+          - icon: 🖨️
+            front: The 3D printer
+            back: Thanks to PID the nozzle stays almost exactly at its temperature, about 200 °C.
+          - icon: 🚢
+            front: The ship
+            back: "The PID idea dates from the 1920s: it kept ships on course automatically."
+
   - kind: problem
     id: hook
     widget: choice
@@ -70,6 +94,41 @@ steps:
         k: choice[1,4,9,19,99]
       defaults:
         k: 4
+
+  - kind: problem
+    id: intro-c1
+    widget: slider
+    prompt: A P control loop steps to the setpoint 1. Set the loop gain K so that only 10 % error remains. The curve then ends at the dot at 0.9.
+    params:
+      expr: k/(1+k)*(1-exp(-(1+k)*x))
+      x:
+        - 0
+        - 3
+      y:
+        - 0
+        - 1.2
+      showCoordinates: false
+      target:
+        expr: "1"
+        label: Setpoint
+      sliders:
+        - id: k
+          label: Loop gain K
+          min: 1
+          max: 20
+          step: 1
+          initial: 3
+      markers:
+        - x: 2.5
+          y: 0.9
+          group: a
+    answer:
+      values:
+        k: 9
+    hints:
+      - With a P controller, the share 1 ÷ (1 + K) remains as error.
+      - 1 ÷ (1 + K) = 0.1 means 1 + K = 10.
+    explanation: "K = 9: 1 ÷ 10 = 10 % error remains. Only an I part removes it completely."
 
   - kind: explain
     id: d1
