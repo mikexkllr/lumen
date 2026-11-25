@@ -1,0 +1,52 @@
+name: Store screenshots
+# Takes the App Store screenshots (iPhone 6.9", iPad 13"; English and German) from the real app
+# against the e2e server (e2e/store.spec.ts) and replaces the ones in App Store Connect.
+# Screenshots can only change while the version is editable: with "resubmit" the job takes the
+# version out of App Review first and submits it again with its build afterwards.
+on:
+  workflow_dispatch:
+    inputs:
+      resubmit:
+        description: Take the version out of App Review for the upload and submit it again
+        type: boolean
+        default: true
+
+jobs:
+  screenshots:
+    if: github.repository == 'mikexkllr/lumen'
+    runs-on: macos-26
+    timeout-minutes: 60
+    environment: app-store
+    concurrency:
+      group: app-store
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install chromium
+      - name: Build the app for the tests
+        run: npm run build:e2e
+      - name: Take the screenshots
+        env:
+          E2E_TUTOR: fake
+        run: npm run e2e -- --project store-iphone --project store-ipad --workers 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: store-screenshots
+          path: store-screenshots
+      - name: Replace the screenshots in App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          RESUBMIT: ${{ inputs.resubmit }}
+        run: |
+          set -e
+          if [ "$RESUBMIT" = true ]; then node apps/mobile/scripts/asc.ts unsubmit cloud.mikekeller.lumen; fi
+          node apps/mobile/scripts/asc.ts screenshots cloud.mikekeller.lumen store-screenshots
+          if [ "$RESUBMIT" = true ]; then node apps/mobile/scripts/asc.ts resubmit cloud.mikekeller.lumen; fi

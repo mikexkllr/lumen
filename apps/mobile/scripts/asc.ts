@@ -9,6 +9,8 @@
 //   node apps/mobile/scripts/asc.ts create-certificate <csr.pem> <out-cert.pem>
 //   node apps/mobile/scripts/asc.ts create-profile <bundleId> <certId> <name> <out.mobileprovision>
 //   node apps/mobile/scripts/asc.ts submit <bundleId> <version> <build> [--whats-new-file <file>]
+//   node apps/mobile/scripts/asc.ts unsubmit <bundleId>    take the version out of App Review
+//   node apps/mobile/scripts/asc.ts resubmit <bundleId>    submit the editable version again with its build
 //
 // `submit` waits until <build> has finished processing, creates (or reuses) the App Store
 // version <version>, attaches the build, sets "What's New" for every localization (updates
@@ -55,6 +57,9 @@ async function api(method: string, path: string, body?: unknown): Promise<Doc> {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** Version states in which metadata, screenshots and the build can be changed. */
+const EDITABLE = ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'];
 
 async function findApp(bundleId: string) {
   const r = await api('GET', `/v1/apps?filter[bundleId]=${encodeURIComponent(bundleId)}`);
@@ -143,9 +148,10 @@ async function listing(bundleId: string, file: string) {
 // Replaces the screenshots of the editable version: <dir>/<locale>/<displayType>/*.png
 // (e.g. en-US/APP_IPHONE_67/01-welcome.png), uploaded in file-name order.
 async function screenshots(bundleId: string, dir: string) {
+  const uploaded: { id: string; name: string }[] = [];
   const app = await findApp(bundleId);
   const versions = await api('GET', `/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=10`);
-  const v = versions.data.find((x: any) => ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED'].includes(x.attributes.appStoreState));
+  const v = versions.data.find((x: any) => EDITABLE.includes(x.attributes.appStoreState));
   if (!v) throw new Error('no editable version');
   const locs = (await api('GET', `/v1/appStoreVersions/${v.id}/appStoreVersionLocalizations`)).data;
   for (const locale of readdirSync(dir)) {
@@ -169,10 +175,51 @@ async function screenshots(bundleId: string, dir: string) {
           if (!r.ok) throw new Error(`upload ${file}: ${r.status}`);
         }
         await api('PATCH', `/v1/appScreenshots/${shot.id}`, { data: { type: 'appScreenshots', id: shot.id, attributes: { uploaded: true, sourceFileChecksum: createHash('md5').update(bytes).digest('hex') } } });
+        uploaded.push({ id: shot.id, name: `${locale} ${type} ${file}` });
         console.log(`${locale} ${type}: ${file}`);
       }
     }
   }
+  // Apple processes the images before a version with them can be submitted.
+  for (const u of uploaded) {
+    for (let i = 0; ; i++) {
+      const st = (await api('GET', `/v1/appScreenshots/${u.id}`)).data.attributes.assetDeliveryState?.state;
+      if (st === 'COMPLETE') break;
+      if (st === 'FAILED') throw new Error(`screenshot ${u.name} was rejected by App Store Connect`);
+      if (i > 60) throw new Error(`screenshot ${u.name} still ${st} after 5 minutes`);
+      await sleep(5000);
+    }
+  }
+  console.log(`${uploaded.length} screenshots processed`);
+}
+
+// Takes the version out of App Review (to change screenshots or the build); `resubmit` sends it again.
+async function unsubmit(bundleId: string) {
+  const app = await findApp(bundleId);
+  const subs = await api('GET', `/v1/reviewSubmissions?filter[app]=${app.id}&filter[platform]=IOS&filter[state]=WAITING_FOR_REVIEW,IN_REVIEW,UNRESOLVED_ISSUES`);
+  if (!subs.data.length) console.log('nothing in App Review');
+  for (const sub of subs.data) {
+    await api('PATCH', `/v1/reviewSubmissions/${sub.id}`, { data: { type: 'reviewSubmissions', id: sub.id, attributes: { canceled: true } } });
+    console.log(`review submission ${sub.id} (${sub.attributes.state}) canceled`);
+  }
+  for (let i = 0; i < 60; i++) {
+    const v = await api('GET', `/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=10`);
+    const open = v.data.find((x: any) => EDITABLE.includes(x.attributes.appStoreState));
+    if (open) return console.log(`version ${open.attributes.versionString} is editable (${open.attributes.appStoreState})`);
+    await sleep(10_000);
+  }
+  throw new Error('the version did not become editable within 10 minutes');
+}
+
+// Submits the editable version again with the build that is attached to it.
+async function resubmit(bundleId: string) {
+  const app = await findApp(bundleId);
+  const versions = await api('GET', `/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=10`);
+  const v = versions.data.find((x: any) => EDITABLE.includes(x.attributes.appStoreState));
+  if (!v) throw new Error('no editable version to submit');
+  const b = (await api('GET', `/v1/appStoreVersions/${v.id}/build`)).data;
+  if (!b) throw new Error(`version ${v.attributes.versionString} has no build attached`);
+  await submit(bundleId, v.attributes.versionString, b.attributes.version);
 }
 
 async function status(bundleId: string) {
@@ -205,7 +252,7 @@ async function submit(bundleId: string, version: string, build: string, whatsNew
   // so the build needs no export-compliance answer here.
 
   const versions = await api('GET', `/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=10`);
-  const editable = ['PREPARE_FOR_SUBMISSION', 'DEVELOPER_REJECTED', 'REJECTED', 'METADATA_REJECTED', 'INVALID_BINARY'];
+  const editable = EDITABLE;
   let v = versions.data.find((x: any) => x.attributes.versionString === version);
   if (v && !editable.includes(v.attributes.appStoreState)) {
     console.log(`version ${version} is already ${v.attributes.appStoreState} – nothing to submit`);
@@ -256,6 +303,8 @@ try {
   if (cmd === 'register-bundle-id') await registerBundleId(args[0], args[1] ?? args[0]);
   else if (cmd === 'status') await status(args[0]);
   else if (cmd === 'screenshots') await screenshots(args[0], args[1]);
+  else if (cmd === 'unsubmit') await unsubmit(args[0]);
+  else if (cmd === 'resubmit') await resubmit(args[0]);
   else if (cmd === 'listing') await listing(args[0], args[1]);
   else if (cmd === 'create-certificate') await createCertificate(args[0], args[1]);
   else if (cmd === 'create-profile') await createProfile(args[0], args[1], args[2], args[3]);

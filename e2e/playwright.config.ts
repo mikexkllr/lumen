@@ -27,7 +27,7 @@ export default defineConfig({
   projects: [
     {
       name: 'phone-de',
-      grepInvert: /@desktop|@gallery/,
+      grepInvert: /@desktop|@gallery|@store/,
       use: { ...devices['Pixel 7'], locale: 'de-DE', timezoneId: 'Europe/Berlin' },
     },
     {
@@ -41,13 +41,16 @@ export default defineConfig({
       grep: /@gallery/,
       use: { ...devices['Pixel 7'], locale: 'de-DE', timezoneId: 'Europe/Berlin' },
     },
+    // App Store screenshots (6.9" iPhone 1320×2868, 13" iPad 2064×2752): --project store-iphone --project store-ipad
+    { name: 'store-iphone', grep: /@store/, timeout: 180_000, use: { viewport: { width: 440, height: 956 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true } },
+    { name: 'store-ipad', grep: /@store/, timeout: 180_000, use: { viewport: { width: 1032, height: 1376 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },
   ],
   webServer: [
     {
       command: 'node e2e/server.ts',
       cwd: '..',
       url: `http://127.0.0.1:${API}/healthz`,
-      env: { E2E_API_PORT: String(API) },
+      env: { E2E_API_PORT: String(API), E2E_TUTOR: process.env.E2E_TUTOR ?? '' },
       reuseExistingServer: !CI,
       stdout: 'ignore',
     },

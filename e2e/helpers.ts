@@ -66,8 +66,8 @@ export async function pushCompletedLesson(request: APIRequestContext, token: str
   expect(r.ok()).toBe(true);
 }
 
-export async function createProfile(request: APIRequestContext, token: string, name: string, handle: string) {
-  const r = await request.put(`${API}/v1/social/me?today=${today()}`, { headers: auth(token), data: { name, handle, avatar: 'c1-i2', leagues: true, ageConfirmed: true } });
+export async function createProfile(request: APIRequestContext, token: string, name: string, handle: string, avatar = 'c1-i2') {
+  const r = await request.put(`${API}/v1/social/me?today=${today()}`, { headers: auth(token), data: { name, handle, avatar, leagues: true, ageConfirmed: true } });
   expect(r.ok(), await r.text()).toBe(true);
   return ((await r.json()) as { profile: { id: string; handle: string } }).profile;
 }
@@ -135,9 +135,9 @@ export async function onboardToAccount(page: Page, age: 'unter 13' | '13 bis 15'
 }
 
 /** Fills in the reference solution of the current problem (hook of the e2e build). */
-export async function solve(page: Page) {
+export async function solve(page: Page, check = 'Prüfen') {
   await expect.poll(() => page.evaluate(() => (window as { __lumenSolve?: () => boolean }).__lumenSolve?.() ?? false), { message: 'solve hook' }).toBe(true);
-  await expect(page.getByRole('button', { name: 'Prüfen' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: check })).toBeEnabled();
 }
 
 /**
