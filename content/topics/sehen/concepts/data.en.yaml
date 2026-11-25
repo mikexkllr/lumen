@@ -5,8 +5,28 @@ summary: Gaps in the data become gaps in the model.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Rarely practised
+    body: "A car is meant to spot pedestrians. Here you draw random photos from its **training data**. Draw 10, then 100: how often does the model even get to see night photos?"
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items:
+          - label: Day
+            weight: 17
+          - label: Rain
+            weight: 2
+          - label: Night
+            weight: 1
+        sample:
+          - 10
+          - 100
+
   - kind: problem
     id: kuh
     widget: choice
@@ -48,6 +68,44 @@ steps:
     hints:
       - Can an average hide something?
     explanation: 99% by day and 60% by night also average out to a good-looking value.
+
+  - kind: problem
+    id: intro-c1
+    widget: chart
+    prompt: You are putting together new training photos. Share out 100 % so that **every** condition gets at least 20 %.
+    params:
+      labels:
+        - Day
+        - Night
+        - Rain
+        - Snow
+      values:
+        - 70
+        - 10
+        - 15
+        - 5
+      editable:
+        - 0
+        - 1
+        - 2
+        - 3
+      min: 0
+      max: 100
+      step: 5
+      unit: "%"
+    check:
+      predicate: values[0] + values[1] + values[2] + values[3] == 100 && values[0] >= 20 && values[1] >= 20 && values[2] >= 20 && values[3] >= 20
+    solution:
+      state:
+        values:
+          - 25
+          - 25
+          - 25
+          - 25
+    hints:
+      - All bars together must add up to exactly 100 %.
+      - Take some away from day and give it to night, rain and snow – for example 25 % each.
+    explanation: For example 25 % for each condition. If a model sees every condition often enough, it makes fewer mistakes there.
 
   - kind: problem
     id: d1

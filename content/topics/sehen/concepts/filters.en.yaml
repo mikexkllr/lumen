@@ -5,8 +5,43 @@ summary: A small window computes across the image.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Where is the edge?
+    body: "Where does a face end and the sky begin? Each bar is one pixel in a row of an image, its height the brightness. Drag the bars: where the height jumps, there is an **edge**."
+    visual:
+      widget: chart
+      interactive: true
+      params:
+        title: Brightness along one row
+        labels:
+          - "1"
+          - "2"
+          - "3"
+          - "4"
+          - "5"
+          - "6"
+        values:
+          - 1
+          - 1
+          - 1
+          - 8
+          - 8
+          - 8
+        editable:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+        min: 0
+        max: 9
+        step: 1
+
   - kind: problem
     id: differenz
     widget: numeric
@@ -68,6 +103,52 @@ steps:
     hints:
       - From simple to complex.
     explanation: Each layer builds larger patterns from the patterns of the previous one.
+
+  - kind: problem
+    id: intro-c1
+    widget: chart
+    prompt: "An edge filter computes: right minus left. Set the row so that it fires only between pixel 3 and 4 – with the value 6."
+    params:
+      title: Brightness along one row
+      labels:
+        - "1"
+        - "2"
+        - "3"
+        - "4"
+        - "5"
+        - "6"
+      values:
+        - 4
+        - 4
+        - 4
+        - 4
+        - 4
+        - 4
+      editable:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      min: 0
+      max: 9
+      step: 1
+    check:
+      predicate: values[1] == values[0] && values[2] == values[1] && values[3] - values[2] == 6 && values[4] == values[3] && values[5] == values[4]
+    solution:
+      state:
+        values:
+          - 2
+          - 2
+          - 2
+          - 8
+          - 8
+          - 8
+    hints:
+      - Left of the edge all pixels are equally bright, and so are those to the right.
+      - Make the first three bars the same height and the last three exactly 6 higher – say 2 and 8.
+    explanation: "For example 2, 2, 2, 8, 8, 8: everywhere the difference is 0, only at the edge it is 8 − 2 = 6. That is exactly where the filter reports an edge."
 
   - kind: problem
     id: d1
