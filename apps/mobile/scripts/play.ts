@@ -57,20 +57,31 @@ class PlayError extends Error {
   }
 }
 
-/** One edit: every change inside `fn` goes live together on commit. */
+/**
+ * One edit: every change inside `fn` goes live together on commit. Changed in Play Console
+ * meanwhile? Google refuses the commit, so the whole edit runs again (up to three times).
+ */
 async function edit<T>(pkg: string, fn: (id: string, url: string) => Promise<T>): Promise<T> {
   const app = `${BASE}/${pkg}`;
-  const { id } = await call('POST', `${app}/edits`, {});
-  const out = await fn(id, `${app}/edits/${id}`);
-  try {
-    await call('POST', `${app}/edits/${id}:commit`);
-  } catch (e) {
-    // Apps with managed publishing (or changes waiting for review) need the review started in Play Console.
-    if (!(e instanceof PlayError) || !e.body.includes('changesNotSentForReview')) throw e;
-    await call('POST', `${app}/edits/${id}:commit?changesNotSentForReview=true`);
-    console.log('committed; send the changes for review in Play Console (Publishing overview)');
+  for (let attempt = 1; ; attempt++) {
+    try {
+      const { id } = await call('POST', `${app}/edits`, {});
+      const out = await fn(id, `${app}/edits/${id}`);
+      try {
+        await call('POST', `${app}/edits/${id}:commit`);
+      } catch (e) {
+        // Apps with managed publishing (or changes waiting for review) need the review started in Play Console.
+        if (!(e instanceof PlayError) || !e.body.includes('changesNotSentForReview')) throw e;
+        await call('POST', `${app}/edits/${id}:commit?changesNotSentForReview=true`);
+        console.log('committed; send the changes for review in Play Console (Publishing overview)');
+      }
+      return out;
+    } catch (e) {
+      if (attempt >= 3 || !(e instanceof PlayError) || !/outside of this Edit/i.test(e.body)) throw e;
+      console.log(`the app was changed in Play Console meanwhile – starting a new edit (attempt ${attempt + 1})`);
+      await new Promise((r) => setTimeout(r, 15_000 * attempt));
+    }
   }
-  return out;
 }
 
 async function status(pkg: string) {
@@ -112,30 +123,47 @@ function versionName(): string {
 
 const IMAGE_TYPES = ['phoneScreenshots', 'sevenInchScreenshots', 'tenInchScreenshots'];
 
+// Contact details, texts and images go in separate edits, so a refused part (missing
+// permission, unknown language) does not hold back the others; the command fails at the end.
 async function listing(pkg: string, file: string, shots: string) {
   const spec = JSON.parse(readFileSync(file, 'utf8'));
   const store = join(file, '..');
-  await edit(pkg, async (_, url) => {
+  const failed: string[] = [];
+  const step = async (name: string, fn: (url: string) => Promise<void>) => {
+    try {
+      await edit(pkg, (_, url) => fn(url));
+      console.log(`${name}: ok`);
+    } catch (e) {
+      failed.push(name);
+      console.error(`${name}: ${e instanceof Error ? e.message : e}`);
+    }
+  };
+  await step('contact details', async (url) => {
     const details = await call('GET', `${url}/details`);
     await call('PUT', `${url}/details`, { ...details, defaultLanguage: spec.defaultLanguage, contactWebsite: spec.contactWebsite, ...(process.env.LUMEN_CONTACT ? { contactEmail: process.env.LUMEN_CONTACT } : {}) });
-    for (const [language, l] of Object.entries(spec.locales as Record<string, { title: string; shortDescription: string; fullDescription: string }>)) {
+  });
+  for (const [language, l] of Object.entries(spec.locales as Record<string, { title: string; shortDescription: string; fullDescription: string }>)) {
+    await step(`${language} texts`, async (url) => {
       await call('PUT', `${url}/listings/${language}`, { language, title: l.title, shortDescription: l.shortDescription, fullDescription: l.fullDescription });
-      const images: [string, string[]][] = [
-        ['icon', [join(store, 'icon.png')]],
-        ['featureGraphic', [join(store, `feature-graphic-${language}.png`)]],
-        ...IMAGE_TYPES.map((t): [string, string[]] => {
-          const dir = join(shots, language, t);
-          return [t, existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.png')).sort().map((f) => join(dir, f)) : []];
-        }),
-      ];
+    });
+    const images: [string, string[]][] = [
+      ['icon', [join(store, 'icon.png')]],
+      ['featureGraphic', [join(store, `feature-graphic-${language}.png`)]],
+      ...IMAGE_TYPES.map((t): [string, string[]] => {
+        const dir = join(shots, language, t);
+        return [t, existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.png')).sort().map((f) => join(dir, f)) : []];
+      }),
+    ];
+    await step(`${language} images`, async (url) => {
       for (const [type, files] of images) {
         if (!files.length || !files.every(existsSync)) continue;
         await call('DELETE', `${url}/listings/${language}/${type}`);
         for (const f of files) await call('POST', `${url.replace(BASE, UPLOAD)}/listings/${language}/${type}?uploadType=media`, readFileSync(f), 'image/png');
         console.log(`${language} ${type}: ${files.length}`);
       }
-    }
-  });
+    });
+  }
+  if (failed.length) throw new Error(`not updated: ${failed.join(', ')}`);
   console.log('store listing updated');
 }
 
