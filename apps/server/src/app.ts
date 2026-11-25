@@ -45,8 +45,11 @@ export interface ServerOptions {
   auth?: AuthStore | null;
   /** Sign in with Apple; null or absent disables it. */
   apple?: AppleConfig | null;
-  /** Sign-in with emailed one-time codes; null or absent disables it. */
-  email?: { send: SendMail; pepper: string } | null;
+  /**
+   * Sign-in with emailed one-time codes; null or absent disables it. `review`: one address
+   * that gets no mail and signs in with a fixed code (store reviewers, LUMEN_REVIEW_*).
+   */
+  email?: { send: SendMail; pepper: string; review?: { email: string; code: string } | null } | null;
   /** Sign-in requests per client IP: codes mailed per hour, code checks and Apple sign-ins per 10 minutes. */
   signInLimits?: { mailPerHour?: number; verifyPer10Min?: number; applePer10Min?: number };
   /** Called with the Fastify instance before any route is added (e.g. crash reporting). */
@@ -273,14 +276,19 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     if (limited(`mail-ip:${req.ip}`, opts.signInLimits?.mailPerHour ?? 10, 3_600_000)) return reply.code(429).send({ error: 'rate_limited' });
     const idHash = emailIdHash(address, email.pepper);
     if (auth.recentEmailCodes(idHash, Date.now() - 3_600_000) >= 5) return reply.code(429).send({ error: 'rate_limited' });
-    const code = newEmailCode();
+    // The review address has no mailbox: its fixed code becomes the current one, with the
+    // same expiry, attempt and rate limits as a mailed code.
+    const review = email.review && normalizeEmail(email.review.email) === address;
+    const code = review ? email.review!.code : newEmailCode();
     auth.putEmailCode(idHash, emailCodeHash(idHash, code), Date.now() + 600_000);
-    try {
-      await email.send({ to: address, ...loginMail(code, typeof body.locale === 'string' ? body.locale : 'en') });
-    } catch (e) {
-      req.log.error({ mail: (e as Error).message }, 'login mail failed');
-      opts.reportError?.(e);
-      return reply.code(502).send({ error: 'mail_failed' });
+    if (!review) {
+      try {
+        await email.send({ to: address, ...loginMail(code, typeof body.locale === 'string' ? body.locale : 'en') });
+      } catch (e) {
+        req.log.error({ mail: (e as Error).message }, 'login mail failed');
+        opts.reportError?.(e);
+        return reply.code(502).send({ error: 'mail_failed' });
+      }
     }
     // Same answer whether or not the address belongs to an account.
     return { sent: true };

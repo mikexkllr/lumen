@@ -68,6 +68,25 @@ describe('accounts', () => {
     expect((await app.inject({ method: 'POST', url: '/v1/sync', headers: bearer(code), payload: { events: [], since: 0, today } })).statusCode).toBe(401);
   });
 
+  it('the store review login signs in with its fixed code and gets no mail', async () => {
+    const review = { email: 'review@lumen.example.org', code: '493817' };
+    const mailsOf: Mail[] = [];
+    const { app } = server({ email: { send: async (m) => void mailsOf.push(m), pepper: 'test-pepper-0123456789', review } });
+    const start = await app.inject({ method: 'POST', url: '/v1/auth/email/start', payload: { email: 'Review@Lumen.example.org' } });
+    expect(start.json()).toEqual({ sent: true });
+    expect(mailsOf).toHaveLength(0);
+    const wrong = await app.inject({ method: 'POST', url: '/v1/auth/email/verify', payload: { email: review.email, code: '000000' } });
+    expect(wrong.statusCode).toBe(401);
+    const ok = await app.inject({ method: 'POST', url: '/v1/auth/email/verify', payload: { email: review.email, code: review.code } });
+    expect(ok.statusCode).toBe(200);
+    expect(ok.json().created).toBe(true);
+    // without a fresh start the code is used up, like a mailed one
+    expect((await app.inject({ method: 'POST', url: '/v1/auth/email/verify', payload: { email: review.email, code: review.code } })).statusCode).toBe(410);
+    // everybody else still gets a mailed code
+    await app.inject({ method: 'POST', url: '/v1/auth/email/start', payload: { email: 'ada@example.org' } });
+    expect(mailsOf.map((m) => m.to)).toEqual(['ada@example.org']);
+  });
+
   it('sign-in limits per IP can be raised (test servers), defaults stay strict', async () => {
     const strict = server();
     for (let i = 0; i < 10; i++) await strict.app.inject({ method: 'POST', url: '/v1/auth/email/start', payload: { email: `u${i}@example.org` } });
