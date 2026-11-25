@@ -16,15 +16,20 @@ export function isNativeApp(): boolean {
   return (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.() === true;
 }
 
+/**
+ * Wrapped in an object on purpose: a Capacitor plugin is a proxy that answers every property,
+ * `then` included, so resolving a promise with it directly calls `LocalNotifications.then()`,
+ * which rejects natively ("not implemented on ios") and leaves the await hanging forever.
+ */
 async function plugin() {
   const m = await import('@capacitor/local-notifications');
-  return m.LocalNotifications;
+  return { ln: m.LocalNotifications };
 }
 
 /** Asks for notification permission (Android 13+, iOS). True if reminders can be shown. */
 export async function requestReminderPermission(): Promise<boolean> {
   if (!isNativeApp()) return false;
-  const ln = await plugin();
+  const { ln } = await plugin();
   let p = await ln.checkPermissions();
   if (p.display === 'prompt' || p.display === 'prompt-with-rationale') p = await ln.requestPermissions();
   return p.display === 'granted';
@@ -62,7 +67,7 @@ export function planReminders(opts: { time: string | null; today: string; now: D
 
 export async function scheduleReminders(plan: ReminderPlan[]): Promise<void> {
   if (!isNativeApp()) return;
-  const ln = await plugin();
+  const { ln } = await plugin();
   await ln.cancel({ notifications: Array.from({ length: DAYS }, (_, i) => ({ id: BASE_ID + i })) });
   if (!plan.length) return;
   const perm = await ln.checkPermissions();

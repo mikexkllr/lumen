@@ -255,8 +255,16 @@ async function submit(bundleId: string, version: string, build: string, whatsNew
   const editable = EDITABLE;
   let v = versions.data.find((x: any) => x.attributes.versionString === version);
   if (v && !editable.includes(v.attributes.appStoreState)) {
-    console.log(`version ${version} is already ${v.attributes.appStoreState} – nothing to submit`);
-    return;
+    // A newer build of a version that is still waiting in App Review (the tag was moved onto a
+    // fix): take the version out of review and send it again with the new build.
+    const attached = (await api('GET', `/v1/appStoreVersions/${v.id}/build`)).data;
+    const waiting = ['WAITING_FOR_REVIEW', 'IN_REVIEW'].includes(v.attributes.appStoreState);
+    if (!waiting || attached?.attributes.version === build) {
+      console.log(`version ${version} is already ${v.attributes.appStoreState} – nothing to submit`);
+      return;
+    }
+    console.log(`version ${version} is ${v.attributes.appStoreState} with build ${attached?.attributes.version ?? '–'}; replacing it with build ${build}`);
+    await unsubmit(bundleId);
   }
   if (!v) {
     // Only one version can be in preparation; rename it if an older number is still open.
