@@ -6,8 +6,32 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Nicht jeder Stoß zählt
+    body: Teilchen prallen ständig zusammen, doch nur selten reagieren sie. Lass 100 Stöße geschehen und zähl die Treffer. Dann dreh die **Temperatur** hoch und probier es noch einmal.
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        mode: chance
+        items:
+          - label: Reaktion
+            logit: -3
+          - label: Abprall
+            logit: 0
+        temperature:
+          min: 0.5
+          max: 3
+          step: 0.5
+          initial: 1
+        sample:
+          - 10
+          - 100
+
   - kind: problem
     id: hook
     widget: choice
@@ -88,6 +112,32 @@ steps:
       - Nur bestimmte Atome müssen sich berühren.
       - Wie ein Schlüssel, der nur richtig herum ins Schloss passt.
     explanation: Bei großen Molekülen passt oft nur ein winziger Teil der Stöße von der Richtung her. Das bremst viele Reaktionen.
+
+  - kind: problem
+    id: intro-c1
+    widget: distribution
+    prompt: Stell die Temperatur so ein, dass etwa jeder fünfte Stoß zu einer Reaktion führt.
+    params:
+      mode: chance
+      items:
+        - label: Reaktion
+          logit: -3
+        - label: Abprall
+          logit: 0
+      temperature:
+        min: 0.5
+        max: 3
+        step: 0.5
+        initial: 1
+      sample:
+        - 10
+        - 100
+    check:
+      predicate: prob(0) >= 0.15 && prob(0) <= 0.25
+    hints:
+      - "Achte auf den Balken »Reaktion«: Jeder fünfte Stoß sind 20 %."
+      - Dreh die Temperatur ungefähr auf das Doppelte.
+    explanation: Bei Temperatur 2 reagieren rund 18 % der Stöße, bei 1 nur knapp 5 %. Wärme gibt viel mehr Teilchen genug Energie für die Reaktion.
 
   - kind: problem
     id: d1
