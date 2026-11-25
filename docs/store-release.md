@@ -96,7 +96,7 @@ Einstellungen zurücksetzen.
 | Nutzungsdaten → Produktinteraktion | Lernereignisse (im Konto gesichert) |
 | Nutzerinhalte → Andere Nutzerinhalte | Social-Interaktionen, Meldungen; Lux-Nachrichten |
 
-Zusätzlich **Diagnose → Absturzdaten** (Sentry): Zweck App-Funktionalität, **nicht** mit der
+Zusätzlich **Diagnose → Crash-Daten und Sonstige Diagnosedaten** (Sentry): Zweck App-Funktionalität, **nicht** mit der
 Identität verknüpft, nicht für Tracking.
 
 Lux-Nachrichten sind nicht mit dem Konto verknüpft; sie werden vorsichtshalber unter
