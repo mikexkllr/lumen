@@ -212,13 +212,17 @@ Adresse, keinen Namen. Für die öffentliche Instanz:
       Google signiert die Store-App mit eigenem Schlüssel; ein verlorener Upload-Schlüssel lässt
       sich in der Play Console zurücksetzen (*App-Integrität*)
 - [x] Android App Bundle mit `targetSdkVersion` 36 (Capacitor 8), `minSdkVersion` 24
-- [ ] **Play-API ohne Schlüsseldatei:** Google-Cloud-Dienstkonto, das GitHub Actions über
+- [x] **Play-API ohne Schlüsseldatei:** Google-Cloud-Dienstkonto, das GitHub Actions über
       Workload Identity Federation (nur dieses Repository) annimmt; Variablen
       `PLAY_WIF_PROVIDER` und `PLAY_SERVICE_ACCOUNT` in der Umgebung `google-play`. Das
       Dienstkonto in der Play Console unter *Nutzer und Berechtigungen* für die App einladen
-      (Releases in Test-Tracks, Store-Eintrag bearbeiten)
-- [ ] Erste Version einmal **von Hand** hochladen (interner Test): vorher kennt die API das
-      Paket nicht; solange die App nie veröffentlicht war, legt `play.ts` Releases als Entwurf an
+      (Releases in Test-Tracks, Store-Eintrag bearbeiten). Solange die App ein Entwurf ist,
+      braucht der Store-Eintrag zusätzlich *Entwurfs-Apps bearbeiten und löschen* – nach der
+      ersten Freigabe wieder entfernen
+- [x] Kein Upload von Hand nötig: das Anlegen der App reserviert den Paketnamen. Solange die
+      App nie veröffentlicht war, legt `play.ts` Releases im geschlossenen Test als Entwurf an;
+      den ersten (1.0.1, 311) in der Play Console einführen und unter *Veröffentlichungsübersicht*
+      zur Prüfung senden (am 25.11.2026 geschehen)
 - Danach: Push auf `main` → interner Test, Tag `v1.2.3` → geschlossener Test (Track `alpha`,
   Google prüft); Store-Eintrag, Icon, Feature-Grafik und Screenshots über *Actions → Store
   screenshots* (`apps/mobile/scripts/play.ts listing`)
@@ -229,27 +233,28 @@ Adresse, keinen Namen. Für die öffentliche Instanz:
 - Daten werden erhoben: **Ja**; mit Dritten geteilt: **Nein** (Hoster und Modellanbieter
   verarbeiten im Auftrag – das gilt bei Google nicht als „Teilen“)
 - Verschlüsselung bei der Übertragung: **Ja** (nur HTTPS)
-- Nutzer:innen können die Löschung beantragen: **Ja** (in der App; zusätzlich eine Web-URL
-  angeben, die den Löschweg beschreibt, z. B. den Abschnitt in der Datenschutzerklärung oder
-  die Web-App unter `https://<domain>`, die mit demselben Sync-Code löschen kann)
-- Alle Datentypen sind **optional** und dienen der **App-Funktionalität**:
+- Nutzer:innen können die Löschung beantragen: **Ja** (in der App unter *Profil → Konto
+  löschen*; Web-URL mit dem Löschweg: `https://lumen.mikekeller.cloud/app/#/legal/delete`)
+- Alle Datentypen dienen der **App-Funktionalität** (Absturzdaten auch der Analyse):
 
-| Google-Kategorie | Lumen |
-|---|---|
-| Personenbezogene Daten → Name | Anzeigename (Social) |
-| Personenbezogene Daten → Nutzer-IDs | zufällige Nutzer-ID, Handle |
-| App-Aktivitäten → App-Interaktionen | Lernereignisse (im Konto gesichert) |
-| App-Aktivitäten → Sonstige nutzergenerierte Inhalte | Social-Interaktionen, Meldungen, Lux-Nachrichten |
+| Google-Kategorie | Lumen | Pflicht |
+|---|---|---|
+| Personenbezogene Daten → E-Mail-Adresse | Anmeldung (gespeichert nur als Hashwert) | ja |
+| Personenbezogene Daten → Nutzer-IDs | zufällige Nutzer-ID, Handle | ja |
+| App-Aktivitäten → App-Interaktionen | Lernereignisse (im Konto gesichert) | ja |
+| App-Info und -Leistung → Absturzprotokolle, Diagnose | Sentry | ja |
+| Personenbezogene Daten → Name | Anzeigename (Social) | nein |
+| App-Aktivitäten → Sonstige nutzergenerierte Inhalte | Social-Interaktionen, Meldungen, Lux-Nachrichten | nein |
 
 Lux-Nachrichten nur dann als „flüchtig verarbeitet“ angeben, wenn der gewählte
 Modellanbieter vertraglich nichts speichert.
 
 ### Einstufung, Zielgruppe, Richtlinien
 
-- [ ] **Altersfreigabe (IARC-Fragebogen):** Interaktion zwischen Nutzer:innen **ja**
+- [x] **Altersfreigabe (IARC-Fragebogen):** Interaktion zwischen Nutzer:innen **ja**
       (Social), nutzergenerierte Inhalte **ja** (Namen), Standortweitergabe **nein**, digitale
       Käufe **nein**, Werbung **nein**
-- [ ] **Zielgruppe:** Altersgruppen ab 13 wählen. Wer Kinder unter 13 als Zielgruppe angibt,
+- [x] **Zielgruppe:** Altersgruppen ab 13 wählen. Wer Kinder unter 13 als Zielgruppe angibt,
       muss die **Families-Richtlinie** vollständig erfüllen (u. a. Anforderungen an KI-Funktionen,
       soziale Funktionen und Inhalte). Auch Store-Texte und Grafiken sollen nicht primär Kinder
       ansprechen, sonst kann Google die Families-Pflichten trotzdem verlangen. Lumen schützt
@@ -262,10 +267,10 @@ Modellanbieter vertraglich nichts speichert.
 - [x] **KI-generierte Inhalte:** Apps mit generativer KI müssen das Melden anstößiger
       KI-Antworten in der App ermöglichen, ohne die App zu verlassen – Lux hat dafür
       »Antwort melden« (siehe Abschnitt 2)
-- [ ] **App-Zugriff:** die App startet mit der Anmeldung (E-Mail-Code; auf Android kein
-      Apple) – für die Prüfung Zugangsdaten angeben, die ohne Postfach funktionieren;
-      **Werbung:** nein
-- [ ] Kontolöschung ist in der App möglich (Profil → Serverdaten löschen)
+- [x] **App-Zugriff:** die App startet mit der Anmeldung (E-Mail-Code; auf Android kein
+      Apple) – für die Prüfung die Review-Adresse mit festem Code (`LUMEN_REVIEW_EMAIL`,
+      `LUMEN_REVIEW_CODE` auf dem Server, kein Postfach nötig); **Werbung:** nein
+- [x] Kontolöschung ist in der App möglich (Profil → Konto löschen), Web-Seite `#/legal/delete`
 
 ## 5. Kinder und Jugendliche
 
