@@ -21,9 +21,29 @@ export interface PlaneMap {
 }
 
 const W = 340;
+/** Height between these multiples of the width: one unit is as long on both axes unless that would make the plane too flat or too tall. */
+const MIN_RATIO = 0.55;
+const MAX_RATIO = 1.35;
+
+/** A round grid step (1, 2 or 5 times a power of ten) for roughly `lines` lines; whole units for everyday ranges. */
+export function gridStep(range: number, lines = 10): number {
+  if (range >= 4 && range <= 24) return 1;
+  const raw = range / lines;
+  const p = 10 ** Math.floor(Math.log10(raw));
+  const m = raw / p;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * p;
+}
+
+/** Grid values of one axis (multiples of the step inside the range) and every how many lines gets a label. */
+function axisTicks(lo: number, hi: number): { values: number[]; labelEvery: number } {
+  const step = gridStep(hi - lo);
+  const values: number[] = [];
+  for (let k = Math.ceil(lo / step - 1e-9); k * step <= hi + 1e-9 && values.length < 200; k++) values.push(Math.round(k * step * 1e9) / 1e9);
+  return { values, labelEvery: Math.max(1, Math.ceil(values.length / 10)) };
+}
 
 export function Plane({ x, y, children, onPointer, label, locale }: PlaneProps) {
-  const H = Math.round((W * (y[1] - y[0])) / (x[1] - x[0]));
+  const H = Math.round(W * Math.min(MAX_RATIO, Math.max(MIN_RATIO, (y[1] - y[0]) / (x[1] - x[0]))));
   const pad = 8;
   const sx = (v: number) => pad + ((v - x[0]) / (x[1] - x[0])) * (W - 2 * pad);
   const sy = (v: number) => pad + ((y[1] - v) / (y[1] - y[0])) * (H - 2 * pad);
@@ -39,11 +59,18 @@ export function Plane({ x, y, children, onPointer, label, locale }: PlaneProps) 
     return { x: x[0] + ((px - pad) / (W - 2 * pad)) * (x[1] - x[0]), y: y[1] - ((py - pad) / (H - 2 * pad)) * (y[1] - y[0]) };
   };
 
-  const gridX: number[] = [];
-  for (let v = Math.ceil(x[0]); v <= x[1]; v++) gridX.push(v);
-  const gridY: number[] = [];
-  for (let v = Math.ceil(y[0]); v <= y[1]; v++) gridY.push(v);
-  const labelEvery = Math.max(1, Math.ceil((x[1] - x[0]) / 10));
+  const tx = axisTicks(x[0], x[1]);
+  const ty = axisTicks(y[0], y[1]);
+  const gridX = tx.values;
+  const gridY = ty.values;
+  // y labels sit left of the y axis – or right of it when there is no room for the longest label
+  const longest = Math.max(1, ...gridY.map((v) => formatNumber(v, locale).length));
+  const yLabelsInside = sx(0) - 6 < longest * 6 + 4;
+  // labels on every k-th line, counted from zero so 0, 5, 10 … rather than 1, 6, 11 …
+  const labelled = (values: number[], every: number) => {
+    const step = values.length > 1 ? values[1] - values[0] : 1;
+    return values.filter((v) => v !== 0 && Math.round(v / step) % every === 0);
+  };
 
   return (
     <div className="svg-wrap">
@@ -70,13 +97,13 @@ export function Plane({ x, y, children, onPointer, label, locale }: PlaneProps) 
         ))}
         {y[0] <= 0 && y[1] >= 0 && <line x1={sx(x[0])} x2={sx(x[1])} y1={sy(0)} y2={sy(0)} stroke="var(--axis)" strokeWidth="1.6" />}
         {x[0] <= 0 && x[1] >= 0 && <line y1={sy(y[0])} y2={sy(y[1])} x1={sx(0)} x2={sx(0)} stroke="var(--axis)" strokeWidth="1.6" />}
-        {gridX.filter((v) => v !== 0 && v % labelEvery === 0).map((v) => (
+        {labelled(gridX, tx.labelEvery).map((v) => (
           <text key={`lx${v}`} x={sx(v)} y={Math.min(H - 4, Math.max(12, sy(0) + 14))} fontSize="10" textAnchor="middle" fill="var(--ink-3)" aria-hidden="true">
             {formatNumber(v, locale)}
           </text>
         ))}
-        {gridY.filter((v) => v !== 0 && v % labelEvery === 0).map((v) => (
-          <text key={`ly${v}`} x={Math.min(W - 6, Math.max(10, sx(0) - 6))} y={sy(v) + 3.5} fontSize="10" textAnchor="end" fill="var(--ink-3)" aria-hidden="true">
+        {labelled(gridY, ty.labelEvery).map((v) => (
+          <text key={`ly${v}`} x={yLabelsInside ? Math.max(4, sx(0) + 5) : Math.min(W - 6, sx(0) - 6)} y={sy(v) + 3.5} fontSize="10" textAnchor={yLabelsInside ? 'start' : 'end'} fill="var(--ink-3)" aria-hidden="true">
             {formatNumber(v, locale)}
           </text>
         ))}
