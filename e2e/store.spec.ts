@@ -11,7 +11,7 @@ import type { APIRequestContext, Page } from '@playwright/test';
 import { createHash } from 'node:crypto';
 import { mkdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { API, apiAccount, auth, createProfile, expect, openSignedIn, solve, test } from './helpers.ts';
+import { API, apiAccount, auth, createProfile, expect, openSignedIn, solve, test, skipIntro } from './helpers.ts';
 
 const OUT = resolve(import.meta.dirname, '../store-screenshots');
 type Bar = 'phone' | 'pad' | 'android';
@@ -141,6 +141,7 @@ for (const locale of ['en-US', 'de-DE'] as const) {
 
       // 3. an interactive problem
       await page.goto('/#/learn/ai.neural.boundary');
+      await skipIntro(page);
       await expect(page.getByRole('button', { name: de ? 'Prüfen' : 'Check' })).toBeVisible();
       const slider = page.getByRole('slider').first();
       if (await slider.isVisible()) {
@@ -153,6 +154,7 @@ for (const locale of ['en-US', 'de-DE'] as const) {
       if (phone) {
         // 4. Lux helps without giving the answer away
         await page.goto('/#/learn/cs.code.sequence');
+        await skipIntro(page);
         await expect(page.getByRole('button', { name: de ? 'Prüfen' : 'Check' })).toBeVisible();
         await page.getByRole('button', { name: de ? 'Frag Lux' : 'Ask Lux' }).first().click();
         const dialog = page.getByRole('dialog');
@@ -164,6 +166,7 @@ for (const locale of ['en-US', 'de-DE'] as const) {
 
         // 5. a correct answer
         await page.goto('/#/learn/logic.sets.basics');
+        await skipIntro(page);
         await solve(page, de ? 'Prüfen' : 'Check');
         await page.getByRole('button', { name: de ? 'Prüfen' : 'Check' }).click();
         await shot('05-correct');

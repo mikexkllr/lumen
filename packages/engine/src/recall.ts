@@ -60,8 +60,8 @@ const isUpper = (s: string) => /^\p{Lu}/u.test(s);
  * interactive (reveal, interactive visual) or has no usable key term.
  * `pool` are the key terms of the whole course (see `keyTerms`).
  */
-export function recallCheck(step: Pick<ExplainStep, 'body' | 'reveal' | 'visual' | 'id'>, pool: readonly string[], seed = 0): RecallCheck | null {
-  if (step.reveal || step.visual?.interactive) return null;
+export function recallCheck(step: Pick<ExplainStep, 'body' | 'reveal' | 'visual' | 'id' | 'intro'>, pool: readonly string[], seed = 0): RecallCheck | null {
+  if (step.reveal || step.visual?.interactive || step.intro) return null;
   const own = keyTerms(step.body);
   if (!own.length) return null;
   const rnd = mulberry32(hashString(`${step.id}#${seed}`));

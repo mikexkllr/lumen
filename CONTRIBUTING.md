@@ -16,7 +16,9 @@ Danke, dass du Lumen besser machen willst! Beiträge zu Inhalten, Widgets, App u
 
 ## Didaktischer Styleguide
 
+- **Einleitung zuerst**: Jede Lektion öffnet mit einem Intro-Screen (`intro: true`) – ein Satz, warum es spannend ist, und eine interaktive Visualisierung zum Ausprobieren. Danach sofort ein Problem, keine Erklär-Strecke.
 - **Problem zuerst**, dann die Prozedur. Ein Concept beginnt nicht mit drei Erklär-Screens.
+- **Zeigen statt erzählen**: Bruchformen, Waage, Labor-Szenen, Regler und Karten zum Aufdecken schlagen jeden Absatz Text.
 - **Eine Idee pro Step**, vom einfachsten Fall aus aufsteigend.
 - **Höchstens ~40 Wörter** Text pro Screen, kurze Sätze.
 - **Konkret vor formal**: erst Waage, Streifen oder Zahlenstrahl, dann die Schreibweise.

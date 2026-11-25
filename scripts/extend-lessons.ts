@@ -14,6 +14,7 @@
  * Step shorthands (first key picks the type, its value is the prompt):
  *   est · swipe · cloze · teach · num · mc · order · match · sort · sim · explain · raw
  * Common keys: id, h (hints), why (explanation), d (difficulty), body, fb.
+ * explain also takes title, visual, reveal and intro: true (the lesson intro, see docs/content-format.md).
  * A key starting with "+" creates a new lesson: { topic, unit, after?, title,
  * summary, skills, steps, srs? }.
  */
@@ -79,7 +80,7 @@ function expand(e: Entry, depth: number, id: string): Entry {
         return { kind, id: rawId ?? e.id ?? id, ...(depth > 1 ? { depth } : {}), ...rest, ...(depth > 1 && rest.difficulty === undefined ? { difficulty: depth } : {}) };
       }
     case 'explain':
-      return { kind: 'explain', id: e.id ?? id, ...(depth > 1 ? { depth } : {}), ...(e.title ? { title: e.title } : {}), body: head, ...(e.visual ? { visual: e.visual } : {}), ...(e.reveal ? { reveal: { body: e.reveal } } : {}) };
+      return { kind: 'explain', id: e.id ?? id, ...(depth > 1 ? { depth } : {}), ...(e.intro ? { intro: true } : {}), ...(e.title ? { title: e.title } : {}), body: head, ...(e.visual ? { visual: e.visual } : {}), ...(e.reveal ? { reveal: { body: e.reveal } } : {}) };
     case 'est': {
       const [min, max, scale] = e.r;
       return base('estimate', head, { min, max, ...(scale ? { scale } : {}), ...(e.step ? { step: e.step } : {}), ...(e.u ? { unit: e.u } : {}) }, { value: e.a, ...(e.tol !== undefined ? { tolerance: e.tol } : {}), ...(e.w !== undefined ? { within: e.w } : {}) });

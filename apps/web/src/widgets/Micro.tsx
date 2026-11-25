@@ -1,10 +1,11 @@
-/** Micro-interactions: estimate slider, swipe deck, cloze text and "teach Lux". */
+/** Micro-interactions: estimate slider, swipe deck, cloze text, "teach Lux" and discover cards. */
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   clozeBank,
   clozeParts,
   estimateToPos,
+  flipCanOpen,
   estimateToValue,
   teachHits,
   teachNeeded,
@@ -13,6 +14,8 @@ import {
   type ClozeState,
   type EstimateParams,
   type EstimateState,
+  type FlipParams,
+  type FlipState,
   type SwipeParams,
   type SwipeState,
   type TeachParams,
@@ -195,6 +198,57 @@ export function TeachView({ params, state, dispatch, readOnly, locale, result, l
           <p>{inline(params.sample, 'sample')}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------- Flip (discover cards) ----------------
+
+export function FlipView({ params, state, dispatch, readOnly, locale }: WidgetViewProps<FlipParams, FlipState>) {
+  const chain = params.layout !== 'grid';
+  const opened = state.open.filter(Boolean).length;
+  const all = opened === params.cards.length;
+  const next = chain ? state.open.indexOf(false) : -1;
+  return (
+    <div className={`w-flip ${params.layout}`}>
+      <ol className="flip-cards" role="list">
+        {params.cards.map((c, i) => {
+          const open = state.open[i];
+          const can = !readOnly && flipCanOpen(state, params, i);
+          const locked = chain && !open && !can;
+          return (
+            <li key={i} className={`flip-item ${open ? 'open' : ''} ${locked ? 'locked' : ''} ${i === next ? 'next' : ''}`}>
+              <button
+                type="button"
+                className="flip-card"
+                disabled={readOnly || open || locked}
+                aria-expanded={open}
+                aria-label={open ? `${c.front}: ${c.back}` : locked ? tr(locale, `${c.front} – erst die Karte davor aufdecken`, `${c.front} – uncover the card before first`) : tr(locale, `${c.front} – aufdecken`, `${c.front} – uncover`)}
+                onClick={() => can && dispatch({ type: 'flip', index: i })}
+              >
+                <motion.span className="flip-inner" initial={false} animate={{ rotateY: open ? 180 : 0 }} transition={{ type: 'spring', stiffness: 260, damping: 22 }}>
+                  <span className="flip-face front" aria-hidden={open}>
+                    <span className="flip-icon" aria-hidden="true">{c.icon}</span>
+                    <span className="flip-label">{inline(c.front, `f${i}`)}</span>
+                    <span className="flip-tap" aria-hidden="true">{locked ? '🔒' : tr(locale, 'Antippen', 'Tap')}</span>
+                  </span>
+                  <span className="flip-face back" aria-hidden={!open}>
+                    <span className="flip-mini" aria-hidden="true">{c.icon} {inline(c.front, `m${i}`)}</span>
+                    <span className="flip-back">{inline(c.back, `b${i}`)}</span>
+                  </span>
+                </motion.span>
+              </button>
+              {chain && (i < params.cards.length - 1 || params.layout === 'cycle') && (
+                <span className={`flip-arrow ${open ? 'lit' : ''}`} aria-hidden="true">{i === params.cards.length - 1 ? '↺' : '↓'}</span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+      <p className={`flip-progress ${all ? 'done' : ''}`} aria-live="polite">
+        <span className="dots" aria-hidden="true">{state.open.map((o, i) => <i key={i} className={o ? 'on' : ''} />)}</span>
+        {all ? tr(locale, 'Alles entdeckt!', 'All discovered!') : tr(locale, `${opened} von ${params.cards.length} entdeckt`, `${opened} of ${params.cards.length} discovered`)}
+      </p>
     </div>
   );
 }

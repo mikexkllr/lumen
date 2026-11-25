@@ -134,6 +134,13 @@ export async function onboardToAccount(page: Page, age: 'unter 13' | '13 bis 15'
   await expect(page.getByRole('heading', { name: 'Dein Lumen-Konto' })).toBeVisible();
 }
 
+/** Lessons open with an intro screen: continue past it (nothing happens when the lesson starts without one). */
+export async function skipIntro(page: Page) {
+  await expect(page.locator('.lesson-stage')).toBeVisible();
+  if (await page.locator('.intro-hero').isVisible()) await page.getByRole('button', { name: /^(Los geht|Let’s go)/ }).click();
+  await expect(page.locator('.intro-hero')).toHaveCount(0);
+}
+
 /** Fills in the reference solution of the current problem (hook of the e2e build). */
 export async function solve(page: Page, check = 'Prüfen') {
   await expect.poll(() => page.evaluate(() => (window as { __lumenSolve?: () => boolean }).__lumenSolve?.() ?? false), { message: 'solve hook' }).toBe(true);
@@ -166,6 +173,12 @@ export async function playToEnd(page: Page, opts: { max?: number; deeper?: boole
       await check.click();
       solved++;
       await page.getByRole('button', { name: 'Weiter', exact: true }).click();
+      continue;
+    }
+    // the lesson intro: play with it or not, then go
+    const go = page.getByRole('button', { name: /^Los geht/ });
+    if (await page.locator('.intro-hero').isVisible() && (await go.isVisible())) {
+      await go.click();
       continue;
     }
     const reveal = page.getByRole('button', { name: 'Aufdecken' }).first();

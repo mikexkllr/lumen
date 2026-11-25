@@ -41,9 +41,10 @@ for (const t of readdirSync(root).sort()) {
       visuals: steps.filter((s) => s.visual).length, reveals: explains.filter((s) => s.reveal).length,
       choice, kinds: Object.keys(widgets).length, widgets,
       firstKind: steps[0].kind, maxExplainRun,
+      intro: steps[0].kind === 'explain' && steps[0].intro ? (steps[0].visual?.widget ?? 'text') : '',
       maxDiff: Math.max(0, ...problems.map((p) => p.difficulty ?? 1)),
       variants: problems.filter((p) => p.variants).length,
-      seq: steps.map((s) => (s.kind === 'explain' ? (s.reveal ? 'R' : s.visual?.interactive ? 'I' : s.visual ? 'V' : 'e') : s.widget)).join(' '),
+      seq: steps.map((s) => (s.kind === 'explain' ? (s.intro ? 'INTRO' : s.reveal ? 'R' : s.visual?.interactive ? 'I' : s.visual ? 'V' : 'e') : s.widget)).join(' '),
     });
   }
 }
@@ -64,4 +65,8 @@ console.log('maxDiff', hist('maxDiff'));
 console.log('first step', hist('firstKind'));
 console.log('choice-only lessons', rows.filter((r) => r.choice === r.problems).length, ' choice>=60%', rows.filter((r) => r.choice / r.problems >= 0.6).length);
 console.log('no visual at all', rows.filter((r) => r.visuals === 0).length);
+const introVisuals: Record<string, number> = {};
+for (const r of rows) if (r.intro) introVisuals[r.intro] = (introVisuals[r.intro] ?? 0) + 1;
+console.log('with intro', rows.filter((r) => r.intro).length, ' intro visuals', Object.entries(introVisuals).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join(' '));
+if (args.includes('--no-intro')) for (const r of rows.filter((x) => !x.intro)) console.log(`no intro: ${r.id} (${r.topic})`);
 if (args.includes('--list')) for (const r of rows) console.log(`${r.area}|${r.level}|${r.id}|${r.steps}|${r.seq}`);

@@ -32,6 +32,8 @@ export const sounds = {
   achievement() { tone(1175, 0, 0.18, 'sine', 0.08); tone(1568, 0.1, 0.4, 'sine', 0.08); },
   reveal() { tone(740, 0, 0.12, 'sine', 0.06); tone(988, 0.06, 0.2, 'sine', 0.06); },
   tap() { tone(1200, 0, 0.04, 'sine', 0.03); },
+  /** Soft pop for playing with a visual; climbs a pentatonic scale with every move. */
+  pop(n = 0) { const steps = [0, 2, 4, 7, 9, 12, 14, 16]; tone(semis(660, steps[n % steps.length]), 0, 0.09, 'sine', 0.05); },
 };
 
 type SoundName = keyof typeof sounds;

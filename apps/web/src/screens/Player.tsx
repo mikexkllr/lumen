@@ -35,6 +35,7 @@ import {
   type TutorStatus,
 } from '@lumen/engine';
 import { Confetti, CountUp, Cover, topicVars } from '../components/art.tsx';
+import { Burst, Glow, StreakBanner } from '../components/celebrate.tsx';
 import { Icon } from '../components/ui.tsx';
 import { Lux } from '../components/Lux.tsx';
 import { useSocial } from '../lib/socialContext.tsx';
@@ -316,11 +317,11 @@ export function Player({ mode }: { mode: PlayerMode }) {
             <Icon name="close" size={22} />
           </button>
           <div className="seg-progress" role="progressbar" aria-valuemin={0} aria-valuemax={items.length} aria-valuenow={index + 1} aria-label={t('player.progress', { n: index + 1, total: items.length })}>
-            {items.map((it, i) => <span key={it.key} className={`seg d${depthOf(it)} ${i > 0 && depthOf(it) > depthOf(items[i - 1]) ? 'gate' : ''} ${i < index || (i === index && stepDone) ? 'done' : i === index ? 'current' : ''}`}><i /></span>)}
+            {items.map((it, i) => <span key={it.key} className={`seg d${depthOf(it)} ${i > 0 && depthOf(it) > depthOf(items[i - 1]) ? 'gate' : ''} ${i < index || (i === index && stepDone) ? 'done' : i === index ? 'current' : ''} ${i === index && stepDone ? 'just' : ''}`}><i /></span>)}
           </div>
           <AnimatePresence initial={false}>
             {combo >= 2 && (
-              <motion.span key="combo" className="combo" initial={reduce ? false : { scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 22 }} aria-label={t('player.comboN', { n: combo })}>
+              <motion.span key="combo" className={`combo heat${combo >= 10 ? 3 : combo >= 5 ? 2 : 1}`} initial={reduce ? false : { scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.6, opacity: 0 }} transition={{ type: 'spring', stiffness: 500, damping: 22 }} aria-label={t('player.comboN', { n: combo })}>
                 <Icon name="flame" size={15} /> <motion.span key={combo} initial={reduce ? false : { y: -6, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>{combo}</motion.span>
               </motion.span>
             )}
@@ -328,7 +329,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
           {combo < 2 && <span className="lesson-count" aria-hidden="true">{index + 1}/{items.length}</span>}
         </div>
       </div>
-      {item && <StepView key={item.key} item={item} mode={mode} combo={combo} onConcluded={() => setStepDone(true)} onDone={advance} />}
+      {item && <StepView key={item.key} item={item} mode={mode} combo={combo} meta={mode.kind === 'lesson' ? { problems: items.filter((it) => it.step.kind === 'problem' && depthOf(it) === 1).length, stages: Math.max(...items.map(depthOf)), minutes: item.conceptId ? lib?.catalog.concepts[item.conceptId]?.estimated_minutes : undefined } : undefined} onConcluded={() => setStepDone(true)} onDone={advance} />}
     </div>
   );
 }
@@ -379,7 +380,15 @@ function Stage({ children, reduce }: { children: React.ReactNode; reduce: boolea
   );
 }
 
-function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; mode: PlayerMode; combo: number; onDone(o: Outcome & { rating?: 1 | 2 | 3 | 4 }): void; onConcluded(): void }) {
+interface LessonMeta {
+  /** Problems in the core stage. */
+  problems: number;
+  /** Depth stages of the lesson (1–3). */
+  stages: number;
+  minutes?: number;
+}
+
+function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: PlayItem; mode: PlayerMode; combo: number; meta?: LessonMeta; onDone(o: Outcome & { rating?: 1 | 2 | 3 | 4 }): void; onConcluded(): void }) {
   const app = useApp();
   const { t, settings } = app;
   const locale = settings.locale;
@@ -394,6 +403,9 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
   const [luxOpen, setLuxOpen] = useState(false);
   const [explainAuto, setExplainAuto] = useState<{ intent: LuxOpener; key: string } | null>(null);
   const askCount = useRef(0);
+  /** Intro screens: how far the learner has played with the visual (rewards on first touch and when it is complete). */
+  const [played, setPlayed] = useState<'none' | 'some' | 'done'>('none');
+  const [spark, setSpark] = useState(0);
   // a crash report says which lesson, step and widget it happened in
   useEffect(() => {
     setMonitoringContext({ mode: mode.kind, concept: item.conceptId ?? null, step: item.step.id, widget: item.step.kind === 'problem' ? (item.step as ProblemStep).widget : 'explain', seed: item.seed });
@@ -448,6 +460,89 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
       play(settings.sound, right ? 'correct' : 'wrong');
       if (right) quizTimer.current = window.setTimeout(finish, reduce ? 600 : 950);
     };
+    if (s.intro) {
+      const titles = lessonTitles(app, item);
+      const topic = app.lib?.catalog.topics.find((tp) => tp.id === item.topicId);
+      const onPlay = ({ moves, solved }: { moves: number; solved: boolean }) => {
+        if (solved && played !== 'done') {
+          setPlayed('done');
+          setSpark((n) => n + 1);
+          play(settings.sound, 'achievement');
+          vibrate(settings.haptics, [15, 40, 25]);
+        } else if (played === 'none') {
+          setPlayed('some');
+          setSpark((n) => n + 1);
+          play(settings.sound, 'reveal');
+          vibrate(settings.haptics, 12);
+        } else play(settings.sound, 'pop', moves);
+      };
+      const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.45, delay, ease: EASE } });
+      return (
+        <>
+          <Stage reduce={reduce}>
+            <div className="intro-hero">
+              <div className="intro-art" aria-hidden="true"><Cover motif={topic?.icon} color={topic?.color} /></div>
+              <div className="intro-hero-text">
+                <motion.span className="intro-chip" {...rise(0.05)}><Icon name="sparkles" size={13} /> {t('intro.chip')}{titles.course ? ` · ${titles.course}` : ''}</motion.span>
+                <motion.h1 ref={headingRef} tabIndex={-1} className="intro-title" {...(reduce ? {} : { initial: { opacity: 0, y: 18, scale: 0.96 }, animate: { opacity: 1, y: 0, scale: 1 }, transition: { type: 'spring', stiffness: 260, damping: 20, delay: 0.12 } })}>
+                  {s.title ?? titles.lesson}
+                </motion.h1>
+                {titles.lesson && s.title && <motion.p className="intro-lesson" {...rise(0.22)}>{titles.lesson}</motion.p>}
+              </div>
+              {meta && (
+                <motion.ul className="intro-meta" {...rise(0.3)} aria-label={t('intro.about')}>
+                  {meta.minutes ? <li><Icon name="clock" size={14} /> {t('intro.minutes', { n: meta.minutes })}</li> : null}
+                  <li><Icon name="target" size={14} /> {t('intro.problems', { n: meta.problems })}</li>
+                  {meta.stages > 1 && <li><Icon name="zap" size={14} /> {t('intro.stages', { n: meta.stages })}</li>}
+                </motion.ul>
+              )}
+            </div>
+            <motion.div {...rise(0.38)}>
+              <Markdown text={s.body} className="explain-body intro-body" />
+            </motion.div>
+            {s.visual && (
+              <motion.div className={`intro-play ${played}`} {...rise(0.5)}>
+                <AnimatePresence>
+                  {played === 'none' && s.visual.interactive && (
+                    <motion.span key="nudge" className="intro-nudge" exit={{ opacity: 0, scale: 0.9 }}><span aria-hidden="true">👆</span> {t('intro.try')}</motion.span>
+                  )}
+                </AnimatePresence>
+                <Visual widget={s.visual.widget} params={s.visual.params} locale={locale} alt={s.visual.alt} interactive={s.visual.interactive} onChange={onPlay} />
+                {spark > 0 && !reduce && <Burst key={spark} color={topic?.color} power={played === 'done' ? 3 : 1} seed={spark} x="50%" y="40%" />}
+                <AnimatePresence mode="wait">
+                  {played !== 'none' && (
+                    <motion.p key={played} className={`intro-praise ${played}`} role="status" initial={reduce ? false : { opacity: 0, y: 6, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0 }}>
+                      {played === 'done' ? t('intro.done') : t('intro.played')}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+            <div className="explain-tools" role="group" aria-label={t('lux.quick')}>
+              {typeof speechSynthesis !== 'undefined' && (
+                <button type="button" className="tool-chip" onClick={() => speak([s.title, s.body].filter(Boolean).join('. '), locale)}>
+                  <Icon name="volume" size={14} /> {t('player.readAloud')}
+                </button>
+              )}
+              {(['simpler', 'example'] as const).map((intent) => (
+                <button key={intent} type="button" className="tool-chip" onClick={() => { setExplainAuto({ intent, key: `${intent}-${++askCount.current}` }); setLuxOpen(true); }}>
+                  {t(`lux.chip.${intent}`)}
+                </button>
+              ))}
+            </div>
+          </Stage>
+          <Footer state="idle" onEnter={luxOpen ? undefined : finish}>
+            <div className="foot-actions">
+              <LuxButton onClick={() => setLuxOpen(true)} label={t('lux.ask')} reduce={reduce} />
+              <button className={`btn grow primary intro-go ${played !== 'none' && !reduce ? 'ready' : ''}`} onClick={finish} autoFocus>
+                {t('intro.go')} <Icon name="arrow" size={18} className="arrow" />
+              </button>
+            </div>
+          </Footer>
+          <LuxChat open={luxOpen} onClose={() => setLuxOpen(false)} lux={explainLux} status="explain" autoIntent={explainAuto?.intent} autoKey={explainAuto?.key} reduce={reduce} />
+        </>
+      );
+    }
     if (check && quiz !== 'off') {
       return (
         <>
@@ -602,6 +697,8 @@ function ProblemView({
   const [liveText, setLiveText] = useState('');
   const [toast, setToast] = useState<string | null>(null);
   const [xpFloat, setXpFloat] = useState<number | null>(null);
+  /** Reward on a right answer: burst size grows with the streak; a banner at streak milestones. */
+  const [party, setParty] = useState<{ power: number; milestone: number | null } | null>(null);
   const firstTry = useRef(true);
   const lastCheck = useRef(Date.now());
   const [praise] = useState(() => t('player.correctAlt'));
@@ -693,7 +790,12 @@ function ProblemView({
       if (rp.widget.kind === 'teach') setTimeout(() => openLux('teach-feedback'), reduce ? 0 : 900);
       const run = firstTry.current && assisted === 0 ? combo + 1 : 0;
       play(settings.sound, 'correct', run);
-      if (run === 3 || run === 5 || run === 10 || (run > 10 && run % 5 === 0)) {
+      const milestone = run === 3 || run === 5 || run === 10 || (run > 10 && run % 5 === 0) ? run : null;
+      if (!reduce) {
+        setParty({ power: 1 + Math.min(run, 10) / 3, milestone });
+        if (milestone) setTimeout(() => setParty((p) => (p ? { ...p, milestone: null } : p)), 1600);
+      }
+      if (milestone) {
         setTimeout(() => play(settings.sound, 'streak'), 220);
         vibrate(settings.haptics, [15, 40, 15, 40, 25]);
       } else vibrate(settings.haptics, 15);
@@ -765,7 +867,7 @@ function ProblemView({
   const footState = phase === 'answering' ? 'idle' : phase;
   const primary = phase === 'answering' ? check : phase === 'wrong' ? retry : next;
   const streakNow = phase === 'correct' && firstTry.current && assisted === 0 ? combo + 1 : 0;
-  const title = phase === 'correct' ? (streakNow >= 3 ? t('player.comboTitle', { n: streakNow }) : praise) : phase === 'wrong' ? (revisit && attemptNo === 2 ? t('mistakes.earlier') : t('player.wrong')) : t('player.solution');
+  const title = phase === 'correct' ? (streakNow >= 10 ? t('player.streak10', { n: streakNow }) : streakNow >= 5 ? t('player.streak5', { n: streakNow }) : streakNow >= 3 ? t('player.streak3', { n: streakNow }) : praise) : phase === 'wrong' ? (revisit && attemptNo === 2 ? t('mistakes.earlier') : t('player.wrong')) : t('player.solution');
   const widgetTitle = getWidget(rp.widget.kind)?.title;
 
   return (
@@ -807,6 +909,13 @@ function ProblemView({
         </AnimatePresence>
         <div className="sr-only" aria-live="polite">{liveText}</div>
       </Stage>
+      {phase === 'correct' && party && (
+        <div className="party" aria-hidden="true">
+          <Burst key={`b-${attemptNo}`} color={lib?.catalog.topics.find((tp) => tp.id === item.topicId)?.color} power={party.power} x="50%" y="100%" seed={attemptNo + combo} />
+        </div>
+      )}
+      <Glow on={phase === 'correct' && !!party} />
+      <StreakBanner n={party?.milestone ?? null} label={party?.milestone ? t('player.streakBanner', { n: party.milestone }) : ''} />
       <AnimatePresence>
         {xpFloat !== null && !reduce && (
           <motion.div key="xp" className="xp-float" style={{ left: 'calc(50% - 34px)', bottom: 150 }} initial={{ opacity: 0, y: 10, scale: 0.8 }} animate={{ opacity: [0, 1, 1, 0], y: -50, scale: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} onAnimationComplete={() => setXpFloat(null)} aria-hidden="true">

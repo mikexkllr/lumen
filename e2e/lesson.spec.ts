@@ -1,4 +1,4 @@
-import { API, apiAccount, auth, openSignedIn, playToEnd, solve, uniqueEmail, expect, test } from './helpers.ts';
+import { API, apiAccount, auth, openSignedIn, playToEnd, solve, uniqueEmail, expect, test, skipIntro } from './helpers.ts';
 
 test.describe('lessons', () => {
   test('the first lesson can be played to the end, earns XP and is backed up', async ({ page, request }) => {
@@ -35,6 +35,7 @@ test.describe('lessons', () => {
     const { token } = await apiAccount(request, uniqueEmail('wrong'));
     await openSignedIn(page, token);
     await page.goto('/#/learn/math.placevalue.digits');
+    await skipIntro(page);
     // first the hook problem, then an explanation; the choice "value of the 7 in 4 728" follows
     const target = page.getByRole('heading', { name: 'Welchen Wert hat die 7 in 4 728?' });
     for (let i = 0; i < 12 && !(await target.isVisible()); i++) {
@@ -65,6 +66,7 @@ test.describe('lessons', () => {
     const { token } = await apiAccount(request, uniqueEmail('lux'));
     await openSignedIn(page, token);
     await page.goto('/#/learn/math.placevalue.digits');
+    await skipIntro(page);
     await page.getByRole('button', { name: 'Frag Lux' }).first().click();
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
@@ -79,6 +81,7 @@ test.describe('lessons', () => {
     const { token } = await apiAccount(request, uniqueEmail('leave'));
     await openSignedIn(page, token);
     await page.goto('/#/learn/math.placevalue.digits');
+    await skipIntro(page);
     await solve(page);
     await page.getByRole('button', { name: 'Prüfen' }).click();
     await page.getByRole('button', { name: 'Weiter', exact: true }).click();
