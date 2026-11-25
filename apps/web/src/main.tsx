@@ -10,7 +10,7 @@ import { AppProvider } from './lib/store.tsx';
 import { SocialProvider } from './lib/socialContext.tsx';
 import { ErrorBoundary, initMonitoring, reactErrorHandler } from './lib/monitoring.ts';
 
-initMonitoring(`lumen@${__LUMEN_VERSION__}`);
+initMonitoring(__LUMEN_RELEASE__);
 
 /** Shown instead of a blank page if a screen crashes; the report has already gone to Sentry. */
 function Crashed() {

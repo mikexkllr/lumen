@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, type ReactNode } from 're
 import { useApp } from './store.tsx';
 import { ApiError, connOf, createProfile, social, useQuery, type MeResponse, type Query, type SocialConn } from './social.ts';
 import { isKid } from './settings.ts';
+import { reportHandled } from './monitoring.ts';
 
 interface SocialState {
   /** Social is possible here: signed in, profile cached, not in kids mode. */
@@ -39,7 +40,10 @@ export function SocialProvider({ children }: { children: ReactNode }) {
         updateSettings({ social: { userId: p.id, handle: p.handle } });
         me.reload();
       })
-      .catch(() => { /* offline or name rejected: the community tab offers to try again */ })
+      .catch((e) => {
+        // offline or name rejected: the community tab offers to try again; anything else is a bug
+        if (!(e instanceof ApiError) && !(e instanceof TypeError)) reportHandled(e, 'community-profile');
+      })
       .finally(() => { creating.current = false; });
   }, [me.error]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {

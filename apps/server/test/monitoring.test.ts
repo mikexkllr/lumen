@@ -25,6 +25,13 @@ describe('crash reports (server)', () => {
     expect(scrub('nothing here')).toBe('nothing here');
   });
 
+  it('keeps stack-frame variables but not what identifies a learner', () => {
+    const e = cleanServerEvent({
+      exception: { values: [{ value: 'boom', stacktrace: { frames: [{ function: 'finishSignIn', vars: { provider: 'email', email: 'ada@example.org', token: 'ABCD-EFGH-JKLM-NPQR-STUV', note: 'for bo@example.org', body: { text: 'hi' }, count: 3, nested: { code: '123456', ok: true } } }] } }] },
+    } as unknown as ErrorEvent);
+    expect(e.exception!.values![0].stacktrace!.frames![0].vars).toEqual({ provider: 'email', email: '[removed]', token: '[removed]', note: 'for [email]', body: '[removed]', count: 3, nested: { code: '[removed]', ok: true } });
+  });
+
   it('a failing login mail is reported, the learner gets a 502', async () => {
     const reported: unknown[] = [];
     const app = buildServer({

@@ -7,6 +7,7 @@ import { translate, type TKey } from './i18n.ts';
 import { applyDocumentSettings, loadSettings, saveSettings, signedOutSettings, type Account, type Settings } from './settings.ts';
 import { deleteAccount as deleteServerAccount, syncNow, SyncError } from './sync.ts';
 import { setServerOverride } from './api.ts';
+import { reportHandled } from './monitoring.ts';
 
 type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
 export type NewEvent = DistributiveOmit<LumenEvent, 'id' | 'ts' | 'day'>;
@@ -75,7 +76,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setLib(l);
         l.prefetchAll();
       })
-      .catch((e) => !cancelled && setContentError(String(e.message ?? e)));
+      .catch((e) => {
+        if (cancelled) return;
+        setContentError(String(e.message ?? e));
+        reportHandled(e, 'content', { locale: settings.locale, online: navigator.onLine });
+      });
     return () => {
       cancelled = true;
     };
@@ -145,6 +150,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       // The account is gone on the server (deleted on another device): sign out here too.
       if (e instanceof SyncError && e.status === 401) setSettings((prev) => (prev.account?.token === s.token ? signedOutSettings(prev) : prev));
+      // offline phones are normal; a server error or a bug in the sync code is not
+      else if (!(e instanceof TypeError)) reportHandled(e, 'sync', { status: e instanceof SyncError ? e.status : undefined, cursor: s.cursor, method: s.method });
       return false;
     } finally {
       syncing.current = false;

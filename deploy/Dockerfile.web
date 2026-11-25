@@ -21,6 +21,9 @@ ARG VITE_LUMEN_VAT_ID=""
 ARG VITE_LUMEN_ISSUES_URL=""
 # crash reports (Sentry DSN, public); empty: none
 ARG VITE_SENTRY_DSN=""
+# release name for crash reports; with the build secret "sentry_auth_token" the sourcemaps go to Sentry
+ARG LUMEN_RELEASE=""
+ARG LUMEN_DEPLOY_ENV=""
 # legacy, superseded by VITE_LUMEN_API_URL
 ARG VITE_LUMEN_SYNC_URL=""
 ARG VITE_LUMEN_TUTOR_URL=""
@@ -28,10 +31,11 @@ ARG VITE_LUMEN_TUTOR_URL=""
 ARG LUMEN_SITE_ORIGIN=""
 ENV LUMEN_BASE=/app/
 # Empty build args are unset so the app sees "not configured" rather than "".
-RUN for v in VITE_LUMEN_API_URL VITE_LUMEN_PUBLIC_KEY VITE_LUMEN_OPERATOR VITE_LUMEN_OPERATOR_ADDRESS \
+RUN --mount=type=secret,id=sentry_auth_token,required=false \
+    for v in VITE_LUMEN_API_URL VITE_LUMEN_PUBLIC_KEY VITE_LUMEN_OPERATOR VITE_LUMEN_OPERATOR_ADDRESS \
       VITE_LUMEN_CONTACT VITE_LUMEN_PHONE VITE_LUMEN_VAT_ID VITE_LUMEN_ISSUES_URL VITE_SENTRY_DSN VITE_LUMEN_SYNC_URL VITE_LUMEN_TUTOR_URL; do \
       eval "[ -n \"\${$v}\" ] || unset $v"; done; \
-    npm run build && \
+    SENTRY_AUTH_TOKEN="$(cat /run/secrets/sentry_auth_token 2>/dev/null || true)" npm run build && \
     if [ -n "$LUMEN_SITE_ORIGIN" ]; then node scripts/build-site.ts; fi
 
 FROM nginx:1.30-alpine

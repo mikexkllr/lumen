@@ -75,3 +75,24 @@ describe('tutor endpoint', () => {
     expect(cleanReply('<think>secret</think>\nLux: Was fällt dir auf?')).toBe('Was fällt dir auf?');
   });
 });
+
+describe('tutor monitoring', () => {
+  it('reports a fallback to the rule tutor as a warning with its reason', async () => {
+    const warnings: { message: string; tags: Record<string, string> }[] = [];
+    const down = (async () => { throw new Error('connect ECONNREFUSED'); }) as unknown as typeof fetch;
+    const server = buildServer({ store: sqliteStore(':memory:'), rateLimit: 1000, tutor: cfg, tutorRateLimit: 100, fetchImpl: down, reportWarning: (message, tags) => warnings.push({ message, tags }) });
+    const res = await server.inject({ method: 'POST', url: '/v1/tutor', payload: { context, history: [], intent: 'hint' } });
+    expect(res.json().source).toBe('rules');
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0].message).toBe('Lux fell back to the rule tutor');
+    expect(warnings[0].tags.intent).toBe('hint');
+    expect(warnings[0].tags.reason).toBeTruthy();
+  });
+
+  it('a server without a model is not a warning', async () => {
+    const warnings: unknown[] = [];
+    const server = buildServer({ store: sqliteStore(':memory:'), rateLimit: 1000, tutor: null, reportWarning: (m) => warnings.push(m) });
+    await server.inject({ method: 'POST', url: '/v1/tutor', payload: { context, history: [], intent: 'hint' } });
+    expect(warnings).toEqual([]);
+  });
+});

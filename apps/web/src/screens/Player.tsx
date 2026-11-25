@@ -38,6 +38,7 @@ import { Confetti, CountUp, Cover, topicVars } from '../components/art.tsx';
 import { Icon } from '../components/ui.tsx';
 import { Lux } from '../components/Lux.tsx';
 import { useSocial } from '../lib/socialContext.tsx';
+import { setMonitoringContext } from '../lib/monitoring.ts';
 import { social } from '../lib/social.ts';
 import { LuxButton, LuxChat, useLux, type LuxOpener } from '../components/LuxChat.tsx';
 import { inline, Markdown } from '../lib/markdown.tsx';
@@ -393,6 +394,11 @@ function StepView({ item, mode, combo, onDone, onConcluded }: { item: PlayItem; 
   const [luxOpen, setLuxOpen] = useState(false);
   const [explainAuto, setExplainAuto] = useState<{ intent: LuxOpener; key: string } | null>(null);
   const askCount = useRef(0);
+  // a crash report says which lesson, step and widget it happened in
+  useEffect(() => {
+    setMonitoringContext({ mode: mode.kind, concept: item.conceptId ?? null, step: item.step.id, widget: item.step.kind === 'problem' ? (item.step as ProblemStep).widget : 'explain', seed: item.seed });
+    return () => setMonitoringContext({ mode: null, concept: null, step: null, widget: null, seed: null });
+  }, [item.key]); // eslint-disable-line react-hooks/exhaustive-deps
   const explainLux = useLux(() => {
     const s = item.step;
     const text = s.kind === 'explain' ? [s.title, s.body, revealed ? s.reveal?.body : undefined].filter(Boolean).join('\n') : '';

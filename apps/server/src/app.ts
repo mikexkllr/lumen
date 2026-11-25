@@ -53,6 +53,8 @@ export interface ServerOptions {
   setup?: (app: FastifyInstance) => void;
   /** Reports errors that are handled but need attention (e.g. login mails that fail). */
   reportError?: (e: unknown) => void;
+  /** Reports degraded service without an exception (e.g. the tutor fell back to rules). */
+  reportWarning?: (message: string, tags: Record<string, string>) => void;
   now?: () => number;
 }
 
@@ -163,7 +165,10 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     if (typeof parsed === 'string') return reply.code(400).send({ error: 'invalid_request', detail: parsed });
     const out = await tutorReply(tutor, parsed, opts.fetchImpl);
     // reason only – never the learner's messages
-    if (out.fallback && out.fallback !== 'disabled') req.log.warn({ tutorFallback: out.fallback, intent: parsed.intent }, 'tutor fell back to rules');
+    if (out.fallback && out.fallback !== 'disabled') {
+      req.log.warn({ tutorFallback: out.fallback, intent: parsed.intent }, 'tutor fell back to rules');
+      opts.reportWarning?.('Lux fell back to the rule tutor', { reason: out.fallback, intent: parsed.intent });
+    }
     return out;
   });
 

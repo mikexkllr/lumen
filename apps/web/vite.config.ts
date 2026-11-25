@@ -3,13 +3,19 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { lumenContent } from './vite-plugin-lumen-content.ts';
 import { readFileSync } from 'node:fs';
+import { sentryVitePlugin } from '@sentry/vite-plugin';
 
 const version = (JSON.parse(readFileSync(new URL('../mobile/package.json', import.meta.url), 'utf8')) as { version: string }).version;
+// Release name in crash reports; CI sets it per platform (lumen-web@<sha>, lumen-ios@<version>+<build>).
+const release = process.env.LUMEN_RELEASE || `lumen@${version}`;
+// Readable stack traces in Sentry: with SENTRY_AUTH_TOKEN (CI only) the build injects debug IDs
+// and uploads its sourcemaps; without it the plugin does nothing.
+const sentryToken = process.env.SENTRY_AUTH_TOKEN;
 
 export default defineConfig({
   // Served from a sub-path in production (e.g. LUMEN_BASE=/app/ next to the landing page).
   base: process.env.LUMEN_BASE ?? '/',
-  define: { __LUMEN_VERSION__: JSON.stringify(version) },
+  define: { __LUMEN_VERSION__: JSON.stringify(version), __LUMEN_RELEASE__: JSON.stringify(release) },
   plugins: [
     react(),
     lumenContent(),
@@ -39,6 +45,19 @@ export default defineConfig({
         navigateFallback: 'index.html',
         cleanupOutdatedCaches: true,
       },
+    }),
+    sentryVitePlugin({
+      disable: !sentryToken,
+      authToken: sentryToken,
+      org: process.env.SENTRY_ORG ?? 'mike-keller-2t',
+      project: process.env.SENTRY_PROJECT ?? 'lumen-app',
+      telemetry: false,
+      release: { name: release, inject: false, deploy: process.env.LUMEN_DEPLOY_ENV ? { env: process.env.LUMEN_DEPLOY_ENV } : false },
+      // the store apps don't need to ship their maps once Sentry has them
+      sourcemaps: process.env.LUMEN_DELETE_SOURCEMAPS ? { filesToDeleteAfterUpload: ['**/*.map'] } : undefined,
+      // component names on click breadcrumbs ("clicked SignInOptions > button")
+      reactComponentAnnotation: { enabled: true },
+      bundleSizeOptimizations: { excludeTracing: true, excludeReplayCanvas: true, excludeReplayIframe: true, excludeReplayShadowDom: true, excludeReplayWorker: true },
     }),
   ],
   server: {

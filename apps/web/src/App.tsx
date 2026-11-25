@@ -15,6 +15,7 @@ import { isKid } from './lib/settings.ts';
 import { useReminders } from './lib/reminders.ts';
 import { hideSplash } from './lib/splash.ts';
 import { lazy, Suspense, useEffect } from 'react';
+import { setMonitoringContext, trackScreen } from './lib/monitoring.ts';
 
 const Player = lazy(() => import('./screens/Player.tsx').then((m) => ({ default: m.Player })));
 const PreviewIndex = lazy(() => import('./screens/Preview.tsx').then((m) => ({ default: m.PreviewIndex })));
@@ -109,7 +110,13 @@ export function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [route.join('/')]);
+    trackScreen(route);
+  }, [route.join('/')]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // what a crash report should know about the app state (nothing about the learner)
+  useEffect(() => {
+    setMonitoringContext({ locale: settings.locale, signedIn: signedIn, onboarded: settings.onboarded, kidsMode: isKid(settings), online, content: lib?.manifest?.version ?? 'loading', theme: settings.theme, ownLuxKey: !!settings.tutorByok });
+  }, [settings.locale, signedIn, settings.onboarded, settings.age, online, lib, settings.theme, settings.tutorByok]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (contentError) {
     return (

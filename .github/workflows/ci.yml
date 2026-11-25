@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
       - name: Typecheck
         run: npm run typecheck
-      - name: Unit tests (engine, CLI, server)
+      - name: Unit tests (engine, CLI, server, web app incl. components)
         run: npm test
       - name: Content evals (schema, solvability, uniqueness, fuzzing, readability, license)
         run: node packages/cli/src/cli.ts check content --strict && node packages/cli/src/cli.ts check content --locale en --strict
@@ -101,10 +101,16 @@ jobs:
           PHONE: ${{ vars.LUMEN_PHONE }}
           VAT_ID: ${{ vars.LUMEN_VAT_ID }}
           ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
-          # crash reports (public DSN of the Sentry project lumen-app)
+          # crash reports (public DSN of the Sentry project lumen-app); the auth token (scope
+          # org:ci) uploads the sourcemaps, as a build secret that never ends up in the image
           SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
+          sha="${GITHUB_SHA::12}"
           docker build -f deploy/Dockerfile.web -t lumen-web:latest \
+            --secret id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+            --build-arg LUMEN_RELEASE="lumen-web@$sha" \
+            --build-arg LUMEN_DEPLOY_ENV=production \
             --build-arg VITE_LUMEN_API_URL=/api \
             --build-arg VITE_LUMEN_OPERATOR="$OPERATOR" \
             --build-arg VITE_LUMEN_OPERATOR_ADDRESS="$OPERATOR_ADDRESS" \
@@ -114,7 +120,7 @@ jobs:
             --build-arg VITE_LUMEN_ISSUES_URL="$ISSUES_URL" \
             --build-arg VITE_SENTRY_DSN="$SENTRY_DSN" \
             --build-arg LUMEN_SITE_ORIGIN=https://lumen.mikekeller.cloud .
-          docker build -f deploy/Dockerfile.server -t lumen-sync:latest .
+          docker build -f deploy/Dockerfile.server -t lumen-sync:latest --build-arg SENTRY_RELEASE="lumen-server@$sha" .
       - name: Set up SSH
         run: |
           install -m 700 -d ~/.ssh
@@ -179,6 +185,11 @@ jobs:
           VITE_LUMEN_VAT_ID: ${{ vars.LUMEN_VAT_ID }}
           VITE_LUMEN_ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
           VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
+          # sourcemaps to Sentry (then removed from the app bundle)
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          LUMEN_RELEASE: lumen-ios@${{ steps.version.outputs.version }}+${{ steps.version.outputs.build }}
+          LUMEN_DEPLOY_ENV: ${{ github.ref_type == 'tag' && 'app-store' || 'testflight' }}
+          LUMEN_DELETE_SOURCEMAPS: '1'
         run: npm run sync -w @lumen/mobile -- ios
       - name: Install certificate and profile
         env:

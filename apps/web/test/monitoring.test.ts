@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ErrorEvent } from '@sentry/react';
-import { cleanBreadcrumb, cleanEvent, initMonitoring, scrub } from '../src/lib/monitoring.ts';
+import { cleanBreadcrumb, cleanEvent, initMonitoring, reportHandled, screenOf, scrub, setMonitoringContext, trackScreen } from '../src/lib/monitoring.ts';
 
 describe('crash reports (app)', () => {
   it('stay off without a DSN', () => {
@@ -37,6 +37,19 @@ describe('crash reports (app)', () => {
     expect(out.breadcrumbs![0]).toEqual({ category: 'console', message: undefined, data: undefined });
     expect(out.breadcrumbs![1].data).toEqual({ url: '/api/v1/social/users/@bo', method: 'GET', status_code: 500 });
     expect(JSON.stringify(out)).not.toMatch(/example\.org|ABCD-EFGH|Bearer|1\.2\.3\.4|123456/);
+  });
+
+  it('name the screen without learner ids', () => {
+    expect(screenOf([])).toBe('home');
+    expect(screenOf(['learn', 'math.placevalue.digits'])).toBe('learn/math.placevalue.digits');
+    expect(screenOf(['u', '3f2a9c'])).toBe('u/:user');
+    expect(screenOf(['practice', 'r', 'a,b,c'])).toBe('practice/items');
+    expect(screenOf(['practice', 'unit', 'math.u1'])).toBe('practice/unit/math.u1');
+    expect(screenOf(['community', 'friends'])).toBe('community/friends');
+  });
+
+  it('context helpers are harmless while reports are off', () => {
+    expect(() => { setMonitoringContext({ screen: 'x' }); trackScreen(['profile']); reportHandled(new Error('x'), 'test'); }).not.toThrow();
   });
 
   it('keep useful breadcrumbs', () => {

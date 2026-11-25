@@ -61,11 +61,19 @@ export function cleanBreadcrumb(b: Breadcrumb): Breadcrumb | null {
   return out;
 }
 
+let on = false;
+
 export function initMonitoring(release: string): boolean {
   if (!DSN || env.VITE_LUMEN_E2E === '1') return false;
+  on = true;
   Sentry.init({
     dsn: DSN,
     release,
+    // stack traces for messages too, deeper extra data, a longer trail of what happened before
+    attachStacktrace: true,
+    normalizeDepth: 6,
+    maxBreadcrumbs: 100,
+    initialScope: { tags: { platform: platform(), version: __LUMEN_VERSION__ } },
     environment: platform() === 'web' ? (import.meta.env.PROD ? 'web' : 'development') : platform(),
     // nothing about the person: no user fields, cookies, headers, bodies or query strings
     dataCollection: { userInfo: false, cookies: false, httpHeaders: false, httpBodies: [], urlQueryParams: false },
@@ -78,6 +86,40 @@ export function initMonitoring(release: string): boolean {
     ignoreErrors: [/Failed to fetch/, /NetworkError/, /Load failed/, /The network connection was lost/, /AbortError/, /TimeoutError/],
   });
   return true;
+}
+
+type Tags = Record<string, string | number | boolean | null | undefined>;
+
+/** Tags on every later report, e.g. the screen, locale or the lesson step (never personal data). */
+export function setMonitoringContext(tags: Tags): void {
+  if (!on) return;
+  for (const [k, v] of Object.entries(tags)) Sentry.setTag(k, v == null ? undefined : String(v));
+}
+
+/** The screen as a pattern: content ids stay (they help to reproduce), learner ids don't. */
+export function screenOf(route: string[]): string {
+  const [head = 'home', a, b] = route;
+  if (head === 'u') return 'u/:user';
+  if (head === 'practice') return a === 'unit' ? `practice/unit/${b ?? ''}` : 'practice/items';
+  return [head, a, b].filter(Boolean).join('/');
+}
+
+/** Records a screen change: a navigation breadcrumb and the `screen` tag. */
+export function trackScreen(route: string[]): void {
+  if (!on) return;
+  const screen = screenOf(route);
+  Sentry.addBreadcrumb({ category: 'navigation', message: screen, level: 'info' });
+  Sentry.setTag('screen', screen);
+}
+
+/** Reports an error the app handled (and the learner may not have noticed), with context. */
+export function reportHandled(e: unknown, area: string, extra: Record<string, unknown> = {}): void {
+  if (!on) return;
+  Sentry.withScope((scope) => {
+    scope.setTag('area', area);
+    scope.setContext('details', extra);
+    Sentry.captureException(e instanceof Error ? e : new Error(String(e)));
+  });
 }
 
 export const ErrorBoundary = Sentry.ErrorBoundary;
