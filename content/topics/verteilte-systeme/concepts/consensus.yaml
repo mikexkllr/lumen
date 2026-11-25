@@ -6,8 +6,32 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Der Chef ist weg
+    body: "Fünf Rechner halten dieselben Daten. Einer ist der Chef. Was passiert, wenn er plötzlich schweigt? Deck die Schritte nacheinander auf: So wählen Rechner **ganz ohne Mensch** einen neuen."
+    visual:
+      widget: flip
+      interactive: true
+      params:
+        layout: flow
+        cards:
+          - icon: 😶
+            front: Funkstille
+            back: Rechner B hört eine Weile nichts mehr vom Chef. Ist er ausgefallen?
+          - icon: 🙋
+            front: B kandidiert
+            back: B bittet alle anderen um ihre Stimme für die nächste Runde.
+          - icon: 🗳️
+            front: Die Wahl
+            back: Stimmt mehr als die Hälfte zu, ist B der neue Chef.
+          - icon: 📣
+            front: Alle folgen
+            back: B schickt allen den neuesten Stand. Einen zweiten Chef kann es nicht geben.
+
   - kind: problem
     id: hook
     widget: choice
@@ -93,6 +117,63 @@ steps:
       - Beide Hälften glauben, sie seien das System.
       - Ein Gehirn, das sich teilt.
     explanation: Mit Mehrheitsregel kann höchstens eine Hälfte weitermachen – die mit der Mehrheit. Die andere wartet, bis das Netz heilt.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: Drei Rechner stimmen ab. Ein Beschluss gilt, wenn mindestens zwei Ja sagen. Wähle die Gatter so, dass die Lampe genau dann leuchtet.
+    params:
+      inputs:
+        - id: A
+          label: Rechner 1
+        - id: B
+          label: Rechner 2
+        - id: C
+          label: Rechner 3
+      gates:
+        - id: ab
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: ac
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: bc
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - ab
+            - ac
+            - bc
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: Beschluss
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - "»Mindestens zwei« heißt: 1 und 2, oder 1 und 3, oder 2 und 3."
+      - Innen drei UND-Gatter, außen ein ODER.
+    explanation: Jedes UND erkennt ein Paar, das zustimmt. Das ODER meldet, sobald irgendein Paar Ja sagt. Fällt ein Rechner aus, entscheiden die anderen zwei.
 
   - kind: explain
     id: d1

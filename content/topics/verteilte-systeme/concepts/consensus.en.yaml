@@ -6,8 +6,32 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: The boss is gone
+    body: "Five computers hold the same data. One of them is the boss. What happens when it suddenly goes silent? Uncover the steps one by one: this is how computers pick a new one **with no human involved**."
+    visual:
+      widget: flip
+      interactive: true
+      params:
+        layout: flow
+        cards:
+          - icon: 😶
+            front: Radio silence
+            back: Computer B has heard nothing from the boss for a while. Has it failed?
+          - icon: 🙋
+            front: B stands for election
+            back: B asks all the others for their vote in the next round.
+          - icon: 🗳️
+            front: The vote
+            back: If more than half agree, B is the new boss.
+          - icon: 📣
+            front: Everyone follows
+            back: B sends everyone the latest state. There cannot be a second boss.
+
   - kind: problem
     id: hook
     widget: choice
@@ -93,6 +117,63 @@ steps:
       - Both halves believe they are the system.
       - A brain that splits in two.
     explanation: With a majority rule at most one half can carry on – the one with the majority. The other waits until the network heals.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: Three computers vote. A decision counts when at least two say yes. Choose the gates so that the lamp lights up exactly then.
+    params:
+      inputs:
+        - id: A
+          label: Computer 1
+        - id: B
+          label: Computer 2
+        - id: C
+          label: Computer 3
+      gates:
+        - id: ab
+          type: "?"
+          in:
+            - A
+            - B
+          options:
+            - AND
+            - OR
+        - id: ac
+          type: "?"
+          in:
+            - A
+            - C
+          options:
+            - AND
+            - OR
+        - id: bc
+          type: "?"
+          in:
+            - B
+            - C
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - ab
+            - ac
+            - bc
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Q
+          from: g
+          label: Decision
+    check:
+      predicate: table('Q') == [0, 0, 0, 1, 0, 1, 1, 1]
+    hints:
+      - '"At least two" means: 1 and 2, or 1 and 3, or 2 and 3.'
+      - Three AND gates inside, one OR outside.
+    explanation: Each AND spots a pair that agrees. The OR reports as soon as any pair says yes. If one computer fails, the other two decide.
 
   - kind: explain
     id: d1

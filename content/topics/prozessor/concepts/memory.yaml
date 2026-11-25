@@ -6,8 +6,38 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Ein Gedächtnis aus Gattern
+    body: Wie merkt sich ein Chip ein Bit – ganz ohne Papier? Hier halten sich **zwei Gatter** gegenseitig fest. Schalte »Setzen« an und wieder aus. Bleibt die Lampe an? Probier dann »Löschen«.
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: S
+            label: Setzen
+          - id: R
+            label: Löschen
+        gates:
+          - id: n
+            type: NOR
+            in:
+              - S
+              - q
+          - id: q
+            type: NOR
+            in:
+              - R
+              - n
+        outputs:
+          - id: Q
+            from: q
+            label: Bit
+
   - kind: problem
     id: hook
     widget: estimate
@@ -97,6 +127,39 @@ steps:
       - "Register: winzig und blitzschnell. SSD: riesig und dauerhaft."
       - Der Arbeitsspeicher vergisst alles ohne Strom.
     explanation: Je näher am Rechenwerk, desto schneller, kleiner und teurer. Diese Speicherhierarchie ist das Grundmuster jedes Rechners.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: "Das Flipflop speichert gerade eine 1, und »Setzen« ist noch an. Lösche das Bit: Am Ende ist die Lampe aus, und beide Schalter sind aus."
+    params:
+      inputs:
+        - id: S
+          label: Setzen
+          value: 1
+        - id: R
+          label: Löschen
+      gates:
+        - id: n
+          type: NOR
+          in:
+            - S
+            - q
+        - id: q
+          type: NOR
+          in:
+            - R
+            - n
+      outputs:
+        - id: Q
+          from: q
+          label: Bit
+    check:
+      predicate: Q == 0 && inputs.S == 0 && inputs.R == 0
+    hints:
+      - Schalte zuerst »Setzen« aus – die 1 bleibt trotzdem.
+      - Dann kurz »Löschen« an und wieder aus.
+    explanation: Ein kurzer Puls auf »Löschen« schreibt die 0. Danach hält das Flipflop sie fest – ohne dass ein Schalter an ist.
 
   - kind: problem
     id: d1

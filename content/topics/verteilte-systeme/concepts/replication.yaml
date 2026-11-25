@@ -6,8 +6,33 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Sicher durch Kopien
+    body: "Festplatten gehen ständig kaputt – trotzdem verliert deine Cloud keine Fotos. Die Kurve zeigt in Prozent, wie wahrscheinlich **alle Kopien** zugleich ausfallen. Weiter rechts heißt: mehr Kopien. Zieh am Regler."
+    visual:
+      widget: slider
+      interactive: true
+      params:
+        expr: 100*(1-p)^x
+        x:
+          - 1
+          - 5
+        y:
+          - 0
+          - 50
+        showCoordinates: false
+        sliders:
+          - id: p
+            label: Verfügbarkeit eines Servers
+            min: 0.5
+            max: 0.95
+            step: 0.05
+            initial: 0.5
+
   - kind: problem
     id: hook
     widget: estimate
@@ -73,6 +98,38 @@ steps:
       - Die schöne Rechnung von eben setzt etwas voraus.
       - "Unabhängig heißt: Was den einen trifft, trifft nicht den anderen."
     explanation: Darum verteilen Cloud-Anbieter Kopien auf getrennte Zonen und Regionen – mit eigenem Strom, Kühlung und Netz.
+
+  - kind: problem
+    id: intro-c1
+    widget: slider
+    prompt: Mit zwei Kopien soll das Risiko, dass beide zugleich ausfallen, genau 1 % betragen. Stell die Verfügbarkeit eines Servers passend ein.
+    params:
+      expr: 100*(1-p)^x
+      x:
+        - 1
+        - 5
+      y:
+        - 0
+        - 50
+      showCoordinates: false
+      markers:
+        - x: 2
+          y: 1
+          label: 1 %
+      sliders:
+        - id: p
+          label: Verfügbarkeit eines Servers
+          min: 0.5
+          max: 0.95
+          step: 0.05
+          initial: 0.5
+    answer:
+      values:
+        p: 0.9
+    hints:
+      - Bei zwei Kopien ist das Risiko (1 − p) · (1 − p).
+      - 0,1 · 0,1 = 0,01, das sind 1 %. Ein Server darf also zu 10 % ausfallen.
+    explanation: "p = 0,9: Jeder Server fällt zu 10 % aus, beide zugleich nur zu 1 %. Eine dritte Kopie drückt das Risiko auf 0,1 %."
 
   - kind: explain
     id: d1

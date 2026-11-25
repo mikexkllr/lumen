@@ -5,8 +5,33 @@ summary: Zwei Faktoren und gute Backups.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 11
+estimated_minutes: 13
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Doppelt hält besser
+    body: Ein gestohlenes Passwort allein soll nicht reichen. Schalte Passwort und Handy an und aus. Wann öffnet sich das Konto? So funktioniert **Zwei-Faktor**.
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: P
+            label: Passwort
+          - id: H
+            label: Handy
+        gates:
+          - id: g
+            type: AND
+            in:
+              - P
+              - H
+        outputs:
+          - id: Z
+            from: g
+            label: Zugang
+
   - kind: problem
     id: hook
     widget: choice
@@ -64,6 +89,46 @@ steps:
     hints:
       - Was würde ein Angreifer sich wünschen?
     explanation: Gefundene USB-Sticks sind ein klassischer Köder für Schadsoftware.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: Das Konto soll sich öffnen, wenn das Passwort stimmt und dazu die App oder der Sicherheitsschlüssel bestätigt. Wähle die beiden Gatter.
+    params:
+      inputs:
+        - id: P
+          label: Passwort
+        - id: A
+          label: App
+        - id: K
+          label: Schlüssel
+      gates:
+        - id: o
+          type: "?"
+          in:
+            - A
+            - K
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - P
+            - o
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Z
+          from: g
+          label: Zugang
+    check:
+      predicate: table('Z') == [0, 0, 0, 0, 0, 1, 1, 1]
+    hints:
+      - "Für den zweiten Faktor genügt eins von beiden: App oder Schlüssel."
+      - Das Passwort muss immer stimmen – dafür braucht es ein UND.
+    explanation: Passwort UND (App ODER Schlüssel). Wer nur das Passwort gestohlen hat, kommt nicht hinein.
 
   - kind: problem
     id: d1
