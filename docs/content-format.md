@@ -269,7 +269,8 @@ Die Ausgabe nennt, wie viele frühere Schritte ersetzt wurden – bei einem neue
 node scripts/extend-lessons.ts patch.yaml --dry   # nur prüfen
 node scripts/extend-lessons.ts patch.yaml
 node scripts/digest.ts brueche kreise             # Lektionen eines Kurses in Kurzform lesen
-node scripts/audit-lessons.ts                     # Kennzahlen je Lektion: Länge, Formate, Tiefe
+node scripts/audit-lessons.ts                     # Kennzahlen je Lektion: Länge, Formate, Tiefe, Einleitungen
+node scripts/check-topics.ts brueche kreise        # alle Evals nur für diese Kurse, Deutsch und Englisch
 ```
 
 ## Übersetzungen
