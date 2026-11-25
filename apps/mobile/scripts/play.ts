@@ -99,19 +99,23 @@ async function upload(pkg: string, aab: string, track: string, notes?: string) {
     track,
     releases: [{ name: `${versionName()} (${versionCode})`, versionCodes: [String(versionCode)], status, ...(notes ? { releaseNotes: [{ language: 'en-US', text: notes.slice(0, 500) }] } : {}) }],
   });
-  let draft = false;
-  const versionCode = await edit(pkg, async (_, url) => {
+  // Google may refuse a completed release on a draft app at the track update or only at the
+  // commit; either way the whole edit runs again with a draft release.
+  const attempt = (status: string) => edit(pkg, async (_, url) => {
     const b = await call('POST', `${url.replace(BASE, UPLOAD)}/bundles?uploadType=media`, bytes, 'application/octet-stream');
     console.log(`bundle ${b.versionCode} uploaded (sha256 ${b.sha256})`);
-    try {
-      await call('PUT', `${url}/tracks/${track}`, release('completed', b.versionCode));
-    } catch (e) {
-      if (!(e instanceof PlayError) || !/draft app/i.test(e.body)) throw e;
-      draft = true;
-      await call('PUT', `${url}/tracks/${track}`, release('draft', b.versionCode));
-    }
+    await call('PUT', `${url}/tracks/${track}`, release(status, b.versionCode));
     return b.versionCode as number;
   });
+  let draft = false;
+  let versionCode: number;
+  try {
+    versionCode = await attempt('completed');
+  } catch (e) {
+    if (!(e instanceof PlayError) || !/draft app/i.test(e.body)) throw e;
+    draft = true;
+    versionCode = await attempt('draft');
+  }
   console.log(draft
     ? `${track}: release ${versionCode} created as a draft – the app is not published yet; roll it out once in Play Console`
     : `${track}: release ${versionCode} rolled out`);
