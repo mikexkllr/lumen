@@ -230,7 +230,8 @@ export function evalConcept(c: Concept, file: string | undefined, opts: EvalOpti
   const at = { concept: c.id, file };
   if (c.license !== REQUIRED_LICENSE) issues.push({ level: 'error', code: 'license', message: `Lizenz muss ${REQUIRED_LICENSE} sein (ist: ${c.license}).`, ...at });
   if (!c.authors.length) issues.push({ level: 'error', code: 'license.authors', message: 'Autor:innen fehlen.', ...at });
-  if (c.steps[0]?.kind === 'explain' && c.steps.length > 1 && c.steps[1]?.kind === 'explain' && c.steps[2]?.kind === 'explain') {
+  const body = c.steps.filter((s) => !(s.kind === 'explain' && s.intro));
+  if (body[0]?.kind === 'explain' && body.length > 1 && body[1]?.kind === 'explain' && body[2]?.kind === 'explain') {
     issues.push({ level: 'warning', code: 'didactic.problem-first', message: 'Drei Erklär-Screens am Anfang: Problem zuerst, dann Prozedur.', ...at });
   }
   const problems = c.steps.filter((s) => s.kind === 'problem');
@@ -245,6 +246,10 @@ export function evalConcept(c: Concept, file: string | undefined, opts: EvalOpti
     deepest = d;
   }
   if ((c.steps[0]?.depth ?? 1) !== 1) issues.push({ level: 'error', code: 'depth.start', message: 'Eine Lektion beginnt mit Tiefe 1.', ...at });
+  // the intro opens the lesson: intro screens stand at the very start, before any other step
+  const firstOther = c.steps.findIndex((s) => !(s.kind === 'explain' && s.intro));
+  const lateIntro = c.steps.find((s, i) => i > firstOther && firstOther >= 0 && s.kind === 'explain' && s.intro);
+  if (lateIntro) issues.push({ level: 'error', code: 'intro.position', message: `Step ${lateIntro.id}: Einleitungen stehen ganz am Anfang der Lektion.`, step: lateIntro.id, ...at });
   const minutes = c.steps.length * 0.6;
   if (c.estimated_minutes < minutes * 0.5 || c.estimated_minutes > minutes * 3) {
     issues.push({ level: 'info', code: 'duration', message: `estimated_minutes=${c.estimated_minutes} wirkt unpassend für ${c.steps.length} Steps.`, ...at });

@@ -6,8 +6,32 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Drei Knöpfe für alles
+    body: "Drohnen, Espressomaschinen und 3D-Drucker haben etwas gemeinsam: einen **PID-Regler**. Deck die Karten auf und finde heraus, was er dort jeweils ruhig hält."
+    visual:
+      widget: flip
+      interactive: true
+      params:
+        layout: grid
+        cards:
+          - icon: 🚁
+            front: Die Drohne
+            back: Hunderte Male pro Sekunde korrigiert ein PID-Regler jeden Motor. So schwebt sie ruhig.
+          - icon: ☕
+            front: Die Espressomaschine
+            back: Gute Maschinen halten das Wasser per PID auf etwa ein Grad genau.
+          - icon: 🖨️
+            front: Der 3D-Drucker
+            back: Die Düse bleibt dank PID fast genau auf ihrer Temperatur, etwa 200 °C.
+          - icon: 🚢
+            front: Das Schiff
+            back: "Die PID-Idee stammt aus den 1920ern: Sie hielt Schiffe automatisch auf Kurs."
+
   - kind: problem
     id: hook
     widget: choice
@@ -70,6 +94,41 @@ steps:
         k: choice[1,4,9,19,99]
       defaults:
         k: 4
+
+  - kind: problem
+    id: intro-c1
+    widget: slider
+    prompt: Ein P-Regelkreis springt auf den Sollwert 1. Stell die Kreisverstärkung K so ein, dass nur noch 10 % Fehler bleiben. Die Kurve endet dann am Punkt bei 0,9.
+    params:
+      expr: k/(1+k)*(1-exp(-(1+k)*x))
+      x:
+        - 0
+        - 3
+      y:
+        - 0
+        - 1.2
+      showCoordinates: false
+      target:
+        expr: "1"
+        label: Sollwert
+      sliders:
+        - id: k
+          label: Kreisverstärkung K
+          min: 1
+          max: 20
+          step: 1
+          initial: 3
+      markers:
+        - x: 2.5
+          y: 0.9
+          group: a
+    answer:
+      values:
+        k: 9
+    hints:
+      - "Beim P-Regler bleibt der Anteil 1 : (1 + K) als Fehler."
+      - "1 : (1 + K) = 0,1 heißt 1 + K = 10."
+    explanation: "K = 9: Es bleiben 1 : 10 = 10 % Fehler. Ganz weg bekommt man ihn nur mit einem I-Anteil."
 
   - kind: explain
     id: d1

@@ -6,8 +6,31 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Four transistors, one gate
+    body: "Every processor is built from gates, and every gate from transistors. Four of them form this **NAND gate**. Toggle A and B: which combination turns the lamp off?"
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: A
+          - id: B
+        gates:
+          - id: g
+            type: NAND
+            in:
+              - A
+              - B
+        outputs:
+          - id: Q
+            from: g
+            label: Lamp
+
   - kind: problem
     id: hook
     widget: choice
@@ -84,6 +107,40 @@ steps:
       - Both gate inputs are tied to A.
       - AND and OR of A with A give A again.
     explanation: NAND(A, A) = NOT A. In CMOS a NAND needs only four transistors, which is why everything is often built from it.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: NAND gates can build anything. The first gate is a NAND. Choose the second so that the lamp lights only when A and B are both on.
+    params:
+      inputs:
+        - id: A
+        - id: B
+      gates:
+        - id: n
+          type: NAND
+          in:
+            - A
+            - B
+        - id: g
+          type: "?"
+          in:
+            - n
+            - n
+          options:
+            - AND
+            - OR
+            - NAND
+      outputs:
+        - id: Q
+          from: g
+          label: Lamp
+    check:
+      predicate: table('Q') == [0, 0, 0, 1]
+    hints:
+      - The first NAND gives exactly the opposite of AND.
+      - So you need an inverter. Which gate inverts when both its inputs are the same?
+    explanation: A NAND with two equal inputs is a NOT. And NOT of NAND is AND. That is how one gate type yields all the others.
 
   - kind: explain
     id: d1

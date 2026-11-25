@@ -4,6 +4,7 @@ import {
   balanceSolution,
   cellKey,
   formatTick,
+  fractionPieces,
   fractionWidget,
   numberLineWidget,
   shadedCount,
@@ -43,7 +44,10 @@ function PanItems({ pan, cx, baseY, reveal }: { pan: Pan; cx: number; baseY: num
             <text x={x} y={y + 4.5} textAnchor="middle" fontSize="12.5" fontWeight="700" fontStyle="italic" fill="#fff">{reveal ?? 'x'}</text>
           </g>
         ) : (
-          <circle key={i} cx={x} cy={y} r="8.5" fill="var(--amber)" stroke="var(--surface)" strokeWidth="1.5" />
+          <g key={i}>
+            <circle cx={x} cy={y} r="8.5" fill="var(--amber)" stroke="var(--surface)" strokeWidth="1.5" />
+            <circle cx={x - 2.6} cy={y - 2.8} r="2.4" fill="#fff" fillOpacity="0.45" />
+          </g>
         );
       })}
     </g>
@@ -73,6 +77,8 @@ export function BalanceView({ params, state, dispatch, readOnly, locale }: Widge
   const left = { x: pivot.x - L * Math.cos(a), y: pivot.y - L * Math.sin(a) };
   const right = { x: pivot.x + L * Math.cos(a), y: pivot.y + L * Math.sin(a) };
   const reveal = params.reveal ? balanceSolution(params) : null;
+  // x stands alone on one pan and the scale is level: the equation is solved
+  const solvedNow = !state.balanced ? null : state.left.x === 1 && state.left.units === 0 && state.right.x === 0 ? state.right.units : state.right.x === 1 && state.right.units === 0 && state.left.x === 0 ? state.left.units : null;
   const allow = new Set(params.allow);
   const sides: ('both' | 'left' | 'right')[] = params.oneSided ? ['both', 'left', 'right'] : ['both'];
   const sideLabel = (s: string) => (s === 'both' ? tr(locale, 'beide Seiten', 'both sides') : s === 'left' ? tr(locale, 'nur links', 'left only') : tr(locale, 'nur rechts', 'right only'));
@@ -99,14 +105,22 @@ export function BalanceView({ params, state, dispatch, readOnly, locale }: Widge
           <BalancePan base={{ x: pivot.x - L, y: pivot.y }} end={left} pan={state.left} reveal={reveal} />
           <BalancePan base={{ x: pivot.x + L, y: pivot.y }} end={right} pan={state.right} reveal={reveal} />
           <g style={{ ...TWEEN, transformOrigin: `${pivot.x}px ${pivot.y}px`, transform: `rotate(${angle}deg)` }}>
-            <rect x={pivot.x - L - 6} y={pivot.y - 3} width={2 * L + 12} height="6" rx="3" fill="var(--ink-2)" />
+            <rect x={pivot.x - L - 6} y={pivot.y - 3} width={2 * L + 12} height="6" rx="3" fill={solvedNow !== null ? 'var(--ok)' : 'var(--ink-2)'} style={{ transition: 'fill 0.3s' }} />
           </g>
           <circle cx={pivot.x} cy={pivot.y} r="6" fill="var(--surface)" stroke="var(--ink-2)" strokeWidth="2.5" />
-          {state.tilt !== 0 && (
+          {state.tilt !== 0 ? (
             <text x={pivot.x} y="24" textAnchor="middle" fontSize="12.5" fontWeight="650" fill="var(--bad)">
               {tr(locale, 'Die Waage kippt', 'The scale tips')}
             </text>
-          )}
+          ) : solvedNow !== null ? (
+            <text key="solved" className="bal-solved" x={pivot.x} y="26" textAnchor="middle" fontSize="17" fontWeight="800" fill="var(--ok-deep)">
+              x = {solvedNow} ✓
+            </text>
+          ) : !readOnly && state.moves > 0 ? (
+            <text x={pivot.x} y="24" textAnchor="middle" fontSize="12.5" fontWeight="650" fill="var(--ok-deep)">
+              {tr(locale, 'Im Gleichgewicht', 'Balanced')}
+            </text>
+          ) : null}
         </svg>
       </div>
       <p className="center tnum" style={{ fontSize: '1.375rem', fontWeight: 650, margin: '4px 0 0', letterSpacing: '-0.01em' }}>
@@ -175,12 +189,34 @@ export function FractionView({ params, state, dispatch, readOnly, locale }: Widg
         </div>
       )}
       <div className="svg-wrap">
-        {params.shape === 'circle' ? (
+        {params.shape === 'square' || params.shape === 'triangle' || params.shape === 'hexagon' ? (
+          <svg viewBox="-4 -4 108 108" aria-label={fractionWidget.describe(state, params, locale)} role="group" className="frac-shape" style={{ maxWidth: 280, margin: '0 auto' }}>
+            {fractionPieces(params.shape, n).map((pts, i) => (
+              <polygon
+                key={`${n}-${i}`}
+                className={`frac-part ${state.shaded[i] ? 'on' : ''}`}
+                points={pts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ')}
+                fill={state.shaded[i] ? 'var(--topic, var(--accent))' : 'var(--surface-3)'}
+                stroke="var(--bg)"
+                strokeWidth="1.6"
+                strokeLinejoin="round"
+                role={readOnly ? undefined : 'checkbox'}
+                aria-checked={readOnly ? undefined : state.shaded[i]}
+                aria-label={readOnly ? undefined : partLabel(i)}
+                tabIndex={readOnly ? undefined : 0}
+                onClick={() => toggle(i)}
+                onKeyDown={keyToggle(i)}
+                style={{ cursor: readOnly ? 'default' : 'pointer' }}
+              />
+            ))}
+          </svg>
+        ) : params.shape === 'circle' ? (
           <svg viewBox="0 0 220 220" aria-label={fractionWidget.describe(state, params, locale)} role="group" style={{ maxWidth: 280, margin: '0 auto' }}>
             {Array.from({ length: n }, (_, i) => (
               <path
                 key={i}
                 d={n === 1 ? 'M110,10 A100,100 0 1 1 109.99,10 Z' : arc(110, 110, 100, (2 * Math.PI * i) / n, (2 * Math.PI * (i + 1)) / n)}
+                className={`frac-part ${state.shaded[i] ? 'on' : ''}`}
                 fill={state.shaded[i] ? 'var(--topic, var(--accent))' : 'var(--surface-3)'}
                 stroke="var(--bg)"
                 strokeWidth="3"
@@ -190,7 +226,7 @@ export function FractionView({ params, state, dispatch, readOnly, locale }: Widg
                 tabIndex={readOnly ? undefined : 0}
                 onClick={() => toggle(i)}
                 onKeyDown={keyToggle(i)}
-                style={{ cursor: readOnly ? 'default' : 'pointer', transition: 'fill 0.15s' }}
+                style={{ cursor: readOnly ? 'default' : 'pointer' }}
               />
             ))}
           </svg>
@@ -212,6 +248,7 @@ export function FractionView({ params, state, dispatch, readOnly, locale }: Widg
                 width={300 / n - 4}
                 height="60"
                 rx="10"
+                className={`frac-part ${state.shaded[i] ? 'on' : ''}`}
                 fill={state.shaded[i] ? 'var(--topic, var(--accent))' : 'var(--surface-3)'}
                 role={readOnly ? undefined : 'checkbox'}
                 aria-checked={readOnly ? undefined : state.shaded[i]}
@@ -219,15 +256,20 @@ export function FractionView({ params, state, dispatch, readOnly, locale }: Widg
                 tabIndex={readOnly ? undefined : 0}
                 onClick={() => toggle(i)}
                 onKeyDown={keyToggle(i)}
-                style={{ cursor: readOnly ? 'default' : 'pointer', transition: 'fill 0.15s' }}
+                style={{ cursor: readOnly ? 'default' : 'pointer' }}
               />
             ))}
           </svg>
         )}
       </div>
-      <p className="center small muted tnum" style={{ fontWeight: 600, margin: '10px 0 0' }} aria-live="polite">
-        {tr(locale, `${k} von ${n} Teilen gefärbt`, `${k} of ${n} parts shaded`)} · {k}/{n}
-      </p>
+      <div className="frac-readout" aria-live="polite">
+        <span className="frac-stack tnum" aria-hidden="true">
+          <span key={`k${k}`} className="num">{k}</span>
+          <span className="bar" />
+          <span key={`n${n}`} className="den">{n}</span>
+        </span>
+        <span className="small muted">{tr(locale, `${k} von ${n} Teilen gefärbt`, `${k} of ${n} parts shaded`)}</span>
+      </div>
     </div>
   );
 }

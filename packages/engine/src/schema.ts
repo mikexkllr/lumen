@@ -54,6 +54,8 @@ export const ExplainStepSchema = z.object({
   image: ImageSchema.optional(),
   /** Active recall: the learner thinks first, then taps to reveal this text. */
   reveal: z.object({ label: z.string().optional(), body: z.string().min(1) }).optional(),
+  /** Lesson intro: opens the lesson as a big welcome screen (only at the very start, best with an interactive visual). */
+  intro: z.boolean().optional(),
 });
 
 export const TutorConfigSchema = z.object({

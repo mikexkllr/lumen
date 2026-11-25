@@ -368,7 +368,8 @@ export function GatesView({ params, state, dispatch, readOnly, locale }: WidgetV
                 onKeyDown={(e) => { if (can && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); dispatch({ type: 'toggle', id: i.id }); } }}>
                 <rect width="46" height="26" rx="13" />
                 <circle cx="13" cy="13" r="10" style={{ transform: on ? 'translateX(20px)' : undefined }} />
-                <text className="lbl" x="23" y="-8" textAnchor="middle">{i.label ?? i.id} = {state.inputs[i.id]}</text>
+                {/* left-aligned at the edge of the board, so long names like "window open" are not cut off */}
+                <text className="lbl" x={8 - (p.x - 22)} y="-8" textAnchor="start">{i.label ?? i.id} = {state.inputs[i.id]}</text>
               </g>
             );
           })}

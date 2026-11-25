@@ -5,8 +5,23 @@ summary: Wie stark schwankt das Ergebnis?
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Gleicher Schnitt, wilderes Leben
+    body: Zwei Geldanlagen bringen im Schnitt gleich viel. Trotzdem fühlt sich die eine viel wilder an. Zieh den Regler für die **Streuung** hoch und runter. Wie oft landest du dann noch nahe am Schnitt?
+    visual:
+      widget: sim
+      interactive: true
+      params:
+        scene: normal
+        controls:
+          mean:
+            value: 100
+            fixed: true
+
   - kind: problem
     id: zwei-spiele
     widget: choice
@@ -78,6 +93,45 @@ steps:
     hints:
       - Wo weißt du vorher ziemlich genau, was herauskommt?
     explanation: Der Schnitt allein sagt nicht, wie riskant etwas ist.
+
+  - kind: problem
+    id: intro-c1
+    widget: chart
+    prompt: "Stell vier Runden eines riskanten Spiels ein: im Schnitt 5 €, aber mit mindestens 8 € Abstand zwischen bester und schlechtester Runde."
+    params:
+      labels:
+        - Runde 1
+        - Runde 2
+        - Runde 3
+        - Runde 4
+      values:
+        - 5
+        - 5
+        - 5
+        - 5
+      editable:
+        - 0
+        - 1
+        - 2
+        - 3
+      min: 0
+      max: 10
+      unit: €
+      show:
+        - mean
+    check:
+      predicate: avg == 5 && max(values) - min(values) >= 8
+    solution:
+      state:
+        values:
+          - 1
+          - 9
+          - 1
+          - 9
+    hints:
+      - Was du einer Runde nach oben gibst, musst du einer anderen nach unten nehmen.
+      - Zum Beispiel 1, 9, 1 und 9 € – der Schnitt bleibt 5 €.
+    explanation: "Gleicher Erwartungswert, viel mehr **Streuung**: Genau das unterscheidet ein riskantes von einem sicheren Spiel."
 
   - kind: problem
     id: d1

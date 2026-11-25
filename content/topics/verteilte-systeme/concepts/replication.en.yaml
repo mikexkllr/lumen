@@ -6,8 +6,33 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Safe through copies
+    body: Hard drives break all the time – yet your cloud keeps your photos. The curve shows the chance in per cent that **all copies** fail at once. Further right means more copies. Drag the slider.
+    visual:
+      widget: slider
+      interactive: true
+      params:
+        expr: 100*(1-p)^x
+        x:
+          - 1
+          - 5
+        y:
+          - 0
+          - 50
+        showCoordinates: false
+        sliders:
+          - id: p
+            label: availability of one server
+            min: 0.5
+            max: 0.95
+            step: 0.05
+            initial: 0.5
+
   - kind: problem
     id: hook
     widget: estimate
@@ -73,6 +98,38 @@ steps:
       - The neat calculation just now assumes something.
       - "Independent means: whatever hits one does not hit the other."
     explanation: That is why cloud providers spread copies across separate zones and regions – with their own power, cooling and network.
+
+  - kind: problem
+    id: intro-c1
+    widget: slider
+    prompt: With two copies, the risk that both fail at once should be exactly 1 %. Set the availability of one server to match.
+    params:
+      expr: 100*(1-p)^x
+      x:
+        - 1
+        - 5
+      y:
+        - 0
+        - 50
+      showCoordinates: false
+      markers:
+        - x: 2
+          y: 1
+          label: 1 %
+      sliders:
+        - id: p
+          label: availability of one server
+          min: 0.5
+          max: 0.95
+          step: 0.05
+          initial: 0.5
+    answer:
+      values:
+        p: 0.9
+    hints:
+      - With two copies the risk is (1 − p) · (1 − p).
+      - 0.1 · 0.1 = 0.01, which is 1 %. So one server may be down 10 % of the time.
+    explanation: "p = 0.9: each server is down 10 % of the time, both at once only 1 %. A third copy pushes the risk down to 0.1 %."
 
   - kind: explain
     id: d1

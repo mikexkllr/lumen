@@ -5,8 +5,33 @@ summary: Two factors and good backups.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 11
+estimated_minutes: 13
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Two locks beat one
+    body: A stolen password alone should not be enough. Switch password and phone on and off. When does the account open? That is how **two-factor** works.
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: P
+            label: Password
+          - id: H
+            label: Phone
+        gates:
+          - id: g
+            type: AND
+            in:
+              - P
+              - H
+        outputs:
+          - id: Z
+            from: g
+            label: Access
+
   - kind: problem
     id: hook
     widget: choice
@@ -64,6 +89,46 @@ steps:
     hints:
       - What would an attacker wish for?
     explanation: Found USB sticks are a classic bait for malware.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: The account should open when the password is right and, on top of that, the app or the security key confirms. Choose the two gates.
+    params:
+      inputs:
+        - id: P
+          label: Password
+        - id: A
+          label: App
+        - id: K
+          label: Key
+      gates:
+        - id: o
+          type: "?"
+          in:
+            - A
+            - K
+          options:
+            - AND
+            - OR
+        - id: g
+          type: "?"
+          in:
+            - P
+            - o
+          options:
+            - AND
+            - OR
+      outputs:
+        - id: Z
+          from: g
+          label: Access
+    check:
+      predicate: table('Z') == [0, 0, 0, 0, 0, 1, 1, 1]
+    hints:
+      - "For the second factor one of the two is enough: app or key."
+      - The password must always be right – that needs an AND.
+    explanation: Password AND (app OR key). Anyone who has only stolen the password cannot get in.
 
   - kind: problem
     id: d1

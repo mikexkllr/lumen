@@ -3,7 +3,7 @@
  * pixels). Run with `npm run e2e -- --project gallery`; the images land in test-results/e2e.
  */
 import type { Page } from '@playwright/test';
-import { apiAccount, createProfile, testHandle, onboardToAccount, openSignedIn, pushCompletedLesson, solve, uniqueEmail, expect, test } from './helpers.ts';
+import { apiAccount, createProfile, testHandle, onboardToAccount, openSignedIn, pushCompletedLesson, solve, uniqueEmail, expect, test, skipIntro } from './helpers.ts';
 
 const shot = async (page: Page, name: string, fullPage = true) => {
   await page.waitForTimeout(350);
@@ -49,6 +49,7 @@ for (const scheme of ['light', 'dark'] as const) {
       const { token } = await apiAccount(request, uniqueEmail('gallery-lesson'));
       await openSignedIn(page, token);
       await page.goto('/#/learn/math.placevalue.digits');
+      await skipIntro(page);
       await expect(page.getByRole('button', { name: 'Prüfen' })).toBeVisible();
       await shot(page, '30-problem', false);
       await solve(page);

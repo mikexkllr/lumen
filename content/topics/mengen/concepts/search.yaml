@@ -5,8 +5,36 @@ summary: UND, ODER, NICHT in Suchmaschinen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 10
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: So denkt die Suchmaschine
+    body: Jede Suche im Netz ist ein kleines Logik-Programm. Die Schalter sagen, ob eine Seite »Katze« oder »Hund« enthält. Schalte sie um und wechsle das Gatter zwischen **UND** und ODER. Wann zählt die Seite als Treffer?
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: K
+            label: Katze
+          - id: H
+            label: Hund
+        gates:
+          - id: g
+            type: "?"
+            in:
+              - K
+              - H
+            options:
+              - AND
+              - OR
+        outputs:
+          - id: Q
+            from: g
+            label: Treffer
+
   - kind: problem
     id: und
     widget: venn
@@ -41,6 +69,40 @@ steps:
     hints:
       - Alles mit Jaguar, aber ohne Auto.
     explanation: Nur der Teil von Jaguar außerhalb von Auto.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: Die Lampe soll die Treffer für »Katze NICHT Hund« zeigen. Wähle das passende Gatter.
+    params:
+      inputs:
+        - id: K
+          label: Katze
+        - id: H
+          label: Hund
+      gates:
+        - id: n
+          type: NOT
+          in:
+            - H
+        - id: g
+          type: "?"
+          in:
+            - K
+            - n
+          options:
+            - OR
+            - AND
+      outputs:
+        - id: Q
+          from: g
+          label: Treffer
+    check:
+      predicate: table('Q') == [0, 0, 1, 0]
+    hints:
+      - Eine Seite ist nur dann ein Treffer, wenn »Katze« vorkommt und »Hund« fehlt.
+      - "Beides muss zugleich gelten: Nimm UND."
+    explanation: "»Katze NICHT Hund« heißt: Katze UND nicht Hund. Die Lampe brennt nur, wenn K an und H aus ist."
 
   - kind: problem
     id: d1

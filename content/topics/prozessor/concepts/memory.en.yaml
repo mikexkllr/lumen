@@ -6,8 +6,38 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 11
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: A memory made of gates
+    body: How does a chip remember a bit – without any paper? Here **two gates** hold each other in place. Switch "Set" on and off again. Does the lamp stay on? Then try "Reset".
+    visual:
+      widget: gates
+      interactive: true
+      params:
+        inputs:
+          - id: S
+            label: Set
+          - id: R
+            label: Reset
+        gates:
+          - id: n
+            type: NOR
+            in:
+              - S
+              - q
+          - id: q
+            type: NOR
+            in:
+              - R
+              - n
+        outputs:
+          - id: Q
+            from: q
+            label: Bit
+
   - kind: problem
     id: hook
     widget: estimate
@@ -97,6 +127,39 @@ steps:
       - "Registers: tiny and lightning fast. SSD: huge and permanent."
       - Main memory forgets everything without power.
     explanation: The closer to the ALU, the faster, smaller and pricier. This memory hierarchy is the basic pattern of every computer.
+
+  - kind: problem
+    id: intro-c1
+    widget: gates
+    prompt: 'The flip-flop is storing a 1 right now, and "Set" is still on. Clear the bit: at the end the lamp is off and both switches are off.'
+    params:
+      inputs:
+        - id: S
+          label: Set
+          value: 1
+        - id: R
+          label: Reset
+      gates:
+        - id: n
+          type: NOR
+          in:
+            - S
+            - q
+        - id: q
+          type: NOR
+          in:
+            - R
+            - n
+      outputs:
+        - id: Q
+          from: q
+          label: Bit
+    check:
+      predicate: Q == 0 && inputs.S == 0 && inputs.R == 0
+    hints:
+      - First switch "Set" off – the 1 stays anyway.
+      - Then switch "Reset" on briefly and off again.
+    explanation: A short pulse on "Reset" writes the 0. After that the flip-flop holds it – with no switch on.
 
   - kind: problem
     id: d1

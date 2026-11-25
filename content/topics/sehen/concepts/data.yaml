@@ -5,8 +5,28 @@ summary: Lücken in den Daten werden Lücken im Modell.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 6
+estimated_minutes: 8
 steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Selten geübt
+    body: "Ein Auto soll Fußgänger erkennen. Hier ziehst du zufällige Fotos aus seinen **Trainingsdaten**. Zieh 10, dann 100: Wie oft bekommt das Modell überhaupt Nachtfotos zu sehen?"
+    visual:
+      widget: distribution
+      interactive: true
+      params:
+        items:
+          - label: Tag
+            weight: 17
+          - label: Regen
+            weight: 2
+          - label: Nacht
+            weight: 1
+        sample:
+          - 10
+          - 100
+
   - kind: problem
     id: kuh
     widget: choice
@@ -48,6 +68,44 @@ steps:
     hints:
       - Kann ein Durchschnitt etwas verbergen?
     explanation: 99 % bei Tag und 60 % bei Nacht ergeben im Mittel auch einen guten Wert.
+
+  - kind: problem
+    id: intro-c1
+    widget: chart
+    prompt: Du stellst neue Trainingsfotos zusammen. Verteile 100 % so, dass **jede** Lage mindestens 20 % bekommt.
+    params:
+      labels:
+        - Tag
+        - Nacht
+        - Regen
+        - Schnee
+      values:
+        - 70
+        - 10
+        - 15
+        - 5
+      editable:
+        - 0
+        - 1
+        - 2
+        - 3
+      min: 0
+      max: 100
+      step: 5
+      unit: "%"
+    check:
+      predicate: values[0] + values[1] + values[2] + values[3] == 100 && values[0] >= 20 && values[1] >= 20 && values[2] >= 20 && values[3] >= 20
+    solution:
+      state:
+        values:
+          - 25
+          - 25
+          - 25
+          - 25
+    hints:
+      - Alle Säulen zusammen müssen genau 100 % ergeben.
+      - Nimm beim Tag etwas weg und gib es Nacht, Regen und Schnee – zum Beispiel je 25 %.
+    explanation: Zum Beispiel 25 % für jede Lage. Sieht ein Modell jede Lage oft genug, macht es dort weniger Fehler.
 
   - kind: problem
     id: d1

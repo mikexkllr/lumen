@@ -42,6 +42,18 @@ Topics haben zusätzlich `icon` (Motiv für das generierte Cover: fraction, bala
   visual: { widget: fraction, params: { parts: 4, shaded: [0, 1, 2] } }   # Anzeige; mit interactive: true zum Ausprobieren
 ```
 
+**Einleitung** (`intro: true`): Jede Lektion beginnt mit einem Willkommens-Screen. Er zeigt Kurs, Lektion, Dauer und Zahl der Aufgaben, darunter ein kurzer Text (≤ 40 Wörter: warum das Thema spannend ist und was man ausprobieren soll) und eine **interaktive** Visualisierung. Wer damit spielt, bekommt Klang, Funken und Lob; danach geht es mit »Los geht’s« in die Aufgaben. Einleitungen stehen nur ganz am Anfang (`intro.position`) und bekommen keinen Kurz-Check.
+
+```yaml
+- kind: explain
+  intro: true
+  title: Teile vom Ganzen            # 2–5 Wörter, macht neugierig
+  body: Ein Bruch beschreibt einen **Teil vom Ganzen**. Tippe auf die Stücke des Sechsecks und färbe sie.
+  visual: { widget: fraction, interactive: true, params: { parts: 6, shape: hexagon, shaded: [0] } }
+```
+
+Als Visualisierung taugt jedes Widget mit festen Werten (Bruchformen, Waage, Labor-Szenen, Regler, Zahlenstrahl …). Wo keines passt, deckt man mit `flip` Karten auf (siehe Tabelle).
+
 **Aufdecken** (aktives Erinnern): erst überlegen, dann antippen.
 
 ```yaml
@@ -122,7 +134,7 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `graph` | `x`, `y`, `grid`, `points`, `lines`, `segments`, `functions` | `points: {A: {x, y}}` oder Prädikat | `slope('A','B')`, `dist('A','B')` |
 | `slider` | `expr` (z. B. `m*x + b`), `sliders`, `target`, `markers` (mit `group: a\|b` für zwei Farben), `showCoordinates` | `values` oder `matchTarget` | Reglerwerte direkt (`m`, `b`) |
 | `balance` | `left/right: {x, units}`, `allow`, `oneSided`, `reveal` | x allein und im Gleichgewicht | `balanced` |
-| `fraction` | `parts`, `shape: bar\|circle`, `shaded`, `partOptions`, `reference` | `fraction: "3/4"`, `equivalent`, `parts` | `shadedCount`, `value` |
+| `fraction` | `parts`, `shape: bar\|circle\|square\|triangle\|hexagon` (alle Teile flächengleich; `square` als Raster bis 100 Teile, z. B. 10 × 10 für Prozent), `shaded`, `partOptions`, `reference` | `fraction: "3/4"`, `equivalent`, `parts` | `shadedCount`, `value` |
 | `numberline` | `min`, `max`, `ticks`, `labels`, `markers` | `value`, `tolerance` | – |
 | `logic-grid` | `categories`, `ordered`, `clues: [{text, rule \| rules}]` | eindeutige Lösung des Rätsels | – |
 | `robot` | `grid` (`.` `#` `S` `G` `*`), `dir`, `blocks`, `repeatCounts`, `maxBlocks`, `goal: reach\|collect`, `program` (vorbelegt, fürs Debuggen) | Ziel erreicht bzw. alle Kristalle, höchstens `maxBlocks` Blöcke | `blocks`, `crashed`, `success` |
@@ -139,6 +151,7 @@ Im Scope stehen: `state`, `params`, alle Varianten-Variablen und widget-spezifis
 | `swipe` | `cards: [{text, right, why}]` (2–8), `left`, `right` (Seitennamen) | jede Karte auf der richtigen Seite | `correct`, `picks` |
 | `cloze` | `text` mit `[[Lücke]]`, `distractors` | jedes Wort in seiner Lücke | `correct` |
 | `teach` | `keywords: [[Synonym, …], …]` (Kernideen), `min`, `sample` (Musterantwort), `placeholder` | genug Kernideen in der eigenen Erklärung; danach antwortet Lux auf den Wortlaut | `hits`, `words` |
+| `flip` (nur Visual) | `cards: [{icon, front, back}]` (2–6; Emoji, Titel ≤ 40, Rückseite ≤ 120 Zeichen), `layout: grid\|flow\|cycle` (flow und cycle öffnen der Reihe nach, cycle führt zurück zum Anfang) | – (zeigt, prüft nicht) | – |
 | `sim` | `scene`, `controls: {id: {value, min, max, step, fixed}}`, `show`, `target`, `expr`, `interval`, `points` | `{name: Zahl \| [von, bis]}` für Regler und Ergebnisse – oder Prädikat | alle Regler und Ergebnisse per id, `touched` |
 
 `estimate`, `swipe`, `cloze`, `teach` und `sim` geben selbst gezielte Rückmeldung (`autoHints`); `hints` sind dort freiwillig.
@@ -237,7 +250,7 @@ math.fractions.compare:            # bestehende Lektion: Steps anhängen
 
 Ein wörtliches `||` (etwa im Zellschema `Zn | Zn²⁺ || Cu²⁺ | Cu`) schreibt man als `\||`.
 
-Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` und `raw` (voller Step). Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Neue Steps landen hinter dem letzten vorhandenen Step, der nicht tiefer ist als sie selbst – ein Kern-Step also vor der Stufe »Tiefer«, auch wenn die Lektion schon eine Experten-Stufe hat.
+Kurzformen: `est`, `swipe`, `cloze`, `teach`, `num`, `mc`, `order`, `match`, `sort`, `sim`, `explain` (mit `title`, `visual`, `reveal` und `intro: true`) und `raw` (voller Step). Eine Einleitung kommt als `explain` mit `intro: true` in den Abschnitt `hook`. Die Steps bekommen die ids `hook`, `cN`, `dN`, `xN`; ein Patch lässt sich deshalb gefahrlos erneut anwenden. Neue Steps landen hinter dem letzten vorhandenen Step, der nicht tiefer ist als sie selbst – ein Kern-Step also vor der Stufe »Tiefer«, auch wenn die Lektion schon eine Experten-Stufe hat.
 
 **Ein Patch ersetzt in einer Lektion nur die Abschnitte, die er selbst nennt.** Ein zweiter Patch mit `hook` lässt `deep` und `expert` eines früheren Patches stehen. Zwei Patches, die denselben Abschnitt derselben Lektion füllen, überschreiben sich dagegen. Wer später etwas nachträgt, gibt dem Patch deshalb einen eigenen Namensraum:
 
@@ -256,7 +269,8 @@ Die Ausgabe nennt, wie viele frühere Schritte ersetzt wurden – bei einem neue
 node scripts/extend-lessons.ts patch.yaml --dry   # nur prüfen
 node scripts/extend-lessons.ts patch.yaml
 node scripts/digest.ts brueche kreise             # Lektionen eines Kurses in Kurzform lesen
-node scripts/audit-lessons.ts                     # Kennzahlen je Lektion: Länge, Formate, Tiefe
+node scripts/audit-lessons.ts                     # Kennzahlen je Lektion: Länge, Formate, Tiefe, Einleitungen
+node scripts/check-topics.ts brueche kreise        # alle Evals nur für diese Kurse, Deutsch und Englisch
 ```
 
 ## Übersetzungen

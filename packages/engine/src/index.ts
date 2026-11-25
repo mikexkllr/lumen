@@ -22,7 +22,7 @@ export { tilesWidget, type TilesParams, type TilesState } from './widgets/tiles.
 export { graphWidget, formatPoint, slopeOf, type GraphParams, type GraphState } from './widgets/graph.ts';
 export { sliderWidget, sliderCurve, type SliderParams, type SliderState } from './widgets/slider.ts';
 export { balanceWidget, balanceSolution, term, type BalanceParams, type BalanceState, type Pan } from './widgets/balance.ts';
-export { fractionWidget, shadedCount, type FractionParams, type FractionState } from './widgets/fraction.ts';
+export { fractionWidget, shadedCount, fractionPieces, polygonArea, gridShape, type FractionParams, type FractionState } from './widgets/fraction.ts';
 export { numberLineWidget, tickValues, snapToTick, formatTick, type NumberLineParams, type NumberLineState } from './widgets/numberline.ts';
 export { logicGridWidget, cellKey, solveLogicGrid, assignmentFromMarks, type LogicGridParams, type LogicGridState } from './widgets/logicgrid.ts';
 export * from './canonical.ts';
@@ -44,6 +44,7 @@ export { swapWidget, minSwaps, inversions, type SwapParams, type SwapState } fro
 export { lightsOutSolve } from './widgets/pixels.ts';
 export { estimateWidget, estimateSnap, estimateStep, estimateToValue, estimateToPos, estimateTolerance, type EstimateParams, type EstimateState } from './widgets/estimate.ts';
 export { swipeWidget, type SwipeParams, type SwipeState } from './widgets/swipe.ts';
+export { flipWidget, flipCanOpen, type FlipParams, type FlipState } from './widgets/flip.ts';
 export { clozeWidget, clozeParts, clozeBank, type ClozeParams, type ClozeState } from './widgets/cloze.ts';
 export { teachWidget, teachHits, teachNeeded, TEACH_MAX, type TeachParams, type TeachState } from './widgets/teach.ts';
 export { simWidget, simControls, simOutputs, simCompute, SIM_SCENES, NEURON_POINTS, sirSeries, logisticSeries, predatorSeries, type SimParams, type SimState, type SimControl, type SimOutput } from './widgets/sim.ts';
