@@ -6,10 +6,12 @@ import { href } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
 
 const PAGES: LegalPage[] = ['privacy', 'terms', 'imprint'];
+/** Reachable by link (store listings) but not one of the tabs. */
+const OTHER: LegalPage[] = ['delete'];
 
 export function Legal({ page }: { page?: string }) {
   const { t, settings } = useApp();
-  const p: LegalPage = PAGES.includes(page as LegalPage) ? (page as LegalPage) : 'privacy';
+  const p: LegalPage = [...PAGES, ...OTHER].includes(page as LegalPage) ? (page as LegalPage) : 'privacy';
   // The privacy policy names the AI service the server actually uses (the Lux chat itself does not).
   const [ai, setAi] = useState<TutorStatusInfo | null>(null);
   useEffect(() => {

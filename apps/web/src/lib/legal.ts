@@ -18,7 +18,8 @@ export const OPERATOR = {
 /** Crash reports are on when the build has a Sentry DSN (see lib/monitoring.ts). */
 const CRASH_REPORTS = !!env.VITE_SENTRY_DSN;
 
-export type LegalPage = 'privacy' | 'terms' | 'imprint';
+/** `delete`: how to delete the account (linked from the store listings, e.g. Google Play data safety). */
+export type LegalPage = 'privacy' | 'terms' | 'imprint' | 'delete';
 export interface LegalSection {
   h: string;
   body: string;
@@ -31,6 +32,26 @@ const op = (de: boolean) => {
 
 export function legalText(page: LegalPage, locale: string): LegalSection[] {
   const de = locale.startsWith('de');
+  if (page === 'delete') {
+    const contact = OPERATOR.contact;
+    return de
+      ? [
+          { h: 'Dein Lumen-Konto löschen', body: 'Du kannst dein Konto bei Lumen – Microlearning und alle Daten dazu jederzeit selbst löschen, ohne uns zu schreiben – in der App (Android, iOS) oder in der Web-App unter lumen.mikekeller.cloud/app.' },
+          { h: 'So geht’s', body: '1. Lumen öffnen und mit derselben E-Mail-Adresse (oder mit Apple) anmelden wie bisher.\n2. Unten auf **Profil** tippen.\n3. **Konto löschen** wählen und bestätigen.' },
+          { h: 'Was gelöscht wird', body: 'Sofort und endgültig, auf dem Server und auf dem Gerät:\n\n- dein Lernfortschritt (Lektionen, Antworten, XP, Serie)\n- dein Community-Profil (Name, Handle, Avatar), Freundschaften, Anfragen, Reaktionen, Ligaplätze und Neuigkeiten\n- Meldungen, die du abgeschickt hast\n- deine Anmeldungen (Prüfwert der E-Mail-Adresse, Apple-Kennung); die Anmeldung bei Apple wird widerrufen' },
+          { h: 'Was bleibt', body: 'Nur ein Hashwert deines gelöschten Kontoschlüssels, damit er sich nie wieder anmelden kann, und Meldungen anderer über dein Profil, solange die Moderation sie braucht. Fehlerberichte enthalten kein Konto, keinen Namen und keine E-Mail-Adresse und werden nach höchstens 90 Tagen automatisch gelöscht. Der Server legt keine Sicherungskopien deiner Daten an.' },
+          { h: 'Nur einen Teil löschen', body: 'Unter **Profil → Community-Profil löschen** entfernst du nur die Community-Daten und behältst deinen Lernfortschritt. Gespräche mit Lux werden auf dem Server nicht gespeichert; Lux lässt sich im Profil abschalten.' },
+          ...(contact ? [{ h: 'Hilfe', body: `Kannst du dich nicht mehr anmelden? Schreib an ${contact} – am besten von der E-Mail-Adresse deines Kontos.` }] : []),
+        ]
+      : [
+          { h: 'Delete your Lumen account', body: 'You can delete your Lumen – Microlearning account and all data linked to it at any time yourself, without writing to us – in the app (Android, iOS) or in the web app at lumen.mikekeller.cloud/app.' },
+          { h: 'How', body: '1. Open Lumen and sign in with the same email address (or Apple) as before.\n2. Tap **Profile** at the bottom.\n3. Choose **Delete account** and confirm.' },
+          { h: 'What is deleted', body: 'Immediately and for good, on the server and on the device:\n\n- your learning progress (lessons, answers, XP, streak)\n- your community profile (name, handle, avatar), friendships, requests, reactions, league places and feed items\n- reports you sent\n- your sign-ins (check value of your email address, Apple identifier); the Apple sign-in is revoked' },
+          { h: 'What is kept', body: 'Only a hash of your deleted account key, so that it can never sign in again, and reports by others about your profile while moderation needs them. Crash reports contain no account, name or email address and are deleted automatically after at most 90 days. The server keeps no backup copies of your data.' },
+          { h: 'Delete only some data', body: '**Profile → Delete community profile** removes only the community data and keeps your learning progress. Chats with Lux are not stored on the server; Lux can be switched off in the profile.' },
+          ...(contact ? [{ h: 'Help', body: `Can’t sign in any more? Write to ${contact} – ideally from the email address of your account.` }] : []),
+        ];
+  }
   if (page === 'imprint') {
     return de
       ? [

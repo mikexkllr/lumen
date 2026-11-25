@@ -230,6 +230,7 @@ export const socialDe = {
   'legal.privacy': 'Datenschutz',
   'legal.terms': 'Nutzungsbedingungen & Community-Regeln',
   'legal.imprint': 'Impressum',
+  'legal.delete': 'Konto löschen',
 } as const;
 
 export const socialEn: Record<keyof typeof socialDe, string> = {
@@ -463,4 +464,5 @@ export const socialEn: Record<keyof typeof socialDe, string> = {
   'legal.privacy': 'Privacy policy',
   'legal.terms': 'Terms & community rules',
   'legal.imprint': 'Legal notice',
+  'legal.delete': 'Delete account',
 };

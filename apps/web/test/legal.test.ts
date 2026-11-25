@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { legalText } from '../src/lib/legal.ts';
 
-const pages = ['privacy', 'terms', 'imprint'] as const;
+const pages = ['privacy', 'terms', 'imprint', 'delete'] as const;
 
 describe('legal pages', () => {
   it('exist in both languages with headings and text', () => {
@@ -41,5 +41,15 @@ describe('legal pages', () => {
   it('show a placeholder while no operator is configured', () => {
     expect(legalText('imprint', 'de')[0].body).toContain('[Betreiber noch nicht eingetragen]');
     expect(legalText('imprint', 'en')[0].body).toContain('[operator not configured]');
+  });
+
+  it('the deletion page (Google Play) shows the steps and what is deleted or kept', () => {
+    for (const l of ['de', 'en']) {
+      const text = legalText('delete', l).map((x) => `${x.h}\n${x.body}`).join('\n');
+      expect(text).toContain('Lumen – Microlearning');
+      expect(text).toContain(l === 'de' ? '**Konto löschen**' : '**Delete account**');
+      expect(text).toMatch(l === 'de' ? /Was gelöscht wird[\s\S]*Was bleibt/ : /What is deleted[\s\S]*What is kept/);
+      expect(text).toMatch(/90/);
+    }
   });
 });

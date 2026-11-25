@@ -5,6 +5,12 @@ on:
     tags: ['v*'] # v1.2.3 = store release of apps/mobile version 1.2.3 (jobs "ios" and "android")
   pull_request:
   workflow_dispatch: # re-run checks and deploy by hand (Actions → CI → Run workflow)
+    inputs:
+      play_track:
+        description: Google Play track for the Android build (closed testing = alpha)
+        type: choice
+        options: [internal, alpha]
+        default: internal
 
 jobs:
   check:
@@ -262,6 +268,7 @@ jobs:
     # Android app "Lumen – Microlearning" (cloud.mikekeller.lumen) on Google Play:
     #   push to main  -> build, sign and release to internal testing
     #   tag v1.2.3    -> the same, released to closed testing (track "alpha"; Google reviews it)
+    #   Run workflow with play_track=alpha -> closed testing from main (e.g. after a tag)
     # Signed with the upload key; Google re-signs for the store (Play App Signing). The Play API
     # is reached without a key file, through Workload Identity Federation for this repository.
     # Secrets and variables live in the "google-play" environment; setup: docs/store-release.md.
@@ -350,8 +357,9 @@ jobs:
         if: vars.PLAY_SERVICE_ACCOUNT != ''
         env:
           PLAY_ACCESS_TOKEN: ${{ steps.gcp.outputs.access_token }}
+          PLAY_TRACK: ${{ inputs.play_track }}
         run: |
-          if [ "${GITHUB_REF_TYPE}" = tag ]; then
+          if [ "${GITHUB_REF_TYPE}" = tag ] || [ "${PLAY_TRACK}" = alpha ]; then
             track=alpha
             git fetch --depth=1 origin "+refs/tags/${GITHUB_REF_NAME}:refs/tags/${GITHUB_REF_NAME}" 2>/dev/null || true
             git tag -l --format='%(contents)' "${GITHUB_REF_NAME}" | sed '/^-----BEGIN/,$d' > "$RUNNER_TEMP/notes.txt"
