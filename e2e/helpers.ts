@@ -44,6 +44,16 @@ export async function apiAccount(request: APIRequestContext, email: string): Pro
 
 export const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 
+/**
+ * A unique handle for a test learner. Only the digits 2, 6 and 9: the name filter reads other
+ * digits as leetspeak (55 → "ss"), so random numbers would now and then be refused.
+ */
+export function testHandle(name: string): string {
+  const n = Date.now() * 1000 + process.pid * 37 + counter++;
+  const digits = n.toString(3).slice(-11).replace(/[012]/g, (d) => ({ '0': '2', '1': '6', '2': '9' })[d]!);
+  return `${name.toLowerCase().slice(0, 6)}_${digits}`;
+}
+
 export function today(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;

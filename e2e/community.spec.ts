@@ -1,17 +1,17 @@
 import type { APIRequestContext } from '@playwright/test';
-import { API, apiAccount, auth, createProfile, openSignedIn, pushCompletedLesson, today, uniqueEmail, expect, test } from './helpers.ts';
+import { API, apiAccount, auth, createProfile, testHandle, openSignedIn, pushCompletedLesson, today, uniqueEmail, expect, test } from './helpers.ts';
 
 /** A second learner who exists only through the API. */
 async function otherLearner(request: APIRequestContext, name: string) {
   const { token } = await apiAccount(request, uniqueEmail('friend'));
-  const handle = `${name.toLowerCase()}_${Math.floor(Math.random() * 1e6)}`;
+  const handle = testHandle(name);
   const profile = await createProfile(request, token, name, handle);
   return { token, handle, id: profile.id };
 }
 
 async function me(request: APIRequestContext, name: string) {
   const { token } = await apiAccount(request, uniqueEmail('me'));
-  const handle = `${name.toLowerCase()}_${Math.floor(Math.random() * 1e6)}`;
+  const handle = testHandle(name);
   const profile = await createProfile(request, token, name, handle);
   return { token, handle, id: profile.id, social: { userId: profile.id, handle } };
 }

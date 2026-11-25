@@ -3,7 +3,7 @@
  * pixels). Run with `npm run e2e -- --project gallery`; the images land in test-results/e2e.
  */
 import type { Page } from '@playwright/test';
-import { apiAccount, createProfile, onboardToAccount, openSignedIn, pushCompletedLesson, solve, uniqueEmail, expect, test } from './helpers.ts';
+import { apiAccount, createProfile, testHandle, onboardToAccount, openSignedIn, pushCompletedLesson, solve, uniqueEmail, expect, test } from './helpers.ts';
 
 const shot = async (page: Page, name: string, fullPage = true) => {
   await page.waitForTimeout(350);
@@ -34,7 +34,7 @@ for (const scheme of ['light', 'dark'] as const) {
 
     test(`signed in (${scheme})`, async ({ page, request }) => {
       const { token } = await apiAccount(request, uniqueEmail('gallery'));
-      const p = await createProfile(request, token, 'Ada Lovelace', `ada_${Math.floor(Math.random() * 1e6)}`);
+      const p = await createProfile(request, token, 'Ada Lovelace', testHandle('ada'));
       await pushCompletedLesson(request, token);
       await openSignedIn(page, token, { social: { userId: p.id, handle: p.handle }, communityName: 'Ada Lovelace' });
       await shot(page, '10-home');
