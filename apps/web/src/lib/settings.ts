@@ -2,6 +2,15 @@ import { detectLocale, translate, type UiLocale } from './i18n.ts';
 
 export type AgeBand = 'u13' | '13-15' | '16+';
 
+export interface Account {
+  serverUrl: string;
+  token: string;
+  lastSync: number | null;
+  cursor: number;
+  /** How this device signed in. */
+  method: 'apple' | 'email' | 'code';
+}
+
 export interface Settings {
   locale: UiLocale;
   theme: 'system' | 'light' | 'dark';
@@ -21,7 +30,13 @@ export interface Settings {
   pathId: string | null;
   /** Where the placement check suggests to start. */
   startAt: { topic: string; unit?: string } | null;
-  sync: { serverUrl: string; token: string; lastSync: number | null; cursor: number; consent: boolean; linked?: { apple: boolean; email: boolean } } | null;
+  /**
+   * The Lumen account this device is signed in to (Sign in with Apple or an emailed code).
+   * `token` is the device code the server handed out; progress syncs with it in the background.
+   */
+  account: Account | null;
+  /** Display name chosen in onboarding; the community profile is created from it once online. */
+  communityName: string | null;
   /** Lux may use the language model on the Lumen server (off: rule tutor only). */
   tutor: boolean;
   /** The learner agreed that Lux may send the task and their messages to the language model (asked before first use). */
@@ -30,7 +45,7 @@ export interface Settings {
   serverUrl: string | null;
   /** Learner's own API key for Lux (stays on the device); null: the server's model. */
   tutorByok: { url: string; model: string; key: string } | null;
-  /** Cached social profile (the server is the source of truth); needs sync. */
+  /** Cached social profile (the server is the source of truth). */
   social: { userId: string; handle: string } | null;
 }
 
@@ -51,7 +66,8 @@ export const DEFAULT_SETTINGS: Settings = {
   age: null,
   pathId: null,
   startAt: null,
-  sync: null,
+  account: null,
+  communityName: null,
   tutor: true,
   tutorConsent: false,
   serverUrl: null,
@@ -74,10 +90,17 @@ const OLD_PATHS: Record<string, string> = {
   'path.naturwissenschaften': 'path.physics',
 };
 
-export function migrateSettings(s: Settings): Settings {
+type Legacy = Settings & { sync?: { serverUrl: string; token: string; lastSync: number | null; cursor: number } | null };
+
+export function migrateSettings(raw: Legacy): Settings {
+  const { sync, ...s } = raw;
   const pathId = s.pathId && OLD_PATHS[s.pathId] ? OLD_PATHS[s.pathId] : s.pathId;
   const interests = [...new Set((s.interests ?? []).flatMap((i) => (i === 'science' ? ['physics', 'chemistry'] : [i])))];
-  return { ...s, pathId, interests };
+  // Sync codes from before sign-in became the way in keep working as the account.
+  const account = s.account ?? (sync?.token ? { serverUrl: sync.serverUrl, token: sync.token, lastSync: sync.lastSync ?? null, cursor: sync.cursor ?? 0, method: 'code' as const } : null);
+  const fontScale = [0.9, 1, 1.15, 1.3].includes(s.fontScale) ? s.fontScale : 1;
+  const dailyGoal = [5, 10, 15, 20].includes(s.dailyGoal) ? s.dailyGoal : 10;
+  return { ...s, pathId, interests, account, fontScale, dailyGoal };
 }
 
 export function loadSettings(): Settings {
@@ -90,6 +113,14 @@ export function loadSettings(): Settings {
   return { ...DEFAULT_SETTINGS };
 }
 
+/** Settings after signing out: device preferences stay, everything about the learner goes. */
+export function signedOutSettings(s: Settings): Settings {
+  const keep: (keyof Settings)[] = ['locale', 'theme', 'highContrast', 'hyperlegible', 'fontScale', 'reduceMotion', 'sound', 'haptics'];
+  const out = { ...DEFAULT_SETTINGS };
+  for (const k of keep) (out as Record<string, unknown>)[k] = s[k];
+  return out;
+}
+
 export function saveSettings(s: Settings): void {
   try {
     localStorage.setItem(KEY, JSON.stringify(s));
@@ -98,7 +129,7 @@ export function saveSettings(s: Settings): void {
   }
 }
 
-/** Kids mode: below 16 (GDPR Art. 8 in Germany) – no social features (friends, leagues, feed), no LLM tutor, sync needs parental consent. */
+/** Kids mode: below 16 (GDPR Art. 8 in Germany) – no social features (friends, leagues, feed), no LLM tutor, sign-in needs parental consent. */
 export const isKid = (s: Settings) => s.age === 'u13' || s.age === '13-15';
 
 export function applyDocumentSettings(s: Settings): void {

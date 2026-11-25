@@ -4,7 +4,7 @@ import { Icon } from './ui.tsx';
 import { useApp } from '../lib/store.tsx';
 import { appleSignIn, emailStart, emailVerify, linkedSignIns, signInMethods, SignInError, unlinkSignIn } from '../lib/signIn.ts';
 
-type Result = { token?: string; created?: boolean };
+export type SignInResult = { token?: string; created?: boolean; method: 'apple' | 'email' };
 
 /**
  * Sign-in methods of a Lumen server: Apple (iOS app) and an emailed code (everywhere).
@@ -15,7 +15,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   serverUrl: string;
   token?: string;
   disabled?: boolean;
-  onSignedIn?: (r: Result) => void;
+  onSignedIn?: (r: SignInResult) => void | Promise<void>;
   onLinked?: (linked: { apple: boolean; email: boolean }) => void;
 }) {
   const { t, settings } = useApp();
@@ -26,29 +26,41 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [code, setCode] = useState('');
+  const [nonce, setNonce] = useState(0);
 
   useEffect(() => {
     let live = true;
+    setMethods(null);
     void signInMethods(serverUrl).then((m) => live && setMethods(m));
     if (token) void linkedSignIns(serverUrl, token).then((l) => { if (live && l) { setLinked(l); onLinked?.(l); } });
     return () => { live = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverUrl, token]);
+  }, [serverUrl, token, nonce]);
 
-  if (!methods || (!methods.apple && !methods.email)) return null;
+  if (!methods) return <p className="small faint" role="status" style={{ margin: 0 }}>{t('loading')}</p>;
+  if (!methods.apple && !methods.email) {
+    // Linking is optional; signing in is the way into the app, so say why it can't happen.
+    if (token) return null;
+    return (
+      <div className="card stack" role="alert" style={{ gap: 10 }}>
+        <p className="small" style={{ margin: 0 }}>{t('signin.unavailable')}</p>
+        <button type="button" className="btn ghost small" onClick={() => setNonce((n) => n + 1)}>{t('retry')}</button>
+      </div>
+    );
+  }
 
   const fail = (e: unknown) => {
     const c = e instanceof SignInError ? e.code : 'failed';
     if (c !== 'canceled') setMsg(t(`signin.err.${c}`));
   };
-  const done = (r: Result, method: 'apple' | 'email') => {
+  const done = async (r: { token?: string; created?: boolean }, method: 'apple' | 'email') => {
     if (token) {
       const next = { apple: linked?.apple ?? false, email: linked?.email ?? false, [method]: true };
       setLinked(next);
       onLinked?.(next);
       setMsg(t('signin.linkedOk'));
     } else {
-      onSignedIn?.(r);
+      await onSignedIn?.({ ...r, method });
     }
   };
   const run = async (f: () => Promise<void>) => {
@@ -63,6 +75,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
     }
   };
   const apple = () => run(async () => done(await appleSignIn(serverUrl, token), 'apple'));
+  const verifyBtn = busy ? t('loading') : t(token ? 'signin.verifyLink' : 'signin.verify');
   const send = () => run(async () => {
     const address = email.trim();
     await emailStart(serverUrl, address, settings.locale);
@@ -71,9 +84,10 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   });
   const verify = () => run(async () => {
     if (!sentTo) return;
-    done(await emailVerify(serverUrl, sentTo, code, token), 'email');
+    const r = await emailVerify(serverUrl, sentTo, code, token);
     setSentTo(null);
     setEmail('');
+    await done(r, 'email');
   });
   const unlink = (p: 'apple' | 'email') => run(async () => {
     if (!token) return;
@@ -89,8 +103,9 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
     <div className="stack" style={{ gap: 10 }}>
       {token && (linked?.apple || linked?.email) && (
         <div className="stack" style={{ gap: 4 }}>
-          {linked.apple && <LinkedRow label={t('signin.linkedApple')} onUnlink={() => unlink('apple')} unlinkLabel={t('signin.unlink')} busy={busy} />}
-          {linked.email && <LinkedRow label={t('signin.linkedEmail')} onUnlink={() => unlink('email')} unlinkLabel={t('signin.unlink')} busy={busy} />}
+          {/* The last sign-in method stays: without it the account can't be opened on another device. */}
+          {linked.apple && <LinkedRow label={t('signin.linkedApple')} onUnlink={linked.email ? () => unlink('apple') : undefined} unlinkLabel={t('signin.unlink')} busy={busy} />}
+          {linked.email && <LinkedRow label={t('signin.linkedEmail')} onUnlink={linked.apple ? () => unlink('email') : undefined} unlinkLabel={t('signin.unlink')} busy={busy} />}
         </div>
       )}
       {showApple && (
@@ -106,7 +121,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
             <span className="small faint">{t('signin.email')}</span>
             <input className="input" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
-          <button className="btn primary block" type="submit" disabled={disabled || busy || !/\S+@\S+\.\S+/.test(email)}>{t(token ? 'signin.emailLink' : 'signin.emailSend')}</button>
+          <button className="btn primary block" type="submit" disabled={disabled || busy || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())}>{busy ? t('loading') : t(token ? 'signin.emailLink' : 'signin.emailSend')}</button>
           <p className="small faint" style={{ margin: 0 }}>{t('signin.emailNote')}</p>
         </form>
       ) : (
@@ -117,21 +132,21 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
             <input className="input" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]*" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} required autoFocus />
           </label>
           <div className="row" style={{ gap: 8 }}>
-            <button className="btn primary grow" type="submit" disabled={busy || code.length !== 6}>{t(token ? 'signin.verifyLink' : 'signin.verify')}</button>
-            <button className="btn ghost" type="button" onClick={() => { setSentTo(null); setMsg(null); }}>{t('signin.otherEmail')}</button>
+            <button className="btn primary grow" type="submit" disabled={busy || code.length !== 6}>{verifyBtn}</button>
+            <button className="btn ghost" type="button" disabled={busy} onClick={() => { setSentTo(null); setMsg(null); }}>{t('signin.otherEmail')}</button>
           </div>
         </form>
       ))}
-      {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
+      {msg && <p className="small" role={msg === t('signin.linkedOk') ? 'status' : 'alert'} style={{ margin: 0 }}>{msg}</p>}
     </div>
   );
 }
 
-function LinkedRow({ label, onUnlink, unlinkLabel, busy }: { label: string; onUnlink: () => void; unlinkLabel: string; busy: boolean }) {
+function LinkedRow({ label, onUnlink, unlinkLabel, busy }: { label: string; onUnlink?: () => void; unlinkLabel: string; busy: boolean }) {
   return (
-    <div className="row" style={{ justifyContent: 'space-between' }}>
+    <div className="row" style={{ justifyContent: 'space-between', minHeight: 36 }}>
       <span className="small row" style={{ gap: 6 }}><Icon name="check" size={16} /> {label}</span>
-      <button className="btn ghost small" type="button" onClick={onUnlink} disabled={busy}>{unlinkLabel}</button>
+      {onUnlink && <button className="btn ghost small" type="button" onClick={onUnlink} disabled={busy}>{unlinkLabel}</button>}
     </div>
   );
 }

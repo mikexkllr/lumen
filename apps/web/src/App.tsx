@@ -6,7 +6,7 @@ import { Discover, ReviewScreen, TopicScreen } from './screens/Browse.tsx';
 import { Home } from './screens/Home.tsx';
 import { Onboarding, Welcome } from './screens/Onboarding.tsx';
 import { Profile } from './screens/Profile.tsx';
-import { Community, SocialSetup, UserScreen } from './screens/Community.tsx';
+import { Community, ProfileEdit, UserScreen } from './screens/Community.tsx';
 import { Streak } from './screens/Streak.tsx';
 import { Legal } from './screens/Legal.tsx';
 import { Login } from './screens/Login.tsx';
@@ -90,9 +90,18 @@ export function App() {
   const [head, a, b] = route;
   useReminders({ time: settings.reminder, today: app.today, streak: app.progress.streak.current, todayDone: app.progress.streak.todayDone, hasFriends: !!settings.social, locale: settings.locale, loaded });
 
+  // The way in is signing in (Apple or an emailed code) and a short onboarding; legal pages and
+  // the content preview stay reachable without an account.
+  const signedIn = !!settings.account;
   useEffect(() => {
-    if (loaded && !settings.onboarded && !['welcome', 'onboarding', 'placement', 'preview', 'legal', 'login'].includes(head ?? '')) navigate('welcome', true);
-  }, [loaded, settings.onboarded, head]);
+    if (!loaded) return;
+    const open = ['legal', 'preview'];
+    if (!signedIn) {
+      if (![...open, 'welcome', 'onboarding', 'login'].includes(head ?? '')) navigate(settings.onboarded ? 'login' : 'welcome', true);
+    } else if (!settings.onboarded) {
+      if (![...open, 'onboarding', 'placement'].includes(head ?? '')) navigate('onboarding', true);
+    } else if (['welcome', 'onboarding', 'login'].includes(head ?? '')) navigate('', true);
+  }, [loaded, signedIn, settings.onboarded, head]);
 
   useEffect(() => {
     if ((lib && loaded) || contentError) hideSplash();
@@ -122,7 +131,7 @@ export function App() {
     case 'welcome':
       return <Welcome />;
     case 'onboarding':
-      return <Onboarding />;
+      return <Onboarding step={a} />;
     case 'login':
       return <Login />;
     case 'placement':
@@ -161,7 +170,7 @@ export function App() {
       tab = 'profile';
       break;
     case 'community':
-      screen = a === 'setup' ? <SocialSetup /> : a === 'edit' ? <SocialSetup edit /> : <Community section={a} />;
+      screen = a === 'edit' ? <ProfileEdit /> : <Community section={a} />;
       tab = 'community';
       break;
     case 'u':
@@ -173,6 +182,15 @@ export function App() {
       tab = '';
       break;
     case 'legal':
+      // Before signing in (links from the sign-in step) without the app's navigation.
+      if (!signedIn) {
+        return (
+          <div className="page standalone">
+            <button className="btn quiet small" style={{ marginBottom: 8 }} onClick={() => (history.length > 1 ? history.back() : navigate('welcome', true))}><Icon name="back" size={16} /> {t('onb.back')}</button>
+            <Legal page={a} />
+          </div>
+        );
+      }
       screen = <Legal page={a} />;
       tab = 'profile';
       break;

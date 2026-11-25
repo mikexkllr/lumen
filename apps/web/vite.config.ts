@@ -2,10 +2,14 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import { lumenContent } from './vite-plugin-lumen-content.ts';
+import { readFileSync } from 'node:fs';
+
+const version = (JSON.parse(readFileSync(new URL('../mobile/package.json', import.meta.url), 'utf8')) as { version: string }).version;
 
 export default defineConfig({
   // Served from a sub-path in production (e.g. LUMEN_BASE=/app/ next to the landing page).
   base: process.env.LUMEN_BASE ?? '/',
+  define: { __LUMEN_VERSION__: JSON.stringify(version) },
   plugins: [
     react(),
     lumenContent(),
@@ -39,8 +43,9 @@ export default defineConfig({
   ],
   server: {
     port: 5173,
-    // Lumen server (sync + Lux tutor) in development: npm run server
-    proxy: { '/api': { target: 'http://localhost:8787', rewrite: (p) => p.replace(/^\/api/, '') } },
+    // Lumen server (accounts, Lux, community) in development: npm run server.
+    // `vite preview` uses the same proxy; the end-to-end tests point it at their own server.
+    proxy: { '/api': { target: process.env.LUMEN_API_PROXY ?? 'http://localhost:8787', rewrite: (p) => p.replace(/^\/api/, '') } },
   },
   build: { target: 'es2022', sourcemap: true },
 });

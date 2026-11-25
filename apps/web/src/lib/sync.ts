@@ -1,18 +1,12 @@
 /**
- * Optional sync: a random sync code (20 chars, 100 bit) is the only credential. The server
- * stores events under SHA-256(code) – no email, no password, no profile.
+ * Background backup of the learning events to the learner's Lumen account. The device code
+ * the server hands out at sign-in is the only credential; the server keeps the events under
+ * SHA-256 of it. Events are append-only with UUIDs, so pushing and pulling is idempotent.
  */
 import type { LumenEvent } from '@lumen/engine';
 import { loadEvents, putEvents, type StoredEvent } from './db.ts';
 
-const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-
-export function generateSyncCode(): string {
-  const bytes = crypto.getRandomValues(new Uint8Array(20));
-  const chars = [...bytes].map((b) => ALPHABET[b % 32]).join('');
-  return chars.match(/.{1,4}/g)!.join('-');
-}
-
+/** Device codes are shown and sent in groups of four (ABCD-EFGH-…). */
 export function normalizeCode(code: string): string {
   return code.toUpperCase().replace(/[^A-Z0-9]/g, '').match(/.{1,4}/g)?.join('-') ?? '';
 }
@@ -23,52 +17,51 @@ export interface SyncResult {
   cursor: number;
 }
 
-/** `today` is the learner's local day; the server uses it for streaks and leagues. */
-export async function syncNow(serverUrl: string, token: string, cursor: number, today?: string): Promise<SyncResult> {
+export class SyncError extends Error {
+  status: number;
+  constructor(status: number) {
+    super(`HTTP ${status}`);
+    this.status = status;
+  }
+}
+
+const CHUNK = 500;
+
+/** Pushes unsynced events and pulls new ones. `today` is the learner's local day (streaks, leagues). */
+export async function syncNow(serverUrl: string, token: string, cursor: number, today?: string, fetchImpl: typeof fetch = fetch): Promise<SyncResult> {
   const all = await loadEvents();
+  const known = new Set(all.map((e) => e.id));
   const pending = all.filter((e) => !e.synced);
-  const base = serverUrl.replace(/\/$/, '');
+  const url = `${serverUrl.replace(/\/$/, '')}/v1/sync`;
   let sent = 0;
   let received = 0;
   let next = cursor;
-  // push in chunks, pull with the cursor
-  for (let i = 0; i === 0 || i < pending.length; i += 500) {
-    const chunk = pending.slice(i, i + 500).map(({ synced: _s, ...e }) => e);
-    const res = await fetch(`${base}/v1/sync`, {
+  let more = true;
+  const post = async (events: LumenEvent[]) => {
+    const res = await fetchImpl(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${normalizeCode(token)}` },
-      body: JSON.stringify({ events: chunk, since: next, today }),
+      body: JSON.stringify({ events, since: next, today }),
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const body = (await res.json()) as { events: LumenEvent[]; cursor: number };
-    sent += chunk.length;
-    const known = new Set(all.map((e) => e.id));
-    const incoming = body.events.filter((e) => !known.has(e.id));
-    received += incoming.length;
-    await putEvents([...chunk.map((e) => ({ ...e, synced: 1 as const })), ...incoming.map((e) => ({ ...e, synced: 1 as const }) as StoredEvent)]);
-    next = body.cursor;
-    if (!pending.length) break;
-  }
-  // keep pulling while the server reports more pages
-  for (let page = 0; page < 50; page++) {
-    const res = await fetch(`${base}/v1/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${normalizeCode(token)}` },
-      body: JSON.stringify({ events: [], since: next, today }),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) throw new SyncError(res.status);
     const body = (await res.json()) as { events: LumenEvent[]; cursor: number; more?: boolean };
-    const known = new Set((await loadEvents()).map((e) => e.id));
     const incoming = body.events.filter((e) => !known.has(e.id));
+    for (const e of incoming) known.add(e.id);
     received += incoming.length;
-    await putEvents(incoming.map((e) => ({ ...e, synced: 1 as const }) as StoredEvent));
+    await putEvents([...events.map((e) => ({ ...e, synced: 1 as const })), ...incoming.map((e) => ({ ...e, synced: 1 as const }) as StoredEvent)]);
+    sent += events.length;
     next = body.cursor;
-    if (!body.more) break;
-  }
+    more = body.more === true;
+  };
+  for (let i = 0; i < pending.length; i += CHUNK) await post(pending.slice(i, i + CHUNK).map(({ synced: _s, ...e }) => e as LumenEvent));
+  // Pull the rest (or everything, when nothing was pending) while the server reports more pages.
+  if (!pending.length) await post([]);
+  for (let page = 0; more && page < 50; page++) await post([]);
   return { sent, received, cursor: next };
 }
 
-export async function deleteServerData(serverUrl: string, token: string): Promise<void> {
-  const res = await fetch(`${serverUrl.replace(/\/$/, '')}/v1/account`, { method: 'DELETE', headers: { Authorization: `Bearer ${normalizeCode(token)}` } });
-  if (!res.ok && res.status !== 404) throw new Error(`HTTP ${res.status}`);
+/** Deletes the account on the server: events, community profile, sign-in links (Apple is revoked). */
+export async function deleteAccount(serverUrl: string, token: string, fetchImpl: typeof fetch = fetch): Promise<void> {
+  const res = await fetchImpl(`${serverUrl.replace(/\/$/, '')}/v1/account`, { method: 'DELETE', headers: { Authorization: `Bearer ${normalizeCode(token)}` } });
+  if (!res.ok && res.status !== 404) throw new SyncError(res.status);
 }

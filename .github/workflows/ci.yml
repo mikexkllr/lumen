@@ -29,6 +29,30 @@ jobs:
           name: web-dist
           path: apps/web/dist
 
+  e2e:
+    # End-to-end UI tests: production build of the app against a real Lumen server
+    # (e2e/server.ts, in-memory). Phone layout in German, desktop in English.
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: npm
+      - run: npm ci
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Build the app for the tests
+        run: npm run build:e2e
+      - name: End-to-end UI tests
+        run: npm run e2e -- --project phone-de --project desktop-en
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-results
+          path: test-results
+
   docker:
     # Builds both images and checks the deployment configs; nothing is pushed.
     runs-on: ubuntu-latest
@@ -58,7 +82,7 @@ jobs:
     # in /opt/sites/lumen). No registry needed. Compose file, Caddy site and the server .env
     # (OpenRouter key, admin token) stay on the server – change those with deploy/vps/deploy.sh.
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && github.repository == 'mikexkllr/lumen'
-    needs: [check, docker]
+    needs: [check, docker, e2e]
     runs-on: ubuntu-latest
     environment:
       name: production
@@ -77,6 +101,8 @@ jobs:
           PHONE: ${{ vars.LUMEN_PHONE }}
           VAT_ID: ${{ vars.LUMEN_VAT_ID }}
           ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
+          # crash reports (public DSN of the Sentry project lumen-app)
+          SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
         run: |
           docker build -f deploy/Dockerfile.web -t lumen-web:latest \
             --build-arg VITE_LUMEN_API_URL=/api \
@@ -86,6 +112,7 @@ jobs:
             --build-arg VITE_LUMEN_PHONE="$PHONE" \
             --build-arg VITE_LUMEN_VAT_ID="$VAT_ID" \
             --build-arg VITE_LUMEN_ISSUES_URL="$ISSUES_URL" \
+            --build-arg VITE_SENTRY_DSN="$SENTRY_DSN" \
             --build-arg LUMEN_SITE_ORIGIN=https://lumen.mikekeller.cloud .
           docker build -f deploy/Dockerfile.server -t lumen-sync:latest .
       - name: Set up SSH
@@ -113,7 +140,7 @@ jobs:
     # Secrets live in the "app-store" environment; setup and renewal: docs/store-release.md.
     # This repository is public and so are these logs: never print a secret or a decoded file.
     if: github.event_name != 'pull_request' && github.repository == 'mikexkllr/lumen' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: [check]
+    needs: [check, e2e]
     runs-on: macos-26
     timeout-minutes: 60
     environment: app-store
@@ -151,6 +178,7 @@ jobs:
           VITE_LUMEN_PHONE: ${{ vars.LUMEN_PHONE }}
           VITE_LUMEN_VAT_ID: ${{ vars.LUMEN_VAT_ID }}
           VITE_LUMEN_ISSUES_URL: ${{ github.server_url }}/${{ github.repository }}/issues/new
+          VITE_SENTRY_DSN: ${{ vars.SENTRY_DSN_APP }}
         run: npm run sync -w @lumen/mobile -- ios
       - name: Install certificate and profile
         env:

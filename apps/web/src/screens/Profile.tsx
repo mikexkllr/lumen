@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { addDays, dayKey, type LumenEvent } from '@lumen/engine';
+import { addDays, type LumenEvent } from '@lumen/engine';
 import { Icon, Segmented, Switch } from '../components/ui.tsx';
-import { href } from '../lib/router.ts';
+import { href, navigate } from '../lib/router.ts';
 import { isKid } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
-import { deleteServerData, generateSyncCode, normalizeCode, syncNow } from '../lib/sync.ts';
 import { TIER_COLORS, useGamification } from '../lib/gamify.ts';
-import { apiBase, defaultSyncUrl, isValidServerUrl, normalizeServerUrl, probeServer } from '../lib/api.ts';
+import { API_BASE } from '../lib/api.ts';
 import { BYOK_PROVIDERS, isValidByok, providerLabel, testByok } from '../lib/byok.ts';
 import { tutorStatus, type TutorStatusInfo } from '../lib/tutor.ts';
 import { isNativeApp, requestReminderPermission } from '../lib/reminders.ts';
@@ -105,8 +104,7 @@ export function Profile() {
 
       {!isKid(settings) && <LuxModelSection />}
       {!isKid(settings) && <CommunitySection />}
-      <ServerSection />
-      <SyncSection />
+      <AccountSection />
       <DataSection />
 
       <section className="settings-group">
@@ -120,49 +118,6 @@ export function Profile() {
         </div>
       </section>
     </main>
-  );
-}
-
-function ServerSection() {
-  const { t, settings, updateSettings } = useApp();
-  const [url, setUrl] = useState(settings.serverUrl ?? '');
-  const [msg, setMsg] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const apply = async (next: string | null) => {
-    setMsg(null);
-    if (next !== null && !isValidServerUrl(next)) return setMsg(t('server.invalid'));
-    setBusy(true);
-    try {
-      const target = next === null ? null : normalizeServerUrl(next);
-      if (target && !(await probeServer(target))) return setMsg(t('server.unreachable'));
-      const switching = target !== settings.serverUrl;
-      if (switching && settings.sync && !confirm(t('server.switchConfirm', { code: settings.sync.token }))) return;
-      updateSettings({ serverUrl: target, ...(switching && settings.sync ? { sync: null, social: null } : {}) });
-      if (!target) setUrl('');
-      setMsg(target ? t('server.connected', { url: target }) : t('server.resetDone'));
-    } finally {
-      setBusy(false);
-    }
-  };
-  return (
-    <section className="settings-group" aria-labelledby="srv-h">
-      <h2 id="srv-h">{t('server.title')}</h2>
-      <div className="list">
-        <div className="list-pad small muted">{t('server.intro')}</div>
-        <div className="list-row"><span className="lbl">{t('server.current')}</span><span className="small" style={{ textAlign: 'right', wordBreak: 'break-all' }}>{apiBase()} · {settings.serverUrl ? t('server.custom') : t('server.default')}</span></div>
-        <div className="list-pad stack">
-          <div className="field">
-            <label htmlFor="srv-url">{t('server.url')}</label>
-            <input id="srv-url" className="input" type="url" inputMode="url" autoCapitalize="none" spellCheck={false} placeholder="https://lumen.example.org/api" value={url} onChange={(e) => setUrl(e.target.value)} />
-          </div>
-          <div className="row wrap" style={{ gap: 8 }}>
-            <button className="btn primary small" disabled={busy || !url.trim()} onClick={() => void apply(url)}>{t('server.connect')}</button>
-            {settings.serverUrl && <button className="btn ghost small" disabled={busy} onClick={() => void apply(null)}>{t('server.reset')}</button>}
-          </div>
-        </div>
-        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
-      </div>
-    </section>
   );
 }
 
@@ -271,7 +226,7 @@ function CommunitySection() {
         {!active ? (
           <div className="list-pad stack">
             <span className="small muted">{t('settings.communityOff')}</span>
-            <a className="btn primary" href={href('community/setup')}>{t('social.start')}</a>
+            <a className="btn primary" href={href('community')}>{t('social.join')}</a>
           </div>
         ) : (
           <>
@@ -294,7 +249,7 @@ function CommunitySection() {
             ))}
             <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} onClick={async () => {
               if (!conn || !confirm(t('settings.deleteSocialConfirm'))) return;
-              try { await social.deleteProfile(conn); updateSettings({ social: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(errorText(t, e)); }
+              try { await social.deleteProfile(conn); updateSettings({ social: null, communityName: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(errorText(t, e)); }
             }}>
               <span className="lbl">{t('settings.deleteSocial')}</span><Icon name="trash" size={17} />
             </button>
@@ -306,84 +261,53 @@ function CommunitySection() {
   );
 }
 
-function SyncSection() {
-  const { t, settings, updateSettings, reloadEvents } = useApp();
-  const [code, setCode] = useState('');
-  const [server, setServer] = useState(settings.sync?.serverUrl ?? defaultSyncUrl());
-  // Follow the server chosen above while no sync code is connected.
-  useEffect(() => {
-    if (!settings.sync) setServer(defaultSyncUrl());
-  }, [settings.serverUrl, settings.sync]);
+function AccountSection() {
+  const { t, settings, signOut, deleteAccount } = useApp();
+  const acc = settings.account;
+  const [linked, setLinked] = useState<{ apple: boolean; email: boolean } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [consent, setConsent] = useState(settings.sync?.consent ?? false);
-  const kid = isKid(settings) || settings.age === null;
-  const s = settings.sync;
-
-  const connect = (token: string) => {
-    if (kid && !consent) return;
-    updateSettings({ sync: { serverUrl: server, token: normalizeCode(token), lastSync: null, cursor: 0, consent } });
-  };
-  const run = async () => {
-    if (!s) return;
-    setMsg(t('loading'));
+  const [busy, setBusy] = useState(false);
+  if (!acc) return null;
+  const run = async (f: () => Promise<void>) => {
+    setBusy(true);
+    setMsg(null);
     try {
-      const r = await syncNow(s.serverUrl, s.token, s.cursor, dayKey(new Date()));
-      updateSettings({ sync: { ...s, lastSync: Date.now(), cursor: r.cursor } });
-      await reloadEvents();
-      setMsg(t('sync.ok', { up: r.sent, down: r.received }));
+      await f();
+      navigate('welcome', true);
     } catch (e) {
-      setMsg(t('sync.error', { msg: (e as Error).message }));
+      setMsg((e as Error).message === 'sync_failed' ? t('account.signOutOffline') : t('account.failed'));
+    } finally {
+      setBusy(false);
     }
   };
+  const via = linked?.apple && linked.email ? t('account.viaBoth') : linked?.apple ? t('account.viaApple') : linked?.email ? t('account.viaEmail') : acc.method === 'apple' ? t('account.viaApple') : acc.method === 'email' ? t('account.viaEmail') : null;
+  const custom = acc.serverUrl !== API_BASE;
   return (
-    <section className="settings-group" aria-labelledby="sync-h">
-      <h2 id="sync-h">{t('sync.title')}</h2>
+    <section className="settings-group" aria-labelledby="acc-h">
+      <h2 id="acc-h">{t('account.title')}</h2>
       <div className="list">
-        <div className="list-pad small muted">{t('sync.intro')}</div>
-        {!s ? (
-          <div className="list-pad stack">
-            <div className="field">
-              <label htmlFor="sync-server">{t('sync.server')}</label>
-              <input id="sync-server" type="url" value={server} onChange={(e) => setServer(e.target.value)} />
-            </div>
-            {kid && <label className="row small"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> {t('sync.consentAge')}</label>}
-            <SignInOptions serverUrl={server} disabled={kid && !consent} onSignedIn={(r) => { if (r.token) { connect(r.token); setMsg(t(r.created ? 'signin.created' : 'signin.restored')); } }} />
-            <button className="btn ghost" disabled={kid && !consent} onClick={() => connect(generateSyncCode())}>{t('sync.create')}</button>
-            <div className="field">
-              <label htmlFor="sync-code">{t('sync.join')}</label>
-              <div className="row">
-                <input id="sync-code" className="input" type="text" autoComplete="off" spellCheck={false} value={code} onChange={(e) => setCode(e.target.value)} placeholder="ABCD-EFGH-…" style={{ flex: 1, minWidth: 0 }} />
-                <button className="btn ghost" disabled={normalizeCode(code).length !== 24 || (kid && !consent)} onClick={() => connect(code)}>{t('sync.connect')}</button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="list-pad stack">
-            <div>
-              <span className="small faint">{t('sync.code')}</span>
-              <div className="code-box" style={{ marginTop: 6 }}>{s.token}</div>
-              <p className="small faint" style={{ marginTop: 6 }}>{t('sync.codeNote')}</p>
-            </div>
-            <p className="small" style={{ margin: 0 }}>{s.lastSync ? t('sync.last', { when: new Date(s.lastSync).toLocaleString(settings.locale) }) : t('sync.never')} · {s.serverUrl}</p>
-            <div className="stack" style={{ gap: 8 }}>
-              <span className="small faint">{t('signin.linkedTitle')}</span>
-              <SignInOptions serverUrl={s.serverUrl} token={s.token} onLinked={(linked) => { if (JSON.stringify(linked) !== JSON.stringify(settings.sync?.linked)) updateSettings({ sync: { ...s, linked } }); }} />
-            </div>
-            <button className="btn primary" onClick={run}><Icon name="sync" size={16} /> {t('sync.now')}</button>
-            <div className="row wrap">
-              <button className="btn ghost small" onClick={() => updateSettings({ sync: null, social: null })}>{t('sync.disconnect')}</button>
-              <button className="btn ghost small" onClick={async () => { if (confirm(t('sync.deleteServerConfirm'))) { try { await deleteServerData(s.serverUrl, s.token); updateSettings({ social: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(t('sync.error', { msg: (e as Error).message })); } } }}>{t('sync.deleteServer')}</button>
-            </div>
-          </div>
-        )}
-        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        <div className="list-row">
+          <span className="row" style={{ gap: 10 }}><Icon name="lock" size={17} /> <span className="lbl">{via ?? t('account.signedIn')}</span></span>
+          {custom && <span className="small faint" style={{ wordBreak: 'break-all', textAlign: 'right' }}>{acc.serverUrl}</span>}
+        </div>
+        <div className="list-pad stack" style={{ gap: 8 }}>
+          <span className="small faint">{linked && !linked.apple && !linked.email ? t('account.linkFirst') : t('signin.linkedTitle')}</span>
+          <SignInOptions serverUrl={acc.serverUrl} token={acc.token} onLinked={setLinked} />
+        </div>
+        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} disabled={busy} onClick={() => { if (confirm(t('account.signOutConfirm'))) void run(signOut); }}>
+          <span className="lbl">{t('account.signOut')}</span><Icon name="logout" size={17} />
+        </button>
+        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} disabled={busy} onClick={() => { if (confirm(t('account.deleteConfirm'))) void run(deleteAccount); }}>
+          <span className="lbl">{t('account.delete')}</span><Icon name="trash" size={17} />
+        </button>
+        {msg && <p className="list-pad small" role="alert" style={{ margin: 0 }}>{msg}</p>}
       </div>
     </section>
   );
 }
 
 function DataSection() {
-  const { t, events, resetAll, replaceAllEvents } = useApp();
+  const { t, events, replaceAllEvents } = useApp();
   const file = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const exportData = () => {
@@ -410,10 +334,7 @@ function DataSection() {
       <div className="list">
         <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={exportData}><span className="lbl">{t('settings.export')}</span><Icon name="download" size={17} /></button>
         <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={() => file.current?.click()}><span className="lbl">{t('settings.import')}</span><Icon name="upload" size={17} /></button>
-        <input ref={file} type="file" accept="application/json" hidden onChange={(e) => e.target.files?.[0] && importData(e.target.files[0])} />
-        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} onClick={async () => { if (confirm(t('settings.deleteConfirm'))) { await resetAll(); setMsg(t('settings.deleted')); } }}>
-          <span className="lbl">{t('settings.delete')}</span><Icon name="trash" size={17} />
-        </button>
+        <input ref={file} type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void importData(f); }} />
         {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
       </div>
     </section>

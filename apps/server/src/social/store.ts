@@ -254,7 +254,8 @@ export function socialStore(path = ':memory:') {
     deleteReaction: q('DELETE FROM social_reactions WHERE item_id = ? AND account = ?'),
     insertNotice: q('INSERT OR IGNORE INTO social_notices (to_account, from_account, kind, dedupe, data, day, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'),
     notices: q('SELECT * FROM social_notices WHERE to_account = ? ORDER BY id DESC LIMIT ?'),
-    unseenNotices: q<{ n: number }>('SELECT COUNT(*) AS n FROM social_notices WHERE to_account = ? AND seen = 0'),
+    // Friend requests are counted separately (pending requests), so they don't count twice.
+    unseenNotices: q<{ n: number }>("SELECT COUNT(*) AS n FROM social_notices WHERE to_account = ? AND seen = 0 AND kind <> 'friend_request'"),
     markSeen: q('UPDATE social_notices SET seen = 1 WHERE to_account = ?'),
     insertReport: q('INSERT INTO social_reports (reporter, target, reason, item_id, created_at) VALUES (?, ?, ?, ?, ?)'),
     reportsToday: q<{ n: number }>('SELECT COUNT(*) AS n FROM social_reports WHERE reporter = ? AND created_at > ?'),

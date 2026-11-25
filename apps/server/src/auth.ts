@@ -23,6 +23,8 @@ export interface AuthStore {
   unlink(provider: Provider, account: string): { refreshToken: string | null } | null;
   /** Removes device codes and all links; returns the Apple link (for revoking it). */
   deleteAccount(account: string): { refreshToken: string | null } | null;
+  /** A code of a deleted account: other devices still holding it get signed out. */
+  isDeleted(tokenHash: string): boolean;
   /** One-time email codes: stored as hashes, 10 minutes, 5 tries. */
   putEmailCode(idHash: string, codeHash: string, expires: number): void;
   checkEmailCode(idHash: string, codeHash: string, now: number): 'ok' | 'wrong' | 'expired' | 'locked';
@@ -39,6 +41,7 @@ export function authStore(path = ':memory:'): AuthStore {
       PRIMARY KEY (provider, id_hash), UNIQUE (provider, account));
     CREATE TABLE IF NOT EXISTS email_codes (id_hash TEXT NOT NULL, code_hash TEXT NOT NULL, expires INTEGER NOT NULL, tries INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL);
     CREATE INDEX IF NOT EXISTS email_codes_id ON email_codes (id_hash, created_at);
+    CREATE TABLE IF NOT EXISTS deleted_tokens (token_hash TEXT PRIMARY KEY, deleted_at INTEGER NOT NULL);
   `);
   const q = {
     token: db.prepare('SELECT account FROM auth_tokens WHERE token_hash = ?'),
@@ -49,6 +52,9 @@ export function authStore(path = ':memory:'): AuthStore {
     unlink: db.prepare('DELETE FROM auth_links WHERE provider = ? AND account = ?'),
     unlinkAll: db.prepare('DELETE FROM auth_links WHERE account = ?'),
     delTokens: db.prepare('DELETE FROM auth_tokens WHERE account = ?'),
+    tokensOf: db.prepare('SELECT token_hash FROM auth_tokens WHERE account = ?'),
+    tombstone: db.prepare('INSERT OR IGNORE INTO deleted_tokens (token_hash, deleted_at) VALUES (?, ?)'),
+    isDeleted: db.prepare('SELECT 1 AS x FROM deleted_tokens WHERE token_hash = ?'),
     putCode: db.prepare('INSERT INTO email_codes (id_hash, code_hash, expires, created_at) VALUES (?, ?, ?, ?)'),
     lastCode: db.prepare('SELECT rowid, code_hash, expires, tries FROM email_codes WHERE id_hash = ? ORDER BY created_at DESC, rowid DESC LIMIT 1'),
     tryCode: db.prepare('UPDATE email_codes SET tries = tries + 1 WHERE rowid = ?'),
@@ -72,10 +78,14 @@ export function authStore(path = ':memory:'): AuthStore {
     },
     deleteAccount(account) {
       const apple = linkOf('apple', account);
+      const now = Date.now();
+      for (const r of q.tokensOf.all(account) as { token_hash: string }[]) q.tombstone.run(r.token_hash, now);
+      q.tombstone.run(account, now);
       q.unlinkAll.run(account);
       q.delTokens.run(account);
       return apple ? { refreshToken: apple.refreshToken } : null;
     },
+    isDeleted: (h) => !!q.isDeleted.get(h),
     putEmailCode: (idHash, codeHash, expires) => void q.putCode.run(idHash, codeHash, expires, Date.now()),
     checkEmailCode(idHash, codeHash, now) {
       const r = q.lastCode.get(idHash) as { rowid: number; code_hash: string; expires: number; tries: number } | undefined;

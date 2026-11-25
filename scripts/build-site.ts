@@ -72,14 +72,14 @@ const t = {
     luxK: 'Meet Lux', luxH: 'A tutor that asks before it tells', luxP: 'Lux is in every lesson. Stuck? Lux gives a hint. Wrong? Lux first asks how you got your answer and builds on your reasoning. A built-in guard makes sure Lux never just gives the solution away.',
     luxList: [['Hints, examples and “explain it simpler”', ' on every screen'], ['Mistakes review', ' at the end of every lesson'], ['Explain it to Lux', ' – teaching is the best way to learn']],
     chat: [['me', 'I filled 3 parts. Isn’t that 75 %?'], ['lux', 'Good start! The bar has 8 parts. How many percent is one part worth?'], ['me', 'Oh – 12.5 %. So I need 6!'], ['lux', 'Exactly. 6 × 12.5 % = 75 %. ✨']],
-    openK: 'Open & private', openH: 'Yours to use, yours to keep', openP: 'Lumen is built in the open. No account, no tracking – your progress lives on your device.',
+    openK: 'Open & private', openH: 'Yours to use, yours to keep', openP: 'Lumen is built in the open. No ads, no tracking – one quick sign-in with Apple or your email keeps your progress safe on every device.',
     pillars: [
       ['Free forever', 'No subscription, no paywall, no ads. Every course is free.', '<path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7Zm0 0h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7Z"/>'],
       ['Private by design', 'Progress stays in your browser. Optional sync uses a random code – no email, no profile.', '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'],
       ['Open source', 'Code under MIT and AGPL, content under CC BY-SA 4.0. Contributions welcome.', '<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="8" r="2.5"/><path d="M6 8.5v7M18 10.5c0 4-6 3-11 6"/>'],
       ['Self-host it', 'Run Lumen for your team, club or school with one Docker command. Works offline as an installable app.', '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/>'],
     ],
-    finalH: 'Ready to light it up?', finalP: 'Open Lumen in your browser and start your first lesson in seconds – no sign-up, no download. Five minutes today is a great start.',
+    finalH: 'Ready to light it up?', finalP: 'Open Lumen in your browser, sign in with your email and start your first lesson in a minute – no password, no download. Five minutes today is a great start.',
     audK: 'For you', audH: 'Made for every age', audP: 'No grades, no pressure, no age limit. Lumen meets you where you are – and grows with you.',
     aud: [
       ['Curious minds', 'Finally understand how batteries, vaccines, the internet or ChatGPT actually work – in a coffee break.', '<path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2Z"/>'],
@@ -116,14 +116,14 @@ const t = {
     luxK: 'Das ist Lux', luxH: 'Ein Tutor, der erst fragt und dann erklärt', luxP: 'Lux ist in jeder Lektion dabei. Du hängst fest? Lux gibt einen Tipp. Falsch? Lux fragt zuerst, wie du auf deine Antwort gekommen bist, und baut auf deinem Gedanken auf. Ein eingebauter Schutz sorgt dafür, dass Lux nie einfach die Lösung verrät.',
     luxList: [['Tipps, Beispiele und „einfacher erklären“', ' auf jedem Bildschirm'], ['Fehler-Rückblick', ' am Ende jeder Lektion'], ['Erklär’s Lux', ' – wer erklärt, versteht']],
     chat: [['me', 'Ich habe 3 Teile gefüllt. Sind das nicht 75 %?'], ['lux', 'Guter Anfang! Der Balken hat 8 Teile. Wie viel Prozent ist ein Teil wert?'], ['me', 'Ah – 12,5 %. Also brauche ich 6!'], ['lux', 'Genau. 6 × 12,5 % = 75 %. ✨']],
-    openK: 'Offen & privat', openH: 'Für dich, ohne Haken', openP: 'Lumen wird offen entwickelt. Kein Konto, kein Tracking – dein Fortschritt bleibt auf deinem Gerät.',
+    openK: 'Offen & privat', openH: 'Für dich, ohne Haken', openP: 'Lumen wird offen entwickelt. Keine Werbung, kein Tracking – eine kurze Anmeldung mit Apple oder deiner E-Mail sichert deinen Fortschritt auf jedem Gerät.',
     pillars: [
       ['Für immer kostenlos', 'Kein Abo, keine Paywall, keine Werbung. Jeder Kurs ist frei.', ''],
       ['Datenschutz eingebaut', 'Der Fortschritt bleibt im Browser. Der optionale Sync nutzt einen Zufallscode – keine E-Mail, kein Profil.', ''],
       ['Open Source', 'Code unter MIT und AGPL, Inhalte unter CC BY-SA 4.0. Beiträge sind willkommen.', ''],
       ['Selbst hosten', 'Betreibe Lumen für dein Team, deinen Verein oder deine Schule mit einem Docker-Befehl. Läuft offline als installierbare App.', ''],
     ],
-    finalH: 'Bereit, Licht ins Dunkel zu bringen?', finalP: 'Öffne Lumen im Browser und starte deine erste Lektion in Sekunden – ohne Anmeldung, ohne Download. Fünf Minuten heute sind ein guter Anfang.',
+    finalH: 'Bereit, Licht ins Dunkel zu bringen?', finalP: 'Öffne Lumen im Browser, melde dich mit deiner E-Mail an und starte in einer Minute deine erste Lektion – ohne Passwort, ohne Download. Fünf Minuten heute sind ein guter Anfang.',
     audK: 'Für dich', audH: 'Gemacht für jedes Alter', audP: 'Keine Noten, kein Druck, keine Altersgrenze. Lumen holt dich dort ab, wo du stehst – und wächst mit dir.',
     aud: [
       ['Neugierige', 'Endlich verstehen, wie Akkus, Impfstoffe, das Internet oder ChatGPT wirklich funktionieren – in der Kaffeepause.', ''],

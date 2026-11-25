@@ -277,7 +277,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
 
   const exit = () => {
     if (!done && index > 0 && !confirm(t('player.leave'))) return;
-    navigate(mode.kind === 'placement' ? 'onboarding' : '');
+    navigate(mode.kind === 'placement' ? 'onboarding/placement' : '');
   };
 
   if (error) return <div className="complete"><div className="complete-inner"><p role="alert">{error}</p><button className="btn primary" onClick={() => navigate('')}>{t('complete.home')}</button></div></div>;
@@ -629,6 +629,18 @@ function ProblemView({
     const id = setTimeout(() => setAnim(''), 600);
     return () => clearTimeout(id);
   }, [anim]);
+
+  // End-to-end test builds only (VITE_LUMEN_E2E=1, stripped elsewhere): fill in the reference solution.
+  useEffect(() => {
+    if (import.meta.env.VITE_LUMEN_E2E !== '1' || !rp) return;
+    const w = window as { __lumenSolve?: () => boolean };
+    w.__lumenSolve = () => {
+      const sol = referenceSolve(rp);
+      if (sol) setState(sol.state);
+      return !!sol;
+    };
+    return () => { delete w.__lumenSolve; };
+  }, [rp]);
 
   if (!rp) return <main className="lesson-stage"><p role="alert">Diese Aufgabe konnte nicht geladen werden ({item.step.id}).</p></main>;
   const View = VIEWS[rp.widget.kind];

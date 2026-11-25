@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { addDays, buildReviewSession, dueItems, sessionSize, weekKey, type Catalog, type ProgressSummary, type Topic } from '@lumen/engine';
+import { addDays, buildReviewSession, dueItems, sessionSize, weekKey, type Catalog, type LumenEvent, type ProgressSummary, type Topic } from '@lumen/engine';
 import { Cover, topicVars } from '../components/art.tsx';
 import { Icon, Ring } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
@@ -69,6 +69,14 @@ export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSu
 }
 
 const conceptsOf = (tp: Topic) => tp.units.flatMap((u) => u.concepts);
+
+/** No path chosen on this device (e.g. after signing in): the path of the latest lesson, else math. */
+export function defaultPathId(catalog: Catalog, events: readonly LumenEvent[]): string {
+  let last: string | null = null;
+  for (const e of events) if (e.type === 'concept_completed') last = e.topicId;
+  const byTopic = last ? catalog.paths.find((p) => p.topics.includes(last)) : undefined;
+  return (byTopic ?? catalog.paths.find((p) => p.area === 'math') ?? catalog.paths[0]).id;
+}
 
 function greeting(locale: string): string {
   const h = new Date().getHours();
@@ -168,7 +176,7 @@ export function Home() {
   const [picker, setPicker] = useState(false);
   if (!lib) return null;
   const catalog = lib.catalog;
-  const pathId = settings.pathId ?? catalog.paths[0]?.id;
+  const pathId = settings.pathId ?? defaultPathId(catalog, events);
   const path = catalog.paths.find((p) => p.id === pathId) ?? catalog.paths[0];
   const reviewedUnits = new Set(events.flatMap((e) => (e.type === 'review_session_completed' && e.unitId ? [e.unitId] : [])));
   const { units, next } = buildPath(catalog, pathId, progress, settings.startAt, reviewedUnits);

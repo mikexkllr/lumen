@@ -1,8 +1,8 @@
 /**
- * Base URL of the Lumen server (sync, Lux tutor, social). The build sets the
+ * Base URL of the Lumen server (accounts, Lux tutor, social). The build sets the
  * default – same origin `/api` for the website, the operator's server
- * (VITE_LUMEN_API_URL, absolute https) for the store apps. Learners can point
- * the app to another Lumen server in the profile; that override wins.
+ * (VITE_LUMEN_API_URL, absolute https) for the store apps. Before signing in,
+ * learners can point the app to another Lumen server; that override wins.
  */
 const env = import.meta.env as Record<string, string | undefined>;
 
@@ -42,11 +42,6 @@ export function onServerChange(f: () => void): () => void {
 /** The server the app talks to right now. */
 export function apiBase(): string {
   return override ?? API_BASE;
-}
-
-/** Default sync server shown in the profile. */
-export function defaultSyncUrl(): string {
-  return override ?? (env.VITE_LUMEN_SYNC_URL || API_BASE).replace(/\/$/, '');
 }
 
 export const apiUrl = (base: string, path: string) => `${base.replace(/\/$/, '')}${path}`;

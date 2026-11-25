@@ -10,10 +10,13 @@ keine Rechtsberatung – siehe [Abschnitt 9](#9-was-anwaltlich-geprüft-werden-m
 
 | Daten | Wann | Wohin | Verknüpft mit |
 |---|---|---|---|
-| Lernfortschritt, Einstellungen | immer | nur lokal auf dem Gerät (WebView-Speicher) | – |
-| Lernereignisse (Versuche, XP, Tage, Zeitstempel) | nur mit Sync oder Social (optional) | Lumen-Server | zufälliger Sync-Code (gespeichert als SHA-256), keine E-Mail, keine Geräte-ID |
-| Anzeigename, Handle, Avatar (vorgegebene Auswahl) | nur mit Social (optional, ab 16) | Lumen-Server | zufällige Nutzer-ID |
-| Freundschaften, Reaktionen (feste Emoji-Auswahl), Meldungen, Blockierungen | nur mit Social | Lumen-Server | zufällige Nutzer-ID |
+| Einstellungen | immer | nur lokal auf dem Gerät (WebView-Speicher) | – |
+| Lernereignisse (Versuche, XP, Tage, Zeitstempel) | immer (die App startet mit der Anmeldung) | lokal und im Konto auf dem Lumen-Server | zufälliger Geräteschlüssel (gespeichert als SHA-256), keine Geräte-ID |
+| E-Mail-Adresse | bei Anmeldung per E-Mail-Code | Lumen-Server → Mailserver (Code-Versand); gespeichert nur als HMAC-Prüfwert | Konto |
+| Apple-Kennung (`sub`) | bei „Mit Apple anmelden“ | Lumen-Server, gespeichert als Hashwert | Konto |
+| Anzeigename, Handle, Avatar (vorgegebene Auswahl) | ab 16, beim Einrichten (überspringbar) | Lumen-Server | zufällige Nutzer-ID |
+| Freundschaften, Reaktionen (feste Emoji-Auswahl), Meldungen, Blockierungen | Community (ab 16) | Lumen-Server | zufällige Nutzer-ID |
+| Fehlerberichte (Meldung, Stacktrace, App-Version, Gerätetyp, letzte Schritte) | bei technischen Fehlern | Sentry (EU-Region Frankfurt), Projekte `lumen-app` und `lumen-server` | nicht verknüpft: kein Nutzer, keine IP (in Sentry abgeschaltet), keine Request-Daten; E-Mails und Codes werden vorher entfernt |
 | Aufgabe, Antwort, Chat-Nachrichten an Lux | nur wenn das Sprachmodell an ist (abschaltbar, unter 16 nie) | Lumen-Server → Modellanbieter; der Lumen-Server speichert sie nicht | nicht mit dem Konto verknüpft (keine Kennung in der Anfrage) |
 | Aufgabe, Antwort, Chat-Nachrichten an Lux mit **eigenem Schlüssel** (optional) | nur wenn Nutzer:innen selbst einen API-Schlüssel hinterlegen | direkt vom Gerät zum selbst gewählten Anbieter; der Schlüssel bleibt auf dem Gerät | nicht mit dem Konto verknüpft |
 | IP-Adresse | jede Server-Anfrage | Lumen-Server: im Arbeitsspeicher für das Rate-Limit, bei Serverfehlern im Fehlerlog (rotiert); keine Zugriffslogs | – |
@@ -24,8 +27,9 @@ Review-Notizen erwähnen: Standard ist dein Server, eigener Server und eigener K
 sind optionale Einstellungen für Fortgeschrittene. Für Apple 5.1.2(i) gilt die Einrichtung
 des eigenen Schlüssels als Einwilligung (der Hinweis nennt Anbieter und gesendete Daten).
 
-Keine Werbung, kein Tracking, keine Analytics-, Crash- oder Werbe-SDKs, keine
-Drittanbieter-Logins, keine Käufe. Lokale Benachrichtigungen (falls aktiviert) werden auf
+Keine Werbung, kein Tracking, keine Analytics- oder Werbe-SDKs, keine Käufe. Einziges
+Fremd-SDK ist Sentry für Fehlerberichte (nur Fehler, kein Tracing, kein Session-Replay).
+Anmeldung nur mit Apple (Pflicht neben anderen Logins, Richtlinie 4.8) oder E-Mail-Code. Lokale Benachrichtigungen (falls aktiviert) werden auf
 dem Gerät geplant, ohne Push-Dienst. Löschung: **Profil → Serverdaten löschen** entfernt
 Lernereignisse und Social-Profil auf dem Server; lokal lässt sich alles in den
 Einstellungen zurücksetzen.
@@ -88,8 +92,12 @@ Einstellungen zurücksetzen.
 |---|---|
 | Kontaktinformationen → Name | Anzeigename (Social, optional, kann ein echter Name sein) |
 | Kennungen → Nutzer-ID | zufällige Konto-/Nutzer-ID, Handle |
-| Nutzungsdaten → Produktinteraktion | Lernereignisse (Sync/Social) |
+| Kontaktinformationen → E-Mail-Adresse | Anmeldung per Code (nur Hashwert gespeichert) |
+| Nutzungsdaten → Produktinteraktion | Lernereignisse (im Konto gesichert) |
 | Nutzerinhalte → Andere Nutzerinhalte | Social-Interaktionen, Meldungen; Lux-Nachrichten |
+
+Zusätzlich **Diagnose → Absturzdaten** (Sentry): Zweck App-Funktionalität, **nicht** mit der
+Identität verknüpft, nicht für Tracking.
 
 Lux-Nachrichten sind nicht mit dem Konto verknüpft; sie werden vorsichtshalber unter
 „Andere Nutzerinhalte“ mitgeführt, weil der Modellanbieter sie je nach Einstellung
@@ -176,8 +184,9 @@ Splash bleibt stehen, bis die Inhalte geladen sind (`apps/web/src/lib/splash.ts`
 
 ### Anmeldung (Apple und E-Mail)
 
-Seit 1.0.0 lässt sich das Sync-Konto mit „Mit Apple anmelden“ (nur iOS-App) und mit einem
-6-stelligen E-Mail-Code verknüpfen (überall, auch Web und Android ohne Google-Dienste).
+Seit 1.0.0 startet die App mit der Anmeldung: „Mit Apple anmelden“ (nur iOS-App) oder ein
+6-stelliger E-Mail-Code (überall, auch Web und Android ohne Google-Dienste). Sync-Codes gibt
+es in der Oberfläche nicht mehr; ältere Codes funktionieren als Konto weiter.
 Der Server speichert nur Hashwerte (Apple-Kennung, E-Mail mit `LUMEN_EMAIL_PEPPER`), keine
 Adresse, keinen Namen. Für die öffentliche Instanz:
 
@@ -217,7 +226,7 @@ Adresse, keinen Namen. Für die öffentliche Instanz:
 |---|---|
 | Personenbezogene Daten → Name | Anzeigename (Social) |
 | Personenbezogene Daten → Nutzer-IDs | zufällige Nutzer-ID, Handle |
-| App-Aktivitäten → App-Interaktionen | Lernereignisse (Sync/Social) |
+| App-Aktivitäten → App-Interaktionen | Lernereignisse (im Konto gesichert) |
 | App-Aktivitäten → Sonstige nutzergenerierte Inhalte | Social-Interaktionen, Meldungen, Lux-Nachrichten |
 
 Lux-Nachrichten nur dann als „flüchtig verarbeitet“ angeben, wenn der gewählte

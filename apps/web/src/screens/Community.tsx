@@ -1,21 +1,18 @@
 /**
  * Community: weekly league, friends with friend streaks, and a feed of
- * milestones – all optional, 16+, and backed by the Lumen server.
+ * milestones – 16+, backed by the Lumen server, set up with the account.
  */
-import { useEffect, useMemo, useState } from 'react';
-import { dayKey } from '@lumen/engine';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, errorText, relTime, Sheet, TierBadge, tierName } from '../components/social.tsx';
 import { Icon, Switch } from '../components/ui.tsx';
-import { defaultSyncUrl } from '../lib/api.ts';
 import { href, navigate } from '../lib/router.ts';
 import { isKid } from '../lib/settings.ts';
 import {
-  AVATAR_COLORS, AVATAR_ICONS, daysLeft, inviteLink, randomAvatar, REACTIONS, reactionEmoji, REPORT_REASONS, serverHasSocial, social, suggestHandle, TIERS, useQuery,
+  AVATAR_COLORS, AVATAR_ICONS, createProfile, daysLeft, inviteLink, REACTIONS, reactionEmoji, REPORT_REASONS, serverHasSocial, social, TIERS, useQuery,
   type FeedItem, type Friend, type FriendsResponse, type LeagueResponse, type Notice, type PublicUser, type SocialConn, type Tier, type UserSummary,
 } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { useApp } from '../lib/store.tsx';
-import { generateSyncCode, syncNow } from '../lib/sync.ts';
 import { ACHIEVEMENTS } from '@lumen/engine';
 import type { TKey } from '../lib/i18n.ts';
 
@@ -26,7 +23,7 @@ export function Community({ section }: { section?: string }) {
   const { active, me } = useSocial();
   const sec: Section = section === 'friends' || section === 'feed' ? section : 'league';
   if (isKid(settings)) return <KidsNotice />;
-  if (!active) return <SocialIntro />;
+  if (!active) return <JoinCommunity />;
   const badge = me.data ? me.data.unseen + me.data.requests : 0;
   return (
     <main id="main" className="fade-in">
@@ -59,8 +56,33 @@ function KidsNotice() {
   );
 }
 
-function SocialIntro() {
-  const { t } = useApp();
+/**
+ * No community profile yet (skipped in onboarding, deleted, or an account from before sign-in
+ * was the way in): one name and the community is on – the account already exists.
+ */
+function JoinCommunity() {
+  const { t, settings, updateSettings, online } = useApp();
+  const { conn, me } = useSocial();
+  const [name, setName] = useState(settings.communityName ?? '');
+  const [age, setAge] = useState(settings.age === '16+');
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const ok = name.trim().length >= 2 && age && !!conn && online && !busy;
+  const join = async () => {
+    if (!conn) return;
+    setBusy(true);
+    setMsg(null);
+    try {
+      if (!(await serverHasSocial(conn.serverUrl))) throw new Error(t('social.noServer'));
+      const p = await createProfile(conn, name);
+      updateSettings({ social: { userId: p.id, handle: p.handle }, communityName: name.trim(), age: '16+' });
+      me.reload();
+    } catch (e) {
+      setMsg(errorText(t, e));
+    } finally {
+      setBusy(false);
+    }
+  };
   return (
     <main id="main" className="fade-in">
       <header className="page-head"><h1 className="display" style={{ fontSize: '1.875rem' }}>{t('social.introTitle')}</h1><p className="muted">{t('social.intro')}</p></header>
@@ -69,26 +91,33 @@ function SocialIntro() {
         <li><span className="si"><Icon name="flame" size={18} /></span>{t('social.point.friends')}</li>
         <li><span className="si"><Icon name="users" size={18} /></span>{t('social.point.feed')}</li>
       </ul>
-      <p className="small faint">{t('social.privacy')}</p>
-      <button className="btn primary lg" onClick={() => navigate('community/setup')}>{t('social.start')} <Icon name="arrow" size={18} className="arrow" /></button>
+      {!online && <p className="small card amber" role="status">{t('social.offline')}</p>}
+      {me.loading && !me.error ? <p className="small faint">{t('loading')}</p> : (
+        <form className="stack" onSubmit={(e) => { e.preventDefault(); if (ok) void join(); }}>
+          <div className="field">
+            <label htmlFor="sc-name">{t('social.setup.name')}</label>
+            <input id="sc-name" className="input" maxLength={30} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          {settings.age !== '16+' && <label className="row small"><input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} /> {t('social.setup.age')}</label>}
+          <p className="small faint" style={{ margin: 0 }}>{t('social.privacy')}</p>
+          {msg && <p className="small" role="alert" style={{ margin: 0 }}>{msg}</p>}
+          <button className="btn primary lg" type="submit" disabled={!ok}>{busy ? t('loading') : t('social.join')} <Icon name="arrow" size={18} className="arrow" /></button>
+        </form>
+      )}
     </main>
   );
 }
 
-// ---------------------------------------------------------------- setup
+// ---------------------------------------------------------------- edit profile
 
-export function SocialSetup({ edit = false }: { edit?: boolean }) {
-  const app = useApp();
-  const { t, settings, updateSettings, reloadEvents } = app;
-  const { conn, me } = useSocial();
-  const current = edit ? me.data?.profile : undefined;
+export function ProfileEdit() {
+  const { t, settings, updateSettings } = useApp();
+  const { conn, me, active } = useSocial();
+  const current = me.data?.profile;
   const [name, setName] = useState(current?.name ?? '');
   const [handle, setHandle] = useState(current?.handle ?? '');
-  const [handleTouched, setHandleTouched] = useState(!!current);
-  const [avatar, setAvatar] = useState(current?.avatar ?? randomAvatar());
+  const [avatar, setAvatar] = useState(current?.avatar ?? 'c0-i0');
   const [leagues, setLeagues] = useState(current?.leagues ?? true);
-  const [age, setAge] = useState(settings.age === '16+');
-  const [terms, setTerms] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   useEffect(() => {
@@ -100,29 +129,20 @@ export function SocialSetup({ edit = false }: { edit?: boolean }) {
     }
   }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (isKid(settings)) return <KidsNotice />;
+  if (!active) return <JoinCommunity />;
+  if (!current) return <main id="main"><p className="small faint">{t('loading')}</p></main>;
   const [ci, ii] = (/^c(\d+)-i(\d+)$/.exec(avatar) ?? ['', '0', '0']).slice(1).map(Number);
-  const creating = !edit || !current;
-  const canSave = name.trim().length > 0 && /^[a-z0-9_]{3,20}$/.test(handle) && (!creating || (age && terms)) && !busy;
+  const canSave = name.trim().length > 0 && /^[a-z0-9_]{3,20}$/.test(handle) && !busy;
 
   const save = async () => {
+    if (!conn) return;
     setBusy(true);
     setMsg(null);
     try {
-      let c: SocialConn | null = conn;
-      let sync = settings.sync;
-      if (!c || !sync) {
-        sync = { serverUrl: defaultSyncUrl(), token: generateSyncCode(), lastSync: null, cursor: 0, consent: true };
-        c = { serverUrl: sync.serverUrl, token: sync.token };
-      }
-      if (!(await serverHasSocial(c.serverUrl))) throw new Error(t('social.noServer'));
-      // Upload the learning history first so streak and XP are right from the start.
-      const r = await syncNow(c.serverUrl, c.token, sync.cursor, dayKey(new Date()));
-      const out = await social.saveProfile(c, { handle, name: name.trim(), avatar, leagues, ageConfirmed: creating ? age : undefined });
-      updateSettings({ sync: { ...sync, lastSync: Date.now(), cursor: r.cursor }, social: { userId: out.profile.id, handle: out.profile.handle }, ...(creating && settings.age === null ? { age: '16+' as const } : {}) });
-      await reloadEvents();
+      const out = await social.saveProfile(conn, { handle, name: name.trim(), avatar, leagues });
+      updateSettings({ social: { userId: out.profile.id, handle: out.profile.handle }, communityName: name.trim() });
       me.reload();
-      if (edit) setMsg(t('social.setup.saved'));
-      else navigate('community/league', true);
+      setMsg(t('social.setup.saved'));
     } catch (e) {
       setMsg(errorText(t, e));
     } finally {
@@ -132,43 +152,37 @@ export function SocialSetup({ edit = false }: { edit?: boolean }) {
 
   return (
     <main id="main" className="fade-in">
+      <button className="btn quiet small" onClick={() => history.back()} style={{ marginBottom: 8 }}><Icon name="back" size={16} /> {t('onb.back')}</button>
       <header className="page-head row" style={{ gap: 14 }}>
         <Avatar avatar={avatar} size={56} />
         <div>
           <h1 className="display" style={{ fontSize: '1.625rem' }}>{t('social.setup.title')}</h1>
-          {!conn && <p className="small faint">{t('social.needsSync')}</p>}
         </div>
       </header>
       <form className="stack" onSubmit={(e) => { e.preventDefault(); if (canSave) void save(); }}>
         <div className="field">
           <label htmlFor="sc-name">{t('social.setup.name')}</label>
-          <input id="sc-name" className="input" maxLength={30} autoComplete="nickname" value={name} onChange={(e) => { setName(e.target.value); if (!handleTouched) setHandle(e.target.value ? suggestHandle(e.target.value) : ''); }} />
+          <input id="sc-name" className="input" maxLength={30} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="field">
           <label htmlFor="sc-handle">{t('social.setup.handle')}</label>
-          <div className="sc-handle"><span aria-hidden="true">@</span><input id="sc-handle" className="input" maxLength={20} autoCapitalize="none" autoComplete="username" spellCheck={false} value={handle} onChange={(e) => { setHandleTouched(true); setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '')); }} /></div>
+          <div className="sc-handle"><span aria-hidden="true">@</span><input id="sc-handle" className="input" maxLength={20} autoCapitalize="none" autoComplete="username" spellCheck={false} value={handle} onChange={(e) => setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))} /></div>
           <span className="small faint">{t('social.setup.handleHint')}</span>
         </div>
         <fieldset className="field" style={{ border: 0, padding: 0, margin: 0 }}>
           <legend style={{ marginBottom: 8 }}>{t('social.setup.avatar')}</legend>
-          <div className="sc-swatches" role="radiogroup" aria-label={t('social.setup.avatar')}>
-            {AVATAR_COLORS.map((c, i) => <button key={c} type="button" role="radio" aria-checked={i === ci} aria-label={`${i + 1}`} className="sc-swatch" style={{ background: c }} onClick={() => setAvatar(`c${i}-i${ii}`)} />)}
+          <div className="sc-swatches" role="radiogroup" aria-label={t('social.setup.avatarColor')}>
+            {AVATAR_COLORS.map((c, i) => <button key={c} type="button" role="radio" aria-checked={i === ci} aria-label={`${t('social.setup.avatarColor')} ${i + 1}`} className="sc-swatch" style={{ background: c }} onClick={() => setAvatar(`c${i}-i${ii}`)} />)}
           </div>
-          <div className="sc-glyphs" role="radiogroup" aria-label={t('social.setup.avatar')}>
+          <div className="sc-glyphs" role="radiogroup" aria-label={t('social.setup.avatarIcon')}>
             {AVATAR_ICONS.map((g, i) => <button key={g} type="button" role="radio" aria-checked={i === ii} aria-label={g} onClick={() => setAvatar(`c${ci}-i${i}`)}><Avatar avatar={`c${ci}-i${i}`} size={40} /></button>)}
           </div>
         </fieldset>
         <div className="list">
           <Switch label={t('social.setup.leagues')} hint={t('social.setup.leaguesHint')} checked={leagues} onChange={setLeagues} />
         </div>
-        {creating && (
-          <div className="stack" style={{ gap: 8 }}>
-            <label className="row small"><input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} /> {t('social.setup.age')}</label>
-            <label className="row small"><input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} /> <span>{t('social.setup.terms')} <a href={href('legal/terms')}>{t('legal.terms')}</a> · <a href={href('legal/privacy')}>{t('legal.privacy')}</a></span></label>
-          </div>
-        )}
         {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
-        <button className="btn primary lg" type="submit" disabled={!canSave}>{busy ? t('loading') : creating ? t('social.setup.create') : t('social.setup.save')}</button>
+        <button className="btn primary lg" type="submit" disabled={!canSave}>{busy ? t('loading') : t('social.setup.save')}</button>
       </form>
     </main>
   );
@@ -186,10 +200,20 @@ function LeagueView() {
   const tier = (d?.tier ?? me.data?.profile.tier ?? 'spark') as Tier;
   const ti = TIERS.indexOf(tier);
   const left = daysLeft();
+  const row = useRef<HTMLDivElement>(null);
+  // On narrow screens the row scrolls: keep the current tier in view.
+  useEffect(() => {
+    const r = row.current;
+    const el = r?.children[ti] as HTMLElement | undefined;
+    if (!r || !el) return;
+    const a = r.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    r.scrollLeft += b.left - a.left - a.width / 2 + b.width / 2;
+  }, [ti]);
   return (
     <section aria-labelledby="league-h">
-      <div className="tier-row" aria-hidden="true">
-        {TIERS.map((x, i) => <TierBadge key={x} tier={x} size={i === ti ? 52 : 34} locked={i > ti} current={i === ti} />)}
+      <div className="tier-row" aria-hidden="true" ref={row}>
+        {TIERS.map((x, i) => <TierBadge key={x} tier={x} size={i === ti ? 52 : 30} locked={i > ti} current={i === ti} />)}
       </div>
       <div className="league-head">
         <h2 id="league-h">{t('league.title', { tier: tierName(t, tier) })}</h2>
@@ -541,7 +565,7 @@ export function UserScreen({ refId }: { refId: string }) {
   if (!active) {
     return (
       <main id="main" className="fade-in">
-        <div className="card stack"><p style={{ margin: 0 }}>{t('user.setupFirst')}</p><a className="btn primary" href={href('community/setup')}>{t('social.start')}</a></div>
+        <div className="card stack"><p style={{ margin: 0 }}>{t('user.setupFirst')}</p><a className="btn primary" href={href('community')}>{t('social.join')}</a></div>
       </main>
     );
   }

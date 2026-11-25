@@ -1,7 +1,7 @@
 /**
- * Client for the optional social features (friends, friend streaks, leagues,
- * feed). They live on the Lumen server and use the sync code as the only
- * credential; the server derives all stats from the synced learning events.
+ * Client for the social features (friends, friend streaks, leagues, feed). They
+ * live on the Lumen server and use the account's device code as the only
+ * credential; the server derives all stats from the backed-up learning events.
  */
 import { dayKey } from '@lumen/engine';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -142,7 +142,7 @@ export interface SocialConn {
   token: string;
 }
 
-export const connOf = (s: Settings): SocialConn | null => (s.sync ? { serverUrl: s.sync.serverUrl, token: s.sync.token } : null);
+export const connOf = (s: Settings): SocialConn | null => (s.account ? { serverUrl: s.account.serverUrl, token: s.account.token } : null);
 
 export async function api<T>(conn: SocialConn, method: string, path: string, body?: unknown): Promise<T> {
   const sep = path.includes('?') ? '&' : '?';
@@ -195,6 +195,24 @@ export const social = {
   unblock: (c: SocialConn, userId: string) => api<{ ok: true }>(c, 'DELETE', `/v1/social/blocks/${encodeURIComponent(userId)}`),
   report: (c: SocialConn, userId: string, reason: string, opts: { itemId?: number; block?: boolean } = {}) => api<{ ok: true }>(c, 'POST', '/v1/social/reports', { userId, reason, ...opts }),
 };
+
+/**
+ * Creates the community profile for a name: the handle is derived from it (with a random
+ * number) and retried when taken; the learner can change both later.
+ */
+export async function createProfile(c: SocialConn, name: string, api = social): Promise<UserSummary> {
+  let last: unknown = null;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const handle = suggestHandle(attempt < 3 ? name : 'lumi');
+    try {
+      return (await api.saveProfile(c, { handle, name: name.trim(), avatar: randomAvatar(), leagues: true, ageConfirmed: true })).profile;
+    } catch (e) {
+      last = e;
+      if (!(e instanceof ApiError) || !['handle_taken', 'invalid_handle', 'reserved_handle', 'offensive_handle'].includes(e.code)) throw e;
+    }
+  }
+  throw last;
+}
 
 export interface Query<T> {
   data: T | null;

@@ -4,8 +4,8 @@ import { dayKey, deriveProgress, deriveReviewItems, type LumenEvent, type Progre
 import { ContentLibrary } from './content.ts';
 import { clearEvents, loadEvents, newEventId, putEvents, type StoredEvent } from './db.ts';
 import { translate, type TKey } from './i18n.ts';
-import { applyDocumentSettings, loadSettings, saveSettings, type Settings } from './settings.ts';
-import { syncNow } from './sync.ts';
+import { applyDocumentSettings, loadSettings, saveSettings, signedOutSettings, type Account, type Settings } from './settings.ts';
+import { deleteAccount as deleteServerAccount, syncNow, SyncError } from './sync.ts';
 import { setServerOverride } from './api.ts';
 
 type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
@@ -27,10 +27,16 @@ interface AppState {
   progress: ProgressSummary;
   reviewItems: Map<string, ReviewItemState>;
   online: boolean;
-  /** Syncs now if a sync code is set (also runs automatically after new events). */
-  runSync(): Promise<void>;
+  /** Backs up and pulls progress now if signed in (also runs automatically after new events). */
+  runSync(): Promise<boolean>;
   /** Increments after every successful sync, so server-backed screens can refresh. */
   syncNonce: number;
+  /** Stores the account after Sign in with Apple or an email code and pulls its progress. */
+  signIn(account: Account): Promise<void>;
+  /** Backs up, then removes the account and all progress from this device. */
+  signOut(): Promise<void>;
+  /** Deletes the account on the server and everything on this device. */
+  deleteAccount(): Promise<void>;
   t(key: TKey, vars?: Record<string, string | number>): string;
 }
 
@@ -113,30 +119,70 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setEvents(await loadEvents());
   }, []);
 
+  // Merge instead of replace: events added while a load was in flight must not disappear.
+  const mergeLoaded = useCallback(async () => {
+    const loadedEvents = await loadEvents();
+    setEvents((prev) => {
+      const byId = new Map(loadedEvents.map((e) => [e.id, e]));
+      for (const e of prev) if (!byId.has(e.id)) byId.set(e.id, e);
+      return [...byId.values()].sort((a, b) => a.ts - b.ts);
+    });
+  }, []);
   const reloadEvents = useCallback(async () => setEvents(await loadEvents()), []);
 
-  const runSync = useCallback(async () => {
-    const s = settingsRef.current.sync;
-    if (!s || syncing.current || !navigator.onLine) return;
+  const runSync = useCallback(async (force = false) => {
+    const s = settingsRef.current.account;
+    if (!s || (syncing.current && !force) || !navigator.onLine) return false;
+    while (syncing.current) await new Promise((r) => setTimeout(r, 50));
     syncing.current = true;
     try {
       const r = await syncNow(s.serverUrl, s.token, s.cursor, dayKey(new Date()));
-      setSettings((prev) => (prev.sync && prev.sync.token === s.token ? { ...prev, sync: { ...prev.sync, lastSync: Date.now(), cursor: r.cursor } } : prev));
-      if (r.sent || r.received) setEvents(await loadEvents());
+      setSettings((prev) => (prev.account && prev.account.token === s.token ? { ...prev, account: { ...prev.account, lastSync: Date.now(), cursor: r.cursor } } : prev));
+      settingsRef.current = { ...settingsRef.current, account: { ...s, lastSync: Date.now(), cursor: r.cursor } };
+      if (r.sent || r.received) await mergeLoaded();
       setSyncNonce((n) => n + 1);
-    } catch {
-      /* offline or server unreachable: the next change retries */
+      return true;
+    } catch (e) {
+      // The account is gone on the server (deleted on another device): sign out here too.
+      if (e instanceof SyncError && e.status === 401) setSettings((prev) => (prev.account?.token === s.token ? signedOutSettings(prev) : prev));
+      return false;
     } finally {
       syncing.current = false;
     }
+  }, [mergeLoaded]);
+
+  const signIn = useCallback(async (account: Account) => {
+    settingsRef.current = { ...settingsRef.current, account };
+    setSettings((prev) => ({ ...prev, account }));
+    // Local progress from before signing in goes up with the first sync.
+    await runSync(true);
+  }, [runSync]);
+
+  const wipeDevice = useCallback(async () => {
+    await clearEvents();
+    setEvents([]);
+    settingsRef.current = signedOutSettings(settingsRef.current);
+    setSettings((prev) => signedOutSettings(prev));
   }, []);
 
+  const signOut = useCallback(async () => {
+    const pending = (await loadEvents()).some((e) => !e.synced);
+    if (pending && !(await runSync(true))) throw new Error('sync_failed');
+    await wipeDevice();
+  }, [runSync, wipeDevice]);
+
+  const deleteAccount = useCallback(async () => {
+    const s = settingsRef.current.account;
+    if (s) await deleteServerAccount(s.serverUrl, s.token);
+    await wipeDevice();
+  }, [wipeDevice]);
+
   // Automatic sync: on start, when the app comes back to the foreground, and a few seconds after new events.
-  const syncToken = settings.sync?.token ?? null;
+  const syncToken = settings.account?.token ?? null;
   useEffect(() => {
     if (!loaded || !syncToken) return;
     void runSync();
-    const vis = () => document.visibilityState === 'visible' && void runSync();
+    const vis = () => { if (document.visibilityState === 'visible') void runSync(); };
     document.addEventListener('visibilitychange', vis);
     addEventListener('online', vis);
     return () => {
@@ -171,6 +217,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     replaceAllEvents,
     reloadEvents,
     resetAll,
+    signIn,
+    signOut,
+    deleteAccount,
     today,
     progress,
     reviewItems,

@@ -47,6 +47,12 @@ export interface ServerOptions {
   apple?: AppleConfig | null;
   /** Sign-in with emailed one-time codes; null or absent disables it. */
   email?: { send: SendMail; pepper: string } | null;
+  /** Sign-in requests per client IP: codes mailed per hour, code checks and Apple sign-ins per 10 minutes. */
+  signInLimits?: { mailPerHour?: number; verifyPer10Min?: number; applePer10Min?: number };
+  /** Called with the Fastify instance before any route is added (e.g. crash reporting). */
+  setup?: (app: FastifyInstance) => void;
+  /** Reports errors that are handled but need attention (e.g. login mails that fail). */
+  reportError?: (e: unknown) => void;
   now?: () => number;
 }
 
@@ -77,6 +83,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     bodyLimit: 4 * 1024 * 1024,
     trustProxy: true,
   });
+  opts.setup?.(app);
   const origins = opts.corsOrigins ?? '*';
   const limit = opts.rateLimit ?? 120;
   const buckets = new Map<string, { count: number; reset: number }>();
@@ -109,7 +116,9 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   const apple = auth ? (opts.apple ?? null) : null;
   // A sync code identifies its account directly; device codes from Apple sign-in point to one.
   const accountOf = (token: string) => (auth ? auth.resolve(accountKey(token)) : accountKey(token));
-  const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t ? accountOf(t) : null; }, adminToken: opts.adminToken, now } : null;
+  // A code of a deleted account is refused (401), so other devices sign out instead of syncing on.
+  const deleted = (token: string) => !!auth?.isDeleted(accountKey(token));
+  const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t && !deleted(t) ? accountOf(t) : null; }, adminToken: opts.adminToken, now } : null;
   const service = deps ? socialService(deps) : null;
   app.get('/v1/features', async () => ({ sync: true, tutor: true, social: !!social, apple: !!apple, email: !!(auth && opts.email) }));
   if (deps && service) registerSocialRoutes(app, deps, service);
@@ -161,6 +170,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.post('/v1/sync', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
+    if (deleted(token)) return reply.code(401).send({ error: 'account_deleted' });
     const body = req.body as { events?: unknown; since?: unknown; today?: unknown } | undefined;
     const events = Array.isArray(body?.events) ? body!.events : [];
     const since = typeof body?.since === 'number' && body.since >= 0 ? Math.floor(body.since) : 0;
@@ -183,6 +193,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.get('/v1/export', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
+    if (deleted(token)) return reply.code(401).send({ error: 'account_deleted' });
     const { events } = opts.store.since(accountOf(token), 0, Number.MAX_SAFE_INTEGER);
     return { format: 'lumen-events', version: 1, events };
   });
@@ -190,6 +201,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   app.delete('/v1/account', async (req, reply) => {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
+    if (deleted(token)) return { deleted: 0 };
     const account = accountOf(token);
     const removed = opts.store.deleteAccount(account);
     social?.deleteAccount(account);
@@ -231,7 +243,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
 
   app.post('/v1/auth/apple', async (req, reply) => {
     if (!auth || !apple) return reply.code(404).send({ error: 'not_found' });
-    if (limited(`apple:${req.ip}`, 20, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    if (limited(`apple:${req.ip}`, opts.signInLimits?.applePer10Min ?? 20, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
     const body = (req.body ?? {}) as { identityToken?: unknown; nonce?: unknown; authorizationCode?: unknown };
     if (typeof body.identityToken !== 'string' || typeof body.nonce !== 'string' || body.identityToken.length > 8000 || body.nonce.length > 200) {
       return reply.code(400).send({ error: 'invalid_request' });
@@ -253,7 +265,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     const body = (req.body ?? {}) as { email?: unknown; locale?: unknown };
     const address = typeof body.email === 'string' ? normalizeEmail(body.email) : null;
     if (!address) return reply.code(400).send({ error: 'invalid_email' });
-    if (limited(`mail-ip:${req.ip}`, 10, 3_600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    if (limited(`mail-ip:${req.ip}`, opts.signInLimits?.mailPerHour ?? 10, 3_600_000)) return reply.code(429).send({ error: 'rate_limited' });
     const idHash = emailIdHash(address, email.pepper);
     if (auth.recentEmailCodes(idHash, Date.now() - 3_600_000) >= 5) return reply.code(429).send({ error: 'rate_limited' });
     const code = newEmailCode();
@@ -262,6 +274,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
       await email.send({ to: address, ...loginMail(code, typeof body.locale === 'string' ? body.locale : 'en') });
     } catch (e) {
       req.log.error({ mail: (e as Error).message }, 'login mail failed');
+      opts.reportError?.(e);
       return reply.code(502).send({ error: 'mail_failed' });
     }
     // Same answer whether or not the address belongs to an account.
@@ -270,7 +283,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
 
   app.post('/v1/auth/email/verify', async (req, reply) => {
     if (!auth || !email) return reply.code(404).send({ error: 'not_found' });
-    if (limited(`verify:${req.ip}`, 30, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    if (limited(`verify:${req.ip}`, opts.signInLimits?.verifyPer10Min ?? 30, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
     const body = (req.body ?? {}) as { email?: unknown; code?: unknown };
     const address = typeof body.email === 'string' ? normalizeEmail(body.email) : null;
     const code = typeof body.code === 'string' ? body.code.replace(/\D/g, '') : '';
@@ -294,7 +307,11 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     if (!auth || (provider !== 'apple' && provider !== 'email')) return reply.code(404).send({ error: 'not_found' });
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
-    const link = auth.unlink(provider, accountOf(token));
+    const account = accountOf(token);
+    // Keep the last sign-in method: without one the account can't be opened on a new device.
+    const other = provider === 'apple' ? 'email' : 'apple';
+    if (auth.linkOf(provider, account) && !auth.linkOf(other, account)) return reply.code(409).send({ error: 'last_sign_in' });
+    const link = auth.unlink(provider, account);
     if (link && provider === 'apple' && apple) await revokeApple(link.refreshToken, apple, opts.fetchImpl);
     return { linked: false };
   });

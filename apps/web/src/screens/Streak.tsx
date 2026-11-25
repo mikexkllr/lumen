@@ -24,7 +24,7 @@ export function Streak() {
       <section className={`streak-hero ${s.todayDone ? 'on' : ''}`} aria-labelledby="st-h">
         <span className="sh-flame" aria-hidden="true"><Icon name="flame" size={64} strokeWidth={1.6} /></span>
         <div>
-          <h1 id="st-h" className="display"><span className="tnum">{s.current}</span> <span className="sh-unit">{t('home.streak')}</span></h1>
+          <h1 id="st-h" className="display"><span className="tnum">{s.current}</span> <span className="sh-unit">{t('home.streakUnit', { n: s.current })}</span></h1>
           <p className="muted" style={{ margin: '4px 0 0' }}>{s.todayDone ? t('home.streakSafe') : t('home.streakOpen')} · {t('streak.longest')}: {s.longest}</p>
         </div>
       </section>

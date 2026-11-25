@@ -157,8 +157,14 @@ describe('Sign in with email', () => {
     const link = await app.inject({ method: 'POST', url: '/v1/auth/email/verify', headers: bearer(code), payload: { email: 'cy@example.org', code: codeIn(mails[0]) } });
     expect(link.json()).toEqual({ linked: true });
     expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: false, email: true });
-    await app.inject({ method: 'DELETE', url: '/v1/auth/email', headers: bearer(code) });
-    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json().email).toBe(false);
+    // the only way to sign in stays
+    const last = await app.inject({ method: 'DELETE', url: '/v1/auth/email', headers: bearer(code) });
+    expect(last.statusCode).toBe(409);
+    expect(last.json().error).toBe('last_sign_in');
+    await app.inject({ method: 'POST', url: '/v1/auth/apple', headers: bearer(code), payload: signIn('apple-cy') });
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, email: true });
+    expect((await app.inject({ method: 'DELETE', url: '/v1/auth/email', headers: bearer(code) })).statusCode).toBe(200);
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, email: false });
   });
 
   it('limits codes per address', async () => {

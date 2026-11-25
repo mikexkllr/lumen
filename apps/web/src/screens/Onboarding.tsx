@@ -1,30 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Cover, topicVars } from '../components/art.tsx';
 import { Icon, Logo } from '../components/ui.tsx';
-import { navigate } from '../lib/router.ts';
+import { href, navigate } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
 import { Lux } from '../components/Lux.tsx';
-import { defaultSyncUrl } from '../lib/api.ts';
-import { signInMethods } from '../lib/signIn.ts';
+import { apiBase } from '../lib/api.ts';
+import { normalizeCode } from '../lib/sync.ts';
+import { SignInOptions } from '../components/SignIn.tsx';
+import { ServerPicker } from '../components/ServerPicker.tsx';
 
 export function Welcome() {
   const { t } = useApp();
-  // Someone coming back on a new device can sign in (Apple in the iOS app, email everywhere).
-  const [canSignIn, setCanSignIn] = useState(false);
-  useEffect(() => {
-    let live = true;
-    void signInMethods(defaultSyncUrl()).then((m) => live && setCanSignIn(m.apple || m.email));
-    return () => { live = false; };
-  }, []);
   const art = [
     { motif: 'function', color: '#0f766e' },
-    { motif: 'neural', color: '#6d28d9' },
     { motif: 'cube', color: '#1d4ed8' },
   ];
   return (
     <main className="welcome" id="main">
       <div className="welcome-art" aria-hidden="true">
         {art.map((a) => <div className="float" key={a.motif}><Cover motif={a.motif} color={a.color} /></div>)}
+        <div className="welcome-hero"><Lux mood="cheer" size={132} /></div>
       </div>
       <div className="welcome-copy">
         <div className="row" style={{ gap: 10, marginBottom: 22, fontWeight: 700, fontSize: '1.125rem' }}><Logo size={34} /> Lumen</div>
@@ -39,11 +34,11 @@ export function Welcome() {
           <li><Icon name="target" size={18} /> {t('welcome.f2')}</li>
           <li><Icon name="lock" size={18} /> {t('welcome.f3')}</li>
         </ul>
-        <button className="btn primary lg block" onClick={() => navigate('onboarding')} autoFocus>
+        <button className="btn primary lg block" onClick={() => navigate('onboarding')}>
           {t('welcome.start')} <Icon name="arrow" size={18} className="arrow" />
         </button>
+        <button className="btn quiet block" style={{ marginTop: 10 }} onClick={() => navigate('login')}>{t('signin.welcome')}</button>
         <p className="fine">{t('welcome.privacy')}</p>
-        {canSignIn && <button className="btn quiet block" style={{ marginTop: 10 }} onClick={() => navigate('login')}>{t('signin.welcome')}</button>}
       </div>
     </main>
   );
@@ -61,12 +56,29 @@ const AREAS = [
   { id: 'logic', motif: 'puzzle', color: '#334155' },
 ] as const;
 
-export function Onboarding() {
-  const { t, settings, updateSettings, lib } = useApp();
-  const [step, setStep] = useState(0);
-  const total = 4;
+type Step = 'interests' | 'goal' | 'daily' | 'age' | 'account' | 'name' | 'placement';
+
+export function Onboarding({ step: routeStep }: { step?: string }) {
+  const { t, settings, updateSettings, lib, signIn } = useApp();
+  // Decided once when onboarding starts, so the step list does not shift under the learner.
+  const [needsAccount] = useState(() => !settings.account);
+  const [isNew, setIsNew] = useState<boolean | null>(() => (settings.account ? !settings.social : null));
+  const kid = settings.age === 'u13' || settings.age === '13-15';
+  // The name is for the community (16+); counted until the age says otherwise, so the progress bar stays put.
+  const steps: Step[] = ['interests', 'goal', 'daily', 'age', ...(needsAccount ? ['account' as const] : []), ...(!kid && isNew !== false && !settings.social ? ['name' as const] : []), 'placement'];
+  const step: Step = steps.includes(routeStep as Step) ? (routeStep as Step) : 'interests';
+  const index = steps.indexOf(step);
+  const go = (next: Step, replace = false) => navigate(`onboarding/${next}`, replace);
+  const forward = (replace = false) => go(steps[Math.min(index + 1, steps.length - 1)], replace);
   const available = new Set(lib?.catalog.topics.map((tp) => tp.area) ?? []);
   const countIn = (area: string) => lib?.catalog.topics.filter((tp) => tp.area === area).length ?? 0;
+  const [consent, setConsent] = useState(false);
+  const [name, setName] = useState(settings.communityName ?? '');
+
+  // Signed in on this step already (e.g. after coming back): nothing to do here.
+  useEffect(() => {
+    if (step === 'account' && settings.account) forward(true);
+  }, [step, settings.account]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pickPath = () => {
     const paths = lib?.catalog.paths ?? [];
@@ -86,23 +98,30 @@ export function Onboarding() {
     const has = settings.interests.includes(id);
     updateSettings({ interests: has ? settings.interests.filter((x) => x !== id) : [...settings.interests, id] });
   };
-  const canNext = (step === 0 && settings.interests.length > 0) || (step === 1 && !!settings.goal) || step === 2;
+  const nameOk = name.trim().length >= 2 && name.trim().length <= 30;
+  const canNext = (step === 'interests' && settings.interests.length > 0) || (step === 'goal' && !!settings.goal) || step === 'daily' || (step === 'age' && !!settings.age) || (step === 'name' && nameOk);
+  const next = () => {
+    if (step === 'name') updateSettings({ communityName: name.trim() });
+    forward();
+  };
 
   return (
     <main className="onb" id="main">
       <div className="onb-top">
-        {step > 0 ? (
-          <button className="icon-btn" onClick={() => setStep(step - 1)} aria-label={t('onb.back')}><Icon name="back" /></button>
+        {index > 0 && step !== 'name' ? (
+          <button className="icon-btn" onClick={() => go(steps[index - 1], true)} aria-label={t('onb.back')}><Icon name="back" /></button>
+        ) : index === 0 && !settings.account ? (
+          <button className="icon-btn" onClick={() => navigate('welcome', true)} aria-label={t('onb.back')}><Icon name="back" /></button>
         ) : (
           <span style={{ width: 40 }} />
         )}
-        <div className="seg-progress compact" role="progressbar" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step + 1} aria-label={t('onb.step', { n: step + 1, total })}>
-          {Array.from({ length: total }, (_, i) => <span key={i} className={`seg ${i <= step ? 'done' : ''}`}><i /></span>)}
+        <div className="seg-progress compact" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={index + 1} aria-label={t('onb.step', { n: index + 1, total: steps.length })}>
+          {steps.map((s, i) => <span key={s} className={`seg ${i <= index ? 'done' : ''}`}><i /></span>)}
         </div>
         <span style={{ width: 40 }} />
       </div>
       <div className="onb-body fade-in" key={step}>
-        {step === 0 && (
+        {step === 'interests' && (
           <>
             <h1>{t('onb.interests')}</h1>
             <p className="sub">{t('onb.interests.hint')}</p>
@@ -123,7 +142,7 @@ export function Onboarding() {
             </div>
           </>
         )}
-        {step === 1 && (
+        {step === 'goal' && (
           <>
             <h1>{t('onb.goal')}</h1>
             <p className="sub">{t('onb.goal.hint')}</p>
@@ -141,7 +160,7 @@ export function Onboarding() {
             </div>
           </>
         )}
-        {step === 2 && (
+        {step === 'daily' && (
           <>
             <h1>{t('onb.daily')}</h1>
             <p className="sub">{t('onb.dailyHint')}</p>
@@ -159,7 +178,57 @@ export function Onboarding() {
             </div>
           </>
         )}
-        {step === 3 && (
+        {step === 'age' && (
+          <>
+            <h1>{t('onb.age')}</h1>
+            <p className="sub">{t('onb.age.hint')}</p>
+            <div className="stack" style={{ gap: 10 }} role="radiogroup" aria-label={t('onb.age')}>
+              {([['u13', 'onb.age.u13'], ['13-15', 'onb.age.13'], ['16+', 'onb.age.16']] as const).map(([a, k]) => (
+                <button key={a} type="button" role="radio" className="choice-card wide" aria-checked={settings.age === a} onClick={() => updateSettings({ age: a })}>
+                  <span>{t(k)}</span>
+                  <span className="check"><Icon name="check" size={14} strokeWidth={3} /></span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        {step === 'account' && (
+          <>
+            <h1>{t('onb.account')}</h1>
+            <p className="sub">{t('onb.account.hint')}</p>
+            {kid && (
+              <label className="row small consent-row">
+                <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> {t('signin.parentConsent')}
+              </label>
+            )}
+            <SignInOptions
+              serverUrl={apiBase()}
+              disabled={kid && !consent}
+              onSignedIn={async (r) => {
+                if (!r.token) return;
+                setIsNew(r.created !== false);
+                await signIn({ serverUrl: apiBase(), token: normalizeCode(r.token), lastSync: null, cursor: 0, method: r.method });
+              }}
+            />
+            <TermsNote />
+            <div style={{ marginTop: 18 }}><ServerPicker /></div>
+          </>
+        )}
+        {step === 'name' && (
+          <>
+            <h1>{t('onb.name')}</h1>
+            <p className="sub">{t('onb.name.hint')}</p>
+            <form onSubmit={(e) => { e.preventDefault(); if (nameOk) next(); }}>
+              <div className="field">
+                <label htmlFor="onb-name">{t('social.setup.name')}</label>
+                <input id="onb-name" className="input" maxLength={30} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+              </div>
+            </form>
+            <p className="small faint">{t('social.privacy')}</p>
+            <button type="button" className="btn quiet small" onClick={() => { updateSettings({ communityName: null }); forward(); }}>{t('onb.name.skip')}</button>
+          </>
+        )}
+        {step === 'placement' && (
           <>
             <h1>{t('onb.placement')}</h1>
             <p className="sub">{t('onb.placement.hint')}</p>
@@ -178,15 +247,29 @@ export function Onboarding() {
           </>
         )}
       </div>
-      {step < 3 && (
+      {!['account', 'placement'].includes(step) && (
         <div className="onb-foot">
           <div className="inner">
-            <button className="btn primary lg grow" onClick={() => setStep(step + 1)} disabled={!canNext}>
+            <button className="btn primary lg grow" onClick={next} disabled={!canNext}>
               {t('onb.next')}
             </button>
           </div>
         </div>
       )}
     </main>
+  );
+}
+
+/** Accepting the terms is part of signing in (no separate community sign-up). */
+export function TermsNote() {
+  const { t } = useApp();
+  const links: Record<string, React.ReactNode> = {
+    terms: <a key="terms" className="inline-link" href={href('legal/terms')}>{t('signin.termsLink')}</a>,
+    privacy: <a key="privacy" className="inline-link" href={href('legal/privacy')}>{t('signin.privacyLink')}</a>,
+  };
+  return (
+    <p className="small faint" style={{ marginTop: 16 }}>
+      {t('signin.terms').split(/\{(terms|privacy)\}/).map((part, i) => (i % 2 ? links[part] : part))}
+    </p>
   );
 }

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, ChartColumn, Check, ChevronDown, ChevronRight, CircleCheck, Clock, Code, Compass, Cpu, Dices, Download, Eye, Flag, Flame,
   House, Info, Layers, Lightbulb, Lock, Percent, Play, Puzzle, RefreshCw, Repeat, RotateCcw, Scale, Search, Settings, Shapes, Snowflake, Sparkles, Star, Target,
-  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, Volume2, Users, UserPlus, Share2, Bell, Ban, Ellipsis, Hand, Copy, Scale as ScaleIcon, type LucideIcon,
+  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, Volume2, Users, UserPlus, Share2, Bell, Ban, Ellipsis, Hand, Copy, Scale as ScaleIcon, LogOut, type LucideIcon,
 } from 'lucide-react';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -12,7 +12,7 @@ const ICONS: Record<string, LucideIcon> = {
   puzzle: Puzzle, play: Play, clock: Clock, book: BookOpen, target: Target, sparkles: Sparkles, arrow: ArrowRight, back: ArrowLeft, settings: Settings, eye: Eye,
   info: Info, done: CircleCheck, snow: Snowflake, layers: Layers, trophy: Trophy, undo: Undo2, cpu: Cpu,
   compass: Compass, sunrise: Sunrise, moon: Moon, gift: Gift, medal: Medal, crown: Crown, calendar: CalendarCheck, send: SendHorizontal, chat: MessageCircle, volume: Volume2,
-  users: Users, userPlus: UserPlus, share: Share2, bell: Bell, ban: Ban, more: Ellipsis, nudge: Hand, copy: Copy, legal: ScaleIcon,
+  users: Users, userPlus: UserPlus, share: Share2, bell: Bell, ban: Ban, more: Ellipsis, nudge: Hand, copy: Copy, legal: ScaleIcon, logout: LogOut,
 };
 
 export function Icon({ name, size = 20, label, strokeWidth = 1.9, className }: { name: string; size?: number; label?: string; strokeWidth?: number; className?: string }) {
@@ -21,18 +21,32 @@ export function Icon({ name, size = 20, label, strokeWidth = 1.9, className }: {
 }
 
 /** Wordmark glyph: a rounded tile with a ray of light. */
+/** App mark: Lux's head on the brand colour (same drawing as the app icon, scripts/build-icons.ts). */
 export function Logo({ size = 32 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
       <defs>
         <linearGradient id="lumen-logo" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#7b6dff" />
           <stop offset="1" stopColor="#3b2fd0" />
         </linearGradient>
+        <linearGradient id="lumen-logo-shell" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" />
+          <stop offset="1" stopColor="#e3defa" />
+        </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="9" fill="url(#lumen-logo)" />
-      <path d="M11 8.5v15h10" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="21.5" cy="10.5" r="2.6" fill="#ffd166" />
+      <rect width="64" height="64" rx="16" fill="url(#lumen-logo)" />
+      <g transform="translate(32 34) scale(1.08) translate(-32 -22.6)">
+        <line x1="32" y1="13" x2="32" y2="7.6" stroke="#cfc8ff" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="32" cy="6" r="3.4" fill="#ffc93d" />
+        <rect x="9.4" y="23" width="5" height="11" rx="2.5" fill="#d4ccff" />
+        <rect x="49.6" y="23" width="5" height="11" rx="2.5" fill="#d4ccff" />
+        <rect x="12" y="12.5" width="40" height="32" rx="14" fill="url(#lumen-logo-shell)" />
+        <rect x="17" y="18" width="30" height="21" rx="9" fill="#1f1b4d" />
+        <rect x="22.4" y="23.6" width="5.2" height="7.4" rx="2.6" fill="#ffe27a" />
+        <rect x="36.4" y="23.6" width="5.2" height="7.4" rx="2.6" fill="#ffe27a" />
+        <path d="M29.4 34 Q32 36 34.6 34" fill="none" stroke="#ffe27a" strokeWidth="1.8" strokeLinecap="round" />
+      </g>
     </svg>
   );
 }
