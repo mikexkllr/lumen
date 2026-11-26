@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 13
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -46,21 +46,64 @@ steps:
             initial: 2
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Schätz mal: Wie viele Zahlen haben genau drei Ziffern (von 100 bis 999)?"
-    params:
-      min: 0
-      max: 2000
-      step: 10
+    id: einstieg-stangen
+    widget: numeric
+    prompt: Eine Stange hat 10 Würfel. Du hast 2 Stangen und 3 einzelne Würfel. Wie viele Würfel sind das?
     answer:
-      value: 900
-      tolerance: 100
-    explanation: "Genau 900: alle Zahlen bis 999 ohne die 99 Zahlen unter 100."
+      value: 23
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: counted-objects
+        text: Du hast 2 + 3 gerechnet. Jede Stange zählt aber 10 Würfel.
+      - when: numval(state.input) == 32
+        misconception: swapped-digits
+        text: Fast. Die 2 Stangen sind die Zehner, die 3 Würfel die Einer.
+    hints:
+      - Zwei Stangen sind 10 + 10 Würfel.
+      - Das sind 20 Würfel. Dazu kommen noch 3 einzelne.
+    explanation: "2 Stangen sind 20 Würfel, dazu 3 einzelne: 23. Die 2 steht für Zehner, die 3 für Einer."
 
   - kind: explain
     id: c1
     body: In 352 steht die 3 für 3 Hunderter, die 5 für 5 Zehner und die 2 für 2 Einer. Der **Stellenwert** sagt, wie viel eine Ziffer wert ist.
+
+  - kind: problem
+    id: einstieg-zehner
+    widget: choice
+    prompt: Was ist die 4 in 47 wert?
+    params:
+      layout: grid
+      options:
+        - label: "40"
+          correct: true
+        - label: "4"
+          feedback: Die 4 steht an der zweiten Stelle von rechts. Dort zählt sie Zehner.
+        - label: "400"
+          feedback: Hunderter gibt es erst an der dritten Stelle. 47 hat nur zwei Stellen.
+        - label: "7"
+          feedback: Das ist die andere Ziffer. Sie steht bei den Einern.
+    hints:
+      - Die Ziffer ganz rechts zählt Einer, die links daneben Zehner.
+      - 47 sind 4 Zehner und 7 Einer.
+    explanation: 47 = 40 + 7. Die 4 ist 4 Zehner wert, also 40.
+
+  - kind: problem
+    id: einstieg-hunderter
+    widget: numeric
+    prompt: Was ist die 3 in 352 wert?
+    answer:
+      value: 300
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: digit-not-value
+        text: Das ist nur die Ziffer. An der dritten Stelle von rechts zählt sie Hunderter.
+      - when: numval(state.input) == 30
+        misconception: wrong-place
+        text: 30 wäre es an der Zehnerstelle. Die 3 steht aber eine Stelle weiter links.
+    hints:
+      - "Zähl die Stellen von rechts: Einer, Zehner, Hunderter."
+      - Die 3 steht bei den Hundertern. Wie viel sind 3 Hunderter?
+    explanation: 352 = 300 + 50 + 2. Die 3 ist 3 Hunderter wert, also 300.
 
   - kind: problem
     id: c2
@@ -194,6 +237,20 @@ steps:
       - Wie viele Hunderter, Zehner und Einer stecken in 507?
       - "Die Null heißt: kein Zehner. Stell den Zehner-Regler auf 0."
     explanation: 507 = 5 · 100 + 0 · 10 + 7. Die Null hält die Zehnerstelle frei.
+
+  - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Zahlen haben genau drei Ziffern (von 100 bis 999)?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 900
+      tolerance: 100
+    explanation: "Genau 900: alle Zahlen bis 999 ohne die 99 Zahlen unter 100."
 
   - kind: explain
     id: d1

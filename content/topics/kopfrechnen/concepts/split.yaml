@@ -5,7 +5,7 @@ summary: Runde Zahlen machen alles leichter.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 16
+estimated_minutes: 18
 steps:
   - kind: explain
     id: intro-hook
@@ -25,16 +25,94 @@ steps:
         unit: cm
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Bauchgefühl: Wie viel ist 19 · 21?"
-    params:
-      min: 100
-      max: 1000
+    id: einstieg-mal-zehn
+    widget: numeric
+    prompt: Rechne im Kopf – 7 · 10.
     answer:
-      value: 399
-      tolerance: 45
-    explanation: 20 · 20 = 400 – und 19 · 21 liegt nur 1 darunter. Gleich lernst du, warum.
+      value: 70
+    feedback:
+      - when: numval(state.input) == 17
+        misconception: added-factors
+        text: Das wäre 7 + 10. Mal 10 hängt an die 7 eine 0 an.
+    hints:
+      - "Mal 10 ist leicht: Häng eine 0 an."
+      - Schreib die 7 und dahinter eine 0.
+    explanation: 7 · 10 = 70. Mit der 10 rechnet der Kopf am liebsten.
+
+  - kind: problem
+    id: einstieg-zerlegen
+    widget: numeric
+    prompt: 7 · 12 ist 7 · 10 und noch 7 · 2. Wie viel ist das zusammen?
+    visual:
+      widget: rect
+      params:
+        maxW: 12
+        maxH: 8
+        w: 12
+        h: 7
+        show: []
+        unit: cm
+    answer:
+      value: 84
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: partial-product
+        text: Das ist erst 7 · 10. Die 7 · 2 = 14 fehlen noch.
+      - when: numval(state.input) == 72
+        misconception: forgot-factor
+        text: Du hast nur 2 dazugezählt. Die 2 Spalten haben aber je 7 Kästchen, also 14.
+    hints:
+      - Das Rechteck hat 7 Reihen. Die ersten 10 Spalten sind 7 · 10 = 70 Kästchen.
+      - Die letzten 2 Spalten sind 7 · 2 = 14 Kästchen. Rechne 70 + 14.
+    explanation: 70 + 14 = 84. Du hast die 12 in 10 und 2 zerlegt.
+
+  - kind: explain
+    id: einstieg-idee
+    body: "Du hast die 12 in **Zehner und Einer** geteilt: 7 · 12 = 7 · 10 + 7 · 2 = 70 + 14 = 84. So werden aus einer schweren Aufgabe zwei leichte."
+
+  - kind: problem
+    id: intro-c1
+    widget: rect
+    prompt: Zieh ein Rechteck mit 8 Reihen und genau 96 Kästchen. Starte bei 8 · 10.
+    params:
+      maxW: 14
+      maxH: 10
+      w: 10
+      h: 8
+      show:
+        - area
+      unit: cm
+    check:
+      predicate: h == 8 && area == 96
+    hints:
+      - 8 · 10 = 80. Wie viele Kästchen fehlen bis 96?
+      - Es fehlen 16, also 8 · 2. Mach das Rechteck 2 Spalten breiter.
+    explanation: 8 · 12 = 8 · 10 + 8 · 2 = 80 + 16 = 96. So rechnest du im Kopf.
+
+  - kind: problem
+    id: einstieg-ueben
+    widget: numeric
+    prompt: Rechne im Kopf – {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: partial-product
+        text: Das ist erst {{a}} · 10. Es fehlen noch {{a}} · {{b - 10}} = {{a * (b - 10)}}.
+      - when: numval(state.input) == a * 10 + b - 10
+        misconception: forgot-factor
+        text: Auch die {{b - 10}} musst du mit {{a}} malnehmen.
+    hints:
+      - Zerlege {{b}} in 10 und {{b - 10}}.
+      - "{{a}} · 10 = {{a * 10}} und {{a}} · {{b - 10}} = {{a * (b - 10)}}. Zähl beides zusammen."
+    explanation: "{{a}} · 10 + {{a}} · {{b - 10}} = {{a * 10}} + {{a * (b - 10)}} = {{a * b}}."
+    variants:
+      params:
+        a: int[3,6]
+        b: int[12,14]
+      defaults:
+        a: 4
+        b: 13
 
   - kind: problem
     id: sieben-achtzehn
@@ -44,6 +122,7 @@ steps:
     answer: { value: 126 }
     hints:
       - "Denk an 7 · 20 und zieh etwas ab."
+      - "7 · 20 = 140. Das sind 7 · 2 zu viel."
     explanation: 7 · 20 = 140, minus 7 · 2 = 14. Ergibt 126.
 
   - kind: explain
@@ -72,19 +151,6 @@ steps:
       **Mal 9** ist mal 10 und einmal abziehen.
 
   - kind: problem
-    id: mal-fuenfundzwanzig
-    widget: numeric
-    prompt: Rechne im Kopf – 25 · {{n}}.
-    params: { placeholder: "Ergebnis" }
-    answer: { value: "{{25 * n}}" }
-    hints:
-      - "{{n}} · 100 = {{n * 100}}. Jetzt durch 4."
-    explanation: "{{n * 100}} : 4 = {{25 * n}}."
-    variants:
-      params: { n: "choice[12,16,24,36,44]" }
-      defaults: { n: 16 }
-
-  - kind: problem
     id: mal-fuenf
     widget: numeric
     prompt: Rechne im Kopf – {{n}} · 5.
@@ -98,6 +164,19 @@ steps:
       defaults: { n: 48 }
 
   - kind: problem
+    id: mal-fuenfundzwanzig
+    widget: numeric
+    prompt: Rechne im Kopf – 25 · {{n}}.
+    params: { placeholder: "Ergebnis" }
+    answer: { value: "{{25 * n}}" }
+    hints:
+      - "{{n}} · 100 = {{n * 100}}. Jetzt durch 4."
+    explanation: "{{n * 100}} : 4 = {{25 * n}}."
+    variants:
+      params: { n: "choice[12,16,24,36,44]" }
+      defaults: { n: 16 }
+
+  - kind: problem
     id: c1
     widget: cloze
     prompt: Fülle die Lücken.
@@ -108,7 +187,21 @@ steps:
         - "50"
 
   - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: "Bauchgefühl: Wie viel ist 19 · 21?"
+    params:
+      min: 100
+      max: 1000
+    answer:
+      value: 399
+      tolerance: 45
+    explanation: 20 · 20 = 400 – und 19 · 21 liegt nur 1 darunter. Gleich lernst du, warum.
+
+  - kind: problem
     id: ma-c1
+    depth: 2
     widget: numeric
     prompt: Rechne im Kopf – {{n}} · 9.
     answer:
@@ -126,25 +219,6 @@ steps:
         n: int[12,48]
       defaults:
         n: 27
-
-  - kind: problem
-    id: intro-c1
-    widget: rect
-    prompt: Zieh ein Rechteck mit 8 Reihen und genau 96 Kästchen. Starte bei 8 · 10.
-    params:
-      maxW: 14
-      maxH: 10
-      w: 10
-      h: 8
-      show:
-        - area
-      unit: cm
-    check:
-      predicate: h == 8 && area == 96
-    hints:
-      - 8 · 10 = 80. Wie viele Kästchen fehlen bis 96?
-      - Es fehlen 16, also 8 · 2. Mach das Rechteck 2 Spalten breiter.
-    explanation: 8 · 12 = 8 · 10 + 8 · 2 = 80 + 16 = 96. So rechnest du im Kopf.
 
   - kind: problem
     id: d1

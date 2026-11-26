@@ -1,0 +1,373 @@
+id: math.start.count
+type: concept
+title: "Numbers and amounts"
+summary: "Counting, comparing and finding the numbers up to 20 on the number line."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Counting in the ten frame
+    body: Numbers tell you **how many** there are. Tap some cells and watch the counter. Can you make exactly 7? One full row is 5 cells, both rows together make 10.
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 2
+        cols: 5
+        counter: true
+
+  - kind: problem
+    id: aepfel
+    widget: numeric
+    prompt: How many apples are there?
+    body: 🍎🍎🍎🍎🍎🍎
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: miscount
+        text: Almost. You missed one apple. Touch each apple as you count.
+      - when: numval(state.input) == 7
+        misconception: miscount
+        text: One too many. Count each apple only once.
+    hints:
+      - Touch each apple with your finger and count along.
+      - "Count like this: 1, 2, 3, 4, 5 – and then one more."
+    explanation: There are 6 apples. The last number you say when counting tells you how many there are.
+
+  - kind: problem
+    id: zehnerfeld
+    widget: pixels
+    prompt: Fill exactly 8 cells.
+    params:
+      rows: 2
+      cols: 5
+      counter: true
+    check:
+      predicate: on == 8
+    feedback:
+      - when: on == 2
+        misconception: complement
+        text: You filled 2 cells. With 8 cells filled, only 2 stay empty.
+      - when: on > 8
+        misconception: too-many
+        text: That is too many. Tap a filled cell again to empty it.
+    hints:
+      - The counter below the frame counts along for you.
+      - One full row has 5 cells. Then you need 3 more.
+    explanation: 8 cells are one full row of five and 3 more.
+
+  - kind: problem
+    id: mehr
+    widget: choice
+    prompt: Which group has more?
+    params:
+      options:
+        - label: 🍓🍓🍓🍓🍓🍓🍓
+          correct: true
+        - label: 🍋🍋🍋🍋🍋
+          feedback: Count again. There are 5 lemons but 7 strawberries.
+        - label: They are the same
+          feedback: Count both rows. The row of strawberries is longer.
+    hints:
+      - Count the strawberries first, then the lemons.
+      - There are 7 strawberries and 5 lemons. Which number comes later when you count?
+    explanation: 7 is more than 5. When you count, 7 comes after 5.
+
+  - kind: explain
+    id: strahl-idee
+    body: On the **number line** all numbers stand in order. Each step to the right is one more. Each step to the left is one less. Here the marker is on 6.
+    visual:
+      widget: numberline
+      params:
+        min: 0
+        max: 10
+        ticks: 1
+        initial: 6
+
+  - kind: problem
+    id: strahl-finden
+    widget: numberline
+    prompt: Put the marker on {{n}}.
+    params:
+      min: 0
+      max: 10
+      ticks: 1
+    answer:
+      value: "{{n}}"
+    hints:
+      - Tap the line. The marker shows its number above it.
+      - Count {{n}} steps to the right from 0.
+    explanation: "{{n}} is {{n}} steps to the right of 0."
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: nachfolger
+    widget: numeric
+    prompt: Which number comes right after {{n}}?
+    answer:
+      value: "{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: predecessor
+        text: That is the number before. You need the number after – one more.
+      - when: numval(state.input) == n
+        misconception: same-number
+        text: That is the number itself. Count one step on.
+    hints:
+      - "Keep counting: what do you say after {{n}}?"
+      - On the number line it is one step to the right of {{n}}.
+    explanation: After {{n}} comes {{n + 1}}. That is one more.
+    variants:
+      params:
+        n: int[6,18]
+      defaults:
+        n: 12
+
+  - kind: problem
+    id: groesser
+    widget: choice
+    prompt: Which number is bigger?
+    params:
+      layout: grid
+      options:
+        - label: "{{str(a)}}"
+          correct: "{{a > b}}"
+          feedback: When you count, {{a}} comes before {{b}}. What comes later is bigger.
+        - label: "{{str(b)}}"
+          correct: "{{b > a}}"
+          feedback: When you count, {{b}} comes before {{a}}. What comes later is bigger.
+    hints:
+      - Picture both numbers on the number line.
+      - The number further to the right is bigger.
+    explanation: "{{max(a, b)}} is bigger than {{min(a, b)}}. On the number line {{max(a, b)}} is further to the right."
+    variants:
+      params:
+        a: int[3,20]
+        b: int[3,20]
+      constraints:
+        - a != b
+      defaults:
+        a: 9
+        b: 14
+
+  - kind: problem
+    id: blitz
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 9 is more than 6.
+          right: true
+        - text: 12 comes right after 13.
+          right: false
+          why: 13 comes after 12 – not the other way round.
+        - text: 15 lies between 14 and 16.
+          right: true
+        - text: 20 is less than 2.
+          right: false
+          why: You count much longer to reach 20 than to reach 2.
+
+  - kind: problem
+    id: schritte
+    depth: 2
+    widget: numberline
+    prompt: You stand on 10 and take 4 steps to the right. Where do you land?
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      initial: 10
+      markers:
+        - value: 0
+          label: "0"
+        - value: 5
+          label: "5"
+        - value: 10
+          label: "10"
+        - value: 15
+          label: "15"
+        - value: 20
+          label: "20"
+    answer:
+      value: 14
+    feedback:
+      - when: state.value == 6
+        misconception: wrong-direction
+        text: You went to the left. To the right the numbers get bigger.
+      - when: state.value == 10
+        misconception: not-moved
+        text: The marker is still on 10. Move it 4 steps to the right.
+    hints:
+      - Each step to the right is one more.
+      - "Count on from 10: 11, 12, 13 and one more step."
+    explanation: "Four steps on from 10: 11, 12, 13, 14."
+    difficulty: 2
+
+  - kind: problem
+    id: ordnen
+    depth: 2
+    widget: order
+    prompt: Put them in order from smallest to biggest.
+    params:
+      items:
+        - label: "4"
+        - label: "9"
+        - label: "12"
+        - label: "17"
+        - label: "20"
+    hints:
+      - Which number comes first when you count?
+      - 4 and 9 come before 10. Then follow 12, 17 and 20.
+    explanation: "When you count they come in this order: 4, 9, 12, 17, 20."
+    difficulty: 2
+
+  - kind: problem
+    id: sortieren
+    depth: 2
+    widget: buckets
+    prompt: Smaller or bigger than 10?
+    params:
+      buckets:
+        - id: b1
+          label: smaller than 10
+        - id: b2
+          label: bigger than 10
+      items:
+        - label: "3"
+          bucket: b1
+        - label: "14"
+          bucket: b2
+        - label: "9"
+          bucket: b1
+        - label: "19"
+          bucket: b2
+        - label: "7"
+          bucket: b1
+        - label: "11"
+          bucket: b2
+    hints:
+      - Count to 10 in your head. Does the number come before that or only after?
+      - The numbers 3, 7 and 9 come before 10.
+    explanation: 3, 7 and 9 are smaller than 10. The numbers 11, 14 and 19 are bigger.
+    difficulty: 2
+
+  - kind: problem
+    id: luecken
+    depth: 2
+    widget: cloze
+    prompt: Keep counting and fill the gaps.
+    params:
+      text: 13, 14, [[15]], 16, 17, [[18]], 19, [[20]]
+      distractors:
+        - "12"
+        - "21"
+    explanation: "Each number is one more than the one before: 13, 14, 15, 16, 17, 18, 19, 20."
+    difficulty: 2
+
+  - kind: problem
+    id: zweierschritte
+    depth: 3
+    widget: numeric
+    prompt: "Count in twos: 2, 4, 6, 8 … Which number is the tenth in this row?"
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: count-not-value
+        text: That is the number of the step. You need the number you land on after 10 steps.
+      - when: numval(state.input) == 18 || numval(state.input) == 22
+        misconception: off-by-one
+        text: Very close. Count the steps on your fingers.
+    hints:
+      - "Keep counting and use your fingers: 2, 4, 6, 8, 10 – that was five numbers."
+      - The tenth number is twice as far away as the fifth.
+    explanation: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 – the tenth number is 20.
+    difficulty: 3
+
+  - kind: problem
+    id: mitte
+    depth: 3
+    widget: numberline
+    prompt: Which number lies exactly in the middle between 6 and 14?
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      markers:
+        - value: 0
+          label: "0"
+        - value: 6
+          label: "6"
+        - value: 14
+          label: "14"
+        - value: 20
+          label: "20"
+    answer:
+      value: 10
+    feedback:
+      - when: state.value == 8 || state.value == 12
+        misconception: not-centred
+        text: Count the steps to 6 and to 14. Both ways must be the same length.
+    hints:
+      - From the middle it is the same distance to both numbers.
+      - Walk one step inwards from 6 and from 14 at the same time, again and again.
+    explanation: From 6 to 10 is 4 steps, and from 10 to 14 as well. The middle is 10.
+    difficulty: 3
+
+  - kind: problem
+    id: punkte-schaetzen
+    depth: 3
+    widget: estimate
+    prompt: "Take a guess without counting: how many dots are there?"
+    body: ●●● ●●●●● ●● ●●●● ●●●
+    params:
+      min: 0
+      max: 40
+      step: 1
+    answer:
+      value: 17
+      tolerance: 3
+    explanation: "There are 17 dots. Tip: look for small groups you can see at a glance and add the groups up."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you can tell which of two numbers is bigger.
+    params:
+      keywords:
+        - - zählen
+          - zahlenstrahl
+          - count
+          - number line
+        - - rechts
+          - später
+          - danach
+          - right
+          - later
+          - after
+        - - größer
+          - mehr
+          - bigger
+          - greater
+          - larger
+          - more
+      sample: I picture the number line. The number further to the right is bigger. When I count, it comes later.
+    explanation: "Key idea: what comes later when counting is further right on the number line and is bigger."
+    difficulty: 3
+
+srs:
+  cards_from: ["strahl-finden", "nachfolger", "groesser"]

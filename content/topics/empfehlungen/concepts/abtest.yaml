@@ -5,7 +5,7 @@ summary: Wie Apps herausfinden, was wirkt.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
   - kind: explain
     id: intro-hook
@@ -26,18 +26,21 @@ steps:
           - 100
 
   - kind: problem
-    id: rate
-    widget: numeric
-    prompt: Version A – 1000 Besucher, 50 Käufe. Version B – 1000 Besucher, 65 Käufe. Um wie viel Prozent ist B besser?
-    params: { unit: "%" }
-    answer: { value: 30 }
-    feedback:
-      - when: "numval(state.input) == 15"
-        misconception: absolute
-        text: 15 ist der Unterschied in Käufen. Gefragt ist, um wie viel Prozent B mehr hat.
+    id: start-test
+    widget: choice
+    prompt: "Eine App will wissen: Wird ein roter oder ein grüner Knopf öfter gedrückt? Wie findet sie das am besten heraus?"
+    params:
+      options:
+        - label: Beide Farben zeigen und mitzählen
+          correct: true
+        - label: Die Chefin entscheidet nach Gefühl
+          feedback: Ein Gefühl kann täuschen. Zählen zeigt, was Menschen wirklich tun.
+        - label: Die schönere Farbe nehmen
+          feedback: Schön heißt nicht, dass mehr Leute drücken. Das muss man messen.
     hints:
-      - 15 mehr, bezogen auf 50.
-    explanation: "15 : 50 = 0,3 – also 30 % mehr Käufe."
+      - Wie erfährst du, was Menschen wirklich tun?
+      - Ausprobieren und zählen schlägt jede Vermutung.
+    explanation: Die App zeigt einigen den roten und anderen den grünen Knopf. Dann zählt sie. Das ist schon die Idee des A/B-Tests.
 
   - kind: explain
     id: s2
@@ -81,6 +84,34 @@ steps:
     hints:
       - Erst planen, dann aufteilen, dann messen.
     explanation: Der Zufall sorgt dafür, dass sich die Gruppen nur in einer Sache unterscheiden.
+
+  - kind: problem
+    id: start-mehr
+    widget: numeric
+    prompt: "Version A: 50 Käufe. Version B: 65 Käufe. Wie viele Käufe hat B mehr als A?"
+    params:
+      unit: Käufe
+    answer:
+      value: 15
+    hints:
+      - Zieh die kleinere Zahl von der größeren ab.
+      - Rechne 65 − 50.
+    explanation: 65 − 50 = 15 Käufe mehr. Gleich rechnest du aus, wie viel Prozent das sind.
+
+  - kind: problem
+    id: rate
+    widget: numeric
+    prompt: Version A – 1000 Besucher, 50 Käufe. Version B – 1000 Besucher, 65 Käufe. Um wie viel Prozent ist B besser?
+    params: { unit: "%" }
+    answer: { value: 30 }
+    feedback:
+      - when: "numval(state.input) == 15"
+        misconception: absolute
+        text: 15 ist der Unterschied in Käufen. Gefragt ist, um wie viel Prozent B mehr hat.
+    hints:
+      - 15 mehr, bezogen auf 50.
+      - "Rechne 15 : 50 und nimm das Ergebnis mal 100."
+    explanation: "15 : 50 = 0,3 – also 30 % mehr Käufe."
 
   - kind: problem
     id: d1

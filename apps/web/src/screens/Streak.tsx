@@ -2,14 +2,16 @@
 import { useState } from 'react';
 import { addDays, isActiveDay } from '@lumen/engine';
 import { Avatar } from '../components/social.tsx';
+import { Flame } from '../components/Flame.tsx';
+import { STREAK_GOALS } from '../components/Streaks.tsx';
 import { Icon } from '../components/ui.tsx';
 import { href } from '../lib/router.ts';
-import { isKid } from '../lib/settings.ts';
+import { isKid, prefersReducedMotion } from '../lib/settings.ts';
 import { social, useQuery, type FriendsResponse } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { useApp } from '../lib/store.tsx';
 
-export const STREAK_GOALS = [3, 7, 14, 30, 50, 100, 150, 200, 365, 500, 1000];
+export { STREAK_GOALS };
 
 export function Streak() {
   const { t, progress, settings, syncNonce } = useApp();
@@ -22,7 +24,7 @@ export function Streak() {
   return (
     <main id="main" className="fade-in">
       <section className={`streak-hero ${s.todayDone ? 'on' : ''}`} aria-labelledby="st-h">
-        <span className="sh-flame" aria-hidden="true"><Icon name="flame" size={64} strokeWidth={1.6} /></span>
+        <Flame size={76} lit={s.todayDone} still={prefersReducedMotion(settings)} className={!s.todayDone && s.current > 0 ? 'ember' : ''} />
         <div>
           <h1 id="st-h" className="display"><span className="tnum">{s.current}</span> <span className="sh-unit">{t('home.streakUnit', { n: s.current })}</span></h1>
           <p className="muted" style={{ margin: '4px 0 0' }}>{s.todayDone ? t('home.streakSafe') : t('home.streakOpen')} · {t('streak.longest')}: {s.longest}</p>

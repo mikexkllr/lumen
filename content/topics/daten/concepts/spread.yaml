@@ -5,7 +5,7 @@ summary: Gleicher Schnitt, ganz andere Daten.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 11
+estimated_minutes: 12
 steps:
   - kind: explain
     id: intro-hook
@@ -38,6 +38,24 @@ steps:
         title: Temperatur in °C
 
   - kind: problem
+    id: start-wetter
+    widget: choice
+    prompt: Wo schwankt die Temperatur stärker?
+    body: Ort A hat jeden Tag 15 Grad. In Ort B ist es mal 0 Grad, mal 30 Grad.
+    params:
+      options:
+        - label: In Ort B
+          correct: true
+        - label: In Ort A
+          feedback: In A ist es jeden Tag gleich warm. Da schwankt nichts.
+        - label: In beiden gleich
+          feedback: "Vergleiche: immer 15 Grad gegen 0 bis 30 Grad."
+    hints:
+      - Wo brauchst du mal eine Winterjacke und mal ein T-Shirt?
+      - In A ändert sich die Temperatur nie.
+    explanation: "In B liegen die Werte weit auseinander. Man sagt: Die Daten streuen stark."
+
+  - kind: problem
     id: zwei-klassen
     widget: choice
     body: Klasse A hat die Noten 3, 3, 3, 3. Klasse B hat 1, 1, 5, 5.
@@ -58,6 +76,19 @@ steps:
       Zwei Datenreihen können denselben Mittelwert und völlig verschiedene Spannweiten haben.
 
   - kind: problem
+    id: spannweite
+    widget: numeric
+    prompt: "Temperaturen einer Woche: {{a}}, 12, 15, {{b}}, 14 °C. Wie groß ist die Spannweite?"
+    params: { unit: "°C" }
+    answer: { value: "{{b - a}}" }
+    hints:
+      - Größter minus kleinster Wert.
+    explanation: "{{b}} − {{a}} = {{b - a}} °C."
+    variants:
+      params: { a: "int[3,9]", b: "int[17,25]" }
+      defaults: { a: 8, b: 19 }
+
+  - kind: problem
     id: bauen
     widget: chart
     prompt: Ziehe die Säulen so, dass der Mittelwert 5 bleibt, die Spannweite aber 8 ist.
@@ -74,19 +105,6 @@ steps:
     hints:
       - Mach eine Säule 4 kleiner und eine andere 4 größer.
     explanation: Zum Beispiel 1, 5, 5, 9 – Schnitt 5, Spannweite 8.
-
-  - kind: problem
-    id: spannweite
-    widget: numeric
-    prompt: "Temperaturen einer Woche: {{a}}, 12, 15, {{b}}, 14 °C. Wie groß ist die Spannweite?"
-    params: { unit: "°C" }
-    answer: { value: "{{b - a}}" }
-    hints:
-      - Größter minus kleinster Wert.
-    explanation: "{{b}} − {{a}} = {{b - a}} °C."
-    variants:
-      params: { a: "int[3,9]", b: "int[17,25]" }
-      defaults: { a: 8, b: 19 }
 
   - kind: problem
     id: d1

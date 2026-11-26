@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 13
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -46,21 +46,64 @@ steps:
             initial: 2
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Take a guess: how many numbers have exactly three digits (from 100 to 999)?"
-    params:
-      min: 0
-      max: 2000
-      step: 10
+    id: einstieg-stangen
+    widget: numeric
+    prompt: One rod has 10 cubes. You have 2 rods and 3 single cubes. How many cubes is that?
     answer:
-      value: 900
-      tolerance: 100
-    explanation: "Exactly 900: all numbers up to 999 minus the 99 numbers below 100."
+      value: 23
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: counted-objects
+        text: You worked out 2 + 3. But each rod counts as 10 cubes.
+      - when: numval(state.input) == 32
+        misconception: swapped-digits
+        text: Almost. The 2 rods are the tens, the 3 cubes are the ones.
+    hints:
+      - Two rods are 10 + 10 cubes.
+      - That is 20 cubes. Then come 3 single ones.
+    explanation: "2 rods are 20 cubes, plus 3 single ones: 23. The 2 stands for tens, the 3 for ones."
 
   - kind: explain
     id: c1
     body: In 352 the 3 stands for 3 hundreds, the 5 for 5 tens and the 2 for 2 ones. The **place value** tells you what a digit is worth.
+
+  - kind: problem
+    id: einstieg-zehner
+    widget: choice
+    prompt: What is the 4 in 47 worth?
+    params:
+      layout: grid
+      options:
+        - label: "40"
+          correct: true
+        - label: "4"
+          feedback: The 4 is in the second place from the right. There it counts tens.
+        - label: "400"
+          feedback: Hundreds only start at the third place. 47 has just two places.
+        - label: "7"
+          feedback: That is the other digit. It is in the ones place.
+    hints:
+      - The digit on the far right counts ones, the one to its left counts tens.
+      - 47 is 4 tens and 7 ones.
+    explanation: 47 = 40 + 7. The 4 is worth 4 tens, which is 40.
+
+  - kind: problem
+    id: einstieg-hunderter
+    widget: numeric
+    prompt: What is the 3 in 352 worth?
+    answer:
+      value: 300
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: digit-not-value
+        text: That is just the digit. In the third place from the right it counts hundreds.
+      - when: numval(state.input) == 30
+        misconception: wrong-place
+        text: It would be 30 in the tens place. But the 3 is one place further left.
+    hints:
+      - "Count the places from the right: ones, tens, hundreds."
+      - The 3 is in the hundreds place. How much is 3 hundreds?
+    explanation: 352 = 300 + 50 + 2. The 3 is worth 3 hundreds, which is 300.
 
   - kind: problem
     id: c2
@@ -194,6 +237,20 @@ steps:
       - How many hundreds, tens and ones are in 507?
       - "The zero means: no tens. Set the tens slider to 0."
     explanation: 507 = 5 · 100 + 0 · 10 + 7. The zero keeps the tens place empty.
+
+  - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess: how many numbers have exactly three digits (from 100 to 999)?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 900
+      tolerance: 100
+    explanation: "Exactly 900: all numbers up to 999 minus the 99 numbers below 100."
 
   - kind: explain
     id: d1

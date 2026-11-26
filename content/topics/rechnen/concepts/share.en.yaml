@@ -1,0 +1,341 @@
+id: math.start.share
+type: concept
+title: "Dividing"
+summary: "Sharing fairly, making groups – and dividing as multiplying backwards."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Sharing fairly
+    body: "12 biscuits for 3 children – each should get the same number. Each row belongs to one child. Fill one row and read the counter: that is how many biscuits each child gets. That is **dividing**."
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 3
+        cols: 4
+        counter: true
+
+  - kind: problem
+    id: kekse
+    widget: numeric
+    prompt: 6 biscuits for 2 children. Both get the same number. How many does each child get?
+    body: 🍪🍪🍪🍪🍪🍪
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: subtracted
+        text: You worked out 6 − 2. Share the biscuits fairly between both children.
+      - when: numval(state.input) == 12
+        misconception: multiplied
+        text: That would be 6 times 2. But here we are sharing – each child gets fewer than 6.
+      - when: numval(state.input) == 6
+        misconception: not-shared
+        text: Those are all the biscuits. The two children have to share them.
+    hints:
+      - "Take turns: one biscuit for one child, one biscuit for the other."
+      - After three rounds all 6 biscuits are shared out.
+    explanation: Each child gets 3 biscuits, because 3 + 3 = 6.
+
+  - kind: problem
+    id: tafel
+    widget: fraction
+    prompt: The bar has 8 pieces. Two children share it fairly. Fill all the pieces for one child.
+    params:
+      parts: 8
+      shape: square
+    answer:
+      fraction: 1/2
+    feedback:
+      - when: shadedCount == 8
+        misconception: not-shared
+        text: That is the whole bar. One child gets only one of two equal parts.
+      - when: shadedCount > 0 && shadedCount < 4
+        misconception: unfair-share
+        text: That is too few. Both children should get the same number of pieces.
+      - when: shadedCount > 4
+        misconception: unfair-share
+        text: That is too many. Then less is left for the other child.
+    hints:
+      - Both children get the same number of pieces.
+      - 4 + 4 = 8. Fill 4 pieces.
+    explanation: "8 pieces for 2 children: each gets 4 pieces."
+
+  - kind: problem
+    id: socken
+    widget: choice
+    prompt: 10 socks. They always go together in twos. How many pairs is that?
+    body: 🧦🧦   🧦🧦   🧦🧦   🧦🧦   🧦🧦
+    params:
+      layout: grid
+      options:
+        - label: "5"
+          correct: true
+        - label: "8"
+          feedback: You worked out 10 − 2. Count the groups of two instead.
+        - label: "20"
+          feedback: That would be 10 times 2. Here we are splitting into groups.
+        - label: "2"
+          feedback: That is how many socks one pair has. The question is the number of pairs.
+    hints:
+      - Count the groups of two.
+      - 2, 4, 6, 8, 10 – that is five steps.
+    explanation: 10 socks in groups of two make 5 pairs.
+
+  - kind: explain
+    id: geteilt-idee
+    body: "For dividing you write this sign: 12 ÷ 3 = 4. You read it as “12 **divided by** 3 is 4”. You share 12 fairly among 3 – each one gets 4."
+
+  - kind: problem
+    id: reihen-teilen
+    widget: rect
+    prompt: Share 12 squares among 3 rows of equal length. Build the rectangle.
+    params:
+      maxW: 6
+      maxH: 5
+      w: 1
+      h: 1
+      show: []
+      unit: cm
+    check:
+      predicate: h == 3 && w == 4
+    feedback:
+      - when: h == 3 && w != 4
+        misconception: wrong-width
+        text: "3 rows are right. Count again: there should be exactly 12 squares."
+      - when: w == 3 && h == 4
+        misconception: rows-columns-swapped
+        text: Those are 4 rows of 3 squares each. You need 3 rows.
+    hints:
+      - Set 3 rows first. The number on the right counts the rows.
+      - "Then make the rows longer and count along: 3, 6, 9, 12."
+    explanation: 12 ÷ 3 = 4. Each of the 3 rows gets 4 squares.
+
+  - kind: explain
+    id: umkehr-idee
+    body: "Dividing is multiplying backwards. Because 3 · 4 = 12, it is also true that 12 ÷ 3 = 4. So ask yourself: 3 times what makes 12? This is called the **inverse problem**."
+
+  - kind: problem
+    id: umkehren
+    widget: numeric
+    prompt: "{{a}} · {{b}} = {{a * b}}. So what is {{a * b}} ÷ {{a}}?"
+    answer:
+      value: "{{b}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: divisor-as-answer
+        text: "{{a}} is what you divide by. You need the other number from the times problem."
+      - when: numval(state.input) == a * b
+        misconception: dividend-as-answer
+        text: That is the number being divided. Look at the times problem again.
+    hints:
+      - "Ask yourself: {{a}} times what makes {{a * b}}?"
+      - The answer is already in the times problem before it.
+    explanation: Because {{a}} · {{b}} = {{a * b}}, it follows that {{a * b}} ÷ {{a}} = {{b}}.
+    variants:
+      params:
+        a: int[2,5]
+        b: int[3,9]
+      constraints:
+        - a != b
+      defaults:
+        a: 3
+        b: 5
+
+  - kind: problem
+    id: teilen-klein
+    widget: numeric
+    prompt: Work out {{a * b}} ÷ {{b}}.
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == a * b - b
+        misconception: subtracted
+        text: "You subtracted. Dividing means: sharing fairly among {{b}}."
+      - when: numval(state.input) == b
+        misconception: divisor-as-answer
+        text: "{{b}} is what you divide by. You need how many times {{b}} fits into {{a * b}}."
+    hints:
+      - "Ask yourself: {{b}} times what makes {{a * b}}?"
+      - Count in steps of {{b}} up to {{a * b}}. How many steps do you need?
+    explanation: "{{a}} · {{b}} = {{a * b}}, so {{a * b}} ÷ {{b}} = {{a}}."
+    variants:
+      params:
+        a: int[2,9]
+        b: choice[2,5,10]
+      constraints:
+        - a != b
+      defaults:
+        a: 4
+        b: 5
+
+  - kind: problem
+    id: rest-bonbons
+    depth: 2
+    widget: numeric
+    prompt: 7 sweets for 2 children. Each gets 3. How many sweets are left over?
+    body: 🍬🍬🍬   🍬🍬🍬   🍬
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: quotient-as-remainder
+        text: That is how many each child gets. The question is what is left at the end.
+      - when: numval(state.input) == 6
+        misconception: shared-total
+        text: That is how many are shared out. How many of the 7 are still lying there?
+    hints:
+      - "Two children with 3 sweets each: how many are shared out then?"
+      - 2 · 3 = 6 are shared out. Take that away from 7.
+    explanation: 2 · 3 = 6 sweets are shared out. Of the 7, 1 is left over.
+    difficulty: 2
+
+  - kind: explain
+    id: rest-idee
+    depth: 2
+    body: "Sometimes dividing does not come out evenly. What is left over is called the **remainder**. You write: 7 ÷ 2 = 3 remainder 1. The remainder is always smaller than the number you divide by."
+
+  - kind: problem
+    id: aufgehen
+    depth: 2
+    widget: buckets
+    prompt: Does it come out evenly, or is there a remainder?
+    params:
+      buckets:
+        - id: b1
+          label: comes out evenly
+        - id: b2
+          label: remainder left
+      items:
+        - label: 10 ÷ 2
+          bucket: b1
+        - label: 9 ÷ 2
+          bucket: b2
+        - label: 15 ÷ 5
+          bucket: b1
+        - label: 12 ÷ 5
+          bucket: b2
+        - label: 20 ÷ 10
+          bucket: b1
+        - label: 7 ÷ 3
+          bucket: b2
+    hints:
+      - Look for the matching times problem for each one.
+      - Counting in twos you reach 8 and 10, but never 9.
+    explanation: 10, 15 and 20 are in the matching times table. With 9 ÷ 2, 12 ÷ 5 and 7 ÷ 3 something is left over.
+    difficulty: 2
+
+  - kind: problem
+    id: gruppen
+    depth: 2
+    widget: numeric
+    prompt: 24 children form 4 groups of equal size. How many children are in each group?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: subtracted
+        text: You worked out 24 − 4. Share the 24 children fairly among 4 groups.
+      - when: numval(state.input) == 96
+        misconception: multiplied
+        text: That would be 24 times 4. But one group is smaller than the whole class.
+    hints:
+      - "Ask yourself: 4 times what makes 24?"
+      - 4 · 5 = 20 is too few. Try the next number.
+    explanation: 4 · 6 = 24, so 24 ÷ 4 = 6. There are 6 children in each group.
+    difficulty: 2
+
+  - kind: problem
+    id: zweimal-halbieren
+    depth: 3
+    widget: numeric
+    prompt: "Work out 36 ÷ 4. Tip: dividing by 4 means halving twice."
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 18
+        misconception: halved-once
+        text: That is halved only once. Halve the 18 again.
+      - when: numval(state.input) == 32
+        misconception: subtracted
+        text: You worked out 36 − 4. You need a quarter of 36.
+    hints:
+      - Half of 36 is 18.
+      - Now halve the 18.
+    explanation: "36 → 18 → 9. Check: 4 · 9 = 36."
+    difficulty: 3
+
+  - kind: problem
+    id: durch-null
+    depth: 3
+    widget: choice
+    prompt: What is true about 6 ÷ 0?
+    params:
+      options:
+        - label: It cannot be done
+          correct: true
+        - label: It is 0
+          feedback: "Check it: 0 · 0 is 0 and not 6."
+        - label: It is 6
+          feedback: "Check it: 6 · 0 is 0 and not 6."
+    hints:
+      - "Use the inverse problem: which number times 0 makes 6?"
+      - Any number times 0 is 0. You never get 6.
+    explanation: No number times 0 makes 6. That is why you cannot divide by 0.
+    difficulty: 3
+
+  - kind: problem
+    id: sticker
+    depth: 3
+    widget: numeric
+    prompt: You have 23 stickers and always put 5 in a row. How many stickers are left over?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: quotient-as-remainder
+        text: Those are the full rows. The question is how many stickers are left over.
+      - when: numval(state.input) == 18
+        misconception: subtracted
+        text: You worked out 23 − 5. But several rows get filled.
+    hints:
+      - Count in fives until you are just below 23.
+      - 4 · 5 = 20 stickers are used. How many more is it up to 23?
+    explanation: "4 full rows are 20 stickers. Of 23, 3 are left over: 23 ÷ 5 = 4 remainder 3."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how multiplying helps you with dividing.
+    params:
+      keywords:
+        - - mal
+          - multipl
+          - times
+        - - rückwärts
+          - umkehr
+          - umgekehrt
+          - backwards
+          - reverse
+          - inverse
+        - - wie viel
+          - wie oft
+          - welche zahl
+          - how many
+          - times what
+          - which number
+          - what number
+      sample: "Dividing is multiplying backwards. For 12 ÷ 3 I ask myself: 3 times what makes 12? The answer is 4."
+    explanation: "Key idea: every division problem is a times problem with a gap."
+    difficulty: 3
+
+srs:
+  cards_from: ["umkehren", "teilen-klein"]

@@ -1,0 +1,364 @@
+id: math.start.double
+type: concept
+title: "Doubling, halving and the ten trick"
+summary: "Three shortcuts that make mental maths easy: times 2, divided by 2 and times 10."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: The number mirror
+    body: A mirror shows everything twice. Fill 3 cells at the top and exactly the same ones below. The counter now shows 6. That is **double** 3. Try it with 4 and with 5 as well.
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 2
+        cols: 5
+        mirror: horizontal
+        counter: true
+
+  - kind: problem
+    id: sterne
+    widget: numeric
+    prompt: You have 4 stars. Lena has twice as many. How many stars does Lena have?
+    body: ⭐⭐⭐⭐   ⭐⭐⭐⭐
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: added-two
+        text: "You worked out 4 + 2. Twice as many means: 4 and another 4."
+      - when: numval(state.input) == 4
+        misconception: not-doubled
+        text: That is how many you have. Lena has two times as many.
+    hints:
+      - "Twice as many means: the same amount once more."
+      - Work out 4 + 4.
+    explanation: 4 + 4 = 8. Double 4 is 8.
+
+  - kind: problem
+    id: spiegeln
+    widget: pixels
+    prompt: 3 cells are filled at the bottom. Fill exactly the same ones at the top – that is how you double.
+    params:
+      cells:
+        - .....
+        - "###.."
+      locked:
+        - .....
+        - xxxxx
+      mirror: horizontal
+      counter: true
+    answer:
+      pattern:
+        - "###.."
+        - "###.."
+    feedback:
+      - when: on == 3
+        misconception: not-doubled
+        text: The mirror image at the top is still missing. Tap the three cells above the filled ones.
+      - when: on > 6
+        misconception: too-many
+        text: That is too many. The top should have just as many filled cells as the bottom.
+    hints:
+      - The mirror lies between the two rows.
+      - Fill the first 3 cells at the top. The counter then shows 6.
+    explanation: 3 cells and their mirror image make 6 together. Double 3 is 6.
+
+  - kind: problem
+    id: haelfte-tafel
+    widget: fraction
+    prompt: The bar has 6 pieces. Fill half of it.
+    params:
+      parts: 6
+      shape: square
+    answer:
+      fraction: 1/2
+    feedback:
+      - when: shadedCount == 6
+        misconception: whole-not-half
+        text: That is the whole bar. Half is only one of two equal parts.
+      - when: shadedCount > 0 && shadedCount < 3
+        misconception: less-than-half
+        text: That is less than half. Both parts must be the same size.
+      - when: shadedCount > 3
+        misconception: more-than-half
+        text: That is more than half. Both parts must be the same size.
+    hints:
+      - "Half means: two parts of equal size."
+      - 3 + 3 = 6. Fill 3 pieces.
+    explanation: Half of 6 is 3, because 3 + 3 = 6.
+
+  - kind: explain
+    id: idee
+    body: "**Doubling** means: the same number once more. That is the same as times 2. Halving undoes it: you split into two equal parts. Double 6 is 12, half of 12 is 6."
+
+  - kind: problem
+    id: verdoppeln
+    widget: numeric
+    prompt: Double {{n}}.
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n + 2
+        misconception: added-two
+        text: That is only 2 more. Doubling means {{n}} + {{n}}.
+      - when: numval(state.input) == n
+        misconception: not-doubled
+        text: That is the number itself. Take it twice.
+    hints:
+      - "Doubling means: the same number once more."
+      - Work out {{n}} + {{n}}.
+    explanation: "{{n}} + {{n}} = {{2 * n}}."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: halbieren
+    widget: numeric
+    prompt: Halve {{2 * n}}.
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 4 * n
+        misconception: doubled
+        text: You doubled. Halving splits into two equal parts.
+      - when: numval(state.input) == 2 * n - 2
+        misconception: subtracted-two
+        text: That is only 2 fewer. You need the number that makes {{2 * n}} when doubled.
+    hints:
+      - Which number makes {{2 * n}} when you double it?
+      - "Try it out: {{n - 1}} + {{n - 1}} = {{2 * n - 2}} is just too little."
+    explanation: "{{n}} + {{n}} = {{2 * n}}. So half of {{2 * n}} is {{n}}."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 8
+
+  - kind: explain
+    id: stangen
+    body: One rod has 10 cubes. How many cubes do 3 rods have? Think for a moment, then reveal.
+    reveal:
+      body: "There are 30, that is 3 · 10. Times 10 is easy: add a 0 at the end. 3 becomes 30, 7 becomes 70. That is the **ten trick**."
+
+  - kind: problem
+    id: mal-zehn
+    widget: numeric
+    prompt: Work out {{n}} · 10.
+    answer:
+      value: "{{10 * n}}"
+    feedback:
+      - when: numval(state.input) == n + 10
+        misconception: added-factors
+        text: "That would be {{n}} + 10. Times 10 means: add a 0 to the end of {{n}}."
+      - when: numval(state.input) == 100 * n
+        misconception: too-many-zeros
+        text: That is one 0 too many. Times 10 adds exactly one 0.
+    hints:
+      - Picture {{n}} rods of ten.
+      - "Times 10: add a 0 to the end of {{n}}."
+    explanation: "{{n}} · 10 = {{10 * n}}. Each digit slides one place to the left."
+    variants:
+      params:
+        n: int[2,15]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mal-vier
+    depth: 2
+    widget: numeric
+    prompt: Times 4 means doubling twice. Work out 4 · {{n}}.
+    answer:
+      value: "{{4 * n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: doubled-once
+        text: That is doubled only once. Double the {{2 * n}} again.
+      - when: numval(state.input) == n + 4
+        misconception: added-factors
+        text: That would be {{n}} + 4. You need four lots of {{n}}.
+    hints:
+      - Double {{n}}. That makes {{2 * n}}.
+      - Now double the {{2 * n}}.
+    explanation: "{{n}} → {{2 * n}} → {{4 * n}}. Doubling twice is times 4."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,9]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mal-fuenf
+    depth: 2
+    widget: numeric
+    prompt: Times 5 is times 10 and then halving. Work out 5 · {{n}}.
+    answer:
+      value: "{{5 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: forgot-halving
+        text: That is {{n}} · 10. Now halve it.
+      - when: numval(state.input) == n + 5
+        misconception: added-factors
+        text: That would be {{n}} + 5. You need five lots of {{n}}.
+    hints:
+      - "{{n}} · 10 = {{10 * n}}."
+      - Now halve the {{10 * n}}.
+    explanation: "{{n}} · 10 = {{10 * n}}. Half of that is {{5 * n}}."
+    difficulty: 2
+    variants:
+      params:
+        n: step[4,12,2]
+      defaults:
+        n: 8
+
+  - kind: problem
+    id: blitz
+    depth: 2
+    widget: swipe
+    prompt: "Lightning round: true or false?"
+    params:
+      cards:
+        - text: 12 · 10 = 120
+          right: true
+        - text: 10 · 10 = 20
+          right: false
+          why: "That would be 10 + 10. Times 10 adds a 0 at the end: 100."
+        - text: 70 ÷ 10 = 7
+          right: true
+          why: "The ten trick backwards: the 0 at the end drops off again."
+        - text: Half of 30 is 10.
+          right: false
+          why: 10 + 10 is only 20. Half of 30 is 15.
+    difficulty: 2
+
+  - kind: problem
+    id: gleich-viel
+    depth: 2
+    widget: match
+    prompt: Which ones are equal? Match them.
+    params:
+      pairs:
+        - left: double 15
+          right: 3 · 10
+        - left: half of 40
+          right: 2 · 10
+        - left: double 25
+          right: 5 · 10
+        - left: half of 80
+          right: 4 · 10
+    hints:
+      - Work out the left side first.
+      - Double 15 is 30. Which tens problem makes 30?
+    explanation: 30, 20, 50 and 40 – left and right show the same amount each time.
+    difficulty: 2
+
+  - kind: problem
+    id: mal-zwanzig
+    depth: 3
+    widget: numeric
+    prompt: "Work out 20 · 7. Tip: first times 2, then times 10."
+    answer:
+      value: 140
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: partial-product
+        text: That is only 7 · 2. Now times 10 as well.
+      - when: numval(state.input) == 27
+        misconception: added-factors
+        text: That would be 20 + 7. You need twenty sevens.
+    hints:
+      - 7 · 2 = 14.
+      - "Now 14 · 10: add a 0 at the end."
+    explanation: 7 · 2 = 14 and 14 · 10 = 140. So 20 · 7 = 140.
+    difficulty: 3
+
+  - kind: problem
+    id: gerade
+    depth: 3
+    widget: buckets
+    prompt: Which numbers can be halved with nothing left over?
+    params:
+      buckets:
+        - id: b1
+          label: comes out evenly
+        - id: b2
+          label: one is left over
+      items:
+        - label: "14"
+          bucket: b1
+        - label: "9"
+          bucket: b2
+        - label: "30"
+          bucket: b1
+        - label: "25"
+          bucket: b2
+        - label: "18"
+          bucket: b1
+        - label: "7"
+          bucket: b2
+    hints:
+      - Imagine sharing the number fairly between two children.
+      - "Look at the last digit: with 0, 2, 4, 6 or 8 it always comes out evenly."
+    explanation: "14, 30 and 18 come out evenly: they are even numbers. With 9, 25 and 7 one is left over: they are odd."
+    difficulty: 3
+
+  - kind: problem
+    id: haelfte-zerlegen
+    depth: 3
+    widget: numeric
+    prompt: "Halve 70. Tip: split it into 60 and 10."
+    answer:
+      value: 35
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: partial-half
+        text: That is half of 60. Half of 10 is still missing.
+      - when: numval(state.input) == 140
+        misconception: doubled
+        text: You doubled. Halving splits into two equal parts.
+    hints:
+      - Half of 60 is 30.
+      - Half of 10 is 5. Add the two together.
+    explanation: "30 + 5 = 35. Check: 35 + 35 = 70."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux why you can simply add a 0 at the end for times 10.
+    params:
+      keywords:
+        - - "null"
+          - zero
+          - nought
+        - - stelle
+          - links
+          - platz
+          - place
+          - left
+          - position
+        - - zehner
+          - zehnmal
+          - mal 10
+          - tens
+          - ten times
+          - times 10
+      sample: Times 10 turns every one into a ten, so there are tens instead of ones. Each digit slides one place to the left. A zero then fills the empty place on the far right.
+    explanation: "Key idea: times 10 moves each digit one place to the left, and the zero fills the empty place."
+    difficulty: 3
+
+srs:
+  cards_from: ["verdoppeln", "halbieren", "mal-zehn"]

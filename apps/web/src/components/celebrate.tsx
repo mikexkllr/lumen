@@ -1,5 +1,5 @@
 /**
- * Small rewards that make right answers feel good: a particle burst, a glow, a streak banner.
+ * Small rewards that make right answers feel good: a particle burst and a glow.
  * All of them are decorative (aria-hidden) and switch off with reduced motion.
  */
 import { useMemo } from 'react';
@@ -36,27 +36,6 @@ export function Burst({ color = '#5145f0', power = 1, x = '50%', y = '50%', seed
         </motion.span>
       ))}
     </div>
-  );
-}
-
-/** Big pill that springs in for streak milestones (3, 5, 10, …). */
-export function StreakBanner({ n, label }: { n: number | null; label: string }) {
-  return (
-    <AnimatePresence>
-      {n !== null && (
-        <motion.div
-          key={n}
-          className={`streak-banner heat${n >= 10 ? 3 : n >= 5 ? 2 : 1}`}
-          initial={{ opacity: 0, scale: 0.5, y: -10 }}
-          animate={{ opacity: 1, scale: [0.5, 1.12, 1], y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: -16, transition: { duration: 0.25 } }}
-          transition={{ duration: 0.5, ease: [0.2, 0.8, 0.2, 1] }}
-          aria-hidden="true"
-        >
-          <span className="fire">🔥</span> {label}
-        </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
 

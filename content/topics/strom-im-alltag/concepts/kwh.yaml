@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 11
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -34,46 +34,59 @@ steps:
             initial: 500
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: Strom kostet etwa 35 Cent pro Kilowattstunde. Wie viele Cent kostet es, einen Liter Wasser im Wasserkocher zu kochen?
+    id: start-heizen
+    widget: choice
+    prompt: Welches Gerät braucht am meisten Strom, während es läuft?
     params:
-      min: 0.1
-      max: 100
-      scale: log
-    answer:
-      value: 3.5
-      within: 50
-    explanation: Etwa 0,1 kWh, also rund 3,5 Cent. Wasser von 20 °C auf 100 °C zu bringen braucht rund 335 kJ, dazu kommen kleine Verluste.
+      options:
+        - label: Der Wasserkocher
+          correct: true
+        - label: Die LED-Lampe
+          feedback: LED-Lampen sind sehr sparsam.
+        - label: Das Handy am Ladekabel
+          feedback: Ein Handy lädt mit wenigen Watt. Der Wasserkocher braucht über hundertmal mehr.
+    hints:
+      - Was wird in kurzer Zeit richtig heiß?
+      - Heizen braucht besonders viel Strom.
+    explanation: Geräte, die heizen, brauchen am meisten. Ein Wasserkocher zieht rund 2000 Watt, eine LED-Lampe nur etwa 8.
 
   - kind: explain
     id: c1
     body: Die **Leistung** sagt, wie schnell ein Gerät Energie umsetzt. Man misst sie in Watt (W). Läuft ein Gerät mit 1000 W eine Stunde lang, verbraucht es 1 Kilowattstunde (kWh).
 
   - kind: problem
-    id: c2
+    id: start-drei
     widget: numeric
-    prompt: Ein Föhn mit {{p}} W läuft {{m}} Minuten. Wie viele kWh verbraucht er?
+    prompt: Eine Heizung mit 1000 W läuft 3 Stunden. Wie viele Kilowattstunden verbraucht sie?
     params:
       unit: kWh
     answer:
-      value: "{{p * m / 60000}}"
-      tolerance: 0.005
+      value: 3
     feedback:
-      - when: numval(state.input) == p * m
+      - when: numval(state.input) == 3000
         misconception: units
-        text: Das sind Wattminuten. Rechne in Stunden und Kilowatt um.
+        text: Das sind Wattstunden. 1000 Wh sind 1 kWh.
     hints:
-      - Energie = Leistung · Zeit, in kW und h.
-      - "{{p / 1000}} kW · {{m}}/60 h."
-    explanation: "{{p / 1000}} kW · {{m / 60}} h = {{p * m / 60000}} kWh."
-    variants:
-      params:
-        p: choice[1200,1800,2400]
-        m: choice[10,15,20,30]
-      defaults:
-        p: 1800
-        m: 10
+      - 1000 W für eine Stunde sind 1 kWh.
+      - Drei Stunden sind dreimal so viel.
+    explanation: Jede Stunde kommt 1 kWh dazu. Nach 3 Stunden sind es 3 kWh.
+
+  - kind: problem
+    id: start-kw
+    widget: numeric
+    prompt: Ein Wasserkocher hat 2000 W. Wie viele kWh verbraucht er, wenn er eine ganze Stunde läuft?
+    params:
+      unit: kWh
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 2000
+        misconception: units
+        text: Das sind Wattstunden. Teile durch 1000, dann hast du kWh.
+    hints:
+      - 1000 W eine Stunde lang sind 1 kWh.
+      - 2000 W sind doppelt so viel wie 1000 W.
+    explanation: 2000 W sind 2 kW. Eine Stunde lang ergibt das 2 kWh.
 
   - kind: problem
     id: c3
@@ -99,35 +112,17 @@ steps:
     explanation: "Heizen frisst Leistung: Wasserkocher und Föhn liegen bei 2000 W. Licht und Elektronik brauchen wenig."
 
   - kind: problem
-    id: c4
-    widget: numeric
-    prompt: Ein Fernseher mit 100 W läuft jeden Tag 4 Stunden. Was kostet das im Jahr bei 35 Cent pro kWh? In Euro.
+    id: hook
+    widget: estimate
+    prompt: Strom kostet etwa 35 Cent pro Kilowattstunde. Wie viele Cent kostet es, einen Liter Wasser im Wasserkocher zu kochen?
     params:
-      unit: €
+      min: 0.1
+      max: 100
+      scale: log
     answer:
-      value: 51.1
-      tolerance: 0.2
-    hints:
-      - "Erst die kWh pro Tag: 0,1 kW · 4 h."
-      - 0,4 kWh · 365 · 0,35 €.
-    explanation: 0,4 kWh pro Tag · 365 = 146 kWh. Mal 0,35 € ergibt etwa 51,10 €.
-
-  - kind: problem
-    id: c5
-    widget: choice
-    prompt: Auf einem Wasserkocher steht »2 kW«. Was bedeutet das?
-    params:
-      options:
-        - label: Er setzt 2000 Joule pro Sekunde um
-          correct: true
-        - label: Er verbraucht 2 kWh pro Kochvorgang
-          feedback: kW ist eine Leistung, kWh eine Energie.
-        - label: Er verbraucht insgesamt 2 kWh
-          feedback: Wie viel Energie, hängt davon ab, wie lange er läuft.
-    hints:
-      - Watt ist eine Rate, wie km/h beim Auto.
-      - 1 W = 1 Joule pro Sekunde.
-    explanation: Leistung ist Energie pro Zeit. 2 kW heißt 2000 J pro Sekunde. Erst mit der Laufzeit wird daraus eine Energie in kWh.
+      value: 3.5
+      within: 50
+    explanation: Etwa 0,1 kWh, also rund 3,5 Cent. Wasser von 20 °C auf 100 °C zu bringen braucht rund 335 kJ, dazu kommen kleine Verluste.
 
   - kind: problem
     id: intro-c1
@@ -160,6 +155,81 @@ steps:
       - "Energie ist Leistung mal Zeit. Hier: 1 kWh in 2 h."
       - "1 kWh : 2 h = 0,5 kW."
     explanation: 500 W · 2 h = 1000 Wh = 1 kWh. Die Linie geht genau durch den Punkt.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Föhn mit {{p}} W läuft {{m}} Minuten. Wie viele kWh verbraucht er?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * m / 60000}}"
+      tolerance: 0.005
+    feedback:
+      - when: numval(state.input) == p * m
+        misconception: units
+        text: Das sind Wattminuten. Rechne in Stunden und Kilowatt um.
+    hints:
+      - Energie = Leistung · Zeit, in kW und h.
+      - "{{p / 1000}} kW · {{m}}/60 h."
+    explanation: "{{p / 1000}} kW · {{m / 60}} h = {{p * m / 60000}} kWh."
+    variants:
+      params:
+        p: choice[1200,1800,2400]
+        m: choice[10,15,20,30]
+      defaults:
+        p: 1800
+        m: 10
+
+  - kind: problem
+    id: start-kosten
+    widget: numeric
+    prompt: Eine Kilowattstunde kostet 35 Cent. Was kosten 10 kWh? In Euro.
+    params:
+      unit: €
+    answer:
+      value: 3.5
+    feedback:
+      - when: numval(state.input) == 350
+        misconception: cents
+        text: Das sind Cent. 100 Cent sind 1 Euro.
+    hints:
+      - Rechne 10 · 35 Cent.
+      - 350 Cent sind wie viele Euro?
+    explanation: 10 · 35 Cent = 350 Cent = 3,50 €.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: Ein Fernseher mit 100 W läuft jeden Tag 4 Stunden. Was kostet das im Jahr bei 35 Cent pro kWh? In Euro.
+    params:
+      unit: €
+    answer:
+      value: 51.1
+      tolerance: 0.2
+    hints:
+      - "Erst die kWh pro Tag: 0,1 kW · 4 h."
+      - 0,4 kWh · 365 · 0,35 €.
+    explanation: 0,4 kWh pro Tag · 365 = 146 kWh. Mal 0,35 € ergibt etwa 51,10 €.
+
+  - kind: problem
+    id: c5
+    depth: 2
+    widget: choice
+    prompt: Auf einem Wasserkocher steht »2 kW«. Was bedeutet das?
+    params:
+      options:
+        - label: Er setzt 2000 Joule pro Sekunde um
+          correct: true
+        - label: Er verbraucht 2 kWh pro Kochvorgang
+          feedback: kW ist eine Leistung, kWh eine Energie.
+        - label: Er verbraucht insgesamt 2 kWh
+          feedback: Wie viel Energie, hängt davon ab, wie lange er läuft.
+    hints:
+      - Watt ist eine Rate, wie km/h beim Auto.
+      - 1 W = 1 Joule pro Sekunde.
+    explanation: Leistung ist Energie pro Zeit. 2 kW heißt 2000 J pro Sekunde. Erst mit der Laufzeit wird daraus eine Energie in kWh.
+    difficulty: 2
 
   - kind: problem
     id: d1

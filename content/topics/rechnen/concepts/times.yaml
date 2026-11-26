@@ -1,0 +1,364 @@
+id: math.start.times
+type: concept
+title: "Malnehmen"
+summary: "Gleiche Gruppen und Reihen zählen – und das kleine Einmaleins mit 2, 5 und 10."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Reihen statt zählen
+    body: "Eierkartons, Fenster, Schokolade: Vieles steht in gleichen Reihen. Zieh am Punkt und bau ein Rechteck mit 3 Reihen zu je 4 Kästchen. Zähl nach: Es sind 12. Das ist **Malnehmen**."
+    visual:
+      widget: rect
+      interactive: true
+      params:
+        maxW: 6
+        maxH: 5
+        w: 2
+        h: 2
+        show: []
+        unit: cm
+
+  - kind: problem
+    id: schuhe
+    widget: numeric
+    prompt: 3 Kinder, jedes hat 2 Schuhe. Wie viele Schuhe sind das zusammen?
+    body: 👟👟   👟👟   👟👟
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: added-factors
+        text: Du hast 3 + 2 gerechnet. Aber jedes der 3 Kinder hat 2 Schuhe.
+      - when: numval(state.input) == 3
+        misconception: counted-groups
+        text: Das sind die Kinder. Gefragt ist, wie viele Schuhe es sind.
+    hints:
+      - Zähl alle Schuhe.
+      - Rechne 2 + 2 + 2.
+    explanation: "2 + 2 + 2 = 6. Dafür sagt man kurz: 3 mal 2 ist 6."
+
+  - kind: problem
+    id: reihen-bauen
+    widget: rect
+    prompt: Bau ein Rechteck mit 2 Reihen zu je 5 Kästchen.
+    params:
+      maxW: 6
+      maxH: 5
+      w: 1
+      h: 1
+      show: []
+      unit: cm
+    check:
+      predicate: w == 5 && h == 2
+    feedback:
+      - when: w == 2 && h == 5
+        misconception: rows-columns-swapped
+        text: Das sind 5 Reihen zu je 2 Kästchen. Gesucht sind 2 Reihen zu je 5.
+    hints:
+      - Die Zahl rechts zählt die Reihen. Die Zahl oben zählt die Kästchen in einer Reihe.
+      - Zieh den Punkt, bis oben eine 5 steht und rechts eine 2.
+    explanation: 2 Reihen zu je 5 Kästchen sind zusammen 10 Kästchen.
+
+  - kind: problem
+    id: rechteck-zaehlen
+    widget: numeric
+    prompt: Das Rechteck hat 3 Reihen zu je 4 Kästchen. Wie viele Kästchen sind es zusammen?
+    visual:
+      widget: rect
+      params:
+        maxW: 6
+        maxH: 4
+        w: 4
+        h: 3
+        show: []
+        unit: cm
+    answer:
+      value: 12
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: added-factors
+        text: Du hast 3 + 4 gerechnet. Es sind aber 3 Reihen mit je 4 Kästchen.
+      - when: numval(state.input) == 11 || numval(state.input) == 13
+        misconception: miscount
+        text: "Knapp daneben. Zähl Reihe für Reihe: 4, 8 und noch eine Reihe."
+    hints:
+      - Zähl Reihe für Reihe. Jede Reihe hat 4 Kästchen.
+      - Rechne 4 + 4 + 4.
+    explanation: "4 + 4 + 4 = 12. Kürzer geschrieben: 3 · 4 = 12."
+
+  - kind: explain
+    id: mal-idee
+    body: "Statt 4 + 4 + 4 schreibst du kurz 3 · 4. Den Punkt liest du »mal«. **Malnehmen** ist also Plusrechnen mit immer derselben Zahl: 3 · 4 heißt dreimal die 4."
+
+  - kind: problem
+    id: plus-zu-mal
+    widget: choice
+    prompt: Welche Mal-Aufgabe passt zu 5 + 5 + 5?
+    params:
+      layout: grid
+      options:
+        - label: 3 · 5
+          correct: true
+        - label: 5 · 5
+          feedback: Die 5 steht nur dreimal da, nicht fünfmal.
+        - label: 3 + 5
+          feedback: Das ist eine Plus-Aufgabe mit anderem Ergebnis. Zähl, wie oft die 5 vorkommt.
+        - label: 15 · 5
+          feedback: 15 ist schon das Ergebnis. Gesucht ist, wie oft die 5 vorkommt.
+    hints:
+      - Wie oft steht die 5 da?
+      - Dreimal die 5 – also 3 mal 5.
+    explanation: "Die 5 kommt dreimal vor: 5 + 5 + 5 = 3 · 5 = 15."
+
+  - kind: problem
+    id: mal-zwei
+    widget: numeric
+    prompt: Rechne {{a}} · 2.
+    answer:
+      value: "{{2 * a}}"
+    feedback:
+      - when: numval(state.input) == a + 2
+        misconception: added-factors
+        text: "Das wäre {{a}} + 2. Mal 2 heißt: die {{a}} zweimal nehmen."
+    hints:
+      - Stell dir {{a}} Paar Schuhe vor. Wie viele Schuhe sind das?
+      - Rechne {{a}} + {{a}}.
+    explanation: "{{a}} · 2 = {{a}} + {{a}} = {{2 * a}}."
+    variants:
+      params:
+        a: int[3,9]
+      defaults:
+        a: 6
+
+  - kind: problem
+    id: fuenfer-zehner
+    widget: numeric
+    prompt: Rechne {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: added-factors
+        text: Das wäre {{a}} + {{b}}. Gesucht ist {{a}}-mal die {{b}}.
+      - when: numval(state.input) == a * b - b || numval(state.input) == a * b + b
+        misconception: one-step-off
+        text: Du bist einen Schritt daneben gelandet. Zähl genau {{a}} Schritte mit.
+    hints:
+      - "Zähl in {{b}}er-Schritten: {{b}}, {{2 * b}} und so weiter."
+      - Du brauchst genau {{a}} Schritte. Nimm die Finger dazu.
+    explanation: "{{a}} Schritte in {{b}}er-Schritten landen bei {{a * b}}."
+    variants:
+      params:
+        a: int[2,9]
+        b: choice[5,10]
+      defaults:
+        a: 4
+        b: 5
+
+  - kind: problem
+    id: blitz
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 2 · 5 = 10
+          right: true
+        - text: 3 · 10 = 13
+          right: false
+          why: Das wäre 3 + 10. Dreimal die 10 sind 30.
+        - text: 4 · 2 ergibt dasselbe wie 2 · 4.
+          right: true
+          why: "Dreh das Rechteck: Es bleiben gleich viele Kästchen."
+        - text: 5 · 5 = 10
+          right: false
+          why: 5 + 5 ist 10. Fünfmal die 5 sind aber 25.
+
+  - kind: explain
+    id: tauschen
+    depth: 2
+    body: "3 · 4 und 4 · 3 ergeben beide 12. Dreh das Rechteck in Gedanken: Es bleiben dieselben Kästchen. So ein gedrehtes Paar heißt **Tauschaufgabe**."
+    visual:
+      widget: rect
+      params:
+        maxW: 6
+        maxH: 4
+        w: 3
+        h: 4
+        show: []
+        unit: cm
+
+  - kind: problem
+    id: paare
+    depth: 2
+    widget: match
+    prompt: Verbinde jede Aufgabe mit ihrem Ergebnis.
+    params:
+      pairs:
+        - left: 3 · 3
+          right: "9"
+        - left: 4 · 5
+          right: "20"
+        - left: 6 · 2
+          right: "12"
+        - left: 7 · 10
+          right: "70"
+    hints:
+      - Fang mit der Aufgabe an, die du sicher weißt.
+      - 7 · 10 hat das größte Ergebnis, 3 · 3 das kleinste.
+    explanation: 3 · 3 = 9, 4 · 5 = 20, 6 · 2 = 12 und 7 · 10 = 70.
+    difficulty: 2
+
+  - kind: problem
+    id: dreier-vierer
+    depth: 2
+    widget: numeric
+    prompt: Rechne {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: added-factors
+        text: Das wäre {{a}} + {{b}}. Gesucht ist {{a}}-mal die {{b}}.
+      - when: numval(state.input) == a * b - b || numval(state.input) == a * b + b
+        misconception: one-step-off
+        text: Du bist eine Reihe daneben. Es sind genau {{a}} Reihen zu je {{b}}.
+    hints:
+      - Stell dir {{a}} Reihen zu je {{b}} Kästchen vor.
+      - Zähl in {{b}}er-Schritten und mach genau {{a}} Schritte.
+    explanation: "{{a}} Reihen zu je {{b}} sind zusammen {{a * b}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[3,6]
+        b: choice[3,4]
+      defaults:
+        a: 6
+        b: 3
+
+  - kind: problem
+    id: eierkarton
+    depth: 2
+    widget: numeric
+    prompt: In einem Karton liegen 2 Reihen zu je 5 Eiern. Wie viele Eier sind in 3 Kartons?
+    answer:
+      value: 30
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: one-group
+        text: So viele Eier hat ein Karton. Gefragt sind 3 Kartons.
+      - when: numval(state.input) == 13
+        misconception: added-factors
+        text: Du hast 10 + 3 gerechnet. Es sind aber dreimal 10 Eier.
+    hints:
+      - Ein Karton hat 2 · 5 = 10 Eier.
+      - "Drei Kartons haben dreimal so viele: 3 · 10."
+    explanation: Ein Karton hat 10 Eier. Drei Kartons haben 3 · 10 = 30 Eier.
+    difficulty: 2
+
+  - kind: problem
+    id: rechteck-24
+    depth: 3
+    widget: rect
+    prompt: Bau ein Rechteck mit 4 Reihen und genau 24 Kästchen.
+    params:
+      maxW: 8
+      maxH: 6
+      w: 2
+      h: 2
+      show: []
+      unit: cm
+    check:
+      predicate: h == 4 && w == 6
+    feedback:
+      - when: h == 4 && w != 6
+        misconception: wrong-width
+        text: 4 Reihen stimmen schon. Zähl nach, ob es genau 24 Kästchen sind.
+      - when: w == 4 && h == 6
+        misconception: rows-columns-swapped
+        text: Das sind 24 Kästchen, aber in 6 Reihen. Gesucht sind 4 Reihen.
+    hints:
+      - Stell erst 4 Reihen ein. Wie viele Kästchen braucht dann jede Reihe?
+      - 4 · 5 = 20 ist zu wenig. Probier 6 Kästchen in jeder Reihe.
+    explanation: 4 · 6 = 24. Jede der 4 Reihen hat 6 Kästchen.
+    difficulty: 3
+
+  - kind: problem
+    id: mal-null
+    depth: 3
+    widget: choice
+    prompt: Wie viel ist 7 · 0?
+    params:
+      layout: grid
+      options:
+        - label: "0"
+          correct: true
+        - label: "7"
+          feedback: Das wäre 7 · 1. Siebenmal nichts bleibt nichts.
+        - label: "70"
+          feedback: Das wäre 7 · 10.
+        - label: "1"
+          feedback: Rechne 0 + 0 + 0 + 0 + 0 + 0 + 0.
+    hints:
+      - "7 · 0 heißt: siebenmal die 0 zusammenzählen."
+      - Stell dir sieben leere Teller vor. Wie viele Kekse liegen darauf?
+    explanation: "Siebenmal nichts bleibt nichts: 7 · 0 = 0."
+    difficulty: 3
+
+  - kind: problem
+    id: sieben-acht
+    depth: 3
+    widget: numeric
+    prompt: "Rechne 7 · 8. Tipp: Zerlege in 5 · 8 und 2 · 8."
+    answer:
+      value: 56
+    feedback:
+      - when: numval(state.input) == 15
+        misconception: added-factors
+        text: Das wäre 7 + 8. Gesucht ist siebenmal die 8.
+      - when: numval(state.input) == 40
+        misconception: partial-product
+        text: Das ist erst 5 · 8. Es fehlen noch 2 · 8 = 16.
+    hints:
+      - 5 · 8 = 40.
+      - 2 · 8 = 16. Zähl 40 und 16 zusammen.
+    explanation: 5 · 8 = 40 und 2 · 8 = 16. Zusammen sind das 56.
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum 3 · 4 dasselbe ergibt wie 4 · 3.
+    params:
+      keywords:
+        - - reihe
+          - rechteck
+          - spalte
+          - row
+          - rectangle
+          - column
+        - - dreh
+          - tausch
+          - kipp
+          - turn
+          - swap
+          - rotate
+          - flip
+        - - gleich
+          - dieselbe
+          - "12"
+          - zwölf
+          - same
+          - twelve
+      sample: "Ich stelle mir ein Rechteck mit 3 Reihen zu je 4 Kästchen vor. Wenn ich es drehe, sind es 4 Reihen zu je 3. Die Kästchen bleiben gleich viele: 12."
+    explanation: "Kernidee: Ein gedrehtes Rechteck hat dieselben Kästchen – nur Reihen und Spalten tauschen die Rollen."
+    difficulty: 3
+
+srs:
+  cards_from: ["mal-zwei", "fuenfer-zehner"]

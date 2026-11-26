@@ -40,8 +40,8 @@ export interface ReviewItemState {
 
 /** Replays the log: the first lesson attempt counts as the first review. */
 export function deriveReviewItems(events: readonly LumenEvent[], catalog: Catalog): Map<string, ReviewItemState> {
-  const cardOwner = new Map<string, { conceptId: string; topicId: string }>();
-  for (const c of Object.values(catalog.concepts)) for (const id of c.srsCards) cardOwner.set(id, { conceptId: c.id, topicId: c.topicId });
+  const cardOwner = new Map<string, { conceptId: string; topicId: string; group: string }>();
+  for (const c of Object.values(catalog.concepts)) for (const id of c.srsCards) cardOwner.set(id, { conceptId: c.id, topicId: c.topicId, group: c.group ?? c.id });
 
   const items = new Map<string, ReviewItemState>();
   const pendingLesson = new Map<string, AttemptEvent[]>();
@@ -53,8 +53,10 @@ export function deriveReviewItems(events: readonly LumenEvent[], catalog: Catalo
       pendingLesson.set(e.stepId, list);
     }
     if (e.type === 'concept_completed') {
-      for (const [stepId, owner] of cardOwner) {
-        if (owner.conceptId !== e.conceptId || items.has(stepId)) continue;
+      // a completion from before concepts were cut into lessons names the whole concept: all its cards start
+      const whole = !catalog.concepts[e.conceptId];
+      for (const [stepId, { group, ...owner }] of cardOwner) {
+        if ((whole ? group : owner.conceptId) !== e.conceptId || items.has(stepId)) continue;
         const attempts = pendingLesson.get(stepId) ?? [];
         const final = attempts.find((a) => a.final) ?? attempts[attempts.length - 1];
         const rating = final

@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 12
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -23,21 +23,59 @@ steps:
             fixed: true
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: An AA battery has 1.5 volts. How many in a row would you need for the 230 volts of a wall socket?
+    id: start-quelle
+    widget: choice
+    prompt: Where does a remote control get its electricity from?
     params:
-      min: 10
-      max: 1000
-      scale: log
-    answer:
-      value: 153
-      within: 10
-    explanation: 230 ÷ 1.5 ≈ 153. One after another, in series, the voltages add up.
+      options:
+        - label: From batteries
+          correct: true
+        - label: From the wall socket
+          feedback: Then it would hang on a cable.
+        - label: From the air
+          feedback: Electricity needs a source. There are batteries inside the remote.
+    hints:
+      - What do you have to replace when it stops responding?
+      - Imagine opening the cover on the back.
+    explanation: Small devices run on batteries, large ones are plugged into the socket. Both supply electricity – but with very different strength.
+
+  - kind: problem
+    id: start-heller
+    widget: choice
+    prompt: You turn up the voltage on a lamp. What happens?
+    params:
+      options:
+        - label: The lamp shines brighter
+          correct: true
+        - label: The lamp gets dimmer
+          feedback: More voltage drives more current through the lamp – not less.
+        - label: Nothing changes
+          feedback: "Try it in the intro: the slider changes the brightness."
+    hints:
+      - Remember the slider in the intro.
+      - More voltage drives more current through the lamp.
+    explanation: More voltage, more current, more light. Voltage is what drives a circuit.
 
   - kind: explain
     id: c1
     body: "**Voltage** pushes the current along. It is measured in volts (V). An AA battery has 1.5 V, a USB port 5 V, a wall socket 230 V."
+
+  - kind: problem
+    id: start-reihe
+    widget: numeric
+    prompt: An AA battery has 1.5 V. A flashlight holds two in a row. Their voltages add up. How many volts is that?
+    params:
+      unit: V
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 1.5
+        misconception: series-same
+        text: That is one battery. Two in a row give twice as much.
+    hints:
+      - "In a row means: the voltages are added together."
+      - Work out 1.5 + 1.5.
+    explanation: 1.5 V + 1.5 V = 3 V. With more batteries in a row, the voltage rises.
 
   - kind: problem
     id: c2
@@ -89,6 +127,23 @@ steps:
     body: Voltage does not tell you how long a battery lasts. That depends on its **energy**. It is given in watt-hours (Wh). Multiply the voltage by the charge in amp-hours (Ah).
 
   - kind: problem
+    id: start-wh
+    widget: numeric
+    prompt: A battery pack has 5 V and stores a charge of 2 Ah. How many watt-hours is that?
+    params:
+      unit: Wh
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 7
+        misconception: add-not-multiply
+        text: "Don't add: energy is voltage **times** charge."
+    hints:
+      - Energy = voltage · charge.
+      - Work out 5 · 2.
+    explanation: 5 V · 2 Ah = 10 Wh. That keeps an LED lamp shining for about an hour.
+
+  - kind: problem
     id: c5
     widget: numeric
     prompt: A power bank holds {{c}} Ah at 3.7 V. How many watt-hours does it store?
@@ -127,6 +182,21 @@ steps:
       - Work out both per watt-hour.
       - 50 ÷ 3 ≈ 17 cents per Wh.
     explanation: "Battery: about 17 cents per Wh. Socket: 0.035 cents per Wh – almost 500 times cheaper."
+
+  - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: An AA battery has 1.5 volts. How many in a row would you need for the 230 volts of a wall socket?
+    params:
+      min: 10
+      max: 1000
+      scale: log
+    answer:
+      value: 153
+      within: 10
+    explanation: 230 ÷ 1.5 ≈ 153. One after another, in series, the voltages add up.
+    difficulty: 2
 
   - kind: explain
     id: d1

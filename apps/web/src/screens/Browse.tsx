@@ -4,6 +4,7 @@ import { buildReviewSession, dueItems, LEVELS, levelIndex, nextDue, openMistakes
 import { Cover, topicVars } from '../components/art.tsx';
 import { Icon, relativeDay, Ring } from '../components/ui.tsx';
 import { Lux } from '../components/Lux.tsx';
+import { depthOfLesson, lessonName } from '../lib/lessons.ts';
 import { href, navigate } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
 import { buildPath, CourseCard, UnitList } from './Home.tsx';
@@ -11,18 +12,21 @@ import { buildPath, CourseCard, UnitList } from './Home.tsx';
 const conceptsOf = (tp: Topic) => tp.units.flatMap((u) => u.concepts);
 
 export function TopicScreen({ topicId }: { topicId: string }) {
-  const { t, lib, progress, events } = useApp();
+  const { t, lib, progress, events, settings } = useApp();
   const topic = lib?.catalog.topics.find((tp) => tp.id === topicId);
   if (!lib || !topic) return <main id="main"><p>{t('discover.none')}</p></main>;
   const all = conceptsOf(topic);
   const done = all.filter((c) => progress.completedConcepts.has(c)).length;
-  const next = all.find((c) => !progress.completedConcepts.has(c));
   const minutes = all.reduce((s, c) => s + (lib.catalog.concepts[c]?.estimated_minutes ?? 0), 0);
   const problems = all.reduce((s, c) => s + (lib.catalog.concepts[c]?.problems ?? 0), 0);
+  // deeper and expert lessons of this course: optional, counted on their own
+  const extras = Object.values(lib.catalog.concepts).filter((c) => c.topicId === topic.id && depthOfLesson(c) > 1);
+  const extrasDone = extras.filter((c) => progress.completedConcepts.has(c.id)).length;
   const reviewed = new Set(events.flatMap((e) => (e.type === 'review_session_completed' && e.unitId ? [e.unitId] : [])));
   // Render this course's units with the same lesson states as on the home path.
   const fakePath = { ...lib.catalog, paths: [{ id: '__t', type: 'path', title: '', description: '', locale: 'de', topics: [topic.id] } as never] };
-  const { units } = buildPath(fakePath, '__t', progress, null, reviewed);
+  const { units, next: nextOpen } = buildPath(fakePath, '__t', progress, null, reviewed, settings.depth);
+  const next = nextOpen && !progress.completedConcepts.has(nextOpen) ? nextOpen : null;
   const prereq = topic.prerequisites.map((p) => lib.catalog.topics.find((x) => x.id === p)).filter(Boolean) as Topic[];
   const mistakes = openMistakes(events, { topicId: topic.id }).length;
   return (
@@ -39,6 +43,7 @@ export function TopicScreen({ topicId }: { topicId: string }) {
           <span><Icon name="book" size={16} /> {t('discover.concepts', { n: all.length })}</span>
           <span><Icon name="target" size={16} /> {problems} {t('topic.problems')}</span>
           <span><Icon name="clock" size={16} /> ≈ {minutes} {t('home.minShort')}</span>
+          {extras.length > 0 && <span><Icon name="layers" size={16} /> {t('topic.extras', { done: extrasDone, n: extras.length })}</span>}
         </div>
         <div className="progress-line">
           <div className="progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={all.length} aria-valuenow={done} aria-label={`${done}/${all.length}`}>
@@ -53,7 +58,7 @@ export function TopicScreen({ topicId }: { topicId: string }) {
         )}
         {next && (
           <button className="btn primary lg block" style={{ marginTop: 6 }} onClick={() => navigate(`learn/${next}`)}>
-            {done ? t('home.continue') : t('topic.start')} · {lib.catalog.concepts[next]?.title} <Icon name="arrow" size={18} className="arrow" />
+            {done ? t('home.continue') : t('topic.start')} · {lessonName(lib.catalog.concepts[next], t)} <Icon name="arrow" size={18} className="arrow" />
           </button>
         )}
       </div>
@@ -87,7 +92,7 @@ export function Discover({ subject }: { subject?: string }) {
       .filter((tp) => area === 'all' || tp.area === area)
       .map((tp) => {
         const concepts = conceptsOf(tp).map((c) => lib.catalog.concepts[c]).filter(Boolean);
-        const matches = needle ? concepts.filter((c) => `${c.title} ${c.summary ?? ''}`.toLowerCase().includes(needle)) : [];
+        const matches = needle ? concepts.filter((c) => (c.part ?? 1) === 1 && `${c.title} ${c.summary ?? ''}`.toLowerCase().includes(needle)) : [];
         const topicHit = !needle || `${tp.title} ${tp.description}`.toLowerCase().includes(needle);
         return { tp, matches, show: topicHit || matches.length > 0 };
       })

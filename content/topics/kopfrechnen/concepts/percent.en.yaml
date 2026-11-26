@@ -25,17 +25,44 @@ steps:
           - 20
 
   - kind: problem
-    id: ma-hook
-    widget: estimate
-    prompt: "Take a guess: what is 15 % of €60?"
+    id: einstieg-ganz
+    widget: choice
+    prompt: "100 % means: all of it. What is 100 % of 30 €?"
     params:
-      min: 0
-      max: 30
+      layout: grid
+      options:
+        - label: 30 €
+          correct: true
+        - label: 3 €
+          feedback: That is 10 %. With 100 % it is the whole amount.
+        - label: 15 €
+          feedback: That is half, so 50 %.
+        - label: 100 €
+          feedback: "100 % does not mean 100 €. It means: the whole amount."
+    hints:
+      - Per cent means “out of a hundred”. 100 out of 100 parts are all the parts.
+      - So you need the whole amount.
+    explanation: 100 % is always the whole – here that is 30 €.
+
+  - kind: problem
+    id: einstieg-haelfte
+    widget: numeric
+    prompt: 50 % is half. What is 50 % of 8 €?
+    params:
       unit: €
     answer:
-      value: 9
-      tolerance: 2
-    explanation: 10 % is €6, 5 % is €3. Together €9.
+      value: 4
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: whole-not-half
+        text: That is 100 %. Half is less.
+      - when: numval(state.input) == 16
+        misconception: doubled
+        text: You doubled. 50 % is half.
+    hints:
+      - Split 8 € into two equal parts.
+      - Which number makes 8 when doubled?
+    explanation: "Half of 8 € is 4 €. 50 % always means: divide by 2."
 
   - kind: problem
     id: zehn
@@ -49,6 +76,19 @@ steps:
     variants:
       params: { n: "step[20,90,10]" }
       defaults: { n: 60 }
+
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Take a guess: what is 15 % of €60?"
+    params:
+      min: 0
+      max: 30
+      unit: €
+    answer:
+      value: 9
+      tolerance: 2
+    explanation: 10 % is €6, 5 % is €3. Together €9.
 
   - kind: explain
     id: s2

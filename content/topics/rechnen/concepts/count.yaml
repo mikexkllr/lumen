@@ -1,0 +1,373 @@
+id: math.start.count
+type: concept
+title: "Zahlen und Mengen"
+summary: "Zählen, vergleichen und die Zahlen bis 20 auf dem Zahlenstrahl finden."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 9
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Zählen im Zehnerfeld
+    body: Zahlen sagen dir, **wie viele** es sind. Tippe Felder an und schau auf den Zähler. Schaffst du genau 7? Eine volle Reihe sind 5 Felder, beide Reihen zusammen 10.
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 2
+        cols: 5
+        counter: true
+
+  - kind: problem
+    id: aepfel
+    widget: numeric
+    prompt: Wie viele Äpfel sind das?
+    body: 🍎🍎🍎🍎🍎🍎
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 5
+        misconception: miscount
+        text: Fast. Ein Apfel fehlt dir noch. Tippe beim Zählen auf jeden Apfel.
+      - when: numval(state.input) == 7
+        misconception: miscount
+        text: Einer zu viel. Zähl jeden Apfel nur einmal.
+    hints:
+      - Tippe mit dem Finger auf jeden Apfel und zähl dabei mit.
+      - "Zähl so: 1, 2, 3, 4, 5 – und dann noch einer."
+    explanation: Es sind 6 Äpfel. Die letzte Zahl beim Zählen sagt dir, wie viele es sind.
+
+  - kind: problem
+    id: zehnerfeld
+    widget: pixels
+    prompt: Färbe genau 8 Felder.
+    params:
+      rows: 2
+      cols: 5
+      counter: true
+    check:
+      predicate: on == 8
+    feedback:
+      - when: on == 2
+        misconception: complement
+        text: Du hast 2 Felder gefärbt. Bei 8 gefärbten Feldern bleiben nur 2 frei.
+      - when: on > 8
+        misconception: too-many
+        text: Das sind zu viele. Tippe ein gefärbtes Feld noch einmal an, dann wird es wieder leer.
+    hints:
+      - Der Zähler unter dem Feld zählt für dich mit.
+      - Eine volle Reihe hat 5 Felder. Dann fehlen noch 3.
+    explanation: 8 Felder sind eine volle Fünferreihe und noch 3 dazu.
+
+  - kind: problem
+    id: mehr
+    widget: choice
+    prompt: Wo sind mehr?
+    params:
+      options:
+        - label: 🍓🍓🍓🍓🍓🍓🍓
+          correct: true
+        - label: 🍋🍋🍋🍋🍋
+          feedback: Zähl nach. Es sind 5 Zitronen, aber 7 Erdbeeren.
+        - label: Es sind gleich viele
+          feedback: Zähl beide Reihen. Die Reihe mit den Erdbeeren ist länger.
+    hints:
+      - Zähl erst die Erdbeeren, dann die Zitronen.
+      - Es sind 7 Erdbeeren und 5 Zitronen. Welche Zahl kommt beim Zählen später?
+    explanation: 7 ist mehr als 5. Beim Zählen kommt die 7 nach der 5.
+
+  - kind: explain
+    id: strahl-idee
+    body: Auf dem **Zahlenstrahl** stehen alle Zahlen der Reihe nach. Jeder Schritt nach rechts ist eins mehr. Jeder Schritt nach links ist eins weniger. Hier steht die Markierung auf der 6.
+    visual:
+      widget: numberline
+      params:
+        min: 0
+        max: 10
+        ticks: 1
+        initial: 6
+
+  - kind: problem
+    id: strahl-finden
+    widget: numberline
+    prompt: Setz die Markierung auf die {{n}}.
+    params:
+      min: 0
+      max: 10
+      ticks: 1
+    answer:
+      value: "{{n}}"
+    hints:
+      - Tippe auf den Strahl. Über der Markierung steht ihre Zahl.
+      - Zähl von der 0 aus {{n}} Schritte nach rechts.
+    explanation: Die {{n}} liegt {{n}} Schritte rechts von der 0.
+    variants:
+      params:
+        n: int[2,9]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: nachfolger
+    widget: numeric
+    prompt: Welche Zahl kommt direkt nach {{n}}?
+    answer:
+      value: "{{n + 1}}"
+    feedback:
+      - when: numval(state.input) == n - 1
+        misconception: predecessor
+        text: Das ist die Zahl davor. Gesucht ist die Zahl danach – eins mehr.
+      - when: numval(state.input) == n
+        misconception: same-number
+        text: Das ist die Zahl selbst. Zähl einen Schritt weiter.
+    hints:
+      - "Zähl weiter: Was sagst du nach {{n}}?"
+      - Auf dem Zahlenstrahl steht sie einen Schritt rechts von {{n}}.
+    explanation: Nach {{n}} kommt {{n + 1}}. Das ist eins mehr.
+    variants:
+      params:
+        n: int[6,18]
+      defaults:
+        n: 12
+
+  - kind: problem
+    id: groesser
+    widget: choice
+    prompt: Welche Zahl ist größer?
+    params:
+      layout: grid
+      options:
+        - label: "{{str(a)}}"
+          correct: "{{a > b}}"
+          feedback: Beim Zählen kommt {{a}} vor {{b}}. Was später kommt, ist größer.
+        - label: "{{str(b)}}"
+          correct: "{{b > a}}"
+          feedback: Beim Zählen kommt {{b}} vor {{a}}. Was später kommt, ist größer.
+    hints:
+      - Stell dir beide Zahlen auf dem Zahlenstrahl vor.
+      - Die Zahl, die weiter rechts steht, ist größer.
+    explanation: "{{max(a, b)}} ist größer als {{min(a, b)}}. Auf dem Zahlenstrahl steht {{max(a, b)}} weiter rechts."
+    variants:
+      params:
+        a: int[3,20]
+        b: int[3,20]
+      constraints:
+        - a != b
+      defaults:
+        a: 9
+        b: 14
+
+  - kind: problem
+    id: blitz
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 9 ist mehr als 6.
+          right: true
+        - text: Die 12 kommt direkt nach der 13.
+          right: false
+          why: Nach der 12 kommt die 13 – nicht umgekehrt.
+        - text: Zwischen 14 und 16 liegt die 15.
+          right: true
+        - text: 20 ist weniger als 2.
+          right: false
+          why: Bis zur 20 zählst du viel länger als bis zur 2.
+
+  - kind: problem
+    id: schritte
+    depth: 2
+    widget: numberline
+    prompt: Du stehst auf der 10 und gehst 4 Schritte nach rechts. Wo landest du?
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      initial: 10
+      markers:
+        - value: 0
+          label: "0"
+        - value: 5
+          label: "5"
+        - value: 10
+          label: "10"
+        - value: 15
+          label: "15"
+        - value: 20
+          label: "20"
+    answer:
+      value: 14
+    feedback:
+      - when: state.value == 6
+        misconception: wrong-direction
+        text: Du bist nach links gegangen. Nach rechts werden die Zahlen größer.
+      - when: state.value == 10
+        misconception: not-moved
+        text: Die Markierung steht noch auf der 10. Schieb sie 4 Schritte nach rechts.
+    hints:
+      - Jeder Schritt nach rechts ist eins mehr.
+      - "Zähl von der 10 weiter: 11, 12, 13 und noch ein Schritt."
+    explanation: "Von der 10 vier Schritte weiter: 11, 12, 13, 14."
+    difficulty: 2
+
+  - kind: problem
+    id: ordnen
+    depth: 2
+    widget: order
+    prompt: Ordne von klein nach groß.
+    params:
+      items:
+        - label: "4"
+        - label: "9"
+        - label: "12"
+        - label: "17"
+        - label: "20"
+    hints:
+      - Welche Zahl kommt beim Zählen zuerst?
+      - 4 und 9 kommen vor der 10. Danach folgen 12, 17 und 20.
+    explanation: "Beim Zählen kommen sie in dieser Reihenfolge: 4, 9, 12, 17, 20."
+    difficulty: 2
+
+  - kind: problem
+    id: sortieren
+    depth: 2
+    widget: buckets
+    prompt: Kleiner oder größer als 10?
+    params:
+      buckets:
+        - id: b1
+          label: kleiner als 10
+        - id: b2
+          label: größer als 10
+      items:
+        - label: "3"
+          bucket: b1
+        - label: "14"
+          bucket: b2
+        - label: "9"
+          bucket: b1
+        - label: "19"
+          bucket: b2
+        - label: "7"
+          bucket: b1
+        - label: "11"
+          bucket: b2
+    hints:
+      - Zähl im Kopf bis 10. Kommt die Zahl vorher dran oder erst danach?
+      - Die Zahlen 3, 7 und 9 kommen vor der 10.
+    explanation: 3, 7 und 9 sind kleiner als 10. Die Zahlen 11, 14 und 19 sind größer.
+    difficulty: 2
+
+  - kind: problem
+    id: luecken
+    depth: 2
+    widget: cloze
+    prompt: Zähl weiter und füll die Lücken.
+    params:
+      text: 13, 14, [[15]], 16, 17, [[18]], 19, [[20]]
+      distractors:
+        - "12"
+        - "21"
+    explanation: "Jede Zahl ist eins mehr als die davor: 13, 14, 15, 16, 17, 18, 19, 20."
+    difficulty: 2
+
+  - kind: problem
+    id: zweierschritte
+    depth: 3
+    widget: numeric
+    prompt: "Zähl in Zweierschritten: 2, 4, 6, 8 … Welche Zahl ist die zehnte in dieser Reihe?"
+    answer:
+      value: 20
+    feedback:
+      - when: numval(state.input) == 10
+        misconception: count-not-value
+        text: Das ist die Nummer des Schritts. Gesucht ist die Zahl, bei der du nach 10 Schritten landest.
+      - when: numval(state.input) == 18 || numval(state.input) == 22
+        misconception: off-by-one
+        text: Knapp daneben. Zähl die Schritte mit den Fingern mit.
+    hints:
+      - "Zähl weiter und nimm die Finger dazu: 2, 4, 6, 8, 10 – das waren fünf Zahlen."
+      - Die zehnte Zahl ist doppelt so weit weg wie die fünfte.
+    explanation: 2, 4, 6, 8, 10, 12, 14, 16, 18, 20 – die zehnte Zahl ist 20.
+    difficulty: 3
+
+  - kind: problem
+    id: mitte
+    depth: 3
+    widget: numberline
+    prompt: Welche Zahl liegt genau in der Mitte zwischen 6 und 14?
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      markers:
+        - value: 0
+          label: "0"
+        - value: 6
+          label: "6"
+        - value: 14
+          label: "14"
+        - value: 20
+          label: "20"
+    answer:
+      value: 10
+    feedback:
+      - when: state.value == 8 || state.value == 12
+        misconception: not-centred
+        text: Zähl die Schritte bis zur 6 und bis zur 14. Beide Wege müssen gleich lang sein.
+    hints:
+      - Von der Mitte aus ist es zu beiden Zahlen gleich weit.
+      - Geh von der 6 und von der 14 immer zugleich einen Schritt nach innen.
+    explanation: Von 6 bis 10 sind es 4 Schritte, von 10 bis 14 auch. Die Mitte ist 10.
+    difficulty: 3
+
+  - kind: problem
+    id: punkte-schaetzen
+    depth: 3
+    widget: estimate
+    prompt: "Schätz mal, ohne zu zählen: Wie viele Punkte sind das?"
+    body: ●●● ●●●●● ●● ●●●● ●●●
+    params:
+      min: 0
+      max: 40
+      step: 1
+    answer:
+      value: 17
+      tolerance: 3
+    explanation: "Es sind 17 Punkte. Tipp: Such kleine Gruppen, die du mit einem Blick erkennst, und zähl die Gruppen zusammen."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, woran du erkennst, welche von zwei Zahlen größer ist.
+    params:
+      keywords:
+        - - zählen
+          - zahlenstrahl
+          - count
+          - number line
+        - - rechts
+          - später
+          - danach
+          - right
+          - later
+          - after
+        - - größer
+          - mehr
+          - bigger
+          - greater
+          - larger
+          - more
+      sample: Ich stelle mir den Zahlenstrahl vor. Die Zahl, die weiter rechts steht, ist größer. Beim Zählen kommt sie später dran.
+    explanation: "Kernidee: Was beim Zählen später kommt, steht auf dem Zahlenstrahl weiter rechts und ist größer."
+    difficulty: 3
+
+srs:
+  cards_from: ["strahl-finden", "nachfolger", "groesser"]

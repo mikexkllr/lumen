@@ -5,7 +5,7 @@ summary: Round numbers make everything easier.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 16
+estimated_minutes: 18
 steps:
   - kind: explain
     id: intro-hook
@@ -25,16 +25,94 @@ steps:
         unit: cm
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Gut feeling: what is 19 · 21?"
-    params:
-      min: 100
-      max: 1000
+    id: einstieg-mal-zehn
+    widget: numeric
+    prompt: Work it out in your head. 7 · 10.
     answer:
-      value: 399
-      tolerance: 45
-    explanation: 20 · 20 = 400 – and 19 · 21 is just 1 below. You are about to see why.
+      value: 70
+    feedback:
+      - when: numval(state.input) == 17
+        misconception: added-factors
+        text: That would be 7 + 10. Times 10 adds a 0 to the end of the 7.
+    hints:
+      - "Times 10 is easy: add a 0 at the end."
+      - Write the 7 with a 0 after it.
+    explanation: 7 · 10 = 70. Your head likes working with 10 best.
+
+  - kind: problem
+    id: einstieg-zerlegen
+    widget: numeric
+    prompt: 7 · 12 is 7 · 10 plus another 7 · 2. How much is that altogether?
+    visual:
+      widget: rect
+      params:
+        maxW: 12
+        maxH: 8
+        w: 12
+        h: 7
+        show: []
+        unit: cm
+    answer:
+      value: 84
+    feedback:
+      - when: numval(state.input) == 70
+        misconception: partial-product
+        text: That is only 7 · 10. The 7 · 2 = 14 is still missing.
+      - when: numval(state.input) == 72
+        misconception: forgot-factor
+        text: You added only 2. But the 2 columns have 7 squares each, so 14.
+    hints:
+      - The rectangle has 7 rows. The first 10 columns are 7 · 10 = 70 squares.
+      - The last 2 columns are 7 · 2 = 14 squares. Work out 70 + 14.
+    explanation: 70 + 14 = 84. You split the 12 into 10 and 2.
+
+  - kind: explain
+    id: einstieg-idee
+    body: "You split the 12 into **tens and ones**: 7 · 12 = 7 · 10 + 7 · 2 = 70 + 14 = 84. That turns one hard problem into two easy ones."
+
+  - kind: problem
+    id: intro-c1
+    widget: rect
+    prompt: Drag a rectangle with 8 rows and exactly 96 squares. Start from 8 · 10.
+    params:
+      maxW: 14
+      maxH: 10
+      w: 10
+      h: 8
+      show:
+        - area
+      unit: cm
+    check:
+      predicate: h == 8 && area == 96
+    hints:
+      - 8 · 10 = 80. How many squares are missing to reach 96?
+      - 16 are missing, that is 8 · 2. Make the rectangle 2 columns wider.
+    explanation: 8 · 12 = 8 · 10 + 8 · 2 = 80 + 16 = 96. That is how you do it in your head.
+
+  - kind: problem
+    id: einstieg-ueben
+    widget: numeric
+    prompt: Work it out in your head. {{a}} · {{b}}.
+    answer:
+      value: "{{a * b}}"
+    feedback:
+      - when: numval(state.input) == a * 10
+        misconception: partial-product
+        text: That is only {{a}} · 10. {{a}} · {{b - 10}} = {{a * (b - 10)}} is still missing.
+      - when: numval(state.input) == a * 10 + b - 10
+        misconception: forgot-factor
+        text: You have to multiply the {{b - 10}} by {{a}} as well.
+    hints:
+      - Split {{b}} into 10 and {{b - 10}}.
+      - "{{a}} · 10 = {{a * 10}} and {{a}} · {{b - 10}} = {{a * (b - 10)}}. Add the two together."
+    explanation: "{{a}} · 10 + {{a}} · {{b - 10}} = {{a * 10}} + {{a * (b - 10)}} = {{a * b}}."
+    variants:
+      params:
+        a: int[3,6]
+        b: int[12,14]
+      defaults:
+        a: 4
+        b: 13
 
   - kind: problem
     id: sieben-achtzehn
@@ -44,6 +122,7 @@ steps:
     answer: { value: 126 }
     hints:
       - "Think 7 · 20 and subtract something."
+      - "7 · 20 = 140. That is 7 · 2 too many."
     explanation: 7 · 20 = 140, minus 7 · 2 = 14. That gives 126.
 
   - kind: explain
@@ -72,19 +151,6 @@ steps:
       **Times 9** is times 10, minus one copy.
 
   - kind: problem
-    id: mal-fuenfundzwanzig
-    widget: numeric
-    prompt: Work it out in your head. 25 · {{n}}.
-    params: { placeholder: "Result" }
-    answer: { value: "{{25 * n}}" }
-    hints:
-      - "{{n}} · 100 = {{n * 100}}. Now divide by 4."
-    explanation: "{{n * 100}} ÷ 4 = {{25 * n}}."
-    variants:
-      params: { n: "choice[12,16,24,36,44]" }
-      defaults: { n: 16 }
-
-  - kind: problem
     id: mal-fuenf
     widget: numeric
     prompt: Work it out in your head. {{n}} · 5.
@@ -98,6 +164,19 @@ steps:
       defaults: { n: 48 }
 
   - kind: problem
+    id: mal-fuenfundzwanzig
+    widget: numeric
+    prompt: Work it out in your head. 25 · {{n}}.
+    params: { placeholder: "Result" }
+    answer: { value: "{{25 * n}}" }
+    hints:
+      - "{{n}} · 100 = {{n * 100}}. Now divide by 4."
+    explanation: "{{n * 100}} ÷ 4 = {{25 * n}}."
+    variants:
+      params: { n: "choice[12,16,24,36,44]" }
+      defaults: { n: 16 }
+
+  - kind: problem
     id: c1
     widget: cloze
     prompt: Fill in the gaps.
@@ -108,7 +187,21 @@ steps:
         - "50"
 
   - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: "Gut feeling: what is 19 · 21?"
+    params:
+      min: 100
+      max: 1000
+    answer:
+      value: 399
+      tolerance: 45
+    explanation: 20 · 20 = 400 – and 19 · 21 is just 1 below. You are about to see why.
+
+  - kind: problem
     id: ma-c1
+    depth: 2
     widget: numeric
     prompt: Mental maths – {{n}} · 9.
     answer:
@@ -126,25 +219,6 @@ steps:
         n: int[12,48]
       defaults:
         n: 27
-
-  - kind: problem
-    id: intro-c1
-    widget: rect
-    prompt: Drag a rectangle with 8 rows and exactly 96 squares. Start from 8 · 10.
-    params:
-      maxW: 14
-      maxH: 10
-      w: 10
-      h: 8
-      show:
-        - area
-      unit: cm
-    check:
-      predicate: h == 8 && area == 96
-    hints:
-      - 8 · 10 = 80. How many squares are missing to reach 96?
-      - 16 are missing, that is 8 · 2. Make the rectangle 2 columns wider.
-    explanation: 8 · 12 = 8 · 10 + 8 · 2 = 80 + 16 = 96. That is how you do it in your head.
 
   - kind: problem
     id: d1

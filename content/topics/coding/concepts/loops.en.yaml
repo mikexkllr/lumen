@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.loops]
-estimated_minutes: 14
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -36,6 +36,23 @@ steps:
         goal: collect
 
   - kind: problem
+    id: start-dreimal
+    widget: numeric
+    prompt: 'A program reads: "repeat 3× – forward – end". How many squares does the robot move?'
+    params:
+      unit: squares
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: loop-once
+        text: The command is written only once, but it is carried out three times.
+    hints:
+      - '"Repeat" carries out everything up to "end" several times.'
+      - One square forward, three times.
+    explanation: 3 · 1 = 3 squares. The command "forward" is written once and runs three times.
+
+  - kind: problem
     id: lange-strecke
     widget: robot
     prompt: Get the robot to the goal – with at most 3 blocks.
@@ -52,16 +69,36 @@ steps:
       "Repeat 8× forward, end" is shorter than writing "forward" eight times – and easier to change.
 
   - kind: problem
-    id: treppe
+    id: start-runde
     widget: robot
-    prompt: The staircase has a pattern. Can you do it with at most 6 blocks?
-    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
-    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    prompt: Collect the three crystals – with at most 4 blocks.
+    params:
+      grid:
+        - S*
+        - "**"
+      blocks:
+        - forward
+        - right
+        - repeat
+        - end
+      repeatCounts:
+        - 2
+        - 3
+        - 4
+      maxBlocks: 4
+      goal: collect
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 3
+          - op: forward
+          - op: right
+          - op: end
     hints:
-      - Which four commands repeat on every step?
-      - forward, right, forward, left – three times.
-    explanation: repeat 3× (forward, turn right, forward, turn left).
-    difficulty: 3
+      - Which two commands repeat at every corner?
+      - Repeat 3× – forward, turn right – end.
+    explanation: repeat 3× (forward, turn right). Without a loop it would take five blocks.
 
   - kind: problem
     id: quadrat
@@ -99,6 +136,19 @@ steps:
       distractors:
         - added
         - skips
+
+  - kind: problem
+    id: treppe
+    depth: 2
+    widget: robot
+    prompt: The staircase has a pattern. Can you do it with at most 6 blocks?
+    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
+    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    hints:
+      - Which four commands repeat on every step?
+      - forward, right, forward, left – three times.
+    explanation: repeat 3× (forward, turn right, forward, turn left).
+    difficulty: 3
 
   - kind: problem
     id: d1

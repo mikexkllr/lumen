@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { addDays, buildReviewSession, dueItems, sessionSize, weekKey, type Catalog, type LumenEvent, type ProgressSummary, type Topic } from '@lumen/engine';
+import { buildReviewSession, dueItems, isLastCorePart, lessonExtras, sessionSize, type Catalog, type LumenEvent, type ProgressSummary, type Topic } from '@lumen/engine';
 import { Cover, topicVars } from '../components/art.tsx';
 import { Icon, Ring } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
@@ -7,13 +7,38 @@ import type { Settings } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
 import { useGamification } from '../lib/gamify.ts';
 import { useState } from 'react';
-import { Lux } from '../components/Lux.tsx';
+import { type LuxMood } from '../components/Lux.tsx';
+import { LuxSay } from '../components/LuxMoments.tsx';
+import { StreakHero, STREAK_GOALS } from '../components/Streaks.tsx';
+import { depthOfLesson, lessonBlurb, lessonTag, type DepthGoal } from '../lib/lessons.ts';
 import { prefersReducedMotion } from '../lib/settings.ts';
+import { play } from '../lib/sound.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { social, useQuery, type FriendsResponse, type LeagueResponse } from '../lib/social.ts';
 import { Avatar, TierBadge, tierName } from '../components/social.tsx';
 
 export type NodeState = 'done' | 'next' | 'later' | 'locked';
+
+/** An optional lesson that goes deeper than the core (hangs below the last core part of its concept). */
+export interface PathExtra {
+  conceptId: string;
+  depth: 2 | 3;
+  minutes: number;
+  problems: number;
+  state: 'done' | 'next' | 'open';
+}
+
+export interface PathNode {
+  conceptId: string;
+  title: string;
+  /** "Teil 2 von 3" for a concept cut into several lessons. */
+  part: { n: number; total: number } | null;
+  summary?: string;
+  minutes: number;
+  problems: number;
+  state: NodeState;
+  extras: PathExtra[];
+}
 
 export interface PathUnit {
   topicId: string;
@@ -21,33 +46,58 @@ export interface PathUnit {
   unitId: string;
   unitIndex: number;
   title: string;
-  nodes: { conceptId: string; title: string; summary?: string; minutes: number; state: NodeState }[];
+  nodes: PathNode[];
   review: { state: 'done' | 'open' | 'later'; cards: string[] } | null;
 }
 
-export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSummary, startAt: Settings['startAt'], reviewedUnits: Set<string>): { units: PathUnit[]; next: string | null } {
+/**
+ * The learning path as units of lessons with their states. `goal` is how deep
+ * the learner wants to go: extras up to that depth are part of the way (they
+ * can become the next lesson), deeper ones stay optional.
+ *
+ * The next lesson is the first open one, but a course the learner never
+ * touched does not pull them back when they are already further along – a
+ * new course added at the front of a path must not send someone who is
+ * solving equations back to counting. Such courses stay open to visit.
+ */
+export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSummary, startAt: Settings['startAt'], reviewedUnits: Set<string>, goal: DepthGoal = 1): { units: PathUnit[]; next: string | null } {
   const path = catalog.paths.find((p) => p.id === pathId) ?? catalog.paths[0];
   const units: PathUnit[] = [];
   let next: string | null = null;
   let reachedStart = !startAt || !path.topics.includes(startAt.topic);
-  for (const tid of path.topics) {
+  const started = path.topics.map((tid) => !!catalog.topics.find((tp) => tp.id === tid)?.units.some((u) => u.concepts.some((c) => progress.completedConcepts.has(c))));
+  const furthest = started.lastIndexOf(true);
+  for (const [ti, tid] of path.topics.entries()) {
     const topic = catalog.topics.find((tp) => tp.id === tid);
     if (!topic) continue;
+    // an untouched course behind the learner's position is not where they go next
+    const onTheWay = started[ti] || ti > furthest;
     const prereqsDone = topic.prerequisites.every((p) => {
       const tp = catalog.topics.find((x) => x.id === p);
       return !tp || tp.units.flatMap((u) => u.concepts).every((c) => progress.completedConcepts.has(c));
     });
     topic.units.forEach((u, ui) => {
       if (!reachedStart && startAt && startAt.topic === tid && (!startAt.unit || startAt.unit === u.id)) reachedStart = true;
-      const nodes = u.concepts.map((cid) => {
+      const nodes = u.concepts.map((cid): PathNode => {
         const meta = catalog.concepts[cid];
         let state: NodeState;
         if (progress.completedConcepts.has(cid)) state = 'done';
-        else if (!next && reachedStart) {
+        else if (!next && reachedStart && onTheWay) {
           next = cid;
           state = 'next';
         } else state = prereqsDone || next === null ? 'later' : 'locked';
-        return { conceptId: cid, title: meta?.title ?? cid, summary: meta?.summary, minutes: meta?.estimated_minutes ?? 5, state };
+        const extras = (isLastCorePart(catalog, cid) ? lessonExtras(catalog, cid) : []).map((id): PathExtra => {
+          const em = catalog.concepts[id];
+          const depth = depthOfLesson(em) as 2 | 3;
+          let es: PathExtra['state'] = 'open';
+          if (progress.completedConcepts.has(id)) es = 'done';
+          else if (!next && reachedStart && onTheWay && depth <= goal) {
+            next = id;
+            es = 'next';
+          }
+          return { conceptId: id, depth, minutes: em?.estimated_minutes ?? 2, problems: em?.problems ?? 0, state: es };
+        });
+        return { conceptId: cid, title: meta?.title ?? cid, part: meta && (meta.parts ?? 1) > 1 ? { n: meta.part, total: meta.parts } : null, summary: lessonBlurb(meta), minutes: meta?.estimated_minutes ?? 5, problems: meta?.problems ?? 0, state, extras };
       });
       const cards = u.concepts.flatMap((c) => catalog.concepts[c]?.srsCards ?? []);
       const allDone = u.concepts.every((c) => progress.completedConcepts.has(c));
@@ -124,14 +174,25 @@ export function UnitList({ topic, units }: { topic: Topic; units: PathUnit[] }) 
             <ol className="lesson-list">
               {u.nodes.map((n, i) => (
                 <li key={n.conceptId}>
-                  <a className="lesson-row" data-state={n.state} href={href(`learn/${n.conceptId}`)} aria-label={`${n.title} – ${t(`node.${n.state}` as 'node.done')}`}>
+                  <a className="lesson-row" data-state={n.state} href={href(`learn/${n.conceptId}`)} aria-label={`${n.title}${n.part ? ` – ${t('lesson.part', { n: n.part.n, total: n.part.total })}` : ''} – ${t(`node.${n.state}` as 'node.done')}`}>
                     <span className="node">{n.state === 'done' ? <Icon name="check" size={17} strokeWidth={2.6} /> : n.state === 'next' ? <Icon name="play" size={15} strokeWidth={2.4} /> : n.state === 'locked' ? <Icon name="lock" size={15} /> : i + 1}</span>
                     <span className="lr-body">
-                      <span className="t">{n.title}</span>
-                      <span className="s">{n.summary ? `${n.summary} · ` : ''}{t('home.minutes', { n: n.minutes })}</span>
+                      <span className="t">{n.title}{n.part && <span className="part-tag">{n.part.n}/{n.part.total}</span>}</span>
+                      <span className="s">{n.summary ?? t('intro.problems', { n: n.problems })} · {t('home.minutes', { n: n.minutes })}</span>
                     </span>
                     <span className="lr-cta">{n.state === 'next' ? t('home.start') : n.state === 'done' ? <Icon name="reset" size={15} /> : <Icon name="chevron" size={16} />}</span>
                   </a>
+                  {n.extras.length > 0 && (
+                    <div className="extra-row" role="group" aria-label={t('lesson.extras')}>
+                      {n.extras.map((x) => (
+                        <a key={x.conceptId} className={`extra-chip d${x.depth}`} data-state={x.state} href={href(`learn/${x.conceptId}`)} aria-label={`${n.title} – ${t(`depth.name${x.depth}`)}${x.state === 'done' ? ` – ${t('node.done')}` : ''}`}>
+                          <Icon name={x.state === 'done' ? 'check' : x.depth === 3 ? 'trophy' : 'layers'} size={13} strokeWidth={x.state === 'done' ? 3 : 2} />
+                          {t(`depth.name${x.depth}`)}
+                          <span className="x-meta">{t('home.minutes', { n: x.minutes })}</span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </li>
               ))}
               {u.review && (
@@ -172,33 +233,32 @@ export function CourseRow({ topic, done }: { topic: Topic; done: number }) {
 
 export function Home() {
   const app = useApp();
-  const { t, lib, progress, settings, reviewItems, events, today } = app;
+  const { t, lib, progress, settings, reviewItems, events } = app;
   const [picker, setPicker] = useState(false);
   if (!lib) return null;
   const catalog = lib.catalog;
   const pathId = settings.pathId ?? defaultPathId(catalog, events);
   const path = catalog.paths.find((p) => p.id === pathId) ?? catalog.paths[0];
   const reviewedUnits = new Set(events.flatMap((e) => (e.type === 'review_session_completed' && e.unitId ? [e.unitId] : [])));
-  const { units, next } = buildPath(catalog, pathId, progress, settings.startAt, reviewedUnits);
+  const { units, next } = buildPath(catalog, pathId, progress, settings.startAt, reviewedUnits, settings.depth);
   const due = dueItems(reviewItems, new Date()).length;
   const nextMeta = next ? catalog.concepts[next] : null;
   const currentTopic = catalog.topics.find((tp) => tp.id === (nextMeta?.topicId ?? path?.topics[0]));
   const topicConcepts = currentTopic ? conceptsOf(currentTopic) : [];
   const topicDone = topicConcepts.filter((c) => progress.completedConcepts.has(c)).length;
-  const lessonNo = next ? topicConcepts.indexOf(next) + 1 : topicConcepts.length;
-  const unitOfNext = currentTopic?.units.findIndex((u) => next && u.concepts.includes(next)) ?? -1;
+  // an extra (deeper, expert) counts as part of the core lesson it hangs below
+  const nextCore = nextMeta && depthOfLesson(nextMeta) > 1 ? ([...(catalog.groups?.[nextMeta.group] ?? [])].reverse().find((id) => depthOfLesson(catalog.concepts[id]) === 1) ?? next) : next;
+  const lessonNo = nextCore ? topicConcepts.indexOf(nextCore) + 1 : topicConcepts.length;
+  const nextTag = lessonTag(nextMeta, t);
+  const unitOfNext = currentTopic?.units.findIndex((u) => nextCore && u.concepts.includes(nextCore)) ?? -1;
   const doneIn = (tp: Topic) => conceptsOf(tp).filter((c) => progress.completedConcepts.has(c)).length;
   const pathTopics = (path?.topics ?? []).map((id) => catalog.topics.find((tp) => tp.id === id)).filter(Boolean) as Topic[];
   const interests = new Set(settings.interests);
   const explore = catalog.topics.filter((tp) => !path?.topics.includes(tp.id)).sort((a, b) => Number(interests.has(b.area)) - Number(interests.has(a.area))).slice(0, 8);
   const minutes = Math.floor(progress.minutesToday);
-  const monday = weekKey(today);
-  const week = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
-  const frozen = new Set(progress.streak.frozenDays);
-  const active = (d: string) => {
-    const a = progress.days[d];
-    return !!a && (a.conceptsCompleted > 0 || a.problemsSolved >= 3 || a.reviewSessions > 0);
-  };
+  const streak = progress.streak;
+  const streakGoal = STREAK_GOALS.find((g) => g > streak.current) ?? streak.current + 100;
+  const streakFrom = [...STREAK_GOALS].reverse().find((g) => g <= streak.current) ?? 0;
   const dateLabel = new Date().toLocaleDateString(settings.locale, { weekday: 'short', day: 'numeric', month: 'short' });
 
   const startReview = () => {
@@ -213,11 +273,10 @@ export function Home() {
           <p className="eyebrow">{dateLabel}</p>
           <StatPills />
         </div>
-        <div className="hh-greet">
-          <h1 className="display">{greeting(settings.locale)}</h1>
-          <Lux mood="idle" size={56} still={prefersReducedMotion(settings)} label={t('lux.role')} />
-        </div>
+        <LuxHello greeting={greeting(settings.locale)} />
       </header>
+
+      <StreakHero />
 
       {nextMeta && currentTopic ? (
         <section className="continue-card" style={topicVars(currentTopic.color)} aria-labelledby="cc-title">
@@ -226,7 +285,7 @@ export function Home() {
             <p className="eyebrow">{currentTopic.title}{unitOfNext >= 0 ? ` · ${t('home.unitN', { n: unitOfNext + 1 })}` : ''}</p>
             <h2 id="cc-title">{nextMeta.title}</h2>
             {nextMeta.summary && <p className="cc-sum">{nextMeta.summary}</p>}
-            <div className="cc-meta"><span>{t('home.lessonOf', { n: lessonNo, total: topicConcepts.length })}</span><span>{t('home.minutes', { n: nextMeta.estimated_minutes })}</span></div>
+            <div className="cc-meta"><span>{t('home.lessonOf', { n: lessonNo, total: topicConcepts.length })}</span>{nextTag && <span>{nextTag}</span>}<span>{t('home.minutes', { n: nextMeta.estimated_minutes })}</span></div>
             <div className="progress-bar" aria-hidden="true"><div style={{ width: `${(100 * topicDone) / Math.max(1, topicConcepts.length)}%` }} /></div>
             <button className="btn primary lg" onClick={() => navigate(`learn/${nextMeta.id}`)}>
               {progress.completedConcepts.size ? t('home.continue') : t('home.start')} <Icon name="arrow" size={18} className="arrow" />
@@ -247,12 +306,11 @@ export function Home() {
             <div className="mc-s">{minutes} / {settings.dailyGoal} {t('home.minShort')}</div>
           </div>
         </section>
-        <a className="mini-card" href={href('streak')} aria-label={t('home.streakN', { n: progress.streak.current })}>
+        <a className="mini-card" href={href('streak')} aria-label={t('streak.next', { n: streakGoal })}>
+          <Ring value={(streak.current - streakFrom) / Math.max(1, streakGoal - streakFrom)} size={46} stroke={5} color="#f97316"><Icon name="flame" size={18} /></Ring>
           <div style={{ minWidth: 0 }}>
-            <div className="mc-t">{t('home.streakN', { n: progress.streak.current })}</div>
-            <div className="week-dots" aria-hidden="true">
-              {week.map((d) => <span key={d} className={`${active(d) ? 'on' : frozen.has(d) ? 'frozen' : ''} ${d === today ? 'today' : ''}`} />)}
-            </div>
+            <div className="mc-t">{t('streak.next', { n: streakGoal })}</div>
+            <div className="mc-s">{t('streak.toGo', { n: streakGoal - streak.current })}</div>
           </div>
         </a>
       </div>
@@ -301,6 +359,46 @@ export function Home() {
 
       {picker && <PathPicker onClose={() => setPicker(false)} />}
     </main>
+  );
+}
+
+/**
+ * Lux says hello at the top of the home screen. What he says follows the day:
+ * a first hello, a nudge while today's streak is open, pride once it is safe.
+ * Tap him and he reacts.
+ */
+function LuxHello({ greeting }: { greeting: string }) {
+  const { t, progress, settings } = useApp();
+  const reduce = prefersReducedMotion(settings);
+  const [poke, setPoke] = useState<{ n: number; text: string; mood: LuxMood } | null>(null);
+  const s = progress.streak;
+  const hour = new Date().getHours();
+  const fresh = progress.completedConcepts.size === 0;
+  const base: { text: string; mood: LuxMood } = fresh
+    ? { text: t('luxHello.first'), mood: 'wave' }
+    : s.todayDone
+      ? { text: t('luxHello.done'), mood: 'happy' }
+      : s.current > 0
+        ? hour >= 21 || hour < 5
+          ? { text: t('luxHello.night', { n: s.current }), mood: 'sleepy' }
+          : { text: t('luxHello.open', { n: s.current }), mood: 'wave' }
+        : { text: t('luxHello.back'), mood: 'wave' };
+  // the line is picked once per state, so it does not change on every render
+  const [line, setLine] = useState(base);
+  const stateKey = `${fresh}-${s.todayDone}-${s.current}`;
+  useEffect(() => { setLine(base); setPoke(null); }, [stateKey, settings.locale]); // eslint-disable-line react-hooks/exhaustive-deps
+  const onTap = () => {
+    const moods: LuxMood[] = ['wow', 'love', 'party', 'cheer'];
+    const n = (poke?.n ?? 0) + 1;
+    setPoke({ n, text: t('luxHello.poke'), mood: moods[n % moods.length] });
+    play(settings.sound, 'boing');
+  };
+  const now = poke ?? line;
+  return (
+    <LuxSay className="hh-lux" mood={now.mood} size={72} still={reduce} bubbleKey={poke ? `poke-${poke.n}` : stateKey} onTap={onTap} tapLabel={t('lux.role')}>
+      <h1>{greeting}</h1>
+      <p>{now.text}</p>
+    </LuxSay>
   );
 }
 

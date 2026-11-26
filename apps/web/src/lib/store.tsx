@@ -208,7 +208,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setEvents([]);
   }, []);
 
-  const progress = useMemo(() => deriveProgress(events, today), [events, today]);
+  const progress = useMemo(() => deriveProgress(events, today, lib?.catalog), [events, today, lib]);
   const reviewItems = useMemo(() => (lib ? deriveReviewItems(events, lib.catalog) : new Map<string, ReviewItemState>()), [events, lib]);
   const t = useCallback((key: TKey, vars?: Record<string, string | number>) => translate(settings.locale, key, vars), [settings.locale]);
 

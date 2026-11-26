@@ -20,6 +20,8 @@ Danke, dass du Lumen besser machen willst! Beiträge zu Inhalten, Widgets, App u
 - **Problem zuerst**, dann die Prozedur. Ein Concept beginnt nicht mit drei Erklär-Screens.
 - **Zeigen statt erzählen**: Bruchformen, Waage, Labor-Szenen, Regler und Karten zum Aufdecken schlagen jeden Absatz Text.
 - **Eine Idee pro Step**, vom einfachsten Fall aus aufsteigend.
+- **Sanfter Einstieg**: Die ersten zwei, drei Aufgaben nach der Einleitung sind leichte Erfolge – lösbar mit Alltagswissen oder dem, was die Einleitung gerade gezeigt hat. Schweres kommt später im Kern oder in den Stufen »Tiefer« und »Experte«, die als Bonus-Lektionen erscheinen.
+- **Kurze Lektionen**: Die App schneidet jede Stufe in Lektionen mit höchstens sechs Steps (siehe [docs/content-format.md](docs/content-format.md#aus-einem-concept-werden-kurze-lektionen)). Setz Erklär-Screens direkt vor die Aufgaben, die sie üben.
 - **Höchstens ~40 Wörter** Text pro Screen, kurze Sätze.
 - **Konkret vor formal**: erst Waage, Streifen oder Zahlenstrahl, dann die Schreibweise.
 - **Feedback zu Fehlvorstellungen**: Für typische Fehler eine `feedback`-Regel mit `misconception` schreiben, nicht nur „falsch“.

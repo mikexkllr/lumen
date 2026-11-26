@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 13
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -24,17 +24,62 @@ steps:
         initial: 343
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Take a guess without calculating exactly: what is 49 · 21?"
+    id: einstieg-naeher
+    widget: choice
+    prompt: Is 27 closer to 20 or to 30?
     params:
-      min: 0
-      max: 2000
-      step: 10
+      layout: grid
+      options:
+        - label: "30"
+          correct: true
+        - label: "20"
+          feedback: It is 7 steps to 20, but only 3 to 30.
+    hints:
+      - How far is it from 27 to 20? And how far to 30?
+      - "Count the steps upwards: 28, 29, 30."
+    explanation: From 27 to 30 is 3 steps, but 7 to 20. 30 is closer.
+
+  - kind: problem
+    id: einstieg-strahl
+    widget: numberline
+    prompt: Which ten is closest to 43? Move the marker there.
+    params:
+      min: 40
+      max: 50
+      ticks: 1
+      labels: integers
+      initial: 43
     answer:
-      value: 1029
-      within: 10
-    explanation: 49 · 21 is about 50 · 20 = 1,000. Exactly, it is 1,029.
+      value: 40
+    feedback:
+      - when: state.value == 50
+        misconception: always-up
+        text: It is 7 steps to 50, but only 3 to 40.
+      - when: state.value == 43
+        misconception: not-moved
+        text: The marker is still on 43. Move it to the closer ten.
+    hints:
+      - Tens are numbers ending in 0. Here they are 40 and 50.
+      - From 43 it is 3 steps to 40 and 7 steps to 50.
+    explanation: 43 is closer to 40. That is exactly what “rounding to the nearest ten” is about to mean.
+
+  - kind: problem
+    id: einstieg-zehner
+    widget: numeric
+    prompt: Which ten is closest to 68?
+    answer:
+      value: 70
+    feedback:
+      - when: numval(state.input) == 60
+        misconception: round-down
+        text: It is 8 steps to 60, but only 2 to 70.
+      - when: numval(state.input) == 68
+        misconception: not-rounded
+        text: That is the number itself. You need the ten near it.
+    hints:
+      - 68 lies between 60 and 70.
+      - "Count the steps to 70: 69, 70."
+    explanation: From 68 to 70 is only 2 steps. The closest ten is 70.
 
   - kind: explain
     id: c1
@@ -141,6 +186,20 @@ steps:
       - The number you want lies below 350, so it gets rounded up.
       - "Rounding up means: the ones digit is 5 or more."
     explanation: "345 is the smallest: 344 becomes 340, but 345 already becomes 350."
+
+  - kind: problem
+    id: hook
+    depth: 2
+    widget: estimate
+    prompt: "Take a guess without calculating exactly: what is 49 · 21?"
+    params:
+      min: 0
+      max: 2000
+      step: 10
+    answer:
+      value: 1029
+      within: 10
+    explanation: 49 · 21 is about 50 · 20 = 1,000. Exactly, it is 1,029.
 
   - kind: explain
     id: d1

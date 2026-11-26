@@ -40,6 +40,16 @@ describe('lumen build', { timeout: 120_000 }, () => {
     const topics = await readdir(join(out, 'de', 'topics'));
     expect(topics.length).toBe(Object.keys(de.topics).length);
     const catalog = JSON.parse(cat);
-    expect(catalog.concepts['alg.linear.balance-01'].srsCards).toEqual(['alg.linear.balance-01/x-allein', 'alg.linear.balance-01/rechnen']);
+    // a concept is cut into short lessons: core parts on the path, deeper and expert as extras
+    const lessons: string[] = catalog.groups['alg.linear.balance-01'];
+    expect(lessons.length).toBeGreaterThan(1);
+    expect(lessons[0]).toBe('alg.linear.balance-01~c1');
+    expect(lessons.flatMap((id) => catalog.concepts[id].srsCards).sort()).toEqual(['alg.linear.balance-01/rechnen', 'alg.linear.balance-01/x-allein']);
+    for (const id of lessons) expect(catalog.concepts[id].steps).toBeLessThanOrEqual(6);
+    const unit = catalog.topics.find((t: { id: string }) => t.id === 'alg.linear').units.find((u: { concepts: string[] }) => u.concepts.includes(lessons[0]));
+    expect(unit.concepts.every((id: string) => catalog.concepts[id].depth === 1)).toBe(true);
+    // every lesson of the bundle is in the catalog and the other way round
+    const bundle = JSON.parse(await readFile(join(out, de.topics['alg.linear'].path), 'utf8'));
+    expect(bundle.concepts.map((c: { id: string }) => c.id).sort()).toEqual(Object.values(catalog.concepts as Record<string, { id: string; topicId: string }>).filter((c) => c.topicId === 'alg.linear').map((c) => c.id).sort());
   });
 });

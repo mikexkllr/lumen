@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.search]
-estimated_minutes: 13
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -33,16 +33,21 @@ steps:
             back: Measure in the middle of the cable. Then you know which half the break is in.
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Take a guess: how many yes/no questions do you need at most to find one of a billion numbers?"
+    id: start-woerterbuch
+    widget: choice
+    prompt: You are looking for the word "zebra" in a thick dictionary. Where do you open it?
     params:
-      min: 5
-      max: 1000
-    answer:
-      value: 30
-      tolerance: 6
-    explanation: Only 30. Each question halves – and 2³⁰ is just over a billion.
+      options:
+        - label: Far toward the back
+          correct: true
+        - label: On the first page
+          feedback: Then you would have to leaf through almost the whole book.
+        - label: Anywhere, it does not matter
+          feedback: The dictionary is sorted. You can use that.
+    hints:
+      - Where in the alphabet is Z?
+      - A dictionary is sorted from A to Z.
+    explanation: Because the book is sorted, you can skip most of it right away. That is exactly what binary search uses.
 
   - kind: problem
     id: raten
@@ -54,6 +59,27 @@ steps:
       - Which number rules out as many numbers as possible in any case?
     explanation: With 50, at most half is left after the answer.
 
+  - kind: problem
+    id: start-halb
+    widget: numeric
+    prompt: 'You guess 50. The answer is: "My number is bigger." How many numbers are left?'
+    body: I am thinking of a number from 1 to 100.
+    params:
+      unit: numbers
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 49
+        misconception: off-by-one
+        text: "Count carefully: from 51 to 100 there are 50 numbers."
+      - when: numval(state.input) == 100
+        misconception: nothing-excluded
+        text: Everything up to 50 is ruled out now.
+    hints:
+      - Which numbers are bigger than 50?
+      - That leaves 51 to 100. That is exactly half.
+    explanation: 51 to 100 are left – that is 50 numbers. A single question has ruled out half.
+
   - kind: explain
     id: s2
     body: |
@@ -61,17 +87,43 @@ steps:
       100 becomes 50, 25, 13, 7, 4, 2, 1. After at most 7 questions, you know the number.
 
   - kind: problem
-    id: tausend
-    widget: numeric
-    prompt: At most how many questions do you need for a number from 1 to 1000?
-    answer: { value: 10 }
-    feedback:
-      - when: "numval(state.input) >= 100"
-        text: Trying every number would be slow. How often can you halve 1000 until 1 is left?
+    id: intro-c1
+    widget: pixels
+    prompt: The number is between 1 and 16. "Bigger than 8?" – Yes. "Bigger than 12?" – No. Mark every number that is still possible.
+    params:
+      rows: 2
+      cols: 8
+      numbers:
+        start: 1
+      counter: true
+    answer:
+      pattern:
+        - ........
+        - "####...."
     hints:
-      - "2 · 2 · 2 … – how many twos give more than 1000?"
-    explanation: 2¹⁰ = 1024 ≥ 1000, so 10 questions are enough.
-    difficulty: 2
+      - The first yes rules out 1 to 8.
+      - The no then rules out 13 to 16 as well.
+    explanation: 9, 10, 11 and 12 are left. Two questions shrank 16 numbers to 4 – two more questions and it is certain.
+
+  - kind: problem
+    id: start-acht
+    widget: numeric
+    prompt: "With each question, 8 numbers become half as many: 8, 4, 2, 1. So how many questions do you need at most?"
+    params:
+      unit: questions
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: counted-values
+        text: "Count the steps, not the numbers: 8 → 4 → 2 → 1 has three arrows."
+      - when: numval(state.input) == 8
+        misconception: linear-search
+        text: That many would be needed when trying them one by one. Halving is much faster.
+    hints:
+      - "Each question halves: 8 becomes 4, then 2, then 1."
+      - Count how many times you have to halve.
+    explanation: "8 → 4 → 2 → 1: halve three times, so 3 questions."
 
   - kind: problem
     id: ablauf
@@ -101,23 +153,29 @@ steps:
     explanation: Only in a sorted list does "higher" or "lower" tell you where to keep searching.
 
   - kind: problem
-    id: intro-c1
-    widget: pixels
-    prompt: The number is between 1 and 16. "Bigger than 8?" – Yes. "Bigger than 12?" – No. Mark every number that is still possible.
-    params:
-      rows: 2
-      cols: 8
-      numbers:
-        start: 1
-      counter: true
-    answer:
-      pattern:
-        - ........
-        - "####...."
+    id: tausend
+    widget: numeric
+    prompt: At most how many questions do you need for a number from 1 to 1000?
+    answer: { value: 10 }
+    feedback:
+      - when: "numval(state.input) >= 100"
+        text: Trying every number would be slow. How often can you halve 1000 until 1 is left?
     hints:
-      - The first yes rules out 1 to 8.
-      - The no then rules out 13 to 16 as well.
-    explanation: 9, 10, 11 and 12 are left. Two questions shrank 16 numbers to 4 – two more questions and it is certain.
+      - "2 · 2 · 2 … – how many twos give more than 1000?"
+    explanation: 2¹⁰ = 1024 ≥ 1000, so 10 questions are enough.
+    difficulty: 2
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many yes/no questions do you need at most to find one of a billion numbers?"
+    params:
+      min: 5
+      max: 1000
+    answer:
+      value: 30
+      tolerance: 6
+    explanation: Only 30. Each question halves – and 2³⁰ is just over a billion.
 
   - kind: problem
     id: d1

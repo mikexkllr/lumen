@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.loops]
-estimated_minutes: 14
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -36,6 +36,23 @@ steps:
         goal: collect
 
   - kind: problem
+    id: start-dreimal
+    widget: numeric
+    prompt: "Ein Programm lautet: »Wiederhole 3× – vorwärts – Ende«. Wie viele Felder fährt der Roboter?"
+    params:
+      unit: Felder
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: loop-once
+        text: Der Befehl steht nur einmal da, wird aber dreimal ausgeführt.
+    hints:
+      - »Wiederhole« führt alles bis zum »Ende« mehrmals aus.
+      - Dreimal ein Feld vorwärts.
+    explanation: 3 · 1 = 3 Felder. Der Befehl »vorwärts« steht einmal da und läuft dreimal.
+
+  - kind: problem
     id: lange-strecke
     widget: robot
     prompt: Bring den Roboter ans Ziel – mit höchstens 3 Blöcken.
@@ -52,16 +69,36 @@ steps:
       »Wiederhole 8× vorwärts, Ende« ist kürzer als achtmal »vorwärts« – und leichter zu ändern.
 
   - kind: problem
-    id: treppe
+    id: start-runde
     widget: robot
-    prompt: Die Treppe hat ein Muster. Schaffst du es mit höchstens 6 Blöcken?
-    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
-    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    prompt: Sammle die drei Kristalle ein – mit höchstens 4 Blöcken.
+    params:
+      grid:
+        - S*
+        - "**"
+      blocks:
+        - forward
+        - right
+        - repeat
+        - end
+      repeatCounts:
+        - 2
+        - 3
+        - 4
+      maxBlocks: 4
+      goal: collect
+    solution:
+      state:
+        program:
+          - op: repeat
+            n: 3
+          - op: forward
+          - op: right
+          - op: end
     hints:
-      - Welche vier Befehle wiederholen sich bei jeder Stufe?
-      - vorwärts, rechts, vorwärts, links – dreimal.
-    explanation: wiederhole 3× (vorwärts, rechts drehen, vorwärts, links drehen).
-    difficulty: 3
+      - Welche zwei Befehle wiederholen sich an jeder Ecke?
+      - Wiederhole 3× – vorwärts, rechts drehen – Ende.
+    explanation: wiederhole 3× (vorwärts, rechts drehen). Ohne Schleife wären es fünf Blöcke.
 
   - kind: problem
     id: quadrat
@@ -99,6 +136,19 @@ steps:
       distractors:
         - addiert
         - überspringt
+
+  - kind: problem
+    id: treppe
+    depth: 2
+    widget: robot
+    prompt: Die Treppe hat ein Muster. Schaffst du es mit höchstens 6 Blöcken?
+    params: { grid: ["S.##", "#..#", "##..", "###G"], blocks: [forward, left, right, repeat, end], repeatCounts: [2, 3, 4], maxBlocks: 6 }
+    solution: { state: { program: [{ op: repeat, n: 3 }, { op: forward }, { op: right }, { op: forward }, { op: left }, { op: end }] } }
+    hints:
+      - Welche vier Befehle wiederholen sich bei jeder Stufe?
+      - vorwärts, rechts, vorwärts, links – dreimal.
+    explanation: wiederhole 3× (vorwärts, rechts drehen, vorwärts, links drehen).
+    difficulty: 3
 
   - kind: problem
     id: d1

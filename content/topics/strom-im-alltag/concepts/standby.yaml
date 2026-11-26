@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 12
 steps:
   - kind: explain
     id: intro-hook
@@ -33,43 +33,21 @@ steps:
             back: Neue Geräte dürfen im echten Standby meist nur 0,5 W ziehen.
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: Ein Gerät zieht im Standby 5 W – Tag und Nacht. Wie viel Euro kostet das im Jahr bei 35 Cent pro kWh?
+    id: start-lampe
+    widget: choice
+    prompt: Der Fernseher ist »aus«, aber vorn leuchtet ein rotes Lämpchen. Braucht er jetzt Strom?
     params:
-      min: 0
-      max: 60
-    answer:
-      value: 15.3
-      tolerance: 4
-    explanation: 5 W · 8760 h = 43,8 kWh. Mal 0,35 € sind das rund 15 €. Für eine leuchtende Lampe am Fernseher!
-
-  - kind: explain
-    id: c1
-    body: Im **Standby** wartet ein Gerät auf die Fernbedienung oder ein Signal. Es zieht wenig Leistung, aber rund um die Uhr. Ein Jahr hat 8760 Stunden.
-
-  - kind: problem
-    id: c2
-    widget: numeric
-    prompt: Ein Gerät zieht dauerhaft {{p}} W. Wie viele kWh sind das im Jahr?
-    params:
-      unit: kWh
-    answer:
-      value: "{{p * 8.76}}"
-      tolerance: 0.1
-    feedback:
-      - when: numval(state.input) == p * 8760
-        misconception: unit-prefix
-        text: Das sind Wattstunden. Teile durch 1000.
+      options:
+        - label: Ja, ein wenig
+          correct: true
+        - label: Nein, gar keinen
+          feedback: Das Lämpchen leuchtet nicht von allein. Der Fernseher wartet auf die Fernbedienung.
+        - label: Ja, genauso viel wie beim Fernsehen
+          feedback: Bild und Ton sind aus. Es bleibt nur ein kleiner Rest.
     hints:
-      - Leistung mal 8760 Stunden.
-      - "{{p}} W · 8760 h = {{p * 8760}} Wh."
-    explanation: "{{p}} W · 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Merke: 1 W rund um die Uhr ≈ 8,8 kWh im Jahr."
-    variants:
-      params:
-        p: choice[1,2,3,5,8,10]
-      defaults:
-        p: 3
+      - Woher bekommt das rote Lämpchen seinen Strom?
+      - Der Fernseher muss wach bleiben, um die Fernbedienung zu hören.
+    explanation: Der Fernseher wartet im Standby. Dafür braucht er wenig Strom – aber Tag und Nacht.
 
   - kind: problem
     id: c3
@@ -98,6 +76,62 @@ steps:
       - Alles, was auf ein Signal wartet oder eine Uhr hat, zieht Strom.
       - Ein echter Schalter trennt den Kreis ganz.
     explanation: Fernbedienung, Uhr und Netzwerk brauchen Dauerstrom. Auch ein leeres Ladegerät zieht ein wenig. Ein mechanischer Schalter trennt dagegen den Stromkreis.
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: Ein Gerät zieht im Standby 5 W – Tag und Nacht. Wie viel Euro kostet das im Jahr bei 35 Cent pro kWh?
+    params:
+      min: 0
+      max: 60
+    answer:
+      value: 15.3
+      tolerance: 4
+    explanation: 5 W · 8760 h = 43,8 kWh. Mal 0,35 € sind das rund 15 €. Für eine leuchtende Lampe am Fernseher!
+
+  - kind: explain
+    id: c1
+    body: Im **Standby** wartet ein Gerät auf die Fernbedienung oder ein Signal. Es zieht wenig Leistung, aber rund um die Uhr. Ein Jahr hat 8760 Stunden.
+
+  - kind: problem
+    id: start-jahr
+    widget: numeric
+    prompt: Ein Gerät zieht 1 W – das ganze Jahr, 8760 Stunden lang. Wie viele Wattstunden sind das?
+    params:
+      unit: Wh
+    answer:
+      value: 8760
+    feedback:
+      - when: numval(state.input) == 8.76
+        misconception: unit-prefix
+        text: Das sind schon Kilowattstunden. Gefragt sind hier Wattstunden.
+    hints:
+      - Energie ist Leistung mal Zeit.
+      - Rechne 1 · 8760.
+    explanation: 1 W · 8760 h = 8760 Wh. Das sind fast 9 kWh – für ein einziges Watt.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: Ein Gerät zieht dauerhaft {{p}} W. Wie viele kWh sind das im Jahr?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * 8.76}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == p * 8760
+        misconception: unit-prefix
+        text: Das sind Wattstunden. Teile durch 1000.
+    hints:
+      - Leistung mal 8760 Stunden.
+      - "{{p}} W · 8760 h = {{p * 8760}} Wh."
+    explanation: "{{p}} W · 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Merke: 1 W rund um die Uhr ≈ 8,8 kWh im Jahr."
+    variants:
+      params:
+        p: choice[1,2,3,5,8,10]
+      defaults:
+        p: 3
 
   - kind: problem
     id: c4

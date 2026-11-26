@@ -3,7 +3,7 @@
  * Every file is checked against the SHA-256 in the manifest; the manifest
  * signature is verified when a public key is configured.
  */
-import { manifestPayload, type Catalog, type Concept, type ContentManifest, type TopicBundle } from '@lumen/engine';
+import { groupOfStep, manifestPayload, type Catalog, type Concept, type ContentManifest, type Lesson, type Step, type TopicBundle } from '@lumen/engine';
 
 const BASE = `${import.meta.env.BASE_URL}content/`;
 
@@ -65,13 +65,38 @@ export class ContentLibrary {
     return p;
   }
 
-  async concept(conceptId: string): Promise<Concept> {
+  /** One lesson (a short part of an authored concept) by its id. */
+  async concept(conceptId: string): Promise<Lesson> {
     const meta = this.catalog.concepts[conceptId];
     if (!meta) throw new Error(`Unbekanntes Concept ${conceptId}`);
     const bundle = await this.topic(meta.topicId);
     const c = bundle.concepts.find((x) => x.id === conceptId);
     if (!c) throw new Error(`Concept ${conceptId} fehlt im Bundle`);
     return c;
+  }
+
+  /** The lessons an authored concept was cut into, in learning order. */
+  lessonsOf(group: string): string[] {
+    return this.catalog.groups?.[group] ?? (this.catalog.concepts[group] ? [group] : []);
+  }
+
+  /** A step by its id (`concept/step`) together with the lesson that holds it now. */
+  async step(stepId: string): Promise<{ step: Step; lesson: Lesson } | null> {
+    for (const id of this.lessonsOf(groupOfStep(stepId))) {
+      const lesson = await this.concept(id);
+      const step = lesson.steps.find((s) => s.id === stepId);
+      if (step) return { step, lesson };
+    }
+    return null;
+  }
+
+  /** An authored concept put back together from its lessons (for the authoring preview). */
+  async group(group: string): Promise<Concept | null> {
+    const lessons = await Promise.all(this.lessonsOf(group).map((id) => this.concept(id)));
+    if (!lessons.length) return null;
+    const cards = lessons.flatMap((l) => l.srs?.cards_from ?? []);
+    const { group: _g, depth: _d, part: _p, parts: _n, focus: _f, ...first } = lessons[0];
+    return { ...first, id: group, estimated_minutes: lessons.reduce((s, l) => s + l.estimated_minutes, 0), steps: lessons.flatMap((l) => l.steps), srs: cards.length ? { cards_from: cards } : undefined };
   }
 
   /** Loads all topic bundles so the service worker has everything for offline use. */
