@@ -243,7 +243,11 @@ export function Player({ mode }: { mode: PlayerMode }) {
       } else if (mode.kind === 'review') next = { text: t('luxPop.review'), mood: 'wave' };
       else if (mode.kind === 'daily') next = { text: t('luxPop.daily'), mood: 'wow' };
     } else if (mode.kind === 'lesson' && count >= 4 && index === count - 1) next = { text: t('luxPop.last'), mood: 'cheer' };
-    if (!next) return;
+    if (!next) {
+      // a line from the step before must not come back when that step was answered quickly
+      setPop(null);
+      return;
+    }
     setPop({ ...next, key: `${index}` });
     play(app.settings.sound, 'boing');
     const id = setTimeout(() => setPop(null), 2600);

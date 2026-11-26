@@ -59,8 +59,40 @@ export function today(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+export const WEB = `http://127.0.0.1:${process.env.E2E_WEB_PORT ?? 4180}`;
+
+export interface CatalogLesson { id: string; title: string; topicId: string; group: string; depth: 1 | 2 | 3; part: number; parts: number; steps: number; problems: number }
+export interface TestCatalog {
+  concepts: Record<string, CatalogLesson>;
+  groups: Record<string, string[]>;
+  topics: { id: string; title: string; units: { id: string; concepts: string[] }[] }[];
+  paths: { id: string; topics: string[] }[];
+}
+
+/** The German catalog the app loads. Lesson ids follow from how the concepts are cut, so tests look them up. */
+export async function loadCatalog(request: APIRequestContext): Promise<TestCatalog> {
+  const manifest = (await (await request.get(`${WEB}/content/manifest.json`)).json()) as { locales: Record<string, { catalog: { path: string } }> };
+  return (await (await request.get(`${WEB}/content/${manifest.locales.de.catalog.path}`)).json()) as TestCatalog;
+}
+
+/** A concept of a course that is cut into exactly `coreParts` core lessons and has a deeper and an expert lesson. */
+export function conceptWithParts(cat: TestCatalog, topicId: string, coreParts = 2): { group: string; core: string[]; deeper: string; expert: string } {
+  for (const [group, lessons] of Object.entries(cat.groups)) {
+    if (cat.concepts[lessons[0]]?.topicId !== topicId) continue;
+    const at = (d: number) => lessons.filter((id) => cat.concepts[id].depth === d);
+    if (at(1).length === coreParts && at(2).length === 1 && at(3).length === 1) return { group, core: at(1), deeper: at(2)[0], expert: at(3)[0] };
+  }
+  throw new Error(`no concept with ${coreParts} core lessons in ${topicId}`);
+}
+
+/** The first lesson on the maths path – what a new learner is offered on the home screen. */
+export function firstLesson(cat: TestCatalog): CatalogLesson {
+  const topic = cat.topics.find((t) => t.id === cat.paths.find((p) => p.id === 'path.math')!.topics[0])!;
+  return cat.concepts[topic.units[0].concepts[0]];
+}
+
 /** A finished lesson (10 XP) on the server, as if learned on another device. */
-export async function pushCompletedLesson(request: APIRequestContext, token: string, conceptId = 'math.placevalue.digits', topicId = 'math.placevalue') {
+export async function pushCompletedLesson(request: APIRequestContext, token: string, conceptId = 'math.placevalue.digits~c1', topicId = 'math.placevalue') {
   const event = { id: randomUUID(), type: 'concept_completed', ts: Date.now(), day: today(), conceptId, topicId, problems: 5, firstTryCorrect: 5, durationMs: 120_000 };
   const r = await request.post(`${API}/v1/sync`, { headers: auth(token), data: { events: [event], since: 0, today: today() } });
   expect(r.ok()).toBe(true);
@@ -153,10 +185,11 @@ export async function solve(page: Page, check = 'Prüfen') {
  * session of a day is continued too, so this ends on the summary. Returns how many problems
  * it solved.
  */
-export async function playToEnd(page: Page, opts: { max?: number } = {}): Promise<number> {
+export async function playToEnd(page: Page, opts: { max?: number; stopAtStreak?: boolean } = {}): Promise<number> {
   let solved = 0;
   for (let i = 0; i < (opts.max ?? 120); i++) {
     if (await page.locator('.complete').isVisible()) return solved;
+    if (opts.stopAtStreak && (await page.locator('.streak-party').isVisible())) return solved;
     // quick recall check on an explanation: pick a term, then continue
     const recall = page.locator('.recall-opt:not([disabled])').first();
     if (await recall.isVisible()) {
