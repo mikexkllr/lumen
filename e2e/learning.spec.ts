@@ -1,4 +1,4 @@
-import { apiAccount, onboardToAccount, openSignedIn, playToEnd, pushCompletedLesson, signInWithEmail, uniqueEmail, expect, test } from './helpers.ts';
+import { apiAccount, loadCatalog, onboardToAccount, openSignedIn, playToEnd, pushCompletedLesson, signInWithEmail, uniqueEmail, expect, test } from './helpers.ts';
 
 test.describe('placement, courses, review and streak', () => {
   test('the placement check suggests where to start', async ({ page, request }) => {
@@ -54,7 +54,10 @@ test.describe('placement, courses, review and streak', () => {
     await page.goto('/#/review');
     await expect(page.getByRole('heading', { name: 'Noch nichts zu wiederholen' })).toBeVisible();
 
-    await page.goto('/#/learn/math.placevalue.digits');
+    // a lesson that holds review cards (they start with the lesson their step is in)
+    const cat = await loadCatalog(request);
+    const withCards = Object.values(cat.concepts).find((c) => c.topicId === 'math.placevalue' && c.depth === 1 && c.srsCards.length > 0)!;
+    await page.goto(`/#/learn/${withCards.id}`);
     await playToEnd(page);
     await page.getByRole('button', { name: 'Zur Übersicht' }).click();
     await page.goto('/#/review');

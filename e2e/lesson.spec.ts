@@ -1,4 +1,4 @@
-import { API, apiAccount, auth, conceptWithParts, firstLesson, loadCatalog, openSignedIn, playToEnd, pushCompletedLesson, solve, uniqueEmail, expect, test, skipIntro } from './helpers.ts';
+import { API, apiAccount, auth, conceptWithParts, firstLesson, lessonOfStep, loadCatalog, openSignedIn, playToEnd, pushCompletedLesson, solve, uniqueEmail, expect, test, skipIntro } from './helpers.ts';
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -41,9 +41,9 @@ test.describe('lessons', () => {
   test('a wrong answer gets feedback, a hint and the solution', async ({ page, request }) => {
     const { token } = await apiAccount(request, uniqueEmail('wrong'));
     await openSignedIn(page, token);
-    await page.goto('/#/learn/math.placevalue.digits');
+    // the lesson with the choice "value of the 7 in 4 728"; whatever comes before it in that lesson is played through
+    await page.goto(`/#/learn/${await lessonOfStep(request, 'math.placevalue', 'math.placevalue.digits/c2')}`);
     await skipIntro(page);
-    // first the hook problem, then an explanation; the choice "value of the 7 in 4 728" follows
     const target = page.getByRole('heading', { name: 'Welchen Wert hat die 7 in 4 728?' });
     for (let i = 0; i < 12 && !(await target.isVisible()); i++) {
       await expect(page.getByRole('button', { name: /^(Prüfen|Weiter|Überspringen)$/ }).first()).toBeVisible();
@@ -152,6 +152,7 @@ test.describe('lessons', () => {
     await expect(page.locator('.complete')).toContainText('Serie verlängert');
 
     await page.getByRole('button', { name: 'Nächste Lektion' }).click();
+    await expect(page.locator('.lesson-stage')).toBeVisible();
     await playToEnd(page, { stopAtStreak: true });
     await expect(party).toHaveCount(0);
     await expect(page.locator('.complete')).toBeVisible();

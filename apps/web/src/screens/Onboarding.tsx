@@ -231,11 +231,11 @@ export function Onboarding({ step: routeStep }: { step?: string }) {
         {step === 'placement' && (
           <>
             <h1>{t('onb.placement')}</h1>
-            <p className="sub">{t('onb.placement.hint')}</p>
+            <p className="sub">{t('onb.placement.hint', { n: lib?.catalog.placement?.items.length ?? 5 })}</p>
             <div className="stack" style={{ marginTop: 16, gap: 10 }}>
               <button className="choice-card wide" onClick={() => finish(true)} disabled={!lib?.catalog.placement}>
                 <span className="ci"><Icon name="target" /></span>
-                <span>{t('onb.placement.start')}<span className="sub2" style={{ display: 'block' }}>{t('onb.placement.startSub')}</span></span>
+                <span>{t('onb.placement.start')}<span className="sub2" style={{ display: 'block' }}>{t('onb.placement.startSub', { n: lib?.catalog.placement?.items.length ?? 5 })}</span></span>
                 <Icon name="chevron" size={18} className="faint" />
               </button>
               <button className="choice-card wide" onClick={() => finish(false)}>

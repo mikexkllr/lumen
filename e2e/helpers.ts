@@ -61,7 +61,7 @@ export function today(): string {
 
 export const WEB = `http://127.0.0.1:${process.env.E2E_WEB_PORT ?? 4180}`;
 
-export interface CatalogLesson { id: string; title: string; topicId: string; group: string; depth: 1 | 2 | 3; part: number; parts: number; steps: number; problems: number }
+export interface CatalogLesson { id: string; title: string; topicId: string; group: string; depth: 1 | 2 | 3; part: number; parts: number; steps: number; problems: number; srsCards: string[] }
 export interface TestCatalog {
   concepts: Record<string, CatalogLesson>;
   groups: Record<string, string[]>;
@@ -83,6 +83,15 @@ export function conceptWithParts(cat: TestCatalog, topicId: string, coreParts = 
     if (at(1).length === coreParts && at(2).length === 1 && at(3).length === 1) return { group, core: at(1), deeper: at(2)[0], expert: at(3)[0] };
   }
   throw new Error(`no concept with ${coreParts} core lessons in ${topicId}`);
+}
+
+/** The lesson that holds a step (`concept/step`) – concepts are cut into several lessons. */
+export async function lessonOfStep(request: APIRequestContext, topicId: string, stepId: string): Promise<string> {
+  const manifest = (await (await request.get(`${WEB}/content/manifest.json`)).json()) as { locales: Record<string, { topics: Record<string, { path: string }> }> };
+  const bundle = (await (await request.get(`${WEB}/content/${manifest.locales.de.topics[topicId].path}`)).json()) as { concepts: { id: string; steps: { id: string }[] }[] };
+  const lesson = bundle.concepts.find((c) => c.steps.some((s) => s.id === stepId));
+  if (!lesson) throw new Error(`step ${stepId} not found in ${topicId}`);
+  return lesson.id;
 }
 
 /** The first lesson on the maths path – what a new learner is offered on the home screen. */
