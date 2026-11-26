@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { AppleButton } from './AppleButton.tsx';
+import { GoogleButton } from './GoogleButton.tsx';
 import { Icon } from './ui.tsx';
 import { useApp } from '../lib/store.tsx';
-import { appleSignIn, emailStart, emailVerify, linkedSignIns, signInMethods, SignInError, unlinkSignIn } from '../lib/signIn.ts';
+import { appleSignIn, emailStart, emailVerify, googleFinish, googleSignIn, linkedSignIns, PROVIDERS, signInMethods, SignInError, takeGoogleRedirect, unlinkSignIn, type Linked, type Provider } from '../lib/signIn.ts';
 
-export type SignInResult = { token?: string; created?: boolean; method: 'apple' | 'email' };
+export type SignInResult = { token?: string; created?: boolean; method: Provider };
+
+const LINKED_LABEL = { apple: 'signin.linkedApple', google: 'signin.linkedGoogle', email: 'signin.linkedEmail' } as const;
 
 /**
- * Sign-in methods of a Lumen server: Apple (iOS app) and an emailed code (everywhere).
+ * Sign-in methods of a Lumen server: Apple (iOS app), Google and an emailed code (everywhere).
  * Without `token` it signs in (onSignedIn gets a device code); with `token` it links the
  * method to that account and shows which methods are already linked.
  */
@@ -16,11 +19,11 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   token?: string;
   disabled?: boolean;
   onSignedIn?: (r: SignInResult) => void | Promise<void>;
-  onLinked?: (linked: { apple: boolean; email: boolean }) => void;
+  onLinked?: (linked: Linked) => void;
 }) {
   const { t, settings } = useApp();
-  const [methods, setMethods] = useState<{ apple: boolean; email: boolean } | null>(null);
-  const [linked, setLinked] = useState<{ apple: boolean; email: boolean } | null>(null);
+  const [methods, setMethods] = useState<{ apple: boolean; google: string | null; email: boolean } | null>(null);
+  const [linked, setLinked] = useState<Linked | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [email, setEmail] = useState('');
@@ -28,34 +31,13 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   const [code, setCode] = useState('');
   const [nonce, setNonce] = useState(0);
 
-  useEffect(() => {
-    let live = true;
-    setMethods(null);
-    void signInMethods(serverUrl).then((m) => live && setMethods(m));
-    if (token) void linkedSignIns(serverUrl, token).then((l) => { if (live && l) { setLinked(l); onLinked?.(l); } });
-    return () => { live = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serverUrl, token, nonce]);
-
-  if (!methods) return <p className="small faint" role="status" style={{ margin: 0 }}>{t('loading')}</p>;
-  if (!methods.apple && !methods.email) {
-    // Linking is optional; signing in is the way into the app, so say why it can't happen.
-    if (token) return null;
-    return (
-      <div className="card stack" role="alert" style={{ gap: 10 }}>
-        <p className="small" style={{ margin: 0 }}>{t('signin.unavailable')}</p>
-        <button type="button" className="btn ghost small" onClick={() => setNonce((n) => n + 1)}>{t('retry')}</button>
-      </div>
-    );
-  }
-
   const fail = (e: unknown) => {
     const c = e instanceof SignInError ? e.code : 'failed';
     if (c !== 'canceled') setMsg(t(`signin.err.${c}`));
   };
-  const done = async (r: { token?: string; created?: boolean }, method: 'apple' | 'email') => {
+  const done = async (r: { token?: string; created?: boolean }, method: Provider) => {
     if (token) {
-      const next = { apple: linked?.apple ?? false, email: linked?.email ?? false, [method]: true };
+      const next = { apple: linked?.apple ?? false, google: linked?.google ?? false, email: linked?.email ?? false, [method]: true };
       setLinked(next);
       onLinked?.(next);
       setMsg(t('signin.linkedOk'));
@@ -74,7 +56,41 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
       setBusy(false);
     }
   };
+  useEffect(() => {
+    let live = true;
+    setMethods(null);
+    void signInMethods(serverUrl).then((m) => live && setMethods(m));
+    if (token) void linkedSignIns(serverUrl, token).then((l) => { if (live && l) { setLinked(l); onLinked?.(l); } });
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverUrl, token, nonce]);
+
+  // Back from Google's page (web): finish the sign-in this form started.
+  useEffect(() => {
+    const back = takeGoogleRedirect(serverUrl, !!token);
+    if (!back) return;
+    if ('error' in back) {
+      if (back.error !== 'access_denied') setMsg(t('signin.err.failed'));
+      return;
+    }
+    void run(async () => done(await googleFinish(serverUrl, back.idToken, back.nonce, token), 'google'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  if (!methods) return <p className="small faint" role="status" style={{ margin: 0 }}>{t('loading')}</p>;
+  if (!methods.apple && !methods.google && !methods.email) {
+    // Linking is optional; signing in is the way into the app, so say why it can't happen.
+    if (token) return null;
+    return (
+      <div className="card stack" role="alert" style={{ gap: 10 }}>
+        <p className="small" style={{ margin: 0 }}>{t('signin.unavailable')}</p>
+        <button type="button" className="btn ghost small" onClick={() => setNonce((n) => n + 1)}>{t('retry')}</button>
+      </div>
+    );
+  }
+
   const apple = () => run(async () => done(await appleSignIn(serverUrl, token), 'apple'));
+  const google = () => run(async () => done(await googleSignIn(serverUrl, methods.google!, token), 'google'));
   const verifyBtn = busy ? t('loading') : t(token ? 'signin.verifyLink' : 'signin.verify');
   const send = () => run(async () => {
     const address = email.trim();
@@ -89,32 +105,30 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
     setEmail('');
     await done(r, 'email');
   });
-  const unlink = (p: 'apple' | 'email') => run(async () => {
+  const unlink = (p: Provider) => run(async () => {
     if (!token) return;
     await unlinkSignIn(serverUrl, token, p);
-    const next = { apple: linked?.apple ?? false, email: linked?.email ?? false, [p]: false };
+    const next = { apple: linked?.apple ?? false, google: linked?.google ?? false, email: linked?.email ?? false, [p]: false };
     setLinked(next);
     onLinked?.(next);
   });
 
   const showApple = methods.apple && !(token && linked?.apple);
+  const showGoogle = !!methods.google && !(token && linked?.google);
   const showEmail = methods.email && !(token && linked?.email);
+  const linkedList = linked ? PROVIDERS.filter((p) => linked[p]) : [];
   return (
     <div className="stack" style={{ gap: 10 }}>
-      {token && (linked?.apple || linked?.email) && (
+      {token && linkedList.length > 0 && (
         <div className="stack" style={{ gap: 4 }}>
           {/* The last sign-in method stays: without it the account can't be opened on another device. */}
-          {linked.apple && <LinkedRow label={t('signin.linkedApple')} onUnlink={linked.email ? () => unlink('apple') : undefined} unlinkLabel={t('signin.unlink')} busy={busy} />}
-          {linked.email && <LinkedRow label={t('signin.linkedEmail')} onUnlink={linked.apple ? () => unlink('email') : undefined} unlinkLabel={t('signin.unlink')} busy={busy} />}
+          {linkedList.map((p) => <LinkedRow key={p} label={t(LINKED_LABEL[p])} onUnlink={linkedList.length > 1 ? () => unlink(p) : undefined} unlinkLabel={t('signin.unlink')} busy={busy} />)}
         </div>
       )}
-      {showApple && (
-        <>
-          <AppleButton label={t(token ? 'signin.appleLink' : 'signin.apple')} onClick={apple} disabled={disabled} busy={busy} />
-          <p className="small faint" style={{ margin: 0 }}>{t('signin.appleNote')}</p>
-        </>
-      )}
-      {showApple && showEmail && <p className="small faint" style={{ margin: 0, textAlign: 'center' }}>{t('signin.or')}</p>}
+      {showApple && <AppleButton label={t(token ? 'signin.appleLink' : 'signin.apple')} onClick={apple} disabled={disabled} busy={busy} />}
+      {showGoogle && <GoogleButton label={t(token ? 'signin.googleLink' : 'signin.google')} onClick={google} disabled={disabled} busy={busy} />}
+      {(showApple || showGoogle) && <p className="small faint" style={{ margin: 0 }}>{t(showApple && showGoogle ? 'signin.appleGoogleNote' : showApple ? 'signin.appleNote' : 'signin.googleNote')}</p>}
+      {(showApple || showGoogle) && showEmail && <p className="small faint" style={{ margin: 0, textAlign: 'center' }}>{t('signin.or')}</p>}
       {showEmail && (!sentTo ? (
         <form className="stack" style={{ gap: 8 }} onSubmit={(e) => { e.preventDefault(); void send(); }}>
           <label className="field" style={{ margin: 0 }}>

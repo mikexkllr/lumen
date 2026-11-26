@@ -1,9 +1,10 @@
 /**
- * Optional sign-in on top of the anonymous sync code: "Sign in with Apple" and email codes.
+ * Sign-in on top of the anonymous sync code: "Sign in with Apple", "Sign in with Google" and
+ * email codes.
  *
  * An account is still identified by SHA-256 of a sync code. Sign-in only adds:
- * - auth_links: a hash of Apple's stable user id ("sub") or of the email address -> account.
- *   The server keeps no email address and no name, only these hashes.
+ * - auth_links: a hash of Apple's or Google's stable user id ("sub") or of the email address
+ *   -> account. The server keeps no email address and no name, only these hashes.
  * - auth_tokens: extra device codes for the same account, handed out when someone signs in on
  *   a new device (the server never learns the original sync code, so it cannot give it back).
  * Deleting the account removes both and revokes the Apple token (App Store guideline 5.1.1(v)).
@@ -11,7 +12,8 @@
 import { createHash, createHmac, createPublicKey, createSign, createVerify, randomBytes, randomInt } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
 
-export type Provider = 'apple' | 'email';
+export type Provider = 'apple' | 'google' | 'email';
+export const PROVIDERS: readonly Provider[] = ['apple', 'google', 'email'];
 
 export interface AuthStore {
   /** Account of a sync-code hash: itself, or the account a device code points to. */
@@ -135,42 +137,50 @@ const b64url = (b: Buffer | string) => Buffer.from(b).toString('base64url');
 const ISSUER = 'https://appleid.apple.com';
 
 type Jwk = { kid: string; kty: string; n: string; e: string; alg?: string };
-let jwksCache: { at: number; keys: Jwk[] } | null = null;
-async function appleKeys(fetchImpl: typeof fetch, force = false): Promise<Jwk[]> {
-  if (!force && jwksCache && Date.now() - jwksCache.at < 3_600_000) return jwksCache.keys;
-  const r = await fetchImpl(`${ISSUER}/auth/keys`, { signal: AbortSignal.timeout(5000) });
-  if (!r.ok) throw new Error(`apple keys: HTTP ${r.status}`);
-  jwksCache = { at: Date.now(), keys: ((await r.json()) as { keys: Jwk[] }).keys };
-  return jwksCache.keys;
+const jwksCache = new Map<string, { at: number; keys: Jwk[] }>();
+async function signingKeys(url: string, fetchImpl: typeof fetch, force = false): Promise<Jwk[]> {
+  const hit = jwksCache.get(url);
+  if (!force && hit && Date.now() - hit.at < 3_600_000) return hit.keys;
+  const r = await fetchImpl(url, { signal: AbortSignal.timeout(5000) });
+  if (!r.ok) throw new Error(`signing keys: HTTP ${r.status}`);
+  const keys = ((await r.json()) as { keys: Jwk[] }).keys;
+  jwksCache.set(url, { at: Date.now(), keys });
+  return keys;
 }
-/** Test hook: start without cached keys. */
+/** Test hook: start without cached keys (Apple and Google). */
 export function resetAppleKeyCache(): void {
-  jwksCache = null;
+  jwksCache.clear();
 }
 
 /**
- * Checks an Apple identity token (RS256, issuer, audience, expiry, nonce) and returns Apple's
- * stable user id. `nonce` is the raw value the app generated; Apple signs its SHA-256.
+ * Checks an identity token (RS256 signature against the provider's published keys, issuer,
+ * audience, expiry, nonce) and returns its stable user id. `nonce` is the raw value the app
+ * generated; the provider signed its SHA-256 (hex), so a leaked token alone can't be replayed.
  */
-export async function verifyAppleToken(token: string, nonce: string, cfg: AppleConfig, fetchImpl: typeof fetch = fetch, now = Date.now()): Promise<string> {
+async function verifyIdToken(token: string, nonce: string, o: { keysUrl: string; issuers: string[]; audiences: string[] }, fetchImpl: typeof fetch, now: number): Promise<string> {
   const parts = token.split('.');
   if (parts.length !== 3) throw new Error('malformed token');
   const header = JSON.parse(Buffer.from(parts[0], 'base64url').toString()) as { kid?: string; alg?: string };
   const claims = JSON.parse(Buffer.from(parts[1], 'base64url').toString()) as { iss?: string; aud?: string; exp?: number; sub?: string; nonce?: string };
   if (header.alg !== 'RS256' || !header.kid) throw new Error('unexpected algorithm');
-  let jwk = (await appleKeys(fetchImpl)).find((k) => k.kid === header.kid);
-  if (!jwk) jwk = (await appleKeys(fetchImpl, true)).find((k) => k.kid === header.kid);
+  let jwk = (await signingKeys(o.keysUrl, fetchImpl)).find((k) => k.kid === header.kid);
+  if (!jwk) jwk = (await signingKeys(o.keysUrl, fetchImpl, true)).find((k) => k.kid === header.kid);
   if (!jwk) throw new Error('unknown key');
   const key = createPublicKey({ key: jwk, format: 'jwk' } as unknown as Parameters<typeof createPublicKey>[0]);
   const ok = createVerify('RSA-SHA256').update(`${parts[0]}.${parts[1]}`).verify(key, Buffer.from(parts[2], 'base64url'));
   if (!ok) throw new Error('bad signature');
-  if (claims.iss !== ISSUER) throw new Error('wrong issuer');
-  if (!claims.aud || !cfg.clientIds.includes(claims.aud)) throw new Error('wrong audience');
+  if (!claims.iss || !o.issuers.includes(claims.iss)) throw new Error('wrong issuer');
+  if (!claims.aud || !o.audiences.includes(claims.aud)) throw new Error('wrong audience');
   if (!claims.exp || claims.exp * 1000 < now) throw new Error('expired');
   if (!claims.sub) throw new Error('no subject');
   const expected = createHash('sha256').update(nonce).digest('hex');
   if (!nonce || claims.nonce !== expected) throw new Error('nonce mismatch');
   return claims.sub;
+}
+
+/** Checks an Apple identity token and returns Apple's stable user id. */
+export function verifyAppleToken(token: string, nonce: string, cfg: AppleConfig, fetchImpl: typeof fetch = fetch, now = Date.now()): Promise<string> {
+  return verifyIdToken(token, nonce, { keysUrl: `${ISSUER}/auth/keys`, issuers: [ISSUER], audiences: cfg.clientIds }, fetchImpl, now);
 }
 
 function clientSecret(cfg: AppleConfig, clientId: string): string | null {
@@ -209,6 +219,32 @@ export async function revokeApple(refreshToken: string | null, cfg: AppleConfig,
     signal: AbortSignal.timeout(8000),
   }).catch(() => null);
   return !!r?.ok;
+}
+
+export const googleSubHash = (sub: string) => createHash('sha256').update(`lumen-google:${sub}`).digest('hex');
+
+export interface GoogleConfig {
+  /** OAuth client of the web app; Android's Credential Manager issues tokens for it too. */
+  webClientId?: string;
+  /** OAuth client of the iOS app (sign-in in the system browser sheet). */
+  iosClientId?: string;
+}
+
+export function googleConfigFromEnv(env = process.env): GoogleConfig | null {
+  const web = env.LUMEN_GOOGLE_WEB_CLIENT_ID?.trim() || undefined;
+  const ios = env.LUMEN_GOOGLE_IOS_CLIENT_ID?.trim() || undefined;
+  return web || ios ? { webClientId: web, iosClientId: ios } : null;
+}
+
+const GOOGLE_ISSUERS = ['https://accounts.google.com', 'accounts.google.com'];
+
+/**
+ * Checks a Google ID token and returns Google's stable user id. The token's name, email and
+ * picture claims are ignored. Lumen keeps no Google token, so there is nothing to revoke.
+ */
+export function verifyGoogleToken(token: string, nonce: string, cfg: GoogleConfig, fetchImpl: typeof fetch = fetch, now = Date.now()): Promise<string> {
+  const audiences = [cfg.webClientId, cfg.iosClientId].filter((s): s is string => !!s);
+  return verifyIdToken(token, nonce, { keysUrl: 'https://www.googleapis.com/oauth2/v3/certs', issuers: GOOGLE_ISSUERS, audiences }, fetchImpl, now);
 }
 
 /** Email sign-in: the address is only used to send the code; the server keeps HMAC(pepper, address). */

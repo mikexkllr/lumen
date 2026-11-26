@@ -6,6 +6,7 @@ import { AppContext } from '../src/lib/context.ts';
 import { translate } from '../src/lib/i18n.ts';
 import { DEFAULT_SETTINGS } from '../src/lib/settings.ts';
 import { SignInOptions } from '../src/components/SignIn.tsx';
+import { captureGoogleRedirect } from '../src/lib/signIn.ts';
 
 vi.mock('@capacitor/core', () => ({ registerPlugin: () => ({ authorize: vi.fn() }) }));
 
@@ -77,9 +78,42 @@ describe('sign-in form', () => {
     wrap(<SignInOptions serverUrl="/api" token="TOKEN" onLinked={onLinked} />);
     expect(await screen.findByText('Mit E-Mail verknüpft')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Trennen' })).toBeNull();
-    expect(onLinked).toHaveBeenCalledWith({ apple: false, email: true });
+    expect(onLinked).toHaveBeenCalledWith({ apple: false, google: false, email: true });
     // nothing else to link on the web: no email form either
     expect(screen.queryByLabelText('E-Mail-Adresse')).toBeNull();
+  });
+
+  it('linking: with two methods either one can be unlinked', async () => {
+    const calls = serverReplies({
+      '/v1/features': () => json({ email: true, google: { web: 'web.apps', ios: null } }),
+      '/v1/auth': () => json({ apple: false, google: true, email: true }),
+      '/v1/auth/google': () => json({ linked: false }),
+    });
+    wrap(<SignInOptions serverUrl="/api" token="TOKEN" />);
+    expect(await screen.findByText('Mit Google verknüpft')).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Trennen' })).toHaveLength(2);
+    expect(screen.queryByRole('button', { name: 'Mit Google verknüpfen' })).toBeNull();
+    await act(async () => fireEvent.click(screen.getAllByRole('button', { name: 'Trennen' })[0]));
+    expect(calls).toContain('DELETE /v1/auth/google');
+    expect(await screen.findByRole('button', { name: 'Mit Google verknüpfen' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Trennen' })).toBeNull();
+  });
+
+  it('offers Google next to email and finishes the sign-in after Google sends the page back', async () => {
+    const onSignedIn = vi.fn();
+    serverReplies({
+      '/v1/features': () => json({ email: true, google: { web: 'web.apps', ios: null } }),
+      '/v1/auth/google': (b) => (b.idToken === 'id.token.sig' && b.nonce === 'raw-nonce' ? json({ token: 'GOOG', created: true }) : json({ error: 'invalid_google_token' }, 401)),
+    });
+    // what googleSignIn left behind before the page went to Google, and Google's answer
+    sessionStorage.setItem('lumen.google', JSON.stringify({ state: 'st', nonce: 'raw-nonce', serverUrl: '/api', link: false, route: '#/login', at: Date.now() }));
+    history.replaceState(null, '', '/#state=st&id_token=id.token.sig');
+    captureGoogleRedirect();
+    expect(location.hash).toBe('#/login');
+    wrap(<SignInOptions serverUrl="/api" onSignedIn={onSignedIn} />);
+    await waitFor(() => expect(onSignedIn).toHaveBeenCalledWith({ token: 'GOOG', created: true, method: 'google' }));
+    expect(screen.getByRole('button', { name: 'Mit Google anmelden' })).toBeTruthy();
+    expect(screen.getByText(/nur eine anonyme Kennung/)).toBeTruthy();
   });
 
   it('disabled (missing parental consent) blocks sending a code', async () => {

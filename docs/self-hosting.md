@@ -126,6 +126,7 @@ a sync server on another origin in their profile, that origin must be in `connec
 | `LUMEN_EMAIL_PEPPER` | secret (≥ 16 characters) for the keyed hash under which email sign-ins are stored; never change it once in use | – (email sign-in off) |
 | `LUMEN_APPLE_CLIENT_IDS` | Sign in with Apple: your iOS bundle id(s), comma-separated | – (Apple sign-in off) |
 | `LUMEN_APPLE_TEAM_ID`, `LUMEN_APPLE_KEY_ID`, `LUMEN_APPLE_PRIVATE_KEY` | key with "Sign in with Apple" (PEM, `\n` for line breaks); revokes Apple sign-ins when an account is deleted (App Store guideline 5.1.1(v)) | – (no revocation) |
+| `LUMEN_GOOGLE_WEB_CLIENT_ID`, `LUMEN_GOOGLE_IOS_CLIENT_ID` | Sign in with Google: OAuth client ids of your Google Cloud project. Web client: authorised redirect URI = the address of the web app (e.g. `https://example.org/app/`); the Android app uses it as server client id and needs an Android client per signing key (package + SHA-1) in the same project. iOS client: bundle id of the app | – (Google sign-in off) |
 | `LUMEN_TUTOR` | `off`: Lux uses the rule tutor only | – |
 | `LUMEN_TUTOR_URL` | OpenAI-compatible base URL, e.g. `https://openrouter.ai/api/v1` | `http://localhost:11434/v1` |
 | `LUMEN_TUTOR_MODEL` | model name | `qwen3:1.7b` (local), `qwen/qwen3-30b-a3b` (remote) |

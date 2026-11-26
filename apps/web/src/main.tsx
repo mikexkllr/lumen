@@ -10,7 +10,10 @@ import { App } from './App.tsx';
 import { AppProvider } from './lib/store.tsx';
 import { SocialProvider } from './lib/socialContext.tsx';
 import { ErrorBoundary, initMonitoring, reactErrorHandler } from './lib/monitoring.ts';
+import { captureGoogleRedirect } from './lib/signIn.ts';
 
+// First: take Google's sign-in answer out of the address, before the router or crash reports see it.
+captureGoogleRedirect();
 initMonitoring(__LUMEN_RELEASE__);
 
 /** Shown instead of a blank page if a screen crashes; the report has already gone to Sentry. */

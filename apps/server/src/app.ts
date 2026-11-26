@@ -15,7 +15,7 @@ import { registerSocialRoutes, socialService } from './social/routes.ts';
 import type { SocialStore } from './social/store.ts';
 import { adminOk } from './admin.ts';
 import { parseTutorReport, type TutorReportStore } from './reports.ts';
-import { appleRefreshToken, appleSubHash, emailCodeHash, emailIdHash, newDeviceCode, newEmailCode, normalizeEmail, revokeApple, verifyAppleToken, type AppleConfig, type AuthStore, type Provider } from './auth.ts';
+import { appleRefreshToken, appleSubHash, emailCodeHash, emailIdHash, googleSubHash, newDeviceCode, newEmailCode, normalizeEmail, PROVIDERS, revokeApple, verifyAppleToken, verifyGoogleToken, type AppleConfig, type AuthStore, type GoogleConfig, type Provider } from './auth.ts';
 import { loginMail, type SendMail } from './mail.ts';
 
 const EVENT_TYPES = new Set(['attempt', 'concept_completed', 'review', 'review_session_completed', 'placement_completed']);
@@ -45,13 +45,15 @@ export interface ServerOptions {
   auth?: AuthStore | null;
   /** Sign in with Apple; null or absent disables it. */
   apple?: AppleConfig | null;
+  /** Sign in with Google (OAuth client ids); null or absent disables it. */
+  google?: GoogleConfig | null;
   /**
    * Sign-in with emailed one-time codes; null or absent disables it. `review`: one address
    * that gets no mail and signs in with a fixed code (store reviewers, LUMEN_REVIEW_*).
    */
   email?: { send: SendMail; pepper: string; review?: { email: string; code: string } | null } | null;
-  /** Sign-in requests per client IP: codes mailed per hour, code checks and Apple sign-ins per 10 minutes. */
-  signInLimits?: { mailPerHour?: number; verifyPer10Min?: number; applePer10Min?: number };
+  /** Sign-in requests per client IP: codes mailed per hour, code checks and Apple/Google sign-ins per 10 minutes. */
+  signInLimits?: { mailPerHour?: number; verifyPer10Min?: number; applePer10Min?: number; googlePer10Min?: number };
   /** Called with the Fastify instance before any route is added (e.g. crash reporting). */
   setup?: (app: FastifyInstance) => void;
   /** Reports errors that are handled but need attention (e.g. login mails that fail). */
@@ -119,13 +121,18 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
   const now = opts.now ?? Date.now;
   const auth = opts.auth ?? null;
   const apple = auth ? (opts.apple ?? null) : null;
+  const google = auth ? (opts.google ?? null) : null;
   // A sync code identifies its account directly; device codes from Apple sign-in point to one.
   const accountOf = (token: string) => (auth ? auth.resolve(accountKey(token)) : accountKey(token));
   // A code of a deleted account is refused (401), so other devices sign out instead of syncing on.
   const deleted = (token: string) => !!auth?.isDeleted(accountKey(token));
   const deps = social ? { events: opts.store, social, account: (req: FastifyRequest) => { const t = bearer(req); return t && !deleted(t) ? accountOf(t) : null; }, adminToken: opts.adminToken, now } : null;
   const service = deps ? socialService(deps) : null;
-  app.get('/v1/features', async () => ({ sync: true, tutor: true, social: !!social, apple: !!apple, email: !!(auth && opts.email) }));
+  // The Google client ids are public; the app needs them to start Google's sign-in.
+  app.get('/v1/features', async () => ({
+    sync: true, tutor: true, social: !!social, apple: !!apple, email: !!(auth && opts.email),
+    google: google ? { web: google.webClientId ?? null, ios: google.iosClientId ?? null } : null,
+  }));
   if (deps && service) registerSocialRoutes(app, deps, service);
 
   const tutor = opts.tutor ?? null;
@@ -218,7 +225,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     return { deleted: removed };
   });
 
-  // Sign-in on top of the sync code, with Apple or an emailed one-time code. With a sync code
+  // Sign-in on top of the sync code, with Apple, Google or an emailed one-time code. With a sync code
   // (Bearer) it links the identity to that account; without one it signs in: a known identity
   // gets a new device code for its account, a new one gets a fresh account.
   const signInBuckets = new Map<string, { count: number; reset: number }>();
@@ -267,6 +274,23 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     return finishSignIn(req, reply, 'apple', appleSubHash(sub), () => appleRefreshToken(code, apple, opts.fetchImpl));
   });
 
+  app.post('/v1/auth/google', async (req, reply) => {
+    if (!auth || !google) return reply.code(404).send({ error: 'not_found' });
+    if (limited(`google:${req.ip}`, opts.signInLimits?.googlePer10Min ?? 20, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
+    const body = (req.body ?? {}) as { idToken?: unknown; nonce?: unknown };
+    if (typeof body.idToken !== 'string' || typeof body.nonce !== 'string' || body.idToken.length > 8000 || body.nonce.length > 200) {
+      return reply.code(400).send({ error: 'invalid_request' });
+    }
+    let sub: string;
+    try {
+      sub = await verifyGoogleToken(body.idToken, body.nonce, google, opts.fetchImpl);
+    } catch (e) {
+      req.log.warn({ googleAuth: (e as Error).message }, 'google sign-in rejected');
+      return reply.code(401).send({ error: 'invalid_google_token' });
+    }
+    return finishSignIn(req, reply, 'google', googleSubHash(sub), async () => null);
+  });
+
   const email = auth && opts.email ? opts.email : null;
   app.post('/v1/auth/email/start', async (req, reply) => {
     if (!auth || !email) return reply.code(404).send({ error: 'not_found' });
@@ -312,19 +336,19 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
     const account = accountOf(token);
-    return { apple: !!auth.linkOf('apple', account), email: !!auth.linkOf('email', account) };
+    return Object.fromEntries(PROVIDERS.map((p) => [p, !!auth.linkOf(p, account)]));
   });
 
   app.delete('/v1/auth/:provider', async (req, reply) => {
     const provider = (req.params as { provider: string }).provider;
-    if (!auth || (provider !== 'apple' && provider !== 'email')) return reply.code(404).send({ error: 'not_found' });
+    if (!auth || !PROVIDERS.includes(provider as Provider)) return reply.code(404).send({ error: 'not_found' });
     const token = bearer(req);
     if (!token) return reply.code(401).send({ error: 'missing_or_invalid_sync_code' });
     const account = accountOf(token);
     // Keep the last sign-in method: without one the account can't be opened on a new device.
-    const other = provider === 'apple' ? 'email' : 'apple';
-    if (auth.linkOf(provider, account) && !auth.linkOf(other, account)) return reply.code(409).send({ error: 'last_sign_in' });
-    const link = auth.unlink(provider, account);
+    const others = PROVIDERS.filter((p) => p !== provider && auth.linkOf(p, account));
+    if (auth.linkOf(provider as Provider, account) && !others.length) return reply.code(409).send({ error: 'last_sign_in' });
+    const link = auth.unlink(provider as Provider, account);
     if (link && provider === 'apple' && apple) await revokeApple(link.refreshToken, apple, opts.fetchImpl);
     return { linked: false };
   });

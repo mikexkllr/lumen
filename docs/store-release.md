@@ -132,7 +132,7 @@ Kategorie **Bildung**.
 - **5.1.1 / 5.1.2 Datenschutz** – Datenschutzerklärung in App Store Connect und in der App
   (`#/legal/privacy`); Daten nur für die App-Funktion; Weitergabe an den Modellanbieter nur
   nach Einwilligung (Abschnitt 2)
-- **Sign in with Apple** – nicht nötig, Lumen hat keine Drittanbieter-Logins
+- **4.8 Anmeldung** – neben „Mit Google anmelden“ bietet die iOS-App „Mit Apple anmelden“ an
 - **Review-Notizen:** keine Anmeldung nötig; Social über Profil aktivieren (ab 16); wo Melden
   und Blockieren sitzen; Hinweis, dass die App offline funktioniert
 
@@ -197,6 +197,18 @@ Adresse, keinen Namen. Für die öffentliche Instanz:
   (`LUMEN_APPLE_*`); der Server widerruft damit die Apple-Anmeldung beim Löschen (Richtlinie 5.1.1(v)).
 - Login-Mails gehen über den eigenen Mailserver von `noreply@mikekeller.cloud`
   (SPF und DKIM für mikekeller.cloud bei IONOS).
+- **Mit Google anmelden** (Web, iOS und Android): Google-Cloud-Projekt
+  `lumen-play-mk`, *Google Auth Platform* (extern, „In Produktion“, nur Scope `openid`, daher
+  keine Prüfung durch Google). OAuth-Clients: *Lumen Web* (Weiterleitung
+  `https://lumen.mikekeller.cloud/app/` und `http://localhost:5173/`; auch Server-Client-ID
+  für Android), *Lumen iOS* (Bundle-ID; Systemfenster mit PKCE, kein Google-SDK) und
+  *Lumen Android* je Signaturschlüssel (Play-Signatur klassisch und quantensicher, vorheriger
+  Play-Schlüssel, Upload-Schlüssel, Debug-Schlüssel; Paketname + SHA-1). Neuer
+  Signaturschlüssel in der Play Console → zusätzlichen Android-Client anlegen, sonst schlägt
+  die Anmeldung auf Android fehl. Die IDs sind öffentlich und stehen in der VPS-`.env`
+  (`LUMEN_GOOGLE_WEB_CLIENT_ID`, `LUMEN_GOOGLE_IOS_CLIENT_ID`); der Server prüft das ID-Token
+  und speichert nur einen Hashwert der Google-Kennung. Ohne Markenprüfung zeigt Google im
+  Anmeldefenster „mikekeller.cloud“ statt „Lumen“ (Markenprüfung über die Search Console).
 - App Privacy: zusätzlich *Kontaktinformationen → E-Mail-Adresse* (App-Funktionalität,
   verknüpft, kein Tracking) – gespeichert wird nur ein Hashwert, die Adresse wird aber übertragen.
 

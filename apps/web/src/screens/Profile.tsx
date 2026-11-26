@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { addDays, type LumenEvent } from '@lumen/engine';
 import { Icon, Segmented, Switch } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
-import { isKid } from '../lib/settings.ts';
+import { isKid, type Account } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
 import { TIER_COLORS, useGamification } from '../lib/gamify.ts';
 import { API_BASE } from '../lib/api.ts';
@@ -13,6 +13,8 @@ import { social, type PublicUser } from '../lib/social.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { Avatar, errorText } from '../components/social.tsx';
 import { SignInOptions } from '../components/SignIn.tsx';
+import { PROVIDERS, type Linked } from '../lib/signIn.ts';
+import type { TKey } from '../lib/i18n.ts';
 
 const WEEKS = 18;
 
@@ -261,10 +263,23 @@ function CommunitySection() {
   );
 }
 
+const VIA = { apple: 'account.viaApple', google: 'account.viaGoogle', email: 'account.viaEmail' } as const;
+
+/** "Signed in with Apple", "… with Google and email": what is linked, else how this device signed in. */
+export function signedInVia(linked: Linked | null, method: Account['method'], t: (k: TKey, v?: Record<string, string>) => string): string | null {
+  const list = linked ? PROVIDERS.filter((p) => linked[p]) : [];
+  if (list.length > 1) {
+    const names = list.map((p) => t(`account.name.${p}` as TKey));
+    return t('account.viaMany', { list: `${names.slice(0, -1).join(', ')} ${t('account.and')} ${names[names.length - 1]}` });
+  }
+  const one = list[0] ?? (method === 'code' ? null : method);
+  return one ? t(VIA[one]) : null;
+}
+
 function AccountSection() {
   const { t, settings, signOut, deleteAccount } = useApp();
   const acc = settings.account;
-  const [linked, setLinked] = useState<{ apple: boolean; email: boolean } | null>(null);
+  const [linked, setLinked] = useState<Linked | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   if (!acc) return null;
@@ -280,7 +295,7 @@ function AccountSection() {
       setBusy(false);
     }
   };
-  const via = linked?.apple && linked.email ? t('account.viaBoth') : linked?.apple ? t('account.viaApple') : linked?.email ? t('account.viaEmail') : acc.method === 'apple' ? t('account.viaApple') : acc.method === 'email' ? t('account.viaEmail') : null;
+  const via = signedInVia(linked, acc.method, t);
   const custom = acc.serverUrl !== API_BASE;
   return (
     <section className="settings-group" aria-labelledby="acc-h">
@@ -291,7 +306,7 @@ function AccountSection() {
           {custom && <span className="small faint" style={{ wordBreak: 'break-all', textAlign: 'right' }}>{acc.serverUrl}</span>}
         </div>
         <div className="list-pad stack" style={{ gap: 8 }}>
-          <span className="small faint">{linked && !linked.apple && !linked.email ? t('account.linkFirst') : t('signin.linkedTitle')}</span>
+          <span className="small faint">{linked && !PROVIDERS.some((p) => linked[p]) ? t('account.linkFirst') : t('signin.linkedTitle')}</span>
           <SignInOptions serverUrl={acc.serverUrl} token={acc.token} onLinked={setLinked} />
         </div>
         <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} disabled={busy} onClick={() => { if (confirm(t('account.signOutConfirm'))) void run(signOut); }}>

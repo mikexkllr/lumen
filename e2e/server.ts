@@ -2,7 +2,10 @@
  * Lumen server for the end-to-end tests: the real API (accounts, sync, community, Lux rules,
  * moderation) on in-memory SQLite. Login mails are kept in memory instead of being sent, and
  * two test-only routes expose them: GET /__e2e/code?email=… returns the latest code.
+ * "Sign in with Google" checks tokens against a test key instead of Google's:
+ * GET /__e2e/google-token?sub=…&nonce=…&aud=… signs one (the tests stand in for Google's page).
  */
+import { createSign, generateKeyPairSync } from 'node:crypto';
 import { buildServer } from '../apps/server/src/app.ts';
 import { authStore } from '../apps/server/src/auth.ts';
 import { tutorReportStore } from '../apps/server/src/reports.ts';
@@ -23,6 +26,14 @@ const fakeModel = (async (_url: string | URL | Request, init?: RequestInit) => {
 }) as typeof fetch;
 const codes = new Map<string, string>();
 
+export const GOOGLE_CLIENT = 'e2e-web.apps.googleusercontent.com';
+const googleKey = generateKeyPairSync('rsa', { modulusLength: 2048 });
+const googleJwk = { ...(googleKey.publicKey.export({ format: 'jwk' }) as object), kid: 'e2e-google', alg: 'RS256', use: 'sig' };
+const fetchImpl = (async (url: string | URL | Request, init?: RequestInit) => {
+  if (String(url) === 'https://www.googleapis.com/oauth2/v3/certs') return new Response(JSON.stringify({ keys: [googleJwk] }), { status: 200 });
+  return fakeTutor ? fakeModel(url as string, init) : fetch(url, init);
+}) as typeof fetch;
+
 const app = buildServer({
   store: sqliteStore(':memory:'),
   social: socialStore(':memory:'),
@@ -31,9 +42,10 @@ const app = buildServer({
   adminToken: 'e2e-admin-token-0123456789',
   rateLimit: 100_000,
   tutorRateLimit: 100_000,
-  signInLimits: { mailPerHour: 10_000, verifyPer10Min: 10_000, applePer10Min: 10_000 },
+  signInLimits: { mailPerHour: 10_000, verifyPer10Min: 10_000, applePer10Min: 10_000, googlePer10Min: 10_000 },
+  google: { webClientId: GOOGLE_CLIENT },
   tutor: fakeTutor ? { url: 'https://model.e2e.test/v1', model: 'lux-demo', provider: 'Demo', maxTokens: 300, temperature: 0.3, timeoutMs: 5000 } : null,
-  fetchImpl: fakeTutor ? fakeModel : undefined,
+  fetchImpl,
   email: {
     pepper: 'e2e-pepper-0123456789',
     send: async (m: Mail) => {
@@ -47,6 +59,14 @@ app.get('/__e2e/code', async (req, reply) => {
   const email = String((req.query as { email?: string }).email ?? '').toLowerCase();
   const code = codes.get(email);
   return code ? { code } : reply.code(404).send({ error: 'no_code' });
+});
+
+app.get('/__e2e/google-token', async (req) => {
+  const q = req.query as { sub?: string; nonce?: string; aud?: string };
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const now = Math.floor(Date.now() / 1000);
+  const unsigned = `${b64({ alg: 'RS256', kid: 'e2e-google' })}.${b64({ iss: 'https://accounts.google.com', aud: q.aud ?? GOOGLE_CLIENT, sub: q.sub, nonce: q.nonce, iat: now, exp: now + 600 })}`;
+  return { idToken: `${unsigned}.${createSign('RSA-SHA256').update(unsigned).sign(googleKey.privateKey).toString('base64url')}` };
 });
 
 app.listen({ port, host: '127.0.0.1' }).then(() => console.log(`e2e api on http://127.0.0.1:${port}`));

@@ -6,7 +6,7 @@ import { sqliteStore } from './store.ts';
 import { tutorConfigFromEnv, warmUp } from './tutor.ts';
 import { socialStore } from './social/store.ts';
 import { tutorReportStore } from './reports.ts';
-import { appleConfigFromEnv, authStore, normalizeEmail } from './auth.ts';
+import { appleConfigFromEnv, authStore, googleConfigFromEnv, normalizeEmail } from './auth.ts';
 import { mailConfigFromEnv, smtpSender } from './mail.ts';
 
 const monitoring = initServerMonitoring();
@@ -45,8 +45,8 @@ function emailLogin() {
   }
   return { send: smtpSender(mail), pepper, review: reviewLogin() };
 }
-const app = buildServer({ store: sqliteStore(dbPath), corsOrigins: origins, rateLimit: Number(process.env.LUMEN_RATE_LIMIT ?? 120), logger: true, tutor, tutorRateLimit: Number(process.env.LUMEN_TUTOR_RATE_LIMIT ?? 30), social, reports: tutorReportStore(dbPath), adminToken, auth: authStore(dbPath), apple: appleConfigFromEnv(), email: emailLogin(), setup: monitorFastify, reportError: captureServerError, reportWarning: captureServerWarning });
-app.listen({ port, host }).then(() => console.log(`Lumen server on http://${host}:${port} (db: ${dbPath}; tutor: ${tutor ? `${tutor.model} @ ${tutor.url}` : 'rules only'}; social: ${social ? 'on' : 'off'}; moderation: ${adminToken && adminToken.length >= 16 ? 'on' : 'off'}; apple sign-in: ${appleConfigFromEnv() ? 'on' : 'off'}; email sign-in: ${mailConfigFromEnv() ? 'on' : 'off'}; crash reports: ${monitoring ? 'on' : 'off'})`));
+const app = buildServer({ store: sqliteStore(dbPath), corsOrigins: origins, rateLimit: Number(process.env.LUMEN_RATE_LIMIT ?? 120), logger: true, tutor, tutorRateLimit: Number(process.env.LUMEN_TUTOR_RATE_LIMIT ?? 30), social, reports: tutorReportStore(dbPath), adminToken, auth: authStore(dbPath), apple: appleConfigFromEnv(), google: googleConfigFromEnv(), email: emailLogin(), setup: monitorFastify, reportError: captureServerError, reportWarning: captureServerWarning });
+app.listen({ port, host }).then(() => console.log(`Lumen server on http://${host}:${port} (db: ${dbPath}; tutor: ${tutor ? `${tutor.model} @ ${tutor.url}` : 'rules only'}; social: ${social ? 'on' : 'off'}; moderation: ${adminToken && adminToken.length >= 16 ? 'on' : 'off'}; apple sign-in: ${appleConfigFromEnv() ? 'on' : 'off'}; google sign-in: ${googleConfigFromEnv() ? 'on' : 'off'}; email sign-in: ${mailConfigFromEnv() ? 'on' : 'off'}; crash reports: ${monitoring ? 'on' : 'off'})`));
 
 if (tutor && /localhost|127\.0\.0\.1/.test(tutor.url)) void warmUp(tutor).then((ok) => console.log(ok ? `Lux: ${tutor.model} geladen` : `Lux: ${tutor.url} nicht erreichbar – Regel-Tutor aktiv`));
 

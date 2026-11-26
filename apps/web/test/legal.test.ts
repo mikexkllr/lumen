@@ -25,8 +25,8 @@ describe('legal pages', () => {
       }
     }
     const privacy = legalText('privacy', 'de').map((x) => x.h);
-    expect(privacy).toEqual(expect.arrayContaining(['Konto und Lernfortschritt', 'Anmelden mit Apple oder E-Mail', 'Community (ab 16)']));
-    expect(legalText('privacy', 'en').map((x) => x.h)).toEqual(expect.arrayContaining(['Account and progress', 'Sign in with Apple or email', 'Community (16+)']));
+    expect(privacy).toEqual(expect.arrayContaining(['Konto und Lernfortschritt', 'Anmelden mit Apple, Google oder E-Mail', 'Community (ab 16)']));
+    expect(legalText('privacy', 'en').map((x) => x.h)).toEqual(expect.arrayContaining(['Account and progress', 'Sign in with Apple, Google or email', 'Community (16+)']));
   });
 
   it('explain deleting the account', () => {

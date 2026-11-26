@@ -1,7 +1,7 @@
 import { createHash, createSign, generateKeyPairSync } from 'node:crypto';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { buildServer } from '../src/app.ts';
-import { authStore, resetAppleKeyCache, type AppleConfig } from '../src/auth.ts';
+import { authStore, resetAppleKeyCache, type AppleConfig, type GoogleConfig } from '../src/auth.ts';
 import { sqliteStore } from '../src/store.ts';
 import type { Mail } from '../src/mail.ts';
 import { socialStore } from '../src/social/store.ts';
@@ -29,16 +29,27 @@ function fakeApple() {
     if (u.endsWith('/auth/keys')) return new Response(JSON.stringify({ keys: [jwk] }), { status: 200 });
     if (u.endsWith('/auth/token')) return new Response(JSON.stringify({ refresh_token: 'refresh-1' }), { status: 200 });
     if (u.endsWith('/auth/revoke')) return new Response('', { status: 200 });
+    if (u === 'https://www.googleapis.com/oauth2/v3/certs') return new Response(JSON.stringify({ keys: [{ ...jwk, kid: 'google-kid' }] }), { status: 200 });
     return new Response('', { status: 404 });
   }) as typeof fetch;
   return { fetchImpl, calls };
 }
 
-function server(apple: AppleConfig = { clientIds: [BUNDLE] }) {
+const WEB = 'web-client.apps.googleusercontent.com';
+const IOS = 'ios-client.apps.googleusercontent.com';
+function googleToken(claims: Record<string, unknown>, kid = 'google-kid'): string {
+  const head = b64({ alg: 'RS256', kid });
+  const body = b64({ iss: 'https://accounts.google.com', aud: WEB, exp: Math.floor(Date.now() / 1000) + 600, iat: Math.floor(Date.now() / 1000), email: 'someone@gmail.com', name: 'Some One', ...claims });
+  const sig = createSign('RSA-SHA256').update(`${head}.${body}`).sign(rsa.privateKey).toString('base64url');
+  return `${head}.${body}.${sig}`;
+}
+const google = (sub: string, nonce = 'g-123', extra: Record<string, unknown> = {}) => ({ idToken: googleToken({ sub, nonce: nonceHash(nonce), ...extra }), nonce });
+
+function server(apple: AppleConfig = { clientIds: [BUNDLE] }, googleCfg: GoogleConfig | null = { webClientId: WEB, iosClientId: IOS }) {
   const fake = fakeApple();
   const mails: Mail[] = [];
   const send = async (m: Mail) => void mails.push(m);
-  const app = buildServer({ store: sqliteStore(':memory:'), social: socialStore(':memory:'), auth: authStore(':memory:'), apple, email: { send, pepper: 'test-pepper-0123456789' }, fetchImpl: fake.fetchImpl, rateLimit: 1000 });
+  const app = buildServer({ store: sqliteStore(':memory:'), social: socialStore(':memory:'), auth: authStore(':memory:'), apple, google: googleCfg, email: { send, pepper: 'test-pepper-0123456789' }, fetchImpl: fake.fetchImpl, rateLimit: 1000 });
   return { app, calls: fake.calls, mails };
 }
 const codeIn = (m: Mail) => /\b(\d{6})\b/.exec(m.text)![1];
@@ -75,7 +86,7 @@ describe('Sign in with Apple', () => {
     await app.inject({ method: 'POST', url: '/v1/sync', headers: bearer(code), payload: { events: [ev('b')] } });
     const link = await app.inject({ method: 'POST', url: '/v1/auth/apple', headers: bearer(code), payload: signIn('apple-user-2') });
     expect(link.json()).toEqual({ linked: true });
-    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, email: false });
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, google: false, email: false });
 
     const device = (await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-2') })).json();
     const pulled = (await app.inject({ method: 'POST', url: '/v1/sync', headers: bearer(device.token), payload: { events: [] } })).json();
@@ -111,6 +122,62 @@ describe('Sign in with Apple', () => {
     expect(calls).toContain('POST https://appleid.apple.com/auth/revoke');
     const again = (await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-4') })).json();
     expect(again.created).toBe(true);
+  });
+});
+
+describe('Sign in with Google', () => {
+  beforeEach(() => resetAppleKeyCache());
+
+  it('is advertised with its public client ids only when configured', async () => {
+    expect((await server().app.inject({ url: '/v1/features' })).json().google).toEqual({ web: WEB, ios: IOS });
+    const off = server(undefined, null).app;
+    expect((await off.inject({ url: '/v1/features' })).json().google).toBeNull();
+    expect((await off.inject({ method: 'POST', url: '/v1/auth/google', payload: google('x') })).statusCode).toBe(404);
+  });
+
+  it('creates an account for a new Google account and signs the next device into it, also from iOS', async () => {
+    const { app, calls } = server();
+    const first = (await app.inject({ method: 'POST', url: '/v1/auth/google', payload: google('google-user-1') })).json();
+    expect(first.created).toBe(true);
+    expect(calls).toContain('GET https://www.googleapis.com/oauth2/v3/certs');
+    await app.inject({ method: 'POST', url: '/v1/sync', headers: bearer(first.token), payload: { events: [ev('g')] } });
+
+    const ios = (await app.inject({ method: 'POST', url: '/v1/auth/google', payload: google('google-user-1', 'n2', { aud: IOS, iss: 'accounts.google.com' }) })).json();
+    expect(ios.created).toBe(false);
+    const pulled = (await app.inject({ method: 'POST', url: '/v1/sync', headers: bearer(ios.token), payload: { events: [] } })).json();
+    expect(pulled.events.map((e: { id: string }) => e.id)).toEqual(['evt-g-0000']);
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(ios.token) })).json()).toEqual({ apple: false, google: true, email: false });
+  });
+
+  it('rejects forged, foreign, expired and replayed tokens', async () => {
+    const { app } = server();
+    const post = (payload: Record<string, unknown>) => app.inject({ method: 'POST', url: '/v1/auth/google', payload });
+    expect((await post({ ...google('u'), nonce: 'wrong' })).statusCode).toBe(401);
+    expect((await post(google('u', 'n', { aud: 'other.apps.googleusercontent.com' }))).statusCode).toBe(401);
+    expect((await post(google('u', 'n', { iss: 'https://appleid.apple.com' }))).statusCode).toBe(401);
+    expect((await post(google('u', 'n', { exp: Math.floor(Date.now() / 1000) - 10 }))).statusCode).toBe(401);
+    // an Apple token is no Google token, even with the right audience
+    expect((await post({ idToken: appleToken({ sub: 'u', aud: WEB, nonce: nonceHash('n') }), nonce: 'n' })).statusCode).toBe(401);
+    expect((await post({ idToken: 'x' })).statusCode).toBe(400);
+  });
+
+  it('links Google next to Apple and keeps the last sign-in method', async () => {
+    const { app } = server();
+    const { token } = (await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-g') })).json();
+    expect((await app.inject({ method: 'POST', url: '/v1/auth/google', headers: bearer(token), payload: google('google-user-2') })).json()).toEqual({ linked: true });
+    expect((await app.inject({ method: 'DELETE', url: '/v1/auth/apple', headers: bearer(token) })).statusCode).toBe(200);
+    expect((await app.inject({ method: 'DELETE', url: '/v1/auth/google', headers: bearer(token) })).statusCode).toBe(409);
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(token) })).json()).toEqual({ apple: false, google: true, email: false });
+    // the same Google account can't be linked to a second Lumen account
+    const other = (await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-h') })).json().token;
+    expect((await app.inject({ method: 'POST', url: '/v1/auth/google', headers: bearer(other), payload: google('google-user-2') })).statusCode).toBe(409);
+  });
+
+  it('deleting the account removes the Google link', async () => {
+    const { app } = server();
+    const { token } = (await app.inject({ method: 'POST', url: '/v1/auth/google', payload: google('google-user-3') })).json();
+    await app.inject({ method: 'DELETE', url: '/v1/account', headers: bearer(token) });
+    expect((await app.inject({ method: 'POST', url: '/v1/auth/google', payload: google('google-user-3') })).json().created).toBe(true);
   });
 });
 
@@ -156,15 +223,15 @@ describe('Sign in with email', () => {
     await app.inject({ method: 'POST', url: '/v1/auth/email/start', payload: { email: 'cy@example.org' } });
     const link = await app.inject({ method: 'POST', url: '/v1/auth/email/verify', headers: bearer(code), payload: { email: 'cy@example.org', code: codeIn(mails[0]) } });
     expect(link.json()).toEqual({ linked: true });
-    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: false, email: true });
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: false, google: false, email: true });
     // the only way to sign in stays
     const last = await app.inject({ method: 'DELETE', url: '/v1/auth/email', headers: bearer(code) });
     expect(last.statusCode).toBe(409);
     expect(last.json().error).toBe('last_sign_in');
     await app.inject({ method: 'POST', url: '/v1/auth/apple', headers: bearer(code), payload: signIn('apple-cy') });
-    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, email: true });
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, google: false, email: true });
     expect((await app.inject({ method: 'DELETE', url: '/v1/auth/email', headers: bearer(code) })).statusCode).toBe(200);
-    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, email: false });
+    expect((await app.inject({ url: '/v1/auth', headers: bearer(code) })).json()).toEqual({ apple: true, google: false, email: false });
   });
 
   it('limits codes per address', async () => {

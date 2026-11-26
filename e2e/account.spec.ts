@@ -18,6 +18,37 @@ test.describe('account', () => {
     await expect(page.locator('.stat-tile').filter({ hasText: 'Lektionen' }).locator('strong')).toHaveText('1');
   });
 
+  test('signs in with Google on the web: to Google and back, new account first, then a second device', async ({ page, request, browser }) => {
+    const sub = `google-${randomBytes(6).toString('hex')}`;
+    // Stands in for Google's account page: answers with a signed ID token, as Google would.
+    const google = async (p: typeof page) => p.route('https://accounts.google.com/**', async (route) => {
+      const q = new URL(route.request().url()).searchParams;
+      expect([q.get('response_type'), q.get('scope')]).toEqual(['id_token', 'openid']);
+      const r = await request.get(`${API}/__e2e/google-token`, { params: { sub, nonce: q.get('nonce')!, aud: q.get('client_id')! } });
+      const { idToken } = (await r.json()) as { idToken: string };
+      await route.fulfill({ status: 302, headers: { location: `${q.get('redirect_uri')}#state=${q.get('state')}&id_token=${idToken}&authuser=0&prompt=none` } });
+    });
+    await google(page);
+    await page.goto('/#/login');
+    await page.getByRole('button', { name: 'Mit Google anmelden' }).click();
+    await expect(page.getByRole('heading', { name: 'Was möchtest du lernen?' })).toBeVisible();
+    expect(page.url()).not.toContain('id_token');
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('lumen.settings.v1') ?? '{}'));
+    expect(stored.account.method).toBe('google');
+
+    // a second device with the same Google account lands in that account
+    const other = await browser.newContext();
+    const second = await other.newPage();
+    await google(second);
+    await second.goto('/#/login');
+    await second.getByRole('button', { name: 'Mit Google anmelden' }).click();
+    await expect(second.locator('.tabbar')).toBeVisible();
+    const token = await second.evaluate(() => JSON.parse(localStorage.getItem('lumen.settings.v1') ?? '{}').account.token as string);
+    const linked = await request.get(`${API}/v1/auth`, { headers: auth(token) });
+    expect(await linked.json()).toEqual({ apple: false, google: true, email: false });
+    await other.close();
+  });
+
   test('a new account from "I already have an account" still gets the onboarding', async ({ page, request }) => {
     await page.goto('/#/login');
     await signInWithEmail(page, request, uniqueEmail('fresh'));
@@ -88,7 +119,7 @@ test.describe('account', () => {
     }, code);
     await page.goto('/#/profile');
     await expect(page.locator('.stat-tile').filter({ hasText: 'XP gesamt' }).locator('strong')).toHaveText('10');
-    await expect(page.getByText('Verknüpfe Apple oder deine E-Mail-Adresse', { exact: false })).toBeVisible();
+    await expect(page.getByText('Verknüpfe eine Anmeldung', { exact: false })).toBeVisible();
   });
 
   test('progress learned before sign-in became necessary comes along into the new account', async ({ page, request }) => {

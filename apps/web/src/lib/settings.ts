@@ -9,7 +9,7 @@ export interface Account {
   lastSync: number | null;
   cursor: number;
   /** How this device signed in. */
-  method: 'apple' | 'email' | 'code';
+  method: 'apple' | 'google' | 'email' | 'code';
 }
 
 export interface Settings {
