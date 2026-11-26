@@ -6,6 +6,7 @@ export * from './variants.ts';
 export * from './runtime.ts';
 export * from './solver.ts';
 export * from './compile.ts';
+export * from './lessons.ts';
 export * from './evals.ts';
 export * from './readability.ts';
 export * from './progress.ts';

@@ -42,7 +42,7 @@ describe('achievements & quests', () => {
     expect(dailyQuests(events, day, { dailyGoal: 10 })).toEqual(q1);
   });
   it('daily puzzle is stable per day and tracks solving', () => {
-    const catalog = { schema: '', locale: 'de', paths: [], topics: [], skills: [], concepts: { c: { id: 'c', title: 'C', estimated_minutes: 5, skills: [], topicId: 't', unitId: 'u', problems: 2, steps: 3, srsCards: ['c/x', 'c/y'] } } };
+    const catalog = { schema: '', locale: 'de', paths: [], topics: [], skills: [], groups: { c: ['c'] }, concepts: { c: { id: 'c', title: 'C', estimated_minutes: 5, skills: [], topicId: 't', unitId: 'u', problems: 2, steps: 3, srsCards: ['c/x', 'c/y'], group: 'c', depth: 1 as const, part: 1, parts: 1 } } };
     const p = dailyPuzzle(catalog, day)!;
     expect(dailyPuzzle(catalog, day)).toEqual(p);
     expect(['c/x', 'c/y']).toContain(p.itemId);

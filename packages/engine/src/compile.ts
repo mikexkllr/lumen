@@ -4,6 +4,7 @@
  */
 import { parse as parseYaml } from 'yaml';
 import type { ZodError } from 'zod';
+import { planLessons, type Lesson, type LessonDepth } from './lessons.ts';
 import {
   ConceptSchema,
   PathSchema,
@@ -213,6 +214,7 @@ export function compileContent(files: SourceFile[], locale = DEFAULT_LOCALE): { 
 // ---------- Bundles for the apps ----------
 
 export interface ConceptMeta {
+  /** Lesson id (what `learn/<id>` plays and what a completion event names). */
   id: string;
   title: string;
   summary?: string;
@@ -223,51 +225,117 @@ export interface ConceptMeta {
   problems: number;
   steps: number;
   srsCards: string[];
+  /** The authored concept this lesson was cut from. */
+  group: string;
+  /** 1 = core (on the path), 2 = deeper, 3 = expert (optional extras). */
+  depth: LessonDepth;
+  /** Position among the lessons of the same tier and how many there are. */
+  part: number;
+  parts: number;
+  /** Key terms of this lesson, to tell the parts of one concept apart. */
+  focus?: string;
 }
 
 export interface Catalog {
   schema: string;
   locale: string;
   paths: Path[];
+  /** Courses; `units[].concepts` lists the core lessons in learning order. */
   topics: Topic[];
+  /** Every lesson by id – core lessons and extras. */
   concepts: Record<string, ConceptMeta>;
+  /** Authored concept → its lessons in learning order (core parts, deeper, expert). */
+  groups: Record<string, string[]>;
   skills: Skill[];
   placement?: Placement;
 }
 
 export interface TopicBundle {
   topicId: string;
-  concepts: Concept[];
+  /** Every lesson of the course, core and extras. */
+  concepts: Lesson[];
 }
 
+/**
+ * Cuts every concept into short lessons (see lessons.ts) and splits the course
+ * into the catalog and one bundle per topic. In the catalog a unit lists its
+ * core lessons; deeper and expert lessons are reachable through `groups`.
+ */
 export function splitBundles(course: Course): { catalog: Catalog; topics: TopicBundle[] } {
   const concepts: Record<string, ConceptMeta> = {};
+  const groups: Record<string, string[]> = {};
   const bundles: TopicBundle[] = [];
-  for (const topic of course.topics) {
-    const list: Concept[] = [];
-    for (const unit of topic.units) {
+  const topics = course.topics.map((topic) => {
+    const list: Lesson[] = [];
+    const units = topic.units.map((unit) => {
+      const core: string[] = [];
       for (const cid of unit.concepts) {
         const c = course.concepts[cid];
         if (!c) continue;
-        list.push(c);
-        concepts[cid] = {
-          id: c.id,
-          title: c.title,
-          summary: c.summary,
-          estimated_minutes: c.estimated_minutes,
-          skills: c.skills,
-          topicId: topic.id,
-          unitId: unit.id,
-          problems: c.steps.filter((s) => s.kind === 'problem').length,
-          steps: c.steps.length,
-          srsCards: c.srs?.cards_from ?? [],
-        };
+        const lessons = planLessons(c);
+        groups[cid] = lessons.map((l) => l.id);
+        for (const l of lessons) {
+          list.push(l);
+          if (l.depth === 1) core.push(l.id);
+          concepts[l.id] = {
+            id: l.id,
+            title: l.title,
+            summary: l.summary,
+            estimated_minutes: l.estimated_minutes,
+            skills: l.skills,
+            topicId: topic.id,
+            unitId: unit.id,
+            problems: l.steps.filter((s) => s.kind === 'problem').length,
+            steps: l.steps.length,
+            srsCards: l.srs?.cards_from ?? [],
+            group: l.group,
+            depth: l.depth,
+            part: l.part,
+            parts: l.parts,
+            focus: l.focus,
+          };
+        }
       }
-    }
+      return { ...unit, concepts: core };
+    });
     bundles.push({ topicId: topic.id, concepts: list });
-  }
+    return { ...topic, units };
+  });
   return {
-    catalog: { schema: course.schema, locale: course.locale, paths: course.paths, topics: course.topics, concepts, skills: course.skills, placement: course.placement },
+    catalog: { schema: course.schema, locale: course.locale, paths: course.paths, topics, concepts, groups, skills: course.skills, placement: course.placement },
     topics: bundles,
   };
+}
+
+type LessonIndex = { concepts: Record<string, Pick<ConceptMeta, 'depth' | 'group'>>; groups?: Record<string, string[]> };
+
+/** The optional extras (deeper, expert) that belong to the same concept as a lesson, in order. */
+export function lessonExtras(catalog: LessonIndex, lessonId: string): string[] {
+  const group = catalog.concepts[lessonId]?.group ?? lessonId;
+  return (catalog.groups?.[group] ?? []).filter((id) => (catalog.concepts[id]?.depth ?? 1) > 1);
+}
+
+/** Whether a core lesson is the last core part of its concept (the extras hang below it). */
+export function isLastCorePart(catalog: LessonIndex, lessonId: string): boolean {
+  const meta = catalog.concepts[lessonId];
+  if (!meta || (meta.depth ?? 1) !== 1) return false;
+  const core = (catalog.groups?.[meta.group] ?? [lessonId]).filter((id) => (catalog.concepts[id]?.depth ?? 1) === 1);
+  return core[core.length - 1] === lessonId;
+}
+
+/**
+ * The lessons a completion event stands for. Events written before concepts
+ * were cut into short lessons name the whole concept: they complete its core.
+ */
+export function completedLessons(catalog: LessonIndex | null | undefined, conceptId: string): string[] {
+  if (!catalog || catalog.concepts[conceptId]) return [conceptId];
+  const lessons = catalog.groups?.[conceptId];
+  return lessons ? lessons.filter((id) => (catalog.concepts[id]?.depth ?? 1) === 1) : [conceptId];
+}
+
+/** Turns a concept id from an old link or event into a lesson to play: its first open core lesson. */
+export function resolveLesson(catalog: LessonIndex, id: string, completed?: ReadonlySet<string>): string {
+  if (catalog.concepts[id]) return id;
+  const core = completedLessons(catalog, id);
+  return core.find((c) => !completed?.has(c)) ?? core[0] ?? id;
 }

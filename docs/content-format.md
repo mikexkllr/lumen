@@ -92,7 +92,7 @@ Als Visualisierung taugt jedes Widget mit festen Werten (Bruchformen, Waage, Lab
 
 ### Tiefenstufen
 
-Jede Lektion beginnt so einfach wie möglich und wird Schritt für Schritt schwerer. Das Feld `depth` (auch an Erklär-Screens) teilt sie in drei Stufen:
+Jedes Concept beginnt so einfach wie möglich und wird Schritt für Schritt schwerer. Das Feld `depth` (auch an Erklär-Screens) teilt es in drei Stufen:
 
 | `depth` | Stufe | Inhalt |
 |---|---|---|
@@ -100,7 +100,20 @@ Jede Lektion beginnt so einfach wie möglich und wird Schritt für Schritt schwe
 | 2 | Tiefer | warum es gilt, kniffligere Aufgaben, Anwendungen |
 | 3 | Experte | Grenzfälle, Beweise, Bezüge auf Hochschulniveau, »Erklär’s Lux« |
 
-Nach jeder Stufe fragt der Player, ob es tiefer gehen soll oder für heute reicht. Wer aufhört, hat den Kern trotzdem abgeschlossen und steigt beim nächsten Mal auf der nächsten Stufe ein. Die Stufen dürfen nur steigen (`depth.order`), und eine Lektion beginnt mit Stufe 1 (`depth.start`).
+Die Stufen dürfen nur steigen (`depth.order`), und ein Concept beginnt mit Stufe 1 (`depth.start`). Die ersten Aufgaben der Kern-Stufe sollen leichte Erfolge sein – was Vorwissen oder längeres Rechnen braucht, gehört weiter nach hinten oder in Stufe 2.
+
+### Aus einem Concept werden kurze Lektionen
+
+Autor:innen schreiben ein Concept mit drei Stufen – Lernende bekommen daraus mehrere **kurze Lektionen** mit höchstens sechs Steps. Den Zuschnitt macht die Engine beim Bauen der Bundles (`packages/engine/src/lessons.ts`), in den YAML-Dateien ändert sich nichts:
+
+- Jede Stufe wird für sich geschnitten, nie über Stufen hinweg. Eine Stufe mit bis zu sechs Steps ist eine Lektion, längere werden gleichmäßig geteilt (mindestens drei Steps pro Teil).
+- Ein Schnitt fällt bevorzugt **vor** einen Erklär-Screen (dort beginnt eine neue Idee) und möglichst nie direkt **dahinter** (die Erklärung verlöre ihre Übungsaufgabe). Wer die Teile steuern will, ordnet die Steps entsprechend an.
+- Die **Kern-Lektionen** stehen im Lernpfad. »Tiefer« und »Experte« sind **Bonus-Lektionen**: Sie hängen unter der letzten Kern-Lektion ihres Concepts, werden nach deren Abschluss angeboten und zählen nicht für den Kursabschluss. Wer im Profil eine größere »Lerntiefe« wählt, bekommt sie fest in den Weg gelegt.
+- Lektionen heißen `<concept>~c1`, `~c2` (Kern), `~d1` (Tiefer) und `~x1` (Experte). Passt ein Concept in eine einzige Lektion, behält sie die ID des Concepts.
+- Step-IDs bleiben `concept/step`. Fortschritt, Fehler-Rückblick und Wiederholung hängen an ihnen, nicht am Zuschnitt – ein Concept darf also später anders geschnitten werden. Abschlüsse aus der Zeit vor den kurzen Lektionen (sie nennen das ganze Concept) zählen für dessen Kern-Lektionen.
+- `estimated_minutes` gilt für das ganze Concept und wird anteilig auf die Lektionen verteilt. Die Einleitung (`intro: true`) öffnet die erste Kern-Lektion; alle weiteren Lektionen begrüßt Lux kurz.
+
+Die Autor:innen-Vorschau zeigt das Concept am Stück und daneben, in welche Lektionen es geschnitten wird.
 
 ### Kurz-Check auf Erklär-Screens
 

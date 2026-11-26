@@ -4,6 +4,8 @@
  * deterministically from the log, so devices can merge logs without conflicts.
  */
 
+import { completedLessons, type Catalog } from './compile.ts';
+
 export type EventContext = 'lesson' | 'review' | 'unit-review' | 'placement' | 'daily' | 'mistakes';
 
 interface Base {
@@ -137,7 +139,7 @@ export interface ProgressSummary {
   streak: StreakInfo;
   minutesToday: number;
   completedConcepts: Set<string>;
-  /** conceptId → last completion day */
+  /** lesson id → last completion day */
   lastCompleted: Record<string, string>;
   problemsSolved: number;
   firstTryAccuracy: number | null;
@@ -224,8 +226,11 @@ export function computeStreak(days: Record<string, DayActivity>, today: string):
  *  - concept completed: +10, once per concept and day
  *  - review session: +5
  * Repeating on the same day gives no XP; on a later day it does again.
+ *
+ * With a catalog, completions logged before concepts were cut into short
+ * lessons count for the core lessons of that concept.
  */
-export function deriveProgress(events: readonly LumenEvent[], today: string): ProgressSummary {
+export function deriveProgress(events: readonly LumenEvent[], today: string, catalog?: Pick<Catalog, 'concepts' | 'groups'> | null): ProgressSummary {
   const days: Record<string, DayActivity> = {};
   const stepXpDays = new Set<string>();
   const conceptXpDays = new Set<string>();
@@ -262,8 +267,10 @@ export function deriveProgress(events: readonly LumenEvent[], today: string): Pr
       }
       case 'concept_completed': {
         d.conceptsCompleted++;
-        completed.add(e.conceptId);
-        lastCompleted[e.conceptId] = e.day;
+        for (const id of completedLessons(catalog, e.conceptId)) {
+          completed.add(id);
+          lastCompleted[id] = e.day;
+        }
         const key = `${e.conceptId}@${e.day}`;
         if (!conceptXpDays.has(key)) {
           conceptXpDays.add(key);
