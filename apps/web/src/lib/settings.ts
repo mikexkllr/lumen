@@ -31,6 +31,8 @@ export interface Settings {
   pathId: string | null;
   /** Where the placement check suggests to start. */
   startAt: { topic: string; unit?: string } | null;
+  /** How deep the path goes: 1 = core lessons, 2 = plus the deeper lessons, 3 = plus the expert lessons. */
+  depth: 1 | 2 | 3;
   /**
    * The Lumen account this device is signed in to (Sign in with Apple or an emailed code).
    * `token` is the device code the server handed out; progress syncs with it in the background.
@@ -67,6 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   age: null,
   pathId: null,
   startAt: null,
+  depth: 1,
   account: null,
   communityName: null,
   tutor: true,
@@ -101,7 +104,8 @@ export function migrateSettings(raw: Legacy): Settings {
   const account = s.account ?? (sync?.token ? { serverUrl: sync.serverUrl, token: sync.token, lastSync: sync.lastSync ?? null, cursor: sync.cursor ?? 0, method: 'code' as const } : null);
   const fontScale = [0.9, 1, 1.15, 1.3].includes(s.fontScale) ? s.fontScale : 1;
   const dailyGoal = [5, 10, 15, 20].includes(s.dailyGoal) ? s.dailyGoal : 10;
-  return { ...s, pathId, interests, account, fontScale, dailyGoal };
+  const depth = ([1, 2, 3] as const).find((d) => d === s.depth) ?? 1;
+  return { ...s, pathId, interests, account, fontScale, dailyGoal, depth };
 }
 
 export function loadSettings(): Settings {

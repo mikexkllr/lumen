@@ -16,6 +16,23 @@ function tone(freq: number, start: number, dur: number, type: OscillatorType = '
   o.stop(t0 + dur + 0.05);
 }
 
+/** A tone that glides from one pitch to another (a whoosh). */
+function sweep(from: number, to: number, start: number, dur: number, type: OscillatorType = 'sawtooth', gain = 0.05) {
+  if (!ctx) ctx = new AudioContext();
+  const t0 = ctx.currentTime + start;
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
+  o.type = type;
+  o.frequency.setValueAtTime(from, t0);
+  o.frequency.exponentialRampToValueAtTime(to, t0 + dur);
+  g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime(gain, t0 + dur * 0.3);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(ctx.destination);
+  o.start(t0);
+  o.stop(t0 + dur + 0.05);
+}
+
 const semis = (base: number, n: number) => base * 2 ** (n / 12);
 
 export const sounds = {
@@ -27,6 +44,16 @@ export const sounds = {
   },
   wrong() { tone(220, 0, 0.2, 'triangle', 0.07); },
   streak() { [0, 4, 7, 12].forEach((s, i) => tone(semis(880, s), i * 0.05, 0.22, 'sine', 0.06)); },
+  /** The streak flame catches fire. */
+  ignite() { sweep(140, 720, 0, 0.36, 'sawtooth', 0.04); tone(988, 0.3, 0.3, 'sine', 0.07); },
+  /** The day counts: a fanfare that starts a little higher the longer the streak is. */
+  streakUp(days = 1) {
+    const base = semis(523, Math.min(Math.max(days, 1) - 1, 7));
+    [0, 4, 7, 12, 16].forEach((s, i) => { tone(semis(base, s), i * 0.075, 0.42, 'triangle', 0.08); tone(semis(base, s) * 2, i * 0.075 + 0.02, 0.24, 'sine', 0.03); });
+    tone(semis(base, 19), 0.45, 0.7, 'sine', 0.07);
+  },
+  /** Lux pops in. */
+  boing() { sweep(300, 620, 0, 0.14, 'sine', 0.06); },
   complete() { [523, 659, 784, 1047].forEach((f, i) => tone(f, i * 0.09, 0.35, 'sine', 0.1)); },
   levelUp() { [523, 659, 784, 1047, 1319].forEach((f, i) => { tone(f, i * 0.07, 0.4, 'triangle', 0.07); tone(f * 2, i * 0.07 + 0.02, 0.25, 'sine', 0.03); }); },
   achievement() { tone(1175, 0, 0.18, 'sine', 0.08); tone(1568, 0.1, 0.4, 'sine', 0.08); },

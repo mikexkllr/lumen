@@ -149,17 +149,13 @@ export async function solve(page: Page, check = 'Prüfen') {
 
 /**
  * Plays the open lesson to the end: explanations are continued (or revealed), problems get
- * the reference solution through the e2e build's hook. Returns how many problems it solved.
+ * the reference solution through the e2e build's hook. The streak celebration of the first
+ * session of a day is continued too, so this ends on the summary. Returns how many problems
+ * it solved.
  */
-export async function playToEnd(page: Page, opts: { max?: number; deeper?: boolean } = {}): Promise<number> {
+export async function playToEnd(page: Page, opts: { max?: number } = {}): Promise<number> {
   let solved = 0;
   for (let i = 0; i < (opts.max ?? 120); i++) {
-    // Depth gate after the core: stop here unless the test wants the deeper levels.
-    const stop = page.getByRole('button', { name: 'Für heute reicht’s' });
-    if (await stop.isVisible()) {
-      await (opts.deeper ? page.getByRole('button', { name: /^Tiefer gehen/ }) : stop).click();
-      continue;
-    }
     if (await page.locator('.complete').isVisible()) return solved;
     // quick recall check on an explanation: pick a term, then continue
     const recall = page.locator('.recall-opt:not([disabled])').first();

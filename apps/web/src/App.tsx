@@ -1,5 +1,5 @@
 import { Icon, Logo, Ring } from './components/ui.tsx';
-import { dueItems } from '@lumen/engine';
+import { dueItems, resolveLesson } from '@lumen/engine';
 import { href, navigate, useRoute } from './lib/router.ts';
 import { useApp } from './lib/store.tsx';
 import { Discover, ReviewScreen, TopicScreen } from './screens/Browse.tsx';
@@ -108,6 +108,14 @@ export function App() {
     if ((lib && loaded) || contentError) hideSplash();
   }, [lib, loaded, contentError]);
 
+  // Links from before lessons were cut short name the whole concept: go to its first open lesson.
+  // Resolved once per link, so finishing that lesson does not jump on to the next one.
+  useEffect(() => {
+    if (head !== 'learn' || !a || !lib || !loaded) return;
+    const lesson = resolveLesson(lib.catalog, a, app.progress.completedConcepts);
+    if (lesson !== a) navigate(`learn/${lesson}`, true);
+  }, [head, a, lib, loaded]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     window.scrollTo(0, 0);
     trackScreen(route);
@@ -148,6 +156,8 @@ export function App() {
     case 'mistakes':
       return <Suspense fallback={<Loading />}><Player key={`m-${a}`} mode={{ kind: 'mistakes', topicId: a }} /></Suspense>;
     case 'learn':
+      // a link that names a whole concept is being redirected to one of its lessons (see the effect above)
+      if (a && !lib.catalog.concepts[a] && lib.catalog.groups?.[a]) return <Loading />;
       return <Suspense fallback={<Loading />}><Player key={`l-${a}`} mode={{ kind: 'lesson', conceptId: a }} /></Suspense>;
     case 'practice': {
       if (a === 'unit') {

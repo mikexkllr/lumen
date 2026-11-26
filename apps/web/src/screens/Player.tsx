@@ -3,11 +3,14 @@
  * Middle: one step at a time (slides in). Bottom: action bar that turns into
  * a feedback panel (correct / wrong / solution). Two attempts per problem,
  * "show solution" at any time after the first miss.
+ *
+ * A lesson is short – a handful of steps of one depth tier (see lessons.ts in
+ * the engine). What used to be stages inside one long lesson are lessons of
+ * their own now, so there is nothing to resume in the middle.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  addDays,
   buildExplainContext,
   buildTutorContext,
   recallCheck,
@@ -28,16 +31,18 @@ import {
   randomSeed,
   referenceSolve,
   resolveProblem,
-  weekKey,
   type ProblemStep,
   type ResolvedProblem,
   type Step,
   type TutorStatus,
 } from '@lumen/engine';
 import { Confetti, CountUp, Cover, topicVars } from '../components/art.tsx';
-import { Burst, Glow, StreakBanner } from '../components/celebrate.tsx';
+import { Burst, Glow } from '../components/celebrate.tsx';
 import { Icon } from '../components/ui.tsx';
-import { Lux } from '../components/Lux.tsx';
+import { Lux, type LuxMood } from '../components/Lux.tsx';
+import { LuxPeek, LuxPop, LuxSay, type LuxPopData } from '../components/LuxMoments.tsx';
+import { StreakParty, WeekStrip } from '../components/Streaks.tsx';
+import { depthOfLesson, lessonName, lessonTag, nextAfter } from '../lib/lessons.ts';
 import { useSocial } from '../lib/socialContext.tsx';
 import { setMonitoringContext } from '../lib/monitoring.ts';
 import { social } from '../lib/social.ts';
@@ -91,26 +96,6 @@ const MAX_REVISITS = 12;
 
 const EASE = [0.2, 0.8, 0.2, 1] as const;
 
-const depthOf = (it?: PlayItem) => it?.step.depth ?? 1;
-const DEPTH_KEY = 'lumen.depth.v1';
-/** Deepest stage reached per lesson (device-local), so a return visit can pick up there. */
-function readDepths(): Record<string, number> {
-  try {
-    return JSON.parse(localStorage.getItem(DEPTH_KEY) ?? '{}') as Record<string, number>;
-  } catch {
-    return {};
-  }
-}
-function saveDepth(conceptId: string, depth: number) {
-  try {
-    const all = readDepths();
-    if ((all[conceptId] ?? 0) >= depth) return;
-    localStorage.setItem(DEPTH_KEY, JSON.stringify({ ...all, [conceptId]: depth }));
-  } catch {
-    /* storage not available */
-  }
-}
-
 /** Reads a text aloud with the browser's speech synthesis (formulas and markup stripped). */
 function speak(text: string, locale: string) {
   if (typeof speechSynthesis === 'undefined') return;
@@ -136,8 +121,8 @@ export function Player({ mode }: { mode: PlayerMode }) {
   /** Lux walks through the mistakes of the finished session. */
   const [reviewing, setReviewing] = useState(false);
   const [lessonMistakes, setLessonMistakes] = useState(0);
-  /** Stage gate: shown before the lesson goes one level deeper (or when resuming a lesson at a deeper stage). */
-  const [gate, setGate] = useState<{ depth: number; resume?: boolean } | null>(null);
+  /** Lux drops in with a short line: at the start of a lesson and before its last step. */
+  const [pop, setPop] = useState<LuxPopData | null>(null);
   const startedAt = useRef(Date.now());
   const xpBefore = useRef(app.progress.xpTotal);
   const before = useRef<Snapshot | null>(null);
@@ -149,13 +134,10 @@ export function Player({ mode }: { mode: PlayerMode }) {
     if (!lib) return;
     let cancelled = false;
     const findItem = async (itemId: string): Promise<PlayItem | null> => {
-      const conceptId = itemId.split('/')[0];
-      const meta = lib.catalog.concepts[conceptId];
-      if (!meta) return null;
-      const c = await lib.concept(conceptId);
-      const step = c.steps.find((s) => s.id === itemId);
+      const found = await lib.step(itemId);
+      if (!found) return null;
       const seed = randomSeed();
-      return step ? { key: `${itemId}#${seed}`, step, conceptId, topicId: meta.topicId, itemId, seed } : null;
+      return { key: `${itemId}#${seed}`, step: found.step, conceptId: found.lesson.id, topicId: lib.catalog.concepts[found.lesson.id]?.topicId, itemId, seed };
     };
     (async () => {
       try {
@@ -165,14 +147,6 @@ export function Player({ mode }: { mode: PlayerMode }) {
           const topicId = lib.catalog.concepts[c.id].topicId;
           const pool = recallPool((await lib.topic(topicId)).concepts.flatMap((x) => x.steps));
           list = c.steps.map((s) => ({ key: s.id, step: s, conceptId: c.id, topicId, seed: 0, recall: s.kind === 'explain' ? (recallCheck(s, pool) ?? undefined) : undefined }));
-          // Coming back to a finished lesson that still has deeper stages: offer to continue there.
-          const reached = readDepths()[c.id] ?? 0;
-          const maxDepth = Math.max(...list.map(depthOf));
-          const resumeAt = list.findIndex((it) => depthOf(it) > reached);
-          if (!cancelled && app.progress.completedConcepts.has(c.id) && reached >= 1 && reached < maxDepth && resumeAt > 0) {
-            setIndex(resumeAt);
-            setGate({ depth: depthOf(list[resumeAt]), resume: true });
-          }
         } else if (mode.kind === 'daily') {
           const dp = dailyPuzzle(lib.catalog, app.today);
           if (!dp) throw new Error('No daily puzzle available');
@@ -181,10 +155,9 @@ export function Player({ mode }: { mode: PlayerMode }) {
           if (step) list = [{ key: `daily-${app.today}`, step, conceptId: dp.conceptId, topicId: dp.topicId, seed: dp.seed }];
         } else if (mode.kind === 'mistakes') {
           for (const m of openMistakes(app.events, { topicId: mode.topicId }).slice(-MAX_REVISITS)) {
-            if (!m.conceptId || !lib.catalog.concepts[m.conceptId]) continue;
-            const c = await lib.concept(m.conceptId);
-            const step = c.steps.find((s) => s.id === m.stepId);
-            if (step?.kind === 'problem') list.push({ key: `rev-${m.stepId}`, step, conceptId: m.conceptId, topicId: m.topicId, seed: m.seed, revisit: { state: m.state } });
+            // the step may sit in another lesson by now (older mistakes name the whole concept)
+            const found = await lib.step(m.stepId).catch(() => null);
+            if (found?.step.kind === 'problem') list.push({ key: `rev-${m.stepId}`, step: found.step, conceptId: found.lesson.id, topicId: m.topicId, seed: m.seed, revisit: { state: m.state } });
           }
           if (!list.length) throw new Error(t('mistakes.none'));
         } else if (mode.kind === 'review') {
@@ -229,7 +202,6 @@ export function Player({ mode }: { mode: PlayerMode }) {
       setPlacementResult(rec);
     }
     app.addEvents(evts);
-    if (mode.kind === 'lesson' && !reviewing && item) saveDepth(mode.conceptId, depthOf(item));
     play(app.settings.sound, 'complete');
     vibrate(app.settings.haptics, [20, 60, 40]);
     setDone(true);
@@ -253,15 +225,31 @@ export function Player({ mode }: { mode: PlayerMode }) {
     const next = [...outcomes, o];
     setOutcomes(next);
     setStepDone(false);
-    if (items && index + 1 < items.length) {
-      if (mode.kind === 'lesson' && !reviewing && depthOf(items[index + 1]) > depthOf(items[index])) {
-        saveDepth(mode.conceptId, depthOf(items[index]));
-        play(app.settings.sound, 'achievement');
-        setGate({ depth: depthOf(items[index + 1]) });
-      }
-      setIndex(index + 1);
-    } else finish(next);
+    if (items && index + 1 < items.length) setIndex(index + 1);
+    else finish(next);
   };
+
+  // Lux drops in: when a lesson without an intro screen starts, and before the last step.
+  const lessonMeta = mode.kind === 'lesson' ? lib?.catalog.concepts[mode.conceptId] : undefined;
+  const count = items?.length ?? 0;
+  useEffect(() => {
+    if (!items || done || reviewing) return;
+    const first = items[0]?.step;
+    let next: Omit<LuxPopData, 'key'> | null = null;
+    if (index === 0 && !(first?.kind === 'explain' && first.intro)) {
+      if (mode.kind === 'lesson' && lessonMeta) {
+        const depth = depthOfLesson(lessonMeta);
+        next = depth === 3 ? { text: t('luxPop.expert'), mood: 'wow' } : depth === 2 ? { text: t('luxPop.deeper'), mood: 'cheer' } : (lessonMeta.part ?? 1) > 1 ? { text: t('luxPop.part', { n: lessonMeta.part, total: lessonMeta.parts }), mood: 'wave' } : { text: t('luxPop.start'), mood: 'wave' };
+      } else if (mode.kind === 'review') next = { text: t('luxPop.review'), mood: 'wave' };
+      else if (mode.kind === 'daily') next = { text: t('luxPop.daily'), mood: 'wow' };
+    } else if (mode.kind === 'lesson' && count >= 4 && index === count - 1) next = { text: t('luxPop.last'), mood: 'cheer' };
+    if (!next) return;
+    setPop({ ...next, key: `${index}` });
+    play(app.settings.sound, 'boing');
+    const id = setTimeout(() => setPop(null), 2600);
+    return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, count, done, reviewing]);
 
   const startReview = () => {
     const list = outcomes.flatMap((o) => (o.mistake ? [{ ...o.mistake.item, key: `${o.mistake.item.key}-rev`, revisit: { state: o.mistake.state } }] : [])).slice(0, MAX_REVISITS);
@@ -285,29 +273,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
   if (error) return <div className="complete"><div className="complete-inner"><p role="alert">{error}</p><button className="btn primary" onClick={() => navigate('')}>{t('complete.home')}</button></div></div>;
   if (!items) return <div className="loading-screen"><span aria-busy="true">{t('loading')}</span></div>;
   if (done && (reviewing || mode.kind === 'mistakes')) return <MistakesDone outcomes={outcomes} topicId={topic?.id} afterLesson={reviewing ? lessonMistakes : 0} nextConcept={mode.kind === 'lesson' ? mode.conceptId : undefined} />;
-  if (gate && items) {
-    const rest = items.slice(index).filter((it) => depthOf(it) === gate.depth).length;
-    return (
-      <DepthGate
-        depth={gate.depth}
-        resume={!!gate.resume}
-        steps={rest}
-        color={topic?.color}
-        onGo={() => setGate(null)}
-        onStop={() => {
-          if (gate.resume) {
-            setIndex(0);
-            setGate(null);
-          } else {
-            setGate(null);
-            setIndex(index - 1);
-            finish(outcomes);
-          }
-        }}
-      />
-    );
-  }
-  if (done) return <Complete mode={mode} outcomes={outcomes} xpGained={app.progress.xpTotal - xpBefore.current} placementResult={placementResult} durationMs={Date.now() - startedAt.current} topicId={topic?.id} before={before.current!} onReviewMistakes={startReview} depth={mode.kind === 'lesson' && items.length ? { reached: depthOf(items[Math.min(index, items.length - 1)]), max: Math.max(...items.map(depthOf)) } : undefined} />;
+  if (done) return <Complete mode={mode} outcomes={outcomes} xpGained={app.progress.xpTotal - xpBefore.current} placementResult={placementResult} durationMs={Date.now() - startedAt.current} topicId={topic?.id} before={before.current!} onReviewMistakes={startReview} />;
 
   return (
     <div className="lesson" style={topicVars(topic?.color)}>
@@ -317,7 +283,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
             <Icon name="close" size={22} />
           </button>
           <div className="seg-progress" role="progressbar" aria-valuemin={0} aria-valuemax={items.length} aria-valuenow={index + 1} aria-label={t('player.progress', { n: index + 1, total: items.length })}>
-            {items.map((it, i) => <span key={it.key} className={`seg d${depthOf(it)} ${i > 0 && depthOf(it) > depthOf(items[i - 1]) ? 'gate' : ''} ${i < index || (i === index && stepDone) ? 'done' : i === index ? 'current' : ''} ${i === index && stepDone ? 'just' : ''}`}><i /></span>)}
+            {items.map((it, i) => <span key={it.key} className={`seg ${i < index || (i === index && stepDone) ? 'done' : i === index ? 'current' : ''} ${i === index && stepDone ? 'just' : ''}`}><i /></span>)}
           </div>
           <AnimatePresence initial={false}>
             {combo >= 2 && (
@@ -329,42 +295,9 @@ export function Player({ mode }: { mode: PlayerMode }) {
           {combo < 2 && <span className="lesson-count" aria-hidden="true">{index + 1}/{items.length}</span>}
         </div>
       </div>
-      {item && <StepView key={item.key} item={item} mode={mode} combo={combo} meta={mode.kind === 'lesson' ? { problems: items.filter((it) => it.step.kind === 'problem' && depthOf(it) === 1).length, stages: Math.max(...items.map(depthOf)), minutes: item.conceptId ? lib?.catalog.concepts[item.conceptId]?.estimated_minutes : undefined } : undefined} onConcluded={() => setStepDone(true)} onDone={advance} />}
+      <LuxPop pop={stepDone ? null : pop} reduce={reduce} />
+      {item && <StepView key={item.key} item={item} mode={mode} combo={combo} meta={mode.kind === 'lesson' ? { problems: items.filter((it) => it.step.kind === 'problem').length, part: lessonTag(lessonMeta, t), minutes: lessonMeta?.estimated_minutes } : undefined} onConcluded={() => setStepDone(true)} onDone={advance} />}
     </div>
-  );
-}
-
-/** Between two stages of a lesson: celebrate, say what comes next, let the learner stop here. */
-function DepthGate({ depth, resume, steps, color, onGo, onStop }: { depth: number; resume: boolean; steps: number; color?: string; onGo(): void; onStop(): void }) {
-  const { t, settings } = useApp();
-  const reduce = prefersReducedMotion(settings);
-  const d = (depth === 3 ? 3 : 2) as 2 | 3;
-  return (
-    <main className="complete depth-gate" id="main" style={topicVars(color)}>
-      {!resume && <Confetti reduce={reduce} color={color} />}
-      <div className="complete-inner">
-        <div className="complete-lux"><Lux mood={resume ? 'happy' : 'cheer'} size={104} still={reduce} /></div>
-        <motion.div initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1, ease: EASE }}>
-          <p className="eyebrow">{resume ? t('depth.resume') : t(`depth.done${(d - 1) as 1 | 2}`)}</p>
-          <h1 className="display" style={{ fontSize: '1.9rem', marginTop: 8 }}>{t(`depth.title${d}`)}</h1>
-          <p className="lead" style={{ margin: '8px 0 0' }}>{t(`depth.body${d}`)}</p>
-        </motion.div>
-        <motion.ol className="depth-ladder" aria-label={t('depth.ladder')} initial={reduce ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.25, ease: EASE }}>
-          {([1, 2, 3] as const).map((n) => (
-            <li key={n} className={n < depth ? 'done' : n === depth ? 'now' : ''}>
-              <span className="rung">{n < depth ? <Icon name="check" size={14} strokeWidth={3} /> : n}</span>
-              <span>{t(`depth.name${n}`)}</span>
-            </li>
-          ))}
-        </motion.ol>
-        <div className="complete-actions" style={{ marginTop: 26 }}>
-          <button className="btn primary lg block" autoFocus onClick={onGo}>
-            {t('depth.go', { n: steps })} <Icon name="arrow" size={18} className="arrow" />
-          </button>
-          <button className="btn lg block quiet" onClick={onStop}>{resume ? t('depth.restart') : t('depth.stop')}</button>
-        </div>
-      </div>
-    </main>
   );
 }
 
@@ -381,10 +314,9 @@ function Stage({ children, reduce }: { children: React.ReactNode; reduce: boolea
 }
 
 interface LessonMeta {
-  /** Problems in the core stage. */
   problems: number;
-  /** Depth stages of the lesson (1–3). */
-  stages: number;
+  /** "Teil 1 von 2", "Tiefer" – or null for a concept that is a single lesson. */
+  part: string | null;
   minutes?: number;
 }
 
@@ -493,7 +425,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
                 <motion.ul className="intro-meta" {...rise(0.3)} aria-label={t('intro.about')}>
                   {meta.minutes ? <li><Icon name="clock" size={14} /> {t('intro.minutes', { n: meta.minutes })}</li> : null}
                   <li><Icon name="target" size={14} /> {t('intro.problems', { n: meta.problems })}</li>
-                  {meta.stages > 1 && <li><Icon name="zap" size={14} /> {t('intro.stages', { n: meta.stages })}</li>}
+                  {meta.part && <li><Icon name="layers" size={14} /> {meta.part}</li>}
                 </motion.ul>
               )}
             </div>
@@ -570,7 +502,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
     return (
       <>
         <Stage reduce={reduce}>
-          <span className="step-chip"><Icon name={s.visual?.interactive ? 'sparkles' : s.reveal ? 'eye' : 'bulb'} size={13} /> {s.visual?.interactive ? t('player.tryIt') : s.reveal ? t('player.think') : t('player.idea')}{(s.depth ?? 1) > 1 ? ` · ${t(`depth.name${s.depth as 2 | 3}`)}` : ''}</span>
+          <span className="step-chip"><Icon name={s.visual?.interactive ? 'sparkles' : s.reveal ? 'eye' : 'bulb'} size={13} /> {s.visual?.interactive ? t('player.tryIt') : s.reveal ? t('player.think') : t('player.idea')}</span>
           <h1 ref={headingRef} tabIndex={-1} className={s.title ? 'explain-title' : 'sr-only'}>{s.title ?? t('player.idea')}</h1>
           <Markdown text={s.body} className="explain-body" />
           {s.visual && <Visual widget={s.visual.widget} params={s.visual.params} locale={locale} alt={s.visual.alt} interactive={s.visual.interactive} />}
@@ -624,7 +556,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
 }
 
 /** Fixed bottom bar; Enter triggers the primary action unless focus is on an interactive element. */
-function Footer({ state, children, onEnter }: { state: 'idle' | 'correct' | 'wrong' | 'revealed'; children: React.ReactNode; onEnter?: () => void }) {
+function Footer({ state, children, onEnter, peek }: { state: 'idle' | 'correct' | 'wrong' | 'revealed'; children: React.ReactNode; onEnter?: () => void; peek?: React.ReactNode }) {
   useEffect(() => {
     if (!onEnter) return;
     const h = (e: KeyboardEvent) => {
@@ -639,7 +571,7 @@ function Footer({ state, children, onEnter }: { state: 'idle' | 'correct' | 'wro
   }, [onEnter]);
   return (
     <div className="lesson-foot" data-state={state}>
-      <div className="foot-inner">{children}</div>
+      <div className="foot-inner">{peek}{children}</div>
     </div>
   );
 }
@@ -869,11 +801,13 @@ function ProblemView({
   const streakNow = phase === 'correct' && firstTry.current && assisted === 0 ? combo + 1 : 0;
   const title = phase === 'correct' ? (streakNow >= 10 ? t('player.streak10', { n: streakNow }) : streakNow >= 5 ? t('player.streak5', { n: streakNow }) : streakNow >= 3 ? t('player.streak3', { n: streakNow }) : praise) : phase === 'wrong' ? (revisit && attemptNo === 2 ? t('mistakes.earlier') : t('player.wrong')) : t('player.solution');
   const widgetTitle = getWidget(rp.widget.kind)?.title;
+  // Lux looks over the feedback panel: wild on a streak, glad after a hit, wincing after a miss
+  const peekMood: LuxMood | null = luxOpen ? null : phase === 'correct' ? (streakNow >= 3 ? 'party' : firstTry.current ? 'cheer' : 'love') : phase === 'wrong' ? 'oops' : phase === 'revealed' ? 'think' : null;
 
   return (
     <>
       <Stage reduce={reduce}>
-        {!placement && <span className="step-chip"><Icon name={revisit ? 'reset' : 'target'} size={13} /> {revisit ? t('mistakes.chip') : mode.kind === 'review' ? t('player.reviewChip') : mode.kind === 'daily' ? t('daily.title') : t('player.task')}{widgetTitle && !['choice', 'numeric'].includes(rp.widget.kind) ? ` · ${locale.startsWith('de') ? widgetTitle.de : widgetTitle.en}` : ''}{(item.step.depth ?? 1) > 1 && mode.kind === 'lesson' ? ` · ${t(`depth.name${item.step.depth as 2 | 3}`)}` : ''}</span>}
+        {!placement && <span className="step-chip"><Icon name={revisit ? 'reset' : 'target'} size={13} /> {revisit ? t('mistakes.chip') : mode.kind === 'review' ? t('player.reviewChip') : mode.kind === 'daily' ? t('daily.title') : t('player.task')}{widgetTitle && !['choice', 'numeric'].includes(rp.widget.kind) ? ` · ${locale.startsWith('de') ? widgetTitle.de : widgetTitle.en}` : ''}</span>}
         {rp.body && <Markdown text={rp.body} className="context" />}
         {rp.visual && <Visual key={`${rp.step.id ?? ''}-${rp.seed}`} widget={rp.visual.widget} params={rp.visual.params} locale={locale} alt={rp.visual.alt} interactive={rp.visual.interactive} />}
         <h1 ref={headingRef} tabIndex={-1} id={promptId} className="prompt">
@@ -915,7 +849,7 @@ function ProblemView({
         </div>
       )}
       <Glow on={phase === 'correct' && !!party} />
-      <StreakBanner n={party?.milestone ?? null} label={party?.milestone ? t('player.streakBanner', { n: party.milestone }) : ''} />
+      <LuxPop pop={party?.milestone ? { key: `combo-${party.milestone}`, text: t('player.streakBanner', { n: party.milestone }), mood: 'party', heat: party.milestone >= 10 ? 3 : party.milestone >= 5 ? 2 : 1 } : null} reduce={reduce} />
       <AnimatePresence>
         {xpFloat !== null && !reduce && (
           <motion.div key="xp" className="xp-float" style={{ left: 'calc(50% - 34px)', bottom: 150 }} initial={{ opacity: 0, y: 10, scale: 0.8 }} animate={{ opacity: [0, 1, 1, 0], y: -50, scale: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }} onAnimationComplete={() => setXpFloat(null)} aria-hidden="true">
@@ -923,7 +857,7 @@ function ProblemView({
           </motion.div>
         )}
       </AnimatePresence>
-      <Footer state={footState} onEnter={luxOpen ? undefined : phase === 'answering' ? (answered ? check : undefined) : primary}>
+      <Footer state={footState} onEnter={luxOpen ? undefined : phase === 'answering' ? (answered ? check : undefined) : primary} peek={!placement && <LuxPeek mood={peekMood} reduce={reduce} />}>
         <div role="status" aria-live="assertive">
           <AnimatePresence mode="wait" initial={false}>
             {phase !== 'answering' && (
@@ -1024,7 +958,7 @@ function snapshot(app: ReturnType<typeof useApp>): Snapshot {
   };
 }
 
-function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topicId, before, onReviewMistakes, depth }: { mode: PlayerMode; outcomes: Outcome[]; xpGained: number; placementResult: { topic: string; unit?: string } | null; durationMs: number; topicId?: string; before: Snapshot; onReviewMistakes(): void; depth?: { reached: number; max: number } }) {
+function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topicId, before, onReviewMistakes }: { mode: PlayerMode; outcomes: Outcome[]; xpGained: number; placementResult: { topic: string; unit?: string } | null; durationMs: number; topicId?: string; before: Snapshot; onReviewMistakes(): void }) {
   const app = useApp();
   const { t, lib, progress, reviewItems, settings, today } = app;
   const reduce = prefersReducedMotion(settings);
@@ -1048,6 +982,9 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
   const courseOpen = topicId && courseDone ? openMistakes(app.events, { topicId }).length : 0;
   const courseJustDone = courseDone && !topicConcepts.every((c) => before.completed.has(c));
   const streakExtended = !before.streakDone && progress.streak.todayDone;
+  /** The first session that counts today opens with the streak celebration; the summary follows. */
+  const [partyOver, setPartyOver] = useState(false);
+  const showParty = streakExtended && !partyOver && mode.kind !== 'placement';
   const { active: socialActive, conn } = useSocial();
 
   // Milestones only the app can see (it has the course catalogue) go to the friends' feed.
@@ -1058,56 +995,74 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (showParty) return;
     const timers: number[] = [];
     if (levelUp) timers.push(window.setTimeout(() => play(settings.sound, 'levelUp'), 700));
     else if (newBadges.length || newQuests.length) timers.push(window.setTimeout(() => play(settings.sound, 'achievement'), 900));
     return () => timers.forEach(clearTimeout);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showParty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let nextConcept: string | null = null;
+  let bonusConcept: string | null = null;
   let reviewIn: number | null = null;
   let conceptTitle = '';
+  let lessonDepth: 1 | 2 | 3 = 1;
   if (mode.kind === 'lesson' && lib) {
     const meta = lib.catalog.concepts[mode.conceptId];
-    conceptTitle = meta?.title ?? '';
-    const order = topic?.units.flatMap((u) => u.concepts) ?? [];
-    nextConcept = order.find((id, i) => i > order.indexOf(mode.conceptId) && !progress.completedConcepts.has(id)) ?? null;
+    conceptTitle = lessonName(meta, t);
+    lessonDepth = depthOfLesson(meta);
+    ({ next: nextConcept, bonus: bonusConcept } = nextAfter(lib.catalog, topic, mode.conceptId, progress.completedConcepts, settings.depth));
     const dues = meta?.srsCards.map((id) => reviewItems.get(id)?.card.due).filter(Boolean).map((d) => new Date(d!).getTime()) ?? [];
     if (dues.length) reviewIn = Math.max(1, Math.round((Math.min(...dues) - Date.now()) / 86400000));
   }
   const nextMeta = nextConcept ? lib?.catalog.concepts[nextConcept] : null;
+  const bonusMeta = bonusConcept ? lib?.catalog.concepts[bonusConcept] : null;
+  const bonusDepth = depthOfLesson(bonusMeta);
   const title = mode.kind === 'lesson' ? (perfect ? t('complete.perfect') : t('complete.title')) : mode.kind === 'review' ? t('complete.review') : mode.kind === 'daily' ? (dailyOk ? t('daily.doneTitle') : t('daily.title')) : t('complete.placement');
   const recTopic = placementResult && lib?.catalog.topics.find((tp) => tp.id === placementResult.topic);
   const recUnit = recTopic && placementResult?.unit ? recTopic.units.find((u) => u.id === placementResult.unit) : null;
-  const monday = weekKey(today);
-  const week = Array.from({ length: 7 }, (_, i) => addDays(monday, i));
-  const names = de ? ['M', 'D', 'M', 'D', 'F', 'S', 'S'] : ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-  const frozen = new Set(progress.streak.frozenDays);
-  const active = (d: string) => {
-    const a = progress.days[d];
-    return !!a && (a.conceptsCompleted > 0 || a.problemsSolved >= 3 || a.reviewSessions > 0);
-  };
+  const courseBefore = topicConcepts.filter((c) => before.completed.has(c)).length;
+  const courseNow = topicConcepts.filter((c) => progress.completedConcepts.has(c)).length;
+  const [luxLine] = useState(() => (mode.kind === 'lesson' ? (perfect ? t('complete.luxPerfect') : acc >= 60 ? t('complete.luxGood') : t('complete.luxKeep')) : mode.kind === 'daily' ? t('complete.luxDaily') : t('complete.luxReview')));
+  const luxMood: LuxMood = perfect || levelUp || courseJustDone ? 'party' : acc >= 60 ? 'cheer' : 'happy';
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 14 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay, ease: EASE } });
   const fromPct = levelUp ? 0 : Math.max(0, Math.min(100, ((before.xp - (lvl.nextAt - lvl.span)) / lvl.span) * 100));
   const toPct = Math.min(100, lvl.progress * 100);
   const chips = [
     perfect && mode.kind === 'lesson' ? { icon: 'sparkles', text: t('complete.chipPerfect') } : null,
-    depth && depth.max > 1 ? { icon: depth.reached >= depth.max ? 'trophy' : 'layers', text: depth.reached >= depth.max ? t('depth.chipAll') : t('depth.chip', { n: depth.reached, total: depth.max }) } : null,
+    mode.kind === 'lesson' && lessonDepth > 1 ? { icon: lessonDepth === 3 ? 'trophy' : 'layers', text: t(lessonDepth === 3 ? 'depth.chip3' : 'depth.chip2') } : null,
+    courseJustDone ? { icon: 'trophy', text: t('complete.chipCourse') } : null,
     goalNow ? { icon: 'target', text: t('complete.chipGoal') } : null,
     ...newQuests.map((q) => ({ icon: 'calendar', text: `${t('complete.chipQuest')}: ${de ? q.title.de : q.title.en}` })),
   ].filter(Boolean) as { icon: string; text: string }[];
+
+  if (showParty) return <StreakParty onContinue={() => setPartyOver(true)} />;
 
   return (
     <main className="complete" id="main" style={topicVars(topic?.color)}>
       <Confetti reduce={reduce} color={topic?.color} />
       <div className="complete-inner">
-        <div className="complete-lux"><Lux mood="cheer" size={116} still={reduce} /></div>
+        {mode.kind === 'placement' ? (
+          <div className="complete-lux"><Lux mood="cheer" size={116} still={reduce} /></div>
+        ) : (
+          <div className="complete-lux rays">
+            <LuxSay mood={luxMood} size={112} still={reduce} className="stacked">{luxLine}</LuxSay>
+          </div>
+        )}
         <motion.div {...rise(0.15)}>
           {topic && <p className="eyebrow">{mode.kind === 'daily' ? t('daily.title') : topic.title}</p>}
           <h1 className="display" style={{ fontSize: '2rem', marginTop: 8 }}>{title}</h1>
           {conceptTitle && <p className="lead" style={{ margin: '6px 0 0' }}>{conceptTitle}</p>}
           {mode.kind === 'daily' && <p className="lead" style={{ margin: '6px 0 0' }}>{t('daily.tomorrow')}</p>}
         </motion.div>
+        {mode.kind === 'lesson' && topicConcepts.length > 1 && lessonDepth === 1 && (
+          <motion.div className="course-step" {...rise(0.22)}>
+            <div className="progress-bar" role="progressbar" aria-valuemin={0} aria-valuemax={topicConcepts.length} aria-valuenow={courseNow} aria-label={t('complete.courseStep', { n: courseNow, total: topicConcepts.length })}>
+              <motion.div initial={reduce ? false : { width: `${(100 * courseBefore) / topicConcepts.length}%` }} animate={{ width: `${(100 * courseNow) / topicConcepts.length}%` }} transition={{ duration: 0.9, delay: 0.5, ease: EASE }} />
+            </div>
+            <span className="small faint tnum">{t('complete.courseStep', { n: courseNow, total: topicConcepts.length })}</span>
+          </motion.div>
+        )}
         {recTopic ? (
           <motion.p className="card accent" style={{ margin: '20px 0 0', textAlign: 'left' }} {...rise(0.3)}>{t('complete.recommend', { topic: `${recTopic.title}${recUnit ? ` – ${recUnit.title}` : ''}` })}</motion.p>
         ) : (
@@ -1163,14 +1118,7 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
           <motion.div className={`streak-card ${streakExtended ? 'extended' : ''}`} {...rise(0.52)}>
             {streakExtended && <span className="eyebrow">{t('streak.extended')}</span>}
             <strong><Icon name="flame" size={18} /> {t('complete.streak', { n: progress.streak.current })}</strong>
-            <div className="week-strip" aria-hidden="true">
-              {week.map((d, i) => (
-                <div className="d" key={d}>
-                  <span className={`c ${active(d) ? 'on' : frozen.has(d) ? 'frozen' : ''} ${d === today ? 'today' : ''}`}>{active(d) ? <Icon name="check" size={12} strokeWidth={3} /> : null}</span>
-                  {names[i]}
-                </div>
-              ))}
-            </div>
+            <WeekStrip />
           </motion.div>
         )}
         {nextMeta && topic && (
@@ -1178,7 +1126,7 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
             <span className="thumb"><Cover motif={topic.icon} color={topic.color} /></span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span className="eyebrow">{t('complete.upNext')}</span>
-              <strong style={{ display: 'block', marginTop: 2 }}>{nextMeta.title}</strong>
+              <strong style={{ display: 'block', marginTop: 2 }}>{lessonName(nextMeta, t)}</strong>
             </span>
             <span className="small faint">{t('home.minutes', { n: nextMeta.estimated_minutes })}</span>
           </motion.div>
@@ -1190,7 +1138,12 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
               {t('complete.next')} <Icon name="arrow" size={18} className="arrow" />
             </button>
           )}
-          <button className={`btn lg block ${nextConcept ? 'quiet' : 'primary'}`} autoFocus={!nextConcept} onClick={() => navigate('', true)}>
+          {bonusConcept && bonusMeta && (
+            <button className={`btn lg block bonus-btn d${bonusDepth} ${nextConcept ? '' : 'primary'}`} autoFocus={!nextConcept} onClick={() => navigate(`learn/${bonusConcept}`)}>
+              <Icon name={bonusDepth === 3 ? 'trophy' : 'layers'} size={17} /> {t(`complete.bonus${bonusDepth === 3 ? 3 : 2}`, { n: bonusMeta.estimated_minutes })}
+            </button>
+          )}
+          <button className={`btn lg block ${nextConcept || bonusConcept ? 'quiet' : 'primary'}`} autoFocus={!nextConcept && !bonusConcept} onClick={() => navigate('', true)}>
             {t('complete.home')}
           </button>
         </motion.div>
@@ -1201,18 +1154,13 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
 
 /** After Lux walked through the mistakes. */
 function MistakesDone({ outcomes, topicId, afterLesson, nextConcept }: { outcomes: Outcome[]; topicId?: string; afterLesson: number; nextConcept?: string }) {
-  const { t, lib, settings } = useApp();
+  const { t, lib, settings, progress } = useApp();
   const reduce = prefersReducedMotion(settings);
   const total = outcomes.filter((o) => o.problem).length;
   const solved = outcomes.filter((o) => o.problem && o.correct).length;
   const all = total > 0 && solved === total;
   let next: string | null = null;
-  if (nextConcept && lib) {
-    const topic = lib.catalog.topics.find((tp) => tp.id === topicId);
-    const list = topic ? topic.units.flatMap((u) => u.concepts) : [];
-    const i = list.indexOf(nextConcept);
-    next = i >= 0 && i + 1 < list.length ? list[i + 1] : null;
-  }
+  if (nextConcept && lib) next = nextAfter(lib.catalog, lib.catalog.topics.find((tp) => tp.id === topicId), nextConcept, progress.completedConcepts, settings.depth).next;
   return (
     <main className="complete" id="main">
       {all && <Confetti reduce={reduce} />}

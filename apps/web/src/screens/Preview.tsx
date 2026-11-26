@@ -26,8 +26,8 @@ export function PreviewIndex() {
             <div key={u.id}>
               <h3 className="small muted" style={{ marginTop: 8 }}>{u.title}</h3>
               <ul>
-                {u.concepts.map((c) => (
-                  <li key={c}><a href={href(`preview/${c}`)}>{lib.catalog.concepts[c]?.title}</a> <code className="small">{c}</code></li>
+                {[...new Set(u.concepts.map((c) => lib.catalog.concepts[c]?.group ?? c))].map((g) => (
+                  <li key={g}><a href={href(`preview/${g}`)}>{lib.catalog.concepts[lib.lessonsOf(g)[0]]?.title}</a> <code className="small">{g}</code> <span className="small muted">· {lib.lessonsOf(g).length} {lib.lessonsOf(g).length === 1 ? 'lesson' : 'lessons'}</span></li>
                 ))}
               </ul>
             </div>
@@ -41,8 +41,10 @@ export function PreviewIndex() {
 export function PreviewConcept({ conceptId }: { conceptId: string }) {
   const { t, lib } = useApp();
   const [concept, setConcept] = useState<Concept | null>(null);
+  // authors see the concept as they wrote it; `lessons` shows how it is cut for learners
+  const lessons = lib?.lessonsOf(lib.catalog.concepts[conceptId]?.group ?? conceptId) ?? [];
   useEffect(() => {
-    lib?.concept(conceptId).then(setConcept);
+    lib?.group(lib.catalog.concepts[conceptId]?.group ?? conceptId).then(setConcept);
   }, [lib, conceptId]);
   const issues = useMemo(() => (concept ? evalConcept(concept, undefined, { variantSamples: 4, fuzzRuns: 6 }) : []), [concept]);
   if (!concept) return <main id="main"><p>{t('loading')}</p></main>;
@@ -52,7 +54,12 @@ export function PreviewConcept({ conceptId }: { conceptId: string }) {
     <main id="main">
       <div className="page-header">
         <a className="icon-btn" href={href('preview')} aria-label={t('onb.back')}><span style={{ transform: 'scaleX(-1)', display: 'inline-flex' }}><Icon name="chevron" /></span></a>
-        <a className="btn primary small" href={href(`learn/${concept.id}`)}>▶ Player</a>
+        <span className="row wrap" style={{ gap: 6 }}>
+          {lessons.map((id) => {
+            const m = lib?.catalog.concepts[id];
+            return <a key={id} className="btn primary small" href={href(`learn/${id}`)}>▶ {m && (m.depth ?? 1) > 1 ? t(`depth.name${m.depth}`) : `${m?.part ?? 1}/${m?.parts ?? 1}`} · {m?.steps}</a>;
+          })}
+        </span>
       </div>
       <h1>{concept.title}</h1>
       <p className="small muted">{concept.id} · {concept.license} · {concept.authors.join(', ')} · Skills: {concept.skills.join(', ')}</p>
