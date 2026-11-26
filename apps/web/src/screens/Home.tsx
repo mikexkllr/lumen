@@ -54,15 +54,24 @@ export interface PathUnit {
  * The learning path as units of lessons with their states. `goal` is how deep
  * the learner wants to go: extras up to that depth are part of the way (they
  * can become the next lesson), deeper ones stay optional.
+ *
+ * The next lesson is the first open one, but a course the learner never
+ * touched does not pull them back when they are already further along – a
+ * new course added at the front of a path must not send someone who is
+ * solving equations back to counting. Such courses stay open to visit.
  */
 export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSummary, startAt: Settings['startAt'], reviewedUnits: Set<string>, goal: DepthGoal = 1): { units: PathUnit[]; next: string | null } {
   const path = catalog.paths.find((p) => p.id === pathId) ?? catalog.paths[0];
   const units: PathUnit[] = [];
   let next: string | null = null;
   let reachedStart = !startAt || !path.topics.includes(startAt.topic);
-  for (const tid of path.topics) {
+  const started = path.topics.map((tid) => !!catalog.topics.find((tp) => tp.id === tid)?.units.some((u) => u.concepts.some((c) => progress.completedConcepts.has(c))));
+  const furthest = started.lastIndexOf(true);
+  for (const [ti, tid] of path.topics.entries()) {
     const topic = catalog.topics.find((tp) => tp.id === tid);
     if (!topic) continue;
+    // an untouched course behind the learner's position is not where they go next
+    const onTheWay = started[ti] || ti > furthest;
     const prereqsDone = topic.prerequisites.every((p) => {
       const tp = catalog.topics.find((x) => x.id === p);
       return !tp || tp.units.flatMap((u) => u.concepts).every((c) => progress.completedConcepts.has(c));
@@ -73,7 +82,7 @@ export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSu
         const meta = catalog.concepts[cid];
         let state: NodeState;
         if (progress.completedConcepts.has(cid)) state = 'done';
-        else if (!next && reachedStart) {
+        else if (!next && reachedStart && onTheWay) {
           next = cid;
           state = 'next';
         } else state = prereqsDone || next === null ? 'later' : 'locked';
@@ -82,7 +91,7 @@ export function buildPath(catalog: Catalog, pathId: string, progress: ProgressSu
           const depth = depthOfLesson(em) as 2 | 3;
           let es: PathExtra['state'] = 'open';
           if (progress.completedConcepts.has(id)) es = 'done';
-          else if (!next && reachedStart && depth <= goal) {
+          else if (!next && reachedStart && onTheWay && depth <= goal) {
             next = id;
             es = 'next';
           }

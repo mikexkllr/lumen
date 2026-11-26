@@ -75,6 +75,22 @@ describe('the learning path', async () => {
     expect(units[1].nodes[0].extras.map((x) => x.depth)).toEqual([2]);
   });
 
+  it('a course the learner never touched does not pull them back from further along', () => {
+    // a new course in front of the path, like a starter course added later
+    const fresh = { id: 'new', title: 'Neu', area: 'math', prerequisites: [], units: [{ id: 'new.u1', title: 'N1', concepts: ['n1', 'n2'], review: true }] } as unknown as Topic;
+    const wider = { ...catalog, topics: [fresh, topic], paths: [{ id: 'path.math', area: 'math', title: 'Mathe', topics: ['new', 'tp'] }], concepts: { ...concepts, n1: meta('n1', 'n1', 1), n2: meta('n2', 'n2', 1) }, groups: { ...catalog.groups, n1: ['n1'], n2: ['n2'] } } as unknown as Catalog;
+    // someone new starts at the very beginning
+    expect(buildPath(wider, 'path.math', progress([]), null, new Set()).next).toBe('n1');
+    // someone already in the second course carries on there; the new course stays open, not locked
+    const along = buildPath(wider, 'path.math', progress(['a~c1']), null, new Set());
+    expect(along.next).toBe('a~c2');
+    expect(along.units[0].nodes.map((n) => n.state)).toEqual(['later', 'later']);
+    // once they try the new course it is theirs to finish
+    expect(buildPath(wider, 'path.math', progress(['a~c1', 'n1']), null, new Set()).next).toBe('n2');
+    // everything else done: the untouched course is what is left
+    expect(buildPath(wider, 'path.math', progress(['a~c1', 'a~c2', 'b', 'c~c1']), null, new Set()).next).toBe('n1');
+  });
+
   it('leads through the extras when the learner wants more depth', () => {
     const done = ['a~c1', 'a~c2'];
     expect(buildPath(catalog, 'path.math', progress(done), null, new Set()).next).toBe('b');
