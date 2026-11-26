@@ -5,7 +5,7 @@ summary: How apps find out what works.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 9
+estimated_minutes: 10
 steps:
   - kind: explain
     id: intro-hook
@@ -26,18 +26,21 @@ steps:
           - 100
 
   - kind: problem
-    id: rate
-    widget: numeric
-    prompt: Version A – 1000 visitors, 50 purchases. Version B – 1000 visitors, 65 purchases. By what percent is B better?
-    params: { unit: "%" }
-    answer: { value: 30 }
-    feedback:
-      - when: "numval(state.input) == 15"
-        misconception: absolute
-        text: 15 is the difference in purchases. The question is by what percent B has more.
+    id: start-test
+    widget: choice
+    prompt: "An app wants to know: is a red or a green button pressed more often? What is the best way to find out?"
+    params:
+      options:
+        - label: Show both colours and count
+          correct: true
+        - label: The boss decides by gut feeling
+          feedback: A gut feeling can be wrong. Counting shows what people really do.
+        - label: Pick the prettier colour
+          feedback: Pretty does not mean more people press it. You have to measure that.
     hints:
-      - 15 more, relative to 50.
-    explanation: "15 ÷ 50 = 0.3 – so 30% more purchases."
+      - How do you learn what people really do?
+      - Trying it out and counting beats any guess.
+    explanation: The app shows some people the red button and others the green one. Then it counts. That is already the idea of an A/B test.
 
   - kind: explain
     id: s2
@@ -81,6 +84,34 @@ steps:
     hints:
       - First plan, then split, then measure.
     explanation: Chance makes sure the groups differ in one thing only.
+
+  - kind: problem
+    id: start-mehr
+    widget: numeric
+    prompt: "Version A: 50 purchases. Version B: 65 purchases. How many more purchases does B have than A?"
+    params:
+      unit: purchases
+    answer:
+      value: 15
+    hints:
+      - Subtract the smaller number from the bigger one.
+      - Work out 65 − 50.
+    explanation: 65 − 50 = 15 more purchases. In a moment you will work out what percent that is.
+
+  - kind: problem
+    id: rate
+    widget: numeric
+    prompt: Version A – 1000 visitors, 50 purchases. Version B – 1000 visitors, 65 purchases. By what percent is B better?
+    params: { unit: "%" }
+    answer: { value: 30 }
+    feedback:
+      - when: "numval(state.input) == 15"
+        misconception: absolute
+        text: 15 is the difference in purchases. The question is by what percent B has more.
+    hints:
+      - 15 more, relative to 50.
+      - Work out 15 ÷ 50 and multiply the result by 100.
+    explanation: "15 ÷ 50 = 0.3 – so 30% more purchases."
 
   - kind: problem
     id: d1

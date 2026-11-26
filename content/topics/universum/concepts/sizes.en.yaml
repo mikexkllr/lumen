@@ -5,7 +5,7 @@ summary: Sizes in powers of ten.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 13
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -32,17 +32,21 @@ steps:
             label: Milky Way
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Take a guess: how many stars does the Milky Way have?"
+    id: start-groesser
+    widget: choice
+    prompt: Which one is the biggest?
     params:
-      min: 1000000
-      max: 1000000000000000
-      scale: log
-    answer:
-      value: 100000000000
-      within: 90
-    explanation: Around 100 billion – and there are about as many galaxies.
+      options:
+        - label: The Sun
+          correct: true
+        - label: Earth
+          feedback: Earth is huge. But it would fit into the Sun more than a million times.
+        - label: The Moon
+          feedback: The Moon is even smaller than Earth.
+    hints:
+      - Which of the three gives us light and warmth?
+      - The Sun only looks small because it is so far away.
+    explanation: The Sun is the biggest of the three. It only looks small in the sky because it is 150 million km away.
 
   - kind: problem
     id: ordnen
@@ -62,57 +66,50 @@ steps:
         - { label: Milky Way }
     hints:
       - A bacterium is much larger than an atom, but much smaller than an ant.
+      - Earth, Sun and Milky Way come last – in that order.
     explanation: Between an atom and the Milky Way lie about 31 powers of ten.
+
+  - kind: problem
+    id: start-stufe
+    widget: numeric
+    prompt: Which length comes next?
+    body: "On the ladder each step is ten times bigger: 1 m, 10 m, 100 m …"
+    params:
+      unit: m
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: additive-step
+        text: You don't add 100. Each step is **ten times** as big as the one before.
+    hints:
+      - "From 1 to 10 and from 10 to 100: what happens each time?"
+      - Work out 100 · 10. You simply add one more zero.
+    explanation: 100 · 10 = 1000. Each step adds one zero.
 
   - kind: explain
     id: s2
-    body: |
-      Such huge differences are written with **powers of ten**. A human is about $10^0$ m tall, and Earth is $10^7$ m.
-      Each step is ten times larger.
+    body: "Such huge numbers are written in short as **powers of ten**. The small number on top counts the zeros: $10^3$ is 1000. Earth is about $10^7$ m wide. A human sits on step 0, because $10^0$ m is 1 m."
 
   - kind: problem
-    id: erden
+    id: start-nullen
     widget: numeric
-    prompt: The Sun is about 1,400,000 km wide, and Earth about 12,700 km. How many Earths fit side by side across it?
-    params: { unit: Earths }
-    answer: { value: 110, tolerance: 5 }
-    hints:
-      - 1,400,000 divided by 12,700.
-    explanation: A good 100 Earths side by side, and over a million fit inside.
-
-  - kind: problem
-    id: sterne
-    widget: numeric
-    prompt: The Milky Way has about 100 billion stars. That is 10 to the power of …?
-    params: { prefix: "10^" }
-    answer: { value: 11 }
-    feedback:
-      - when: "numval(state.input) == 9"
-        misconception: billion
-        text: One billion is $10^9$. A hundred billion is two steps more.
-    hints:
-      - A billion has 9 zeros.
-    explanation: 100 · $10^9$ = $10^{11}$.
-
-  - kind: problem
-    id: c1
-    widget: match
-    prompt: Which order of magnitude fits?
+    prompt: How many zeros does $10^6$ have when you write the number out?
     params:
-      pairs:
-        - left: Atom
-          right: $10^{-10}$ m
-        - left: Human
-          right: $10^{0}$ m
-        - left: Earth
-          right: $10^{7}$ m
-        - left: Sun
-          right: $10^{9}$ m
-        - left: Milky Way
-          right: $10^{21}$ m
+      unit: zeros
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 1000000
+        misconception: wrote-number
+        text: That is the number written out. The question is how many zeros it has.
+      - when: numval(state.input) == 60
+        misconception: exponent-as-factor
+        text: Don't work out 6 · 10. The small 6 counts the zeros.
     hints:
-      - First order from smallest to largest.
-    explanation: 31 powers of ten lie between atom and galaxy.
+      - The small number on top counts the zeros.
+      - $10^3$ is 1000 and has three zeros. And $10^6$?
+    explanation: $10^6$ is 1,000,000 – one million, a 1 followed by six zeros.
 
   - kind: problem
     id: intro-c1
@@ -134,6 +131,67 @@ steps:
       - Each step adds a zero. A human at 1 m sits on step 0.
       - Count the zeros after the 1.
     explanation: Nine zeros mean $10^9$ m – two steps above the Earth. So the Sun is about a hundred times as wide as the Earth.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: Which order of magnitude fits?
+    params:
+      pairs:
+        - left: Atom
+          right: $10^{-10}$ m
+        - left: Human
+          right: $10^{0}$ m
+        - left: Earth
+          right: $10^{7}$ m
+        - left: Sun
+          right: $10^{9}$ m
+        - left: Milky Way
+          right: $10^{21}$ m
+    hints:
+      - First order from smallest to largest.
+      - "The smallest exponent belongs to the smallest thing. A minus means: smaller than 1 m."
+    explanation: 31 powers of ten lie between atom and galaxy.
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Take a guess: how many stars does the Milky Way have?"
+    params:
+      min: 1000000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 100000000000
+      within: 90
+    explanation: Around 100 billion – and there are about as many galaxies.
+
+  - kind: problem
+    id: sterne
+    widget: numeric
+    prompt: The Milky Way has about 100 billion stars. That is 10 to the power of …?
+    params: { prefix: "10^" }
+    answer: { value: 11 }
+    feedback:
+      - when: "numval(state.input) == 9"
+        misconception: billion
+        text: One billion is $10^9$. A hundred billion is two steps more.
+    hints:
+      - A billion has 9 zeros.
+      - A hundred has two zeros. Add them to the 9.
+    explanation: 100 · $10^9$ = $10^{11}$.
+
+  - kind: problem
+    id: erden
+    depth: 2
+    widget: numeric
+    prompt: The Sun is about 1,400,000 km wide, and Earth about 12,700 km. How many Earths fit side by side across it?
+    params: { unit: Earths }
+    answer: { value: 110, tolerance: 5 }
+    hints:
+      - 1,400,000 divided by 12,700.
+    explanation: A good 100 Earths side by side, and over a million fit inside.
+    difficulty: 2
 
   - kind: problem
     id: d1

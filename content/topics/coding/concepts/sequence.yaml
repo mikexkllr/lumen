@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.sequence]
-estimated_minutes: 13
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -36,6 +36,20 @@ steps:
       - Wie viele Felder sind es bis zur Flagge?
     explanation: Viermal vorwärts.
 
+  - kind: problem
+    id: c1
+    widget: order
+    prompt: Ein Programm für Tee. Bring die Befehle in eine Reihenfolge, die funktioniert.
+    params:
+      items:
+        - label: Wasser in den Kocher füllen
+        - label: Kocher einschalten
+        - label: Warten, bis es kocht
+        - label: Wasser über den Teebeutel gießen
+    hints:
+      - Ein Computer führt jeden Befehl aus, auch wenn die Reihenfolge Unsinn ist.
+    explanation: Dieselben Befehle in anderer Reihenfolge ergeben ein anderes Programm.
+
   - kind: explain
     id: s2
     body: |
@@ -43,14 +57,42 @@ steps:
       Der Roboter führt sie genau der Reihe nach aus – nicht mehr und nicht weniger.
 
   - kind: problem
-    id: um-die-ecke
+    id: start-ecke
     widget: robot
-    prompt: Jetzt geht es um die Ecke. Achte darauf, wohin der Roboter schaut.
-    params: { grid: ["S.#", "#.#", "#.G"], blocks: [forward, left, right], maxBlocks: 8 }
+    prompt: Die Flagge liegt um die Ecke. Der Roboter schaut nach rechts. Bring ihn hin.
+    params:
+      grid:
+        - S.
+        - "#G"
+      blocks:
+        - forward
+        - left
+        - right
+      maxBlocks: 5
     hints:
-      - Nach dem ersten Schritt musst du nach unten.
-      - Rechts drehen heißt – aus Sicht des Roboters.
-    explanation: vorwärts, rechts drehen, 2× vorwärts, links drehen, vorwärts.
+      - Fahr erst ein Feld vor. Wohin muss der Roboter dann schauen?
+      - vorwärts, rechts drehen, vorwärts.
+    explanation: vorwärts, rechts drehen, vorwärts. Drehen bewegt den Roboter nicht – er schaut danach nur woanders hin.
+
+  - kind: problem
+    id: start-drehung
+    widget: choice
+    prompt: Der Roboter schaut nach rechts und dreht sich einmal nach rechts. Wohin schaut er jetzt?
+    params:
+      layout: grid
+      options:
+        - label: nach unten
+          correct: true
+        - label: nach oben
+          feedback: Das wäre eine Linksdrehung.
+        - label: nach links
+          feedback: Dafür müsste er sich zweimal drehen.
+        - label: nach rechts
+          feedback: Dann hätte er sich gar nicht gedreht.
+    hints:
+      - "Rechts drehen heißt: im Uhrzeigersinn, wie der Zeiger einer Uhr."
+      - Stell dir vor, du stehst selbst auf dem Feld und drehst dich nach rechts.
+    explanation: rechts → unten. Eine Rechtsdrehung ist eine Vierteldrehung im Uhrzeigersinn.
 
   - kind: problem
     id: blickrichtung
@@ -68,29 +110,14 @@ steps:
     explanation: rechts → oben → links.
 
   - kind: problem
-    id: kristalle
+    id: um-die-ecke
     widget: robot
-    prompt: Sammle beide Kristalle ein und ende auf der Flagge.
-    params: { grid: ["S.*", "#.#", "*.G"], blocks: [forward, left, right], maxBlocks: 16, goal: collect }
+    prompt: Jetzt geht es um zwei Ecken. Achte darauf, wohin der Roboter schaut.
+    params: { grid: ["S.#", "#.#", "#.G"], blocks: [forward, left, right], maxBlocks: 8 }
     hints:
-      - Hol zuerst den Kristall oben rechts.
-      - Dreh dich zweimal, um umzukehren.
-    explanation: Zum oberen Kristall, umkehren, nach unten, links zum zweiten Kristall, umkehren und zur Flagge.
-    difficulty: 3
-
-  - kind: problem
-    id: c1
-    widget: order
-    prompt: Ein Programm für Tee. Bring die Befehle in eine Reihenfolge, die funktioniert.
-    params:
-      items:
-        - label: Wasser in den Kocher füllen
-        - label: Kocher einschalten
-        - label: Warten, bis es kocht
-        - label: Wasser über den Teebeutel gießen
-    hints:
-      - Ein Computer führt jeden Befehl aus, auch wenn die Reihenfolge Unsinn ist.
-    explanation: Dieselben Befehle in anderer Reihenfolge ergeben ein anderes Programm.
+      - Nach dem ersten Schritt musst du nach unten.
+      - Rechts drehen heißt – aus Sicht des Roboters.
+    explanation: vorwärts, rechts drehen, 2× vorwärts, links drehen, vorwärts.
 
   - kind: problem
     id: d1
@@ -130,6 +157,18 @@ steps:
       - "Unten herum: vorwärts, rechts, vorwärts, links – dann weiter nach rechts und hoch."
     explanation: vorwärts, rechts, vorwärts, links, vorwärts, vorwärts, links, vorwärts, rechts, vorwärts.
     difficulty: 2
+
+  - kind: problem
+    id: kristalle
+    depth: 2
+    widget: robot
+    prompt: Sammle beide Kristalle ein und ende auf der Flagge.
+    params: { grid: ["S.*", "#.#", "*.G"], blocks: [forward, left, right], maxBlocks: 16, goal: collect }
+    hints:
+      - Hol zuerst den Kristall oben rechts.
+      - Dreh dich zweimal, um umzukehren.
+    explanation: Zum oberen Kristall, umkehren, nach unten, links zum zweiten Kristall, umkehren und zur Flagge.
+    difficulty: 3
 
   - kind: problem
     id: cs-d2

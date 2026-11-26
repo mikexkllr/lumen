@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 11
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -34,46 +34,59 @@ steps:
             initial: 500
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: Electricity costs about 35 cents per kilowatt-hour. How many cents does it cost to boil one litre of water in a kettle?
+    id: start-heizen
+    widget: choice
+    prompt: Which device uses the most electricity while it is running?
     params:
-      min: 0.1
-      max: 100
-      scale: log
-    answer:
-      value: 3.5
-      within: 50
-    explanation: About 0.1 kWh, so roughly 3.5 cents. Heating water from 20 °C to 100 °C takes about 335 kJ, plus small losses.
+      options:
+        - label: The kettle
+          correct: true
+        - label: The LED lamp
+          feedback: LED lamps use very little.
+        - label: The phone on its charger
+          feedback: A phone charges with a few watts. The kettle needs over a hundred times more.
+    hints:
+      - What gets really hot in a short time?
+      - Heating takes a lot of electricity.
+    explanation: Devices that heat need the most. A kettle draws about 2000 watts, an LED lamp only about 8.
 
   - kind: explain
     id: c1
     body: "**Power** tells you how fast a device uses energy. It is measured in watts (W). A 1000 W device running for one hour uses 1 kilowatt-hour (kWh)."
 
   - kind: problem
-    id: c2
+    id: start-drei
     widget: numeric
-    prompt: A {{p}} W hair dryer runs for {{m}} minutes. How many kWh does it use?
+    prompt: A heater with 1000 W runs for 3 hours. How many kilowatt-hours does it use?
     params:
       unit: kWh
     answer:
-      value: "{{p * m / 60000}}"
-      tolerance: 0.005
+      value: 3
     feedback:
-      - when: numval(state.input) == p * m
+      - when: numval(state.input) == 3000
         misconception: units
-        text: Those are watt-minutes. Convert to hours and kilowatts.
+        text: Those are watt-hours. 1000 Wh are 1 kWh.
     hints:
-      - Energy = power × time, in kW and h.
-      - "{{p / 1000}} kW × {{m}}/60 h."
-    explanation: "{{p / 1000}} kW × {{m / 60}} h = {{p * m / 60000}} kWh."
-    variants:
-      params:
-        p: choice[1200,1800,2400]
-        m: choice[10,15,20,30]
-      defaults:
-        p: 1800
-        m: 10
+      - 1000 W for one hour is 1 kWh.
+      - Three hours is three times as much.
+    explanation: Each hour adds 1 kWh. After 3 hours it is 3 kWh.
+
+  - kind: problem
+    id: start-kw
+    widget: numeric
+    prompt: A kettle has 2000 W. How many kWh does it use if it runs for a whole hour?
+    params:
+      unit: kWh
+    answer:
+      value: 2
+    feedback:
+      - when: numval(state.input) == 2000
+        misconception: units
+        text: Those are watt-hours. Divide by 1000 to get kWh.
+    hints:
+      - 1000 W for one hour is 1 kWh.
+      - 2000 W is twice as much as 1000 W.
+    explanation: 2000 W is 2 kW. Over one hour that makes 2 kWh.
 
   - kind: problem
     id: c3
@@ -99,35 +112,17 @@ steps:
     explanation: "Heating eats power: kettles and hair dryers draw around 2000 W. Lighting and electronics need little."
 
   - kind: problem
-    id: c4
-    widget: numeric
-    prompt: A 100 W TV runs 4 hours every day. What does that cost per year at 35 cents per kWh? In euros.
+    id: hook
+    widget: estimate
+    prompt: Electricity costs about 35 cents per kilowatt-hour. How many cents does it cost to boil one litre of water in a kettle?
     params:
-      unit: €
+      min: 0.1
+      max: 100
+      scale: log
     answer:
-      value: 51.1
-      tolerance: 0.2
-    hints:
-      - "First the kWh per day: 0.1 kW × 4 h."
-      - 0.4 kWh × 365 × €0.35.
-    explanation: 0.4 kWh per day × 365 = 146 kWh. Times €0.35 gives about €51.10.
-
-  - kind: problem
-    id: c5
-    widget: choice
-    prompt: A kettle is labelled “2 kW”. What does that mean?
-    params:
-      options:
-        - label: It converts 2000 joules per second
-          correct: true
-        - label: It uses 2 kWh per boil
-          feedback: kW is power, kWh is energy.
-        - label: It uses 2 kWh in total
-          feedback: The energy depends on how long it runs.
-    hints:
-      - A watt is a rate, like km/h for a car.
-      - 1 W = 1 joule per second.
-    explanation: Power is energy per time. 2 kW means 2000 J every second. Only the running time turns it into energy in kWh.
+      value: 3.5
+      within: 50
+    explanation: About 0.1 kWh, so roughly 3.5 cents. Heating water from 20 °C to 100 °C takes about 335 kJ, plus small losses.
 
   - kind: problem
     id: intro-c1
@@ -160,6 +155,81 @@ steps:
       - "Energy is power times time. Here: 1 kWh in 2 h."
       - 1 kWh ÷ 2 h = 0.5 kW.
     explanation: 500 W × 2 h = 1000 Wh = 1 kWh. The line passes right through the dot.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A {{p}} W hair dryer runs for {{m}} minutes. How many kWh does it use?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * m / 60000}}"
+      tolerance: 0.005
+    feedback:
+      - when: numval(state.input) == p * m
+        misconception: units
+        text: Those are watt-minutes. Convert to hours and kilowatts.
+    hints:
+      - Energy = power × time, in kW and h.
+      - "{{p / 1000}} kW × {{m}}/60 h."
+    explanation: "{{p / 1000}} kW × {{m / 60}} h = {{p * m / 60000}} kWh."
+    variants:
+      params:
+        p: choice[1200,1800,2400]
+        m: choice[10,15,20,30]
+      defaults:
+        p: 1800
+        m: 10
+
+  - kind: problem
+    id: start-kosten
+    widget: numeric
+    prompt: One kilowatt-hour costs 35 cents. What do 10 kWh cost? In euros.
+    params:
+      unit: €
+    answer:
+      value: 3.5
+    feedback:
+      - when: numval(state.input) == 350
+        misconception: cents
+        text: Those are cents. 100 cents are 1 euro.
+    hints:
+      - Work out 10 · 35 cents.
+      - 350 cents is how many euros?
+    explanation: 10 · 35 cents = 350 cents = €3.50.
+
+  - kind: problem
+    id: c4
+    widget: numeric
+    prompt: A 100 W TV runs 4 hours every day. What does that cost per year at 35 cents per kWh? In euros.
+    params:
+      unit: €
+    answer:
+      value: 51.1
+      tolerance: 0.2
+    hints:
+      - "First the kWh per day: 0.1 kW × 4 h."
+      - 0.4 kWh × 365 × €0.35.
+    explanation: 0.4 kWh per day × 365 = 146 kWh. Times €0.35 gives about €51.10.
+
+  - kind: problem
+    id: c5
+    depth: 2
+    widget: choice
+    prompt: A kettle is labelled “2 kW”. What does that mean?
+    params:
+      options:
+        - label: It converts 2000 joules per second
+          correct: true
+        - label: It uses 2 kWh per boil
+          feedback: kW is power, kWh is energy.
+        - label: It uses 2 kWh in total
+          feedback: The energy depends on how long it runs.
+    hints:
+      - A watt is a rate, like km/h for a car.
+      - 1 W = 1 joule per second.
+    explanation: Power is energy per time. 2 kW means 2000 J every second. Only the running time turns it into energy in kWh.
+    difficulty: 2
 
   - kind: problem
     id: d1

@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: []
-estimated_minutes: 10
+estimated_minutes: 12
 steps:
   - kind: explain
     id: intro-hook
@@ -33,43 +33,21 @@ steps:
             back: In true standby, new devices may usually draw only 0.5 W.
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: A device draws 5 W on standby, day and night. How many euros does that cost per year at 35 cents per kWh?
+    id: start-lampe
+    widget: choice
+    prompt: The TV is "off", but a small red light glows at the front. Is it using electricity now?
     params:
-      min: 0
-      max: 60
-    answer:
-      value: 15.3
-      tolerance: 4
-    explanation: 5 W × 8760 h = 43.8 kWh. Times €0.35, that is about €15 – for a glowing light on the TV!
-
-  - kind: explain
-    id: c1
-    body: On **standby** a device waits for the remote or a signal. It draws little power, but around the clock. A year has 8760 hours.
-
-  - kind: problem
-    id: c2
-    widget: numeric
-    prompt: A device draws {{p}} W all the time. How many kWh is that per year?
-    params:
-      unit: kWh
-    answer:
-      value: "{{p * 8.76}}"
-      tolerance: 0.1
-    feedback:
-      - when: numval(state.input) == p * 8760
-        misconception: unit-prefix
-        text: Those are watt-hours. Divide by 1000.
+      options:
+        - label: Yes, a little
+          correct: true
+        - label: No, none at all
+          feedback: The light does not glow by itself. The TV is waiting for the remote.
+        - label: Yes, as much as when it is on
+          feedback: Picture and sound are off. Only a small remainder is left.
     hints:
-      - Power times 8760 hours.
-      - "{{p}} W × 8760 h = {{p * 8760}} Wh."
-    explanation: "{{p}} W × 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Rule of thumb: 1 W around the clock ≈ 8.8 kWh per year."
-    variants:
-      params:
-        p: choice[1,2,3,5,8,10]
-      defaults:
-        p: 3
+      - Where does the red light get its electricity?
+      - The TV has to stay awake to hear the remote.
+    explanation: The TV is waiting in standby. It needs little electricity for that – but day and night.
 
   - kind: problem
     id: c3
@@ -98,6 +76,62 @@ steps:
       - Anything waiting for a signal or showing a clock draws power.
       - A real switch breaks the circuit completely.
     explanation: Remote receivers, clocks and networks need constant power. Even an empty charger draws a little. A mechanical switch breaks the circuit instead.
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: A device draws 5 W on standby, day and night. How many euros does that cost per year at 35 cents per kWh?
+    params:
+      min: 0
+      max: 60
+    answer:
+      value: 15.3
+      tolerance: 4
+    explanation: 5 W × 8760 h = 43.8 kWh. Times €0.35, that is about €15 – for a glowing light on the TV!
+
+  - kind: explain
+    id: c1
+    body: On **standby** a device waits for the remote or a signal. It draws little power, but around the clock. A year has 8760 hours.
+
+  - kind: problem
+    id: start-jahr
+    widget: numeric
+    prompt: A device draws 1 W – all year, for 8760 hours. How many watt-hours is that?
+    params:
+      unit: Wh
+    answer:
+      value: 8760
+    feedback:
+      - when: numval(state.input) == 8.76
+        misconception: unit-prefix
+        text: Those are already kilowatt-hours. Here the question asks for watt-hours.
+    hints:
+      - Energy is power times time.
+      - Work out 1 · 8760.
+    explanation: 1 W · 8760 h = 8760 Wh. That is almost 9 kWh – for a single watt.
+
+  - kind: problem
+    id: c2
+    widget: numeric
+    prompt: A device draws {{p}} W all the time. How many kWh is that per year?
+    params:
+      unit: kWh
+    answer:
+      value: "{{p * 8.76}}"
+      tolerance: 0.1
+    feedback:
+      - when: numval(state.input) == p * 8760
+        misconception: unit-prefix
+        text: Those are watt-hours. Divide by 1000.
+    hints:
+      - Power times 8760 hours.
+      - "{{p}} W × 8760 h = {{p * 8760}} Wh."
+    explanation: "{{p}} W × 8760 h = {{p * 8760}} Wh = {{p * 8.76}} kWh. Rule of thumb: 1 W around the clock ≈ 8.8 kWh per year."
+    variants:
+      params:
+        p: choice[1,2,3,5,8,10]
+      defaults:
+        p: 3
 
   - kind: problem
     id: c4

@@ -6,7 +6,7 @@ locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.search]
-estimated_minutes: 13
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -33,16 +33,21 @@ steps:
             back: Miss in der Mitte der Leitung. Dann weißt du, in welcher Hälfte der Bruch liegt.
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Schätz mal: Wie viele Ja/Nein-Fragen brauchst du höchstens, um eine von einer Milliarde Zahlen zu finden?"
+    id: start-woerterbuch
+    widget: choice
+    prompt: Du suchst das Wort »Zebra« in einem dicken Wörterbuch. Wo schlägst du auf?
     params:
-      min: 5
-      max: 1000
-    answer:
-      value: 30
-      tolerance: 6
-    explanation: Nur 30. Jede Frage halbiert – und 2³⁰ ist gut eine Milliarde.
+      options:
+        - label: Weit hinten
+          correct: true
+        - label: Auf der ersten Seite
+          feedback: Dann müsstest du fast das ganze Buch durchblättern.
+        - label: Irgendwo, das ist egal
+          feedback: Das Wörterbuch ist sortiert. Das kannst du nutzen.
+    hints:
+      - Wo im Alphabet steht das Z?
+      - Ein Wörterbuch ist von A bis Z sortiert.
+    explanation: Weil das Buch sortiert ist, kannst du den größten Teil sofort überspringen. Genau das nutzt die binäre Suche.
 
   - kind: problem
     id: raten
@@ -54,6 +59,27 @@ steps:
       - Welche Zahl schließt in jedem Fall möglichst viele aus?
     explanation: Mit 50 bleibt nach der Antwort höchstens die Hälfte übrig.
 
+  - kind: problem
+    id: start-halb
+    widget: numeric
+    prompt: "Du rätst 50. Die Antwort lautet: »Meine Zahl ist größer.« Wie viele Zahlen bleiben übrig?"
+    body: Ich denke mir eine Zahl von 1 bis 100.
+    params:
+      unit: Zahlen
+    answer:
+      value: 50
+    feedback:
+      - when: numval(state.input) == 49
+        misconception: off-by-one
+        text: "Zähl genau: Von 51 bis 100 sind es 50 Zahlen."
+      - when: numval(state.input) == 100
+        misconception: nothing-excluded
+        text: Alles bis 50 ist jetzt ausgeschlossen.
+    hints:
+      - Welche Zahlen sind größer als 50?
+      - Es bleiben 51 bis 100. Das ist genau die Hälfte.
+    explanation: Übrig sind 51 bis 100 – das sind 50 Zahlen. Eine einzige Frage hat die Hälfte gestrichen.
+
   - kind: explain
     id: s2
     body: |
@@ -61,17 +87,43 @@ steps:
       Aus 100 werden 50, 25, 13, 7, 4, 2, 1. Nach höchstens 7 Fragen kennst du die Zahl.
 
   - kind: problem
-    id: tausend
-    widget: numeric
-    prompt: Wie viele Fragen brauchst du höchstens bei einer Zahl von 1 bis 1000?
-    answer: { value: 10 }
-    feedback:
-      - when: "numval(state.input) >= 100"
-        text: Durchprobieren wäre langsam. Wie oft kannst du 1000 halbieren, bis 1 übrig bleibt?
+    id: intro-c1
+    widget: pixels
+    prompt: Gesucht ist eine Zahl von 1 bis 16. »Größer als 8?« – Ja. »Größer als 12?« – Nein. Markiere alle Zahlen, die noch in Frage kommen.
+    params:
+      rows: 2
+      cols: 8
+      numbers:
+        start: 1
+      counter: true
+    answer:
+      pattern:
+        - ........
+        - "####...."
     hints:
-      - "2 · 2 · 2 … – wie viele Zweien ergeben über 1000?"
-    explanation: 2¹⁰ = 1024 ≥ 1000, also reichen 10 Fragen.
-    difficulty: 2
+      - Das erste Ja streicht 1 bis 8.
+      - Das Nein streicht dann noch 13 bis 16.
+    explanation: Übrig sind 9, 10, 11 und 12. Zwei Fragen haben 16 Zahlen auf 4 geschrumpft – noch zwei Fragen, dann steht sie fest.
+
+  - kind: problem
+    id: start-acht
+    widget: numeric
+    prompt: "Mit jeder Frage werden aus 8 Zahlen halb so viele: 8, 4, 2, 1. Wie viele Fragen brauchst du also höchstens?"
+    params:
+      unit: Fragen
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: counted-values
+        text: "Zähl die Schritte, nicht die Zahlen: 8 → 4 → 2 → 1 sind drei Pfeile."
+      - when: numval(state.input) == 8
+        misconception: linear-search
+        text: So viele wären es beim Durchprobieren. Halbieren geht viel schneller.
+    hints:
+      - "Jede Frage halbiert: Aus 8 werden 4, dann 2, dann 1."
+      - Zähl, wie oft du halbieren musst.
+    explanation: "8 → 4 → 2 → 1: dreimal halbieren, also 3 Fragen."
 
   - kind: problem
     id: ablauf
@@ -101,23 +153,29 @@ steps:
     explanation: Nur in einer sortierten Liste sagt »größer« oder »kleiner«, wo du weitersuchen musst.
 
   - kind: problem
-    id: intro-c1
-    widget: pixels
-    prompt: Gesucht ist eine Zahl von 1 bis 16. »Größer als 8?« – Ja. »Größer als 12?« – Nein. Markiere alle Zahlen, die noch in Frage kommen.
-    params:
-      rows: 2
-      cols: 8
-      numbers:
-        start: 1
-      counter: true
-    answer:
-      pattern:
-        - ........
-        - "####...."
+    id: tausend
+    widget: numeric
+    prompt: Wie viele Fragen brauchst du höchstens bei einer Zahl von 1 bis 1000?
+    answer: { value: 10 }
+    feedback:
+      - when: "numval(state.input) >= 100"
+        text: Durchprobieren wäre langsam. Wie oft kannst du 1000 halbieren, bis 1 übrig bleibt?
     hints:
-      - Das erste Ja streicht 1 bis 8.
-      - Das Nein streicht dann noch 13 bis 16.
-    explanation: Übrig sind 9, 10, 11 und 12. Zwei Fragen haben 16 Zahlen auf 4 geschrumpft – noch zwei Fragen, dann steht sie fest.
+      - "2 · 2 · 2 … – wie viele Zweien ergeben über 1000?"
+    explanation: 2¹⁰ = 1024 ≥ 1000, also reichen 10 Fragen.
+    difficulty: 2
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Ja/Nein-Fragen brauchst du höchstens, um eine von einer Milliarde Zahlen zu finden?"
+    params:
+      min: 5
+      max: 1000
+    answer:
+      value: 30
+      tolerance: 6
+    explanation: Nur 30. Jede Frage halbiert – und 2³⁰ ist gut eine Milliarde.
 
   - kind: problem
     id: d1

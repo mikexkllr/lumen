@@ -5,7 +5,7 @@ summary: Größen in Zehnerpotenzen.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 13
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -32,17 +32,21 @@ steps:
             label: Milchstraße
 
   - kind: problem
-    id: hook
-    widget: estimate
-    prompt: "Schätz mal: Wie viele Sterne hat die Milchstraße?"
+    id: start-groesser
+    widget: choice
+    prompt: Was ist am größten?
     params:
-      min: 1000000
-      max: 1000000000000000
-      scale: log
-    answer:
-      value: 100000000000
-      within: 90
-    explanation: Rund 100 Milliarden – und es gibt etwa ebenso viele Galaxien.
+      options:
+        - label: Die Sonne
+          correct: true
+        - label: Die Erde
+          feedback: Die Erde ist riesig. In die Sonne würde sie aber über eine Million Mal passen.
+        - label: Der Mond
+          feedback: Der Mond ist sogar kleiner als die Erde.
+    hints:
+      - Welcher der drei spendet uns Licht und Wärme?
+      - Die Sonne sieht nur klein aus, weil sie so weit weg ist.
+    explanation: Die Sonne ist der größte der drei. Am Himmel wirkt sie nur klein, weil sie 150 Millionen km entfernt ist.
 
   - kind: problem
     id: ordnen
@@ -62,57 +66,50 @@ steps:
         - { label: Milchstraße }
     hints:
       - Eine Bakterie ist viel größer als ein Atom, aber viel kleiner als eine Ameise.
+      - Ganz am Ende stehen Erde, Sonne und Milchstraße – in dieser Reihenfolge.
     explanation: Zwischen Atom und Milchstraße liegen rund 31 Zehnerpotenzen.
+
+  - kind: problem
+    id: start-stufe
+    widget: numeric
+    prompt: Welche Länge kommt als Nächstes?
+    body: "Auf der Leiter ist jede Stufe zehnmal größer: 1 m, 10 m, 100 m …"
+    params:
+      unit: m
+    answer:
+      value: 1000
+    feedback:
+      - when: numval(state.input) == 200
+        misconception: additive-step
+        text: Es kommt nicht 100 dazu. Jede Stufe ist **zehnmal** so groß wie die davor.
+    hints:
+      - "Von 1 zu 10 und von 10 zu 100: Was passiert jedes Mal?"
+      - Rechne 100 · 10. Es kommt einfach eine Null dazu.
+    explanation: 100 · 10 = 1000. Jede Stufe hängt eine Null an.
 
   - kind: explain
     id: s2
-    body: |
-      So große Unterschiede schreibt man mit **Zehnerpotenzen**. Ein Mensch ist etwa $10^0$ m groß, die Erde $10^7$ m.
-      Jede Stufe ist zehnmal größer.
+    body: "So große Zahlen schreibt man kurz als **Zehnerpotenzen**. Die kleine Zahl oben zählt die Nullen: $10^3$ ist 1000. Die Erde ist etwa $10^7$ m breit. Ein Mensch steht auf Stufe 0, denn $10^0$ m ist 1 m."
 
   - kind: problem
-    id: erden
+    id: start-nullen
     widget: numeric
-    prompt: Die Sonne ist etwa 1 400 000 km breit, die Erde etwa 12 700 km. Wie viele Erden passen nebeneinander hinein?
-    params: { unit: Erden }
-    answer: { value: 110, tolerance: 5 }
-    hints:
-      - 1 400 000 geteilt durch 12 700.
-    explanation: Gut 100 Erden nebeneinander – und über eine Million passen ins Innere.
-
-  - kind: problem
-    id: sterne
-    widget: numeric
-    prompt: Die Milchstraße hat etwa 100 Milliarden Sterne. Das ist 10 hoch …?
-    params: { prefix: "10^" }
-    answer: { value: 11 }
-    feedback:
-      - when: "numval(state.input) == 9"
-        misconception: billion
-        text: Eine Milliarde ist $10^9$. Hundert Milliarden sind zwei Stufen mehr.
-    hints:
-      - Eine Milliarde hat 9 Nullen.
-    explanation: 100 · $10^9$ = $10^{11}$.
-
-  - kind: problem
-    id: c1
-    widget: match
-    prompt: Welche Größenordnung passt?
+    prompt: Wie viele Nullen hat $10^6$, wenn du die Zahl ausschreibst?
     params:
-      pairs:
-        - left: Atom
-          right: $10^{-10}$ m
-        - left: Mensch
-          right: $10^{0}$ m
-        - left: Erde
-          right: $10^{7}$ m
-        - left: Sonne
-          right: $10^{9}$ m
-        - left: Milchstraße
-          right: $10^{21}$ m
+      unit: Nullen
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 1000000
+        misconception: wrote-number
+        text: Das ist die ausgeschriebene Zahl. Gefragt ist, wie viele Nullen sie hat.
+      - when: numval(state.input) == 60
+        misconception: exponent-as-factor
+        text: Nicht 6 · 10 rechnen. Die kleine 6 zählt die Nullen.
     hints:
-      - Ordne erst vom Kleinsten zum Größten.
-    explanation: Zwischen Atom und Galaxie liegen 31 Zehnerpotenzen.
+      - Die kleine Zahl oben zählt die Nullen.
+      - $10^3$ ist 1000 und hat drei Nullen. Und $10^6$?
+    explanation: $10^6$ ist 1 000 000 – eine Million, also eine 1 mit sechs Nullen.
 
   - kind: problem
     id: intro-c1
@@ -134,6 +131,67 @@ steps:
       - Jede Stufe hängt eine Null an. Der Mensch mit 1 m steht auf Stufe 0.
       - Zähle die Nullen hinter der 1.
     explanation: Neun Nullen heißen $10^9$ m – zwei Stufen über der Erde. Die Sonne ist also rund hundertmal so breit wie die Erde.
+
+  - kind: problem
+    id: c1
+    widget: match
+    prompt: Welche Größenordnung passt?
+    params:
+      pairs:
+        - left: Atom
+          right: $10^{-10}$ m
+        - left: Mensch
+          right: $10^{0}$ m
+        - left: Erde
+          right: $10^{7}$ m
+        - left: Sonne
+          right: $10^{9}$ m
+        - left: Milchstraße
+          right: $10^{21}$ m
+    hints:
+      - Ordne erst vom Kleinsten zum Größten.
+      - "Die kleinste Hochzahl gehört zum kleinsten Ding. Ein Minus heißt: kleiner als 1 m."
+    explanation: Zwischen Atom und Galaxie liegen 31 Zehnerpotenzen.
+
+  - kind: problem
+    id: hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viele Sterne hat die Milchstraße?"
+    params:
+      min: 1000000
+      max: 1000000000000000
+      scale: log
+    answer:
+      value: 100000000000
+      within: 90
+    explanation: Rund 100 Milliarden – und es gibt etwa ebenso viele Galaxien.
+
+  - kind: problem
+    id: sterne
+    widget: numeric
+    prompt: Die Milchstraße hat etwa 100 Milliarden Sterne. Das ist 10 hoch …?
+    params: { prefix: "10^" }
+    answer: { value: 11 }
+    feedback:
+      - when: "numval(state.input) == 9"
+        misconception: billion
+        text: Eine Milliarde ist $10^9$. Hundert Milliarden sind zwei Stufen mehr.
+    hints:
+      - Eine Milliarde hat 9 Nullen.
+      - Hundert hat zwei Nullen. Zähl sie zu den 9 dazu.
+    explanation: 100 · $10^9$ = $10^{11}$.
+
+  - kind: problem
+    id: erden
+    depth: 2
+    widget: numeric
+    prompt: Die Sonne ist etwa 1 400 000 km breit, die Erde etwa 12 700 km. Wie viele Erden passen nebeneinander hinein?
+    params: { unit: Erden }
+    answer: { value: 110, tolerance: 5 }
+    hints:
+      - 1 400 000 geteilt durch 12 700.
+    explanation: Gut 100 Erden nebeneinander – und über eine Million passen ins Innere.
+    difficulty: 2
 
   - kind: problem
     id: d1

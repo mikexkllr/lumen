@@ -5,7 +5,7 @@ summary: Der pH-Wert.
 locale: de
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 14
+estimated_minutes: 15
 steps:
   - kind: explain
     id: intro-hook
@@ -43,6 +43,23 @@ steps:
       Der **pH-Wert** reicht von 0 bis 14. Unter 7 ist es **sauer**, 7 ist neutral, über 7 **basisch**. Jede Stufe ist zehnmal stärker als die nächste.
 
   - kind: problem
+    id: start-reiniger
+    widget: choice
+    prompt: Ein Reiniger hat den pH-Wert 12. Was ist er?
+    params:
+      options:
+        - label: Basisch
+          correct: true
+        - label: Sauer
+          feedback: Sauer ist alles unter 7. Die 12 liegt darüber.
+        - label: Neutral
+          feedback: Neutral ist nur genau 7.
+    hints:
+      - Liegt 12 unter oder über 7?
+      - Über 7 heißt basisch.
+    explanation: 12 liegt weit über 7. Der Reiniger ist stark basisch – darum trägt man dabei Handschuhe.
+
+  - kind: problem
     id: reihe
     widget: order
     prompt: Ordne von sauer nach basisch.
@@ -55,20 +72,6 @@ steps:
     hints:
       - Reines Wasser ist neutral.
     explanation: Zitrone etwa pH 2, Kaffee 5, Wasser 7, Seife etwa 10.
-
-  - kind: problem
-    id: zehnfach
-    widget: numeric
-    prompt: Eine Lösung hat pH 3, eine andere pH 5. Wievielmal saurer ist die erste?
-    params: { unit: "-mal" }
-    answer: { value: 100 }
-    feedback:
-      - when: "numval(state.input) == 2"
-        misconception: linear-scale
-        text: Jede pH-Stufe ist ein Faktor 10 – nicht eins mehr.
-    hints:
-      - Zwei Stufen – zweimal mal 10.
-    explanation: 10 · 10 = 100-mal saurer.
 
   - kind: problem
     id: sortieren
@@ -105,6 +108,37 @@ steps:
     hints:
       - Sauer ist unter 7, basisch darüber.
     explanation: Sehr sauer und sehr basisch sind beide ätzend.
+
+  - kind: problem
+    id: start-stufe
+    widget: numeric
+    prompt: Eine Lösung hat pH 4, eine andere pH 5. Wievielmal saurer ist die erste?
+    params:
+      unit: -mal
+    answer:
+      value: 10
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: linear-scale
+        text: Eine Stufe ist nicht »eins mehr«. Jede Stufe ist ein Faktor 10.
+    hints:
+      - Die beiden liegen genau eine Stufe auseinander.
+      - Jede Stufe ist zehnmal stärker.
+    explanation: Eine Stufe Unterschied heißt zehnmal saurer. Die kleinere Zahl ist die saurere.
+
+  - kind: problem
+    id: zehnfach
+    widget: numeric
+    prompt: Eine Lösung hat pH 3, eine andere pH 5. Wievielmal saurer ist die erste?
+    params: { unit: "-mal" }
+    answer: { value: 100 }
+    feedback:
+      - when: "numval(state.input) == 2"
+        misconception: linear-scale
+        text: Jede pH-Stufe ist ein Faktor 10 – nicht eins mehr.
+    hints:
+      - Zwei Stufen – zweimal mal 10.
+    explanation: 10 · 10 = 100-mal saurer.
 
   - kind: problem
     id: intro-c1

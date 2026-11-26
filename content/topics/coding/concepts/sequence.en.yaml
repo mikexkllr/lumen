@@ -6,7 +6,7 @@ locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
 skills: [cs.sequence]
-estimated_minutes: 13
+estimated_minutes: 14
 steps:
   - kind: explain
     id: intro-hook
@@ -36,6 +36,20 @@ steps:
       - How many squares is it to the flag?
     explanation: Forward four times.
 
+  - kind: problem
+    id: c1
+    widget: order
+    prompt: A program for tea. Put the commands in an order that works.
+    params:
+      items:
+        - label: Fill the kettle with water
+        - label: Switch the kettle on
+        - label: Wait until it boils
+        - label: Pour the water over the tea bag
+    hints:
+      - A computer runs every command even if the order is nonsense.
+    explanation: The same commands in a different order make a different program.
+
   - kind: explain
     id: s2
     body: |
@@ -43,14 +57,42 @@ steps:
       The robot runs them exactly in order – no more and no less.
 
   - kind: problem
-    id: um-die-ecke
+    id: start-ecke
     widget: robot
-    prompt: Now it goes around a corner. Pay attention to where the robot is facing.
-    params: { grid: ["S.#", "#.#", "#.G"], blocks: [forward, left, right], maxBlocks: 8 }
+    prompt: The flag is around the corner. The robot faces right. Take it there.
+    params:
+      grid:
+        - S.
+        - "#G"
+      blocks:
+        - forward
+        - left
+        - right
+      maxBlocks: 5
     hints:
-      - After the first step, you must go down.
-      - Right means right from the robot's point of view.
-    explanation: forward, turn right, forward 2×, turn left, forward.
+      - First move one square forward. Which way does the robot need to face then?
+      - forward, turn right, forward.
+    explanation: forward, turn right, forward. Turning does not move the robot – afterwards it just faces a different way.
+
+  - kind: problem
+    id: start-drehung
+    widget: choice
+    prompt: The robot faces right and turns right once. Which way does it face now?
+    params:
+      layout: grid
+      options:
+        - label: down
+          correct: true
+        - label: up
+          feedback: That would be a left turn.
+        - label: left
+          feedback: For that it would have to turn twice.
+        - label: right
+          feedback: Then it would not have turned at all.
+    hints:
+      - Turning right means clockwise, like the hand of a clock.
+      - Imagine standing on the square yourself and turning to your right.
+    explanation: right → down. A right turn is a quarter turn clockwise.
 
   - kind: problem
     id: blickrichtung
@@ -68,29 +110,14 @@ steps:
     explanation: right → up → left.
 
   - kind: problem
-    id: kristalle
+    id: um-die-ecke
     widget: robot
-    prompt: Collect both crystals and end on the flag.
-    params: { grid: ["S.*", "#.#", "*.G"], blocks: [forward, left, right], maxBlocks: 16, goal: collect }
+    prompt: Now it goes around two corners. Pay attention to where the robot is facing.
+    params: { grid: ["S.#", "#.#", "#.G"], blocks: [forward, left, right], maxBlocks: 8 }
     hints:
-      - Get the crystal at the top right first.
-      - Turn twice to turn around.
-    explanation: Go to the upper crystal, turn around, go down, go left to the second crystal, turn around and go to the flag.
-    difficulty: 3
-
-  - kind: problem
-    id: c1
-    widget: order
-    prompt: A program for tea. Put the commands in an order that works.
-    params:
-      items:
-        - label: Fill the kettle with water
-        - label: Switch the kettle on
-        - label: Wait until it boils
-        - label: Pour the water over the tea bag
-    hints:
-      - A computer runs every command even if the order is nonsense.
-    explanation: The same commands in a different order make a different program.
+      - After the first step, you must go down.
+      - Right means right from the robot's point of view.
+    explanation: forward, turn right, forward 2×, turn left, forward.
 
   - kind: problem
     id: d1
@@ -130,6 +157,18 @@ steps:
       - "Go round below: forward, right, forward, left – then on to the right and up."
     explanation: forward, right, forward, left, forward, forward, left, forward, right, forward.
     difficulty: 2
+
+  - kind: problem
+    id: kristalle
+    depth: 2
+    widget: robot
+    prompt: Collect both crystals and end on the flag.
+    params: { grid: ["S.*", "#.#", "*.G"], blocks: [forward, left, right], maxBlocks: 16, goal: collect }
+    hints:
+      - Get the crystal at the top right first.
+      - Turn twice to turn around.
+    explanation: Go to the upper crystal, turn around, go down, go left to the second crystal, turn around and go to the flag.
+    difficulty: 3
 
   - kind: problem
     id: cs-d2

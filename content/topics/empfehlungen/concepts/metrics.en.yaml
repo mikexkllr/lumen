@@ -5,7 +5,7 @@ summary: Click rates and their side effects.
 locale: en
 license: CC-BY-SA-4.0
 authors: ["Lumen-Team"]
-estimated_minutes: 8
+estimated_minutes: 9
 steps:
   - kind: explain
     id: intro-hook
@@ -32,6 +32,38 @@ steps:
             back: Pay per line of code, and code gets long instead of good.
 
   - kind: problem
+    id: nur-klicks
+    widget: choice
+    prompt: A feed shows only what is clicked most. What will probably win out?
+    params:
+      options:
+        - { label: Sensational titles and outrage, correct: true }
+        - { label: The most thorough articles, feedback: "Thorough does not mean click-heavy." }
+    hints:
+      - What makes people tap quickly?
+    explanation: Clicks measure curiosity, not quality. The system learns to stir curiosity.
+
+  - kind: problem
+    id: start-hundert
+    widget: numeric
+    prompt: 100 people see a post, 5 click on it. What is the click rate in percent?
+    params:
+      unit: "%"
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: inverted-ratio
+        text: "You divided 100 by 5. The question is: how many out of 100 click?"
+      - when: numval(state.input) == 0.05
+        misconception: decimal-not-percent
+        text: That is the share as a decimal. In percent it is 5.
+    hints:
+      - Percent means "out of a hundred".
+      - 5 out of 100 is what percent?
+    explanation: 5 out of 100 is 5%. The click rate tells you what share of viewers click.
+
+  - kind: problem
     id: klickrate
     widget: numeric
     prompt: "{{n}} people see a post, {{k}} click on it. What is the click rate?"
@@ -44,18 +76,6 @@ steps:
       params: { n: "choice[200,500,1000,2000]", p: "int[2,15]" }
       derive: { k: "n * p / 100" }
       defaults: { n: 1000, p: 4 }
-
-  - kind: problem
-    id: nur-klicks
-    widget: choice
-    prompt: A feed shows only what is clicked most. What will probably win out?
-    params:
-      options:
-        - { label: Sensational titles and outrage, correct: true }
-        - { label: The most thorough articles, feedback: "Thorough does not mean click-heavy." }
-    hints:
-      - What makes people tap quickly?
-    explanation: Clicks measure curiosity, not quality. The system learns to stir curiosity.
 
   - kind: explain
     id: s3
