@@ -25,17 +25,44 @@ steps:
           - 20
 
   - kind: problem
-    id: ma-hook
-    widget: estimate
-    prompt: "Schätz mal: Wie viel sind 15 % von 60 €?"
+    id: einstieg-ganz
+    widget: choice
+    prompt: "100 % heißt: alles. Wie viel sind 100 % von 30 €?"
     params:
-      min: 0
-      max: 30
+      layout: grid
+      options:
+        - label: 30 €
+          correct: true
+        - label: 3 €
+          feedback: Das sind 10 %. Bei 100 % ist es der ganze Betrag.
+        - label: 15 €
+          feedback: Das ist die Hälfte, also 50 %.
+        - label: 100 €
+          feedback: "100 % heißt nicht 100 €. Es heißt: der ganze Betrag."
+    hints:
+      - Prozent heißt »von hundert«. 100 von 100 Teilen sind alle Teile.
+      - Gesucht ist also der ganze Betrag.
+    explanation: 100 % ist immer das Ganze – hier also 30 €.
+
+  - kind: problem
+    id: einstieg-haelfte
+    widget: numeric
+    prompt: 50 % ist die Hälfte. Wie viel sind 50 % von 8 €?
+    params:
       unit: €
     answer:
-      value: 9
-      tolerance: 2
-    explanation: 10 % sind 6 €, 5 % sind 3 €. Zusammen 9 €.
+      value: 4
+    feedback:
+      - when: numval(state.input) == 8
+        misconception: whole-not-half
+        text: Das sind 100 %. Die Hälfte ist weniger.
+      - when: numval(state.input) == 16
+        misconception: doubled
+        text: Du hast verdoppelt. 50 % ist die Hälfte.
+    hints:
+      - Teile 8 € in zwei gleiche Teile.
+      - Welche Zahl ergibt doppelt genommen 8?
+    explanation: "Die Hälfte von 8 € sind 4 €. 50 % heißt immer: durch 2 teilen."
 
   - kind: problem
     id: zehn
@@ -49,6 +76,19 @@ steps:
     variants:
       params: { n: "step[20,90,10]" }
       defaults: { n: 60 }
+
+  - kind: problem
+    id: ma-hook
+    widget: estimate
+    prompt: "Schätz mal: Wie viel sind 15 % von 60 €?"
+    params:
+      min: 0
+      max: 30
+      unit: €
+    answer:
+      value: 9
+      tolerance: 2
+    explanation: 10 % sind 6 €, 5 % sind 3 €. Zusammen 9 €.
 
   - kind: explain
     id: s2

@@ -1,0 +1,364 @@
+id: math.start.double
+type: concept
+title: "Verdoppeln, Halbieren und der Zehnertrick"
+summary: "Drei Abkürzungen, mit denen Kopfrechnen leicht wird: mal 2, durch 2 und mal 10."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Der Zahlenspiegel
+    body: Ein Spiegel zeigt alles doppelt. Färbe oben 3 Felder und unten genau dieselben. Der Zähler zeigt jetzt 6. Das ist das **Doppelte** von 3. Probier es auch mit 4 und mit 5.
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 2
+        cols: 5
+        mirror: horizontal
+        counter: true
+
+  - kind: problem
+    id: sterne
+    widget: numeric
+    prompt: Du hast 4 Sterne. Lena hat doppelt so viele. Wie viele Sterne hat Lena?
+    body: ⭐⭐⭐⭐   ⭐⭐⭐⭐
+    answer:
+      value: 8
+    feedback:
+      - when: numval(state.input) == 6
+        misconception: added-two
+        text: "Du hast 4 + 2 gerechnet. Doppelt heißt: 4 und noch einmal 4."
+      - when: numval(state.input) == 4
+        misconception: not-doubled
+        text: So viele hast du selbst. Lena hat zweimal so viele.
+    hints:
+      - "Doppelt heißt: dieselbe Menge noch einmal dazu."
+      - Rechne 4 + 4.
+    explanation: 4 + 4 = 8. Das Doppelte von 4 ist 8.
+
+  - kind: problem
+    id: spiegeln
+    widget: pixels
+    prompt: Unten sind 3 Felder gefärbt. Färbe oben genau dieselben – so verdoppelst du.
+    params:
+      cells:
+        - .....
+        - "###.."
+      locked:
+        - .....
+        - xxxxx
+      mirror: horizontal
+      counter: true
+    answer:
+      pattern:
+        - "###.."
+        - "###.."
+    feedback:
+      - when: on == 3
+        misconception: not-doubled
+        text: Oben fehlt noch das Spiegelbild. Tippe die drei Felder über den gefärbten an.
+      - when: on > 6
+        misconception: too-many
+        text: Das sind zu viele. Oben sollen genauso viele Felder gefärbt sein wie unten.
+    hints:
+      - Der Spiegel liegt zwischen den beiden Reihen.
+      - Färbe oben die ersten 3 Felder. Der Zähler zeigt dann 6.
+    explanation: 3 Felder und ihr Spiegelbild sind zusammen 6. Das Doppelte von 3 ist 6.
+
+  - kind: problem
+    id: haelfte-tafel
+    widget: fraction
+    prompt: Die Tafel hat 6 Stücke. Färbe die Hälfte.
+    params:
+      parts: 6
+      shape: square
+    answer:
+      fraction: 1/2
+    feedback:
+      - when: shadedCount == 6
+        misconception: whole-not-half
+        text: Das ist die ganze Tafel. Die Hälfte ist nur einer von zwei gleichen Teilen.
+      - when: shadedCount > 0 && shadedCount < 3
+        misconception: less-than-half
+        text: Das ist weniger als die Hälfte. Beide Teile müssen gleich groß sein.
+      - when: shadedCount > 3
+        misconception: more-than-half
+        text: Das ist mehr als die Hälfte. Beide Teile müssen gleich groß sein.
+    hints:
+      - "Die Hälfte heißt: zwei gleich große Teile."
+      - 3 + 3 = 6. Färbe 3 Stücke.
+    explanation: Die Hälfte von 6 ist 3, denn 3 + 3 = 6.
+
+  - kind: explain
+    id: idee
+    body: "**Verdoppeln** heißt: dieselbe Zahl noch einmal dazu. Das ist dasselbe wie mal 2. Halbieren macht es rückgängig: Du teilst in zwei gleiche Teile. Das Doppelte von 6 ist 12, die Hälfte von 12 ist 6."
+
+  - kind: problem
+    id: verdoppeln
+    widget: numeric
+    prompt: Verdopple {{n}}.
+    answer:
+      value: "{{2 * n}}"
+    feedback:
+      - when: numval(state.input) == n + 2
+        misconception: added-two
+        text: Das sind nur 2 mehr. Verdoppeln heißt {{n}} + {{n}}.
+      - when: numval(state.input) == n
+        misconception: not-doubled
+        text: Das ist die Zahl selbst. Nimm sie zweimal.
+    hints:
+      - "Verdoppeln heißt: dieselbe Zahl noch einmal dazu."
+      - Rechne {{n}} + {{n}}.
+    explanation: "{{n}} + {{n}} = {{2 * n}}."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 7
+
+  - kind: problem
+    id: halbieren
+    widget: numeric
+    prompt: Halbiere {{2 * n}}.
+    answer:
+      value: "{{n}}"
+    feedback:
+      - when: numval(state.input) == 4 * n
+        misconception: doubled
+        text: Du hast verdoppelt. Halbieren teilt in zwei gleiche Teile.
+      - when: numval(state.input) == 2 * n - 2
+        misconception: subtracted-two
+        text: Das sind nur 2 weniger. Gesucht ist die Zahl, die doppelt genommen {{2 * n}} ergibt.
+    hints:
+      - Welche Zahl ergibt doppelt genommen {{2 * n}}?
+      - "Probier es aus: {{n - 1}} + {{n - 1}} = {{2 * n - 2}} ist knapp zu wenig."
+    explanation: "{{n}} + {{n}} = {{2 * n}}. Also ist die Hälfte von {{2 * n}} gleich {{n}}."
+    variants:
+      params:
+        n: int[3,12]
+      defaults:
+        n: 8
+
+  - kind: explain
+    id: stangen
+    body: Eine Stange hat 10 Würfel. Wie viele Würfel haben 3 Stangen? Überleg kurz, dann deck auf.
+    reveal:
+      body: "Es sind 30, also 3 · 10. Mal 10 ist leicht: Häng eine 0 an. Aus 3 wird 30, aus 7 wird 70. Das ist der **Zehnertrick**."
+
+  - kind: problem
+    id: mal-zehn
+    widget: numeric
+    prompt: Rechne {{n}} · 10.
+    answer:
+      value: "{{10 * n}}"
+    feedback:
+      - when: numval(state.input) == n + 10
+        misconception: added-factors
+        text: "Das wäre {{n}} + 10. Mal 10 heißt: Häng an die {{n}} eine 0 an."
+      - when: numval(state.input) == 100 * n
+        misconception: too-many-zeros
+        text: Das ist eine 0 zu viel. Mal 10 hängt genau eine 0 an.
+    hints:
+      - Stell dir {{n}} Zehnerstangen vor.
+      - "Mal 10: Häng an die {{n}} eine 0 an."
+    explanation: "{{n}} · 10 = {{10 * n}}. Jede Ziffer rutscht eine Stelle nach links."
+    variants:
+      params:
+        n: int[2,15]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mal-vier
+    depth: 2
+    widget: numeric
+    prompt: Mal 4 heißt zweimal verdoppeln. Rechne 4 · {{n}}.
+    answer:
+      value: "{{4 * n}}"
+    feedback:
+      - when: numval(state.input) == 2 * n
+        misconception: doubled-once
+        text: Das ist erst einmal verdoppelt. Verdopple die {{2 * n}} noch einmal.
+      - when: numval(state.input) == n + 4
+        misconception: added-factors
+        text: Das wäre {{n}} + 4. Gesucht ist viermal die {{n}}.
+    hints:
+      - Verdopple {{n}}. Das ergibt {{2 * n}}.
+      - Verdopple jetzt die {{2 * n}}.
+    explanation: "{{n}} → {{2 * n}} → {{4 * n}}. Zweimal verdoppeln ist mal 4."
+    difficulty: 2
+    variants:
+      params:
+        n: int[3,9]
+      defaults:
+        n: 6
+
+  - kind: problem
+    id: mal-fuenf
+    depth: 2
+    widget: numeric
+    prompt: Mal 5 ist mal 10 und dann halbieren. Rechne 5 · {{n}}.
+    answer:
+      value: "{{5 * n}}"
+    feedback:
+      - when: numval(state.input) == 10 * n
+        misconception: forgot-halving
+        text: Das ist {{n}} · 10. Jetzt noch halbieren.
+      - when: numval(state.input) == n + 5
+        misconception: added-factors
+        text: Das wäre {{n}} + 5. Gesucht ist fünfmal die {{n}}.
+    hints:
+      - "{{n}} · 10 = {{10 * n}}."
+      - Halbiere jetzt die {{10 * n}}.
+    explanation: "{{n}} · 10 = {{10 * n}}. Die Hälfte davon ist {{5 * n}}."
+    difficulty: 2
+    variants:
+      params:
+        n: step[4,12,2]
+      defaults:
+        n: 8
+
+  - kind: problem
+    id: blitz
+    depth: 2
+    widget: swipe
+    prompt: "Blitzrunde: Stimmt das?"
+    params:
+      cards:
+        - text: 12 · 10 = 120
+          right: true
+        - text: 10 · 10 = 20
+          right: false
+          why: "Das wäre 10 + 10. Mal 10 hängt eine 0 an: 100."
+        - text: "70 : 10 = 7"
+          right: true
+          why: "Der Zehnertrick rückwärts: Die 0 am Ende fällt wieder weg."
+        - text: Die Hälfte von 30 ist 10.
+          right: false
+          why: 10 + 10 ist nur 20. Die Hälfte von 30 ist 15.
+    difficulty: 2
+
+  - kind: problem
+    id: gleich-viel
+    depth: 2
+    widget: match
+    prompt: Was ist gleich viel? Verbinde.
+    params:
+      pairs:
+        - left: das Doppelte von 15
+          right: 3 · 10
+        - left: die Hälfte von 40
+          right: 2 · 10
+        - left: das Doppelte von 25
+          right: 5 · 10
+        - left: die Hälfte von 80
+          right: 4 · 10
+    hints:
+      - Rechne zuerst die linke Seite aus.
+      - Das Doppelte von 15 ist 30. Welche Zehner-Aufgabe ergibt 30?
+    explanation: 30, 20, 50 und 40 – links und rechts steht jeweils dasselbe.
+    difficulty: 2
+
+  - kind: problem
+    id: mal-zwanzig
+    depth: 3
+    widget: numeric
+    prompt: "Rechne 20 · 7. Tipp: erst mal 2, dann mal 10."
+    answer:
+      value: 140
+    feedback:
+      - when: numval(state.input) == 14
+        misconception: partial-product
+        text: Das ist erst 7 · 2. Jetzt noch mal 10.
+      - when: numval(state.input) == 27
+        misconception: added-factors
+        text: Das wäre 20 + 7. Gesucht ist zwanzigmal die 7.
+    hints:
+      - 7 · 2 = 14.
+      - "Jetzt 14 · 10: Häng eine 0 an."
+    explanation: 7 · 2 = 14 und 14 · 10 = 140. Also ist 20 · 7 = 140.
+    difficulty: 3
+
+  - kind: problem
+    id: gerade
+    depth: 3
+    widget: buckets
+    prompt: Welche Zahlen lassen sich ohne Rest halbieren?
+    params:
+      buckets:
+        - id: b1
+          label: geht auf
+        - id: b2
+          label: einer bleibt übrig
+      items:
+        - label: "14"
+          bucket: b1
+        - label: "9"
+          bucket: b2
+        - label: "30"
+          bucket: b1
+        - label: "25"
+          bucket: b2
+        - label: "18"
+          bucket: b1
+        - label: "7"
+          bucket: b2
+    hints:
+      - Stell dir vor, du teilst die Zahl gerecht auf zwei Kinder auf.
+      - "Schau auf die letzte Ziffer: Bei 0, 2, 4, 6 oder 8 geht es immer auf."
+    explanation: "14, 30 und 18 gehen auf: Das sind gerade Zahlen. Bei 9, 25 und 7 bleibt einer übrig: Sie sind ungerade."
+    difficulty: 3
+
+  - kind: problem
+    id: haelfte-zerlegen
+    depth: 3
+    widget: numeric
+    prompt: "Halbiere 70. Tipp: Zerlege in 60 und 10."
+    answer:
+      value: 35
+    feedback:
+      - when: numval(state.input) == 30
+        misconception: partial-half
+        text: Das ist die Hälfte von 60. Die Hälfte von 10 fehlt noch.
+      - when: numval(state.input) == 140
+        misconception: doubled
+        text: Du hast verdoppelt. Halbieren teilt in zwei gleiche Teile.
+    hints:
+      - Die Hälfte von 60 ist 30.
+      - Die Hälfte von 10 ist 5. Zähl beides zusammen.
+    explanation: "30 + 5 = 35. Probe: 35 + 35 = 70."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, warum man bei mal 10 einfach eine 0 anhängt.
+    params:
+      keywords:
+        - - "null"
+          - zero
+          - nought
+        - - stelle
+          - links
+          - platz
+          - place
+          - left
+          - position
+        - - zehner
+          - zehnmal
+          - mal 10
+          - tens
+          - ten times
+          - times 10
+      sample: Mal 10 macht aus jedem Einer einen Zehner. Jede Ziffer rutscht eine Stelle nach links. Auf dem freien Platz ganz rechts steht dann eine Null.
+    explanation: "Kernidee: Mal 10 schiebt jede Ziffer eine Stelle nach links, die Null füllt den freien Platz."
+    difficulty: 3
+
+srs:
+  cards_from: ["verdoppeln", "halbieren", "mal-zehn"]

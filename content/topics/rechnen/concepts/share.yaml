@@ -1,0 +1,341 @@
+id: math.start.share
+type: concept
+title: "Teilen"
+summary: "Gerecht verteilen, Gruppen bilden – und Teilen als Malnehmen rückwärts."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Gerecht verteilen
+    body: "12 Kekse für 3 Kinder – jedes soll gleich viele bekommen. Jede Reihe gehört einem Kind. Färbe eine Reihe und lies den Zähler: So viele Kekse bekommt jedes Kind. Das ist **Teilen**."
+    visual:
+      widget: pixels
+      interactive: true
+      params:
+        rows: 3
+        cols: 4
+        counter: true
+
+  - kind: problem
+    id: kekse
+    widget: numeric
+    prompt: 6 Kekse für 2 Kinder. Beide bekommen gleich viele. Wie viele bekommt jedes Kind?
+    body: 🍪🍪🍪🍪🍪🍪
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: subtracted
+        text: Du hast 6 − 2 gerechnet. Verteil die Kekse gerecht auf beide Kinder.
+      - when: numval(state.input) == 12
+        misconception: multiplied
+        text: Das wäre 6 mal 2. Hier wird aber verteilt – jedes Kind bekommt weniger als 6.
+      - when: numval(state.input) == 6
+        misconception: not-shared
+        text: Das sind alle Kekse. Die beiden Kinder müssen sie sich teilen.
+    hints:
+      - "Verteil abwechselnd: ein Keks für das eine Kind, ein Keks für das andere."
+      - Nach drei Runden sind alle 6 Kekse verteilt.
+    explanation: Jedes Kind bekommt 3 Kekse, denn 3 + 3 = 6.
+
+  - kind: problem
+    id: tafel
+    widget: fraction
+    prompt: Die Tafel hat 8 Stücke. Zwei Kinder teilen gerecht. Färbe alle Stücke für ein Kind.
+    params:
+      parts: 8
+      shape: square
+    answer:
+      fraction: 1/2
+    feedback:
+      - when: shadedCount == 8
+        misconception: not-shared
+        text: Das ist die ganze Tafel. Ein Kind bekommt nur einen von zwei gleichen Teilen.
+      - when: shadedCount > 0 && shadedCount < 4
+        misconception: unfair-share
+        text: Das ist zu wenig. Beide Kinder sollen gleich viele Stücke bekommen.
+      - when: shadedCount > 4
+        misconception: unfair-share
+        text: Das ist zu viel. Dann bleibt für das andere Kind weniger übrig.
+    hints:
+      - Beide Kinder bekommen gleich viele Stücke.
+      - 4 + 4 = 8. Färbe 4 Stücke.
+    explanation: "8 Stücke für 2 Kinder: Jedes bekommt 4 Stücke."
+
+  - kind: problem
+    id: socken
+    widget: choice
+    prompt: 10 Socken. Immer 2 gehören zusammen. Wie viele Paare sind das?
+    body: 🧦🧦   🧦🧦   🧦🧦   🧦🧦   🧦🧦
+    params:
+      layout: grid
+      options:
+        - label: "5"
+          correct: true
+        - label: "8"
+          feedback: Du hast 10 − 2 gerechnet. Zähl lieber die Zweier-Gruppen.
+        - label: "20"
+          feedback: Das wäre 10 mal 2. Hier wird in Gruppen aufgeteilt.
+        - label: "2"
+          feedback: So viele Socken hat ein Paar. Gefragt ist die Zahl der Paare.
+    hints:
+      - Zähl die Zweier-Gruppen.
+      - 2, 4, 6, 8, 10 – das sind fünf Schritte.
+    explanation: 10 Socken in Zweier-Gruppen ergeben 5 Paare.
+
+  - kind: explain
+    id: geteilt-idee
+    body: "Fürs Teilen schreibst du einen Doppelpunkt: 12 : 3 = 4. Das liest du »12 **geteilt durch** 3 ist 4«. Du verteilst 12 gerecht auf 3 – jeder bekommt 4."
+
+  - kind: problem
+    id: reihen-teilen
+    widget: rect
+    prompt: Verteil 12 Kästchen auf 3 gleich lange Reihen. Bau das Rechteck.
+    params:
+      maxW: 6
+      maxH: 5
+      w: 1
+      h: 1
+      show: []
+      unit: cm
+    check:
+      predicate: h == 3 && w == 4
+    feedback:
+      - when: h == 3 && w != 4
+        misconception: wrong-width
+        text: "3 Reihen stimmen schon. Zähl nach: Es sollen genau 12 Kästchen sein."
+      - when: w == 3 && h == 4
+        misconception: rows-columns-swapped
+        text: Das sind 4 Reihen zu je 3 Kästchen. Gesucht sind 3 Reihen.
+    hints:
+      - Stell zuerst 3 Reihen ein. Die Zahl rechts zählt die Reihen.
+      - "Mach die Reihen dann länger und zähl mit: 3, 6, 9, 12."
+    explanation: "12 : 3 = 4. Jede der 3 Reihen bekommt 4 Kästchen."
+
+  - kind: explain
+    id: umkehr-idee
+    body: "Teilen ist Malnehmen rückwärts. Weil 3 · 4 = 12 ist, gilt auch 12 : 3 = 4. Frag dich also: 3 mal wie viel ist 12? Das nennt man **Umkehraufgabe**."
+
+  - kind: problem
+    id: umkehren
+    widget: numeric
+    prompt: "{{a}} · {{b}} = {{a * b}}. Wie viel ist dann {{a * b}} : {{a}}?"
+    answer:
+      value: "{{b}}"
+    feedback:
+      - when: numval(state.input) == a
+        misconception: divisor-as-answer
+        text: Durch {{a}} wird geteilt. Gesucht ist die andere Zahl aus der Mal-Aufgabe.
+      - when: numval(state.input) == a * b
+        misconception: dividend-as-answer
+        text: Das ist die Zahl, die geteilt wird. Schau noch einmal auf die Mal-Aufgabe.
+    hints:
+      - "Frag dich: {{a}} mal wie viel ist {{a * b}}?"
+      - Die Antwort steht schon in der Mal-Aufgabe davor.
+    explanation: "Weil {{a}} · {{b}} = {{a * b}} ist, gilt {{a * b}} : {{a}} = {{b}}."
+    variants:
+      params:
+        a: int[2,5]
+        b: int[3,9]
+      constraints:
+        - a != b
+      defaults:
+        a: 3
+        b: 5
+
+  - kind: problem
+    id: teilen-klein
+    widget: numeric
+    prompt: "Rechne {{a * b}} : {{b}}."
+    answer:
+      value: "{{a}}"
+    feedback:
+      - when: numval(state.input) == a * b - b
+        misconception: subtracted
+        text: "Du hast abgezogen. Teilen heißt: gerecht auf {{b}} verteilen."
+      - when: numval(state.input) == b
+        misconception: divisor-as-answer
+        text: Durch {{b}} wird geteilt. Gesucht ist, wie oft die {{b}} in {{a * b}} passt.
+    hints:
+      - "Frag dich: {{b}} mal wie viel ist {{a * b}}?"
+      - Zähl in {{b}}er-Schritten bis {{a * b}}. Wie viele Schritte brauchst du?
+    explanation: "{{a}} · {{b}} = {{a * b}}, also ist {{a * b}} : {{b}} = {{a}}."
+    variants:
+      params:
+        a: int[2,9]
+        b: choice[2,5,10]
+      constraints:
+        - a != b
+      defaults:
+        a: 4
+        b: 5
+
+  - kind: problem
+    id: rest-bonbons
+    depth: 2
+    widget: numeric
+    prompt: 7 Bonbons für 2 Kinder. Jedes bekommt 3. Wie viele Bonbons bleiben übrig?
+    body: 🍬🍬🍬   🍬🍬🍬   🍬
+    answer:
+      value: 1
+    feedback:
+      - when: numval(state.input) == 3
+        misconception: quotient-as-remainder
+        text: So viele bekommt jedes Kind. Gefragt ist, was am Ende übrig bleibt.
+      - when: numval(state.input) == 6
+        misconception: shared-total
+        text: So viele sind verteilt. Wie viele von den 7 liegen dann noch da?
+    hints:
+      - "Zwei Kinder mit je 3 Bonbons: Wie viele sind dann verteilt?"
+      - 2 · 3 = 6 sind verteilt. Zieh das von 7 ab.
+    explanation: 2 · 3 = 6 Bonbons sind verteilt. Von 7 bleibt 1 übrig.
+    difficulty: 2
+
+  - kind: explain
+    id: rest-idee
+    depth: 2
+    body: "Manchmal geht Teilen nicht auf. Was übrig bleibt, heißt **Rest**. Man schreibt: 7 : 2 = 3 Rest 1. Der Rest ist immer kleiner als die Zahl, durch die du teilst."
+
+  - kind: problem
+    id: aufgehen
+    depth: 2
+    widget: buckets
+    prompt: Geht es auf oder bleibt ein Rest?
+    params:
+      buckets:
+        - id: b1
+          label: geht auf
+        - id: b2
+          label: Rest bleibt
+      items:
+        - label: "10 : 2"
+          bucket: b1
+        - label: "9 : 2"
+          bucket: b2
+        - label: "15 : 5"
+          bucket: b1
+        - label: "12 : 5"
+          bucket: b2
+        - label: "20 : 10"
+          bucket: b1
+        - label: "7 : 3"
+          bucket: b2
+    hints:
+      - Such zu jeder Aufgabe die passende Mal-Aufgabe.
+      - In Zweierschritten kommst du auf 8 und 10, aber nie auf 9.
+    explanation: "10, 15 und 20 stehen in der passenden Reihe. Bei 9 : 2, 12 : 5 und 7 : 3 bleibt etwas übrig."
+    difficulty: 2
+
+  - kind: problem
+    id: gruppen
+    depth: 2
+    widget: numeric
+    prompt: 24 Kinder bilden 4 gleich große Gruppen. Wie viele Kinder sind in jeder Gruppe?
+    answer:
+      value: 6
+    feedback:
+      - when: numval(state.input) == 20
+        misconception: subtracted
+        text: Du hast 24 − 4 gerechnet. Verteil die 24 Kinder gerecht auf 4 Gruppen.
+      - when: numval(state.input) == 96
+        misconception: multiplied
+        text: Das wäre 24 mal 4. Eine Gruppe ist aber kleiner als die ganze Klasse.
+    hints:
+      - "Frag dich: 4 mal wie viel ist 24?"
+      - 4 · 5 = 20 ist zu wenig. Probier die nächste Zahl.
+    explanation: "4 · 6 = 24, also ist 24 : 4 = 6. In jeder Gruppe sind 6 Kinder."
+    difficulty: 2
+
+  - kind: problem
+    id: zweimal-halbieren
+    depth: 3
+    widget: numeric
+    prompt: "Rechne 36 : 4. Tipp: Durch 4 teilen heißt zweimal halbieren."
+    answer:
+      value: 9
+    feedback:
+      - when: numval(state.input) == 18
+        misconception: halved-once
+        text: Das ist erst einmal halbiert. Halbiere die 18 noch einmal.
+      - when: numval(state.input) == 32
+        misconception: subtracted
+        text: Du hast 36 − 4 gerechnet. Gesucht ist ein Viertel von 36.
+    hints:
+      - Die Hälfte von 36 ist 18.
+      - Halbiere jetzt die 18.
+    explanation: "36 → 18 → 9. Probe: 4 · 9 = 36."
+    difficulty: 3
+
+  - kind: problem
+    id: durch-null
+    depth: 3
+    widget: choice
+    prompt: "Was stimmt für 6 : 0?"
+    params:
+      options:
+        - label: Das geht gar nicht
+          correct: true
+        - label: Es ist 0
+          feedback: "Mach die Probe: 0 · 0 ist 0 und nicht 6."
+        - label: Es ist 6
+          feedback: "Mach die Probe: 6 · 0 ist 0 und nicht 6."
+    hints:
+      - "Nimm die Umkehraufgabe: Welche Zahl mal 0 ergibt 6?"
+      - Jede Zahl mal 0 ist 0. Die 6 kommt nie heraus.
+    explanation: Keine Zahl mal 0 ergibt 6. Darum kann man nicht durch 0 teilen.
+    difficulty: 3
+
+  - kind: problem
+    id: sticker
+    depth: 3
+    widget: numeric
+    prompt: Du hast 23 Sticker und klebst immer 5 in eine Reihe. Wie viele Sticker bleiben übrig?
+    answer:
+      value: 3
+    feedback:
+      - when: numval(state.input) == 4
+        misconception: quotient-as-remainder
+        text: Das sind die vollen Reihen. Gefragt ist, wie viele Sticker übrig bleiben.
+      - when: numval(state.input) == 18
+        misconception: subtracted
+        text: Du hast 23 − 5 gerechnet. Es werden aber mehrere Reihen voll.
+    hints:
+      - Zähl in Fünferschritten, bis du kurz vor der 23 bist.
+      - 4 · 5 = 20 Sticker sind verklebt. Wie viele fehlen bis 23?
+    explanation: "4 volle Reihen sind 20 Sticker. Von 23 bleiben 3 übrig: 23 : 5 = 4 Rest 3."
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie dir Malnehmen beim Teilen hilft.
+    params:
+      keywords:
+        - - mal
+          - multipl
+          - times
+        - - rückwärts
+          - umkehr
+          - umgekehrt
+          - backwards
+          - reverse
+          - inverse
+        - - wie viel
+          - wie oft
+          - welche zahl
+          - how many
+          - times what
+          - which number
+          - what number
+      sample: "Teilen ist Malnehmen rückwärts. Bei 12 : 3 frage ich mich: 3 mal wie viel ist 12? Die Antwort ist 4."
+    explanation: "Kernidee: Jede Geteilt-Aufgabe ist eine Mal-Aufgabe mit einer Lücke."
+    difficulty: 3
+
+srs:
+  cards_from: ["umkehren", "teilen-klein"]

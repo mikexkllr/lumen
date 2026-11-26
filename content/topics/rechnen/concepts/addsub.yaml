@@ -1,0 +1,398 @@
+id: math.start.addsub
+type: concept
+title: "Plus und Minus"
+summary: "Dazutun und wegnehmen – erst bis 10, dann über die 10 und mit ganzen Zehnern."
+locale: de
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Hüpfen auf dem Zahlenstrahl
+    body: Bei **Plus** kommt etwas dazu, bei **Minus** geht etwas weg. Die Markierung steht auf der 8. Schieb sie 3 Schritte nach rechts – das ist 8 + 3. Und was passiert bei 3 Schritten nach links?
+    visual:
+      widget: numberline
+      interactive: true
+      params:
+        min: 0
+        max: 20
+        ticks: 1
+        labels: none
+        initial: 8
+        markers:
+          - value: 0
+            label: "0"
+          - value: 5
+            label: "5"
+          - value: 10
+            label: "10"
+          - value: 15
+            label: "15"
+          - value: 20
+            label: "20"
+
+  - kind: problem
+    id: dazu
+    widget: numeric
+    prompt: Du hast 3 Murmeln und bekommst 2 dazu. Wie viele hast du jetzt?
+    body: 🔵🔵🔵   🔵🔵
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: subtracted
+        text: Du hast weggenommen. Hier kommen aber 2 Murmeln dazu – es werden mehr.
+      - when: numval(state.input) == 4 || numval(state.input) == 6
+        misconception: miscount
+        text: Knapp daneben. Zähl alle Murmeln noch einmal in Ruhe.
+    hints:
+      - Zähl alle Murmeln zusammen.
+      - "Fang bei 3 an und zähl 2 weiter: 4, 5."
+    explanation: "3 Murmeln und 2 dazu sind 5. Man schreibt: 3 + 2 = 5."
+
+  - kind: problem
+    id: weg
+    widget: choice
+    prompt: Auf dem Teller liegen 7 Kekse. Du isst 2 davon. Wie viele bleiben übrig?
+    body: 🍪🍪🍪🍪🍪🍪🍪
+    params:
+      layout: grid
+      options:
+        - label: "5"
+          correct: true
+        - label: "9"
+          feedback: Du hast dazugezählt. Die 2 Kekse sind aber weg.
+        - label: "2"
+          feedback: So viele hast du gegessen. Gefragt ist, wie viele noch da sind.
+        - label: "7"
+          feedback: So viele waren es am Anfang. Zwei davon sind jetzt weg.
+    hints:
+      - Deck zwei Kekse mit dem Finger zu und zähl den Rest.
+      - "Zähl von der 7 zwei Schritte zurück: 6, 5."
+    explanation: "7 Kekse, 2 gehen weg, 5 bleiben. Man schreibt: 7 − 2 = 5."
+
+  - kind: problem
+    id: strahl-plus
+    widget: numberline
+    prompt: "Rechne 6 + 3 auf dem Zahlenstrahl: Geh von der 6 drei Schritte nach rechts."
+    params:
+      min: 0
+      max: 10
+      ticks: 1
+      initial: 6
+    answer:
+      value: 9
+    feedback:
+      - when: state.value == 3
+        misconception: wrong-direction
+        text: Das war nach links, also minus. Plus geht nach rechts.
+      - when: state.value == 6
+        misconception: not-moved
+        text: Die Markierung steht noch auf der 6. Schieb sie 3 Schritte nach rechts.
+    hints:
+      - "Plus heißt: nach rechts, zu den größeren Zahlen."
+      - "Zähl von der 6 weiter: 7, 8 und noch ein Schritt."
+    explanation: "Von der 6 drei Schritte nach rechts: 7, 8, 9. Also ist 6 + 3 = 9."
+
+  - kind: explain
+    id: zeichen
+    body: "Das Zeichen + liest du »plus«: Es kommt etwas dazu. Das Zeichen − liest du »minus«: Es geht etwas weg. Hinter dem **Gleichzeichen** steht das Ergebnis: 3 + 2 = 5."
+
+  - kind: problem
+    id: plus-klein
+    widget: numeric
+    prompt: Rechne {{a}} + {{b}}.
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: subtracted
+        text: Du hast abgezogen. Bei Plus kommt etwas dazu.
+      - when: numval(state.input) == a + b - 1 || numval(state.input) == a + b + 1
+        misconception: off-by-one
+        text: Knapp daneben. Zähl von {{a}} aus genau {{b}} Schritte weiter.
+    hints:
+      - Fang bei {{a}} an und zähl {{b}} Schritte weiter.
+      - "Nimm die Finger dazu: für jeden Schritt einen Finger."
+    explanation: "{{a}} + {{b}} = {{a + b}}."
+    variants:
+      params:
+        a: int[3,6]
+        b: int[2,4]
+      defaults:
+        a: 4
+        b: 3
+
+  - kind: problem
+    id: minus-klein
+    widget: numeric
+    prompt: Rechne {{a}} − {{b}}.
+    answer:
+      value: "{{a - b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: added
+        text: Du hast dazugezählt. Bei Minus geht etwas weg.
+      - when: numval(state.input) == a - b - 1 || numval(state.input) == a - b + 1
+        misconception: off-by-one
+        text: Knapp daneben. Zähl von {{a}} aus genau {{b}} Schritte zurück.
+    hints:
+      - Fang bei {{a}} an und zähl {{b}} Schritte zurück.
+      - Auf dem Zahlenstrahl gehst du von {{a}} aus {{b}} Schritte nach links.
+    explanation: "{{a}} − {{b}} = {{a - b}}."
+    variants:
+      params:
+        a: int[6,10]
+        b: int[2,4]
+      defaults:
+        a: 9
+        b: 4
+
+  - kind: explain
+    id: freunde-idee
+    body: "Zwei Zahlen, die zusammen 10 ergeben, heißen **Zehnerfreunde**. Im Zehnerfeld siehst du ein Paar: 7 Felder sind gefärbt, 3 sind frei. Also gehören 7 und 3 zusammen."
+    visual:
+      widget: pixels
+      params:
+        cells:
+          - "#####"
+          - "##..."
+
+  - kind: problem
+    id: freund-fehlt
+    widget: numeric
+    prompt: Welche Zahl fehlt? {{a}} + □ = 10
+    answer:
+      value: "{{10 - a}}"
+    feedback:
+      - when: numval(state.input) == 10 + a
+        misconception: added
+        text: Du hast {{a}} und 10 zusammengezählt. Gesucht ist, was von {{a}} bis zur 10 noch fehlt.
+      - when: numval(state.input) == 10
+        misconception: target-as-answer
+        text: Die 10 soll am Ende herauskommen. Gesucht ist der Zehnerfreund von {{a}}.
+    hints:
+      - "Stell dir das Zehnerfeld vor: {{a}} Felder sind gefärbt. Wie viele sind frei?"
+      - Zähl von {{a}} weiter bis zur 10. Wie viele Schritte sind das?
+    explanation: "{{a}} + {{10 - a}} = 10. Die Zahlen {{a}} und {{10 - a}} sind Zehnerfreunde."
+    variants:
+      params:
+        a: int[1,9]
+      defaults:
+        a: 6
+
+  - kind: problem
+    id: freunde-paare
+    depth: 2
+    widget: match
+    prompt: Verbinde die Zehnerfreunde.
+    params:
+      pairs:
+        - left: "1"
+          right: "9"
+        - left: "2"
+          right: "8"
+        - left: "3"
+          right: "7"
+        - left: "4"
+          right: "6"
+    hints:
+      - Jedes Paar ergibt zusammen 10.
+      - Zähl von der linken Zahl bis zur 10. So groß ist ihr Partner.
+    explanation: 1 + 9, 2 + 8, 3 + 7 und 4 + 6 ergeben alle 10.
+    difficulty: 2
+
+  - kind: problem
+    id: ueber-zehn-strahl
+    depth: 2
+    widget: numberline
+    prompt: Rechne 8 + 5 auf dem Zahlenstrahl. Geh erst bis zur 10, dann weiter.
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      initial: 8
+      markers:
+        - value: 0
+          label: "0"
+        - value: 5
+          label: "5"
+        - value: 10
+          label: "10"
+        - value: 15
+          label: "15"
+        - value: 20
+          label: "20"
+    answer:
+      value: 13
+    feedback:
+      - when: state.value == 3
+        misconception: wrong-direction
+        text: Das war nach links, also 8 − 5. Plus geht nach rechts.
+      - when: state.value == 10
+        misconception: stopped-at-ten
+        text: Bis zur 10 waren es erst 2 Schritte. Es fehlen noch 3.
+    hints:
+      - Von der 8 bis zur 10 sind es 2 Schritte.
+      - Von den 5 Schritten bleiben dann noch 3 übrig. Geh von der 10 weiter.
+    explanation: 8 + 2 = 10 und 10 + 3 = 13. Über die 10 rechnet es sich leicht.
+    difficulty: 2
+
+  - kind: problem
+    id: ueber-zehn
+    depth: 2
+    widget: numeric
+    prompt: Rechne {{a}} + {{b}}. Geh über die 10.
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == a + b - 10
+        misconception: forgot-ten
+        text: Das ist nur das Stück nach der 10. Rechne 10 + {{a + b - 10}}.
+      - when: numval(state.input) == a + b - 1 || numval(state.input) == a + b + 1
+        misconception: off-by-one
+        text: Knapp daneben. Bis zur 10 brauchst du {{10 - a}}, danach kommen noch {{a + b - 10}}.
+    hints:
+      - Bis zur 10 brauchst du {{10 - a}}. Zerlege die {{b}} in {{10 - a}} und {{a + b - 10}}.
+      - "{{a}} + {{10 - a}} = 10. Dann kommen noch {{a + b - 10}} dazu."
+    explanation: "{{a}} + {{10 - a}} = 10 und 10 + {{a + b - 10}} = {{a + b}}."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[7,8,9]
+        b: int[4,6]
+      constraints:
+        - a + b > 11
+      defaults:
+        a: 8
+        b: 6
+
+  - kind: problem
+    id: zehner-plus
+    depth: 2
+    widget: numeric
+    prompt: Rechne {{10 * a}} + {{10 * b}}.
+    answer:
+      value: "{{10 * (a + b)}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: forgot-tens
+        text: Das sind {{a + b}} Zehner. Als Zahl schreibst du {{10 * (a + b)}}.
+    hints:
+      - "Rechne erst nur mit den Zehnern: {{a}} Zehner und {{b}} Zehner."
+      - "{{a}} + {{b}} = {{a + b}}. Es sind also {{a + b}} Zehner."
+    explanation: "{{a}} Zehner und {{b}} Zehner sind {{a + b}} Zehner, also {{10 * (a + b)}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[1,4]
+      defaults:
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: um-die-fuenfzig
+    depth: 3
+    widget: buckets
+    prompt: Ist das Ergebnis kleiner oder größer als 50?
+    params:
+      buckets:
+        - id: b1
+          label: kleiner als 50
+        - id: b2
+          label: größer als 50
+      items:
+        - label: 27 + 8
+          bucket: b1
+        - label: 47 + 8
+          bucket: b2
+        - label: 70 − 30
+          bucket: b1
+        - label: 38 + 20
+          bucket: b2
+        - label: 100 − 60
+          bucket: b1
+        - label: 45 + 9
+          bucket: b2
+    hints:
+      - Geh bei Plus erst bis zum nächsten Zehner.
+      - 47 + 3 = 50, und von der 8 bleiben noch 5 übrig. Das liegt also über 50.
+    explanation: 35, 40 und 40 liegen unter 50. Die Ergebnisse 55, 58 und 54 liegen darüber.
+    difficulty: 3
+
+  - kind: problem
+    id: bis-hundert
+    depth: 3
+    widget: numeric
+    prompt: Wie viel fehlt von {{10 * a}} bis 100?
+    answer:
+      value: "{{10 * (10 - a)}}"
+    feedback:
+      - when: numval(state.input) == 10 - a
+        misconception: forgot-tens
+        text: Das sind {{10 - a}} Zehner. Als Zahl schreibst du {{10 * (10 - a)}}.
+      - when: numval(state.input) == 100 + 10 * a
+        misconception: added
+        text: Du hast zusammengezählt. Gesucht ist das Stück, das bis zur 100 noch fehlt.
+    hints:
+      - "Denk an die Zehnerfreunde: {{a}} + □ = 10."
+      - "{{a}} und {{10 - a}} sind Zehnerfreunde. Also fehlen {{10 - a}} Zehner."
+    explanation: "{{10 * a}} + {{10 * (10 - a)}} = 100. Die Zehnerfreunde helfen auch bei ganzen Zehnern."
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,8]
+      defaults:
+        a: 6
+
+  - kind: problem
+    id: wechselgeld
+    depth: 3
+    widget: numeric
+    prompt: Du zahlst mit 100 Cent. Das Eis kostet 63 Cent. Wie viel bekommst du zurück?
+    params:
+      unit: Cent
+    answer:
+      value: 37
+    feedback:
+      - when: numval(state.input) == 47
+        misconception: tens-too-many
+        text: Fast. Von 63 bis 70 sind es 7. Von 70 bis 100 sind es dann nur noch 30.
+      - when: numval(state.input) == 163
+        misconception: added
+        text: Du hast zusammengezählt. Gesucht ist, was von 63 bis 100 fehlt.
+    hints:
+      - Geh erst von 63 bis zur 70. Das sind 7.
+      - Von 70 bis 100 sind es 30. Zähl 7 und 30 zusammen.
+    explanation: 63 + 7 = 70 und 70 + 30 = 100. Du bekommst 37 Cent zurück.
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Erklär Lux, wie du 8 + 5 im Kopf rechnest.
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+        - - zerleg
+          - aufteil
+          - teile
+          - split
+          - break
+        - - "13"
+          - dreizehn
+          - thirteen
+      sample: "Ich gehe erst bis zur 10. Dafür zerlege ich die 5 in 2 und 3. 8 + 2 = 10, und dann kommen noch 3 dazu: 13."
+    explanation: "Kernidee: Erst bis zur 10 auffüllen, dann den Rest dazu."
+    difficulty: 3
+
+srs:
+  cards_from: ["plus-klein", "minus-klein", "freund-fehlt"]

@@ -1,0 +1,398 @@
+id: math.start.addsub
+type: concept
+title: "Plus and minus"
+summary: "Adding and taking away – first up to 10, then past 10 and with whole tens."
+locale: en
+license: CC-BY-SA-4.0
+authors: ["Lumen-Team"]
+skills: []
+estimated_minutes: 10
+steps:
+  - kind: explain
+    id: intro-hook
+    intro: true
+    title: Hopping along the number line
+    body: With **plus** something is added, with **minus** something goes away. The marker is on 8. Move it 3 steps to the right – that is 8 + 3. And what happens with 3 steps to the left?
+    visual:
+      widget: numberline
+      interactive: true
+      params:
+        min: 0
+        max: 20
+        ticks: 1
+        labels: none
+        initial: 8
+        markers:
+          - value: 0
+            label: "0"
+          - value: 5
+            label: "5"
+          - value: 10
+            label: "10"
+          - value: 15
+            label: "15"
+          - value: 20
+            label: "20"
+
+  - kind: problem
+    id: dazu
+    widget: numeric
+    prompt: You have 3 marbles and get 2 more. How many do you have now?
+    body: 🔵🔵🔵   🔵🔵
+    answer:
+      value: 5
+    feedback:
+      - when: numval(state.input) == 1
+        misconception: subtracted
+        text: You took some away. But here 2 marbles are added – there are more now.
+      - when: numval(state.input) == 4 || numval(state.input) == 6
+        misconception: miscount
+        text: Very close. Count all the marbles once more, slowly.
+    hints:
+      - Count all the marbles together.
+      - "Start at 3 and count on 2 more: 4, 5."
+    explanation: "3 marbles and 2 more make 5. You write: 3 + 2 = 5."
+
+  - kind: problem
+    id: weg
+    widget: choice
+    prompt: There are 7 biscuits on the plate. You eat 2 of them. How many are left?
+    body: 🍪🍪🍪🍪🍪🍪🍪
+    params:
+      layout: grid
+      options:
+        - label: "5"
+          correct: true
+        - label: "9"
+          feedback: You added. But the 2 biscuits are gone.
+        - label: "2"
+          feedback: That is how many you ate. The question is how many are still there.
+        - label: "7"
+          feedback: That is how many there were at the start. Two of them are gone now.
+    hints:
+      - Cover two biscuits with your finger and count the rest.
+      - "Count two steps back from 7: 6, 5."
+    explanation: "7 biscuits, 2 go away, 5 are left. You write: 7 − 2 = 5."
+
+  - kind: problem
+    id: strahl-plus
+    widget: numberline
+    prompt: "Work out 6 + 3 on the number line: go three steps to the right from 6."
+    params:
+      min: 0
+      max: 10
+      ticks: 1
+      initial: 6
+    answer:
+      value: 9
+    feedback:
+      - when: state.value == 3
+        misconception: wrong-direction
+        text: That was to the left, which is minus. Plus goes to the right.
+      - when: state.value == 6
+        misconception: not-moved
+        text: The marker is still on 6. Move it 3 steps to the right.
+    hints:
+      - "Plus means: to the right, towards the bigger numbers."
+      - "Count on from 6: 7, 8 and one more step."
+    explanation: "Three steps to the right from 6: 7, 8, 9. So 6 + 3 = 9."
+
+  - kind: explain
+    id: zeichen
+    body: "You read the sign + as “plus”: something is added. You read the sign − as “minus”: something goes away. After the **equals sign** comes the result: 3 + 2 = 5."
+
+  - kind: problem
+    id: plus-klein
+    widget: numeric
+    prompt: Work out {{a}} + {{b}}.
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == a - b
+        misconception: subtracted
+        text: You subtracted. With plus something is added.
+      - when: numval(state.input) == a + b - 1 || numval(state.input) == a + b + 1
+        misconception: off-by-one
+        text: Very close. Count on exactly {{b}} steps from {{a}}.
+    hints:
+      - Start at {{a}} and count on {{b}} steps.
+      - "Use your fingers: one finger for each step."
+    explanation: "{{a}} + {{b}} = {{a + b}}."
+    variants:
+      params:
+        a: int[3,6]
+        b: int[2,4]
+      defaults:
+        a: 4
+        b: 3
+
+  - kind: problem
+    id: minus-klein
+    widget: numeric
+    prompt: Work out {{a}} − {{b}}.
+    answer:
+      value: "{{a - b}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: added
+        text: You added. With minus something goes away.
+      - when: numval(state.input) == a - b - 1 || numval(state.input) == a - b + 1
+        misconception: off-by-one
+        text: Very close. Count back exactly {{b}} steps from {{a}}.
+    hints:
+      - Start at {{a}} and count back {{b}} steps.
+      - On the number line you go {{b}} steps to the left from {{a}}.
+    explanation: "{{a}} − {{b}} = {{a - b}}."
+    variants:
+      params:
+        a: int[6,10]
+        b: int[2,4]
+      defaults:
+        a: 9
+        b: 4
+
+  - kind: explain
+    id: freunde-idee
+    body: "Two numbers that make 10 together are called **friends of ten**. The ten frame shows one pair: 7 cells are filled, 3 are empty. So 7 and 3 belong together."
+    visual:
+      widget: pixels
+      params:
+        cells:
+          - "#####"
+          - "##..."
+
+  - kind: problem
+    id: freund-fehlt
+    widget: numeric
+    prompt: Which number is missing? {{a}} + □ = 10
+    answer:
+      value: "{{10 - a}}"
+    feedback:
+      - when: numval(state.input) == 10 + a
+        misconception: added
+        text: You added {{a}} and 10. You need what is still missing from {{a}} up to 10.
+      - when: numval(state.input) == 10
+        misconception: target-as-answer
+        text: 10 is what should come out at the end. You need the friend of ten for {{a}}.
+    hints:
+      - "Picture the ten frame: {{a}} cells are filled. How many are empty?"
+      - Count on from {{a}} up to 10. How many steps is that?
+    explanation: "{{a}} + {{10 - a}} = 10. The numbers {{a}} and {{10 - a}} are friends of ten."
+    variants:
+      params:
+        a: int[1,9]
+      defaults:
+        a: 6
+
+  - kind: problem
+    id: freunde-paare
+    depth: 2
+    widget: match
+    prompt: Match the friends of ten.
+    params:
+      pairs:
+        - left: "1"
+          right: "9"
+        - left: "2"
+          right: "8"
+        - left: "3"
+          right: "7"
+        - left: "4"
+          right: "6"
+    hints:
+      - Each pair makes 10 together.
+      - Count from the left number up to 10. That is the size of its partner.
+    explanation: 1 + 9, 2 + 8, 3 + 7 and 4 + 6 all make 10.
+    difficulty: 2
+
+  - kind: problem
+    id: ueber-zehn-strahl
+    depth: 2
+    widget: numberline
+    prompt: Work out 8 + 5 on the number line. Go up to 10 first, then carry on.
+    params:
+      min: 0
+      max: 20
+      ticks: 1
+      labels: none
+      initial: 8
+      markers:
+        - value: 0
+          label: "0"
+        - value: 5
+          label: "5"
+        - value: 10
+          label: "10"
+        - value: 15
+          label: "15"
+        - value: 20
+          label: "20"
+    answer:
+      value: 13
+    feedback:
+      - when: state.value == 3
+        misconception: wrong-direction
+        text: That was to the left, which is 8 − 5. Plus goes to the right.
+      - when: state.value == 10
+        misconception: stopped-at-ten
+        text: Up to 10 was only 2 steps. 3 more are missing.
+    hints:
+      - From 8 up to 10 is 2 steps.
+      - Of the 5 steps, 3 are then left. Carry on from 10.
+    explanation: 8 + 2 = 10 and 10 + 3 = 13. Going through 10 makes it easy.
+    difficulty: 2
+
+  - kind: problem
+    id: ueber-zehn
+    depth: 2
+    widget: numeric
+    prompt: Work out {{a}} + {{b}}. Go through 10.
+    answer:
+      value: "{{a + b}}"
+    feedback:
+      - when: numval(state.input) == a + b - 10
+        misconception: forgot-ten
+        text: That is only the part after 10. Work out 10 + {{a + b - 10}}.
+      - when: numval(state.input) == a + b - 1 || numval(state.input) == a + b + 1
+        misconception: off-by-one
+        text: Very close. You need {{10 - a}} to reach 10, then {{a + b - 10}} more follow.
+    hints:
+      - You need {{10 - a}} to reach 10. Split the {{b}} into {{10 - a}} and {{a + b - 10}}.
+      - "{{a}} + {{10 - a}} = 10. Then {{a + b - 10}} more are added."
+    explanation: "{{a}} + {{10 - a}} = 10 and 10 + {{a + b - 10}} = {{a + b}}."
+    difficulty: 2
+    variants:
+      params:
+        a: choice[7,8,9]
+        b: int[4,6]
+      constraints:
+        - a + b > 11
+      defaults:
+        a: 8
+        b: 6
+
+  - kind: problem
+    id: zehner-plus
+    depth: 2
+    widget: numeric
+    prompt: Work out {{10 * a}} + {{10 * b}}.
+    answer:
+      value: "{{10 * (a + b)}}"
+    feedback:
+      - when: numval(state.input) == a + b
+        misconception: forgot-tens
+        text: That is {{a + b}} tens. As a number you write {{10 * (a + b)}}.
+    hints:
+      - "Work with the tens only at first: {{a}} tens and {{b}} tens."
+      - "{{a}} + {{b}} = {{a + b}}. So there are {{a + b}} tens."
+    explanation: "{{a}} tens and {{b}} tens are {{a + b}} tens, which is {{10 * (a + b)}}."
+    difficulty: 2
+    variants:
+      params:
+        a: int[2,5]
+        b: int[1,4]
+      defaults:
+        a: 3
+        b: 4
+
+  - kind: problem
+    id: um-die-fuenfzig
+    depth: 3
+    widget: buckets
+    prompt: Is the result smaller or bigger than 50?
+    params:
+      buckets:
+        - id: b1
+          label: smaller than 50
+        - id: b2
+          label: bigger than 50
+      items:
+        - label: 27 + 8
+          bucket: b1
+        - label: 47 + 8
+          bucket: b2
+        - label: 70 − 30
+          bucket: b1
+        - label: 38 + 20
+          bucket: b2
+        - label: 100 − 60
+          bucket: b1
+        - label: 45 + 9
+          bucket: b2
+    hints:
+      - With plus, go up to the next ten first.
+      - 47 + 3 = 50, and 5 of the 8 are still left. So that is above 50.
+    explanation: 35, 40 and 40 are below 50. The results 55, 58 and 54 are above it.
+    difficulty: 3
+
+  - kind: problem
+    id: bis-hundert
+    depth: 3
+    widget: numeric
+    prompt: How much is missing from {{10 * a}} up to 100?
+    answer:
+      value: "{{10 * (10 - a)}}"
+    feedback:
+      - when: numval(state.input) == 10 - a
+        misconception: forgot-tens
+        text: That is {{10 - a}} tens. As a number you write {{10 * (10 - a)}}.
+      - when: numval(state.input) == 100 + 10 * a
+        misconception: added
+        text: You added them up. You need the part that is still missing up to 100.
+    hints:
+      - "Think of the friends of ten: {{a}} + □ = 10."
+      - "{{a}} and {{10 - a}} are friends of ten. So {{10 - a}} tens are missing."
+    explanation: "{{10 * a}} + {{10 * (10 - a)}} = 100. The friends of ten help with whole tens too."
+    difficulty: 3
+    variants:
+      params:
+        a: int[1,8]
+      defaults:
+        a: 6
+
+  - kind: problem
+    id: wechselgeld
+    depth: 3
+    widget: numeric
+    prompt: You pay with 100 cents. The ice cream costs 63 cents. How much change do you get?
+    params:
+      unit: cents
+    answer:
+      value: 37
+    feedback:
+      - when: numval(state.input) == 47
+        misconception: tens-too-many
+        text: Almost. From 63 to 70 is 7. From 70 to 100 is then only 30 more.
+      - when: numval(state.input) == 163
+        misconception: added
+        text: You added them up. You need what is missing from 63 up to 100.
+    hints:
+      - Go from 63 up to 70 first. That is 7.
+      - From 70 to 100 is 30. Add 7 and 30.
+    explanation: 63 + 7 = 70 and 70 + 30 = 100. You get 37 cents back.
+    difficulty: 3
+
+  - kind: problem
+    id: erklaeren
+    depth: 3
+    widget: teach
+    prompt: Explain to Lux how you work out 8 + 5 in your head.
+    params:
+      keywords:
+        - - "10"
+          - zehn
+          - ten
+        - - zerleg
+          - aufteil
+          - teile
+          - split
+          - break
+        - - "13"
+          - dreizehn
+          - thirteen
+      sample: First I go up to 10. To do that I split the 5 into 2 and 3. 8 + 2 = 10, and then 3 more makes 13.
+    explanation: "Key idea: fill up to 10 first, then add the rest."
+    difficulty: 3
+
+srs:
+  cards_from: ["plus-klein", "minus-klein", "freund-fehlt"]

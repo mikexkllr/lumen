@@ -6,8 +6,8 @@ test.describe('placement, courses, review and streak', () => {
     await signInWithEmail(page, request, uniqueEmail('place'));
     await page.getByRole('button', { name: 'Ohne Community weiter' }).click();
     await page.getByRole('button', { name: /Test starten/ }).click();
-    // five real problems, one try each, no hints
-    for (let i = 0; i < 5; i++) {
+    // seven real problems, one try each, no hints
+    for (let i = 0; i < 7; i++) {
       await expect(page.getByText('Einstufung: keine Hinweise, ein Versuch pro Aufgabe.')).toBeVisible();
       const options = page.locator('.option');
       if (await options.count()) await options.first().click();
