@@ -11,7 +11,7 @@ import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { contentJsonSchema, summarize } from '@lumen/engine';
+import { contentJsonSchema, splitBundles, summarize } from '@lumen/engine';
 import { buildBundles, checkContent, formatIssues, generateSigningKey } from './index.ts';
 
 const args = process.argv.slice(2);
@@ -31,7 +31,7 @@ async function main() {
     case 'check': {
       const dir = positional[0] ?? 'content';
       const t0 = Date.now();
-      const { issues, stats } = await checkContent(dir, flag('locale') ?? 'de');
+      const { course, issues, stats } = await checkContent(dir, flag('locale') ?? 'de');
       if (has('json')) {
         console.log(JSON.stringify({ issues, stats }, null, 2));
       } else {
@@ -41,6 +41,10 @@ async function main() {
         console.log(
           `${stats.paths} Pfade · ${stats.topics} Topics · ${stats.concepts} Concepts · ${stats.steps} Steps · ${stats.problems} Aufgaben · ${stats.checkedInstances} geprüfte Instanzen (${Date.now() - t0} ms)`,
         );
+        // what learners get: every concept is cut into short lessons (core on the path, deeper and expert as extras)
+        const lessons = Object.values(splitBundles(course).catalog.concepts);
+        const at = (depth: number) => lessons.filter((l) => l.depth === depth).length;
+        console.log(`${lessons.length} Lektionen: ${at(1)} Kern · ${at(2)} Tiefer · ${at(3)} Experte`);
         console.log(`Widgets: ${Object.entries(stats.byWidget).map(([k, v]) => `${k} ${v}`).join(', ')}`);
         console.log(`Referenzlösungen: ${Object.entries(stats.solvedBy).map(([k, v]) => `${k} ${v}`).join(', ')}`);
         console.log(`${s.errors ? (color ? `\x1b[31m${s.errors} Fehler\x1b[0m` : `${s.errors} Fehler`) : '0 Fehler'} · ${s.warnings} Warnungen · ${s.infos} Hinweise${has('info') ? '' : ' (mit --info anzeigen)'}`);
