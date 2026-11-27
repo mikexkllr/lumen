@@ -57,9 +57,34 @@ export async function signInMethods(serverUrl: string): Promise<{ apple: boolean
 
 export class SignInError extends Error {
   code: 'canceled' | 'linked_elsewhere' | 'other_identity' | 'wrong_code' | 'expired' | 'rate_limited' | 'failed';
-  constructor(code: SignInError['code'], message?: string) {
+  /**
+   * Where a failed sign-in broke, short and without tokens, e.g. "apple · sheet · 1000" or
+   * "google · server 401 invalid_google_token (wrong audience)". Shown under the message and
+   * sent with the crash report, so a failure says what to fix.
+   */
+  detail?: string;
+  constructor(code: SignInError['code'], message?: string, detail?: string) {
     super(message ?? code);
     this.code = code;
+    this.detail = detail;
+  }
+}
+
+const short = (s: unknown) => String(s ?? '').replace(/\s+/g, ' ').slice(0, 120);
+
+/** The provider's own sheet failed (or was closed). */
+function sheetError(provider: Provider, e: unknown): SignInError {
+  const err = e as { code?: string; message?: string; data?: { code?: string } };
+  const code = err.code ?? err.data?.code;
+  return new SignInError(code === 'canceled' ? 'canceled' : 'failed', err.message, `${provider} · sheet · ${short(err.message || code || 'unknown')}`);
+}
+
+/** fetch to the Lumen server, with a network failure reported as such. */
+async function post(provider: Provider, url: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(url, init);
+  } catch (e) {
+    throw new SignInError('failed', (e as Error).message, `${provider} · network · ${short((e as Error).message)}`);
   }
 }
 
@@ -79,15 +104,14 @@ export async function appleSignIn(serverUrl: string, token?: string): Promise<{ 
   try {
     res = await Native.authorize({ nonce: await sha256Hex(nonce) });
   } catch (e) {
-    const code = (e as { code?: string }).code;
-    throw new SignInError(code === 'canceled' ? 'canceled' : 'failed', (e as Error).message);
+    throw sheetError('apple', e);
   }
-  const r = await fetch(`${base(serverUrl)}/v1/auth/apple`, {
+  const r = await post('apple', `${base(serverUrl)}/v1/auth/apple`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify({ identityToken: res.identityToken, authorizationCode: res.authorizationCode, nonce }),
   });
-  return signInResult(r);
+  return signInResult(r, 'apple');
 }
 
 /**
@@ -105,20 +129,19 @@ export async function googleSignIn(serverUrl: string, clientId: string, token?: 
   try {
     ({ idToken } = await NativeGoogle.authorize({ clientId, nonce: await sha256Hex(nonce) }));
   } catch (e) {
-    const code = (e as { code?: string }).code;
-    throw new SignInError(code === 'canceled' ? 'canceled' : 'failed', (e as Error).message);
+    throw sheetError('google', e);
   }
   return googleFinish(serverUrl, idToken, nonce, token);
 }
 
 /** Sends Google's ID token to the server (with `token` it links, without it signs in). */
 export async function googleFinish(serverUrl: string, idToken: string, nonce: string, token?: string): Promise<{ token?: string; created?: boolean }> {
-  const r = await fetch(`${base(serverUrl)}/v1/auth/google`, {
+  const r = await post('google', `${base(serverUrl)}/v1/auth/google`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify({ idToken, nonce }),
   });
-  return signInResult(r);
+  return signInResult(r, 'google');
 }
 
 const PENDING = 'lumen.google';
@@ -169,31 +192,32 @@ export function takeGoogleRedirect(serverUrl: string, link: boolean): GoogleRedi
   return r;
 }
 
-async function signInResult(r: Response): Promise<{ token?: string; created?: boolean }> {
-  const body = (await r.json().catch(() => ({}))) as { error?: string; token?: string; created?: boolean };
+async function signInResult(r: Response, provider: Provider): Promise<{ token?: string; created?: boolean }> {
+  const body = (await r.json().catch(() => ({}))) as { error?: string; reason?: string; message?: string; token?: string; created?: boolean };
   if (r.ok) return body;
   if (r.status === 409) throw new SignInError(body.error === 'account_has_other_identity' ? 'other_identity' : 'linked_elsewhere');
   if (r.status === 429) throw new SignInError('rate_limited');
   if (body.error === 'code_wrong') throw new SignInError('wrong_code');
   if (body.error === 'code_expired' || body.error === 'code_locked') throw new SignInError('expired');
-  throw new SignInError('failed', `HTTP ${r.status}`);
+  const why = body.reason ?? (r.status >= 500 ? body.message : undefined);
+  throw new SignInError('failed', `HTTP ${r.status}`, `${provider} · server ${r.status}${body.error ? ` ${short(body.error)}` : ''}${why ? ` (${short(why)})` : ''}`);
 }
 
 /** Sends a six-digit sign-in code to the address. */
 export async function emailStart(serverUrl: string, email: string, locale: string): Promise<void> {
-  const r = await fetch(`${base(serverUrl)}/v1/auth/email/start`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, locale }) });
+  const r = await post('email', `${base(serverUrl)}/v1/auth/email/start`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, locale }) });
   if (r.status === 429) throw new SignInError('rate_limited');
-  if (!r.ok) throw new SignInError('failed', `HTTP ${r.status}`);
+  if (!r.ok) throw new SignInError('failed', `HTTP ${r.status}`, `email · server ${r.status}`);
 }
 
 /** Checks the code; with `token` it links the address to that account, without it signs in. */
 export async function emailVerify(serverUrl: string, email: string, code: string, token?: string): Promise<{ token?: string; created?: boolean }> {
-  const r = await fetch(`${base(serverUrl)}/v1/auth/email/verify`, {
+  const r = await post('email', `${base(serverUrl)}/v1/auth/email/verify`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify({ email, code }),
   });
-  return signInResult(r);
+  return signInResult(r, 'email');
 }
 
 export async function unlinkSignIn(serverUrl: string, token: string, provider: Provider): Promise<void> {

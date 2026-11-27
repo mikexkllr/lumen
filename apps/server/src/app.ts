@@ -236,7 +236,22 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     else if (++b.count > max) return true;
     return false;
   };
-  const finishSignIn = async (req: FastifyRequest, reply: FastifyReply, provider: Provider, idHash: string, refreshToken: () => Promise<string | null>) => {
+  /**
+   * Which check an identity token failed ("wrong audience", "nonce mismatch", "expired" …) or
+   * why the provider's keys could not be loaded. Goes back to the app, so a failed sign-in says
+   * what is wrong; it names a check, never a token, key or user id.
+   */
+  const rejection = (e: unknown) => String((e as Error)?.message ?? e).replace(/\s+/g, ' ').slice(0, 120);
+  const finishSignIn = async (req: FastifyRequest, reply: FastifyReply, provider: Provider, idHash: string, getRefreshToken: () => Promise<string | null>) => {
+    // Apple's refresh token is only kept to revoke the sign-in when the account is deleted. If
+    // the exchange fails (Apple unreachable, a broken key in the config), signing in goes on.
+    const refreshToken = () =>
+      getRefreshToken().catch((e: unknown) => {
+        const reason = rejection(e);
+        req.log.warn({ refreshToken: reason, provider }, 'refresh token exchange failed');
+        opts.reportWarning?.('Sign-in refresh token exchange failed', { provider, reason });
+        return null;
+      });
     const linked = auth!.accountFor(provider, idHash);
     const token = bearer(req);
     if (token) {
@@ -256,6 +271,7 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     return { linked: true, created: true, token: device };
   };
 
+
   app.post('/v1/auth/apple', async (req, reply) => {
     if (!auth || !apple) return reply.code(404).send({ error: 'not_found' });
     if (limited(`apple:${req.ip}`, opts.signInLimits?.applePer10Min ?? 20, 600_000)) return reply.code(429).send({ error: 'rate_limited' });
@@ -267,8 +283,10 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     try {
       sub = await verifyAppleToken(body.identityToken, body.nonce, apple, opts.fetchImpl);
     } catch (e) {
-      req.log.warn({ appleAuth: (e as Error).message }, 'apple sign-in rejected');
-      return reply.code(401).send({ error: 'invalid_apple_token' });
+      const reason = rejection(e);
+      req.log.warn({ appleAuth: reason }, 'apple sign-in rejected');
+      opts.reportWarning?.('Apple sign-in rejected', { reason });
+      return reply.code(401).send({ error: 'invalid_apple_token', reason });
     }
     const code = typeof body.authorizationCode === 'string' && body.authorizationCode.length < 2000 ? body.authorizationCode : '';
     return finishSignIn(req, reply, 'apple', appleSubHash(sub), () => appleRefreshToken(code, apple, opts.fetchImpl));
@@ -285,8 +303,10 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
     try {
       sub = await verifyGoogleToken(body.idToken, body.nonce, google, opts.fetchImpl);
     } catch (e) {
-      req.log.warn({ googleAuth: (e as Error).message }, 'google sign-in rejected');
-      return reply.code(401).send({ error: 'invalid_google_token' });
+      const reason = rejection(e);
+      req.log.warn({ googleAuth: reason }, 'google sign-in rejected');
+      opts.reportWarning?.('Google sign-in rejected', { reason });
+      return reply.code(401).send({ error: 'invalid_google_token', reason });
     }
     return finishSignIn(req, reply, 'google', googleSubHash(sub), async () => null);
   });

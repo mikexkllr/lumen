@@ -8,7 +8,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let windowScene = scene as? UIWindowScene else { return }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = CAPBridgeViewController()
+        // LumenViewController, not a plain CAPBridgeViewController: it registers the app's own
+        // plugins (AppleSignIn, GoogleSignIn). Without them both sign-ins fail at once.
+        window?.rootViewController = LumenViewController()
         window?.makeKeyAndVisible()
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { AppleButton } from './AppleButton.tsx';
 import { GoogleButton } from './GoogleButton.tsx';
 import { Icon } from './ui.tsx';
+import { reportHandled } from '../lib/monitoring.ts';
 import { useApp } from '../lib/store.tsx';
 import { appleSignIn, emailStart, emailVerify, googleFinish, googleSignIn, linkedSignIns, PROVIDERS, signInMethods, SignInError, takeGoogleRedirect, unlinkSignIn, type Linked, type Provider } from '../lib/signIn.ts';
 
@@ -26,6 +27,8 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   const [linked, setLinked] = useState<Linked | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  /** Where a failed sign-in broke (provider · step · reason), shown small under the message. */
+  const [detail, setDetail] = useState<string | null>(null);
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [code, setCode] = useState('');
@@ -33,7 +36,13 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
 
   const fail = (e: unknown) => {
     const c = e instanceof SignInError ? e.code : 'failed';
-    if (c !== 'canceled') setMsg(t(`signin.err.${c}`));
+    if (c === 'canceled') return;
+    setMsg(t(`signin.err.${c}`));
+    if (c !== 'failed') return;
+    // A sign-in that breaks for no reason the learner can fix: say where, and tell the operator.
+    const where = e instanceof SignInError && e.detail ? e.detail : `app · ${(e as Error)?.message ?? String(e)}`.slice(0, 160);
+    setDetail(where);
+    reportHandled(e, 'signin', { detail: where, linking: !!token });
   };
   const done = async (r: { token?: string; created?: boolean }, method: Provider) => {
     if (token) {
@@ -48,6 +57,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
   const run = async (f: () => Promise<void>) => {
     setBusy(true);
     setMsg(null);
+    setDetail(null);
     try {
       await f();
     } catch (e) {
@@ -70,7 +80,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
     const back = takeGoogleRedirect(serverUrl, !!token);
     if (!back) return;
     if ('error' in back) {
-      if (back.error !== 'access_denied') setMsg(t('signin.err.failed'));
+      if (back.error !== 'access_denied') fail(new SignInError('failed', back.error, `google · redirect · ${back.error}`));
       return;
     }
     void run(async () => done(await googleFinish(serverUrl, back.idToken, back.nonce, token), 'google'));
@@ -151,7 +161,12 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
           </div>
         </form>
       ))}
-      {msg && <p className="small" role={msg === t('signin.linkedOk') ? 'status' : 'alert'} style={{ margin: 0 }}>{msg}</p>}
+      {msg && (
+        <p className="small" role={msg === t('signin.linkedOk') ? 'status' : 'alert'} style={{ margin: 0 }}>
+          {msg}
+          {detail && <span className="faint" style={{ display: 'block', marginTop: 4, fontSize: '0.75rem', fontFamily: 'var(--mono)', overflowWrap: 'anywhere' }}>{t('signin.errDetail', { detail })}</span>}
+        </p>
+      )}
     </div>
   );
 }
