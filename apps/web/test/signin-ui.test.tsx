@@ -116,6 +116,20 @@ describe('sign-in form', () => {
     expect(screen.getByText(/nur eine anonyme Kennung/)).toBeTruthy();
   });
 
+  it('a refused sign-in shows the message and, small below it, where it broke', async () => {
+    serverReplies({
+      '/v1/features': () => json({ email: true, google: { web: 'web.apps', ios: null } }),
+      '/v1/auth/google': () => json({ error: 'invalid_google_token', reason: 'wrong audience' }, 401),
+    });
+    sessionStorage.setItem('lumen.google', JSON.stringify({ state: 'st2', nonce: 'raw', serverUrl: '/api', link: false, route: '#/login', at: Date.now() }));
+    history.replaceState(null, '', '/#state=st2&id_token=id.token.sig');
+    captureGoogleRedirect();
+    wrap(<SignInOptions serverUrl="/api" onSignedIn={vi.fn()} />);
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('Die Anmeldung hat nicht geklappt');
+    expect(alert.textContent).toContain('Fehler: google · server 401 invalid_google_token (wrong audience)');
+  });
+
   it('disabled (missing parental consent) blocks sending a code', async () => {
     serverReplies({ '/v1/features': () => json({ email: true }) });
     wrap(<SignInOptions serverUrl="/api" disabled onSignedIn={vi.fn()} />);

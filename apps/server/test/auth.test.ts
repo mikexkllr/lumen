@@ -113,6 +113,23 @@ describe('Sign in with Apple', () => {
     expect((await post({ identityToken: 'x' })).statusCode).toBe(400);
   });
 
+  it('says which check a rejected token failed, and names no token', async () => {
+    const { app } = server();
+    const post = async (payload: Record<string, unknown>) => (await app.inject({ method: 'POST', url: '/v1/auth/apple', payload })).json();
+    expect(await post({ ...signIn('u'), nonce: 'wrong' })).toEqual({ error: 'invalid_apple_token', reason: 'nonce mismatch' });
+    expect(await post(signIn('u', 'n', { aud: 'com.other.app' }))).toEqual({ error: 'invalid_apple_token', reason: 'wrong audience' });
+    expect(await post(signIn('u', 'n', { exp: Math.floor(Date.now() / 1000) - 10 }))).toEqual({ error: 'invalid_apple_token', reason: 'expired' });
+    expect(await post({ ...signIn('u'), identityToken: appleToken({ sub: 'u', nonce: nonceHash('n') }, 'unknown-kid') })).toEqual({ error: 'invalid_apple_token', reason: 'unknown key' });
+  });
+
+  it('a failing refresh token exchange does not stop a new Apple account', async () => {
+    // a broken key in the config: the client secret for Apple can't be signed
+    const { app } = server({ clientIds: [BUNDLE], teamId: 'TEAM123456', keyId: 'KEY1234567', privateKey: 'not a key' });
+    const res = await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-5') });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().created).toBe(true);
+  });
+
   it('deleting the account removes the link and revokes the Apple token', async () => {
     const pem = ec.privateKey.export({ format: 'pem', type: 'pkcs8' }).toString();
     const { app, calls } = server({ clientIds: [BUNDLE], teamId: 'TEAM123456', keyId: 'KEY1234567', privateKey: pem });
@@ -159,6 +176,7 @@ describe('Sign in with Google', () => {
     // an Apple token is no Google token, even with the right audience
     expect((await post({ idToken: appleToken({ sub: 'u', aud: WEB, nonce: nonceHash('n') }), nonce: 'n' })).statusCode).toBe(401);
     expect((await post({ idToken: 'x' })).statusCode).toBe(400);
+    expect((await post(google('u', 'n', { aud: 'other.apps.googleusercontent.com' }))).json()).toEqual({ error: 'invalid_google_token', reason: 'wrong audience' });
   });
 
   it('links Google next to Apple and keeps the last sign-in method', async () => {

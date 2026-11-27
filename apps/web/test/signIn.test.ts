@@ -106,7 +106,17 @@ describe('Sign in with Apple', () => {
     authorize.mockImplementation(async () => { throw new Error('boom'); });
     const e = (await appleSignIn('/api').catch((x: unknown) => x)) as InstanceType<typeof SignInError>;
     expect(e instanceof SignInError).toBe(true);
-    expect([e.code, e.message]).toEqual(['failed', 'boom']);
+    expect([e.code, e.message, e.detail]).toEqual(['failed', 'boom', 'apple · sheet · boom']);
+  });
+
+  it('a failure says where it broke: the server and its reason, or the network', async () => {
+    authorize.mockResolvedValue({ identityToken: 'id-token', user: 'u' });
+    stubFetch(() => json({ error: 'invalid_apple_token', reason: 'wrong audience' }, 401));
+    expect(await appleSignIn('/api').catch((x: unknown) => x)).toMatchObject({ code: 'failed', detail: 'apple · server 401 invalid_apple_token (wrong audience)' });
+    stubFetch(() => json({ statusCode: 500, error: 'Internal Server Error', message: 'database is locked' }, 500));
+    expect(await appleSignIn('/api').catch((x: unknown) => x)).toMatchObject({ detail: 'apple · server 500 Internal Server Error (database is locked)' });
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Load failed'); }));
+    expect(await appleSignIn('/api').catch((x: unknown) => x)).toMatchObject({ code: 'failed', detail: 'apple · network · Load failed' });
   });
 });
 
