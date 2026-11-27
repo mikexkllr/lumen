@@ -35,10 +35,10 @@ export function ServerPicker() {
           <input id="srv-url" className="input" type="url" inputMode="url" autoCapitalize="none" spellCheck={false} placeholder={API_BASE.startsWith('http') ? API_BASE : 'https://lumen.example.org/api'} value={url} onChange={(e) => setUrl(e.target.value)} />
         </div>
         <div className="row wrap" style={{ gap: 8 }}>
-          <button type="button" className="btn ghost small" disabled={busy || !url.trim()} onClick={() => void apply(url)}>{t('server.connect')}</button>
+          <button type="button" className="btn small" disabled={busy || !url.trim()} onClick={() => void apply(url)}>{t('server.connect')}</button>
           {settings.serverUrl && <button type="button" className="btn quiet small" disabled={busy} onClick={() => void apply(null)}>{t('server.reset')}</button>}
         </div>
-        {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <p className="note" role="status">{msg}</p>}
       </div>
     </details>
   );

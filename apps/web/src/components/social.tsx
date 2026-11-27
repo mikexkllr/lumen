@@ -1,7 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
 import { Atom, Bird, Cat, Coffee, Dog, Fish, Flower, Heart, Leaf, Moon, Mountain, Music, Rocket, Star, Sun, Zap, type LucideIcon } from 'lucide-react';
-import { Icon } from './ui.tsx';
-import { useApp } from '../lib/store.tsx';
 import { ApiError, parseAvatar, TIER_COLORS, TIERS, type Tier } from '../lib/social.ts';
 import type { TKey } from '../lib/i18n.ts';
 
@@ -38,27 +35,7 @@ export function TierBadge({ tier, size = 44, locked = false, current = false }: 
   );
 }
 
-export function Sheet({ label, onClose, children }: { label: string; onClose(): void; children: ReactNode }) {
-  const { t } = useApp();
-  useEffect(() => {
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    addEventListener('keydown', k);
-    return () => removeEventListener('keydown', k);
-  }, [onClose]);
-  return (
-    <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={label}>
-        <div className="grab" />
-        <div className="row" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
-          <h2 style={{ margin: 0, fontSize: '1.125rem' }}>{label}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label={t('player.close')}><Icon name="close" /></button>
-        </div>
-        {children}
-      </div>
-    </>
-  );
-}
+export { Sheet } from './ui.tsx';
 
 /** Localised message for an API error code. */
 export function errorText(t: (k: TKey, v?: Record<string, string | number>) => string, e: unknown): string {

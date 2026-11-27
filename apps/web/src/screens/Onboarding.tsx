@@ -22,7 +22,7 @@ export function Welcome() {
         <div className="welcome-hero"><Lux mood="cheer" size={132} /></div>
       </div>
       <div className="welcome-copy">
-        <div className="row" style={{ gap: 10, marginBottom: 22, fontWeight: 700, fontSize: '1.125rem' }}><Logo size={34} /> Lumen</div>
+        <div className="brand" style={{ padding: 0, marginBottom: 22 }}><Logo size={34} /> Lumen</div>
         <div className="welcome-lux">
           <Lux mood="happy" size={60} />
           <p className="bubble">{t('welcome.lux')}</p>
@@ -113,12 +113,12 @@ export function Onboarding({ step: routeStep }: { step?: string }) {
         ) : index === 0 && !settings.account ? (
           <button className="icon-btn" onClick={() => navigate('welcome', true)} aria-label={t('onb.back')}><Icon name="back" /></button>
         ) : (
-          <span style={{ width: 40 }} />
+          <span style={{ width: 44 }} />
         )}
         <div className="seg-progress compact" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={index + 1} aria-label={t('onb.step', { n: index + 1, total: steps.length })}>
           {steps.map((s, i) => <span key={s} className={`seg ${i <= index ? 'done' : ''}`}><i /></span>)}
         </div>
-        <span style={{ width: 40 }} />
+        <span style={{ width: 44 }} />
       </div>
       <div className="onb-body fade-in" key={step}>
         {step === 'interests' && (
@@ -197,7 +197,7 @@ export function Onboarding({ step: routeStep }: { step?: string }) {
             <h1>{t('onb.account')}</h1>
             <p className="sub">{t('onb.account.hint')}</p>
             {kid && (
-              <label className="row small consent-row">
+              <label className="check-row top small consent-row">
                 <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> {t('signin.parentConsent')}
               </label>
             )}

@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import { buildReviewSession, dueItems, LEVELS, levelIndex, nextDue, openMistakes, retrievability, sessionSize, type Topic } from '@lumen/engine';
 import { Cover, topicVars } from '../components/art.tsx';
-import { Icon, relativeDay, Ring } from '../components/ui.tsx';
+import { Empty, Icon, PageHeader, relativeDay, Ring } from '../components/ui.tsx';
 import { Lux } from '../components/Lux.tsx';
 import { depthOfLesson, lessonName } from '../lib/lessons.ts';
 import { href, navigate } from '../lib/router.ts';
@@ -14,7 +14,7 @@ const conceptsOf = (tp: Topic) => tp.units.flatMap((u) => u.concepts);
 export function TopicScreen({ topicId }: { topicId: string }) {
   const { t, lib, progress, events, settings } = useApp();
   const topic = lib?.catalog.topics.find((tp) => tp.id === topicId);
-  if (!lib || !topic) return <main id="main"><p>{t('discover.none')}</p></main>;
+  if (!lib || !topic) return <main id="main"><Empty icon="search" action={<a className="btn primary" href={href('discover')}>{t('home.allCourses')}</a>}>{t('discover.none')}</Empty></main>;
   const all = conceptsOf(topic);
   const done = all.filter((c) => progress.completedConcepts.has(c)).length;
   const minutes = all.reduce((s, c) => s + (lib.catalog.concepts[c]?.estimated_minutes ?? 0), 0);
@@ -53,7 +53,7 @@ export function TopicScreen({ topicId }: { topicId: string }) {
         </div>
         {prereq.length > 0 && (
           <p className="small muted">
-            {t('topic.prereq')}: {prereq.map((p, i) => <span key={p.id}>{i > 0 && ', '}<a href={href(`topic/${p.id}`)} style={{ textDecoration: 'underline', textUnderlineOffset: 3 }}>{p.title}</a></span>)}
+            {t('topic.prereq')}: {prereq.map((p, i) => <span key={p.id}>{i > 0 && ', '}<a className="inline-link" href={href(`topic/${p.id}`)}>{p.title}</a></span>)}
           </p>
         )}
         {next && (
@@ -124,10 +124,7 @@ export function Discover({ subject }: { subject?: string }) {
   };
   return (
     <main id="main" className="fade-in">
-      <header className="page-head">
-        <h1 className="display">{t('discover.title')}</h1>
-        <p className="muted">{t('discover.stats', { n: catalog.topics.length, lessons: totalLessons })}</p>
-      </header>
+      <PageHeader title={t('discover.title')} sub={t('discover.stats', { n: catalog.topics.length, lessons: totalLessons })} />
       <div className="search-field">
         <span className="ico"><Icon name="search" size={18} /></span>
         <label htmlFor="search" className="sr-only">{t('discover.search')}</label>
@@ -144,7 +141,7 @@ export function Discover({ subject }: { subject?: string }) {
       {searching ? (
         <section>
           <div className="section-head"><h2>{t('discover.results')}</h2><span className="count">{results.length}</span></div>
-          {results.length === 0 && <p className="muted">{t('discover.none')}</p>}
+          {results.length === 0 && <Empty icon="search">{t('discover.none')}</Empty>}
           <div className="course-grid">{[...results].sort((x, y) => byRank(x.tp, y.tp)).map(({ tp }) => <CourseCard key={tp.id} topic={tp} done={doneIn(tp)} />)}</div>
           {results.some((r) => r.matches.length) && (
             <>
@@ -152,7 +149,7 @@ export function Discover({ subject }: { subject?: string }) {
               <div className="course-rows">
                 {results.flatMap((r) => r.matches.map((c) => (
                   <a key={c.id} className="course-row" href={href(`learn/${c.id}`)} style={topicVars(r.tp.color)}>
-                    <span className="thumb" style={{ width: 48, height: 48 }}><Cover motif={r.tp.icon} color={r.tp.color} /></span>
+                    <span className="thumb md"><Cover motif={r.tp.icon} color={r.tp.color} /></span>
                     <span className="cr-body"><strong>{c.title}</strong><span>{r.tp.title}</span></span>
                     <Icon name="play" size={16} />
                   </a>
@@ -238,7 +235,7 @@ function Roadmap({ subject, topics, doneIn }: { subject: string; topics: Topic[]
             <span><Icon name="done" size={16} /> {finished}/{topics.length}</span>
           </div>
           {path && (
-            <button className={`btn ${isMine ? 'ghost' : 'primary'}`} disabled={isMine} onClick={() => { updateSettings({ pathId: path.id, startAt: null }); navigate(''); }}>
+            <button className={`btn ${isMine ? '' : 'primary'}`} disabled={isMine} onClick={() => { updateSettings({ pathId: path.id, startAt: null }); navigate(''); }}>
               {isMine ? <><Icon name="check" size={17} /> {t('discover.isPath')}</> : <>{t('discover.usePath')} <Icon name="arrow" size={17} className="arrow" /></>}
             </button>
           )}
@@ -306,10 +303,7 @@ export function ReviewScreen() {
   const avg = items.length ? Math.round((100 * items.reduce((s, it) => s + retrievability(it, now), 0)) / items.length) : 0;
   return (
     <main id="main" className="fade-in">
-      <header className="page-head">
-        <h1 className="display">{t('review.title')}</h1>
-        <p className="muted">{t('review.intro')}</p>
-      </header>
+      <PageHeader title={t('review.title')} sub={t('review.intro')} />
       <section className="continue-card" style={topicVars('#c2410c')}>
         <div className="cc-art cover-frame"><Cover motif="review" color="#c2410c" /></div>
         <div className="cc-body">
@@ -343,7 +337,7 @@ export function ReviewScreen() {
           return (
             <section key={tid} className="card" style={{ ...topicVars(topic?.color), padding: 16 }}>
               <div className="row" style={{ marginBottom: 12 }}>
-                <span className="thumb" style={{ width: 36, height: 36, borderRadius: 10, overflow: 'hidden', flex: 'none' }}><Cover motif={topic?.icon} color={topic?.color} /></span>
+                <span className="thumb sm"><Cover motif={topic?.icon} color={topic?.color} /></span>
                 <h3>{topic?.title}</h3>
               </div>
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }} className="stack">

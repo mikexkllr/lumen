@@ -1,4 +1,4 @@
-import { Icon, Logo, Ring } from './components/ui.tsx';
+import { ConfirmProvider, Icon, Logo, Note, Ring } from './components/ui.tsx';
 import { dueItems, resolveLesson } from '@lumen/engine';
 import { href, navigate, useRoute } from './lib/router.ts';
 import { useApp } from './lib/store.tsx';
@@ -39,12 +39,13 @@ function useTabs() {
 
 function TabBar({ active }: { active: string }) {
   const tabs = useTabs();
+  const { t } = useApp();
   return (
     <div className="tabbar">
-      <nav aria-label="Hauptnavigation">
+      <nav aria-label={t('nav.main')}>
         {tabs.map((tab) => (
           <a key={tab.id} href={href(tab.id)} aria-current={active === tab.id ? 'page' : undefined}>
-            <Icon name={tab.icon} size={22} strokeWidth={active === tab.id ? 2.2 : 1.8} />
+            <Icon name={tab.icon} size={22} strokeWidth={active === tab.id ? 2.3 : 1.9} />
             {tab.label}
             {tab.badge ? <span className="badge" aria-label={`${tab.badge}`}>{tab.badge}</span> : null}
           </a>
@@ -59,9 +60,9 @@ function Sidebar({ active }: { active: string }) {
   const { t, progress, settings } = useApp();
   const minutes = Math.floor(progress.minutesToday);
   return (
-    <aside className="sidebar" aria-label="Seitenleiste">
+    <aside className="sidebar" aria-label={t('nav.sidebar')}>
       <a className="brand" href={href('')}><Logo size={30} /> Lumen</a>
-      <nav aria-label="Hauptnavigation" className="stack" style={{ gap: 2 }}>
+      <nav aria-label={t('nav.main')} className="stack" style={{ gap: 2 }}>
         {tabs.map((tab) => (
           <a key={tab.id} className="side-link" href={href(tab.id)} aria-current={active === tab.id ? 'page' : undefined}>
             <Icon name={tab.icon} size={19} />
@@ -76,7 +77,7 @@ function Sidebar({ active }: { active: string }) {
           <div><strong>{t('home.goal')}</strong><span>{minutes} / {settings.dailyGoal} min</span></div>
         </div>
         <a className="side-stat" href={href('streak')}>
-          <span style={{ width: 38, height: 38, display: 'grid', placeItems: 'center', borderRadius: 12, background: 'color-mix(in srgb, #f97316 12%, transparent)', color: '#f97316' }}><Icon name="flame" size={20} /></span>
+          <span className="si-round streak"><Icon name="flame" size={20} /></span>
           <div><strong>{t('home.streakN', { n: progress.streak.current })}</strong><span>{progress.streak.todayDone ? t('home.streakSafe') : t('home.streakOpen')}</span></div>
         </a>
       </div>
@@ -84,7 +85,12 @@ function Sidebar({ active }: { active: string }) {
   );
 }
 
+/** The app with its one confirmation dialog (signing out, leaving a lesson, deleting). */
 export function App() {
+  return <ConfirmProvider><Screens /></ConfirmProvider>;
+}
+
+function Screens() {
   const route = useRoute();
   const app = useApp();
   const { lib, contentError, t, settings, loaded, online } = app;
@@ -201,14 +207,9 @@ export function App() {
     case 'legal':
       // Before signing in (links from the sign-in step) without the app's navigation.
       if (!signedIn) {
-        return (
-          <div className="page standalone">
-            <button className="btn quiet small" style={{ marginBottom: 8 }} onClick={() => (history.length > 1 ? history.back() : navigate('welcome', true))}><Icon name="back" size={16} /> {t('onb.back')}</button>
-            <Legal page={a} />
-          </div>
-        );
+        return <div className="page standalone"><Legal page={a} back="welcome" /></div>;
       }
-      screen = <Legal page={a} />;
+      screen = <Legal page={a} back="profile" />;
       tab = 'profile';
       break;
     case 'preview':
@@ -219,6 +220,7 @@ export function App() {
     default:
       screen = <Home />;
       tab = '';
+      wide = true;
   }
   return (
     <>
@@ -227,7 +229,7 @@ export function App() {
         <Sidebar active={tab ?? ''} />
         <div className="main">
           <div className={`page ${wide ? 'wide' : ''}`}>
-            {!online && <p className="small card amber" role="status" style={{ marginBottom: 12, padding: '10px 14px' }}>{t('offline')}</p>}
+            {!online && <Note tone="warn" icon="offline" role="status" style={{ marginBottom: 14 }}>{t('offline')}</Note>}
             {screen}
           </div>
         </div>

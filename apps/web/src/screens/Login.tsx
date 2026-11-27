@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SignInOptions } from '../components/SignIn.tsx';
 import { ServerPicker } from '../components/ServerPicker.tsx';
-import { Icon } from '../components/ui.tsx';
+import { Icon, Logo } from '../components/ui.tsx';
 import { apiBase } from '../lib/api.ts';
 import { navigate } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
@@ -20,13 +20,14 @@ export function Login() {
   return (
     <main className="onb" id="main">
       <div className="onb-top">
-        {!returning ? <button className="icon-btn" onClick={() => navigate('welcome', true)} aria-label={t('onb.back')}><Icon name="back" /></button> : <span style={{ width: 40 }} />}
+        {!returning ? <button className="icon-btn" onClick={() => navigate('welcome', true)} aria-label={t('onb.back')}><Icon name="back" /></button> : <span style={{ width: 44 }} />}
       </div>
       <div className="onb-body">
+        <div className="brand" style={{ padding: 0, marginBottom: 20 }}><Logo size={34} /> Lumen</div>
         <h1>{t('signin.title')}</h1>
         <p className="sub">{t(returning ? 'signin.introLocal' : 'signin.intro')}</p>
         {kid && (
-          <label className="row small consent-row">
+          <label className="check-row top small consent-row">
             <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> {t('signin.parentConsent')}
           </label>
         )}

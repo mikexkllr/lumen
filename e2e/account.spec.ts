@@ -63,8 +63,8 @@ test.describe('account', () => {
     await page.goto('/#/profile');
     await expect(page.locator('.stat-tile').filter({ hasText: 'XP gesamt' }).locator('strong')).toHaveText('10');
 
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Abmelden' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Abmelden' }).click();
     await expect(page.getByRole('button', { name: /Los geht/ })).toBeVisible();
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('lumen.settings.v1') ?? '{}'));
     expect(stored.account).toBeNull();
@@ -86,11 +86,9 @@ test.describe('account', () => {
     await openSignedIn(page, token);
     await page.goto('/#/profile');
 
-    page.once('dialog', (d) => {
-      expect(d.message()).toContain('endgültig');
-      void d.accept();
-    });
     await page.getByRole('button', { name: 'Konto löschen' }).click();
+    await expect(page.getByRole('alertdialog')).toContainText('endgültig');
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Konto löschen' }).click();
     await expect(page.getByRole('button', { name: /Los geht/ })).toBeVisible();
 
     // the old device code is refused now, so other devices sign out too
@@ -104,8 +102,9 @@ test.describe('account', () => {
     const { token } = await apiAccount(request, uniqueEmail('stay'));
     await openSignedIn(page, token);
     await page.goto('/#/profile');
-    page.once('dialog', (d) => d.dismiss());
     await page.getByRole('button', { name: 'Abmelden' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Abbrechen' }).click();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
     await expect(page.getByRole('heading', { name: 'Konto' })).toBeVisible();
   });
 

@@ -38,7 +38,7 @@ import {
 } from '@lumen/engine';
 import { Confetti, CountUp, Cover, topicVars } from '../components/art.tsx';
 import { Burst, Glow } from '../components/celebrate.tsx';
-import { Icon } from '../components/ui.tsx';
+import { Icon, Note, useConfirm } from '../components/ui.tsx';
 import { Lux, type LuxMood } from '../components/Lux.tsx';
 import { LuxPeek, LuxPop, LuxSay, type LuxPopData } from '../components/LuxMoments.tsx';
 import { StreakParty, WeekStrip } from '../components/Streaks.tsx';
@@ -129,6 +129,7 @@ export function Player({ mode }: { mode: PlayerMode }) {
   if (!before.current) before.current = snapshot(app);
   const pulledPrereqs = useRef(false);
   const reduce = prefersReducedMotion(app.settings);
+  const confirm = useConfirm();
 
   useEffect(() => {
     if (!lib) return;
@@ -269,13 +270,13 @@ export function Player({ mode }: { mode: PlayerMode }) {
     startedAt.current = Date.now();
   };
 
-  const exit = () => {
-    if (!done && index > 0 && !confirm(t('player.leave'))) return;
+  const exit = async () => {
+    if (!done && index > 0 && !(await confirm({ title: t('player.leaveTitle'), body: t('player.leaveBody'), confirm: t('player.leaveYes'), cancel: t('player.leaveNo'), danger: true }))) return;
     navigate(mode.kind === 'placement' ? 'onboarding/placement' : '');
   };
 
-  if (error) return <div className="complete"><div className="complete-inner"><p role="alert">{error}</p><button className="btn primary" onClick={() => navigate('')}>{t('complete.home')}</button></div></div>;
-  if (!items) return <div className="loading-screen"><span aria-busy="true">{t('loading')}</span></div>;
+  if (error) return <div className="complete"><div className="complete-inner stack" style={{ gap: 16 }}><Note tone="bad" role="alert">{error}</Note><button className="btn primary lg" onClick={() => navigate('')}>{t('complete.home')}</button></div></div>;
+  if (!items) return <div className="loading-screen"><span className="spinner" aria-hidden="true" /><span className="sr-only" aria-busy="true">{t('loading')}</span></div>;
   if (done && (reviewing || mode.kind === 'mistakes')) return <MistakesDone outcomes={outcomes} topicId={topic?.id} afterLesson={reviewing ? lessonMistakes : 0} nextConcept={mode.kind === 'lesson' ? mode.conceptId : undefined} />;
   if (done) return <Complete mode={mode} outcomes={outcomes} xpGained={app.progress.xpTotal - xpBefore.current} placementResult={placementResult} durationMs={Date.now() - startedAt.current} topicId={topic?.id} before={before.current!} onReviewMistakes={startReview} />;
 
@@ -497,7 +498,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
           </Stage>
           <Footer state="idle" onEnter={quiz === 'asking' ? undefined : finish}>
             <div className="foot-actions">
-              <button className={`btn grow ${quiz === 'asking' ? 'ghost' : 'primary'}`} onClick={finish}>{quiz === 'asking' ? t('recall.skip') : t('player.continue')}</button>
+              <button className={`btn grow ${quiz === 'asking' ? '' : 'primary'}`} onClick={finish}>{quiz === 'asking' ? t('recall.skip') : t('player.continue')}</button>
             </div>
           </Footer>
         </>
@@ -512,7 +513,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
           {s.visual && <Visual widget={s.visual.widget} params={s.visual.params} locale={locale} alt={s.visual.alt} interactive={s.visual.interactive} />}
           {s.image && (
             <figure className="visual">
-              <img src={s.image.src} alt={s.image.alt} style={{ maxWidth: '100%', borderRadius: 16 }} />
+              <img src={s.image.src} alt={s.image.alt} style={{ maxWidth: '100%', borderRadius: 'var(--r)' }} />
               {s.image.caption && <figcaption className="small muted">{s.image.caption}</figcaption>}
             </figure>
           )}
@@ -549,7 +550,7 @@ function StepView({ item, mode, combo, meta, onDone, onConcluded }: { item: Play
         <Footer state="idle" onEnter={luxOpen ? undefined : go}>
           <div className="foot-actions">
             {mode.kind !== 'placement' && <LuxButton onClick={() => setLuxOpen(true)} label={t('lux.ask')} reduce={reduce} />}
-            <button className={`btn grow ${needsReveal ? 'ghost' : 'primary'}`} onClick={go} autoFocus>{needsReveal ? t('player.reveal') : t('player.continue')}</button>
+            <button className={`btn grow ${needsReveal ? '' : 'primary'}`} onClick={go} autoFocus>{needsReveal ? t('player.reveal') : t('player.continue')}</button>
           </div>
         </Footer>
         <LuxChat open={luxOpen} onClose={() => setLuxOpen(false)} lux={explainLux} status="explain" autoIntent={explainAuto?.intent} autoKey={explainAuto?.key} reduce={reduce} />
@@ -891,30 +892,30 @@ function ProblemView({
               </motion.div>
             )}
           </AnimatePresence>
-          {toast && <p className="small muted">{toast}</p>}
+          {toast && <Note tone="ok" role="status" style={{ marginBottom: 12 }}>{toast}</Note>}
         </div>
         <div className="foot-actions">
           {phase === 'answering' && !placement && (
-            <>
-              <button className="icon-btn" onClick={() => { setState(initialState(rp)); setShownHint(null); }} aria-label={t('player.reset')} title={t('player.reset')}>
+            <div className="foot-tools">
+              <button className="tool-btn icon" onClick={() => { setState(initialState(rp)); setShownHint(null); }} aria-label={t('player.reset')} title={t('player.reset')}>
                 <Icon name="reset" size={19} />
               </button>
               <LuxButton onClick={() => openLux(null)} label={t('lux.ask')} reduce={reduce} badge={attemptNo > 1 && !lux.used} />
-              <button className="btn ghost" onClick={showHint} disabled={!hintsLeft} aria-label={hintsLeft ? t('player.hint') : t('player.noMoreHints')}>
-                <Icon name="bulb" size={17} /> {t('player.hint')}
+              <button className="tool-btn" onClick={showHint} disabled={!hintsLeft} aria-label={hintsLeft ? t('player.hint') : t('player.noMoreHints')} title={t('player.hint')}>
+                <Icon name="bulb" size={18} /> <span className="tb-label">{t('player.hint')}</span>
               </button>
-            </>
+            </div>
           )}
           {phase === 'wrong' && (
-            <button className="btn ghost" onClick={giveUp}>{t('player.showSolution')}</button>
+            <button className="btn quiet" onClick={giveUp}>{t('player.showSolution')}</button>
           )}
           {(phase === 'correct' || phase === 'revealed') && (
-            <button className="icon-btn" onClick={report} aria-label={t('player.report')} title={t('player.report')}>
+            <button className="tool-btn icon" onClick={report} aria-label={t('player.report')} title={t('player.report')}>
               <Icon name="flag" size={18} />
             </button>
           )}
           <button
-            className={`btn grow ${phase === 'correct' ? 'ok' : phase === 'wrong' ? 'bad' : phase === 'revealed' ? 'warn' : 'primary'}`}
+            className={`btn grow ${phase === 'correct' ? 'ok' : 'primary'}`}
             onClick={primary}
             disabled={phase === 'answering' && !answered}
             autoFocus={phase !== 'answering'}
@@ -1055,7 +1056,7 @@ function Complete({ mode, outcomes, xpGained, placementResult, durationMs, topic
         )}
         <motion.div {...rise(0.15)}>
           {topic && <p className="eyebrow">{mode.kind === 'daily' ? t('daily.title') : topic.title}</p>}
-          <h1 className="display" style={{ fontSize: '2rem', marginTop: 8 }}>{title}</h1>
+          <h1 className="page-title" style={{ marginTop: 8 }}>{title}</h1>
           {conceptTitle && <p className="lead" style={{ margin: '6px 0 0' }}>{conceptTitle}</p>}
           {mode.kind === 'daily' && <p className="lead" style={{ margin: '6px 0 0' }}>{t('daily.tomorrow')}</p>}
         </motion.div>
@@ -1170,7 +1171,7 @@ function MistakesDone({ outcomes, topicId, afterLesson, nextConcept }: { outcome
       {all && <Confetti reduce={reduce} />}
       <div className="complete-inner">
         <div className="complete-lux"><Lux mood={all ? 'cheer' : 'happy'} size={112} still={reduce} /></div>
-        <h1 className="display" style={{ fontSize: '2rem', marginTop: 8 }}>{all ? t('mistakes.doneTitle') : t('mistakes.partTitle')}</h1>
+        <h1 className="page-title" style={{ marginTop: 8 }}>{all ? t('mistakes.doneTitle') : t('mistakes.partTitle')}</h1>
         <p className="lead" style={{ margin: '6px 0 0' }}>{t('mistakes.doneBody', { solved, total })}</p>
         {!all && <p className="small muted" style={{ marginTop: 10 }}>{t('mistakes.keep')}</p>}
         <div className="complete-actions" style={{ marginTop: 28 }}>

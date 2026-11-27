@@ -4,12 +4,13 @@ import { tutorStatus, type TutorStatusInfo } from '../lib/tutor.ts';
 import { Markdown } from '../lib/markdown.tsx';
 import { href } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
+import { PageHeader } from '../components/ui.tsx';
 
 const PAGES: LegalPage[] = ['privacy', 'terms', 'imprint'];
 /** Reachable by link (store listings) but not one of the tabs. */
 const OTHER: LegalPage[] = ['delete'];
 
-export function Legal({ page }: { page?: string }) {
+export function Legal({ page, back }: { page?: string; back?: string }) {
   const { t, settings } = useApp();
   const p: LegalPage = [...PAGES, ...OTHER].includes(page as LegalPage) ? (page as LegalPage) : 'privacy';
   // The privacy policy names the AI service the server actually uses (the Lux chat itself does not).
@@ -24,10 +25,10 @@ export function Legal({ page }: { page?: string }) {
   }
   return (
     <main id="main" className="fade-in legal">
+      <PageHeader back={back} title={t(`legal.${p}`)} />
       <nav className="sc-tabs" aria-label={t('settings.legal')}>
         {PAGES.map((x) => <a key={x} href={href(`legal/${x}`)} aria-current={x === p ? 'page' : undefined}>{t(`legal.${x}`)}</a>)}
       </nav>
-      <h1 className="display" style={{ fontSize: '1.75rem' }}>{t(`legal.${p}`)}</h1>
       {sections.map((s) => (
         <section key={s.h}>
           <h2>{s.h}</h2>

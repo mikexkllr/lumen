@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useApp } from '../lib/store.tsx';
 import {
   ArrowLeft, ArrowRight, BookOpen, Brain, ChartColumn, Check, ChevronDown, ChevronRight, CircleCheck, Clock, Code, Compass, Cpu, Dices, Download, Eye, Flag, Flame,
   House, Info, Layers, Lightbulb, Lock, Percent, Play, Puzzle, RefreshCw, Repeat, RotateCcw, Scale, Search, Settings, Shapes, Snowflake, Sparkles, Star, Target,
-  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, Volume2, Users, UserPlus, Share2, Bell, Ban, Ellipsis, Hand, Copy, Scale as ScaleIcon, LogOut, type LucideIcon,
+  Trash2, Trophy, Undo2, Upload, User, X, Zap, Divide, Bot, Sunrise, Moon, Gift, Medal, Crown, CalendarCheck, SendHorizontal, MessageCircle, Volume2, Users, UserPlus, Share2, Bell, Ban, Ellipsis, Hand, Copy, Scale as ScaleIcon, LogOut, TriangleAlert, WifiOff, Pencil, type LucideIcon,
 } from 'lucide-react';
 
 const ICONS: Record<string, LucideIcon> = {
@@ -13,6 +14,7 @@ const ICONS: Record<string, LucideIcon> = {
   info: Info, done: CircleCheck, snow: Snowflake, layers: Layers, trophy: Trophy, undo: Undo2, cpu: Cpu,
   compass: Compass, sunrise: Sunrise, moon: Moon, gift: Gift, medal: Medal, crown: Crown, calendar: CalendarCheck, send: SendHorizontal, chat: MessageCircle, volume: Volume2,
   users: Users, userPlus: UserPlus, share: Share2, bell: Bell, ban: Ban, more: Ellipsis, nudge: Hand, copy: Copy, legal: ScaleIcon, logout: LogOut,
+  alert: TriangleAlert, offline: WifiOff, edit: Pencil,
 };
 
 export function Icon({ name, size = 20, label, strokeWidth = 1.9, className }: { name: string; size?: number; label?: string; strokeWidth?: number; className?: string }) {
@@ -20,7 +22,6 @@ export function Icon({ name, size = 20, label, strokeWidth = 1.9, className }: {
   return <C size={size} strokeWidth={strokeWidth} className={className} role={label ? 'img' : undefined} aria-label={label} aria-hidden={label ? undefined : true} focusable="false" />;
 }
 
-/** Wordmark glyph: a rounded tile with a ray of light. */
 /** App mark: Lux's head on the brand colour (same drawing as the app icon, scripts/build-icons.ts). */
 export function Logo({ size = 32 }: { size?: number }) {
   return (
@@ -100,4 +101,169 @@ export function relativeDay(date: Date, today: Date, t: (k: 'today' | 'tomorrow'
   if (n <= 0) return t('today');
   if (n === 1) return t('tomorrow');
   return `in ${t('days', { n })}`;
+}
+
+/**
+ * The head of a screen: its title, a way back for screens below a tab, and room for one or
+ * two actions. Every screen uses it, so titles sit in the same place at the same size.
+ */
+/** The way back from a screen below a tab: to where the learner came from, else to `to`. */
+export function BackButton({ to = '', className = '' }: { to?: string | (() => void); className?: string }) {
+  const { t } = useApp();
+  const goBack = () => {
+    if (typeof to === 'function') to();
+    else if (history.length > 1) history.back();
+    else location.hash = `#/${to}`;
+  };
+  return <button type="button" className={`icon-btn back ${className}`} onClick={goBack} aria-label={t('onb.back')}><Icon name="back" /></button>;
+}
+
+export function PageHeader({ title, sub, back, actions, id }: { title: ReactNode; sub?: ReactNode; back?: string | (() => void); actions?: ReactNode; id?: string }) {
+  return (
+    <header className="page-head">
+      {back !== undefined && <BackButton to={back} />}
+      <div className="ph-body">
+        <h1 className="page-title" id={id}>{title}</h1>
+        {sub && <p className="ph-sub">{sub}</p>}
+      </div>
+      {actions && <div className="ph-actions">{actions}</div>}
+    </header>
+  );
+}
+
+const NOTE_ICONS = { plain: 'info', info: 'info', ok: 'done', warn: 'alert', bad: 'alert' } as const;
+
+/** A message in line with the content, in the colour of what it means. */
+export function Note({ tone = 'plain', icon, role, children, style }: { tone?: keyof typeof NOTE_ICONS; icon?: string; role?: 'status' | 'alert'; children: ReactNode; style?: React.CSSProperties }) {
+  return (
+    <p className={`note ${tone}`} role={role} style={style}>
+      <Icon name={icon ?? NOTE_ICONS[tone]} size={17} />
+      <span>{children}</span>
+    </p>
+  );
+}
+
+/** Nothing to show yet: say so, and offer the way to change it. */
+export function Empty({ icon = 'sparkles', title, children, action }: { icon?: string; title?: string; children?: ReactNode; action?: ReactNode }) {
+  return (
+    <div className="empty">
+      <span className="em-ico" aria-hidden="true"><Icon name={icon} size={22} /></span>
+      {title && <strong>{title}</strong>}
+      {children && <p>{children}</p>}
+      {action}
+    </div>
+  );
+}
+
+export function LoadingRow() {
+  const { t } = useApp();
+  return <div className="loading-row" role="status"><span className="spinner" aria-hidden="true" /> {t('loading')}</div>;
+}
+
+/** Keeps focus inside an open layer, closes it on Escape and puts focus back where it was. */
+function useLayer(onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const el = ref.current;
+    const before = document.activeElement as HTMLElement | null;
+    const focusable = () => [...(el?.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), select, textarea, [tabindex]:not([tabindex="-1"])') ?? [])];
+    if (el && !el.contains(document.activeElement)) (el.querySelector<HTMLElement>('[autofocus]') ?? focusable()[0] ?? el).focus({ preventScroll: true });
+    const key = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.stopPropagation();
+        close.current();
+      } else if (e.key === 'Tab') {
+        const f = focusable();
+        if (!f.length) return;
+        const first = f[0];
+        const last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    addEventListener('keydown', key);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      removeEventListener('keydown', key);
+      document.body.style.overflow = overflow;
+      before?.focus?.({ preventScroll: true });
+    };
+  }, []);
+  return ref;
+}
+
+/** A sheet from the bottom on phones, a centred panel on wider screens. */
+export function Sheet({ label, onClose, children }: { label: string; onClose(): void; children: ReactNode }) {
+  const { t } = useApp();
+  const ref = useLayer(onClose);
+  return (
+    <>
+      <div className="sheet-backdrop" onClick={onClose} />
+      <div className="sheet" role="dialog" aria-modal="true" aria-label={label} ref={ref} tabIndex={-1}>
+        <div className="grab" />
+        <div className="sheet-head">
+          <h2>{label}</h2>
+          <button type="button" className="icon-btn" onClick={onClose} aria-label={t('player.close')}><Icon name="close" /></button>
+        </div>
+        {children}
+      </div>
+    </>
+  );
+}
+
+export interface ConfirmOptions {
+  title: string;
+  body?: string;
+  /** What the confirming button says – the action itself, not "OK". */
+  confirm: string;
+  cancel?: string;
+  /** Deleting, leaving, blocking: the confirming button turns red. */
+  danger?: boolean;
+}
+
+const ConfirmContext = createContext<((o: ConfirmOptions) => Promise<boolean>) | null>(null);
+
+/**
+ * Asks before something that cannot be taken back, in the app's own dialog. Without the
+ * provider (a screen rendered on its own in a test) it falls back to the browser's.
+ */
+export function useConfirm(): (o: ConfirmOptions) => Promise<boolean> {
+  const ask = useContext(ConfirmContext);
+  return ask ?? (async (o) => window.confirm([o.title, o.body].filter(Boolean).join('\n\n')));
+}
+
+export function ConfirmProvider({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState<(ConfirmOptions & { resolve(v: boolean): void }) | null>(null);
+  const ask = useCallback((o: ConfirmOptions) => new Promise<boolean>((resolve) => setOpen({ ...o, resolve })), []);
+  const answer = (v: boolean) => {
+    open?.resolve(v);
+    setOpen(null);
+  };
+  return (
+    <ConfirmContext.Provider value={ask}>
+      {children}
+      {open && <ConfirmDialog options={open} onAnswer={answer} />}
+    </ConfirmContext.Provider>
+  );
+}
+
+function ConfirmDialog({ options: o, onAnswer }: { options: ConfirmOptions; onAnswer(v: boolean): void }) {
+  const { t } = useApp();
+  const ref = useLayer(() => onAnswer(false));
+  return (
+    <>
+      <div className="dialog-backdrop" onClick={() => onAnswer(false)} />
+      <div className="dialog" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby={o.body ? 'confirm-body' : undefined} ref={ref} tabIndex={-1}>
+        <h2 id="confirm-title">{o.title}</h2>
+        {o.body && <p id="confirm-body">{o.body}</p>}
+        <div className="dialog-actions">
+          <button type="button" className={`btn lg block ${o.danger ? 'bad' : 'primary'}`} onClick={() => onAnswer(true)}>{o.confirm}</button>
+          <button type="button" className="btn lg block quiet" autoFocus onClick={() => onAnswer(false)}>{o.cancel ?? t('cancel')}</button>
+        </div>
+      </div>
+    </>
+  );
 }

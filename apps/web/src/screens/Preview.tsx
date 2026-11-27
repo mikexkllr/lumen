@@ -4,7 +4,7 @@
  */
 import { useMemo, useState } from 'react';
 import { evalConcept, initialState, randomSeed, referenceSolve, resolveProblem, type Concept, type Issue, type ProblemStep } from '@lumen/engine';
-import { Icon } from '../components/ui.tsx';
+import { Icon, PageHeader } from '../components/ui.tsx';
 import { inline, Markdown } from '../lib/markdown.tsx';
 import { href } from '../lib/router.ts';
 import { useApp } from '../lib/store.tsx';
@@ -16,8 +16,7 @@ export function PreviewIndex() {
   if (!lib) return null;
   return (
     <main id="main">
-      <div className="page-header"><h1 style={{ margin: 0 }}>{t('preview.title')}</h1></div>
-      <p className="muted small">{t('preview.intro')}</p>
+      <PageHeader back="profile" title={t('preview.title')} sub={t('preview.intro')} />
       <p className="small">Content-Version: <code>{lib.manifest.version}</code> · Schema {lib.manifest.schema}</p>
       {lib.catalog.topics.map((tp) => (
         <section key={tp.id} className="card flat" style={{ marginBottom: 12 }}>
@@ -52,8 +51,8 @@ export function PreviewConcept({ conceptId }: { conceptId: string }) {
   for (const i of issues) byStep.set(i.step ?? '', [...(byStep.get(i.step ?? '') ?? []), i]);
   return (
     <main id="main">
-      <div className="page-header">
-        <a className="icon-btn" href={href('preview')} aria-label={t('onb.back')}><span style={{ transform: 'scaleX(-1)', display: 'inline-flex' }}><Icon name="chevron" /></span></a>
+      <div className="row wrap" style={{ marginBottom: 12 }}>
+        <a className="icon-btn" style={{ marginLeft: -10 }} href={href('preview')} aria-label={t('onb.back')}><Icon name="back" /></a>
         <span className="row wrap" style={{ gap: 6 }}>
           {lessons.map((id) => {
             const m = lib?.catalog.concepts[id];
@@ -112,9 +111,9 @@ function ProblemPreview({ step, locale }: { step: ProblemStep; locale: string })
       <p className="small muted">{rp.widget.describe(state, rp.params, locale)}</p>
       {rp.hints.length > 0 && <p className="small">💡 {rp.hints.join(' · ')}</p>}
       <div className="row wrap">
-        <button className="btn ghost small" onClick={() => { const s = referenceSolve(rp); if (s) setState(s.state); }}>{t('preview.solve')}</button>
-        {step.variants && <button className="btn ghost small" onClick={() => setSeed(randomSeed())}>{t('preview.variant')} {seed ? `(seed ${seed})` : ''}</button>}
-        <button className="btn ghost small" onClick={() => setState(initialState(rp))}>{t('player.reset')}</button>
+        <button className="btn small" onClick={() => { const s = referenceSolve(rp); if (s) setState(s.state); }}>{t('preview.solve')}</button>
+        {step.variants && <button className="btn small" onClick={() => setSeed(randomSeed())}>{t('preview.variant')} {seed ? `(seed ${seed})` : ''}</button>}
+        <button className="btn small" onClick={() => setState(initialState(rp))}>{t('player.reset')}</button>
       </div>
     </div>
   );

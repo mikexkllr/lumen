@@ -4,7 +4,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Avatar, errorText, relTime, Sheet, TierBadge, tierName } from '../components/social.tsx';
-import { Icon, Switch } from '../components/ui.tsx';
+import { BackButton, Empty, Icon, LoadingRow, Note, PageHeader, Switch, useConfirm } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
 import { isKid } from '../lib/settings.ts';
 import {
@@ -27,11 +27,9 @@ export function Community({ section }: { section?: string }) {
   const badge = me.data ? me.data.unseen + me.data.requests : 0;
   return (
     <main id="main" className="fade-in">
-      <header className="page-head">
-        <h1 className="display" style={{ fontSize: '1.875rem' }}>{t('social.title')}</h1>
-      </header>
-      {!online && <p className="small card amber" role="status">{t('social.offline')}</p>}
-      {me.error?.message === 'banned' && <p className="card amber" role="alert">{t('social.err.banned')}</p>}
+      <PageHeader title={t('social.title')} />
+      {!online && <Note tone="warn" icon="offline" role="status" style={{ marginBottom: 14 }}>{t('social.offline')}</Note>}
+      {me.error?.message === 'banned' && <Note tone="bad" role="alert" style={{ marginBottom: 14 }}>{t('social.err.banned')}</Note>}
       <nav className="sc-tabs" aria-label={t('social.title')}>
         {(['league', 'friends', 'feed'] as const).map((s) => (
           <a key={s} href={href(`community/${s}`)} aria-current={sec === s ? 'page' : undefined}>
@@ -49,9 +47,8 @@ function KidsNotice() {
   const { t } = useApp();
   return (
     <main id="main" className="fade-in">
-      <header className="page-head"><h1 className="display" style={{ fontSize: '1.875rem' }}>{t('social.title')}</h1></header>
-      <div className="card"><p style={{ margin: 0 }}>{t('social.kids')}</p></div>
-      <a className="btn ghost" style={{ marginTop: 14 }} href={href('streak')}><Icon name="flame" size={16} /> {t('streak.title')}</a>
+      <PageHeader title={t('social.title')} />
+      <Empty icon="users" action={<a className="btn" href={href('streak')}><Icon name="flame" size={16} /> {t('streak.title')}</a>}>{t('social.kids')}</Empty>
     </main>
   );
 }
@@ -85,22 +82,22 @@ function JoinCommunity() {
   };
   return (
     <main id="main" className="fade-in">
-      <header className="page-head"><h1 className="display" style={{ fontSize: '1.875rem' }}>{t('social.introTitle')}</h1><p className="muted">{t('social.intro')}</p></header>
+      <PageHeader title={t('social.introTitle')} sub={t('social.intro')} />
       <ul className="sc-points">
         <li><span className="si"><Icon name="trophy" size={18} /></span>{t('social.point.league')}</li>
         <li><span className="si"><Icon name="flame" size={18} /></span>{t('social.point.friends')}</li>
         <li><span className="si"><Icon name="users" size={18} /></span>{t('social.point.feed')}</li>
       </ul>
-      {!online && <p className="small card amber" role="status">{t('social.offline')}</p>}
-      {me.loading && !me.error ? <p className="small faint">{t('loading')}</p> : (
+      {!online && <Note tone="warn" icon="offline" role="status" style={{ marginBottom: 14 }}>{t('social.offline')}</Note>}
+      {me.loading && !me.error ? <LoadingRow /> : (
         <form className="stack" onSubmit={(e) => { e.preventDefault(); if (ok) void join(); }}>
           <div className="field">
             <label htmlFor="sc-name">{t('social.setup.name')}</label>
             <input id="sc-name" className="input" maxLength={30} autoComplete="nickname" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
-          {settings.age !== '16+' && <label className="row small"><input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} /> {t('social.setup.age')}</label>}
+          {settings.age !== '16+' && <label className="check-row small"><input type="checkbox" checked={age} onChange={(e) => setAge(e.target.checked)} /> {t('social.setup.age')}</label>}
           <p className="small faint" style={{ margin: 0 }}>{t('social.privacy')}</p>
-          {msg && <p className="small" role="alert" style={{ margin: 0 }}>{msg}</p>}
+          {msg && <Note tone="bad" role="alert">{msg}</Note>}
           <button className="btn primary lg" type="submit" disabled={!ok}>{busy ? t('loading') : t('social.join')} <Icon name="arrow" size={18} className="arrow" /></button>
         </form>
       )}
@@ -130,7 +127,7 @@ export function ProfileEdit() {
   }, [current?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (isKid(settings)) return <KidsNotice />;
   if (!active) return <JoinCommunity />;
-  if (!current) return <main id="main"><p className="small faint">{t('loading')}</p></main>;
+  if (!current) return <main id="main"><LoadingRow /></main>;
   const [ci, ii] = (/^c(\d+)-i(\d+)$/.exec(avatar) ?? ['', '0', '0']).slice(1).map(Number);
   const canSave = name.trim().length > 0 && /^[a-z0-9_]{3,20}$/.test(handle) && !busy;
 
@@ -152,13 +149,7 @@ export function ProfileEdit() {
 
   return (
     <main id="main" className="fade-in">
-      <button className="btn quiet small" onClick={() => history.back()} style={{ marginBottom: 8 }}><Icon name="back" size={16} /> {t('onb.back')}</button>
-      <header className="page-head row" style={{ gap: 14 }}>
-        <Avatar avatar={avatar} size={56} />
-        <div>
-          <h1 className="display" style={{ fontSize: '1.625rem' }}>{t('social.setup.title')}</h1>
-        </div>
-      </header>
+      <PageHeader back="profile" title={t('social.setup.title')} actions={<Avatar avatar={avatar} size={48} />} />
       <form className="stack" onSubmit={(e) => { e.preventDefault(); if (canSave) void save(); }}>
         <div className="field">
           <label htmlFor="sc-name">{t('social.setup.name')}</label>
@@ -181,7 +172,7 @@ export function ProfileEdit() {
         <div className="list">
           <Switch label={t('social.setup.leagues')} hint={t('social.setup.leaguesHint')} checked={leagues} onChange={setLeagues} />
         </div>
-        {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <Note role="status">{msg}</Note>}
         <button className="btn primary lg" type="submit" disabled={!canSave}>{busy ? t('loading') : t('social.setup.save')}</button>
       </form>
     </main>
@@ -219,22 +210,18 @@ function LeagueView() {
         <h2 id="league-h">{t('league.title', { tier: tierName(t, tier) })}</h2>
         <p className="small muted">{t('league.daysLeft', { n: left })}{d?.promote ? ` · ${t('league.promoteInfo', { n: d.promote })}` : ''}{d?.demote ? `, ${t('league.demoteInfo', { n: d.demote })}` : ''}</p>
       </div>
-      {d?.outcome && d.outcome !== 'stayed' && <p className={`card ${d.outcome === 'promoted' ? 'accent' : 'amber'}`} role="status">{t(d.outcome === 'promoted' ? 'league.promoted' : 'league.demoted', { tier: tierName(t, tier) })}</p>}
+      {d?.outcome && d.outcome !== 'stayed' && <Note tone={d.outcome === 'promoted' ? 'ok' : 'warn'} icon="trophy" role="status" style={{ marginBottom: 14 }}>{t(d.outcome === 'promoted' ? 'league.promoted' : 'league.demoted', { tier: tierName(t, tier) })}</Note>}
       <div className="segmented" role="group" aria-label={t('social.tab.league')} style={{ marginBottom: 12 }}>
         <button type="button" aria-pressed={mode === 'league'} onClick={() => setMode('league')}>{t('league.mode.league')}</button>
         <button type="button" aria-pressed={mode === 'friends'} onClick={() => setMode('friends')}>{t('league.mode.friends')}</button>
       </div>
       {mode === 'league' ? (
-        league.error ? <p className="small" role="alert">{errorText(t, league.error)}</p>
-        : !d ? <p className="small faint">{t('loading')}</p>
-        : d.optedOut ? <p className="card">{t('league.optedOut')}</p>
-        : !d.joined ? (
-          <div className="card stack">
-            <p style={{ margin: 0 }}>{t('league.notJoined')}</p>
-            <a className="btn primary" href={href('')}>{t('league.notJoinedCta')}</a>
-          </div>
-        ) : <Standings list={d.standings ?? []} />
-      ) : friends.data ? <FriendsBoard data={friends.data} /> : <p className="small faint">{friends.error ? errorText(t, friends.error) : t('loading')}</p>}
+        league.error ? <Note tone="bad" role="alert">{errorText(t, league.error)}</Note>
+        : !d ? <LoadingRow />
+        : d.optedOut ? <Empty icon="trophy">{t('league.optedOut')}</Empty>
+        : !d.joined ? <Empty icon="trophy" action={<a className="btn primary" href={href('')}>{t('league.notJoinedCta')} <Icon name="arrow" size={17} className="arrow" /></a>}>{t('league.notJoined')}</Empty>
+        : <Standings list={d.standings ?? []} />
+      ) : friends.data ? <FriendsBoard data={friends.data} /> : friends.error ? <Note tone="bad" role="alert">{errorText(t, friends.error)}</Note> : <LoadingRow />}
     </section>
   );
 }
@@ -260,7 +247,7 @@ function Standings({ list }: { list: NonNullable<LeagueResponse['standings']> })
 
 function FriendsBoard({ data }: { data: FriendsResponse }) {
   const { t } = useApp();
-  if (!data.friends.length) return <div className="card stack"><p style={{ margin: 0 }}>{t('league.friendsEmpty')}</p><a className="btn primary" href={href('community/friends')}>{t('friends.add')}</a></div>;
+  if (!data.friends.length) return <Empty icon="users" action={<a className="btn primary" href={href('community/friends')}><Icon name="userPlus" size={17} /> {t('friends.add')}</a>}>{t('league.friendsEmpty')}</Empty>;
   const all = [{ ...data.me, me: true }, ...data.friends.map((f) => ({ ...f, me: false }))].sort((a, b) => b.xpWeek - a.xpWeek);
   return (
     <ol className="rank-list">
@@ -322,14 +309,14 @@ function FriendsView() {
   return (
     <>
       <section className="card stack" aria-labelledby="add-h">
-        <h2 id="add-h" style={{ fontSize: '1.0625rem', margin: 0 }}>{t('friends.add')}</h2>
+        <h2 id="add-h" className="card-title">{t('friends.add')}</h2>
         <p className="small muted" style={{ margin: 0 }}>{t('friends.addHint')}</p>
         <form className="row" onSubmit={(e) => { e.preventDefault(); if (handle.trim().length >= 3) void add(); }}>
           <input className="input" aria-label={t('social.setup.handle')} placeholder={t('friends.handlePlaceholder')} autoCapitalize="none" spellCheck={false} value={handle} onChange={(e) => setHandle(e.target.value)} style={{ flex: 1, minWidth: 0 }} />
           <button className="btn primary" type="submit" aria-label={t('friends.send')} disabled={handle.trim().replace(/^@/, '').length < 3}><Icon name="userPlus" size={16} /> <span className="hide-sm">{t('friends.send')}</span></button>
         </form>
-        <button className="btn ghost" onClick={share} disabled={!myHandle}><Icon name="share" size={16} /> {t('friends.share')}{myHandle ? ` · @${myHandle}` : ''}</button>
-        {msg && <p className="small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        <button className="btn" onClick={share} disabled={!myHandle}><Icon name="share" size={16} /> <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{t('friends.share')}{myHandle ? ` · @${myHandle}` : ''}</span></button>
+        {msg && <Note role="status">{msg}</Note>}
       </section>
 
       {d && d.incoming.length > 0 && (
@@ -339,7 +326,7 @@ function FriendsView() {
             {d.incoming.map((u) => (
               <li key={u.id} className="list-row">
                 <UserChip user={u} />
-                <span className="row" style={{ gap: 6 }}>
+                <span className="row" style={{ gap: 6, flex: 'none' }}>
                   <button className="btn primary small" onClick={() => run(async () => { await social.accept(conn!, u.id); return t('friends.nowFriends', { name: u.name }); })}>{t('friends.accept')}</button>
                   <button className="btn quiet small" onClick={() => run(() => social.removeFriend(conn!, u.id).then(() => null))}>{t('friends.decline')}</button>
                 </span>
@@ -351,7 +338,7 @@ function FriendsView() {
 
       <section aria-labelledby="fl-h">
         <div className="section-head"><h2 id="fl-h">{t('friends.list')}</h2>{d && <span className="count">{d.friends.length}</span>}</div>
-        {q.error ? <p className="small" role="alert">{errorText(t, q.error)}</p> : !d ? <p className="small faint">{t('loading')}</p> : d.friends.length === 0 ? <p className="card small">{t('friends.empty')}</p> : (
+        {q.error ? <Note tone="bad" role="alert">{errorText(t, q.error)}</Note> : !d ? <LoadingRow /> : d.friends.length === 0 ? <Empty icon="users">{t('friends.empty')}</Empty> : (
           <ul className="friend-list">{[...d.friends].sort((a, b) => b.friendStreak.current - a.friendStreak.current).map((f) => <FriendRow key={f.id} f={f} onNudge={(m) => setMsg(m)} />)}</ul>
         )}
       </section>
@@ -447,10 +434,10 @@ function FeedView() {
         </section>
       )}
       <section aria-label={t('social.tab.feed')} style={{ marginTop: 16 }}>
-        {q.error ? <p className="small" role="alert">{errorText(t, q.error)}</p> : !q.data ? <p className="small faint">{t('loading')}</p> : items.length === 0 ? <p className="card small">{t('feed.empty')}</p> : (
+        {q.error ? <Note tone="bad" role="alert">{errorText(t, q.error)}</Note> : !q.data ? <LoadingRow /> : items.length === 0 ? <Empty icon="sparkles">{t('feed.empty')}</Empty> : (
           <ul className="feed-list">{items.map((it) => <FeedCard key={it.id} item={it} locale={settings.locale} onChange={() => setNonce((x) => x + 1)} />)}</ul>
         )}
-        {next && <button className="btn ghost block" onClick={loadMore}>{t('feed.more')}</button>}
+        {next && <button className="btn block" onClick={loadMore}>{t('feed.more')}</button>}
       </section>
     </>
   );
@@ -561,16 +548,17 @@ export function UserScreen({ refId }: { refId: string }) {
   const q = useQuery(active && conn ? `user:${refId}:${syncNonce}:${nonce}` : null, () => social.user(conn!, refId));
   const [msg, setMsg] = useState<string | null>(null);
   const [report, setReport] = useState(false);
+  const confirm = useConfirm();
   if (isKid(settings)) return <KidsNotice />;
   if (!active) {
     return (
       <main id="main" className="fade-in">
-        <div className="card stack"><p style={{ margin: 0 }}>{t('user.setupFirst')}</p><a className="btn primary" href={href('community')}>{t('social.join')}</a></div>
+        <Empty icon="users" action={<a className="btn primary" href={href('community')}>{t('social.join')} <Icon name="arrow" size={17} className="arrow" /></a>}>{t('user.setupFirst')}</Empty>
       </main>
     );
   }
-  if (q.error) return <main id="main"><p className="card" role="alert">{q.error.message === 'not_found' ? t('user.notFound') : errorText(t, q.error)}</p></main>;
-  if (!q.data) return <main id="main"><p className="small faint">{t('loading')}</p></main>;
+  if (q.error) return <main id="main"><BackButton to="community/friends" className="solo" /><Note tone="bad" role="alert">{q.error.message === 'not_found' ? t('user.notFound') : errorText(t, q.error)}</Note></main>;
+  if (!q.data) return <main id="main"><LoadingRow /></main>;
   const { user, relation, friendStreak: fs } = q.data;
   const stats = 'streak' in user ? (user as UserSummary) : null;
   const act = async (f: () => Promise<unknown>, done?: string) => {
@@ -585,20 +573,20 @@ export function UserScreen({ refId }: { refId: string }) {
   };
   return (
     <main id="main" className="fade-in">
-      <button className="btn quiet small" onClick={() => history.back()} style={{ marginBottom: 8 }}><Icon name="back" size={16} /> {t('onb.back')}</button>
+      <BackButton to="community/friends" className="solo" />
       <header className="user-head">
         <Avatar avatar={user.avatar} size={84} />
-        <div>
-          <h1 className="display" style={{ fontSize: '1.75rem' }}>{user.name}</h1>
+        <div style={{ minWidth: 0 }}>
+          <h1 className="page-title">{user.name}</h1>
           <p className="muted" style={{ margin: '2px 0 0' }}>@{user.handle}{stats ? ` · ${t('user.since', { date: new Date(`${stats.since}T12:00:00`).toLocaleDateString(settings.locale, { month: 'long', year: 'numeric' }) })}` : ''}</p>
         </div>
       </header>
       {relation === 'self' && <p className="small faint">{t('user.self')} <a href={href('community/edit')}>{t('settings.editProfile')}</a></p>}
       {stats ? (
         <div className="stat-grid" style={{ marginTop: 16 }}>
-          <div className="stat-tile"><span className="si" style={{ background: 'color-mix(in srgb, #f97316 14%, transparent)', color: '#f97316' }}><Icon name="flame" size={17} /></span><strong>{stats.streak}</strong><span>{t('home.streak')}</span></div>
-          <div className="stat-tile"><span className="si" style={{ background: 'color-mix(in srgb, var(--accent) 14%, transparent)', color: 'var(--accent)' }}><Icon name="bolt" size={17} /></span><strong>{stats.xpTotal}</strong><span>{t('user.totalXp')}</span></div>
-          <div className="stat-tile"><span className="si" style={{ background: 'color-mix(in srgb, var(--ok) 14%, transparent)', color: 'var(--ok)' }}><Icon name="star" size={17} /></span><strong>{stats.level}</strong><span>{t('level.label', { n: '' }).trim()}</span></div>
+          <div className="stat-tile"><span className="si tone-streak"><Icon name="flame" size={17} /></span><strong>{stats.streak}</strong><span>{t('home.streak')}</span></div>
+          <div className="stat-tile"><span className="si tone-accent"><Icon name="bolt" size={17} /></span><strong>{stats.xpTotal}</strong><span>{t('user.totalXp')}</span></div>
+          <div className="stat-tile"><span className="si tone-ok"><Icon name="star" size={17} /></span><strong>{stats.level}</strong><span>{t('level.label', { n: '' }).trim()}</span></div>
           <div className="stat-tile"><TierBadge tier={stats.tier} size={30} /><strong style={{ fontSize: '1rem' }}>{tierName(t, stats.tier)}</strong><span>{t('user.league')}</span></div>
         </div>
       ) : <p className="small faint" style={{ marginTop: 14 }}>{t('user.private')}</p>}
@@ -611,17 +599,17 @@ export function UserScreen({ refId }: { refId: string }) {
       {relation !== 'self' && (
         <div className="stack" style={{ marginTop: 18 }}>
           {relation === 'none' && <button className="btn primary lg" onClick={() => act(() => social.addFriend(conn!, { userId: user.id }), t('friends.requested', { name: user.name }))}><Icon name="userPlus" size={18} /> {t('user.addFriend')}</button>}
-          {relation === 'requested' && <button className="btn ghost lg" onClick={() => act(() => social.removeFriend(conn!, user.id))}>{t('user.pending')} · {t('friends.cancel')}</button>}
+          {relation === 'requested' && <button className="btn lg" onClick={() => act(() => social.removeFriend(conn!, user.id))}>{t('user.pending')} · {t('friends.cancel')}</button>}
           {relation === 'incoming' && <button className="btn primary lg" onClick={() => act(() => social.accept(conn!, user.id), t('friends.nowFriends', { name: user.name }))}>{t('friends.accept')}</button>}
-          {relation === 'friend' && fs && !fs.friendToday && <button className="btn ghost" onClick={() => act(async () => { const r = await social.nudge(conn!, user.id); setMsg(r.sent ? t('friends.nudged') : t('friends.nudgedAlready')); })}><Icon name="nudge" size={16} /> {t('friends.nudge')}</button>}
+          {relation === 'friend' && fs && !fs.friendToday && <button className="btn" onClick={() => act(async () => { const r = await social.nudge(conn!, user.id); setMsg(r.sent ? t('friends.nudged') : t('friends.nudgedAlready')); })}><Icon name="nudge" size={16} /> {t('friends.nudge')}</button>}
           <div className="row wrap" style={{ gap: 8 }}>
-            {relation === 'friend' && <button className="btn quiet small" onClick={() => confirm(t('friends.removeConfirm', { name: user.name })) && act(() => social.removeFriend(conn!, user.id))}>{t('friends.remove')}</button>}
+            {relation === 'friend' && <button className="btn quiet small" onClick={async () => { if (await confirm({ title: t('friends.remove'), body: t('friends.removeConfirm', { name: user.name }), confirm: t('friends.remove'), danger: true })) void act(() => social.removeFriend(conn!, user.id)); }}>{t('friends.remove')}</button>}
             <button className="btn quiet small" onClick={() => setReport(true)}><Icon name="flag" size={14} /> {t('user.report')}</button>
-            <button className="btn quiet small" style={{ color: 'var(--bad)' }} onClick={() => confirm(t('user.blockConfirm', { name: user.name })) && act(async () => { await social.block(conn!, user.id); navigate('community/friends', true); })}><Icon name="ban" size={14} /> {t('user.block')}</button>
+            <button className="btn quiet small danger" onClick={async () => { if (await confirm({ title: t('user.block'), body: t('user.blockConfirm', { name: user.name }), confirm: t('user.block'), danger: true })) void act(async () => { await social.block(conn!, user.id); navigate('community/friends', true); }); }}><Icon name="ban" size={14} /> {t('user.block')}</button>
           </div>
         </div>
       )}
-      {msg && <p className="small" role="status" style={{ marginTop: 12 }}>{msg}</p>}
+      {msg && <Note role="status" style={{ marginTop: 14 }}>{msg}</Note>}
       {report && <ReportSheet user={user} onClose={() => setReport(false)} onDone={(m, blocked) => { setReport(false); setMsg(m); if (blocked) navigate('community/friends', true); }} />}
     </main>
   );
@@ -643,13 +631,13 @@ function ReportSheet({ user, onClose, onDone }: { user: PublicUser; onClose(): v
   };
   return (
     <Sheet label={t('user.reportTitle', { name: user.name })} onClose={onClose}>
-      <div className="stack" role="radiogroup" aria-label={t('user.report')}>
+      <div className="stack" style={{ gap: 6 }} role="radiogroup" aria-label={t('user.report')}>
         {REPORT_REASONS.map((r) => (
-          <label key={r} className="row"><input type="radio" name="reason" checked={reason === r} onChange={() => setReason(r)} /> {t(`report.${r}` as TKey)}</label>
+          <label key={r} className="check-row"><input type="radio" name="reason" checked={reason === r} onChange={() => setReason(r)} /> {t(`report.${r}` as TKey)}</label>
         ))}
-        <label className="row small"><input type="checkbox" checked={block} onChange={(e) => setBlock(e.target.checked)} /> {t('report.alsoBlock')}</label>
-        {err && <p className="small" role="alert">{err}</p>}
-        <button className="btn primary" onClick={send}>{t('report.send')}</button>
+        <label className="check-row small"><input type="checkbox" checked={block} onChange={(e) => setBlock(e.target.checked)} /> {t('report.alsoBlock')}</label>
+        {err && <Note tone="bad" role="alert">{err}</Note>}
+        <button className="btn primary lg" onClick={send}>{t('report.send')}</button>
       </div>
     </Sheet>
   );

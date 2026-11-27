@@ -84,8 +84,8 @@ test.describe('community', () => {
     await page.getByRole('dialog').getByRole('button', { name: 'Meldung senden' }).click();
     await expect(page.getByText('Danke für deine Meldung.', { exact: false })).toBeVisible();
 
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: /Blockieren/ }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: /Blockieren/ }).click();
     await expect(page).toHaveURL(/#\/community\/friends/);
     await page.goto('/#/profile');
     await page.getByRole('button', { name: 'Blockierte Personen' }).click();
@@ -112,8 +112,8 @@ test.describe('community', () => {
     await expect(page.getByText('Du nimmst nicht an Ligen teil.', { exact: false })).toBeVisible();
 
     await page.goto('/#/profile');
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Community-Profil löschen' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Community-Profil löschen' }).click();
     await page.goto('/#/community');
     // deleted on purpose: not recreated automatically, joining again is one step
     await expect(page.getByRole('button', { name: /Community beitreten/ })).toBeVisible();

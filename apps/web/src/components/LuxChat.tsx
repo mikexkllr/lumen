@@ -297,7 +297,7 @@ export function LuxChat({
                     <p className="small faint">{t('lux.consent.note')} <a href={href('legal/privacy')}>{t('legal.privacy')}</a></p>
                     <div className="row wrap" style={{ gap: 8 }}>
                       <button type="button" className="btn primary small" onClick={() => lux.decideConsent(true)}>{t('lux.consent.allow')}</button>
-                      <button type="button" className="btn ghost small" onClick={() => lux.decideConsent(false)}>{t('lux.consent.decline')}</button>
+                      <button type="button" className="btn small" onClick={() => lux.decideConsent(false)}>{t('lux.consent.decline')}</button>
                     </div>
                   </div>
                 </div>

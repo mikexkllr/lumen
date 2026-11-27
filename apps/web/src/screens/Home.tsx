@@ -1,12 +1,11 @@
-import { useEffect } from 'react';
 import { buildReviewSession, dueItems, isLastCorePart, lessonExtras, sessionSize, type Catalog, type LumenEvent, type ProgressSummary, type Topic } from '@lumen/engine';
 import { Cover, topicVars } from '../components/art.tsx';
-import { Icon, Ring } from '../components/ui.tsx';
+import { Icon, Note, Ring, Sheet } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
 import type { Settings } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
 import { useGamification } from '../lib/gamify.ts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { type LuxMood } from '../components/Lux.tsx';
 import { LuxSay } from '../components/LuxMoments.tsx';
 import { StreakHero, STREAK_GOALS } from '../components/Streaks.tsx';
@@ -145,7 +144,7 @@ export function StatPills() {
       <a className="pill level" href={href('profile')} aria-label={t('level.aria', { n: level.level, xp: level.span - level.inLevel })}>
         <Ring value={level.progress} size={20} stroke={3}>{''}</Ring> {t('level.short', { n: level.level })}
       </a>
-      <a className={`pill streak ${progress.streak.todayDone ? 'on' : ''}`} href={href('profile')} title={progress.streak.todayDone ? t('home.streakSafe') : t('home.streakOpen')} aria-label={t('home.streakN', { n: progress.streak.current })}>
+      <a className={`pill streak ${progress.streak.todayDone ? 'on' : ''}`} href={href('streak')} title={progress.streak.todayDone ? t('home.streakSafe') : t('home.streakOpen')} aria-label={t('home.streakN', { n: progress.streak.current })}>
         <Icon name="flame" size={17} /> {progress.streak.current}
       </a>
       <a className="pill xp" href={href('profile')} aria-label={`${progress.xpThisWeek} ${t('home.xp')}`}>
@@ -266,6 +265,9 @@ export function Home() {
     navigate(`practice/review/${session.map((s) => encodeURIComponent(s.itemId)).join(',')}`);
   };
 
+  const at = currentTopic ? pathTopics.findIndex((tp) => tp.id === currentTopic.id) : -1;
+  const upcoming = pathTopics.slice(at + 1, at + 4);
+
   return (
     <main id="main" className="fade-in">
       <header className="home-head">
@@ -276,86 +278,93 @@ export function Home() {
         <LuxHello greeting={greeting(settings.locale)} />
       </header>
 
-      <StreakHero />
-
-      {nextMeta && currentTopic ? (
-        <section className="continue-card" style={topicVars(currentTopic.color)} aria-labelledby="cc-title">
-          <a className="cc-art cover-frame" href={href(`topic/${currentTopic.id}`)} aria-label={currentTopic.title}><Cover motif={currentTopic.icon} color={currentTopic.color} /></a>
-          <div className="cc-body">
-            <p className="eyebrow">{currentTopic.title}{unitOfNext >= 0 ? ` · ${t('home.unitN', { n: unitOfNext + 1 })}` : ''}</p>
-            <h2 id="cc-title">{nextMeta.title}</h2>
-            {nextMeta.summary && <p className="cc-sum">{nextMeta.summary}</p>}
-            <div className="cc-meta"><span>{t('home.lessonOf', { n: lessonNo, total: topicConcepts.length })}</span>{nextTag && <span>{nextTag}</span>}<span>{t('home.minutes', { n: nextMeta.estimated_minutes })}</span></div>
-            <div className="progress-bar" aria-hidden="true"><div style={{ width: `${(100 * topicDone) / Math.max(1, topicConcepts.length)}%` }} /></div>
-            <button className="btn primary lg" onClick={() => navigate(`learn/${nextMeta.id}`)}>
-              {progress.completedConcepts.size ? t('home.continue') : t('home.start')} <Icon name="arrow" size={18} className="arrow" />
+      <div className="home-layout">
+        {/* the one thing to do next */}
+        <div className="home-top">
+          {nextMeta && currentTopic ? (
+            <section className="continue-card" style={topicVars(currentTopic.color)} aria-labelledby="cc-title">
+              <a className="cc-art cover-frame" href={href(`topic/${currentTopic.id}`)} aria-label={currentTopic.title}><Cover motif={currentTopic.icon} color={currentTopic.color} /></a>
+              <div className="cc-body">
+                <p className="eyebrow">{currentTopic.title}{unitOfNext >= 0 ? ` · ${t('home.unitN', { n: unitOfNext + 1 })}` : ''}</p>
+                <h2 id="cc-title">{nextMeta.title}</h2>
+                {nextMeta.summary && <p className="cc-sum">{nextMeta.summary}</p>}
+                <div className="cc-meta"><span>{t('home.lessonOf', { n: lessonNo, total: topicConcepts.length })}</span>{nextTag && <span>{nextTag}</span>}<span>{t('home.minutes', { n: nextMeta.estimated_minutes })}</span></div>
+                <div className="progress-bar" aria-hidden="true"><div style={{ width: `${(100 * topicDone) / Math.max(1, topicConcepts.length)}%` }} /></div>
+                <button className="btn primary lg" onClick={() => navigate(`learn/${nextMeta.id}`)}>
+                  {progress.completedConcepts.size ? t('home.continue') : t('home.start')} <Icon name="arrow" size={18} className="arrow" />
+                </button>
+              </div>
+            </section>
+          ) : (
+            <Note tone="info" icon="trophy">{t('home.allDone')}</Note>
+          )}
+          {due > 0 && (
+            <button className="review-strip" onClick={startReview}>
+              <span className="ri"><Icon name="review" size={20} /></span>
+              <span style={{ flex: 1 }}>
+                <strong>{t('home.reviewDue', { n: due })}</strong>
+                <span className="small muted">{t('home.reviewFirst')}</span>
+              </span>
+              <Icon name="chevron" size={18} />
             </button>
-          </div>
-        </section>
-      ) : (
-        <div className="card accent"><p style={{ margin: 0 }}>{t('home.allDone')}</p></div>
-      )}
+          )}
+        </div>
 
-      <DailyAndQuests />
+        {/* today: streak, puzzle, quests, friends – beside the path on wide screens */}
+        <aside className="home-rail" aria-label={t('home.today')}>
+          <StreakHero />
+          <DailyAndQuests />
+          <div className="home-grid">
+            <section className="mini-card" aria-label={t('home.goal')}>
+              <Ring value={minutes / settings.dailyGoal} size={46} stroke={5}>{minutes}</Ring>
+              <div>
+                <div className="mc-t">{minutes >= settings.dailyGoal ? t('home.goalDone') : t('home.goal')}</div>
+                <div className="mc-s">{minutes} / {settings.dailyGoal} {t('home.minShort')}</div>
+              </div>
+            </section>
+            <a className="mini-card" href={href('streak')} aria-label={t('streak.next', { n: streakGoal })}>
+              <Ring value={(streak.current - streakFrom) / Math.max(1, streakGoal - streakFrom)} size={46} stroke={5} color="var(--streak)"><Icon name="flame" size={18} /></Ring>
+              <div style={{ minWidth: 0 }}>
+                <div className="mc-t">{t('streak.next', { n: streakGoal })}</div>
+                <div className="mc-s">{t('streak.toGo', { n: streakGoal - streak.current })}</div>
+              </div>
+            </a>
+          </div>
+          <SocialStrip />
+        </aside>
 
-      <div className="home-grid">
-        <section className="mini-card" aria-label={t('home.goal')}>
-          <Ring value={minutes / settings.dailyGoal} size={46} stroke={5}>{minutes}</Ring>
-          <div>
-            <div className="mc-t">{minutes >= settings.dailyGoal ? t('home.goalDone') : t('home.goal')}</div>
-            <div className="mc-s">{minutes} / {settings.dailyGoal} {t('home.minShort')}</div>
-          </div>
-        </section>
-        <a className="mini-card" href={href('streak')} aria-label={t('streak.next', { n: streakGoal })}>
-          <Ring value={(streak.current - streakFrom) / Math.max(1, streakGoal - streakFrom)} size={46} stroke={5} color="#f97316"><Icon name="flame" size={18} /></Ring>
-          <div style={{ minWidth: 0 }}>
-            <div className="mc-t">{t('streak.next', { n: streakGoal })}</div>
-            <div className="mc-s">{t('streak.toGo', { n: streakGoal - streak.current })}</div>
-          </div>
-        </a>
+        <div className="home-rest">
+          {currentTopic && (
+            <section aria-labelledby="path-h">
+              <div className="section-head">
+                <div>
+                  <p className="eyebrow">{t('home.currentCourse')}</p>
+                  <h2 id="path-h" style={{ marginTop: 4 }}><a href={href(`topic/${currentTopic.id}`)}>{currentTopic.title}</a></h2>
+                </div>
+                <button className="btn small" onClick={() => setPicker(true)} aria-haspopup="dialog">
+                  <Icon name="layers" size={15} /> {path?.title}
+                </button>
+              </div>
+              <UnitList topic={currentTopic} units={units.filter((u) => u.topicId === currentTopic.id)} />
+            </section>
+          )}
+
+          {pathTopics.length > 1 && (
+            <section aria-labelledby="inpath-h">
+              <div className="section-head"><h2 id="inpath-h">{upcoming.length ? t('home.nextCourses') : t('home.inPath', { path: path.title })}</h2></div>
+              <div className="course-rows">{(upcoming.length ? upcoming : pathTopics.slice(0, 3)).map((tp) => <CourseRow key={tp.id} topic={tp} done={doneIn(tp)} />)}</div>
+              <a className="btn more-row" href={href(path.area ? `discover/${path.area}` : 'discover')}>{t('home.pathMore', { n: pathTopics.length })} <Icon name="chevron" size={16} /></a>
+            </section>
+          )}
+
+          {explore.length > 0 && (
+            <section aria-labelledby="explore-h">
+              <div className="section-head"><h2 id="explore-h">{t('home.explore')}</h2><a className="btn quiet small" href={href('discover')}>{t('home.allCourses')} <Icon name="chevron" size={15} /></a></div>
+              <div className="shelf-row">{explore.map((tp) => <CourseCard key={tp.id} topic={tp} done={doneIn(tp)} />)}</div>
+            </section>
+          )}
+        </div>
       </div>
-
-      <SocialStrip />
-
-      {due > 0 && (
-        <button className="review-strip" onClick={startReview}>
-          <span className="ri"><Icon name="review" size={20} /></span>
-          <span style={{ flex: 1 }}>
-            <strong>{t('home.reviewDue', { n: due })}</strong>
-            <span className="small muted">{t('home.reviewFirst')}</span>
-          </span>
-          <Icon name="chevron" size={18} />
-        </button>
-      )}
-
-      {currentTopic && (
-        <section aria-labelledby="path-h">
-          <div className="section-head">
-            <div>
-              <p className="eyebrow">{t('home.currentCourse')}</p>
-              <h2 id="path-h" style={{ marginTop: 4 }}><a href={href(`topic/${currentTopic.id}`)}>{currentTopic.title}</a></h2>
-            </div>
-            <button className="btn ghost small" onClick={() => setPicker(true)} aria-haspopup="dialog">
-              <Icon name="layers" size={15} /> {path?.title}
-            </button>
-          </div>
-          <UnitList topic={currentTopic} units={units.filter((u) => u.topicId === currentTopic.id)} />
-        </section>
-      )}
-
-      {pathTopics.length > 1 && (
-        <section aria-labelledby="inpath-h">
-          <div className="section-head"><h2 id="inpath-h">{t('home.inPath', { path: path.title })}</h2><span className="count">{pathTopics.length}</span></div>
-          <div className="course-rows">{pathTopics.map((tp) => <CourseRow key={tp.id} topic={tp} done={doneIn(tp)} />)}</div>
-        </section>
-      )}
-
-      {explore.length > 0 && (
-        <section aria-labelledby="explore-h">
-          <div className="section-head"><h2 id="explore-h">{t('home.explore')}</h2><a className="btn quiet small" href={href('discover')}>{t('home.allCourses')} <Icon name="chevron" size={15} /></a></div>
-          <div className="shelf-row">{explore.map((tp) => <CourseCard key={tp.id} topic={tp} done={doneIn(tp)} />)}</div>
-        </section>
-      )}
 
       {picker && <PathPicker onClose={() => setPicker(false)} />}
     </main>
@@ -420,39 +429,26 @@ export function CourseCard({ topic, done }: { topic: Topic; done: number }) {
 
 export function PathPicker({ onClose }: { onClose(): void }) {
   const { t, lib, settings, updateSettings, progress } = useApp();
-  useEffect(() => {
-    const k = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    addEventListener('keydown', k);
-    return () => removeEventListener('keydown', k);
-  }, [onClose]);
   if (!lib) return null;
   return (
-    <>
-      <div className="sheet-backdrop" onClick={onClose} />
-      <div className="sheet" role="dialog" aria-modal="true" aria-label={t('home.pickPath')}>
-        <div className="grab" />
-        <div className="row" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
-          <h2 style={{ margin: 0 }}>{t('home.pickPath')}</h2>
-          <button className="icon-btn" onClick={onClose} aria-label={t('player.close')}><Icon name="close" /></button>
-        </div>
-        <div className="stack" style={{ gap: 8 }}>
-          {lib.catalog.paths.map((p) => {
-            const concepts = p.topics.flatMap((tid) => lib.catalog.topics.find((tp) => tp.id === tid)?.units.flatMap((u) => u.concepts) ?? []);
-            const done = concepts.filter((c) => progress.completedConcepts.has(c)).length;
-            return (
-              <button key={p.id} className="path-option" aria-current={settings.pathId === p.id} onClick={() => { updateSettings({ pathId: p.id, startAt: null }); onClose(); }}>
-                <span className="thumb"><Cover motif={p.icon} color={p.color} /></span>
-                <span style={{ flex: 1, minWidth: 0 }}>
-                  <strong>{p.title}</strong>
-                  <span>{t('discover.pathMeta', { n: p.topics.length, done, total: concepts.length })}</span>
-                </span>
-                {settings.pathId === p.id && <Icon name="check" size={18} />}
-              </button>
-            );
-          })}
-        </div>
+    <Sheet label={t('home.pickPath')} onClose={onClose}>
+      <div className="stack" style={{ gap: 10 }}>
+        {lib.catalog.paths.map((p) => {
+          const concepts = p.topics.flatMap((tid) => lib.catalog.topics.find((tp) => tp.id === tid)?.units.flatMap((u) => u.concepts) ?? []);
+          const done = concepts.filter((c) => progress.completedConcepts.has(c)).length;
+          return (
+            <button key={p.id} className="path-option" aria-current={settings.pathId === p.id} onClick={() => { updateSettings({ pathId: p.id, startAt: null }); onClose(); }}>
+              <span className="thumb"><Cover motif={p.icon} color={p.color} /></span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <strong>{p.title}</strong>
+                <span>{t('discover.pathMeta', { n: p.topics.length, done, total: concepts.length })}</span>
+              </span>
+              {settings.pathId === p.id && <Icon name="check" size={18} />}
+            </button>
+          );
+        })}
       </div>
-    </>
+    </Sheet>
   );
 }
 
@@ -511,7 +507,7 @@ function SocialStrip() {
   const me = lg?.standings?.find((s) => s.me);
   const fs = (friends.data?.friends ?? []).filter((f) => f.friendStreak.current > 0).sort((a, b) => b.friendStreak.current - a.friendStreak.current).slice(0, 5);
   return (
-    <div className="home-grid" style={{ marginTop: 12 }}>
+    <div className="home-grid">
       {lg && !lg.optedOut && (
         <a className="mini-card" href={href('community/league')}>
           <TierBadge tier={lg.tier} size={42} />

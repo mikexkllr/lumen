@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { addDays, type LumenEvent } from '@lumen/engine';
-import { Icon, Segmented, Switch } from '../components/ui.tsx';
+import { Icon, Note, Segmented, Switch, useConfirm } from '../components/ui.tsx';
 import { href, navigate } from '../lib/router.ts';
 import { isKid, type Account } from '../lib/settings.ts';
 import { useApp } from '../lib/store.tsx';
@@ -46,34 +46,33 @@ function Heatmap() {
 export function Profile() {
   const app = useApp();
   const { t, progress, settings, updateSettings } = app;
+  const { me } = useSocial();
+  const who = isKid(settings) ? undefined : me.data?.profile;
   const acc = progress.firstTryAccuracy;
   const stats = [
-    { icon: 'flame', v: progress.streak.current, l: t('home.streak'), c: '#f97316' },
-    { icon: 'bolt', v: progress.xpTotal, l: t('profile.xpTotal'), c: 'var(--accent)' },
-    { icon: 'done', v: progress.completedConcepts.size, l: t('profile.concepts'), c: 'var(--ok)' },
-    { icon: 'target', v: acc === null ? '–' : `${Math.round(acc * 100)}%`, l: t('profile.accuracy'), c: '#0ea5e9' },
+    { icon: 'flame', v: progress.streak.current, l: t('home.streak'), tone: 'streak', to: 'streak' },
+    { icon: 'bolt', v: progress.xpTotal, l: t('profile.xpTotal'), tone: 'accent' },
+    { icon: 'done', v: progress.completedConcepts.size, l: t('profile.concepts'), tone: 'ok' },
+    { icon: 'target', v: acc === null ? '–' : `${Math.round(acc * 100)}%`, l: t('profile.accuracy'), tone: 'info' },
   ];
   return (
     <main id="main" className="fade-in">
-      <header className="page-head row" style={{ gap: 16 }}>
-        <span className="avatar" aria-hidden="true"><Icon name="profile" size={26} /></span>
-        <div>
-          <h1 className="display" style={{ fontSize: '1.875rem' }}>{t('profile.title')}</h1>
-          <p className="muted small" style={{ margin: '4px 0 0' }}>{t('profile.local')}</p>
+      <header className="profile-head">
+        {who ? <Avatar avatar={who.avatar} size={60} /> : <span className="avatar" aria-hidden="true"><Icon name="profile" size={26} /></span>}
+        <div className="ph-body">
+          <h1 className="page-title">{t('profile.title')}</h1>
+          <p className="muted small">{who ? `@${who.handle}` : t('profile.local')}</p>
         </div>
       </header>
-      <LevelAndBadges />
+      <LevelCard />
 
       <section aria-labelledby="stats-h">
         <h2 id="stats-h" className="sr-only">{t('profile.stats')}</h2>
         <div className="stat-grid">
-          {stats.map((s) => (
-            <div className="stat-tile" key={s.l}>
-              <span className="si" style={{ background: `color-mix(in srgb, ${s.c} 14%, transparent)`, color: s.c }}><Icon name={s.icon} size={17} /></span>
-              <strong>{s.v}</strong>
-              <span>{s.l}</span>
-            </div>
-          ))}
+          {stats.map((s) => {
+            const body = <><span className={`si tone-${s.tone}`}><Icon name={s.icon} size={17} /></span><strong>{s.v}</strong><span>{s.l}</span></>;
+            return s.to ? <a className="stat-tile" key={s.l} href={href(s.to)}>{body}</a> : <div className="stat-tile" key={s.l}>{body}</div>;
+          })}
         </div>
         <div className="card" style={{ marginTop: 12 }}>
           <div className="row" style={{ justifyContent: 'space-between', marginBottom: 14 }}>
@@ -81,9 +80,11 @@ export function Profile() {
             <span className="small faint">{t('profile.longest')}: {progress.streak.longest}</span>
           </div>
           <Heatmap />
-          <p className="small faint" style={{ margin: '12px 0 0' }}><Icon name="snow" size={14} /> {t('profile.freezes', { n: progress.streak.freezesLeftThisWeek })}</p>
+          <p className="small faint row" style={{ margin: '12px 0 0', gap: 8, alignItems: 'flex-start' }}><Icon name="snow" size={15} /> <span>{t('profile.freezes', { n: progress.streak.freezesLeftThisWeek })}</span></p>
         </div>
       </section>
+
+      <Badges />
 
       <section className="settings-group" aria-labelledby="set-h">
         <h2 id="set-h">{t('settings.title')}</h2>
@@ -177,11 +178,11 @@ function LuxModelSection() {
             <p className="small faint" style={{ margin: 0 }}>{t('byok.note', { provider: cfg.url ? providerLabel(cfg.url) : t('byok.provider') })}</p>
             <div className="row wrap" style={{ gap: 8 }}>
               <button className="btn primary small" disabled={busy} onClick={() => void save()}>{busy ? t('loading') : t('byok.save')}</button>
-              {b && <button className="btn ghost small" onClick={remove}>{t('byok.remove')}</button>}
+              {b && <button className="btn small" onClick={remove}>{t('byok.remove')}</button>}
             </div>
           </div>
         )}
-        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <div className="list-pad"><Note role="status">{msg}</Note></div>}
       </div>
     </section>
   );
@@ -209,6 +210,7 @@ function ReminderRow() {
 
 function CommunitySection() {
   const { t, updateSettings } = useApp();
+  const confirm = useConfirm();
   const { active, conn, me } = useSocial();
   const [blocked, setBlocked] = useState<PublicUser[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -229,7 +231,7 @@ function CommunitySection() {
         {!active ? (
           <div className="list-pad stack">
             <span className="small muted">{t('settings.communityOff')}</span>
-            <a className="btn primary" href={href('community')}>{t('social.join')}</a>
+            <a className="btn primary" href={href('community')}>{t('social.join')} <Icon name="arrow" size={17} className="arrow" /></a>
           </div>
         ) : (
           <>
@@ -241,24 +243,24 @@ function CommunitySection() {
             )}
             <a className="list-row" href={href('community/edit')}><span className="lbl">{t('settings.editProfile')}</span><Icon name="chevron" size={17} className="faint" /></a>
             {p && <Switch label={t('social.setup.leagues')} hint={t('social.setup.leaguesHint')} checked={p.leagues} onChange={setLeagues} />}
-            <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={async () => { try { setBlocked((await social.blocks(conn!)).blocked); } catch (e) { setMsg(errorText(t, e)); } }}>
+            <button className="list-row" onClick={async () => { try { setBlocked((await social.blocks(conn!)).blocked); } catch (e) { setMsg(errorText(t, e)); } }}>
               <span className="lbl">{t('settings.blocked')}</span><Icon name="ban" size={17} />
             </button>
             {blocked && blocked.map((u) => (
               <div key={u.id} className="list-row">
                 <span className="row" style={{ gap: 10 }}><Avatar avatar={u.avatar} size={30} /> {u.name} <span className="small faint">@{u.handle}</span></span>
-                <button className="btn ghost small" onClick={async () => { await social.unblock(conn!, u.id); setBlocked(blocked.filter((x) => x.id !== u.id)); }}>{t('settings.unblock')}</button>
+                <button className="btn small" onClick={async () => { await social.unblock(conn!, u.id); setBlocked(blocked.filter((x) => x.id !== u.id)); }}>{t('settings.unblock')}</button>
               </div>
             ))}
-            <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} onClick={async () => {
-              if (!conn || !confirm(t('settings.deleteSocialConfirm'))) return;
+            <button className="list-row danger" onClick={async () => {
+              if (!conn || !(await confirm({ title: t('settings.deleteSocial'), body: t('settings.deleteSocialConfirm'), confirm: t('settings.deleteSocial'), danger: true }))) return;
               try { await social.deleteProfile(conn); updateSettings({ social: null, communityName: null }); setMsg(t('settings.deleted')); } catch (e) { setMsg(errorText(t, e)); }
             }}>
               <span className="lbl">{t('settings.deleteSocial')}</span><Icon name="trash" size={17} />
             </button>
           </>
         )}
-        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <div className="list-pad"><Note role="status">{msg}</Note></div>}
       </div>
     </section>
   );
@@ -279,6 +281,7 @@ export function signedInVia(linked: Linked | null, method: Account['method'], t:
 
 function AccountSection() {
   const { t, settings, signOut, deleteAccount } = useApp();
+  const confirm = useConfirm();
   const acc = settings.account;
   const [linked, setLinked] = useState<Linked | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -303,20 +306,20 @@ function AccountSection() {
       <h2 id="acc-h">{t('account.title')}</h2>
       <div className="list">
         <div className="list-row">
-          <span className="row" style={{ gap: 10 }}><Icon name="lock" size={17} /> <span className="lbl">{via ?? t('account.signedIn')}</span></span>
+          <span className="row" style={{ gap: 10 }}><Icon name="done" size={18} /> <span className="lbl">{via ?? t('account.signedIn')}</span></span>
           {custom && <span className="small faint" style={{ wordBreak: 'break-all', textAlign: 'right' }}>{acc.serverUrl}</span>}
         </div>
         <div className="list-pad stack" style={{ gap: 8 }}>
           <span className="small faint">{linked && !PROVIDERS.some((p) => linked[p]) ? t('account.linkFirst') : t('signin.linkedTitle')}</span>
           <SignInOptions serverUrl={acc.serverUrl} token={acc.token} onLinked={setLinked} />
         </div>
-        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} disabled={busy} onClick={() => { if (confirm(t('account.signOutConfirm'))) void run(signOut); }}>
+        <button className="list-row" disabled={busy} onClick={async () => { if (await confirm({ title: t('account.signOut'), body: t('account.signOutConfirm'), confirm: t('account.signOut') })) void run(signOut); }}>
           <span className="lbl">{t('account.signOut')}</span><Icon name="logout" size={17} />
         </button>
-        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto', color: 'var(--bad)' }} disabled={busy} onClick={() => { if (confirm(t('account.deleteConfirm'))) void run(deleteAccount); }}>
+        <button className="list-row danger" disabled={busy} onClick={async () => { if (await confirm({ title: t('account.delete'), body: t('account.deleteConfirm'), confirm: t('account.delete'), danger: true })) void run(deleteAccount); }}>
           <span className="lbl">{t('account.delete')}</span><Icon name="trash" size={17} />
         </button>
-        {msg && <p className="list-pad small" role="alert" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <div className="list-pad"><Note tone="bad" role="alert">{msg}</Note></div>}
       </div>
     </section>
   );
@@ -348,46 +351,59 @@ function DataSection() {
     <section className="settings-group" aria-labelledby="data-h">
       <h2 id="data-h">{t('settings.data')}</h2>
       <div className="list">
-        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={exportData}><span className="lbl">{t('settings.export')}</span><Icon name="download" size={17} /></button>
-        <button className="list-row btn quiet" style={{ width: '100%', justifyContent: 'space-between', borderRadius: 0, height: 'auto' }} onClick={() => file.current?.click()}><span className="lbl">{t('settings.import')}</span><Icon name="upload" size={17} /></button>
+        <button className="list-row" onClick={exportData}><span className="lbl">{t('settings.export')}</span><Icon name="download" size={17} /></button>
+        <button className="list-row" onClick={() => file.current?.click()}><span className="lbl">{t('settings.import')}</span><Icon name="upload" size={17} /></button>
         <input ref={file} type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void importData(f); }} />
-        {msg && <p className="list-pad small" role="status" style={{ margin: 0 }}>{msg}</p>}
+        {msg && <div className="list-pad"><Note role="status">{msg}</Note></div>}
       </div>
     </section>
   );
 }
 
-function LevelAndBadges() {
+function LevelCard() {
+  const { t } = useApp();
+  const { level } = useGamification();
+  return (
+    <section className="level-card big" aria-label={t('level.label', { n: level.level })}>
+      <div className="lv-row">
+        <span className="lv-badge"><span>{level.level}</span></span>
+        <span style={{ flex: 1 }}>
+          <strong>{t('level.label', { n: level.level })}</strong>
+          <span className="small faint" style={{ display: 'block' }}>{t('level.toNext', { xp: level.span - level.inLevel, n: level.level + 1 })}</span>
+        </span>
+      </div>
+      <div className="lv-bar" aria-hidden="true"><div style={{ width: `${level.progress * 100}%` }} /></div>
+    </section>
+  );
+}
+
+/** Badges, earned ones first; the long tail stays folded until asked for. */
+function Badges() {
   const { t, settings } = useApp();
-  const { level, achievements } = useGamification();
+  const { achievements } = useGamification();
+  const [all, setAll] = useState(false);
   const de = settings.locale.startsWith('de');
   const unlocked = achievements.filter((a) => a.unlocked).length;
+  const sorted = [...achievements].sort((a, b) => Number(b.unlocked) - Number(a.unlocked) || b.value / b.def.target - a.value / a.def.target);
   return (
-    <>
-      <section className="level-card big" aria-label={t('level.label', { n: level.level })}>
-        <div className="lv-row">
-          <span className="lv-badge"><span>{level.level}</span></span>
-          <span style={{ flex: 1 }}>
-            <strong>{t('level.label', { n: level.level })}</strong>
-            <span className="small faint" style={{ display: 'block' }}>{t('level.toNext', { xp: level.span - level.inLevel, n: level.level + 1 })}</span>
-          </span>
-        </div>
-        <div className="lv-bar" aria-hidden="true"><div style={{ width: `${level.progress * 100}%` }} /></div>
-      </section>
-      <section className="settings-group" aria-labelledby="badges-h" style={{ marginTop: 18 }}>
-        <h2 id="badges-h">{t('badges.title')} · {unlocked}/{achievements.length}</h2>
-        <div className="badge-grid">
-          {achievements.map((a) => (
-            <div key={a.def.id} className={`badge-tile ${a.unlocked ? 'on' : ''}`} title={de ? a.def.desc.de : a.def.desc.en}>
-              <span className="medal" style={{ ['--tier' as string]: TIER_COLORS[a.def.tier] }}><Icon name={a.def.icon} size={20} strokeWidth={2.2} /></span>
-              <strong>{de ? a.def.title.de : a.def.title.en}</strong>
-              {a.unlocked ? <span className="tiny faint">{de ? a.def.desc.de : a.def.desc.en}</span> : (
-                <span className="badge-progress" aria-label={`${a.value}/${a.def.target}`}><i style={{ width: `${(100 * a.value) / a.def.target}%` }} /></span>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    </>
+    <section aria-labelledby="badges-h">
+      <div className="sub-head"><h2 id="badges-h">{t('badges.title')} · {unlocked}/{achievements.length}</h2></div>
+      <div className={`badge-grid ${all ? '' : 'collapsed'}`} id="badge-grid">
+        {sorted.map((a) => (
+          <div key={a.def.id} className={`badge-tile ${a.unlocked ? 'on' : ''}`} title={de ? a.def.desc.de : a.def.desc.en}>
+            <span className="medal" style={{ ['--tier' as string]: TIER_COLORS[a.def.tier] }}><Icon name={a.def.icon} size={20} strokeWidth={2.2} /></span>
+            <strong>{de ? a.def.title.de : a.def.title.en}</strong>
+            {a.unlocked ? <span className="tiny faint">{de ? a.def.desc.de : a.def.desc.en}</span> : (
+              <span className="badge-progress" aria-label={`${a.value}/${a.def.target}`}><i style={{ width: `${(100 * a.value) / a.def.target}%` }} /></span>
+            )}
+          </div>
+        ))}
+      </div>
+      {achievements.length > 6 && (
+        <button type="button" className="btn small more-row" aria-expanded={all} aria-controls="badge-grid" onClick={() => setAll(!all)}>
+          {all ? t('badges.less') : t('badges.all', { n: achievements.length })} <Icon name="down" size={15} />
+        </button>
+      )}
+    </section>
   );
 }

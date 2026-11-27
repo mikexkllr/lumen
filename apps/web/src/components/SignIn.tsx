@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AppleButton } from './AppleButton.tsx';
 import { GoogleButton } from './GoogleButton.tsx';
-import { Icon } from './ui.tsx';
+import { Icon, Note } from './ui.tsx';
 import { reportHandled } from '../lib/monitoring.ts';
 import { useApp } from '../lib/store.tsx';
 import { appleSignIn, emailStart, emailVerify, googleFinish, googleSignIn, linkedSignIns, PROVIDERS, signInMethods, SignInError, takeGoogleRedirect, unlinkSignIn, type Linked, type Provider } from '../lib/signIn.ts';
@@ -87,14 +87,14 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!methods) return <p className="small faint" role="status" style={{ margin: 0 }}>{t('loading')}</p>;
+  if (!methods) return <p className="loading-row" role="status" style={{ margin: 0, padding: '14px 0', justifyContent: 'flex-start' }}><span className="spinner" aria-hidden="true" /> {t('loading')}</p>;
   if (!methods.apple && !methods.google && !methods.email) {
     // Linking is optional; signing in is the way into the app, so say why it can't happen.
     if (token) return null;
     return (
-      <div className="card stack" role="alert" style={{ gap: 10 }}>
-        <p className="small" style={{ margin: 0 }}>{t('signin.unavailable')}</p>
-        <button type="button" className="btn ghost small" onClick={() => setNonce((n) => n + 1)}>{t('retry')}</button>
+      <div className="stack" role="alert" style={{ gap: 10, alignItems: 'flex-start' }}>
+        <Note tone="warn">{t('signin.unavailable')}</Note>
+        <button type="button" className="btn small" onClick={() => setNonce((n) => n + 1)}>{t('retry')}</button>
       </div>
     );
   }
@@ -138,7 +138,7 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
       {showApple && <AppleButton label={t(token ? 'signin.appleLink' : 'signin.apple')} onClick={apple} disabled={disabled} busy={busy} />}
       {showGoogle && <GoogleButton label={t(token ? 'signin.googleLink' : 'signin.google')} onClick={google} disabled={disabled} busy={busy} />}
       {(showApple || showGoogle) && <p className="small faint" style={{ margin: 0 }}>{t(showApple && showGoogle ? 'signin.appleGoogleNote' : showApple ? 'signin.appleNote' : 'signin.googleNote')}</p>}
-      {(showApple || showGoogle) && showEmail && <p className="small faint" style={{ margin: 0, textAlign: 'center' }}>{t('signin.or')}</p>}
+      {(showApple || showGoogle) && showEmail && <p className="or-line">{t('signin.or')}</p>}
       {showEmail && (!sentTo ? (
         <form className="stack" style={{ gap: 8 }} onSubmit={(e) => { e.preventDefault(); void send(); }}>
           <label className="field" style={{ margin: 0 }}>
@@ -157,15 +157,15 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
           </label>
           <div className="row" style={{ gap: 8 }}>
             <button className="btn primary grow" type="submit" disabled={busy || code.length !== 6}>{verifyBtn}</button>
-            <button className="btn ghost" type="button" disabled={busy} onClick={() => { setSentTo(null); setMsg(null); }}>{t('signin.otherEmail')}</button>
+            <button className="btn" type="button" disabled={busy} onClick={() => { setSentTo(null); setMsg(null); }}>{t('signin.otherEmail')}</button>
           </div>
         </form>
       ))}
       {msg && (
-        <p className="small" role={msg === t('signin.linkedOk') ? 'status' : 'alert'} style={{ margin: 0 }}>
+        <Note tone={msg === t('signin.linkedOk') ? 'ok' : 'bad'} role={msg === t('signin.linkedOk') ? 'status' : 'alert'}>
           {msg}
-          {detail && <span className="faint" style={{ display: 'block', marginTop: 4, fontSize: '0.75rem', fontFamily: 'var(--mono)', overflowWrap: 'anywhere' }}>{t('signin.errDetail', { detail })}</span>}
-        </p>
+          {detail && <span style={{ display: 'block', marginTop: 4, fontSize: '0.75rem', fontFamily: 'var(--mono)', overflowWrap: 'anywhere', opacity: 0.8 }}>{t('signin.errDetail', { detail })}</span>}
+        </Note>
       )}
     </div>
   );
@@ -174,8 +174,8 @@ export function SignInOptions({ serverUrl, token, disabled, onSignedIn, onLinked
 function LinkedRow({ label, onUnlink, unlinkLabel, busy }: { label: string; onUnlink?: () => void; unlinkLabel: string; busy: boolean }) {
   return (
     <div className="row" style={{ justifyContent: 'space-between', minHeight: 36 }}>
-      <span className="small row" style={{ gap: 6 }}><Icon name="check" size={16} /> {label}</span>
-      {onUnlink && <button className="btn ghost small" type="button" onClick={onUnlink} disabled={busy}>{unlinkLabel}</button>}
+      <span className="small row" style={{ gap: 8 }}><Icon name="done" size={17} className="ok-ico" /> {label}</span>
+      {onUnlink && <button className="btn small" type="button" onClick={onUnlink} disabled={busy}>{unlinkLabel}</button>}
     </div>
   );
 }

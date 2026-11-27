@@ -145,7 +145,7 @@ const lux = (cls = '') => `<svg class="${cls}" viewBox="0 0 64 64" aria-hidden="
 
 const icon = (d: string, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${d}</svg>`;
 const check = icon('<path d="M20 6 9 17l-5-5"/>');
-const arrow = icon('<path d="M5 12h14M13 6l6 6-6 6"/>');
+const arrow = icon('<path d="M5 12h14M13 6l6 6-6 6"/>', 'class="arrow"');
 const gh = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>`;
 
 function page(l: Locale): string {
@@ -189,8 +189,8 @@ function page(l: Locale): string {
     <a class="brand" href="${s.self}">${lux('brand-lux')}Lumen</a>
     <nav class="nav-links" aria-label="${l === 'de' ? 'Seiten' : 'Sections'}">${s.nav.map((n, i) => `<a href="#${ids[i]}">${esc(n)}</a>`).join('')}</nav>
     <div class="nav-end">
-      <a class="lang" href="${s.otherHref}" hreflang="${s.other}" lang="${s.other}">${s.otherLabel}</a>
-      <a class="btn btn-primary btn-sm" href="/app/">${esc(s.start)}</a>
+      <a class="btn quiet small lang" href="${s.otherHref}" hreflang="${s.other}" lang="${s.other}">${s.otherLabel}</a>
+      <a class="btn small nav-cta" href="/app/">${esc(s.start)}</a>
     </div>
   </div>
 </header>
@@ -203,8 +203,8 @@ function page(l: Locale): string {
       <h1>${s.h1}</h1>
       <p class="lead">${esc(s.lead)}</p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="/app/">${esc(s.start)} ${arrow}</a>
-        <a class="btn btn-ghost" href="${REPO}">${gh} ${esc(s.github)}</a>
+        <a class="btn primary lg" href="/app/">${esc(s.start)} ${arrow}</a>
+        <a class="btn lg" href="${REPO}">${gh} ${esc(s.github)}</a>
       </div>
       <p class="fine">${s.fine.map((f) => `<span>${check}${esc(f)}</span>`).join('')}</p>
     </div>
@@ -214,7 +214,7 @@ function page(l: Locale): string {
         <p class="q">${s.demo.q}</p>
         <div class="bar" role="group" aria-label="${esc(s.demo.hint)}">${Array.from({ length: 8 }, (_, i) => `<button class="seg" type="button" aria-pressed="false" aria-label="${i + 1} / 8"></button>`).join('')}</div>
         <p class="count" id="count" aria-live="polite">${esc(s.demo.count(0))}</p>
-        <div class="demo-actions"><button class="btn btn-primary" type="button" id="checkBtn">${esc(s.demo.check)}</button><span class="xp" id="xp">+3 XP</span></div>
+        <div class="demo-actions"><button class="btn" type="button" id="checkBtn">${esc(s.demo.check)}</button><span class="xp" id="xp">+3 XP</span></div>
         <div class="feedback" id="fb" role="status">${lux('fb-lux')}<p id="fbText"></p></div>
       </div>
     </div>
@@ -273,7 +273,7 @@ function page(l: Locale): string {
       ${lux('lux-big')}
       <h2>${esc(s.finalH)}</h2>
       <p>${esc(s.finalP)}</p>
-      <div class="cta-row"><a class="btn btn-primary" href="/app/">${esc(s.start)} ${arrow}</a><a class="btn btn-ghost" href="${REPO}">${gh} GitHub</a></div>
+      <div class="cta-row"><a class="btn primary lg" href="/app/">${esc(s.start)} ${arrow}</a><a class="btn lg" href="${REPO}">${gh} GitHub</a></div>
     </div>
   </div>
 </section>

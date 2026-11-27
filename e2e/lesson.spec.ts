@@ -93,11 +93,12 @@ test.describe('lessons', () => {
     await page.getByRole('button', { name: 'Prüfen' }).click();
     await page.getByRole('button', { name: 'Weiter', exact: true }).click();
 
-    page.once('dialog', (d) => d.dismiss());
     await page.getByRole('button', { name: 'Lektion verlassen' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Weiterlernen' }).click();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Lektion verlassen' })).toBeVisible();
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Lektion verlassen' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Verlassen', exact: true }).click();
     await expect(page.locator('.tabbar')).toBeVisible();
   });
 

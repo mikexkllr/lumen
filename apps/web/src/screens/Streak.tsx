@@ -4,7 +4,7 @@ import { addDays, isActiveDay } from '@lumen/engine';
 import { Avatar } from '../components/social.tsx';
 import { Flame } from '../components/Flame.tsx';
 import { STREAK_GOALS } from '../components/Streaks.tsx';
-import { Icon } from '../components/ui.tsx';
+import { BackButton, Icon } from '../components/ui.tsx';
 import { href } from '../lib/router.ts';
 import { isKid, prefersReducedMotion } from '../lib/settings.ts';
 import { social, useQuery, type FriendsResponse } from '../lib/social.ts';
@@ -23,6 +23,7 @@ export function Streak() {
   const withStreak = (friends.data?.friends ?? []).filter((f) => f.friendStreak.current > 0 || f.friendStreak.meToday || f.friendStreak.friendToday).sort((a, b) => b.friendStreak.current - a.friendStreak.current);
   return (
     <main id="main" className="fade-in">
+      <BackButton className="solo" />
       <section className={`streak-hero ${s.todayDone ? 'on' : ''}`} aria-labelledby="st-h">
         <Flame size={76} lit={s.todayDone} still={prefersReducedMotion(settings)} className={!s.todayDone && s.current > 0 ? 'ember' : ''} />
         <div>
@@ -33,7 +34,7 @@ export function Streak() {
 
       <section className="card" aria-labelledby="goal-h" style={{ marginTop: 14 }}>
         <div className="row" style={{ justifyContent: 'space-between' }}>
-          <h2 id="goal-h" style={{ fontSize: '1rem', margin: 0 }}>{t('streak.next', { n: next })}</h2>
+          <h2 id="goal-h" className="card-title">{t('streak.next', { n: next })}</h2>
           <span className="small faint">{t('streak.toGo', { n: next - s.current })}</span>
         </div>
         <div className="progress-bar streak-bar" style={{ marginTop: 10 }} aria-hidden="true"><div style={{ width: `${(100 * (s.current - prev)) / Math.max(1, next - prev)}%` }} /></div>
@@ -45,17 +46,17 @@ export function Streak() {
       <Calendar />
 
       <section className="card row" style={{ marginTop: 14, gap: 14, alignItems: 'flex-start' }}>
-        <span className="si-round" style={{ color: '#0ea5e9', background: 'color-mix(in srgb, #0ea5e9 14%, transparent)' }}><Icon name="snow" size={20} /></span>
+        <span className="si-round tone-info"><Icon name="snow" size={20} /></span>
         <div>
-          <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('streak.freezeTitle')}</h2>
+          <h2 className="card-title">{t('streak.freezeTitle')}</h2>
           <p className="small muted" style={{ margin: '4px 0 0' }}>{t('streak.freezeInfo', { n: s.freezesLeftThisWeek })}</p>
         </div>
       </section>
 
       <section className="card row" style={{ marginTop: 10, gap: 14, alignItems: 'flex-start' }}>
-        <span className="si-round" style={{ color: 'var(--ok)', background: 'color-mix(in srgb, var(--ok) 14%, transparent)' }}><Icon name="target" size={20} /></span>
+        <span className="si-round tone-ok"><Icon name="target" size={20} /></span>
         <div>
-          <h2 style={{ fontSize: '1rem', margin: 0 }}>{t('streak.howTitle')}</h2>
+          <h2 className="card-title">{t('streak.howTitle')}</h2>
           <p className="small muted" style={{ margin: '4px 0 0' }}>{t('streak.how')}</p>
         </div>
       </section>
@@ -76,7 +77,7 @@ export function Streak() {
               ))}
             </ul>
           ) : (
-            <a className="btn ghost" href={href(active ? 'community/friends' : 'community')}><Icon name="users" size={16} /> {t('streak.friendsCta')}</a>
+            <a className="btn" href={href(active ? 'community/friends' : 'community')}><Icon name="users" size={16} /> {t('streak.friendsCta')}</a>
           )}
         </section>
       )}
@@ -99,9 +100,9 @@ function Calendar() {
   return (
     <section className="card" aria-labelledby="cal-h" style={{ marginTop: 14 }}>
       <div className="row" style={{ justifyContent: 'space-between' }}>
-        <button className="icon-btn" onClick={() => setOffset((o) => o - 1)} aria-label="‹"><Icon name="back" size={18} /></button>
-        <h2 id="cal-h" style={{ fontSize: '1rem', margin: 0 }}>{month.toLocaleDateString(settings.locale, { month: 'long', year: 'numeric' })}</h2>
-        <button className="icon-btn" onClick={() => setOffset((o) => o + 1)} disabled={offset >= 0} aria-label="›"><Icon name="arrow" size={18} /></button>
+        <button className="icon-btn" onClick={() => setOffset((o) => o - 1)} aria-label={t('streak.prevMonth')}><Icon name="back" size={18} /></button>
+        <h2 id="cal-h" className="card-title" aria-live="polite">{month.toLocaleDateString(settings.locale, { month: 'long', year: 'numeric' })}</h2>
+        <button className="icon-btn" onClick={() => setOffset((o) => o + 1)} disabled={offset >= 0} aria-label={t('streak.nextMonth')}><Icon name="arrow" size={18} /></button>
       </div>
       <div className="cal-grid" role="grid" aria-label={`${t('streak.calendar')}: ${activeCount}`}>
         {weekday.map((w, i) => <span key={`w${i}`} className="cal-wd" aria-hidden="true">{w}</span>)}
