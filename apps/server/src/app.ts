@@ -30,6 +30,8 @@ export interface ServerOptions {
   /** Requests per minute per client IP. */
   rateLimit?: number;
   logger?: boolean;
+  /** Test hook: where log lines go instead of stdout. */
+  logStream?: { write(line: string): void };
   /** Lux tutor model; null answers with the rule tutor only. */
   tutor?: TutorConfig | null;
   /** Tutor requests per minute per client IP. */
@@ -86,7 +88,7 @@ export function validateEvent(e: unknown): string | null {
 
 export function buildServer(opts: ServerOptions): FastifyInstance {
   const app = Fastify({
-    logger: opts.logger ? { level: 'warn', redact: ['req.headers.authorization'] } : false,
+    logger: opts.logger ? { level: 'warn', redact: ['req.headers.authorization'], ...(opts.logStream ? { stream: opts.logStream } : {}) } : false,
     bodyLimit: 4 * 1024 * 1024,
     trustProxy: true,
   });
@@ -252,6 +254,9 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
         opts.reportWarning?.('Sign-in refresh token exchange failed', { provider, reason });
         return null;
       });
+    // The server logs at "warn"; a successful sign-in is logged anyway (provider and outcome
+    // only, never an id), so the logs show whether sign-in works and not just when it fails.
+    const ok = (signIn: 'linked' | 'existing' | 'created') => req.log.child({}, { level: 'info' }).info({ signIn, provider }, 'sign-in ok');
     const linked = auth!.accountFor(provider, idHash);
     const token = bearer(req);
     if (token) {
@@ -259,15 +264,18 @@ export function buildServer(opts: ServerOptions): FastifyInstance {
       if (linked && linked !== account) return reply.code(409).send({ error: 'linked_elsewhere' });
       if (!linked && auth!.linkOf(provider, account)) return reply.code(409).send({ error: 'account_has_other_identity' });
       if (!linked) auth!.link(provider, idHash, account, await refreshToken());
+      ok('linked');
       return { linked: true };
     }
     const device = newDeviceCode();
     const deviceKey = accountKey(device.replace(/-/g, ''));
     if (linked) {
       auth!.addToken(deviceKey, linked);
+      ok('existing');
       return { linked: true, created: false, token: device };
     }
     auth!.link(provider, idHash, deviceKey, await refreshToken());
+    ok('created');
     return { linked: true, created: true, token: device };
   };
 

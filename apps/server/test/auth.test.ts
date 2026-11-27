@@ -142,6 +142,25 @@ describe('Sign in with Apple', () => {
   });
 });
 
+describe('Sign-in log', () => {
+  beforeEach(() => resetAppleKeyCache());
+
+  it('logs successful and rejected sign-ins with provider and outcome, never an id or token', async () => {
+    const lines: string[] = [];
+    const fake = fakeApple();
+    const app = buildServer({ store: sqliteStore(':memory:'), auth: authStore(':memory:'), apple: { clientIds: [BUNDLE] }, google: { webClientId: WEB }, fetchImpl: fake.fetchImpl, rateLimit: 1000, logger: true, logStream: { write: (l) => void lines.push(l) } });
+    const payload = signIn('apple-user-log');
+    await app.inject({ method: 'POST', url: '/v1/auth/apple', payload });
+    await app.inject({ method: 'POST', url: '/v1/auth/apple', payload: signIn('apple-user-log', 'n-2') });
+    await app.inject({ method: 'POST', url: '/v1/auth/google', payload: google('g-log', 'g-1', { aud: 'someone-else' }) });
+    const logged = lines.map((l) => JSON.parse(l) as Record<string, unknown>);
+    expect(logged.filter((l) => l.msg === 'sign-in ok').map((l) => [l.provider, l.signIn])).toEqual([['apple', 'created'], ['apple', 'existing']]);
+    expect(logged.find((l) => l.msg === 'google sign-in rejected')?.googleAuth).toBe('wrong audience');
+    const all = lines.join('');
+    for (const secret of ['apple-user-log', 'g-log', payload.identityToken, payload.nonce]) expect(all).not.toContain(secret);
+  });
+});
+
 describe('Sign in with Google', () => {
   beforeEach(() => resetAppleKeyCache());
 

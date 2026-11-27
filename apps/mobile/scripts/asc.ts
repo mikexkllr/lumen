@@ -267,8 +267,16 @@ async function submit(bundleId: string, version: string, build: string, whatsNew
     await unsubmit(bundleId);
   }
   if (!v) {
+    // A new number while an older version still waits in App Review (a fix that can't wait for
+    // that review): take the older one out of review, then it is renamed below.
+    const older = versions.data.find((x: any) => ['WAITING_FOR_REVIEW', 'IN_REVIEW'].includes(x.attributes.appStoreState));
+    if (older && !versions.data.some((x: any) => editable.includes(x.attributes.appStoreState))) {
+      console.log(`version ${older.attributes.versionString} is ${older.attributes.appStoreState}; taking it out of review for ${version}`);
+      await unsubmit(bundleId);
+    }
+    const now = older ? await api('GET', `/v1/apps/${app.id}/appStoreVersions?filter[platform]=IOS&limit=10`) : versions;
     // Only one version can be in preparation; rename it if an older number is still open.
-    v = versions.data.find((x: any) => editable.includes(x.attributes.appStoreState));
+    v = now.data.find((x: any) => editable.includes(x.attributes.appStoreState));
     if (v) {
       await api('PATCH', `/v1/appStoreVersions/${v.id}`, { data: { type: 'appStoreVersions', id: v.id, attributes: { versionString: version } } });
     } else {
